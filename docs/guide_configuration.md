@@ -29,7 +29,7 @@ are configured on this page; there is no second page under **Color Scheme**.
 
 | Setting | Default | Effect |
 |---|---:|---|
-| Enable Bracket Pair Guides | On | Master switch; disabled passes skip recognition and clear plugin markup |
+| Enable bracket pair guides | On | Master switch; disabled passes skip recognition and clear plugin markup |
 | Color matching bracket tokens by nesting level | On | Colors bracket tokens from the six-level base palette |
 | Show active pair guide | On | Draws the one caret-activated C-shaped line |
 | Vertical segment | On | Draws the vertical part of a multiline guide |
@@ -45,7 +45,7 @@ The pair settings never shade the complete range between the two symbols.
 
 ## Set the base palette
 
-Use the compact table under **Level colors** to choose levels 1–6. Level 7
+Use the compact table under **Level Colors** to choose levels 1–6. Level 7
 repeats level 1, level 8 repeats level 2, and so on. Click an editable swatch to
 open the IDE color chooser. The tooltip shows its hexadecimal value.
 
@@ -119,7 +119,7 @@ does not cover diff, inspection, or third-party background highlighting.
 | `editor.guides.bracketPairs: "active"` | Show active pair guide |
 | `editor.guides.bracketPairsHorizontal: "active"` | Opening and closing segments |
 | `editor.guides.highlightActiveBracketPair` | Show pair border / Show pair background |
-| `editorBracketHighlight.foreground1..6` | Base column under Level colors |
+| `editorBracketHighlight.foreground1..6` | Base column under Level Colors |
 | `editorBracketPairGuide.activeBackground1..6` | Guide column with separate colors enabled |
 
 VS Code does not expose this plugin's pair border style, pair background color,

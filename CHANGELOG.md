@@ -14,6 +14,8 @@
 - Finalized the pre-release Plugin ID and Kotlin namespace as
   `com.sijunyang.bracketpairguides` and the vendor display name as
   `sijun-yang`.
+- Resolved all 15 Qodana style, visibility, simplification, and unused-code
+  findings without changing plugin behavior.
 
 ## [0.3.2] - 2026-08-01
 

@@ -11,7 +11,6 @@ import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension
 import javax.swing.AbstractCellEditor
-import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JTable
 import javax.swing.ListSelectionModel
@@ -76,10 +75,6 @@ internal class ColorPaletteTable(
     fun color(level: Int, component: PaletteComponent): Color {
         require(level in colors.indices)
         return colors[level][component.ordinal]
-    }
-
-    fun colors(component: PaletteComponent): List<Color> = colors.map {
-        it[component.ordinal]
     }
 
     fun refreshAvailability() {

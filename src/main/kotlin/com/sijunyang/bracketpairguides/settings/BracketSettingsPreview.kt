@@ -60,8 +60,6 @@ internal class BracketSettingsPreview(
     internal val exampleSelector = JComboBox(examples.toTypedArray())
     internal val resetExampleButton = JButton("Reset")
     internal val previewEditor: EditorEx
-    internal var updateCount: Int = 0
-        private set
     internal var analysisRunCount: Int = 0
         private set
     internal val recognizedPairs: List<BracketPair>
@@ -139,7 +137,6 @@ internal class BracketSettingsPreview(
 
     fun update(settings: PluginSettings.State) {
         if (disposed || previewEditor.isDisposed) return
-        updateCount++
         currentSettings = settings.copyForPreview()
         decoration.updateSettings(settings)
     }

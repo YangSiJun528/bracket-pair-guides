@@ -63,7 +63,7 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
                 cell(enabled)
             }
 
-            group("Visibility and style") {
+            group("Visibility and Style") {
                 row {
                     cell(colorBracketTokens)
                 }.enabledIf(enabled.selected)
@@ -79,9 +79,8 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
                         cell(showHorizontalGuides)
                     }.enabledIf(enabled.selected.and(showActiveGuide.selected))
                     rowsRange {
-                        row("Line width:") {
+                        row("Line width (px):") {
                             cell(guideLineWidth)
-                            label("px")
                         }
                         row("Opacity:") {
                             cell(guideOpacityPercent)
@@ -118,7 +117,7 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
                 }
             }
 
-            group("Level colors") {
+            group("Level Colors") {
                 row {
                     cell(useIndependentComponentColors)
                 }.enabledIf(enabled.selected).rowComment(
@@ -157,7 +156,7 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
             lackOfSpaceStrategy =
                 Splitter.LackOfSpaceStrategy.HONOR_THE_FIRST_MIN_SIZE
             setHonorComponentsMinimumSize(true)
-            setShowDividerControls(true)
+            isShowDividerControls = true
             minimumSize = JBUI.size(PAGE_MINIMUM_WIDTH, PAGE_MINIMUM_HEIGHT)
             preferredSize = JBUI.size(PAGE_PREFERRED_WIDTH, PAGE_PREFERRED_HEIGHT)
             maximumSize = Dimension(Int.MAX_VALUE, Int.MAX_VALUE)
@@ -261,7 +260,7 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
     }
 
     private fun createControls() {
-        enabled = JBCheckBox("Enable Bracket Pair Guides")
+        enabled = JBCheckBox("Enable bracket pair guides")
         colorBracketTokens = JBCheckBox("Color matching bracket tokens by nesting level")
         showActiveGuide = JBCheckBox("Show active pair guide")
         showVerticalGuide = JBCheckBox("Vertical segment")
@@ -338,8 +337,10 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
 
     private fun paletteDisabledReason(component: PaletteComponent): String? {
         if (!controlsCreated || !enabled.isSelected) return "Plugin is disabled"
-        if (component == PaletteComponent.BASE) return null
-        if (!useIndependentComponentColors.isSelected) {
+        if (
+            component != PaletteComponent.BASE &&
+            !useIndependentComponentColors.isSelected
+        ) {
             return "Inherited from Base"
         }
         return when (component) {
@@ -528,7 +529,6 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
         private const val PAGE_PREFERRED_WIDTH = 850
         private const val PAGE_MINIMUM_HEIGHT = 420
         private const val PAGE_PREFERRED_HEIGHT = 620
-
         private fun numberSpinner(
             value: Int,
             minimum: Int,

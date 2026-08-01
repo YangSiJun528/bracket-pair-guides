@@ -21,7 +21,7 @@ internal data class PreviewExample(
     companion object {
         private const val CARET_MARKER = "<caret>"
 
-        val catalog: List<PreviewExample> = listOf(
+        private val catalog: List<PreviewExample> = listOf(
             marked(
                 id = "java",
                 displayName = "Java",

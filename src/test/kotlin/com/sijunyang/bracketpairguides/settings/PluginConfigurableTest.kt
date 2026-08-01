@@ -102,7 +102,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             val border = component.checkBox("Show pair border")
             val background = component.checkBox("Show pair background")
             val advanced = component.checkBox("Customize component colors separately")
-            val master = component.checkBox("Enable Bracket Pair Guides")
+            val master = component.checkBox("Enable bracket pair guides")
             val width = component.spinnerWithValue(1)
             val guideOpacity = component.spinnerWithValue(100)
             val backgroundOpacity = component.spinnerWithValue(22)
@@ -223,7 +223,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             component.checkBox("Show pair background").doClick()
             assertEquals(0, preview.previewEditor.markupModel.allHighlighters.size)
 
-            component.checkBox("Enable Bracket Pair Guides").doClick()
+            component.checkBox("Enable bracket pair guides").doClick()
             assertEquals(initialState, PluginSettings.getInstance().state)
 
             configurable.apply()

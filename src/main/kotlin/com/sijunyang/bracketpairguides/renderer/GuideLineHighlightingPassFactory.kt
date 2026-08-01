@@ -18,7 +18,7 @@ class GuideLineHighlightingPassFactory :
         registrar.registerTextEditorHighlightingPass(this, null, null, false, -1)
     }
 
-    override fun createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass? {
+    override fun createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass {
         return GuideLineHighlightingPass(file.project, editor, file.fileType)
     }
 }

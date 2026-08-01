@@ -69,7 +69,7 @@ internal class ActiveBracketPairIndex private constructor(
             if (events.isEmpty()) return EMPTY
 
             events.sortWith(
-                compareBy<Event>(Event::offset)
+                compareBy(Event::offset)
                     .thenBy { if (it.isStart) 1 else 0 },
             )
             checkCanceled()

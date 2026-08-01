@@ -225,17 +225,15 @@ class GuideLineHighlightingPass internal constructor(
         enabled: Boolean,
     ) {
         highlighter.setTextAttributesKey(if (enabled) colorKey else DISABLED_ATTRIBUTES_KEY)
-        (highlighter as? RangeHighlighterEx)?.setTextAttributes(
-            if (enabled) {
-                BracketColorPalette.bracketTextAttributes(
-                    editor.colorsScheme,
-                    PluginSettings.getInstance().state,
-                    depth,
-                )
-            } else {
-                null
-            },
-        )
+        (highlighter as? RangeHighlighterEx)?.textAttributes = if (enabled) {
+            BracketColorPalette.bracketTextAttributes(
+                editor.colorsScheme,
+                PluginSettings.getInstance().state,
+                depth,
+            )
+        } else {
+            null
+        }
     }
 
     private fun currentStamp(): AnalysisStamp {
@@ -372,7 +370,7 @@ class GuideLineHighlightingPass internal constructor(
                                 DISABLED_ATTRIBUTES_KEY
                             },
                         )
-                        (entry.highlighter as? RangeHighlighterEx)?.setTextAttributes(
+                        (entry.highlighter as? RangeHighlighterEx)?.textAttributes =
                             if (settings.enabled && settings.colorBracketTokens) {
                                 BracketColorPalette.bracketTextAttributes(
                                     editor.colorsScheme,
@@ -381,8 +379,7 @@ class GuideLineHighlightingPass internal constructor(
                                 )
                             } else {
                                 null
-                            },
-                        )
+                            }
                     }
                 }
             }

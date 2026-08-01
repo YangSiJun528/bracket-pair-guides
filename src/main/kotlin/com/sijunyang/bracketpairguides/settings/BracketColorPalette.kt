@@ -152,7 +152,7 @@ internal object BracketColorPalette {
 }
 
 internal enum class PairBorderStyle(
-    val displayName: String,
+    private val displayName: String,
     val effectType: EffectType,
 ) {
     BOX("Box", EffectType.BOXED),
