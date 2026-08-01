@@ -1,34 +1,34 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.yangsijun528.coloredbracketguides</id>
-    <name>Colored Bracket Guides</name>
-    <vendor>yangsijun528</vendor>
+    <id>com.sijunyang.bracketpairguides</id>
+    <name>Bracket Pair Guides</name>
+    <vendor url="https://github.com/YangSiJun528">sijun-yang</vendor>
 
     <description><![CDATA[
-        Renders colored vertical and horizontal bracket guide lines in the editor based on nesting depth.
-        Highlights the active scope at the cursor position for improved code structure readability.
+        Colorizes matching brackets by nesting level and shows an active guide for the pair containing the caret.
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.lang</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Highlighting pass for rendering guide lines -->
         <highlightingPassFactory
-                implementation="com.github.yangsijun528.coloredbracketguides.renderer.GuideLineHighlightingPassFactory"/>
+                implementation="com.sijunyang.bracketpairguides.renderer.GuideLineHighlightingPassFactory"/>
 
-        <!-- Plugin settings persistence -->
         <applicationService
-                serviceImplementation="com.github.yangsijun528.coloredbracketguides.settings.PluginSettings"/>
+                serviceImplementation="com.sijunyang.bracketpairguides.settings.PluginSettings"/>
 
-        <!-- Settings UI under Settings > Other Settings -->
         <applicationConfigurable
-                parentId="other"
-                instance="com.github.yangsijun528.coloredbracketguides.settings.PluginConfigurable"
-                id="com.github.yangsijun528.coloredbracketguides.settings.PluginConfigurable"
-                displayName="Colored Bracket Guides"/>
+                parentId="editor"
+                instance="com.sijunyang.bracketpairguides.settings.PluginConfigurable"
+                id="com.sijunyang.bracketpairguides.settings.PluginConfigurable"
+                displayName="Bracket Pair Guides"/>
 
-        <!-- Color Scheme integration under Settings > Editor > Color Scheme -->
-        <colorSettingsPage
-                implementation="com.github.yangsijun528.coloredbracketguides.settings.ColorSchemeExtension"/>
+        <additionalTextAttributes
+                scheme="Default"
+                file="colorSchemes/BracketPairGuidesDefault.xml"/>
+        <additionalTextAttributes
+                scheme="Darcula"
+                file="colorSchemes/BracketPairGuidesDarcula.xml"/>
     </extensions>
 </idea-plugin>

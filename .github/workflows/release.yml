@@ -56,8 +56,13 @@ jobs:
 
           ./gradlew patchChangelog --release-note-file=$RELEASE_NOTE
 
+      # Always build a distributable archive for the GitHub Release.
+      - name: Build Plugin
+        run: ./gradlew buildPlugin
+
       # Publish the plugin to JetBrains Marketplace
       - name: Publish Plugin
+        if: ${{ vars.MARKETPLACE_PUBLISH_ENABLED == 'true' }}
         env:
           PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
           CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}

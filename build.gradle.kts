@@ -31,8 +31,6 @@ repositories {
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/version_catalogs.html
 dependencies {
-    implementation("com.google.code.gson:gson:2.11.0")
-
     testImplementation(libs.junit)
     testImplementation(libs.opentest4j)
 
@@ -45,6 +43,11 @@ dependencies {
 
         // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file for plugin from JetBrains Marketplace.
         plugins(providers.gradleProperty("platformPlugins").map { it.split(',') })
+
+        // The Java plugin is needed only by the lexer integration test.
+        testBundledPlugin("com.intellij.java")
+        testBundledPlugin("org.jetbrains.kotlin")
+        testBundledPlugin("org.intellij.plugins.markdown")
 
         // Module Dependencies. Uses `platformBundledModules` property from the gradle.properties file for bundled IntelliJ Platform modules.
         bundledModules(providers.gradleProperty("platformBundledModules").map { it.split(',') })

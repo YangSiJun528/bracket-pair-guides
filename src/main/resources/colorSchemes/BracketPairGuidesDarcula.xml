@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list>
+    <attributes>
+        <option name="BRACKET_PAIR_GUIDES_BRACKET_DEPTH_1">
+            <value><option name="FOREGROUND" value="FFD700"/></value>
+        </option>
+        <option name="BRACKET_PAIR_GUIDES_BRACKET_DEPTH_2">
+            <value><option name="FOREGROUND" value="DA70D6"/></value>
+        </option>
+        <option name="BRACKET_PAIR_GUIDES_BRACKET_DEPTH_3">
+            <value><option name="FOREGROUND" value="179FFF"/></value>
+        </option>
+        <option name="BRACKET_PAIR_GUIDES_BRACKET_DEPTH_4">
+            <value><option name="FOREGROUND" value="00CC7A"/></value>
+        </option>
+        <option name="BRACKET_PAIR_GUIDES_BRACKET_DEPTH_5">
+            <value><option name="FOREGROUND" value="FF6B6B"/></value>
+        </option>
+        <option name="BRACKET_PAIR_GUIDES_BRACKET_DEPTH_6">
+            <value><option name="FOREGROUND" value="CC8833"/></value>
+        </option>
+    </attributes>
+</list>

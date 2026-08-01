@@ -1,55 +1,104 @@
-# colored-bracket-guides
+# Bracket Pair Guides
 
-![Build](https://github.com/YangSiJun528/colored-bracket-guides/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-
-## Template ToDo list
-- [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [ ] Get familiar with the [template documentation][template].
-- [ ] Adjust the [pluginGroup](./gradle.properties) and [pluginName](./gradle.properties), as well as the [id](./src/main/resources/META-INF/plugin.xml) and [sources package](./src/main/kotlin).
-- [ ] Adjust the plugin description in `README` (see [Tips][docs:plugin-description])
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html?from=IJPluginTemplate).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the `MARKETPLACE_ID` in the above README badges. You can obtain it once the plugin is published to JetBrains Marketplace.
-- [ ] Set the [Plugin Signing](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html?from=IJPluginTemplate) related [secrets](https://github.com/JetBrains/intellij-platform-plugin-template#environment-variables).
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
-- [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
-- [ ] Configure the [CODECOV_TOKEN](https://docs.codecov.com/docs/quick-start) secret for automated test coverage reports on PRs
+Bracket pair colorization and caret-activated guides for JetBrains IDEs.
 
 <!-- Plugin description -->
-**Colored Bracket Guides** renders colored vertical and horizontal bracket guide lines in the editor.
+Colorizes matching brackets by nesting level and shows an active guide for the
+innermost pair containing the caret.
 
-- **Vertical guide lines** from opening to closing brackets, colored by nesting depth (6-color cycle)
-- **Horizontal guide lines** connecting brackets to their indent guide
-- **Active scope highlighting** — the bracket scope at the cursor is emphasized
-- Works with all languages that have a `BraceMatcher` registered (Java, Kotlin, JS, TS, Python, Go, Rust, C/C++, etc.)
-- Fully configurable colors, line styles, and display modes
-
+- Colors matching bracket tokens with a six-level repeating palette.
+- Shows a C-shaped vertical and horizontal guide only for the innermost pair
+  containing the primary caret.
+- Optionally adds a border and background only to the opening and closing
+  symbols of the active pair.
+- Uses the language's JetBrains `PairedBraceMatcher` or file-type
+  `BraceMatcher`, including strict XML tag-name matching.
+- Uses one six-level base palette for bracket tokens, guide lines, pair borders,
+  and pair backgrounds by default.
+- Provides optional per-level guide, border, and background overrides.
+- Provides independent switches for token colors, active symbols, vertical and
+  horizontal guides, plus guide width and opacity.
+- Shows unapplied changes in an editable editor preview beside the Settings
+  controls.
 <!-- Plugin description end -->
+
+## Preview
+
+Dark theme:
+
+![Bracket Pair Guides settings and editable preview in the IntelliJ dark theme](docs/images/settings-preview-dark.png)
+
+Light theme:
+
+![Bracket Pair Guides settings and editable preview in the IntelliJ light theme](docs/images/settings-preview-light.png)
+
+## Requirements
+
+- IntelliJ Platform 2024.1 or newer
+- A language or file-type plugin that registers `PairedBraceMatcher` or
+  `BraceMatcher`
+
+The plugin is compiled against IntelliJ IDEA Community 2024.1.7 and Java 17 to
+keep the compatibility floor at build 241.
 
 ## Installation
 
-- Using the IDE built-in plugin system:
+1. Run `./gradlew buildPlugin`.
+2. In the target IDE, open **Settings | Plugins**.
+3. Open the gear menu and select **Install Plugin from Disk**.
+4. Choose the ZIP in `build/distributions/`.
+5. Restart the IDE if requested.
 
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "colored-bracket-guides"</kbd> >
-  <kbd>Install</kbd>
+Place the caret inside a matched pair. Only the innermost containing pair gets
+the guide and symbol emphasis. Moving outside all pairs removes both.
 
-- Using JetBrains Marketplace:
+Configure behavior and colors in one place: **Settings | Editor | Bracket Pair
+Guides**. Click a palette swatch to open the IDE color chooser; the preview
+updates before you press Apply. Its example selector offers Java, Kotlin, JSON,
+XML, and Markdown when the corresponding language file types are installed.
+You can edit each example directly, switch formats without losing temporary
+edits, and restore the selected boilerplate with **Reset**.
 
-  Go to [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID) and install it by clicking the <kbd>Install to ...</kbd> button in case your IDE is running.
+See [Configuration and conflict handling](docs/guide_configuration.md) for
+installation, defaults, and coexistence recipes.
 
-  You can also download the [latest release](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID/versions) from JetBrains Marketplace and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+## Develop and verify
 
-- Manually:
+```shell
+./gradlew test
+./gradlew buildPlugin
+./gradlew verifyPlugin
+./gradlew runIde
+```
 
-  Download the [latest release](https://github.com/YangSiJun528/colored-bracket-guides/releases/latest) and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+`runIde` opens a sandboxed IntelliJ IDEA instance with the plugin installed.
+Open `demo/BracketGuideDemo.java` to inspect nested, single-line, and multiline
+pairs.
 
+The regression suite analyzes pinned real-world JetBrains source files in Java,
+Kotlin, Kotlin script, JSON, XML, and Markdown. It checks deterministic
+recognition, caret-only activation, settings isolation, base-color derivation,
+background and border attributes, the mockable recognition-to-rendering
+boundary, long files, 50,000-pair indexing, malformed nesting, cancellation,
+soft wraps, folding, bulk markup updates, and editable per-format Preview
+recognition, cache reuse, and disposal.
 
----
-Plugin based on the [IntelliJ Platform Plugin Template][template].
+## Scope and limits
 
-[template]: https://github.com/JetBrains/intellij-platform-plugin-template
-[docs:plugin-description]: https://plugins.jetbrains.com/docs/intellij/plugin-user-experience.html#plugin-description-and-presentation
+Bracket tokens remain colored throughout the document when token coloring is
+enabled. The guide and active-pair symbol style are caret-activated. This
+matches VS Code's `editor.guides.bracketPairs: "active"` guide behavior rather
+than hiding every bracket color outside the current pair. The plugin does not
+shade the complete active scope.
+
+The plugin consumes the token stream and brace matchers supplied by the IDE. It
+does not parse raw characters as a fallback. File types without a supported
+matcher are left unchanged. Rider C# requires separate validation because its
+language analysis is backed by ReSharper rather than ordinary IntelliJ PSI.
+
+See [Architecture and performance](docs/explanation_architecture.md) for the API
+choices, cost model, and known limits.
+
+## License
+
+Copyright (c) 2026 sijun-yang. Distributed under the [MIT License](LICENSE).
