@@ -75,7 +75,7 @@ internal class BracketSettingsPreview(
     private var changingDocument = false
     @Volatile
     private var disposed = false
-    private val decoration: PreviewDecorationController
+    private lateinit var decoration: PreviewDecorationController
 
     private val documentListener = object : DocumentListener {
         override fun documentChanged(event: DocumentEvent) {

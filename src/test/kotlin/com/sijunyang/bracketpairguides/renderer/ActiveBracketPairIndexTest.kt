@@ -3,8 +3,6 @@ package com.sijunyang.bracketpairguides.renderer
 import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import com.intellij.openapi.progress.ProcessCanceledException
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.system.measureTimeMillis
@@ -15,11 +13,11 @@ class ActiveBracketPairIndexTest {
         val pair = pair(open = 2, close = 4)
         val index = ActiveBracketPairIndex.build(listOf(pair))
 
-        assertNull(index.activePair(1))
-        assertNull(index.activePair(2))
-        assertSame(pair, index.activePair(3))
-        assertSame(pair, index.activePair(4))
-        assertNull(index.activePair(5))
+        assertEquals(ActiveBracketPairIndex.NO_PAIR, index.activePairIndex(1))
+        assertEquals(ActiveBracketPairIndex.NO_PAIR, index.activePairIndex(2))
+        assertEquals(0, index.activePairIndex(3))
+        assertEquals(0, index.activePairIndex(4))
+        assertEquals(ActiveBracketPairIndex.NO_PAIR, index.activePairIndex(5))
     }
 
     @Test
@@ -28,11 +26,11 @@ class ActiveBracketPairIndexTest {
         val inner = pair(open = 3, close = 7, depth = 1)
         val index = ActiveBracketPairIndex.build(listOf(outer, inner))
 
-        assertSame(outer, index.activePair(2))
-        assertSame(inner, index.activePair(4))
-        assertSame(inner, index.activePair(7))
-        assertSame(outer, index.activePair(8))
-        assertNull(index.activePair(11))
+        assertEquals(0, index.activePairIndex(2))
+        assertEquals(1, index.activePairIndex(4))
+        assertEquals(1, index.activePairIndex(7))
+        assertEquals(0, index.activePairIndex(8))
+        assertEquals(ActiveBracketPairIndex.NO_PAIR, index.activePairIndex(11))
     }
 
     @Test
@@ -41,7 +39,7 @@ class ActiveBracketPairIndexTest {
         val laterLonger = pair(open = 5, close = 100, depth = 0)
         val index = ActiveBracketPairIndex.build(listOf(earlierShorter, laterLonger))
 
-        assertSame(laterLonger, index.activePair(7))
+        assertEquals(1, index.activePairIndex(7))
     }
 
     @Test
@@ -49,9 +47,9 @@ class ActiveBracketPairIndexTest {
         val pair = pair(open = 0, close = 1)
         val index = ActiveBracketPairIndex.build(listOf(pair))
 
-        assertNull(index.activePair(0))
-        assertSame(pair, index.activePair(1))
-        assertNull(index.activePair(2))
+        assertEquals(ActiveBracketPairIndex.NO_PAIR, index.activePairIndex(0))
+        assertEquals(0, index.activePairIndex(1))
+        assertEquals(ActiveBracketPairIndex.NO_PAIR, index.activePairIndex(2))
     }
 
     @Test

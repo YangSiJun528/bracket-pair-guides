@@ -10,15 +10,9 @@ import java.util.PriorityQueue
  * only a binary search instead of rescanning every pair.
  */
 internal class ActiveBracketPairIndex private constructor(
-    private val pairs: List<BracketPair>,
     private val segmentStarts: IntArray,
     private val segmentPairIndices: IntArray,
 ) {
-    fun activePair(caretOffset: Int): BracketPair? {
-        val pairIndex = activePairIndex(caretOffset)
-        return if (pairIndex >= 0) pairs[pairIndex] else null
-    }
-
     internal fun activePairIndex(caretOffset: Int): Int {
         if (caretOffset < 0 || segmentStarts.isEmpty()) return NO_PAIR
 
@@ -108,14 +102,12 @@ internal class ActiveBracketPairIndex private constructor(
             checkCanceled()
 
             return ActiveBracketPairIndex(
-                pairs = pairs,
                 segmentStarts = starts.toIntArray(),
                 segmentPairIndices = winners.toIntArray(),
             )
         }
 
         private val EMPTY = ActiveBracketPairIndex(
-            pairs = emptyList(),
             segmentStarts = IntArray(0),
             segmentPairIndices = IntArray(0),
         )

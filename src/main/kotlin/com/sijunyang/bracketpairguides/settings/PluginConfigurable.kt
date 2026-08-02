@@ -466,9 +466,6 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
             pairBackgroundColors = componentColorsOrAutomatic(
                 PaletteComponent.BACKGROUND,
             ),
-            highlightActivePair =
-                showActivePairBorder.isSelected || showActivePairBackground.isSelected,
-            useLevelSpecificActivePairStyles = independent,
         )
     }
 
@@ -515,8 +512,6 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
         guideLineColors = other.guideLineColors.toMutableList()
         pairBorderColors = other.pairBorderColors.toMutableList()
         pairBackgroundColors = other.pairBackgroundColors.toMutableList()
-        highlightActivePair = other.highlightActivePair
-        useLevelSpecificActivePairStyles = other.useLevelSpecificActivePairStyles
     }
 
     companion object {

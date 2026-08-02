@@ -9,8 +9,8 @@ class BracketStackTest {
     fun `pairs nested brackets with stable depths`() {
         val stack = BracketStack<Char, String>()
 
-        stack.open("main", '(', ')', 0, 1, 0)
-        stack.open("main", '[', ']', 1, 1, 0)
+        stack.open("main", setOf(')'), 0, 1, 0)
+        stack.open("main", setOf(']'), 1, 1, 0)
 
         assertEquals(1, stack.close("main", ']')?.open?.depth)
         assertEquals(0, stack.close("main", ')')?.open?.depth)
@@ -20,20 +20,20 @@ class BracketStackTest {
     fun `ignores an unrelated closing token without losing openers`() {
         val stack = BracketStack<Char, String>()
 
-        stack.open("main", '(', ')', 0, 1, 0)
+        stack.open("main", setOf(')'), 0, 1, 0)
         assertNull(stack.close("main", '}'))
 
-        assertEquals('(', stack.close("main", ')')?.open?.token)
+        assertEquals(0, stack.close("main", ')')?.open?.offset)
     }
 
     @Test
     fun `recovers an outer pair past an unclosed inner bracket`() {
         val stack = BracketStack<Char, String>()
 
-        stack.open("main", '{', '}', 0, 1, 0)
-        stack.open("main", '(', ')', 1, 1, 0)
+        stack.open("main", setOf('}'), 0, 1, 0)
+        stack.open("main", setOf(')'), 1, 1, 0)
 
-        assertEquals('{', stack.close("main", '}')?.open?.token)
+        assertEquals(0, stack.close("main", '}')?.open?.offset)
         assertNull(stack.close("main", ')'))
     }
 
@@ -41,11 +41,11 @@ class BracketStackTest {
     fun `keeps embedded language stacks independent`() {
         val stack = BracketStack<Char, String>()
 
-        stack.open("host", '{', '}', 0, 1, 0)
-        stack.open("embedded", '(', ')', 1, 1, 0)
+        stack.open("host", setOf('}'), 0, 1, 0)
+        stack.open("embedded", setOf(')'), 1, 1, 0)
 
-        assertEquals('{', stack.close("host", '}')?.open?.token)
-        assertEquals('(', stack.close("embedded", ')')?.open?.token)
+        assertEquals(0, stack.close("host", '}')?.open?.offset)
+        assertEquals(1, stack.close("embedded", ')')?.open?.offset)
     }
 
     @Test
@@ -54,14 +54,13 @@ class BracketStackTest {
 
         stack.open(
             group = "main",
-            token = '<',
             expectedCloses = setOf('>', '|'),
             offset = 0,
             tokenLength = 1,
             line = 0,
         )
 
-        assertEquals('<', stack.close("main", '|')?.open?.token)
+        assertEquals(0, stack.close("main", '|')?.open?.offset)
     }
 
     @Test(timeout = 10_000)
@@ -69,7 +68,7 @@ class BracketStackTest {
         val depth = 50_000
         val stack = BracketStack<Char, String>()
         repeat(depth) { offset ->
-            stack.open("main", '(', ')', offset, 1, 0)
+            stack.open("main", setOf(')'), offset, 1, 0)
         }
 
         repeat(depth) {

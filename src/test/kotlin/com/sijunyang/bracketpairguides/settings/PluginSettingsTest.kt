@@ -53,18 +53,4 @@ class PluginSettingsTest {
         assertEquals(BracketColorPalette.AUTOMATIC_COLOR, settings.state.levelBaseColors[2])
     }
 
-    @Test
-    fun `migrates disabled and level-specific 0_2 settings`() {
-        val settings = PluginSettings()
-        val state = PluginSettings.State(
-            highlightActivePair = false,
-            useLevelSpecificActivePairStyles = true,
-        )
-
-        settings.loadState(state)
-
-        assertFalse(settings.state.showActivePairBorder)
-        assertFalse(settings.state.showActivePairBackground)
-        assertTrue(settings.state.useIndependentComponentColors)
-    }
 }

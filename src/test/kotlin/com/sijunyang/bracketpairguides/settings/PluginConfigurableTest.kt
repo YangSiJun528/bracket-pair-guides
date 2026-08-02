@@ -261,8 +261,10 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 )
                 assertRecognizedRangesAreValid(preview)
 
-                val active = ActiveBracketPairIndex.build(preview.recognizedPairs)
-                    .activePair(editor.caretModel.offset)
+                val activeIndex = ActiveBracketPairIndex.build(preview.recognizedPairs)
+                val active = preview.recognizedPairs.getOrNull(
+                    activeIndex.activePairIndex(editor.caretModel.offset),
+                )
                 assertNotNull("${example.displayName} should start inside a pair", active)
                 assertEquals(1, editor.markupModel.allHighlighters.countGuide())
                 assertEquals(2, editor.markupModel.allHighlighters.countActivePairs())
@@ -345,7 +347,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 deepest.closeOffset) / 2
             editor.caretModel.moveToOffset(deepestOffset)
             assertEquals(
-                activeIndex.activePair(deepestOffset),
+                pairs.getOrNull(activeIndex.activePairIndex(deepestOffset)),
                 editor.markupModel.allHighlighters.activeGuidePair(),
             )
             assertEquals(

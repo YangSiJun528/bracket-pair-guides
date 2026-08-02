@@ -27,9 +27,6 @@ internal class PluginSettings : PersistentStateComponent<PluginSettings.State> {
         var guideLineColors: MutableList<Int> = automaticColors(),
         var pairBorderColors: MutableList<Int> = automaticColors(),
         var pairBackgroundColors: MutableList<Int> = automaticColors(),
-        // Kept for migration from 0.2.x settings.
-        var highlightActivePair: Boolean = true,
-        var useLevelSpecificActivePairStyles: Boolean = false,
     )
 
     private var currentState = State()
@@ -58,16 +55,6 @@ internal class PluginSettings : PersistentStateComponent<PluginSettings.State> {
         state.pairBackgroundColors = BracketColorPalette.normalizeColors(
             state.pairBackgroundColors,
         )
-        if (!state.highlightActivePair) {
-            state.showActivePairBorder = false
-            state.showActivePairBackground = false
-        }
-        if (state.useLevelSpecificActivePairStyles) {
-            state.useIndependentComponentColors = true
-        }
-        state.highlightActivePair =
-            state.showActivePairBorder || state.showActivePairBackground
-        state.useLevelSpecificActivePairStyles = state.useIndependentComponentColors
         currentState = state
     }
 

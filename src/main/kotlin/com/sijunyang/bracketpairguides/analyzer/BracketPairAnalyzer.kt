@@ -85,7 +85,6 @@ class BracketPairAnalyzer(
                         if (match == null) {
                             collector.open(
                                 group = language,
-                                token = tokenType,
                                 expectedCloses = symmetricClose,
                                 offset = iterator.start,
                                 tokenLength = iterator.end - iterator.start,
@@ -101,7 +100,6 @@ class BracketPairAnalyzer(
                     } else if (expectedCloses != null) {
                         collector.open(
                             group = language,
-                            token = tokenType,
                             expectedCloses = expectedCloses,
                             offset = iterator.start,
                             tokenLength = iterator.end - iterator.start,

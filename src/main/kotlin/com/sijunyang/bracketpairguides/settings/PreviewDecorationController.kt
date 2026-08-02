@@ -63,10 +63,10 @@ internal class PreviewDecorationController(
             listOf(
                 pair.openOffset to pair.openTokenLength,
                 pair.closeOffset to pair.closeTokenLength,
-            ).forEach { (offset, length) ->
+            ).forEach range@{ (offset, length) ->
                 val endOffset = offset.toLong() + length
                 if (offset < 0 || length <= 0 || endOffset > editor.document.textLength) {
-                    return@forEach
+                    return@range
                 }
                 tokenHighlighters += editor.markupModel.addRangeHighlighter(
                     offset,

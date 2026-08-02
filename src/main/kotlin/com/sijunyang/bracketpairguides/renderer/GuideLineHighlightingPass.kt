@@ -128,7 +128,7 @@ class GuideLineHighlightingPass internal constructor(
             val highlighter = entry.highlighter
             if (highlighter.isValid) {
                 reusable.getOrPut(
-                    RangeKey(highlighter.startOffset, highlighter.endOffset, entry.kind),
+                    RangeKey(highlighter.startOffset, highlighter.endOffset),
                 ) { ArrayDeque() }.addLast(highlighter)
             } else {
                 highlighter.dispose()
@@ -145,7 +145,6 @@ class GuideLineHighlightingPass internal constructor(
             ]
             applied += applyBracketColor(
                 reusable = reusable,
-                kind = DecorationKind.OPEN_BRACKET,
                 startOffset = pair.openOffset,
                 endOffset = pair.openOffset + pair.openTokenLength,
                 colorKey = colorKey,
@@ -154,7 +153,6 @@ class GuideLineHighlightingPass internal constructor(
             )
             applied += applyBracketColor(
                 reusable = reusable,
-                kind = DecorationKind.CLOSE_BRACKET,
                 startOffset = pair.closeOffset,
                 endOffset = pair.closeOffset + pair.closeTokenLength,
                 colorKey = colorKey,
@@ -194,14 +192,13 @@ class GuideLineHighlightingPass internal constructor(
 
     private fun applyBracketColor(
         reusable: Map<RangeKey, ArrayDeque<RangeHighlighter>>,
-        kind: DecorationKind,
         startOffset: Int,
         endOffset: Int,
         colorKey: TextAttributesKey,
         depth: Int,
         enabled: Boolean,
     ): AppliedEntry {
-        val rangeKey = RangeKey(startOffset, endOffset, kind)
+        val rangeKey = RangeKey(startOffset, endOffset)
         val highlighter = reusable[rangeKey]?.removeFirstOrNull()
             ?: editor.markupModel.addRangeHighlighter(
                 colorKey,
@@ -215,7 +212,7 @@ class GuideLineHighlightingPass internal constructor(
         highlighter.customRenderer = null
         highlighter.putUserData(GUIDE_KEY, null)
         highlighter.putUserData(OWNED_HIGHLIGHTER_KEY, true)
-        return AppliedEntry(kind, highlighter, colorKey, depth)
+        return AppliedEntry(highlighter, colorKey, depth)
     }
 
     private fun applyBracketPresentation(
@@ -247,16 +244,9 @@ class GuideLineHighlightingPass internal constructor(
     private data class RangeKey(
         val startOffset: Int,
         val endOffset: Int,
-        val kind: DecorationKind,
     )
 
-    private enum class DecorationKind {
-        OPEN_BRACKET,
-        CLOSE_BRACKET,
-    }
-
     private data class AppliedEntry(
-        val kind: DecorationKind,
         val highlighter: RangeHighlighter,
         val colorKey: TextAttributesKey? = null,
         val depth: Int = 0,
@@ -359,29 +349,23 @@ class GuideLineHighlightingPass internal constructor(
             val settings = PluginSettings.getInstance().state
             state.entries.forEach { entry ->
                 if (!entry.highlighter.isValid) return@forEach
-                when (entry.kind) {
-                    DecorationKind.OPEN_BRACKET,
-                    DecorationKind.CLOSE_BRACKET,
-                    -> {
-                        entry.highlighter.setTextAttributesKey(
-                            if (settings.enabled && settings.colorBracketTokens) {
-                                checkNotNull(entry.colorKey)
-                            } else {
-                                DISABLED_ATTRIBUTES_KEY
-                            },
+                entry.highlighter.setTextAttributesKey(
+                    if (settings.enabled && settings.colorBracketTokens) {
+                        checkNotNull(entry.colorKey)
+                    } else {
+                        DISABLED_ATTRIBUTES_KEY
+                    },
+                )
+                (entry.highlighter as? RangeHighlighterEx)?.textAttributes =
+                    if (settings.enabled && settings.colorBracketTokens) {
+                        BracketColorPalette.bracketTextAttributes(
+                            editor.colorsScheme,
+                            settings,
+                            entry.depth,
                         )
-                        (entry.highlighter as? RangeHighlighterEx)?.textAttributes =
-                            if (settings.enabled && settings.colorBracketTokens) {
-                                BracketColorPalette.bracketTextAttributes(
-                                    editor.colorsScheme,
-                                    settings,
-                                    entry.depth,
-                                )
-                            } else {
-                                null
-                            }
+                    } else {
+                        null
                     }
-                }
             }
 
             state.activeGuide?.dispose()

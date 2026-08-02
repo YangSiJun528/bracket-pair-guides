@@ -160,7 +160,7 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         }
         sampledOffsets.forEach { offset ->
             editor.caretModel.moveToOffset(offset)
-            val expected = activeIndex.activePair(offset)
+            val expected = first.getOrNull(activeIndex.activePairIndex(offset))
             val currentOwned = editor.markupModel.allHighlighters.filter { highlighter ->
                 highlighter.getUserData(GuideLineHighlightingPass.OWNED_HIGHLIGHTER_KEY) == true
             }

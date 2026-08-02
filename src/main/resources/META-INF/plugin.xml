@@ -5,7 +5,8 @@
     <vendor url="https://github.com/YangSiJun528">sijun-yang</vendor>
 
     <description><![CDATA[
-        Colorizes matching brackets by nesting level and shows an active guide for the pair containing the caret.
+        <p>Colorizes matching brackets by nesting level and shows an active guide for the innermost pair containing the caret.</p>
+        <p>Customize colors, guide lines, and active-pair emphasis in Editor settings.</p>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>

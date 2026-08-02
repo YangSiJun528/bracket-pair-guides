@@ -9,7 +9,6 @@ package com.sijunyang.bracketpairguides.analyzer
  */
 internal class BracketStack<T, G> {
     data class Open<T>(
-        val token: T,
         val expectedCloses: Set<T>,
         val offset: Int,
         val tokenLength: Int,
@@ -24,25 +23,6 @@ internal class BracketStack<T, G> {
 
     fun open(
         group: G,
-        token: T,
-        expectedClose: T,
-        offset: Int,
-        tokenLength: Int,
-        line: Int,
-    ) {
-        open(
-            group = group,
-            token = token,
-            expectedCloses = setOf(expectedClose),
-            offset = offset,
-            tokenLength = tokenLength,
-            line = line,
-        )
-    }
-
-    fun open(
-        group: G,
-        token: T,
         expectedCloses: Set<T>,
         offset: Int,
         tokenLength: Int,
@@ -56,7 +36,6 @@ internal class BracketStack<T, G> {
         }
         stack.addLast(
             Open(
-                token = token,
                 expectedCloses = expectedCloses,
                 offset = offset,
                 tokenLength = tokenLength,
