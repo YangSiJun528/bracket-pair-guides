@@ -23,7 +23,6 @@ import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Component
 import java.awt.Container
-import javax.swing.JComboBox
 import javax.swing.JEditorPane
 import javax.swing.JLabel
 import javax.swing.JSpinner
@@ -41,11 +40,16 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 .mapNotNull { it.text }
                 .toSet()
 
-            assertTrue("Show pair border" in checkboxNames)
-            assertTrue("Show pair background" in checkboxNames)
-            assertTrue("Customize component colors separately" in checkboxNames)
-            assertFalse(component.checkBox("Show pair border").isSelected)
-            assertFalse(component.checkBox("Show pair background").isSelected)
+            assertTrue("Enabled" in checkboxNames)
+            assertTrue("Bracket colorization" in checkboxNames)
+            assertTrue("Horizontal" in checkboxNames)
+            assertTrue("Vertical" in checkboxNames)
+            assertTrue("Pair border" in checkboxNames)
+            assertTrue("Pair background" in checkboxNames)
+            assertTrue("Component overrides" in checkboxNames)
+            assertFalse(component.checkBox("Pair border").isSelected)
+            assertFalse(component.checkBox("Pair background").isSelected)
+            assertFalse(checkboxNames.any { it.startsWith("Show ") })
             assertEquals(0, descendants.count { it is ColorPanel })
 
             val palette = descendants.filterIsInstance<ColorPaletteTable>().single()
@@ -60,7 +64,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             )
 
             val comments = descendants.filterIsInstance<JEditorPane>()
-                .filter { it.text.contains("inherit") || it.text.contains("repeat") }
+                .filter { it.text.contains("overrides") || it.text.contains("repeat") }
             assertEquals(2, comments.size)
             comments.forEach { comment ->
                 assertTrue(
@@ -74,9 +78,23 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             val preview = descendants.filterIsInstance<BracketSettingsPreview>().single()
             assertTrue(splitter.firstComponent is JBScrollPane)
             assertSame(preview, splitter.secondComponent)
+            assertNotNull(
+                (preview.layout as BorderLayout).getLayoutComponent(BorderLayout.NORTH),
+            )
             assertNull(
                 (preview.layout as BorderLayout).getLayoutComponent(BorderLayout.SOUTH),
             )
+            val previewInsets = preview.border.getBorderInsets(preview)
+            assertTrue(previewInsets.left > 0)
+            assertEquals(0, previewInsets.top)
+            assertEquals(0, previewInsets.bottom)
+            assertEquals(0, previewInsets.right)
+            val editorScrollPane = preview.previewEditor.scrollPane
+            val editorInsets = editorScrollPane.border.getBorderInsets(editorScrollPane)
+            assertEquals(0, editorInsets.top)
+            assertEquals(0, editorInsets.left)
+            assertEquals(0, editorInsets.bottom)
+            assertEquals(0, editorInsets.right)
             assertTrue(
                 "Preview minimum width is ${preview.minimumSize.width}",
                 preview.minimumSize.width <= JBUI.scale(240),
@@ -102,19 +120,16 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             val descendants = component.descendants()
             val palette = descendants.filterIsInstance<ColorPaletteTable>().single()
             val table = palette.table
-            val guide = component.checkBox("Show active pair guide")
-            val vertical = component.checkBox("Vertical segment")
-            val horizontal = component.checkBox("Opening and closing segments")
-            val border = component.checkBox("Show pair border")
-            val background = component.checkBox("Show pair background")
-            val advanced = component.checkBox("Customize component colors separately")
-            val master = component.checkBox("Enable bracket pair guides")
+            val guide = component.checkBox("Active guide")
+            val vertical = component.checkBox("Vertical")
+            val horizontal = component.checkBox("Horizontal")
+            val border = component.checkBox("Pair border")
+            val background = component.checkBox("Pair background")
+            val advanced = component.checkBox("Component overrides")
+            val master = component.checkBox("Enabled")
             val width = component.spinnerWithValue(1)
             val guideOpacity = component.spinnerWithValue(100)
             val backgroundOpacity = component.spinnerWithValue(22)
-            val borderStyle = descendants.filterIsInstance<JComboBox<*>>().single { combo ->
-                combo.itemCount > 0 && combo.getItemAt(0) is PairBorderStyle
-            }
 
             assertTrue(table.model.isCellEditable(0, 1))
             assertFalse(table.model.isCellEditable(0, 2))
@@ -125,11 +140,9 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertTrue(table.model.isCellEditable(0, 2))
             assertFalse(table.model.isCellEditable(0, 3))
             assertFalse(table.model.isCellEditable(0, 4))
-            assertFalse(borderStyle.isEnabled)
             assertFalse(backgroundOpacity.isEnabled)
 
             border.doClick()
-            assertTrue(borderStyle.isEnabled)
             assertTrue(table.model.isCellEditable(0, 3))
             background.doClick()
             assertTrue(backgroundOpacity.isEnabled)
@@ -152,7 +165,6 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertTrue(table.model.isCellEditable(0, 3))
 
             border.doClick()
-            assertFalse(borderStyle.isEnabled)
             assertFalse(table.model.isCellEditable(0, 3))
 
             background.doClick()
@@ -162,7 +174,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             master.doClick()
             assertFalse(table.isEnabled)
             assertFalse(
-                component.checkBox("Color matching bracket tokens by nesting level").isEnabled,
+                component.checkBox("Bracket colorization").isEnabled,
             )
             assertFalse(advanced.isEnabled)
             assertFalse(table.model.isCellEditable(0, 1))
@@ -174,7 +186,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             val palette = component.descendants()
                 .filterIsInstance<ColorPaletteTable>()
                 .single()
-            val advanced = component.checkBox("Customize component colors separately")
+            val advanced = component.checkBox("Component overrides")
             val customGuide = Color(0x12, 0x6A, 0xD4)
 
             advanced.doClick()
@@ -222,18 +234,18 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertEquals(1, preview.previewEditor.markupModel.allHighlighters.countGuide())
             assertEquals(0, preview.previewEditor.markupModel.allHighlighters.countActivePairs())
 
-            component.checkBox("Color matching bracket tokens by nesting level").doClick()
+            component.checkBox("Bracket colorization").doClick()
             assertEquals(1, preview.previewEditor.markupModel.allHighlighters.size)
             assertEquals(initialState, PluginSettings.getInstance().options)
             assertTrue(configurable.isModified)
 
-            component.checkBox("Show active pair guide").doClick()
+            component.checkBox("Active guide").doClick()
             assertEquals(0, preview.previewEditor.markupModel.allHighlighters.size)
-            component.checkBox("Show pair border").doClick()
-            component.checkBox("Show pair background").doClick()
+            component.checkBox("Pair border").doClick()
+            component.checkBox("Pair background").doClick()
             assertEquals(2, preview.previewEditor.markupModel.allHighlighters.size)
 
-            component.checkBox("Enable bracket pair guides").doClick()
+            component.checkBox("Enabled").doClick()
             assertEquals(0, preview.previewEditor.markupModel.allHighlighters.size)
             assertEquals(initialState, PluginSettings.getInstance().options)
 

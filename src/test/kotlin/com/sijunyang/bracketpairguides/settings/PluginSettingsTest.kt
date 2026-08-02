@@ -20,7 +20,6 @@ class PluginSettingsTest {
         assertFalse(state.useIndependentComponentColors)
         assertTrue(state.levelBaseColors.all { it == BracketColorPalette.AUTOMATIC_COLOR })
         assertTrue(state.guideLineColors.all { it == BracketColorPalette.AUTOMATIC_COLOR })
-        assertEquals(PairBorderStyle.BOX.name, state.pairBorderStyle)
         assertEquals(1, state.guideLineWidth)
         assertEquals(100, state.guideOpacityPercent)
         assertEquals(22, state.pairBackgroundOpacityPercent)

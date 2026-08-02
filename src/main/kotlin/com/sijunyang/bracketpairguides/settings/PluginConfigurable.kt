@@ -20,7 +20,6 @@ import java.awt.Color
 import java.awt.Dimension
 import javax.swing.AbstractButton
 import javax.swing.JButton
-import javax.swing.JComboBox
 import javax.swing.JComponent
 import javax.swing.ScrollPaneConstants
 import javax.swing.JSpinner
@@ -37,7 +36,6 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
     private lateinit var guideLineWidth: JSpinner
     private lateinit var guideOpacityPercent: JSpinner
     private lateinit var showActivePairBorder: JBCheckBox
-    private lateinit var pairBorderStyle: JComboBox<PairBorderStyle>
     private lateinit var showActivePairBackground: JBCheckBox
     private lateinit var pairBackgroundOpacityPercent: JSpinner
     private lateinit var useIndependentComponentColors: JBCheckBox
@@ -64,7 +62,7 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
                 cell(enabled)
             }
 
-            group("Visibility and Style") {
+            group("Appearance") {
                 row {
                     cell(colorBracketTokens)
                 }.enabledIf(enabled.selected)
@@ -73,15 +71,14 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
                     cell(showActiveGuide)
                 }.enabledIf(enabled.selected)
                 indent {
-                    row {
+                    row("Segments:") {
+                        cell(showHorizontalGuides)
                         cell(showVerticalGuide)
                     }.enabledIf(enabled.selected.and(showActiveGuide.selected))
-                    row {
-                        cell(showHorizontalGuides)
-                    }.enabledIf(enabled.selected.and(showActiveGuide.selected))
                     rowsRange {
-                        row("Line width (px):") {
+                        row("Width:") {
                             cell(guideLineWidth)
+                            label("px")
                         }
                         row("Opacity:") {
                             cell(guideOpacityPercent)
@@ -101,33 +98,28 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
                 row {
                     cell(showActivePairBorder)
                 }.enabledIf(enabled.selected)
-                indent {
-                    row("Border style:") {
-                        cell(pairBorderStyle)
-                    }.enabledIf(enabled.selected.and(showActivePairBorder.selected))
-                }
 
                 row {
                     cell(showActivePairBackground)
                 }.enabledIf(enabled.selected)
                 indent {
-                    row("Background opacity:") {
+                    row("Opacity:") {
                         cell(pairBackgroundOpacityPercent)
                         label("%")
                     }.enabledIf(enabled.selected.and(showActivePairBackground.selected))
                 }
             }
 
-            group("Level Colors") {
+            group("Colors") {
                 row {
                     cell(useIndependentComponentColors)
                 }.enabledIf(enabled.selected).rowComment(
-                    "When this is off, component colors inherit each level's Base color.",
+                    "Guide, border, and background overrides.",
                 )
                 row {
                     cell(paletteTable)
                 }.enabledIf(enabled.selected).rowComment(
-                    "Levels 7+ repeat this six-color palette.",
+                    "Levels 7+ repeat.",
                 )
                 row {
                     cell(resetColors)
@@ -153,7 +145,7 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
             firstComponent = controlsScrollPane
             secondComponent = previewComponent
             dividerPositionStrategy =
-                Splitter.DividerPositionStrategy.KEEP_SECOND_SIZE
+                Splitter.DividerPositionStrategy.KEEP_FIRST_SIZE
             lackOfSpaceStrategy =
                 Splitter.LackOfSpaceStrategy.HONOR_THE_FIRST_MIN_SIZE
             setHonorComponentsMinimumSize(true)
@@ -209,9 +201,6 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
             guideLineWidth.value = state.guideLineWidth
             guideOpacityPercent.value = state.guideOpacityPercent
             showActivePairBorder.isSelected = state.showActivePairBorder
-            pairBorderStyle.selectedItem = PairBorderStyle.fromPersistentValue(
-                state.pairBorderStyle,
-            )
             showActivePairBackground.isSelected = state.showActivePairBackground
             pairBackgroundOpacityPercent.value = state.pairBackgroundOpacityPercent
             useIndependentComponentColors.isSelected =
@@ -262,11 +251,11 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
     }
 
     private fun createControls() {
-        enabled = JBCheckBox("Enable bracket pair guides")
-        colorBracketTokens = JBCheckBox("Color matching bracket tokens by nesting level")
-        showActiveGuide = JBCheckBox("Show active pair guide")
-        showVerticalGuide = JBCheckBox("Vertical segment")
-        showHorizontalGuides = JBCheckBox("Opening and closing segments")
+        enabled = JBCheckBox("Enabled")
+        colorBracketTokens = JBCheckBox("Bracket colorization")
+        showActiveGuide = JBCheckBox("Active guide")
+        showVerticalGuide = JBCheckBox("Vertical")
+        showHorizontalGuides = JBCheckBox("Horizontal")
         guideLineWidth = numberSpinner(
             PluginSettings.DEFAULT_GUIDE_LINE_WIDTH,
             PluginSettings.MIN_GUIDE_LINE_WIDTH,
@@ -279,9 +268,8 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
             PluginSettings.MAX_GUIDE_OPACITY_PERCENT,
             5,
         )
-        showActivePairBorder = JBCheckBox("Show pair border")
-        pairBorderStyle = JComboBox(PairBorderStyle.entries.toTypedArray())
-        showActivePairBackground = JBCheckBox("Show pair background")
+        showActivePairBorder = JBCheckBox("Pair border")
+        showActivePairBackground = JBCheckBox("Pair background")
         pairBackgroundOpacityPercent = numberSpinner(
             PluginSettings.DEFAULT_PAIR_BACKGROUND_OPACITY_PERCENT,
             PluginSettings.MIN_PAIR_BACKGROUND_OPACITY_PERCENT,
@@ -289,8 +277,8 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
             1,
         )
         useIndependentComponentColors =
-            JBCheckBox("Customize component colors separately")
-        resetColors = JButton("Reset to current theme defaults")
+            JBCheckBox("Component overrides")
+        resetColors = JButton("Reset colors")
         paletteTable = ColorPaletteTable(
             disabledReason = ::paletteDisabledReason,
             onColorChanged = ::paletteColorChanged,
@@ -331,9 +319,6 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
         guideLineWidth.addChangeListener(spinnerListener)
         guideOpacityPercent.addChangeListener(spinnerListener)
         pairBackgroundOpacityPercent.addChangeListener(spinnerListener)
-        pairBorderStyle.addActionListener {
-            if (!updatingUi) refreshPreview()
-        }
         resetColors.addActionListener { resetPaletteToThemeDefaults() }
     }
 
@@ -451,7 +436,6 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
             showActivePairBorder = showActivePairBorder.isSelected,
             showActivePairBackground = showActivePairBackground.isSelected,
             pairBackgroundOpacityPercent = spinnerValue(pairBackgroundOpacityPercent),
-            pairBorderStyle = selectedBorderStyle().name,
             useIndependentComponentColors = independent,
             levelBaseColors = List(BracketColorPalette.COLOR_COUNT) { index ->
                 if (baseColorsAreAutomatic[index]) {
@@ -485,9 +469,6 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
         preview?.update(captureDraftState())
     }
 
-    private fun selectedBorderStyle(): PairBorderStyle =
-        pairBorderStyle.selectedItem as? PairBorderStyle ?: PairBorderStyle.BOX
-
     private fun storedColor(color: Color): Int =
         BracketColorPalette.colorToStoredValue(color)
 
@@ -496,8 +477,8 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
 
     companion object {
         private const val SPLITTER_PROPORTION_KEY =
-            "BracketPairGuides.Settings.PreviewSplitter"
-        private const val DEFAULT_SPLITTER_PROPORTION = 0.52f
+            "BracketPairGuides.Settings.PreviewSplitter.v2"
+        private const val DEFAULT_SPLITTER_PROPORTION = 0.45f
         private const val CONTROLS_MINIMUM_WIDTH = 350
         private const val CONTROLS_PREFERRED_WIDTH = 410
         private const val PAGE_MINIMUM_WIDTH = 600

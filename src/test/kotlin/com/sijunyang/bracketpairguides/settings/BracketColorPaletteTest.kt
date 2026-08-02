@@ -51,13 +51,12 @@ class BracketColorPaletteTest : BasePlatformTestCase() {
         )
     }
 
-    fun testPairAttributesUseOnlyNamedBorderAndBackgroundComponents() {
+    fun testPairAttributesUseBoxBorderAndNamedBackgroundComponent() {
         myFixture.configureByText("Sample.java", "class Sample {}")
         val scheme = myFixture.editor.colorsScheme
         val state = PluginOptions(
             showActivePairBorder = true,
             showActivePairBackground = true,
-            pairBorderStyle = PairBorderStyle.ROUNDED_BOX.name,
         )
 
         val attributes = BracketColorPalette.activePairTextAttributes(scheme, state, 1)
@@ -68,7 +67,7 @@ class BracketColorPaletteTest : BasePlatformTestCase() {
             BracketColorPalette.pairBorderColor(scheme, state, 1),
             attributes.effectColor,
         )
-        assertEquals(EffectType.ROUNDED_BOX, attributes.effectType)
+        assertEquals(EffectType.BOXED, attributes.effectType)
         assertEquals(0, attributes.fontType)
     }
 
@@ -79,7 +78,6 @@ class BracketColorPaletteTest : BasePlatformTestCase() {
             showActivePairBorder = true,
             showActivePairBackground = true,
             pairBackgroundOpacityPercent = 0,
-            pairBorderStyle = PairBorderStyle.ROUNDED_BOX.name,
         )
 
         val attributes = BracketColorPalette.activePairTextAttributes(scheme, state, 1)
@@ -89,7 +87,7 @@ class BracketColorPaletteTest : BasePlatformTestCase() {
             BracketColorPalette.pairBorderColor(scheme, state, 1),
             attributes.effectColor,
         )
-        assertEquals(EffectType.ROUNDED_BOX, attributes.effectType)
+        assertEquals(EffectType.BOXED, attributes.effectType)
 
         val backgroundOnly = state.copy(showActivePairBorder = false)
         val emptyAttributes = BracketColorPalette.activePairTextAttributes(

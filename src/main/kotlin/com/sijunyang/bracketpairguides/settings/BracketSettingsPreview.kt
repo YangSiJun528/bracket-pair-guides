@@ -19,9 +19,8 @@ import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.ui.OnePixelDivider
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.JBColor
-import com.intellij.ui.TitledSeparator
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.Alarm
 import com.intellij.util.concurrency.AppExecutorUtil
@@ -145,9 +144,8 @@ internal class BracketSettingsPreview(
     }
 
     private fun configureLayout() {
-        val heading = TitledSeparator("Preview")
         val toolbar = JPanel(GridBagLayout()).apply {
-            border = JBUI.Borders.empty(8, 0)
+            border = JBUI.Borders.empty(8, 12, 8, 8)
             add(
                 JBLabel("Example:"),
                 GridBagConstraints().apply {
@@ -176,13 +174,9 @@ internal class BracketSettingsPreview(
                 },
             )
         }
-        val header = JPanel(BorderLayout()).apply {
-            add(heading, BorderLayout.NORTH)
-            add(toolbar, BorderLayout.CENTER)
-        }
 
+        previewEditor.scrollPane.border = JBUI.Borders.empty()
         previewEditor.component.apply {
-            border = JBUI.Borders.customLine(JBColor.border())
             minimumSize = JBUI.size(0, MINIMUM_EDITOR_HEIGHT)
             preferredSize = JBUI.size(PREFERRED_WIDTH, PREFERRED_EDITOR_HEIGHT)
         }
@@ -191,11 +185,17 @@ internal class BracketSettingsPreview(
         previewEditor.component.accessibleContext.accessibleName =
             "Editable bracket pair preview"
 
-        border = JBUI.Borders.emptyLeft(12)
+        border = JBUI.Borders.customLine(
+            OnePixelDivider.BACKGROUND,
+            0,
+            1,
+            0,
+            0,
+        )
         minimumSize = JBUI.size(MINIMUM_WIDTH, MINIMUM_HEIGHT)
         preferredSize = JBUI.size(PREFERRED_WIDTH, PREFERRED_HEIGHT)
         maximumSize = Dimension(Int.MAX_VALUE, Int.MAX_VALUE)
-        add(header, BorderLayout.NORTH)
+        add(toolbar, BorderLayout.NORTH)
         add(previewEditor.component, BorderLayout.CENTER)
     }
 

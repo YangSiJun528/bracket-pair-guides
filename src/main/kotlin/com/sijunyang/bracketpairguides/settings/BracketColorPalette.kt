@@ -99,9 +99,7 @@ internal object BracketColorPalette {
         }
         if (settings.showActivePairBorder) {
             attributes.effectColor = pairBorderColor(scheme, settings, depth)
-            attributes.effectType = PairBorderStyle.fromPersistentValue(
-                settings.pairBorderStyle,
-            ).effectType
+            attributes.effectType = EffectType.BOXED
         }
     }
 
@@ -148,22 +146,5 @@ internal object BracketColorPalette {
             (background.green * backgroundWeight + foreground.green * foregroundWeight) / 100,
             (background.blue * backgroundWeight + foreground.blue * foregroundWeight) / 100,
         )
-    }
-}
-
-internal enum class PairBorderStyle(
-    private val displayName: String,
-    val effectType: EffectType,
-) {
-    BOX("Box", EffectType.BOXED),
-    ROUNDED_BOX("Rounded box", EffectType.ROUNDED_BOX),
-    ;
-
-    override fun toString(): String = displayName
-
-    companion object {
-        fun fromPersistentValue(value: String): PairBorderStyle {
-            return entries.firstOrNull { it.name == value } ?: BOX
-        }
     }
 }
