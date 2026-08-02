@@ -76,9 +76,8 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
                         cell(showVerticalGuide)
                     }.enabledIf(enabled.selected.and(showActiveGuide.selected))
                     rowsRange {
-                        row("Width:") {
+                        row("Width (px):") {
                             cell(guideLineWidth)
-                            label("px")
                         }
                         row("Opacity:") {
                             cell(guideOpacityPercent)
