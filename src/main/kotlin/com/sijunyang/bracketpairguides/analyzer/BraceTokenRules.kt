@@ -15,7 +15,7 @@ internal class BraceTokenRules(pairs: Array<BracePair>) {
     private val opensByClose = HashMap<IElementType, MutableSet<IElementType>>(pairs.size)
 
     init {
-        for (pair in pairs) {
+        pairs.forEach { pair ->
             val left = pair.leftBraceType
             val right = pair.rightBraceType
             closesByOpen.getOrPut(left) { HashSet() } += right

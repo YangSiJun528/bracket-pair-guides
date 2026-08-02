@@ -180,7 +180,7 @@ internal object BracketGuideRenderer : CustomHighlighterRenderer {
         } ?: pairLastLine
         if (firstLine > lastLine) return
 
-        for (visualLine in firstLine..lastLine) {
+        (firstLine..lastLine).forEach { visualLine ->
             val startX = if (visualLine == pairFirstLine) {
                 openPoint.x
             } else {
