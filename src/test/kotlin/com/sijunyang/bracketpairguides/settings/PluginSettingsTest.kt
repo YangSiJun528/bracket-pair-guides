@@ -7,7 +7,7 @@ import org.junit.Test
 
 class PluginSettingsTest {
     @Test
-    fun `defaults to one automatic palette and complete active presentation`() {
+    fun `defaults to token colors and active guides without pair emphasis`() {
         val state = PluginSettings.State()
 
         assertTrue(state.enabled)
@@ -15,8 +15,8 @@ class PluginSettingsTest {
         assertTrue(state.showActiveGuide)
         assertTrue(state.showVerticalGuide)
         assertTrue(state.showHorizontalGuides)
-        assertTrue(state.showActivePairBorder)
-        assertTrue(state.showActivePairBackground)
+        assertFalse(state.showActivePairBorder)
+        assertFalse(state.showActivePairBackground)
         assertFalse(state.useIndependentComponentColors)
         assertTrue(state.levelBaseColors.all { it == BracketColorPalette.AUTOMATIC_COLOR })
         assertTrue(state.guideLineColors.all { it == BracketColorPalette.AUTOMATIC_COLOR })

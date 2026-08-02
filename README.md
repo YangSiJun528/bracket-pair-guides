@@ -9,6 +9,9 @@ innermost pair containing the caret.
 |---|---|
 | ![Bracket Pair Guides settings and preview in a dark theme](docs/images/settings-preview-dark.png) | ![Bracket Pair Guides settings and preview in a light theme](docs/images/settings-preview-light.png) |
 
+The screenshots demonstrate the optional active-symbol border and background.
+Both are off by default; the default active presentation draws only the guide.
+
 ## Features
 
 - Six repeating nesting-level colors for matching bracket tokens.

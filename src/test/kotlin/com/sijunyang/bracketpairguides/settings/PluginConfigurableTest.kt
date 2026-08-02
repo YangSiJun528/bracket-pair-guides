@@ -40,6 +40,8 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertTrue("Show pair border" in checkboxNames)
             assertTrue("Show pair background" in checkboxNames)
             assertTrue("Customize component colors separately" in checkboxNames)
+            assertFalse(component.checkBox("Show pair border").isSelected)
+            assertFalse(component.checkBox("Show pair background").isSelected)
             assertEquals(0, descendants.count { it is ColorPanel })
 
             val palette = descendants.filterIsInstance<ColorPaletteTable>().single()
@@ -117,7 +119,16 @@ class PluginConfigurableTest : BasePlatformTestCase() {
 
             advanced.doClick()
             assertTrue(table.model.isCellEditable(0, 2))
+            assertFalse(table.model.isCellEditable(0, 3))
+            assertFalse(table.model.isCellEditable(0, 4))
+            assertFalse(borderStyle.isEnabled)
+            assertFalse(backgroundOpacity.isEnabled)
+
+            border.doClick()
+            assertTrue(borderStyle.isEnabled)
             assertTrue(table.model.isCellEditable(0, 3))
+            background.doClick()
+            assertTrue(backgroundOpacity.isEnabled)
             assertTrue(table.model.isCellEditable(0, 4))
 
             vertical.doClick()
@@ -206,24 +217,25 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             val pairCount = preview.recognizedPairs.size
             assertTrue(pairCount > 0)
             assertEquals(
-                pairCount * 2 + 3,
+                pairCount * 2 + 1,
                 preview.previewEditor.markupModel.allHighlighters.size,
             )
             assertEquals(1, preview.previewEditor.markupModel.allHighlighters.countGuide())
-            assertEquals(2, preview.previewEditor.markupModel.allHighlighters.countActivePairs())
+            assertEquals(0, preview.previewEditor.markupModel.allHighlighters.countActivePairs())
 
             component.checkBox("Color matching bracket tokens by nesting level").doClick()
-            assertEquals(3, preview.previewEditor.markupModel.allHighlighters.size)
+            assertEquals(1, preview.previewEditor.markupModel.allHighlighters.size)
             assertEquals(initialState, PluginSettings.getInstance().state)
             assertTrue(configurable.isModified)
 
             component.checkBox("Show active pair guide").doClick()
-            assertEquals(2, preview.previewEditor.markupModel.allHighlighters.size)
+            assertEquals(0, preview.previewEditor.markupModel.allHighlighters.size)
             component.checkBox("Show pair border").doClick()
             component.checkBox("Show pair background").doClick()
-            assertEquals(0, preview.previewEditor.markupModel.allHighlighters.size)
+            assertEquals(2, preview.previewEditor.markupModel.allHighlighters.size)
 
             component.checkBox("Enable bracket pair guides").doClick()
+            assertEquals(0, preview.previewEditor.markupModel.allHighlighters.size)
             assertEquals(initialState, PluginSettings.getInstance().state)
 
             configurable.apply()
@@ -267,9 +279,9 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 )
                 assertNotNull("${example.displayName} should start inside a pair", active)
                 assertEquals(1, editor.markupModel.allHighlighters.countGuide())
-                assertEquals(2, editor.markupModel.allHighlighters.countActivePairs())
+                assertEquals(0, editor.markupModel.allHighlighters.countActivePairs())
                 assertEquals(
-                    preview.recognizedPairs.size * 2 + 3,
+                    preview.recognizedPairs.size * 2 + 1,
                     editor.markupModel.allHighlighters.size,
                 )
             }
@@ -311,7 +323,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             )
             assertRecognizedRangesAreValid(preview)
             assertEquals(
-                preview.recognizedPairs.size * 2 + 3,
+                preview.recognizedPairs.size * 2 + 1,
                 editor.markupModel.allHighlighters.size,
             )
         } finally {
@@ -525,7 +537,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                     ),
                 )
                 assertEquals(
-                    pairCount * 2 + 3,
+                    pairCount * 2 + 1,
                     editor.markupModel.allHighlighters.size,
                 )
                 assertEquals(

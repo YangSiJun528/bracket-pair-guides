@@ -181,11 +181,11 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
         val enabledChanged = persisted.enabled != draft.enabled
         persisted.copyFrom(draft)
 
-        EditorFactory.getInstance().allEditors.forEach(
-            GuideLineHighlightingPass::refreshSettings,
-        )
+        for (editor in EditorFactory.getInstance().allEditors) {
+            GuideLineHighlightingPass.refreshSettings(editor)
+        }
         if (enabledChanged) {
-            ProjectManager.getInstance().openProjects.forEach { project ->
+            for (project in ProjectManager.getInstance().openProjects) {
                 DaemonCodeAnalyzer.getInstance(project).restart()
             }
         }
@@ -214,7 +214,7 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
             useIndependentComponentColors.isSelected =
                 state.useIndependentComponentColors
 
-            repeat(BracketColorPalette.COLOR_COUNT) { index ->
+            for (index in 0 until BracketColorPalette.COLOR_COUNT) {
                 baseColorsAreAutomatic[index] =
                     BracketColorPalette.storedColor(state.levelBaseColors.getOrNull(index)) == null
                 val baseColor = BracketColorPalette.baseColor(scheme, state, index)
@@ -301,7 +301,7 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
     }
 
     private fun wireListeners() {
-        listOf<AbstractButton>(
+        for (button in listOf<AbstractButton>(
             enabled,
             colorBracketTokens,
             showActiveGuide,
@@ -309,7 +309,7 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
             showHorizontalGuides,
             showActivePairBorder,
             showActivePairBackground,
-        ).forEach { button ->
+        )) {
             button.addActionListener {
                 if (updatingUi) return@addActionListener
                 updateControlStates()
@@ -384,18 +384,17 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
         val scheme = EditorColorsManager.getInstance().globalScheme
         updatingUi = true
         try {
-            repeat(BracketColorPalette.COLOR_COUNT) { index ->
+            for (index in 0 until BracketColorPalette.COLOR_COUNT) {
                 baseColorsAreAutomatic[index] = true
                 val baseColor =
                     scheme.getAttributes(BracketColorPalette.LEVEL_KEYS[index]).foregroundColor
                         ?: scheme.defaultForeground
                 paletteTable.setColor(index, PaletteComponent.BASE, baseColor)
-                PaletteComponent.entries
-                    .filterNot { it == PaletteComponent.BASE }
-                    .forEach { component ->
-                        componentColorsAreAutomatic[component.ordinal][index] = true
-                        paletteTable.setColor(index, component, baseColor)
-                    }
+                for (component in PaletteComponent.entries) {
+                    if (component == PaletteComponent.BASE) continue
+                    componentColorsAreAutomatic[component.ordinal][index] = true
+                    paletteTable.setColor(index, component, baseColor)
+                }
             }
             useIndependentComponentColors.isSelected = false
         } finally {
@@ -420,18 +419,16 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
         val wasUpdating = updatingUi
         updatingUi = true
         try {
-            val levels = level?.let(::listOf)
+            val levels = level?.let { it..it }
                 ?: (0 until BracketColorPalette.COLOR_COUNT)
-            levels.forEach { index ->
+            for (index in levels) {
                 val base = paletteTable.color(index, PaletteComponent.BASE)
-                PaletteComponent.entries
-                    .filterNot { it == PaletteComponent.BASE }
-                    .filter { component ->
-                        componentColorsAreAutomatic[component.ordinal][index]
-                    }
-                    .forEach { component ->
+                for (component in PaletteComponent.entries) {
+                    if (component == PaletteComponent.BASE) continue
+                    if (componentColorsAreAutomatic[component.ordinal][index]) {
                         paletteTable.setColor(index, component, base)
                     }
+                }
             }
         } finally {
             updatingUi = wasUpdating

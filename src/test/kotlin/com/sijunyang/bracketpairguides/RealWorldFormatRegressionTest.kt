@@ -120,8 +120,8 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
             highlighter.getUserData(GuideLineHighlightingPass.OWNED_HIGHLIGHTER_KEY) == true
         }
         assertEquals(
-            "$fileName must retain two token ranges per pair and three active ranges",
-            first.size * 2 + 3,
+            "$fileName must retain two token ranges per pair and one active guide range",
+            first.size * 2 + 1,
             owned.size,
         )
         assertEquals(
@@ -135,12 +135,18 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
             owned.count { it.textAttributesKey in BracketColorPalette.LEVEL_KEYS },
         )
         assertEquals(
-            "$fileName must highlight both active-pair symbols at the caret",
-            2,
+            "$fileName must leave optional active-pair symbol emphasis disabled",
+            0,
             owned.count {
                 it.getUserData(GuideLineHighlightingPass.ACTIVE_PAIR_HIGHLIGHT_KEY) == true
             },
         )
+
+        PluginSettings.getInstance().state.apply {
+            showActivePairBorder = true
+            showActivePairBackground = true
+        }
+        GuideLineHighlightingPass.refreshSettings(editor)
 
         val activeIndex = ActiveBracketPairIndex.build(first)
         val sampledOffsets = buildSet {

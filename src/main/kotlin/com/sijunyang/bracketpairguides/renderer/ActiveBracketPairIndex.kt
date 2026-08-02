@@ -40,8 +40,9 @@ internal class ActiveBracketPairIndex private constructor(
 
             val candidates = arrayOfNulls<Candidate>(pairs.size)
             val events = ArrayList<Event>(pairs.size * 2)
-            pairs.forEachIndexed { index, pair ->
+            for (index in pairs.indices) {
                 if (index and CANCELLATION_MASK == 0) checkCanceled()
+                val pair = pairs[index]
 
                 val closeEnd = (pair.closeOffset.toLong() + pair.closeTokenLength)
                     .coerceAtMost(Int.MAX_VALUE.toLong())
@@ -49,7 +50,7 @@ internal class ActiveBracketPairIndex private constructor(
                 val activeStart = (pair.openOffset.toLong() + 1)
                     .coerceAtMost(Int.MAX_VALUE.toLong())
                     .toInt()
-                if (pair.openOffset < 0 || activeStart >= closeEnd) return@forEachIndexed
+                if (pair.openOffset < 0 || activeStart >= closeEnd) continue
 
                 val candidate = Candidate(
                     pairIndex = index,

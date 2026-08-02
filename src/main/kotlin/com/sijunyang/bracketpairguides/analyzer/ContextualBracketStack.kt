@@ -104,14 +104,17 @@ internal class ContextualBracketStack<T, G> {
         isPair: (T, T) -> Boolean,
         checkCanceled: () -> Unit,
     ): Boolean {
-        return state.tokenCounts.entries.withIndex().any { (index, entry) ->
-            if (index and CANCELLATION_MASK == 0) checkCanceled()
-            val (openToken, count) = entry
-            count != 0 &&
-                isPair(openToken, closeToken) &&
-                (!strictContext ||
-                    (state.contextCounts[ContextKey(openToken, closeContext)] ?: 0) > 0)
+        var visitedTypes = 0
+        for ((openToken, count) in state.tokenCounts) {
+            if (visitedTypes++ and CANCELLATION_MASK == 0) checkCanceled()
+            if (count == 0 || !isPair(openToken, closeToken)) continue
+            if (!strictContext ||
+                (state.contextCounts[ContextKey(openToken, closeContext)] ?: 0) > 0
+            ) {
+                return true
+            }
         }
+        return false
     }
 
     private fun matches(

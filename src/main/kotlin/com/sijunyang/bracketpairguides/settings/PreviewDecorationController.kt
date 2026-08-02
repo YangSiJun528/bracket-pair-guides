@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.editor.markup.RangeHighlighter
+import com.intellij.openapi.editor.markup.TextAttributes
 
 /** Applies a recognition snapshot using explicit draft settings only. */
 internal class PreviewDecorationController(
@@ -54,33 +55,34 @@ internal class PreviewDecorationController(
         val draft = settings ?: return
         if (!draft.enabled || !draft.colorBracketTokens) return
 
-        recognition.pairs.take(MAX_TOKEN_PAIR_HIGHLIGHTS).forEach { pair ->
+        val pairLimit = minOf(recognition.pairs.size, MAX_TOKEN_PAIR_HIGHLIGHTS)
+        for (index in 0 until pairLimit) {
+            val pair = recognition.pairs[index]
             val attributes = BracketColorPalette.bracketTextAttributes(
                 editor.colorsScheme,
                 draft,
                 pair.depth,
             )
-            listOf(
-                pair.openOffset to pair.openTokenLength,
-                pair.closeOffset to pair.closeTokenLength,
-            ).forEach range@{ (offset, length) ->
-                val endOffset = offset.toLong() + length
-                if (offset < 0 || length <= 0 || endOffset > editor.document.textLength) {
-                    return@range
-                }
-                tokenHighlighters += editor.markupModel.addRangeHighlighter(
-                    offset,
-                    endOffset.toInt(),
-                    HighlighterLayer.ADDITIONAL_SYNTAX,
-                    attributes,
-                    HighlighterTargetArea.EXACT_RANGE,
-                ).also { highlighter ->
-                    highlighter.putUserData(
-                        GuideLineHighlightingPass.OWNED_HIGHLIGHTER_KEY,
-                        true,
-                    )
-                }
-            }
+            addTokenHighlight(pair.openOffset, pair.openTokenLength, attributes)
+            addTokenHighlight(pair.closeOffset, pair.closeTokenLength, attributes)
+        }
+    }
+
+    private fun addTokenHighlight(offset: Int, length: Int, attributes: TextAttributes) {
+        val endOffset = offset.toLong() + length
+        if (offset < 0 || length <= 0 || endOffset > editor.document.textLength) return
+
+        tokenHighlighters += editor.markupModel.addRangeHighlighter(
+            offset,
+            endOffset.toInt(),
+            HighlighterLayer.ADDITIONAL_SYNTAX,
+            attributes,
+            HighlighterTargetArea.EXACT_RANGE,
+        ).also { highlighter ->
+            highlighter.putUserData(
+                GuideLineHighlightingPass.OWNED_HIGHLIGHTER_KEY,
+                true,
+            )
         }
     }
 
@@ -105,7 +107,7 @@ internal class PreviewDecorationController(
     }
 
     private fun clearTokenHighlights() {
-        tokenHighlighters.forEach { highlighter ->
+        for (highlighter in tokenHighlighters) {
             if (highlighter.isValid) highlighter.dispose()
         }
         tokenHighlighters.clear()
@@ -114,7 +116,7 @@ internal class PreviewDecorationController(
     private fun clearActivePresentation() {
         activeGuide?.takeIf(RangeHighlighter::isValid)?.dispose()
         activeGuide = null
-        activePairHighlighters.forEach { highlighter ->
+        for (highlighter in activePairHighlighters) {
             if (highlighter.isValid) highlighter.dispose()
         }
         activePairHighlighters.clear()

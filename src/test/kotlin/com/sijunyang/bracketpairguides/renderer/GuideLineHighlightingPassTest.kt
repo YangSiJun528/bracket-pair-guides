@@ -40,9 +40,9 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
 
         applyPass()
         val first = ownedHighlighters()
-        assertEquals(expectedPairCount * 2 + 3, first.size)
+        assertEquals(expectedPairCount * 2 + 1, first.size)
         assertEquals(1, first.count { it.customRenderer === BracketGuideRenderer })
-        assertEquals(2, activePairHighlighters().size)
+        assertTrue(activePairHighlighters().isEmpty())
         assertEquals(
             expectedPairCount * 2,
             first.count { it.textAttributesKey in BracketColorPalette.LEVEL_KEYS },
@@ -58,7 +58,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         PsiDocumentManager.getInstance(project).commitDocument(editor.document)
         editor.caretModel.moveToOffset(editor.document.text.indexOf('{') + 1)
         applyPass()
-        assertEquals(5, ownedHighlighters().size)
+        assertEquals(3, ownedHighlighters().size)
         assertEquals(
             1,
             ownedHighlighters().count { it.customRenderer === BracketGuideRenderer },
@@ -89,7 +89,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
 
         applyPass(BracketPairProvider { listOf(pair) })
 
-        assertEquals(5, ownedHighlighters().size)
+        assertEquals(3, ownedHighlighters().size)
         assertEquals(
             1,
             ownedHighlighters().count { it.customRenderer === BracketGuideRenderer },
@@ -128,6 +128,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         applyPass(provider)
         val innerGuide = checkNotNull(activeGuide())
         val innerPairHighlights = activePairHighlighters().toSet()
+        assertTrue(innerPairHighlights.isEmpty())
         val originalBrackets = bracketColorHighlighters().toSet()
         assertEquals(1, collections)
         assertEquals(inner, activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY)?.pair)
@@ -195,6 +196,9 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             listOf(pair)
         }
         myFixture.editor.caretModel.moveToOffset(source.indexOf("content"))
+        val settings = PluginSettings.getInstance().state
+        settings.showActivePairBorder = true
+        settings.showActivePairBackground = true
         applyPass(provider)
 
         val activePair = activePairHighlighters()
@@ -230,7 +234,6 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
         assertEquals(EffectType.BOXED, activeAttributes.effectType)
 
-        val settings = PluginSettings.getInstance().state
         settings.levelBaseColors[2] = 0x123456
         GuideLineHighlightingPass.refreshSettings(myFixture.editor)
         assertTrue(
@@ -372,7 +375,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         PluginSettings.getInstance().state.enabled = true
         applyPass(provider)
         assertEquals(1, collections)
-        assertEquals(5, ownedHighlighters().size)
+        assertEquals(3, ownedHighlighters().size)
     }
 
     fun testBulkUpdatesBothLargeCreationAndLargeStaleRemoval() {
@@ -408,7 +411,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         }
 
         applyPass(BracketPairProvider { pairs })
-        assertEquals(pairCount * 2 + 3, ownedHighlighters().size)
+        assertEquals(pairCount * 2 + 1, ownedHighlighters().size)
         assertEquals(1, ownedHighlighters().count { it.customRenderer === BracketGuideRenderer })
         assertEquals(1, bulkStarts)
         assertEquals(1, bulkFinishes)

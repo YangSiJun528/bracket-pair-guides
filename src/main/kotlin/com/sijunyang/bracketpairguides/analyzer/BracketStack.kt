@@ -31,7 +31,7 @@ internal class BracketStack<T, G> {
         require(expectedCloses.isNotEmpty())
         val stack = stacks.getOrPut(group) { ArrayDeque() }
         val counts = expectedCloseCounts.getOrPut(group) { HashMap() }
-        expectedCloses.forEach { expectedClose ->
+        for (expectedClose in expectedCloses) {
             counts[expectedClose] = (counts[expectedClose] ?: 0) + 1
         }
         stack.addLast(
@@ -79,8 +79,8 @@ internal class BracketStack<T, G> {
     }
 
     private fun decrement(counts: HashMap<T, Int>, tokens: Set<T>) {
-        tokens.forEach { token ->
-            val remaining = (counts[token] ?: return@forEach) - 1
+        for (token in tokens) {
+            val remaining = (counts[token] ?: continue) - 1
             if (remaining == 0) {
                 counts.remove(token)
             } else {

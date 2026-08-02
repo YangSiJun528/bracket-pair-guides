@@ -122,9 +122,11 @@ class GuideLineHighlightingPass internal constructor(
         val settings = PluginSettings.getInstance().state
         val previous = editor.getUserData(APPLIED_STATE_KEY)
         previous?.activeGuide?.dispose()
-        previous?.activePairHighlights.orEmpty().forEach(RangeHighlighter::dispose)
+        for (highlighter in previous?.activePairHighlights.orEmpty()) {
+            highlighter.dispose()
+        }
         val reusable = HashMap<RangeKey, ArrayDeque<RangeHighlighter>>()
-        previous?.entries.orEmpty().forEach { entry ->
+        for (entry in previous?.entries.orEmpty()) {
             val highlighter = entry.highlighter
             if (highlighter.isValid) {
                 reusable.getOrPut(
@@ -137,7 +139,7 @@ class GuideLineHighlightingPass internal constructor(
 
         val applied = ArrayList<AppliedEntry>(pairs.size * 2)
         val guides = ArrayList<BracketGuide?>(pairs.size)
-        pairs.forEach { pair ->
+        for (pair in pairs) {
             guides += createGuideDescriptor(editor, pair, positionIndex)
 
             val colorKey = BracketColorPalette.LEVEL_KEYS[
@@ -161,8 +163,10 @@ class GuideLineHighlightingPass internal constructor(
             )
         }
 
-        reusable.values.forEach { queue ->
-            queue.forEach(RangeHighlighter::dispose)
+        for (queue in reusable.values) {
+            for (highlighter in queue) {
+                highlighter.dispose()
+            }
         }
         val activePairIndex = activeIndex.activePairIndex(
             editor.caretModel.primaryCaret.offset,
@@ -315,7 +319,9 @@ class GuideLineHighlightingPass internal constructor(
             if (state.activePairIndex == nextPairIndex) return
 
             state.activeGuide?.dispose()
-            state.activePairHighlights.forEach(RangeHighlighter::dispose)
+            for (highlighter in state.activePairHighlights) {
+                highlighter.dispose()
+            }
             val settings = PluginSettings.getInstance().state
             val nextGuide = state.guides.getOrNull(nextPairIndex)
             val effectivePairIndex = if (nextGuide == null) {
@@ -353,8 +359,8 @@ class GuideLineHighlightingPass internal constructor(
 
             val state = editor.getUserData(APPLIED_STATE_KEY) ?: return
             val settings = PluginSettings.getInstance().state
-            state.entries.forEach { entry ->
-                if (!entry.highlighter.isValid) return@forEach
+            for (entry in state.entries) {
+                if (!entry.highlighter.isValid) continue
                 entry.highlighter.setTextAttributesKey(
                     if (settings.enabled && settings.colorBracketTokens) {
                         checkNotNull(entry.colorKey)
@@ -375,7 +381,9 @@ class GuideLineHighlightingPass internal constructor(
             }
 
             state.activeGuide?.dispose()
-            state.activePairHighlights.forEach(RangeHighlighter::dispose)
+            for (highlighter in state.activePairHighlights) {
+                highlighter.dispose()
+            }
             val activePairIndex = if (state.stamp == currentStamp(editor)) {
                 state.activeIndex.activePairIndex(editor.caretModel.primaryCaret.offset)
             } else {
@@ -405,8 +413,10 @@ class GuideLineHighlightingPass internal constructor(
             val state = editor.getUserData(APPLIED_STATE_KEY) ?: return
             editor.putUserData(APPLIED_STATE_KEY, null)
             state.activeGuide?.dispose()
-            state.activePairHighlights.forEach(RangeHighlighter::dispose)
-            state.entries.forEach { entry ->
+            for (highlighter in state.activePairHighlights) {
+                highlighter.dispose()
+            }
+            for (entry in state.entries) {
                 if (entry.highlighter.isValid) entry.highlighter.dispose()
             }
         }

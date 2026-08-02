@@ -19,6 +19,8 @@
 
 ### Changed
 
+- New installations show bracket-token colors and the active guide while
+  leaving optional active-symbol borders and backgrounds disabled.
 - Bracket recognition uses the brace matchers registered by the IDE and
   language plugins instead of scanning raw characters.
 - Recognition and decoration are separated behind mockable interfaces.

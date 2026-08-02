@@ -14,14 +14,17 @@ Pair Guides**. There is no separate Color Scheme page.
 | Opening and closing segments | On | Shows horizontal arms and single-line guides |
 | Line width | 1 px | Sets the guide width from 1 to 4 pixels |
 | Opacity | 100% | Sets guide opacity from 10% to 100% |
-| Show pair border | On | Adds a border to the two active symbols |
-| Border style | Box | Selects Box or Rounded box |
-| Show pair background | On | Adds a background to the two active symbols |
-| Background opacity | 22% | Blends the pair color with the editor background |
+| Show pair border | Off | Adds a border to the two active symbols |
+| Border style | Box when enabled | Selects Box or Rounded box |
+| Show pair background | Off | Adds a background to the two active symbols |
+| Background opacity | 22% when enabled | Blends the pair color with the editor background |
 
 The plugin does not shade the complete range between the active symbols.
 Moving the caret outside every pair removes the active guide and symbol
 emphasis; nesting-level token colors remain visible when enabled.
+The default active presentation uses only the vertical and horizontal guide
+segments. Enable either pair option when the two active symbols need additional
+emphasis.
 
 ## Set level colors
 
@@ -42,6 +45,9 @@ retains the advanced values for later use; resetting the palette clears them.
 
 The editable **Preview** is beside the controls and reflects draft settings
 before Apply.
+
+The README screenshots enable the optional pair border and background to show
+their appearance; a new installation leaves both options off.
 
 1. Select an available Java, Kotlin, JSON, XML, or Markdown example.
 2. Edit the example or move the caret into another pair.

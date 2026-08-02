@@ -48,15 +48,15 @@ internal class CaretGuideController :
     }
 
     override fun globalSchemeChange(scheme: EditorColorsScheme?) {
-        EditorFactory.getInstance().allEditors.forEach(
-            GuideLineHighlightingPass::refreshSettings,
-        )
+        for (editor in EditorFactory.getInstance().allEditors) {
+            GuideLineHighlightingPass.refreshSettings(editor)
+        }
     }
 
     override fun dispose() {
-        EditorFactory.getInstance().allEditors.forEach(
-            GuideLineHighlightingPass::clearEditorState,
-        )
+        for (editor in EditorFactory.getInstance().allEditors) {
+            GuideLineHighlightingPass.clearEditorState(editor)
+        }
     }
 
     companion object {

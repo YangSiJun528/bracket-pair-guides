@@ -91,7 +91,8 @@ internal class ColorPaletteTable(
 
     private fun configureColumnWidths() {
         val widths = intArrayOf(LEVEL_COLUMN_WIDTH, 58, 62, 62, 86)
-        widths.forEachIndexed { index, width ->
+        for (index in widths.indices) {
+            val width = widths[index]
             table.columnModel.getColumn(index).apply {
                 preferredWidth = JBUI.scale(width)
                 minWidth = JBUI.scale(if (index == 0) width else 46)
