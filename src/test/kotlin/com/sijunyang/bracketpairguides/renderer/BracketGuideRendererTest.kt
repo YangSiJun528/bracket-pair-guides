@@ -2,6 +2,9 @@ package com.sijunyang.bracketpairguides.renderer
 
 import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.editor.EditorCustomElementRenderer
+import com.intellij.openapi.editor.Inlay
+import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.editor.VisualPosition
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
@@ -13,6 +16,80 @@ import java.awt.image.BufferedImage
 import kotlin.system.measureTimeMillis
 
 class BracketGuideRendererTest : BasePlatformTestCase() {
+    fun testInlineHintBeforeOpeningBracketDoesNotShiftGuide() {
+        val source = """
+            fun update() {
+                state.copy(
+                    activePair = value,
+                    )
+            }
+        """.trimIndent()
+        myFixture.configureByText("Sample.kt", source)
+        val editor = myFixture.editor
+        val openOffset = source.indexOf("copy(") + "copy".length
+        val closeOffset = source.indexOf(')', openOffset)
+        val openLine = editor.document.getLineNumber(openOffset)
+        val closeLine = editor.document.getLineNumber(closeOffset)
+        val guideColumn = 8
+        val firstVisualLine = editor.logicalToVisualPosition(
+            LogicalPosition(openLine, 0),
+        ).line
+        val anchorLine = openLine + 1
+        val anchorVisualLine = editor.logicalToVisualPosition(
+            LogicalPosition(anchorLine, 0),
+        ).line
+        val expectedX = editor.visualPositionToXY(
+            VisualPosition(anchorVisualLine, guideColumn),
+        ).x
+        val hintOffset = source.indexOf("state.copy")
+        val inlay = requireNotNull(
+            editor.inlayModel.addInlineElement(
+                hintOffset,
+                true,
+                FixedWidthInlayRenderer(width = 72),
+            ),
+        )
+
+        try {
+            val shiftedX = editor.visualPositionToXY(
+                VisualPosition(firstVisualLine, guideColumn),
+            ).x
+            assertTrue(
+                "Test inlay must shift the raw visual position: " +
+                    "expected=$expectedX, shifted=$shiftedX, bounds=${inlay.bounds}, " +
+                    "visualPosition=${inlay.visualPosition}",
+                shiftedX > expectedX,
+            )
+
+            val image = paint(
+                pair = BracketPair(
+                    openOffset = openOffset,
+                    openTokenLength = 1,
+                    closeOffset = closeOffset,
+                    closeTokenLength = 1,
+                    depth = 0,
+                    openLine = openLine,
+                    closeLine = closeLine,
+                ),
+                guideColumn = guideColumn,
+                anchorLine = anchorLine,
+            )
+            val bodyY = editor.visualLineToY(anchorVisualLine) + editor.lineHeight / 2
+
+            assertTrue(
+                "Expected the guide at the text indentation before the inline hint: " +
+                    "expected=$expectedX, shifted=$shiftedX",
+                image.hasInkNear(expectedX, bodyY),
+            )
+            assertFalse(
+                "Guide must not use the inlay-shifted coordinate",
+                image.hasInkNear(shiftedX, bodyY),
+            )
+        } finally {
+            inlay.dispose()
+        }
+    }
+
     fun testFollowsEveryVisualFragmentOfASoftWrappedLogicalLine() {
         val source = "call(argumentOne, argumentTwo, argumentThree, argumentFour)"
         myFixture.configureByText("Sample.java", source)
@@ -203,8 +280,10 @@ class BracketGuideRendererTest : BasePlatformTestCase() {
     private fun paint(
         pair: BracketPair,
         options: GuideRenderOptions = GuideRenderOptions.DEFAULT,
+        guideColumn: Int = 0,
+        anchorLine: Int = pair.openLine,
     ): BufferedImage {
-        val highlighter = createGuideHighlighter(pair, options)
+        val highlighter = createGuideHighlighter(pair, options, guideColumn, anchorLine)
 
         return BufferedImage(1_000, 1_000, BufferedImage.TYPE_INT_ARGB).also { image ->
             val graphics = image.createGraphics()
@@ -220,6 +299,8 @@ class BracketGuideRendererTest : BasePlatformTestCase() {
     private fun createGuideHighlighter(
         pair: BracketPair,
         options: GuideRenderOptions = GuideRenderOptions.DEFAULT,
+        guideColumn: Int = 0,
+        anchorLine: Int = pair.openLine,
     ) =
         myFixture.editor.markupModel.addRangeHighlighter(
             null,
@@ -230,13 +311,32 @@ class BracketGuideRendererTest : BasePlatformTestCase() {
         ).also { highlighter ->
             highlighter.putUserData(
                 GuideLineHighlightingPass.GUIDE_KEY,
-                BracketGuide(pair, guideColumn = 0),
+                BracketGuide(pair, guideColumn, anchorLine),
             )
             highlighter.putUserData(
                 GuideLineHighlightingPass.GUIDE_RENDER_OPTIONS_KEY,
                 options,
             )
         }
+
+    private class FixedWidthInlayRenderer(
+        private val width: Int,
+    ) : EditorCustomElementRenderer {
+        override fun calcWidthInPixels(inlay: Inlay<*>): Int = width
+    }
+
+    private fun BufferedImage.hasInkNear(x: Int, y: Int): Boolean {
+        val firstX = (x - 1).coerceAtLeast(0)
+        val lastX = (x + 1).coerceAtMost(width - 1)
+        val firstY = (y - 1).coerceAtLeast(0)
+        val lastY = (y + 1).coerceAtMost(height - 1)
+        for (pixelY in firstY..lastY) {
+            for (pixelX in firstX..lastX) {
+                if ((getRGB(pixelX, pixelY) ushr 24) != 0) return true
+            }
+        }
+        return false
+    }
 
     private fun BufferedImage.hasInkNear(y: Int): Boolean {
         val firstY = (y - 1).coerceAtLeast(0)

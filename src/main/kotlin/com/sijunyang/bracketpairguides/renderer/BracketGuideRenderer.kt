@@ -122,11 +122,12 @@ internal object BracketGuideRenderer : CustomHighlighterRenderer {
                 return
             }
 
-            val firstVisualLine = editor.logicalToVisualPosition(
-                LogicalPosition(currentOpenLine, 0),
+            val anchorLine = guide.anchorLine.coerceIn(currentOpenLine, currentCloseLine)
+            val anchorVisualLine = editor.logicalToVisualPosition(
+                LogicalPosition(anchorLine, 0),
             ).line
             val guideX = editor.visualPositionToXY(
-                VisualPosition(firstVisualLine, guide.guideColumn),
+                VisualPosition(anchorVisualLine, guide.guideColumn),
             ).x
             val openBottomY = openPoint.y + lineHeight - 1
             val closeBottomY = closePoint.y + lineHeight - 1

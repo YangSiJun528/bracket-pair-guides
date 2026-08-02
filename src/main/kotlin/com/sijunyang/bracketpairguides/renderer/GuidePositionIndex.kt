@@ -7,6 +7,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 data class BracketGuide(
     val pair: BracketPair,
     val guideColumn: Int,
+    val anchorLine: Int = pair.openLine,
 )
 
 /**
@@ -17,22 +18,28 @@ data class BracketGuide(
 internal class GuidePositionIndex private constructor(
     private val lineCount: Int,
     private val treeSize: Int,
-    private val minimumTree: IntArray,
+    private val minimumTree: LongArray,
 ) {
     fun guideFor(pair: BracketPair): BracketGuide {
         val firstCandidateLine = (pair.openLine + 1).coerceAtMost(pair.closeLine)
-        val guideColumn = minimumIndent(firstCandidateLine, pair.closeLine)
-            .takeUnless { it == NO_INDENT }
-            ?: 0
-        return BracketGuide(pair, guideColumn)
+        val minimum = minimumEntry(firstCandidateLine, pair.closeLine)
+        val column = entryColumn(minimum)
+        return if (column == NO_INDENT) {
+            BracketGuide(pair, guideColumn = 0, anchorLine = firstCandidateLine)
+        } else {
+            BracketGuide(pair, column, entryLine(minimum))
+        }
     }
 
-    internal fun minimumIndent(firstLine: Int, lastLine: Int): Int {
-        if (lineCount == 0 || firstLine > lastLine) return NO_INDENT
+    internal fun minimumIndent(firstLine: Int, lastLine: Int): Int =
+        entryColumn(minimumEntry(firstLine, lastLine))
+
+    private fun minimumEntry(firstLine: Int, lastLine: Int): Long {
+        if (lineCount == 0 || firstLine > lastLine) return NO_INDENT_ENTRY
 
         var left = firstLine.coerceIn(0, lineCount - 1) + treeSize
         var right = lastLine.coerceIn(0, lineCount - 1) + treeSize
-        var minimum = NO_INDENT
+        var minimum = NO_INDENT_ENTRY
 
         while (left <= right) {
             if (left and 1 == 1) minimum = minOf(minimum, minimumTree[left++])
@@ -76,10 +83,10 @@ internal class GuidePositionIndex private constructor(
             return this
         }
 
-        val indentations = IntArray(newLineCount) { NO_INDENT }
+        val entries = LongArray(newLineCount) { NO_INDENT_ENTRY }
         val prefixCount = startLine.coerceAtMost(minOf(lineCount, newLineCount))
-        copyIndentations(
-            indentations,
+        copyEntries(
+            entries,
             sourceStart = 0,
             targetStart = 0,
             count = prefixCount,
@@ -91,8 +98,8 @@ internal class GuidePositionIndex private constructor(
             lineCount - firstOldSuffix,
             newLineCount - firstNewSuffix,
         )
-        copyIndentations(
-            indentations,
+        copyEntries(
+            entries,
             sourceStart = firstOldSuffix,
             targetStart = firstNewSuffix,
             count = suffixCount,
@@ -103,15 +110,18 @@ internal class GuidePositionIndex private constructor(
             .coerceAtMost(newLineCount - 1)
         var line = startLine
         while (line <= lastChangedLine) {
-            indentations[line] = indentationColumn(
-                text = text,
-                start = document.getLineStartOffset(line),
-                end = document.getLineEndOffset(line),
-                tabSize = tabSize.coerceAtLeast(1),
+            entries[line] = entry(
+                indentationColumn(
+                    text = text,
+                    start = document.getLineStartOffset(line),
+                    end = document.getLineEndOffset(line),
+                    tabSize = tabSize.coerceAtLeast(1),
+                ),
+                line,
             )
             line++
         }
-        return fromIndentations(indentations)
+        return fromEntries(entries)
     }
 
     private fun updateLinesInPlace(
@@ -126,11 +136,14 @@ internal class GuidePositionIndex private constructor(
         var line = firstLine.coerceAtLeast(0)
         while (line <= lastLine) {
             var node = treeSize + line
-            minimumTree[node] = indentationColumn(
-                text = text,
-                start = document.getLineStartOffset(line),
-                end = document.getLineEndOffset(line),
-                tabSize = tabSize.coerceAtLeast(1),
+            minimumTree[node] = entry(
+                indentationColumn(
+                    text = text,
+                    start = document.getLineStartOffset(line),
+                    end = document.getLineEndOffset(line),
+                    tabSize = tabSize.coerceAtLeast(1),
+                ),
+                line,
             )
             node /= 2
             while (node > 0) {
@@ -144,8 +157,8 @@ internal class GuidePositionIndex private constructor(
         }
     }
 
-    private fun copyIndentations(
-        target: IntArray,
+    private fun copyEntries(
+        target: LongArray,
         sourceStart: Int,
         targetStart: Int,
         count: Int,
@@ -187,19 +200,22 @@ internal class GuidePositionIndex private constructor(
 
         internal fun from(document: Document, tabSize: Int): GuidePositionIndex {
             val lineCount = document.lineCount
-            val indentations = IntArray(lineCount)
+            val entries = LongArray(lineCount)
             val text = document.immutableCharSequence
             var line = 0
             while (line < lineCount) {
-                indentations[line] = indentationColumn(
-                    text = text,
-                    start = document.getLineStartOffset(line),
-                    end = document.getLineEndOffset(line),
-                    tabSize = tabSize.coerceAtLeast(1),
+                entries[line] = entry(
+                    indentationColumn(
+                        text = text,
+                        start = document.getLineStartOffset(line),
+                        end = document.getLineEndOffset(line),
+                        tabSize = tabSize.coerceAtLeast(1),
+                    ),
+                    line,
                 )
                 line++
             }
-            return fromIndentations(indentations)
+            return fromEntries(entries)
         }
 
         internal fun from(
@@ -213,17 +229,20 @@ internal class GuidePositionIndex private constructor(
             val lineCount = lineStarts.size
             var treeSize = 1
             while (treeSize < lineCount) treeSize *= 2
-            val tree = IntArray(treeSize * 2) { NO_INDENT }
+            val tree = LongArray(treeSize * 2) { NO_INDENT_ENTRY }
             val effectiveTabSize = tabSize.coerceAtLeast(1)
 
             for (line in 0 until lineCount) {
                 if (line and CANCELLATION_LINE_MASK == 0) checkCanceled()
-                tree[treeSize + line] = indentationColumn(
-                    text = text,
-                    start = lineStarts[line],
-                    end = lineEnds[line],
-                    tabSize = effectiveTabSize,
-                    checkCanceled = checkCanceled,
+                tree[treeSize + line] = entry(
+                    indentationColumn(
+                        text = text,
+                        start = lineStarts[line],
+                        end = lineEnds[line],
+                        tabSize = effectiveTabSize,
+                        checkCanceled = checkCanceled,
+                    ),
+                    line,
                 )
             }
             for (node in treeSize - 1 downTo 1) {
@@ -235,12 +254,14 @@ internal class GuidePositionIndex private constructor(
             return GuidePositionIndex(lineCount, treeSize, tree)
         }
 
-        private fun fromIndentations(indentations: IntArray): GuidePositionIndex {
-            val lineCount = indentations.size
+        private fun fromEntries(entries: LongArray): GuidePositionIndex {
+            val lineCount = entries.size
             var treeSize = 1
             while (treeSize < lineCount) treeSize *= 2
-            val tree = IntArray(treeSize * 2) { NO_INDENT }
-            indentations.copyInto(tree, destinationOffset = treeSize)
+            val tree = LongArray(treeSize * 2) { NO_INDENT_ENTRY }
+            for (line in entries.indices) {
+                tree[treeSize + line] = entry(entryColumn(entries[line]), line)
+            }
             var node = treeSize - 1
             while (node > 0) {
                 tree[node] = minOf(tree[node * 2], tree[node * 2 + 1])
@@ -248,6 +269,13 @@ internal class GuidePositionIndex private constructor(
             }
             return GuidePositionIndex(lineCount, treeSize, tree)
         }
+
+        private fun entry(column: Int, line: Int): Long =
+            (column.toLong() shl Int.SIZE_BITS) or (line.toLong() and UINT_MASK)
+
+        private fun entryColumn(entry: Long): Int = (entry ushr Int.SIZE_BITS).toInt()
+
+        private fun entryLine(entry: Long): Int = entry.toInt()
 
         private fun indentationColumn(
             text: CharSequence,
@@ -292,5 +320,7 @@ internal class GuidePositionIndex private constructor(
         private const val CANCELLATION_LINE_MASK = 0xFF
         private const val CANCELLATION_TREE_MASK = 0xFFF
         private const val CANCELLATION_CHARACTER_MASK = 0xFFF
+        private const val NO_INDENT_ENTRY = Long.MAX_VALUE
+        private const val UINT_MASK = 0xFFFF_FFFFL
     }
 }

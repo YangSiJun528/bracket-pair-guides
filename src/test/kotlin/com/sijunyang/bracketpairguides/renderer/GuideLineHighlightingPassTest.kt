@@ -634,6 +634,42 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertTrue("50k-line incremental rebuild took ${elapsed}ms", elapsed < 1_000)
     }
 
+    fun testLineInsertionMovesGuideAnchorWithItsIndentation() {
+        val source = "{\n    first\n  minimum\n    }"
+        myFixture.configureByText("AnchorShift.java", source)
+        val document = myFixture.editor.document
+        val index = GuidePositionIndex.from(document, 4, EmptyProgressIndicator())
+        val insertionOffset = document.getLineStartOffset(1)
+
+        WriteCommandAction.runWriteCommandAction(project) {
+            document.insertString(insertionOffset, "\n")
+        }
+        val updated = index.afterDocumentChange(
+            document = document,
+            change = DocumentChange(
+                offset = insertionOffset,
+                oldLineBreakCount = 0,
+                newLineBreakCount = 1,
+                mayAffectBracketStructure = false,
+            ),
+            tabSize = 4,
+        )
+        val guide = updated.guideFor(
+            BracketPair(
+                openOffset = 0,
+                openTokenLength = 1,
+                closeOffset = document.textLength - 1,
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 4,
+            ),
+        )
+
+        assertEquals(2, guide.guideColumn)
+        assertEquals(3, guide.anchorLine)
+    }
+
     private fun applyPass(
         pairProvider: BracketPairProvider? = null,
         visibleRangeProvider: ((Editor) -> TextRange)? = null,

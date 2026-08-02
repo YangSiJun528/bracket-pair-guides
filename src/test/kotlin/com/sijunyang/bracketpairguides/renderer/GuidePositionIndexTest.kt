@@ -11,7 +11,9 @@ class GuidePositionIndexTest {
         val index = indexFor("if (ready) {\n        nested()\n  leastIndented()\n    }")
         val pair = BracketPair(11, 1, 56, 1, 0, 0, 3)
 
-        assertEquals(2, index.guideFor(pair).guideColumn)
+        val guide = index.guideFor(pair)
+        assertEquals(2, guide.guideColumn)
+        assertEquals(2, guide.anchorLine)
     }
 
     @Test
