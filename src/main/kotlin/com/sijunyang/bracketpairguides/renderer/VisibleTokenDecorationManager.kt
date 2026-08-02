@@ -79,12 +79,12 @@ internal object VisibleTokenDecorationManager {
         }
 
         val palette = TokenPalette(editor, settings)
-        for (entry in current.entries) {
-            if (entry.highlighter.isValid) {
+        for ((highlighter, colorKey, levelIndex) in current.entries) {
+            if (highlighter.isValid) {
                 applyPresentation(
-                    entry.highlighter,
-                    entry.colorKey,
-                    palette.attributes[entry.levelIndex],
+                    highlighter,
+                    colorKey,
+                    palette.attributes[levelIndex],
                 )
             }
         }
@@ -213,8 +213,8 @@ internal object VisibleTokenDecorationManager {
     }
 
     private fun disposeEntries(entries: List<VisibleTokenEntry>) {
-        for (entry in entries) {
-            if (entry.highlighter.isValid) entry.highlighter.dispose()
+        for ((highlighter) in entries) {
+            if (highlighter.isValid) highlighter.dispose()
         }
     }
 
