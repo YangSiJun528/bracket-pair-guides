@@ -8,16 +8,19 @@ import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Document
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.event.BulkAwareDocumentListener
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.progress.EmptyProgressIndicator
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import java.awt.Color
+import kotlin.system.measureTimeMillis
 
 class GuideLineHighlightingPassTest : BasePlatformTestCase() {
     override fun setUp() {
@@ -261,12 +264,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             it.getUserData(GuideLineHighlightingPass.GUIDE_KEY) == null &&
                 it.getUserData(GuideLineHighlightingPass.ACTIVE_PAIR_HIGHLIGHT_KEY) != true
         }
-        assertEquals(2, hiddenBracketRanges.size)
-        assertTrue(
-            hiddenBracketRanges.all {
-                it.getTextAttributes(myFixture.editor.colorsScheme)?.isEmpty != false
-            },
-        )
+        assertTrue(hiddenBracketRanges.isEmpty())
         assertNotNull(activeGuide())
 
         settings.showActiveGuide = false
@@ -427,11 +425,93 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertEquals(2, bulkFinishes)
     }
 
-    private fun applyPass(pairProvider: BracketPairProvider? = null) {
+    fun testViewportBoundsMarkupForFiftyThousandPairsAndScrollReusesRecognition() {
+        val pairCount = 50_000
+        val source = "()".repeat(pairCount)
+        myFixture.configureByText("Viewport.txt", source)
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(1)
+        val pairs = List(pairCount) { index ->
+            BracketPair(
+                openOffset = index * 2,
+                openTokenLength = 1,
+                closeOffset = index * 2 + 1,
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 0,
+            )
+        }
+        var collections = 0
+        var visibleRange = TextRange(0, 256)
+        val provider = BracketPairProvider {
+            collections++
+            pairs
+        }
+
+        val initialMillis = measureTimeMillis {
+            applyPass(provider) { visibleRange }
+        }
+
+        assertEquals(1, collections)
+        assertTrue(bracketColorHighlighters().size <= 1_024)
+        assertTrue("50k-pair viewport apply took ${initialMillis}ms", initialMillis < 2_000)
+        val firstViewport = bracketColorHighlighters().toSet()
+
+        visibleRange = TextRange(50_000, 50_256)
+        val scrollMillis = measureTimeMillis {
+            GuideLineHighlightingPass.updateVisiblePresentation(editor)
+        }
+
+        assertEquals(1, collections)
+        assertTrue(bracketColorHighlighters().size <= 1_536)
+        assertTrue(firstViewport.any { !it.isValid })
+        assertTrue("50k-pair viewport refresh took ${scrollMillis}ms", scrollMillis < 1_000)
+    }
+
+    fun testDocumentEditAdjustsTheActiveGuideBeforeFullRecognitionCompletes() {
+        val source = "x { active content } y"
+        myFixture.configureByText("Priority.txt", source)
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        var collections = 0
+        val provider = BracketPairProvider {
+            collections++
+            listOf(pair)
+        }
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(source.indexOf("content"))
+        applyPass(provider)
+        val guideHighlighter = checkNotNull(activeGuide())
+
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.insertString(source.indexOf("content"), "fast ")
+        }
+
+        assertEquals(1, collections)
+        assertSame(guideHighlighter, activeGuide())
+        assertEquals(
+            pair.closeOffset + "fast ".length,
+            activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY)?.pair?.closeOffset,
+        )
+    }
+
+    private fun applyPass(
+        pairProvider: BracketPairProvider? = null,
+        visibleRangeProvider: ((Editor) -> TextRange)? = null,
+    ) {
         val pass = if (pairProvider == null) {
             GuideLineHighlightingPass(project, myFixture.editor)
-        } else {
+        } else if (visibleRangeProvider == null) {
             GuideLineHighlightingPass(project, myFixture.editor, pairProvider)
+        } else {
+            GuideLineHighlightingPass(
+                project,
+                myFixture.editor,
+                pairProvider,
+                visibleRangeProvider,
+            )
         }
         inReadAction {
             pass.doCollectInformation(EmptyProgressIndicator())

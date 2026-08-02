@@ -1,13 +1,13 @@
 package com.sijunyang.bracketpairguides.renderer
 
 import com.sijunyang.bracketpairguides.analyzer.BracketPair
-import java.util.PriorityQueue
 
 /**
  * Maps a caret offset to the innermost bracket pair that strictly contains it.
  *
- * The index is built once after bracket recognition. Caret movement then needs
- * only a binary search instead of rescanning every pair.
+ * Build-time events and the active-candidate heap use primitive arrays to avoid
+ * allocating two event objects plus priority-queue wrappers for every pair.
+ * Caret movement is a binary search over the resulting immutable segments.
  */
 internal class ActiveBracketPairIndex private constructor(
     private val segmentStarts: IntArray,
@@ -37,103 +37,157 @@ internal class ActiveBracketPairIndex private constructor(
             checkCanceled: () -> Unit = {},
         ): ActiveBracketPairIndex {
             if (pairs.isEmpty()) return EMPTY
+            require(pairs.size <= Int.MAX_VALUE / EVENTS_PER_PAIR)
 
-            val candidates = arrayOfNulls<Candidate>(pairs.size)
-            val events = ArrayList<Event>(pairs.size * 2)
-            for (index in pairs.indices) {
-                if (index and CANCELLATION_MASK == 0) checkCanceled()
-                val pair = pairs[index]
-
-                val closeEnd = (pair.closeOffset.toLong() + pair.closeTokenLength)
+            val candidateStarts = IntArray(pairs.size)
+            val candidateEnds = IntArray(pairs.size)
+            val events = LongArray(pairs.size * EVENTS_PER_PAIR)
+            var eventCount = 0
+            for (pairIndex in pairs.indices) {
+                if (pairIndex and CANCELLATION_MASK == 0) checkCanceled()
+                val pair = pairs[pairIndex]
+                val endExclusive = (pair.closeOffset.toLong() + pair.closeTokenLength)
                     .coerceAtMost(Int.MAX_VALUE.toLong())
                     .toInt()
-                val activeStart = (pair.openOffset.toLong() + 1)
+                val start = (pair.openOffset.toLong() + 1)
                     .coerceAtMost(Int.MAX_VALUE.toLong())
                     .toInt()
-                if (pair.openOffset < 0 || activeStart >= closeEnd) continue
+                if (pair.openOffset < 0 || start >= endExclusive) continue
 
-                val candidate = Candidate(
-                    pairIndex = index,
-                    start = activeStart,
-                    endExclusive = closeEnd,
-                )
-                candidates[index] = candidate
-                events += Event(candidate.start, index, isStart = true)
-                events += Event(candidate.endExclusive, index, isStart = false)
+                candidateStarts[pairIndex] = start
+                candidateEnds[pairIndex] = endExclusive
+                events[eventCount++] = encodeEvent(start, pairIndex, isStart = true)
+                events[eventCount++] = encodeEvent(endExclusive, pairIndex, isStart = false)
             }
-            if (events.isEmpty()) return EMPTY
+            if (eventCount == 0) return EMPTY
 
-            events.sortWith(
-                compareBy(Event::offset)
-                    .thenBy { if (it.isStart) 1 else 0 },
-            )
+            val sortedEvents = if (eventCount == events.size) events else events.copyOf(eventCount)
+            sortedEvents.sort()
             checkCanceled()
 
             val active = BooleanArray(pairs.size)
-            val queue = PriorityQueue(CANDIDATE_ORDER)
-            val starts = ArrayList<Int>()
-            val winners = ArrayList<Int>()
+            val heap = CandidateHeap(candidateStarts, candidateEnds, pairs.size)
+            val starts = IntArray(eventCount + 1)
+            val winners = IntArray(eventCount + 1)
+            var segmentCount = 0
             var eventIndex = 0
 
-            if (events.first().offset > 0) {
-                starts += 0
-                winners += NO_PAIR
+            if (eventOffset(sortedEvents[0]) > 0) {
+                starts[segmentCount] = 0
+                winners[segmentCount++] = NO_PAIR
             }
 
-            while (eventIndex < events.size) {
+            while (eventIndex < eventCount) {
                 if (eventIndex and CANCELLATION_MASK == 0) checkCanceled()
-                val offset = events[eventIndex].offset
-                while (eventIndex < events.size && events[eventIndex].offset == offset) {
-                    val event = events[eventIndex++]
-                    active[event.pairIndex] = event.isStart
-                    if (event.isStart) {
-                        candidates[event.pairIndex]?.let(queue::add)
-                    }
+                val offset = eventOffset(sortedEvents[eventIndex])
+                while (eventIndex < eventCount &&
+                    eventOffset(sortedEvents[eventIndex]) == offset
+                ) {
+                    val event = sortedEvents[eventIndex++]
+                    val pairIndex = eventPairIndex(event)
+                    val startsHere = isStartEvent(event)
+                    active[pairIndex] = startsHere
+                    if (startsHere) heap.add(pairIndex)
                 }
-                while (queue.isNotEmpty() && !active[queue.peek().pairIndex]) {
-                    queue.remove()
-                }
+                while (heap.isNotEmpty() && !active[heap.peek()]) heap.removeTop()
 
-                val winner = queue.peek()?.pairIndex ?: NO_PAIR
-                if (winners.lastOrNull() != winner) {
-                    starts += offset
-                    winners += winner
+                val winner = if (heap.isNotEmpty()) heap.peek() else NO_PAIR
+                if (segmentCount == 0 || winners[segmentCount - 1] != winner) {
+                    starts[segmentCount] = offset
+                    winners[segmentCount++] = winner
                 }
             }
             checkCanceled()
 
             return ActiveBracketPairIndex(
-                segmentStarts = starts.toIntArray(),
-                segmentPairIndices = winners.toIntArray(),
+                segmentStarts = starts.copyOf(segmentCount),
+                segmentPairIndices = winners.copyOf(segmentCount),
             )
         }
 
-        private val EMPTY = ActiveBracketPairIndex(
-            segmentStarts = IntArray(0),
-            segmentPairIndices = IntArray(0),
-        )
-
-        private val CANDIDATE_ORDER = Comparator<Candidate> { first, second ->
-            compareValues(second.start, first.start)
-                .takeUnless { it == 0 }
-                ?: compareValues(first.endExclusive, second.endExclusive)
-                    .takeUnless { it == 0 }
-                ?: compareValues(first.pairIndex, second.pairIndex)
+        private fun encodeEvent(offset: Int, pairIndex: Int, isStart: Boolean): Long {
+            val reference = (pairIndex shl EVENT_KIND_BITS) or
+                if (isStart) START_EVENT else END_EVENT
+            return (offset.toLong() shl OFFSET_SHIFT) or
+                (reference.toLong() and EVENT_REFERENCE_MASK)
         }
 
+        private fun eventOffset(event: Long): Int = (event ushr OFFSET_SHIFT).toInt()
+
+        private fun eventPairIndex(event: Long): Int = event.toInt() ushr EVENT_KIND_BITS
+
+        private fun isStartEvent(event: Long): Boolean {
+            return event.toInt() and EVENT_KIND_MASK == START_EVENT
+        }
+
+        private val EMPTY = ActiveBracketPairIndex(IntArray(0), IntArray(0))
+
         internal const val NO_PAIR = -1
+        private const val EVENTS_PER_PAIR = 2
+        private const val EVENT_KIND_BITS = 1
+        private const val EVENT_KIND_MASK = 1
+        private const val END_EVENT = 0
+        private const val START_EVENT = 1
+        private const val OFFSET_SHIFT = 32
+        private const val EVENT_REFERENCE_MASK = 0xFFFF_FFFFL
         private const val CANCELLATION_MASK = 0xFF
     }
 
-    private data class Candidate(
-        val pairIndex: Int,
-        val start: Int,
-        val endExclusive: Int,
-    )
+    private class CandidateHeap(
+        private val starts: IntArray,
+        private val ends: IntArray,
+        capacity: Int,
+    ) {
+        private val values = IntArray(capacity)
+        private var size = 0
 
-    private data class Event(
-        val offset: Int,
-        val pairIndex: Int,
-        val isStart: Boolean,
-    )
+        fun isNotEmpty(): Boolean = size != 0
+
+        fun peek(): Int = values[0]
+
+        fun add(candidate: Int) {
+            var index = size++
+            while (index > 0) {
+                val parent = (index - 1).ushr(1)
+                val parentCandidate = values[parent]
+                if (!isPreferred(candidate, parentCandidate)) break
+                values[index] = parentCandidate
+                index = parent
+            }
+            values[index] = candidate
+        }
+
+        fun removeTop() {
+            val replacement = values[--size]
+            if (size == 0) return
+
+            var index = 0
+            while (true) {
+                val left = index * 2 + 1
+                if (left >= size) break
+                val right = left + 1
+                val preferredChild = if (right < size &&
+                    isPreferred(values[right], values[left])
+                ) {
+                    right
+                } else {
+                    left
+                }
+                if (!isPreferred(values[preferredChild], replacement)) break
+                values[index] = values[preferredChild]
+                index = preferredChild
+            }
+            values[index] = replacement
+        }
+
+        private fun isPreferred(first: Int, second: Int): Boolean {
+            val firstStart = starts[first]
+            val secondStart = starts[second]
+            if (firstStart != secondStart) return firstStart > secondStart
+
+            val firstEnd = ends[first]
+            val secondEnd = ends[second]
+            return if (firstEnd != secondEnd) firstEnd < secondEnd else first < second
+        }
+    }
 }

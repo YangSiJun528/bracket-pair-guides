@@ -5,6 +5,7 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlin.random.Random
 import kotlin.system.measureTimeMillis
 
 class ActiveBracketPairIndexTest {
@@ -95,6 +96,69 @@ class ActiveBracketPairIndexTest {
             return
         }
         throw AssertionError("Expected index construction to be canceled")
+    }
+
+    @Test
+    fun `primitive sweep matches a brute force lookup for crossing ranges`() {
+        val random = Random(0xBACC37)
+        var sample = 0
+        while (sample < 100) {
+            val pairs = ArrayList<BracketPair>(100)
+            var pairIndex = 0
+            while (pairIndex < 100) {
+                val open = random.nextInt(0, 180)
+                val close = random.nextInt(open + 1, 201)
+                pairs += BracketPair(open, 1, close, random.nextInt(1, 4), pairIndex, 0, 0)
+                pairIndex++
+            }
+            val index = ActiveBracketPairIndex.build(pairs)
+
+            var offset = 0
+            while (offset <= 204) {
+                assertEquals(
+                    "sample=$sample offset=$offset",
+                    bruteForcePairIndex(pairs, offset),
+                    index.activePairIndex(offset),
+                )
+                offset++
+            }
+            sample++
+        }
+    }
+
+    private fun bruteForcePairIndex(pairs: List<BracketPair>, offset: Int): Int {
+        var winner = ActiveBracketPairIndex.NO_PAIR
+        var pairIndex = 0
+        while (pairIndex < pairs.size) {
+            val pair = pairs[pairIndex]
+            val start = pair.openOffset + 1
+            val end = pair.closeOffset + pair.closeTokenLength
+            if (offset >= start && offset < end && isPreferred(pairIndex, winner, pairs)) {
+                winner = pairIndex
+            }
+            pairIndex++
+        }
+        return winner
+    }
+
+    private fun isPreferred(
+        candidateIndex: Int,
+        currentIndex: Int,
+        pairs: List<BracketPair>,
+    ): Boolean {
+        if (currentIndex == ActiveBracketPairIndex.NO_PAIR) return true
+        val candidate = pairs[candidateIndex]
+        val current = pairs[currentIndex]
+        if (candidate.openOffset != current.openOffset) {
+            return candidate.openOffset > current.openOffset
+        }
+        val candidateEnd = candidate.closeOffset + candidate.closeTokenLength
+        val currentEnd = current.closeOffset + current.closeTokenLength
+        return if (candidateEnd != currentEnd) {
+            candidateEnd < currentEnd
+        } else {
+            candidateIndex < currentIndex
+        }
     }
 
     private fun pair(open: Int, close: Int, depth: Int = 0): BracketPair {

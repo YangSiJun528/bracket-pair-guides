@@ -119,20 +119,18 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         val owned = editor.markupModel.allHighlighters.filter { highlighter ->
             highlighter.getUserData(GuideLineHighlightingPass.OWNED_HIGHLIGHTER_KEY) == true
         }
-        assertEquals(
-            "$fileName must retain two token ranges per pair and one active guide range",
-            first.size * 2 + 1,
-            owned.size,
+        val coloredTokenCount = owned.count {
+            it.textAttributesKey in BracketColorPalette.LEVEL_KEYS
+        }
+        assertTrue(
+            "$fileName must not create more than two token ranges per pair",
+            coloredTokenCount <= first.size * 2,
         )
+        assertEquals(coloredTokenCount + 1, owned.size)
         assertEquals(
             "$fileName must activate exactly one custom guide renderer at the caret",
             1,
             owned.count { it.customRenderer === BracketGuideRenderer },
-        )
-        assertEquals(
-            "$fileName must receive exactly two colored token ranges per pair",
-            first.size * 2,
-            owned.count { it.textAttributesKey in BracketColorPalette.LEVEL_KEYS },
         )
         assertEquals(
             "$fileName must leave optional active-pair symbol emphasis disabled",
