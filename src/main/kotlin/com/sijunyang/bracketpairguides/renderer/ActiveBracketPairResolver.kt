@@ -78,10 +78,7 @@ internal class EditorHighlighterActiveBracketPairResolver(
                     forward = true,
                     budget = budget,
                 )
-                if (matched != null &&
-                    caretOffset > tokenStart &&
-                    caretOffset < matched.end
-                ) {
+                if (matched != null && caretOffset < matched.end) {
                     return Match(tokenStart, tokenEnd).toPair(
                         closeOffset = matched.start,
                         closeTokenLength = matched.end - matched.start,
