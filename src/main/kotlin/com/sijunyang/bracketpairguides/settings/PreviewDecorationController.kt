@@ -94,10 +94,16 @@ internal class PreviewDecorationController(
             ?: ActiveBracketPairIndex.NO_PAIR
         if (!force && activePairIndex == nextIndex) return
 
-        clearActivePresentation()
+        clearActivePairHighlights()
         activePairIndex = nextIndex
-        val guide = recognition.guides.getOrNull(nextIndex) ?: return
-        activeGuide = ActivePairDecoration.addGuide(editor, guide, draft)
+        val guide = recognition.guides.getOrNull(nextIndex)
+        if (guide == null) {
+            activeGuide?.takeIf(RangeHighlighter::isValid)?.dispose()
+            activeGuide = null
+            editor.contentComponent.repaint()
+            return
+        }
+        activeGuide = ActivePairDecoration.addGuide(editor, guide, draft, activeGuide)
         activePairHighlighters += ActivePairDecoration.addPairHighlights(
             editor,
             guide,
@@ -116,11 +122,15 @@ internal class PreviewDecorationController(
     private fun clearActivePresentation() {
         activeGuide?.takeIf(RangeHighlighter::isValid)?.dispose()
         activeGuide = null
+        clearActivePairHighlights()
+        activePairIndex = ActiveBracketPairIndex.NO_PAIR
+    }
+
+    private fun clearActivePairHighlights() {
         for (highlighter in activePairHighlighters) {
             if (highlighter.isValid) highlighter.dispose()
         }
         activePairHighlighters.clear()
-        activePairIndex = ActiveBracketPairIndex.NO_PAIR
     }
 
     private fun tokenPresentation(

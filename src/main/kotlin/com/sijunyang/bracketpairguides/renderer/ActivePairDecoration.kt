@@ -17,6 +17,7 @@ internal object ActivePairDecoration {
         editor: Editor,
         guide: BracketGuide,
         settings: PluginSettings.State,
+        reusable: RangeHighlighter? = null,
     ): RangeHighlighter? {
         val hasRenderableSegment = if (guide.pair.openLine == guide.pair.closeLine) {
             settings.showHorizontalGuides
@@ -24,15 +25,21 @@ internal object ActivePairDecoration {
             settings.showVerticalGuide || settings.showHorizontalGuides
         }
         if (!settings.enabled || !settings.showActiveGuide || !hasRenderableSegment) {
+            reusable?.dispose()
             return null
         }
-        return editor.markupModel.addRangeHighlighter(
-            EMPTY_ATTRIBUTES_KEY,
-            guide.pair.openOffset,
-            guide.pair.closeOffset + guide.pair.closeTokenLength,
-            GUIDE_LAYER,
-            HighlighterTargetArea.EXACT_RANGE,
-        ).also {
+        val highlighter = reusable?.takeIf(RangeHighlighter::isValid)
+            ?: editor.markupModel.addRangeHighlighter(
+                EMPTY_ATTRIBUTES_KEY,
+                0,
+                editor.document.textLength,
+                GUIDE_LAYER,
+                HighlighterTargetArea.EXACT_RANGE,
+            ).also {
+                it.isGreedyToLeft = true
+                it.isGreedyToRight = true
+            }
+        return highlighter.also {
             it.customRenderer = BracketGuideRenderer
             it.putUserData(GuideLineHighlightingPass.GUIDE_KEY, guide)
             it.putUserData(

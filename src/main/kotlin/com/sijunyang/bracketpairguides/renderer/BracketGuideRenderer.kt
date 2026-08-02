@@ -47,8 +47,8 @@ internal object BracketGuideRenderer : CustomHighlighterRenderer {
         if (!options.showVertical && !options.showHorizontal) return
 
         val document = editor.document
-        val openOffset = highlighter.startOffset
-        val closeOffset = highlighter.endOffset - guide.pair.closeTokenLength
+        val openOffset = guide.pair.openOffset
+        val closeOffset = guide.pair.closeOffset
         if (openOffset !in 0 until document.textLength) return
         if (closeOffset !in openOffset until document.textLength) return
         if (editor.foldingModel.isOffsetCollapsed(openOffset) ||

@@ -114,7 +114,7 @@ class GuideLineHighlightingPass internal constructor(
         previousState: AppliedState?,
     ) {
         val settings = PluginSettings.getInstance().state
-        disposeActivePresentation(previousState)
+        disposeActivePresentation(previousState, preserveGuide = true)
         val tokenDecorations = VisibleTokenDecorationManager.replace(
             editor,
             previousState?.tokenDecorations,
@@ -131,6 +131,7 @@ class GuideLineHighlightingPass internal constructor(
             pairIndex = activePairIndex,
             positionIndex = positionIndex,
             settings = settings,
+            reusableGuide = previousState?.activeGuide,
         )
         editor.putUserData(
             APPLIED_STATE_KEY,
@@ -234,7 +235,7 @@ class GuideLineHighlightingPass internal constructor(
             )
             if (state.activePairIndex == nextPairIndex) return
 
-            disposeActivePresentation(state)
+            disposeActivePresentation(state, preserveGuide = true)
             val settings = PluginSettings.getInstance().state
             val activePresentation = createActivePresentation(
                 editor,
@@ -242,6 +243,7 @@ class GuideLineHighlightingPass internal constructor(
                 nextPairIndex,
                 state.positionIndex,
                 settings,
+                state.activeGuide,
             )
             editor.putUserData(
                 APPLIED_STATE_KEY,
@@ -335,10 +337,17 @@ class GuideLineHighlightingPass internal constructor(
             } else {
                 adjustedActivePair(editor, state)
             }
-            disposeActivePresentation(state)
+            disposeActivePresentation(state, preserveGuide = true)
             val activePresentation = activePair?.let { pair ->
-                createActivePresentation(editor, pair, activePairIndex, state.positionIndex, settings)
-            } ?: ActivePresentation.EMPTY
+                createActivePresentation(
+                    editor,
+                    pair,
+                    activePairIndex,
+                    state.positionIndex,
+                    settings,
+                    state.activeGuide,
+                )
+            } ?: ActivePresentation.EMPTY.also { state.activeGuide?.dispose() }
             editor.putUserData(
                 APPLIED_STATE_KEY,
                 state.copy(
@@ -365,9 +374,18 @@ class GuideLineHighlightingPass internal constructor(
             pairIndex: Int,
             positionIndex: GuidePositionIndex?,
             settings: PluginSettings.State,
+            reusableGuide: RangeHighlighter? = null,
         ): ActivePresentation {
-            val pair = pairs.getOrNull(pairIndex) ?: return ActivePresentation.EMPTY
-            return createActivePresentation(editor, pair, pairIndex, positionIndex, settings)
+            val pair = pairs.getOrNull(pairIndex)
+                ?: return ActivePresentation.EMPTY.also { reusableGuide?.dispose() }
+            return createActivePresentation(
+                editor,
+                pair,
+                pairIndex,
+                positionIndex,
+                settings,
+                reusableGuide,
+            )
         }
 
         private fun createActivePresentation(
@@ -376,9 +394,10 @@ class GuideLineHighlightingPass internal constructor(
             pairIndex: Int,
             positionIndex: GuidePositionIndex?,
             settings: PluginSettings.State,
+            reusableGuide: RangeHighlighter? = null,
         ): ActivePresentation {
             val guide = createGuideDescriptor(editor, pair, positionIndex)
-                ?: return ActivePresentation.EMPTY
+                ?: return ActivePresentation.EMPTY.also { reusableGuide?.dispose() }
             val range = editor.document.createRangeMarker(
                 pair.openOffset,
                 pair.closeOffset + pair.closeTokenLength,
@@ -389,15 +408,18 @@ class GuideLineHighlightingPass internal constructor(
             return ActivePresentation(
                 pairIndex = pairIndex,
                 range = range,
-                guide = ActivePairDecoration.addGuide(editor, guide, settings),
+                guide = ActivePairDecoration.addGuide(editor, guide, settings, reusableGuide),
                 pairHighlights = ActivePairDecoration.addPairHighlights(editor, guide, settings),
             )
         }
 
-        private fun disposeActivePresentation(state: AppliedState?) {
+        private fun disposeActivePresentation(
+            state: AppliedState?,
+            preserveGuide: Boolean = false,
+        ) {
             state ?: return
             state.activeRange?.dispose()
-            state.activeGuide?.dispose()
+            if (!preserveGuide) state.activeGuide?.dispose()
             for (highlighter in state.activePairHighlights) highlighter.dispose()
         }
 

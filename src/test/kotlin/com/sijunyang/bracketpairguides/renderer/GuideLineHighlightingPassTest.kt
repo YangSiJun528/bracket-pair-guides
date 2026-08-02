@@ -130,6 +130,8 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
 
         applyPass(provider)
         val innerGuide = checkNotNull(activeGuide())
+        assertEquals(0, innerGuide.startOffset)
+        assertEquals(editor.document.textLength, innerGuide.endOffset)
         val innerPairHighlights = activePairHighlighters().toSet()
         assertTrue(innerPairHighlights.isEmpty())
         val originalBrackets = bracketColorHighlighters().toSet()
@@ -144,9 +146,10 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
 
         editor.caretModel.moveToOffset(source.indexOf("tail"))
         assertEquals(1, collections)
-        assertFalse(innerGuide.isValid)
+        assertTrue(innerGuide.isValid)
         assertTrue(innerPairHighlights.all { !it.isValid })
         val outerGuide = checkNotNull(activeGuide())
+        assertSame(innerGuide, outerGuide)
         assertEquals(outer, activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY)?.pair)
         assertEquals(1, guideHighlighters().size)
         assertEquals(originalBrackets, bracketColorHighlighters().toSet())
@@ -495,6 +498,32 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             pair.closeOffset + "fast ".length,
             activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY)?.pair?.closeOffset,
         )
+    }
+
+    fun testRapidPairSwitchesReuseOneGuideHighlighter() {
+        val pairCount = 10_000
+        val source = "(x)".repeat(pairCount)
+        myFixture.configureByText("Switches.txt", source)
+        val pairs = List(pairCount) { index ->
+            val openOffset = index * 3
+            BracketPair(openOffset, 1, openOffset + 2, 1, 0, 0, 0)
+        }
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(1)
+        applyPass(BracketPairProvider { pairs }) { TextRange(0, 256) }
+        val persistentGuide = checkNotNull(activeGuide())
+
+        val elapsed = measureTimeMillis {
+            var index = 1
+            while (index <= 2_000) {
+                editor.caretModel.moveToOffset(index * 3 + 1)
+                index++
+            }
+        }
+
+        assertSame(persistentGuide, activeGuide())
+        assertEquals(1, guideHighlighters().size)
+        assertTrue("2k active-pair switches took ${elapsed}ms", elapsed < 2_000)
     }
 
     private fun applyPass(

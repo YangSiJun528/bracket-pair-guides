@@ -358,6 +358,9 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             val deepestOffset = ((deepest.openOffset + deepest.openTokenLength) +
                 deepest.closeOffset) / 2
             editor.caretModel.moveToOffset(deepestOffset)
+            val persistentGuide = editor.markupModel.allHighlighters.single {
+                it.getUserData(GuideLineHighlightingPass.GUIDE_KEY) != null
+            }
             assertEquals(
                 pairs.getOrNull(activeIndex.activePairIndex(deepestOffset)),
                 editor.markupModel.allHighlighters.activeGuidePair(),
@@ -371,6 +374,12 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 .maxBy { it.closeOffset - it.openOffset }
             val outerOffset = outer.openOffset + outer.openTokenLength
             editor.caretModel.moveToOffset(outerOffset)
+            assertSame(
+                persistentGuide,
+                editor.markupModel.allHighlighters.single {
+                    it.getUserData(GuideLineHighlightingPass.GUIDE_KEY) != null
+                },
+            )
             assertEquals(outer, editor.markupModel.allHighlighters.activeGuidePair())
             assertEquals(
                 tokenHighlights,
