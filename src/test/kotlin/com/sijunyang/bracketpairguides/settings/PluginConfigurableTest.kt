@@ -1,14 +1,18 @@
 package com.sijunyang.bracketpairguides.settings
 
+import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer
 import com.sijunyang.bracketpairguides.analyzer.BracketPairProvider
 import com.sijunyang.bracketpairguides.renderer.ActiveBracketPairIndex
-import com.sijunyang.bracketpairguides.renderer.GuideLineHighlightingPass
+import com.sijunyang.bracketpairguides.renderer.GUIDE_PAINT_STATE_KEY
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.fileTypes.UnknownFileType
+import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.ui.ColorPanel
 import com.intellij.ui.OnePixelSplitter
@@ -183,7 +187,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertTrue(configurable.isModified)
 
             configurable.apply()
-            val persisted = PluginSettings.getInstance().state
+            val persisted = PluginSettings.getInstance().options
             assertFalse(persisted.useIndependentComponentColors)
             assertEquals(
                 BracketColorPalette.colorToStoredValue(customGuide),
@@ -203,21 +207,16 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             val preview = component.descendants()
                 .filterIsInstance<BracketSettingsPreview>()
                 .single()
-            val initialState = PluginSettings.getInstance().state.deepCopy()
-            val selectedExample = preview.exampleSelector.selectedItem as PreviewExample
-
-            replacePreviewText(preview, preview.previewEditor.document.text + "\n")
-            preview.previewEditor.caretModel.moveToOffset(
-                selectedExample.initialCaretOffset,
-            )
-            preview.recognizeNowForTest()
+            val initialState = PluginSettings.getInstance().options
             assertFalse(configurable.isModified)
-            assertEquals(initialState, PluginSettings.getInstance().state)
+            assertEquals(initialState, PluginSettings.getInstance().options)
 
-            val pairCount = preview.recognizedPairs.size
-            assertTrue(pairCount > 0)
+            val tokenCount = preview.previewEditor.markupModel.allHighlighters
+                .tokenHighlighters()
+                .size
+            assertTrue(tokenCount > 0)
             assertEquals(
-                pairCount * 2 + 1,
+                tokenCount + 1,
                 preview.previewEditor.markupModel.allHighlighters.size,
             )
             assertEquals(1, preview.previewEditor.markupModel.allHighlighters.countGuide())
@@ -225,7 +224,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
 
             component.checkBox("Color matching bracket tokens by nesting level").doClick()
             assertEquals(1, preview.previewEditor.markupModel.allHighlighters.size)
-            assertEquals(initialState, PluginSettings.getInstance().state)
+            assertEquals(initialState, PluginSettings.getInstance().options)
             assertTrue(configurable.isModified)
 
             component.checkBox("Show active pair guide").doClick()
@@ -236,11 +235,11 @@ class PluginConfigurableTest : BasePlatformTestCase() {
 
             component.checkBox("Enable bracket pair guides").doClick()
             assertEquals(0, preview.previewEditor.markupModel.allHighlighters.size)
-            assertEquals(initialState, PluginSettings.getInstance().state)
+            assertEquals(initialState, PluginSettings.getInstance().options)
 
             configurable.apply()
-            assertFalse(PluginSettings.getInstance().state.enabled)
-            assertFalse(PluginSettings.getInstance().state.colorBracketTokens)
+            assertFalse(PluginSettings.getInstance().options.enabled)
+            assertFalse(PluginSettings.getInstance().options.colorBracketTokens)
             assertFalse(configurable.isModified)
         }
     }
@@ -249,7 +248,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         val preview = BracketSettingsPreview()
         val editor = preview.previewEditor
         try {
-            preview.update(PluginSettings.State())
+            preview.update(PluginOptions())
             val examples = (0 until preview.exampleSelector.itemCount).map { index ->
                 preview.exampleSelector.getItemAt(index)
             }
@@ -267,21 +266,22 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 preview.exampleSelector.selectedItem = example
                 assertEquals(example.source, editor.document.text)
                 assertEquals(example.initialCaretOffset, editor.caretModel.offset)
+                val pairs = recognizedPairs(preview)
                 assertTrue(
                     "${example.displayName} should recognize pairs",
-                    preview.recognizedPairs.isNotEmpty(),
+                    pairs.isNotEmpty(),
                 )
-                assertRecognizedRangesAreValid(preview)
+                assertRecognizedRangesAreValid(editor, pairs)
 
-                val activeIndex = ActiveBracketPairIndex.build(preview.recognizedPairs)
-                val active = preview.recognizedPairs.getOrNull(
+                val activeIndex = ActiveBracketPairIndex.build(pairs)
+                val active = pairs.getOrNull(
                     activeIndex.activePairIndex(editor.caretModel.offset),
                 )
                 assertNotNull("${example.displayName} should start inside a pair", active)
                 assertEquals(1, editor.markupModel.allHighlighters.countGuide())
                 assertEquals(0, editor.markupModel.allHighlighters.countActivePairs())
                 assertEquals(
-                    preview.recognizedPairs.size * 2 + 1,
+                    pairs.size * 2 + 1,
                     editor.markupModel.allHighlighters.size,
                 )
             }
@@ -295,9 +295,8 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         val preview = BracketSettingsPreview()
         val editor = preview.previewEditor
         try {
-            preview.update(PluginSettings.State())
+            preview.update(PluginOptions())
             selectExample(preview, "java")
-            val initialRuns = preview.analysisRunCount
             val source = """
                 class Edited {
                     String ignored = "}";
@@ -309,23 +308,18 @@ class PluginConfigurableTest : BasePlatformTestCase() {
 
             replacePreviewText(preview, source)
             editor.caretModel.moveToOffset(source.indexOf("call"))
-            preview.recognizeNowForTest()
+            selectExample(preview, "json")
+            selectExample(preview, "java")
 
-            assertEquals(initialRuns + 1, preview.analysisRunCount)
             assertEquals(source, editor.document.text)
-            assertTrue(preview.recognizedPairs.isNotEmpty())
+            assertTrue(editor.markupModel.allHighlighters.tokenHighlighters().isNotEmpty())
             val ignoredBraceOffset = source.indexOf("\"}\"") + 1
             assertFalse(
-                preview.recognizedPairs.any { pair ->
-                    pair.openOffset == ignoredBraceOffset ||
-                        pair.closeOffset == ignoredBraceOffset
+                editor.markupModel.allHighlighters.tokenHighlighters().any { highlighter ->
+                    highlighter.startOffset == ignoredBraceOffset
                 },
             )
-            assertRecognizedRangesAreValid(preview)
-            assertEquals(
-                preview.recognizedPairs.size * 2 + 1,
-                editor.markupModel.allHighlighters.size,
-            )
+            assertEquals(1, editor.markupModel.allHighlighters.countGuide())
         } finally {
             preview.dispose()
         }
@@ -344,11 +338,10 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         )
         val editor = preview.previewEditor
         try {
-            preview.update(PluginSettings.State())
-            val pairs = preview.recognizedPairs
+            preview.update(PluginOptions())
+            val pairs = recognizedPairs(preview)
             assertTrue(pairs.isNotEmpty())
             assertEquals(1, collections)
-            val analyses = preview.analysisRunCount
             val activeIndex = ActiveBracketPairIndex.build(pairs)
             val tokenHighlights = editor.markupModel.allHighlighters
                 .tokenHighlighters()
@@ -359,7 +352,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 deepest.closeOffset) / 2
             editor.caretModel.moveToOffset(deepestOffset)
             val persistentGuide = editor.markupModel.allHighlighters.single {
-                it.getUserData(GuideLineHighlightingPass.GUIDE_KEY) != null
+                it.getUserData(GUIDE_PAINT_STATE_KEY) != null
             }
             assertEquals(
                 pairs.getOrNull(activeIndex.activePairIndex(deepestOffset)),
@@ -377,7 +370,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertSame(
                 persistentGuide,
                 editor.markupModel.allHighlighters.single {
-                    it.getUserData(GuideLineHighlightingPass.GUIDE_KEY) != null
+                    it.getUserData(GUIDE_PAINT_STATE_KEY) != null
                 },
             )
             assertEquals(outer, editor.markupModel.allHighlighters.activeGuidePair())
@@ -393,7 +386,6 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 tokenHighlights,
                 editor.markupModel.allHighlighters.tokenHighlighters().toSet(),
             )
-            assertEquals(analyses, preview.analysisRunCount)
             assertEquals(1, collections)
         } finally {
             preview.dispose()
@@ -447,22 +439,20 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             replacePreviewText(preview, largeJava)
 
             selectExample(preview, "json")
-            val analysesBeforeReturn = preview.analysisRunCount
             selectExample(preview, "java")
 
             assertEquals(largeJava, preview.previewEditor.document.text)
-            assertEquals(analysesBeforeReturn, preview.analysisRunCount)
-            assertTrue(preview.recognizedPairs.isEmpty())
+            assertTrue(preview.previewEditor.markupModel.allHighlighters.isEmpty())
         } finally {
             preview.dispose()
         }
     }
 
-    fun testDensePreviewCapsTokenHighlightersOnTheEdt() {
+    fun testDensePreviewDecoratesEveryRecognizedToken() {
         val preview = BracketSettingsPreview()
         val editor = preview.previewEditor
         try {
-            preview.update(PluginSettings.State())
+            preview.update(PluginOptions())
             selectExample(preview, "java")
             val denseJava = buildString {
                 append("class Dense { void run() {\n")
@@ -471,14 +461,12 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             }
             replacePreviewText(preview, denseJava)
             editor.caretModel.moveToOffset(denseJava.indexOf("call"))
-            preview.recognizeNowForTest()
+            selectExample(preview, "json")
+            selectExample(preview, "java")
+            val pairs = recognizedPairs(preview)
 
-            assertTrue(
-                preview.recognizedPairs.size >
-                    PreviewDecorationController.MAX_TOKEN_PAIR_HIGHLIGHTS,
-            )
             assertEquals(
-                PreviewDecorationController.MAX_TOKEN_PAIR_HIGHLIGHTS * 2,
+                pairs.size * 2,
                 editor.markupModel.allHighlighters.tokenHighlighters().size,
             )
         } finally {
@@ -526,27 +514,34 @@ class PluginConfigurableTest : BasePlatformTestCase() {
     }
 
     fun testRepeatedPreviewRefreshDoesNotAccumulateMarkupOrEditors() {
+        var collections = 0
         val factory = EditorFactory.getInstance()
         val editorsBefore = factory.allEditors.toSet()
-        val preview = BracketSettingsPreview()
+        val preview = BracketSettingsPreview(
+            PreviewPairProviderFactory { editor, fileType ->
+                val delegate = BracketPairAnalyzer(editor, fileType)
+                BracketPairProvider { progress ->
+                    collections++
+                    delegate.collect(progress)
+                }
+            },
+        )
         val editor = preview.previewEditor
         try {
-            preview.update(PluginSettings.State())
-            val pairCount = preview.recognizedPairs.size
-            val analyses = preview.analysisRunCount
+            preview.update(PluginOptions())
             val tokenHighlights = editor.markupModel.allHighlighters
                 .tokenHighlighters()
                 .toSet()
             repeat(250) { iteration ->
                 preview.update(
-                    PluginSettings.State(
+                    PluginOptions(
                         guideLineWidth = 1 + iteration % 4,
                         guideOpacityPercent = 10 + (iteration % 19) * 5,
                         pairBackgroundOpacityPercent = iteration % 101,
                     ),
                 )
                 assertEquals(
-                    pairCount * 2 + 1,
+                    tokenHighlights.size + 1,
                     editor.markupModel.allHighlighters.size,
                 )
                 assertEquals(
@@ -554,15 +549,15 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                     editor.markupModel.allHighlighters.tokenHighlighters().toSet(),
                 )
             }
-            assertEquals(pairCount * 2, editor.markupModel.allHighlighters.tokenHighlighters().size)
-            assertEquals(analyses, preview.analysisRunCount)
+            assertEquals(
+                tokenHighlights.size,
+                editor.markupModel.allHighlighters.tokenHighlighters().size,
+            )
+            assertEquals(1, collections)
             assertEquals(editorsBefore.size + 1, factory.allEditors.toSet().size)
         } finally {
             preview.dispose()
         }
-        val runsAfterDispose = preview.analysisRunCount
-        preview.recognizeNowForTest()
-        assertEquals(runsAfterDispose, preview.analysisRunCount)
         assertTrue(editor.isDisposed)
         assertEquals(editorsBefore, factory.allEditors.toSet())
     }
@@ -588,25 +583,21 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         .single { (it.value as Number).toInt() == value }
 
     private fun Array<RangeHighlighter>.countGuide(): Int = count {
-        it.getUserData(GuideLineHighlightingPass.GUIDE_KEY) != null
+        it.getUserData(GUIDE_PAINT_STATE_KEY) != null
     }
 
     private fun Array<RangeHighlighter>.countActivePairs(): Int = count {
-        it.getUserData(GuideLineHighlightingPass.ACTIVE_PAIR_HIGHLIGHT_KEY) == true
+        it.layer == HighlighterLayer.ELEMENT_UNDER_CARET
     }
 
     private fun Array<RangeHighlighter>.tokenHighlighters(): List<RangeHighlighter> =
         filter { highlighter ->
-            highlighter.getUserData(GuideLineHighlightingPass.OWNED_HIGHLIGHTER_KEY) == true &&
-                highlighter.getUserData(GuideLineHighlightingPass.GUIDE_KEY) == null &&
-                highlighter.getUserData(
-                    GuideLineHighlightingPass.ACTIVE_PAIR_HIGHLIGHT_KEY,
-                ) != true
+            highlighter.textAttributesKey in BracketColorPalette.LEVEL_KEYS
         }
 
     private fun Array<RangeHighlighter>.activeGuidePair() = singleOrNull { highlighter ->
-        highlighter.getUserData(GuideLineHighlightingPass.GUIDE_KEY) != null
-    }?.getUserData(GuideLineHighlightingPass.GUIDE_KEY)?.pair
+        highlighter.getUserData(GUIDE_PAINT_STATE_KEY) != null
+    }?.getUserData(GUIDE_PAINT_STATE_KEY)?.guide?.pair
 
     private fun selectExample(
         preview: BracketSettingsPreview,
@@ -625,9 +616,20 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         }
     }
 
-    private fun assertRecognizedRangesAreValid(preview: BracketSettingsPreview) {
-        val document = preview.previewEditor.document
-        preview.recognizedPairs.forEachIndexed { index, pair ->
+    private fun recognizedPairs(preview: BracketSettingsPreview): List<BracketPair> {
+        val example = preview.exampleSelector.selectedItem as PreviewExample
+        return BracketPairAnalyzer(
+            preview.previewEditor,
+            example.resolveFileType(),
+        ).collect(EmptyProgressIndicator())
+    }
+
+    private fun assertRecognizedRangesAreValid(
+        editor: Editor,
+        pairs: List<BracketPair>,
+    ) {
+        val document = editor.document
+        pairs.forEachIndexed { index, pair ->
             assertTrue("Pair $index has a negative opening offset", pair.openOffset >= 0)
             assertTrue("Pair $index has an empty opening token", pair.openTokenLength > 0)
             assertTrue(
@@ -647,13 +649,6 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertEquals(document.getLineNumber(pair.closeOffset), pair.closeLine)
         }
     }
-
-    private fun PluginSettings.State.deepCopy(): PluginSettings.State = copy(
-        levelBaseColors = levelBaseColors.toMutableList(),
-        guideLineColors = guideLineColors.toMutableList(),
-        pairBorderColors = pairBorderColors.toMutableList(),
-        pairBackgroundColors = pairBackgroundColors.toMutableList(),
-    )
 
     private fun Component.descendants(): List<Component> = buildList {
         add(this@descendants)

@@ -5,11 +5,46 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 
+/** Immutable settings consumed by analysis, rendering, and the settings preview. */
+internal data class PluginOptions(
+    val enabled: Boolean = true,
+    val colorBracketTokens: Boolean = true,
+    val showActiveGuide: Boolean = true,
+    val showVerticalGuide: Boolean = true,
+    val showHorizontalGuides: Boolean = true,
+    val guideLineWidth: Int = PluginSettings.DEFAULT_GUIDE_LINE_WIDTH,
+    val guideOpacityPercent: Int = PluginSettings.DEFAULT_GUIDE_OPACITY_PERCENT,
+    val showActivePairBorder: Boolean = false,
+    val showActivePairBackground: Boolean = false,
+    val pairBackgroundOpacityPercent: Int =
+        PluginSettings.DEFAULT_PAIR_BACKGROUND_OPACITY_PERCENT,
+    val pairBorderStyle: String = PairBorderStyle.BOX.name,
+    val useIndependentComponentColors: Boolean = false,
+    val levelBaseColors: List<Int> = automaticColors(),
+    val guideLineColors: List<Int> = automaticColors(),
+    val pairBorderColors: List<Int> = automaticColors(),
+    val pairBackgroundColors: List<Int> = automaticColors(),
+) {
+    val showsActivePair: Boolean
+        get() = showActivePairBorder ||
+            (showActivePairBackground && pairBackgroundOpacityPercent > 0)
+
+    val showsGuide: Boolean
+        get() = showActiveGuide && (showVerticalGuide || showHorizontalGuides)
+
+    private companion object {
+        fun automaticColors(): List<Int> = List(BracketColorPalette.COLOR_COUNT) {
+            BracketColorPalette.AUTOMATIC_COLOR
+        }
+    }
+}
+
 @State(
     name = "BracketPairGuides",
     storages = [Storage("bracket-pair-guides.xml")],
 )
 internal class PluginSettings : PersistentStateComponent<PluginSettings.State> {
+    /** Mutable bean used only at the XML serialization boundary. */
     data class State(
         var enabled: Boolean = true,
         var colorBracketTokens: Boolean = true,
@@ -29,34 +64,79 @@ internal class PluginSettings : PersistentStateComponent<PluginSettings.State> {
         var pairBackgroundColors: MutableList<Int> = automaticColors(),
     )
 
-    private var currentState = State()
+    @Volatile
+    private var currentOptions = PluginOptions()
 
-    override fun getState(): State = currentState
+    val options: PluginOptions
+        get() = currentOptions
+
+    override fun getState(): State = currentOptions.toState()
 
     override fun loadState(state: State) {
-        state.guideLineWidth = state.guideLineWidth.coerceIn(
+        currentOptions = state.toOptions()
+    }
+
+    fun replace(options: PluginOptions) {
+        currentOptions = options.normalized()
+    }
+
+    private fun State.toOptions(): PluginOptions = PluginOptions(
+        enabled = enabled,
+        colorBracketTokens = colorBracketTokens,
+        showActiveGuide = showActiveGuide,
+        showVerticalGuide = showVerticalGuide,
+        showHorizontalGuides = showHorizontalGuides,
+        guideLineWidth = guideLineWidth,
+        guideOpacityPercent = guideOpacityPercent,
+        showActivePairBorder = showActivePairBorder,
+        showActivePairBackground = showActivePairBackground,
+        pairBackgroundOpacityPercent = pairBackgroundOpacityPercent,
+        pairBorderStyle = pairBorderStyle,
+        useIndependentComponentColors = useIndependentComponentColors,
+        levelBaseColors = levelBaseColors,
+        guideLineColors = guideLineColors,
+        pairBorderColors = pairBorderColors,
+        pairBackgroundColors = pairBackgroundColors,
+    ).normalized()
+
+    private fun PluginOptions.normalized(): PluginOptions = copy(
+        guideLineWidth = guideLineWidth.coerceIn(
             MIN_GUIDE_LINE_WIDTH,
             MAX_GUIDE_LINE_WIDTH,
-        )
-        state.guideOpacityPercent = state.guideOpacityPercent.coerceIn(
+        ),
+        guideOpacityPercent = guideOpacityPercent.coerceIn(
             MIN_GUIDE_OPACITY_PERCENT,
             MAX_GUIDE_OPACITY_PERCENT,
-        )
-        state.pairBackgroundOpacityPercent = state.pairBackgroundOpacityPercent.coerceIn(
+        ),
+        pairBackgroundOpacityPercent = pairBackgroundOpacityPercent.coerceIn(
             MIN_PAIR_BACKGROUND_OPACITY_PERCENT,
             MAX_PAIR_BACKGROUND_OPACITY_PERCENT,
-        )
-        state.pairBorderStyle = PairBorderStyle.fromPersistentValue(
-            state.pairBorderStyle,
-        ).name
-        state.levelBaseColors = BracketColorPalette.normalizeColors(state.levelBaseColors)
-        state.guideLineColors = BracketColorPalette.normalizeColors(state.guideLineColors)
-        state.pairBorderColors = BracketColorPalette.normalizeColors(state.pairBorderColors)
-        state.pairBackgroundColors = BracketColorPalette.normalizeColors(
-            state.pairBackgroundColors,
-        )
-        currentState = state
-    }
+        ),
+        pairBorderStyle = PairBorderStyle.fromPersistentValue(pairBorderStyle).name,
+        levelBaseColors = BracketColorPalette.normalizeColors(levelBaseColors),
+        guideLineColors = BracketColorPalette.normalizeColors(guideLineColors),
+        pairBorderColors = BracketColorPalette.normalizeColors(pairBorderColors),
+        pairBackgroundColors = BracketColorPalette.normalizeColors(pairBackgroundColors),
+    )
+
+    private fun PluginOptions.toState(): State = State(
+        enabled = enabled,
+        colorBracketTokens = colorBracketTokens,
+        showActiveGuide = showActiveGuide,
+        showVerticalGuide = showVerticalGuide,
+        showHorizontalGuides = showHorizontalGuides,
+        guideLineWidth = guideLineWidth,
+        guideOpacityPercent = guideOpacityPercent,
+        showActivePairBorder = showActivePairBorder,
+        showActivePairBackground = showActivePairBackground,
+        pairBackgroundOpacityPercent = pairBackgroundOpacityPercent,
+        pairBorderStyle = pairBorderStyle,
+        useIndependentComponentColors = useIndependentComponentColors,
+        levelBaseColors = levelBaseColors.toMutableList(),
+        guideLineColors = guideLineColors.toMutableList(),
+        pairBorderColors = pairBorderColors.toMutableList(),
+        pairBackgroundColors = pairBackgroundColors.toMutableList(),
+    )
 
     companion object {
         const val MIN_GUIDE_LINE_WIDTH = 1

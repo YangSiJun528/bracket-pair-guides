@@ -1,7 +1,9 @@
 package com.sijunyang.bracketpairguides.renderer
 
 import com.sijunyang.bracketpairguides.settings.BracketColorPalette
+import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
+import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.markup.HighlighterLayer
@@ -16,7 +18,7 @@ internal object ActivePairDecoration {
     fun addGuide(
         editor: Editor,
         guide: BracketGuide,
-        settings: PluginSettings.State,
+        settings: PluginOptions,
         reusable: RangeHighlighter? = null,
     ): RangeHighlighter? {
         val hasRenderableSegment = if (guide.pair.openLine == guide.pair.closeLine) {
@@ -41,38 +43,36 @@ internal object ActivePairDecoration {
             }
         return highlighter.also {
             it.customRenderer = BracketGuideRenderer
-            it.putUserData(GuideLineHighlightingPass.GUIDE_KEY, guide)
             it.putUserData(
-                GuideLineHighlightingPass.GUIDE_RENDER_OPTIONS_KEY,
-                GuideRenderOptions(
-                    showVertical = settings.showVerticalGuide,
-                    showHorizontal = settings.showHorizontalGuides,
-                    lineWidth = settings.guideLineWidth.coerceIn(
-                        PluginSettings.MIN_GUIDE_LINE_WIDTH,
-                        PluginSettings.MAX_GUIDE_LINE_WIDTH,
+                GUIDE_PAINT_STATE_KEY,
+                GuidePaintState(
+                    guide = guide,
+                    options = GuideRenderOptions(
+                        showVertical = settings.showVerticalGuide,
+                        showHorizontal = settings.showHorizontalGuides,
+                        lineWidth = settings.guideLineWidth.coerceIn(
+                            PluginSettings.MIN_GUIDE_LINE_WIDTH,
+                            PluginSettings.MAX_GUIDE_LINE_WIDTH,
+                        ),
+                        opacityPercent = settings.guideOpacityPercent.coerceIn(
+                            PluginSettings.MIN_GUIDE_OPACITY_PERCENT,
+                            PluginSettings.MAX_GUIDE_OPACITY_PERCENT,
+                        ),
                     ),
-                    opacityPercent = settings.guideOpacityPercent.coerceIn(
-                        PluginSettings.MIN_GUIDE_OPACITY_PERCENT,
-                        PluginSettings.MAX_GUIDE_OPACITY_PERCENT,
+                    color = BracketColorPalette.guideLineColor(
+                        editor.colorsScheme,
+                        settings,
+                        guide.pair.depth,
                     ),
                 ),
             )
-            it.putUserData(
-                GuideLineHighlightingPass.GUIDE_COLOR_KEY,
-                BracketColorPalette.guideLineColor(
-                    editor.colorsScheme,
-                    settings,
-                    guide.pair.depth,
-                ),
-            )
-            it.putUserData(GuideLineHighlightingPass.OWNED_HIGHLIGHTER_KEY, true)
         }
     }
 
     fun addPairHighlights(
         editor: Editor,
-        guide: BracketGuide,
-        settings: PluginSettings.State,
+        pair: BracketPair,
+        settings: PluginOptions,
     ): List<RangeHighlighter> {
         val hasVisibleBackground = BracketColorPalette.hasVisiblePairBackground(settings)
         if (!settings.enabled ||
@@ -83,11 +83,11 @@ internal object ActivePairDecoration {
         val attributes = BracketColorPalette.activePairTextAttributes(
             editor.colorsScheme,
             settings,
-            guide.pair.depth,
+            pair.depth,
         )
         return listOf(
-            guide.pair.openOffset to guide.pair.openTokenLength,
-            guide.pair.closeOffset to guide.pair.closeTokenLength,
+            pair.openOffset to pair.openTokenLength,
+            pair.closeOffset to pair.closeTokenLength,
         ).map { (startOffset, tokenLength) ->
             editor.markupModel.addRangeHighlighter(
                 startOffset,
@@ -98,8 +98,6 @@ internal object ActivePairDecoration {
             ).also {
                 it.isGreedyToLeft = false
                 it.isGreedyToRight = false
-                it.putUserData(GuideLineHighlightingPass.OWNED_HIGHLIGHTER_KEY, true)
-                it.putUserData(GuideLineHighlightingPass.ACTIVE_PAIR_HIGHLIGHT_KEY, true)
             }
         }
     }

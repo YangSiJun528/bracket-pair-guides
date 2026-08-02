@@ -1,6 +1,7 @@
 package com.sijunyang.bracketpairguides.settings
 
-import com.sijunyang.bracketpairguides.analyzer.BracketPair
+import com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer
+import com.sijunyang.bracketpairguides.renderer.AnalysisSnapshot
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
@@ -42,12 +43,7 @@ import javax.swing.JPanel
  */
 internal class BracketSettingsPreview(
     pairProviderFactory: PreviewPairProviderFactory =
-        PreviewPairProviderFactory { editor, fileType ->
-            com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer(
-                editor,
-                fileType,
-            )
-        },
+        PreviewPairProviderFactory(::BracketPairAnalyzer),
 ) : JPanel(BorderLayout()), Disposable {
     private val lifetime = Disposer.newDisposable("Bracket settings preview")
     private val recognitionAlarm = Alarm(Alarm.ThreadToUse.SWING_THREAD, lifetime)
@@ -60,16 +56,10 @@ internal class BracketSettingsPreview(
     internal val exampleSelector = JComboBox(examples.toTypedArray())
     internal val resetExampleButton = JButton("Reset")
     internal val previewEditor: EditorEx
-    internal var analysisRunCount: Int = 0
-        private set
-    internal val recognizedPairs: List<BracketPair>
-        get() = recognition.pairs
-
     private var currentExample = examples.first()
     @Volatile
     private var currentFileType: FileType = currentExample.resolveFileType()
-    private var currentSettings: PluginSettings.State? = null
-    private var recognition = PreviewRecognitionResult.EMPTY
+    private var currentSettings: PluginOptions? = null
     @Volatile
     private var recognitionGeneration = 0L
     private var changingDocument = false
@@ -124,7 +114,7 @@ internal class BracketSettingsPreview(
             EditorColorsListener {
                 ApplicationManager.getApplication().invokeLater {
                     if (!disposed && !previewEditor.isDisposed) {
-                        currentSettings?.let(decoration::updateSettings)
+                        currentSettings?.let(decoration::updateOptions)
                     }
                 }
             },
@@ -135,14 +125,10 @@ internal class BracketSettingsPreview(
         recognizeSynchronously()
     }
 
-    fun update(settings: PluginSettings.State) {
+    fun update(options: PluginOptions) {
         if (disposed || previewEditor.isDisposed) return
-        currentSettings = settings.copyForPreview()
-        decoration.updateSettings(settings)
-    }
-
-    internal fun recognizeNowForTest() {
-        if (!disposed) recognizeSynchronously()
+        currentSettings = options
+        decoration.updateOptions(options)
     }
 
     override fun dispose() {
@@ -154,7 +140,6 @@ internal class BracketSettingsPreview(
         previewEditor.document.removeDocumentListener(documentListener)
         previewEditor.caretModel.removeCaretListener(caretListener)
         decoration.dispose()
-        recognition = PreviewRecognitionResult.EMPTY
         currentSettings = null
         EditorFactory.getInstance().releaseEditor(previewEditor)
     }
@@ -252,8 +237,7 @@ internal class BracketSettingsPreview(
         buffer: PreviewBuffer,
         nextFileType: FileType? = null,
     ) {
-        recognition = PreviewRecognitionResult.EMPTY
-        decoration.updateRecognition(recognition)
+        decoration.clearRecognition()
         changingDocument = true
         try {
             ApplicationManager.getApplication().runWriteAction {
@@ -288,8 +272,7 @@ internal class BracketSettingsPreview(
         delayMillis: Int = RECOGNITION_DEBOUNCE_MILLIS,
     ) {
         recognitionGeneration++
-        recognition = PreviewRecognitionResult.EMPTY
-        decoration.updateRecognition(recognition)
+        decoration.clearRecognition()
         recognitionAlarm.cancelAllRequests()
         if (previewEditor.document.textLength > MAX_PREVIEW_LENGTH) {
             return
@@ -305,9 +288,7 @@ internal class BracketSettingsPreview(
         val generation = recognitionGeneration
         val modificationStamp = previewEditor.document.modificationStamp
         val fileType = currentFileType
-        analysisRunCount++
-
-        ReadAction.nonBlocking<PreviewRecognitionResult> {
+        ReadAction.nonBlocking<AnalysisSnapshot> {
             val indicator = ProgressManager.getInstance().progressIndicator
                 ?: EmptyProgressIndicator()
             recognizer.recognize(previewEditor, fileType, indicator)
@@ -337,11 +318,10 @@ internal class BracketSettingsPreview(
         recognitionGeneration++
         recognitionAlarm.cancelAllRequests()
         if (previewEditor.document.textLength > MAX_PREVIEW_LENGTH) {
-            applyRecognition(PreviewRecognitionResult.EMPTY)
+            decoration.clearRecognition()
             return
         }
-        analysisRunCount++
-        val result = ReadAction.compute<PreviewRecognitionResult, RuntimeException> {
+        val result = ReadAction.compute<AnalysisSnapshot, RuntimeException> {
             recognizer.recognize(
                 previewEditor,
                 currentFileType,
@@ -351,17 +331,9 @@ internal class BracketSettingsPreview(
         applyRecognition(result)
     }
 
-    private fun applyRecognition(result: PreviewRecognitionResult) {
-        recognition = result
+    private fun applyRecognition(result: AnalysisSnapshot) {
         decoration.updateRecognition(result)
     }
-
-    private fun PluginSettings.State.copyForPreview(): PluginSettings.State = copy(
-        levelBaseColors = levelBaseColors.toMutableList(),
-        guideLineColors = guideLineColors.toMutableList(),
-        pairBorderColors = pairBorderColors.toMutableList(),
-        pairBackgroundColors = pairBackgroundColors.toMutableList(),
-    )
 
     private data class PreviewBuffer(
         var text: String,

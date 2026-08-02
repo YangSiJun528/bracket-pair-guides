@@ -1,16 +1,16 @@
 package com.sijunyang.bracketpairguides.renderer
 
 import com.sijunyang.bracketpairguides.settings.BracketColorPalette
-import com.sijunyang.bracketpairguides.settings.PluginSettings
+import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.openapi.editor.ex.MarkupModelEx
 import com.intellij.openapi.editor.ex.RangeHighlighterEx
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
-import com.intellij.util.DocumentUtil
 
 internal data class VisibleTokenDecorations(
     val windowStartOffset: Int,
@@ -20,12 +20,17 @@ internal data class VisibleTokenDecorations(
     fun contains(range: TextRange): Boolean {
         return windowStartOffset <= range.startOffset && windowEndOffset >= range.endOffset
     }
+
+    companion object {
+        val EMPTY = VisibleTokenDecorations(0, 0, emptyList())
+    }
 }
 
 internal data class VisibleTokenEntry(
     val highlighter: RangeHighlighter,
     val colorKey: TextAttributesKey,
     val levelIndex: Int,
+    val attributes: TextAttributes,
 )
 
 internal object VisibleTokenDecorationManager {
@@ -34,25 +39,16 @@ internal object VisibleTokenDecorationManager {
         previous: VisibleTokenDecorations?,
         tokenIndex: BracketTokenIndex,
         reportedVisibleRange: TextRange,
-        settings: PluginSettings.State,
+        options: PluginOptions,
     ): VisibleTokenDecorations {
         val window = desiredWindow(editor, reportedVisibleRange)
-        val previousEntries = previous?.entries.orEmpty()
-        val previousCount = previousEntries.size.toLong()
-        val nextCount = tokenIndex.countIn(window.startOffset, window.endOffset).toLong()
-        var entries: List<VisibleTokenEntry> = emptyList()
-        DocumentUtil.executeInBulk(
-            editor.document,
-            previousCount + nextCount > BULK_DECORATION_THRESHOLD,
-        ) {
-            entries = replaceEntries(
-                editor,
-                previousEntries,
-                tokenIndex,
-                window,
-                settings,
-            )
+        val reusable = ReusableHighlighters(previous?.entries.orEmpty())
+        val entries = if (options.enabled && options.colorBracketTokens) {
+            createEntries(editor, tokenIndex, window, reusable, options)
+        } else {
+            emptyList()
         }
+        reusable.disposeRemaining()
         return VisibleTokenDecorations(window.startOffset, window.endOffset, entries)
     }
 
@@ -61,34 +57,34 @@ internal object VisibleTokenDecorationManager {
         current: VisibleTokenDecorations,
         tokenIndex: BracketTokenIndex,
         reportedVisibleRange: TextRange,
-        settings: PluginSettings.State,
+        options: PluginOptions,
     ): VisibleTokenDecorations? {
         val visibleRange = normalizedVisibleRange(editor, reportedVisibleRange)
         if (current.contains(visibleRange)) return null
-        return replace(editor, current, tokenIndex, visibleRange, settings)
+        return replace(editor, current, tokenIndex, visibleRange, options)
     }
 
     fun updateAttributes(
         editor: Editor,
         current: VisibleTokenDecorations,
-        settings: PluginSettings.State,
+        options: PluginOptions,
     ): VisibleTokenDecorations {
-        if (!settings.enabled || !settings.colorBracketTokens) {
+        if (!options.enabled || !options.colorBracketTokens) {
             disposeEntries(current.entries)
             return current.copy(entries = emptyList())
         }
 
-        val palette = TokenPalette(editor, settings)
-        for ((highlighter, colorKey, levelIndex) in current.entries) {
-            if (highlighter.isValid) {
-                applyPresentation(
-                    highlighter,
-                    colorKey,
-                    palette.attributes[levelIndex],
-                )
+        val palette = TokenPalette(editor, options)
+        val entries = current.entries.map { entry ->
+            val attributes = palette.attributes[entry.levelIndex]
+            if (entry.highlighter.isValid && entry.attributes != attributes) {
+                applyPresentation(editor, entry.highlighter, entry.colorKey, attributes)
+                entry.copy(attributes = attributes)
+            } else {
+                entry
             }
         }
-        return current
+        return current.copy(entries = entries)
     }
 
     fun dispose(decorations: VisibleTokenDecorations?) {
@@ -96,31 +92,14 @@ internal object VisibleTokenDecorationManager {
         disposeEntries(decorations.entries)
     }
 
-    private fun replaceEntries(
-        editor: Editor,
-        previousEntries: List<VisibleTokenEntry>,
-        tokenIndex: BracketTokenIndex,
-        window: TextRange,
-        settings: PluginSettings.State,
-    ): List<VisibleTokenEntry> {
-        val reusable = ReusableHighlighters(previousEntries)
-        val entries = if (settings.enabled && settings.colorBracketTokens) {
-            createEntries(editor, tokenIndex, window, reusable, settings)
-        } else {
-            emptyList()
-        }
-        reusable.disposeRemaining()
-        return entries
-    }
-
     private fun createEntries(
         editor: Editor,
         tokenIndex: BracketTokenIndex,
         window: TextRange,
         reusable: ReusableHighlighters,
-        settings: PluginSettings.State,
+        options: PluginOptions,
     ): List<VisibleTokenEntry> {
-        val palette = TokenPalette(editor, settings)
+        val palette = TokenPalette(editor, options)
         val entries = ArrayList<VisibleTokenEntry>(
             tokenIndex.countIn(window.startOffset, window.endOffset),
         )
@@ -154,30 +133,74 @@ internal object VisibleTokenDecorationManager {
         palette: TokenPalette,
     ): VisibleTokenEntry {
         val colorKey = BracketColorPalette.LEVEL_KEYS[levelIndex]
-        val highlighter = reusable.take(startOffset, endOffset)
-            ?: editor.markupModel.addRangeHighlighter(
+        val attributes = palette.attributes[levelIndex]
+        val previous = reusable.take(startOffset, endOffset)
+        val highlighter = previous?.highlighter ?: addHighlighter(
+            editor,
+            colorKey,
+            startOffset,
+            endOffset,
+            attributes,
+        )
+        if (previous != null &&
+            (previous.colorKey !== colorKey || previous.attributes != attributes)
+        ) {
+            applyPresentation(editor, highlighter, colorKey, attributes)
+        }
+        highlighter.customRenderer = null
+        return VisibleTokenEntry(highlighter, colorKey, levelIndex, attributes)
+    }
+
+    private fun addHighlighter(
+        editor: Editor,
+        colorKey: TextAttributesKey,
+        startOffset: Int,
+        endOffset: Int,
+        attributes: TextAttributes,
+    ): RangeHighlighter {
+        val markup = editor.markupModel
+        return if (markup is MarkupModelEx) {
+            markup.addRangeHighlighterAndChangeAttributes(
                 colorKey,
                 startOffset,
                 endOffset,
                 HighlighterLayer.ADDITIONAL_SYNTAX,
                 HighlighterTargetArea.EXACT_RANGE,
-            )
-        applyPresentation(highlighter, colorKey, palette.attributes[levelIndex])
-        highlighter.customRenderer = null
-        highlighter.putUserData(GuideLineHighlightingPass.GUIDE_KEY, null)
-        highlighter.putUserData(GuideLineHighlightingPass.OWNED_HIGHLIGHTER_KEY, true)
-        return VisibleTokenEntry(highlighter, colorKey, levelIndex)
+                false,
+            ) { highlighter ->
+                highlighter.textAttributes = attributes
+            }
+        } else {
+            markup.addRangeHighlighter(
+                colorKey,
+                startOffset,
+                endOffset,
+                HighlighterLayer.ADDITIONAL_SYNTAX,
+                HighlighterTargetArea.EXACT_RANGE,
+            ).also { highlighter ->
+                applyPresentation(editor, highlighter, colorKey, attributes)
+            }
+        }
     }
 
-    // RangeHighlighter exposes an incompatible getter/setter pair under Kotlin 1.9.
     @Suppress("UsePropertyAccessSyntax")
     private fun applyPresentation(
+        editor: Editor,
         highlighter: RangeHighlighter,
         colorKey: TextAttributesKey,
         attributes: TextAttributes,
     ) {
-        highlighter.setTextAttributesKey(colorKey)
-        (highlighter as? RangeHighlighterEx)?.textAttributes = attributes
+        val rangeHighlighter = highlighter as? RangeHighlighterEx
+        val markup = editor.markupModel as? MarkupModelEx
+        if (rangeHighlighter != null && markup != null) {
+            markup.changeAttributesInBatch(rangeHighlighter) {
+                it.setTextAttributesKey(colorKey)
+                it.textAttributes = attributes
+            }
+        } else {
+            highlighter.setTextAttributesKey(colorKey)
+            rangeHighlighter?.textAttributes = attributes
+        }
     }
 
     private fun normalizedVisibleRange(editor: Editor, reported: TextRange): TextRange {
@@ -218,9 +241,9 @@ internal object VisibleTokenDecorationManager {
         }
     }
 
-    private class TokenPalette(editor: Editor, settings: PluginSettings.State) {
+    private class TokenPalette(editor: Editor, options: PluginOptions) {
         val attributes = Array(BracketColorPalette.COLOR_COUNT) { level ->
-            BracketColorPalette.bracketTextAttributes(editor.colorsScheme, settings, level)
+            BracketColorPalette.bracketTextAttributes(editor.colorsScheme, options, level)
         }
     }
 
@@ -228,9 +251,10 @@ internal object VisibleTokenDecorationManager {
         private val previous = entries
         private var index = 0
 
-        fun take(startOffset: Int, endOffset: Int): RangeHighlighter? {
+        fun take(startOffset: Int, endOffset: Int): VisibleTokenEntry? {
             while (index < previous.size) {
-                val highlighter = previous[index].highlighter
+                val entry = previous[index]
+                val highlighter = entry.highlighter
                 if (!highlighter.isValid) {
                     highlighter.dispose()
                     index++
@@ -249,7 +273,7 @@ internal object VisibleTokenDecorationManager {
                 }
                 if (comparison > 0) return null
                 index++
-                return highlighter
+                return entry
             }
             return null
         }
@@ -274,5 +298,4 @@ internal object VisibleTokenDecorationManager {
     private const val MIN_TOKEN_WINDOW_PADDING = 256
     private const val MAX_TOKEN_WINDOW_PADDING = 4_096
     private const val MAX_REPORTED_VISIBLE_CHARACTERS = 16_384
-    private const val BULK_DECORATION_THRESHOLD = 2_000L
 }

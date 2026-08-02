@@ -1,8 +1,10 @@
 package com.sijunyang.bracketpairguides.renderer
 
+import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.colors.EditorColorsListener
 import com.intellij.openapi.editor.colors.EditorColorsManager
@@ -16,13 +18,9 @@ import com.intellij.openapi.editor.event.EditorFactoryListener
 import com.intellij.openapi.editor.event.VisibleAreaEvent
 import com.intellij.openapi.editor.event.VisibleAreaListener
 
-/**
- * Keeps the active guide and pair-symbol presentation synchronized with caret
- * movement without rerunning lexer analysis. The application service owns the
- * global listener for plugin unload and application-shutdown cleanup.
- */
+/** Routes platform editor events to the state owned by each editor session. */
 @Service(Service.Level.APP)
-internal class CaretGuideController :
+internal class EditorGuideEventRouter :
     CaretListener,
     DocumentListener,
     EditorFactoryListener,
@@ -39,48 +37,57 @@ internal class CaretGuideController :
             .subscribe(EditorColorsManager.TOPIC, this)
     }
 
-    override fun caretPositionChanged(event: CaretEvent) {
-        GuideLineHighlightingPass.updateActivePresentation(event.editor)
+    override fun caretPositionChanged(event: CaretEvent) = onEdt(event.editor) {
+        EditorGuideSession.get(event.editor)?.caretMoved()
     }
 
-    override fun caretAdded(event: CaretEvent) {
-        GuideLineHighlightingPass.updateActivePresentation(event.editor)
-    }
+    override fun caretAdded(event: CaretEvent) = caretPositionChanged(event)
 
-    override fun caretRemoved(event: CaretEvent) {
-        GuideLineHighlightingPass.updateActivePresentation(event.editor)
-    }
+    override fun caretRemoved(event: CaretEvent) = caretPositionChanged(event)
 
     override fun documentChanged(event: DocumentEvent) {
         val change = DocumentChange.from(event)
         for (editor in EditorFactory.getInstance().getEditors(event.document)) {
-            GuideLineHighlightingPass.updateAfterDocumentChange(editor, change)
+            onEdt(editor) { EditorGuideSession.get(editor)?.documentChanged(change) }
         }
     }
 
-    override fun visibleAreaChanged(event: VisibleAreaEvent) {
-        GuideLineHighlightingPass.updateVisiblePresentation(event.editor)
+    override fun visibleAreaChanged(event: VisibleAreaEvent) = onEdt(event.editor) {
+        EditorGuideSession.get(event.editor)?.visibleAreaChanged()
     }
 
     override fun editorReleased(event: EditorFactoryEvent) {
-        GuideLineHighlightingPass.clearEditorState(event.editor)
+        EditorGuideSession.dispose(event.editor)
     }
 
     override fun globalSchemeChange(scheme: EditorColorsScheme?) {
         for (editor in EditorFactory.getInstance().allEditors) {
-            GuideLineHighlightingPass.refreshSettings(editor)
+            onEdt(editor) {
+                EditorGuideSession.get(editor)?.updateOptions(PluginSettings.getInstance().options)
+            }
         }
     }
 
     override fun dispose() {
         for (editor in EditorFactory.getInstance().allEditors) {
-            GuideLineHighlightingPass.clearEditorState(editor)
+            EditorGuideSession.dispose(editor)
+        }
+    }
+
+    private fun onEdt(editor: Editor, action: () -> Unit) {
+        val application = ApplicationManager.getApplication()
+        if (application.isDispatchThread) {
+            if (!editor.isDisposed) action()
+        } else {
+            application.invokeLater {
+                if (!editor.isDisposed) action()
+            }
         }
     }
 
     companion object {
         fun ensureInitialized() {
-            ApplicationManager.getApplication().getService(CaretGuideController::class.java)
+            ApplicationManager.getApplication().getService(EditorGuideEventRouter::class.java)
         }
     }
 }

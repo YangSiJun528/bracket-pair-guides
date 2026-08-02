@@ -1,7 +1,5 @@
 package com.sijunyang.bracketpairguides.renderer
 
-import com.sijunyang.bracketpairguides.settings.BracketColorPalette
-import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.editor.VisualPosition
@@ -14,22 +12,6 @@ import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.Rectangle
 
-internal data class GuideRenderOptions(
-    val showVertical: Boolean,
-    val showHorizontal: Boolean,
-    val lineWidth: Int,
-    val opacityPercent: Int,
-) {
-    companion object {
-        val DEFAULT = GuideRenderOptions(
-            showVertical = true,
-            showHorizontal = true,
-            lineWidth = 1,
-            opacityPercent = 100,
-        )
-    }
-}
-
 /**
  * Paints one complete bracket-pair guide for one range highlighter.
  *
@@ -39,10 +21,9 @@ internal data class GuideRenderOptions(
  */
 internal object BracketGuideRenderer : CustomHighlighterRenderer {
     override fun paint(editor: Editor, highlighter: RangeHighlighter, graphics: Graphics) {
-        val guide = highlighter.getUserData(GuideLineHighlightingPass.GUIDE_KEY) ?: return
-        val options = highlighter.getUserData(
-            GuideLineHighlightingPass.GUIDE_RENDER_OPTIONS_KEY,
-        ) ?: GuideRenderOptions.DEFAULT
+        val state = highlighter.getUserData(GUIDE_PAINT_STATE_KEY) ?: return
+        val guide = state.guide
+        val options = state.options
         if (!highlighter.isValid || editor.isDisposed) return
         if (!options.showVertical && !options.showHorizontal) return
 
@@ -75,12 +56,7 @@ internal object BracketGuideRenderer : CustomHighlighterRenderer {
         val openPoint = editor.offsetToXY(openOffset)
         val closePoint = editor.offsetToXY(closeOffset)
         val lineHeight = editor.lineHeight
-        val baseColor = highlighter.getUserData(GuideLineHighlightingPass.GUIDE_COLOR_KEY)
-            ?: BracketColorPalette.guideLineColor(
-                editor.colorsScheme,
-                PluginSettings.getInstance().state,
-                guide.pair.depth,
-            )
+        val baseColor = state.color
         val opacity = options.opacityPercent.coerceIn(0, 100)
         val color = Color(
             baseColor.red,

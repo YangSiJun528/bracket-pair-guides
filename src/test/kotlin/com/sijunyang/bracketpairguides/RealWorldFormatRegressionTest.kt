@@ -4,6 +4,8 @@ import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer
 import com.sijunyang.bracketpairguides.renderer.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.renderer.BracketGuideRenderer
+import com.sijunyang.bracketpairguides.renderer.EditorGuideSession
+import com.sijunyang.bracketpairguides.renderer.GUIDE_PAINT_STATE_KEY
 import com.sijunyang.bracketpairguides.renderer.GuideLineHighlightingPass
 import com.sijunyang.bracketpairguides.settings.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.PluginSettings
@@ -116,35 +118,31 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         }
         pass.doApplyInformationToEditor()
 
-        val owned = editor.markupModel.allHighlighters.filter { highlighter ->
-            highlighter.getUserData(GuideLineHighlightingPass.OWNED_HIGHLIGHTER_KEY) == true
-        }
-        val coloredTokenCount = owned.count {
-            it.textAttributesKey in BracketColorPalette.LEVEL_KEYS
+        val session = checkNotNull(EditorGuideSession.get(editor))
+        val coloredTokenCount = session.tokenDecorations.entries.count {
+            it.colorKey in BracketColorPalette.LEVEL_KEYS
         }
         assertTrue(
             "$fileName must not create more than two token ranges per pair",
             coloredTokenCount <= first.size * 2,
         )
-        assertEquals(coloredTokenCount + 1, owned.size)
         assertEquals(
             "$fileName must activate exactly one custom guide renderer at the caret",
             1,
-            owned.count { it.customRenderer === BracketGuideRenderer },
+            if (session.activeGuide?.customRenderer === BracketGuideRenderer) 1 else 0,
         )
         assertEquals(
             "$fileName must leave optional active-pair symbol emphasis disabled",
             0,
-            owned.count {
-                it.getUserData(GuideLineHighlightingPass.ACTIVE_PAIR_HIGHLIGHT_KEY) == true
-            },
+            session.activePairHighlights.size,
         )
 
-        PluginSettings.getInstance().state.apply {
-            showActivePairBorder = true
-            showActivePairBackground = true
-        }
-        GuideLineHighlightingPass.refreshSettings(editor)
+        val emphasized = PluginSettings.getInstance().options.copy(
+            showActivePairBorder = true,
+            showActivePairBackground = true,
+        )
+        PluginSettings.getInstance().replace(emphasized)
+        session.updateOptions(emphasized)
 
         val activeIndex = ActiveBracketPairIndex.build(first)
         val sampledOffsets = buildSet {
@@ -164,24 +162,18 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         }
         sampledOffsets.forEach { offset ->
             editor.caretModel.moveToOffset(offset)
+            session.caretMoved()
             val expected = first.getOrNull(activeIndex.activePairIndex(offset))
-            val currentOwned = editor.markupModel.allHighlighters.filter { highlighter ->
-                highlighter.getUserData(GuideLineHighlightingPass.OWNED_HIGHLIGHTER_KEY) == true
-            }
-            val activeGuide = currentOwned.singleOrNull {
-                it.customRenderer === BracketGuideRenderer
-            }
+            val activeGuide = session.activeGuide
             assertEquals(
                 "$fileName chose the wrong active pair at offset $offset",
                 expected,
-                activeGuide?.getUserData(GuideLineHighlightingPass.GUIDE_KEY)?.pair,
+                activeGuide?.getUserData(GUIDE_PAINT_STATE_KEY)?.guide?.pair,
             )
             assertEquals(
                 "$fileName must highlight two symbols exactly when a pair is active at $offset",
                 if (expected == null) 0 else 2,
-                currentOwned.count {
-                    it.getUserData(GuideLineHighlightingPass.ACTIVE_PAIR_HIGHLIGHT_KEY) == true
-                },
+                session.activePairHighlights.size,
             )
         }
     }

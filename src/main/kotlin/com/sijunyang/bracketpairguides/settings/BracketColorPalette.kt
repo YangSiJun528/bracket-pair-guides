@@ -27,7 +27,7 @@ internal object BracketColorPalette {
 
     fun baseColor(
         scheme: EditorColorsScheme,
-        settings: PluginSettings.State,
+        settings: PluginOptions,
         depth: Int,
     ): Color {
         val index = levelIndex(depth)
@@ -38,7 +38,7 @@ internal object BracketColorPalette {
 
     fun guideLineColor(
         scheme: EditorColorsScheme,
-        settings: PluginSettings.State,
+        settings: PluginOptions,
         depth: Int,
     ): Color = componentColor(
         scheme = scheme,
@@ -49,7 +49,7 @@ internal object BracketColorPalette {
 
     fun pairBorderColor(
         scheme: EditorColorsScheme,
-        settings: PluginSettings.State,
+        settings: PluginOptions,
         depth: Int,
     ): Color = componentColor(
         scheme = scheme,
@@ -60,7 +60,7 @@ internal object BracketColorPalette {
 
     fun pairBackgroundSourceColor(
         scheme: EditorColorsScheme,
-        settings: PluginSettings.State,
+        settings: PluginOptions,
         depth: Int,
     ): Color = componentColor(
         scheme = scheme,
@@ -71,7 +71,7 @@ internal object BracketColorPalette {
 
     fun pairBackgroundColor(
         scheme: EditorColorsScheme,
-        settings: PluginSettings.State,
+        settings: PluginOptions,
         depth: Int,
     ): Color {
         return blend(
@@ -83,7 +83,7 @@ internal object BracketColorPalette {
 
     fun bracketTextAttributes(
         scheme: EditorColorsScheme,
-        settings: PluginSettings.State,
+        settings: PluginOptions,
         depth: Int,
     ): TextAttributes = TextAttributes().also {
         it.foregroundColor = baseColor(scheme, settings, depth)
@@ -91,7 +91,7 @@ internal object BracketColorPalette {
 
     fun activePairTextAttributes(
         scheme: EditorColorsScheme,
-        settings: PluginSettings.State,
+        settings: PluginOptions,
         depth: Int,
     ): TextAttributes = TextAttributes().also { attributes ->
         if (hasVisiblePairBackground(settings)) {
@@ -105,7 +105,7 @@ internal object BracketColorPalette {
         }
     }
 
-    fun hasVisiblePairBackground(settings: PluginSettings.State): Boolean =
+    fun hasVisiblePairBackground(settings: PluginOptions): Boolean =
         settings.showActivePairBackground &&
             settings.pairBackgroundOpacityPercent.coerceIn(0, 100) > 0
 
@@ -116,8 +116,8 @@ internal object BracketColorPalette {
         return Color(value)
     }
 
-    fun normalizeColors(colors: List<Int>): MutableList<Int> {
-        return MutableList(COLOR_COUNT) { index ->
+    fun normalizeColors(colors: List<Int>): List<Int> {
+        return List(COLOR_COUNT) { index ->
             colors.getOrNull(index)?.takeIf { it in 0..0x00FF_FFFF }
                 ?: AUTOMATIC_COLOR
         }
@@ -125,7 +125,7 @@ internal object BracketColorPalette {
 
     private fun componentColor(
         scheme: EditorColorsScheme,
-        settings: PluginSettings.State,
+        settings: PluginOptions,
         depth: Int,
         overrides: List<Int>,
     ): Color {

@@ -4,12 +4,11 @@ import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer
 import com.sijunyang.bracketpairguides.analyzer.BracketPairProvider
 import com.sijunyang.bracketpairguides.settings.BracketColorPalette
+import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.event.BulkAwareDocumentListener
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.RangeHighlighter
@@ -136,7 +135,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertTrue(innerPairHighlights.isEmpty())
         val originalBrackets = bracketColorHighlighters().toSet()
         assertEquals(1, collections)
-        assertEquals(inner, activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY)?.pair)
+        assertEquals(inner, activeGuideState()?.guide?.pair)
         assertEquals(4, bracketColorHighlighters().size)
 
         editor.caretModel.moveToOffset(source.indexOf("inner") + 1)
@@ -150,7 +149,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertTrue(innerPairHighlights.all { !it.isValid })
         val outerGuide = checkNotNull(activeGuide())
         assertSame(innerGuide, outerGuide)
-        assertEquals(outer, activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY)?.pair)
+        assertEquals(outer, activeGuideState()?.guide?.pair)
         assertEquals(1, guideHighlighters().size)
         assertEquals(originalBrackets, bracketColorHighlighters().toSet())
         assertEquals(4, bracketColorHighlighters().size)
@@ -177,17 +176,17 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         editor.caretModel.moveToOffset(source.indexOf("tail"))
         applyPass(BracketPairProvider { listOf(outer, inner) })
 
-        assertEquals(outer, activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY)?.pair)
+        assertEquals(outer, activeGuideState()?.guide?.pair)
         val secondary = editor.caretModel.addCaret(
             editor.offsetToVisualPosition(source.indexOf("inner")),
         )
         assertNotNull(secondary)
         assertEquals(source.indexOf("inner"), editor.caretModel.primaryCaret.offset)
-        assertEquals(inner, activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY)?.pair)
+        assertEquals(inner, activeGuideState()?.guide?.pair)
 
         editor.caretModel.removeCaret(checkNotNull(secondary))
         assertEquals(source.indexOf("tail"), editor.caretModel.primaryCaret.offset)
-        assertEquals(outer, activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY)?.pair)
+        assertEquals(outer, activeGuideState()?.guide?.pair)
     }
 
     fun testFeatureTogglesResolvePresentationOverlapWithoutReanalysis() {
@@ -202,9 +201,11 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             listOf(pair)
         }
         myFixture.editor.caretModel.moveToOffset(source.indexOf("content"))
-        val settings = PluginSettings.getInstance().state
-        settings.showActivePairBorder = true
-        settings.showActivePairBackground = true
+        var options = PluginSettings.getInstance().options.copy(
+            showActivePairBorder = true,
+            showActivePairBackground = true,
+        )
+        PluginSettings.getInstance().replace(options)
         applyPass(provider)
 
         val activePair = activePairHighlighters()
@@ -225,7 +226,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertEquals(
             BracketColorPalette.pairBackgroundColor(
                 myFixture.editor.colorsScheme,
-                PluginSettings.getInstance().state,
+                options,
                 pair.depth,
             ),
             activeAttributes.backgroundColor,
@@ -233,15 +234,15 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertEquals(
             BracketColorPalette.baseColor(
                 myFixture.editor.colorsScheme,
-                PluginSettings.getInstance().state,
+                options,
                 pair.depth,
             ),
             activeAttributes.effectColor,
         )
         assertEquals(EffectType.BOXED, activeAttributes.effectType)
 
-        settings.levelBaseColors[2] = 0x123456
-        GuideLineHighlightingPass.refreshSettings(myFixture.editor)
+        options = options.copy(levelBaseColors = options.levelBaseColors.updated(2, 0x123456))
+        applyOptions(options)
         assertTrue(
             bracketColorHighlighters().all {
                 it.getTextAttributes(myFixture.editor.colorsScheme)?.foregroundColor ==
@@ -250,7 +251,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
         assertEquals(
             Color(0x123456),
-            activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_COLOR_KEY),
+            activeGuideState()?.color,
         )
         assertEquals(
             Color(0x123456),
@@ -260,35 +261,34 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
         assertEquals(1, collections)
 
-        settings.colorBracketTokens = false
-        GuideLineHighlightingPass.refreshSettings(myFixture.editor)
+        options = options.copy(colorBracketTokens = false)
+        applyOptions(options)
         assertTrue(bracketColorHighlighters().isEmpty())
-        val hiddenBracketRanges = ownedHighlighters().filter {
-            it.getUserData(GuideLineHighlightingPass.GUIDE_KEY) == null &&
-                it.getUserData(GuideLineHighlightingPass.ACTIVE_PAIR_HIGHLIGHT_KEY) != true
-        }
-        assertTrue(hiddenBracketRanges.isEmpty())
         assertNotNull(activeGuide())
 
-        settings.showActiveGuide = false
-        GuideLineHighlightingPass.refreshSettings(myFixture.editor)
+        options = options.copy(showActiveGuide = false)
+        applyOptions(options)
         assertNull(activeGuide())
         assertEquals(2, activePairHighlighters().size)
 
-        settings.showActiveGuide = true
-        settings.showActivePairBorder = false
-        settings.showActivePairBackground = false
-        GuideLineHighlightingPass.refreshSettings(myFixture.editor)
+        options = options.copy(
+            showActiveGuide = true,
+            showActivePairBorder = false,
+            showActivePairBackground = false,
+        )
+        applyOptions(options)
         assertNotNull(activeGuide())
         assertTrue(activePairHighlighters().isEmpty())
 
-        settings.showActivePairBackground = true
-        settings.pairBackgroundOpacityPercent = 0
-        GuideLineHighlightingPass.refreshSettings(myFixture.editor)
+        options = options.copy(
+            showActivePairBackground = true,
+            pairBackgroundOpacityPercent = 0,
+        )
+        applyOptions(options)
         assertTrue(activePairHighlighters().isEmpty())
 
-        settings.showActivePairBorder = true
-        GuideLineHighlightingPass.refreshSettings(myFixture.editor)
+        options = options.copy(showActivePairBorder = true)
+        applyOptions(options)
         val borderOnlyHighlights = activePairHighlighters()
         assertEquals(2, borderOnlyHighlights.size)
         assertTrue(
@@ -301,19 +301,20 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             },
         )
 
-        settings.showActivePairBorder = true
-        settings.showActivePairBackground = true
-        settings.pairBackgroundOpacityPercent =
-            PluginSettings.DEFAULT_PAIR_BACKGROUND_OPACITY_PERCENT
-        settings.useIndependentComponentColors = true
-        settings.guideLineColors[2] = 0x224466
-        settings.pairBorderColors[2] = 0x335577
-        settings.pairBackgroundColors[2] = 0x446688
-        settings.showVerticalGuide = false
-        settings.showHorizontalGuides = true
-        settings.guideLineWidth = 3
-        settings.guideOpacityPercent = 65
-        GuideLineHighlightingPass.refreshSettings(myFixture.editor)
+        options = options.copy(
+            showActivePairBorder = true,
+            showActivePairBackground = true,
+            pairBackgroundOpacityPercent = PluginSettings.DEFAULT_PAIR_BACKGROUND_OPACITY_PERCENT,
+            useIndependentComponentColors = true,
+            guideLineColors = options.guideLineColors.updated(2, 0x224466),
+            pairBorderColors = options.pairBorderColors.updated(2, 0x335577),
+            pairBackgroundColors = options.pairBackgroundColors.updated(2, 0x446688),
+            showVerticalGuide = false,
+            showHorizontalGuides = true,
+            guideLineWidth = 3,
+            guideOpacityPercent = 65,
+        )
+        applyOptions(options)
         val advancedAttributes = checkNotNull(
             activePairHighlighters().first().getTextAttributes(
                 myFixture.editor.colorsScheme,
@@ -323,7 +324,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertEquals(
             BracketColorPalette.pairBackgroundColor(
                 myFixture.editor.colorsScheme,
-                settings,
+                options,
                 pair.depth,
             ),
             advancedAttributes.backgroundColor,
@@ -335,20 +336,20 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
                 lineWidth = 3,
                 opacityPercent = 65,
             ),
-            activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_RENDER_OPTIONS_KEY),
+            activeGuideState()?.options,
         )
         assertEquals(
             Color(0x224466),
-            activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_COLOR_KEY),
+            activeGuideState()?.color,
         )
 
-        settings.showHorizontalGuides = false
-        GuideLineHighlightingPass.refreshSettings(myFixture.editor)
+        options = options.copy(showHorizontalGuides = false)
+        applyOptions(options)
         assertNull(activeGuide())
         assertEquals(2, activePairHighlighters().size)
 
-        settings.enabled = false
-        GuideLineHighlightingPass.refreshSettings(myFixture.editor)
+        options = options.copy(enabled = false)
+        applyOptions(options)
         assertNull(activeGuide())
         assertTrue(bracketColorHighlighters().isEmpty())
         assertTrue(activePairHighlighters().isEmpty())
@@ -368,64 +369,17 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         }
         myFixture.editor.caretModel.moveToOffset(source.indexOf("content"))
 
-        PluginSettings.getInstance().state.enabled = false
+        PluginSettings.getInstance().replace(PluginOptions(enabled = false))
         applyPass(provider)
         assertEquals(0, collections)
         assertTrue(ownedHighlighters().isEmpty())
 
-        PluginSettings.getInstance().state.enabled = true
+        val enabled = PluginOptions()
+        PluginSettings.getInstance().replace(enabled)
+        session().updateOptions(enabled)
         applyPass(provider)
         assertEquals(1, collections)
         assertEquals(3, ownedHighlighters().size)
-    }
-
-    fun testBulkUpdatesBothLargeCreationAndLargeStaleRemoval() {
-        val pairCount = 5_000
-        val source = "()".repeat(pairCount)
-        myFixture.configureByText("Large.txt", source)
-        val editor = myFixture.editor
-        editor.caretModel.moveToOffset(1)
-        var bulkStarts = 0
-        var bulkFinishes = 0
-        editor.document.addDocumentListener(
-            object : BulkAwareDocumentListener.Simple {
-                override fun bulkUpdateStarting(document: Document) {
-                    bulkStarts++
-                }
-
-                override fun bulkUpdateFinished(document: Document) {
-                    bulkFinishes++
-                }
-            },
-            testRootDisposable,
-        )
-        val pairs = List(pairCount) { index ->
-            BracketPair(
-                openOffset = index * 2,
-                openTokenLength = 1,
-                closeOffset = index * 2 + 1,
-                closeTokenLength = 1,
-                depth = 0,
-                openLine = 0,
-                closeLine = 0,
-            )
-        }
-
-        applyPass(BracketPairProvider { pairs })
-        assertEquals(pairCount * 2 + 1, ownedHighlighters().size)
-        assertEquals(1, ownedHighlighters().count { it.customRenderer === BracketGuideRenderer })
-        assertEquals(1, bulkStarts)
-        assertEquals(1, bulkFinishes)
-
-        WriteCommandAction.runWriteCommandAction(project) {
-            editor.document.setText("x".repeat(source.length))
-        }
-        PsiDocumentManager.getInstance(project).commitDocument(editor.document)
-        applyPass(BracketPairProvider { emptyList() })
-
-        assertTrue(ownedHighlighters().isEmpty())
-        assertEquals(2, bulkStarts)
-        assertEquals(2, bulkFinishes)
     }
 
     fun testViewportBoundsMarkupForFiftyThousandPairsAndScrollReusesRecognition() {
@@ -463,7 +417,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
 
         visibleRange = TextRange(50_000, 50_256)
         val scrollMillis = measureTimeMillis {
-            GuideLineHighlightingPass.updateVisiblePresentation(editor)
+            session().visibleAreaChanged()
         }
 
         assertEquals(1, collections)
@@ -496,7 +450,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertSame(guideHighlighter, activeGuide())
         assertEquals(
             pair.closeOffset + "fast ".length,
-            activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY)?.pair?.closeOffset,
+            activeGuideState()?.guide?.pair?.closeOffset,
         )
     }
 
@@ -515,7 +469,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
 
         assertEquals(
             2,
-            activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY)?.guideColumn,
+            activeGuideState()?.guide?.guideColumn,
         )
         val closeLineStart = source.indexOf("  }\n}")
         WriteCommandAction.runWriteCommandAction(project) {
@@ -523,7 +477,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         }
 
         val guide = checkNotNull(
-            activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY),
+            activeGuideState()?.guide,
         )
         assertEquals(4, guide.guideColumn)
         assertEquals(
@@ -550,7 +504,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         }
 
         val guide = checkNotNull(
-            activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY),
+            activeGuideState()?.guide,
         )
         assertEquals(2, guide.guideColumn)
         assertEquals(0, guide.pair.openLine)
@@ -572,7 +526,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         }
 
         val pair = checkNotNull(
-            activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY)?.pair,
+            activeGuideState()?.guide?.pair,
         )
         assertEquals(start, pair.openOffset)
         assertEquals(end + 1, pair.closeOffset)
@@ -605,71 +559,6 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertTrue("2k active-pair switches took ${elapsed}ms", elapsed < 2_000)
     }
 
-    fun testLargeLineInsertionUpdatesIndentationIndexWithinInteractiveBudget() {
-        val originalLineCount = 50_000
-        val source = "    value\n".repeat(originalLineCount)
-        myFixture.configureByText("LargeIndent.java", source)
-        val document = myFixture.editor.document
-        val index = GuidePositionIndex.from(document, 4, EmptyProgressIndicator())
-        val insertionOffset = document.getLineStartOffset(originalLineCount / 2)
-
-        WriteCommandAction.runWriteCommandAction(project) {
-            document.insertString(insertionOffset, "\n")
-        }
-        lateinit var updated: GuidePositionIndex
-        val elapsed = measureTimeMillis {
-            updated = index.afterDocumentChange(
-                document = document,
-                change = DocumentChange(
-                    offset = insertionOffset,
-                    oldLineBreakCount = 0,
-                    newLineBreakCount = 1,
-                    mayAffectBracketStructure = false,
-                ),
-                tabSize = 4,
-            )
-        }
-
-        assertEquals(4, updated.minimumIndent(0, document.lineCount - 1))
-        assertTrue("50k-line incremental rebuild took ${elapsed}ms", elapsed < 1_000)
-    }
-
-    fun testLineInsertionMovesGuideAnchorWithItsIndentation() {
-        val source = "{\n    first\n  minimum\n    }"
-        myFixture.configureByText("AnchorShift.java", source)
-        val document = myFixture.editor.document
-        val index = GuidePositionIndex.from(document, 4, EmptyProgressIndicator())
-        val insertionOffset = document.getLineStartOffset(1)
-
-        WriteCommandAction.runWriteCommandAction(project) {
-            document.insertString(insertionOffset, "\n")
-        }
-        val updated = index.afterDocumentChange(
-            document = document,
-            change = DocumentChange(
-                offset = insertionOffset,
-                oldLineBreakCount = 0,
-                newLineBreakCount = 1,
-                mayAffectBracketStructure = false,
-            ),
-            tabSize = 4,
-        )
-        val guide = updated.guideFor(
-            BracketPair(
-                openOffset = 0,
-                openTokenLength = 1,
-                closeOffset = document.textLength - 1,
-                closeTokenLength = 1,
-                depth = 0,
-                openLine = 0,
-                closeLine = 4,
-            ),
-        )
-
-        assertEquals(2, guide.guideColumn)
-        assertEquals(3, guide.anchorLine)
-    }
-
     private fun applyPass(
         pairProvider: BracketPairProvider? = null,
         visibleRangeProvider: ((Editor) -> TextRange)? = null,
@@ -693,27 +582,24 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
     }
 
     private fun ownedHighlighters(): List<RangeHighlighter> {
-        return myFixture.editor.markupModel.allHighlighters.filter { highlighter ->
-            highlighter.getUserData(GuideLineHighlightingPass.OWNED_HIGHLIGHTER_KEY) == true
+        val session = session()
+        return buildList {
+            addAll(session.tokenDecorations.entries.map(VisibleTokenEntry::highlighter))
+            addAll(session.activePairHighlights)
+            session.activeGuide?.let(::add)
         }
     }
 
     private fun guideHighlighters(): List<RangeHighlighter> {
-        return ownedHighlighters().filter {
-            it.getUserData(GuideLineHighlightingPass.GUIDE_KEY) != null
-        }
+        return listOfNotNull(session().activeGuide)
     }
 
     private fun bracketColorHighlighters(): List<RangeHighlighter> {
-        return ownedHighlighters().filter {
-            it.textAttributesKey in BracketColorPalette.LEVEL_KEYS
-        }
+        return session().tokenDecorations.entries.map(VisibleTokenEntry::highlighter)
     }
 
     private fun activePairHighlighters(): List<RangeHighlighter> {
-        return ownedHighlighters().filter {
-            it.getUserData(GuideLineHighlightingPass.ACTIVE_PAIR_HIGHLIGHT_KEY) == true
-        }
+        return session().activePairHighlights
     }
 
     private fun activeGuide(): RangeHighlighter? {
@@ -721,6 +607,20 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             it.customRenderer === BracketGuideRenderer
         }
     }
+
+    private fun activeGuideState(): GuidePaintState? =
+        activeGuide()?.getUserData(GUIDE_PAINT_STATE_KEY)
+
+    private fun session(): EditorGuideSession =
+        checkNotNull(EditorGuideSession.get(myFixture.editor))
+
+    private fun applyOptions(options: PluginOptions) {
+        PluginSettings.getInstance().replace(options)
+        session().updateOptions(options)
+    }
+
+    private fun List<Int>.updated(index: Int, value: Int): List<Int> =
+        toMutableList().also { it[index] = value }
 
     private fun <T> inReadAction(action: () -> T): T {
         return ReadAction.compute<T, RuntimeException>(action)

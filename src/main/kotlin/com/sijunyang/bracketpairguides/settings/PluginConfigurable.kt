@@ -1,6 +1,7 @@
 package com.sijunyang.bracketpairguides.settings
 
-import com.sijunyang.bracketpairguides.renderer.GuideLineHighlightingPass
+import com.sijunyang.bracketpairguides.renderer.AnalysisCapabilities
+import com.sijunyang.bracketpairguides.renderer.EditorGuideSession
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.colors.EditorColorsManager
@@ -44,7 +45,7 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
     private lateinit var paletteTable: ColorPaletteTable
     private var preview: BracketSettingsPreview? = null
     private var panel: JComponent? = null
-    private var resetSnapshot: PluginSettings.State? = null
+    private var resetSnapshot: PluginOptions? = null
     private var baseColorsAreAutomatic = BooleanArray(BracketColorPalette.COLOR_COUNT)
     private var componentColorsAreAutomatic = Array(PaletteComponent.entries.size) {
         BooleanArray(BracketColorPalette.COLOR_COUNT) { true }
@@ -176,15 +177,17 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
 
     override fun apply() {
         if (!controlsCreated) return
-        val persisted = PluginSettings.getInstance().state
+        val settings = PluginSettings.getInstance()
+        val previous = settings.options
         val draft = captureDraftState()
-        val enabledChanged = persisted.enabled != draft.enabled
-        persisted.copyFrom(draft)
+        val capabilitiesChanged = AnalysisCapabilities.from(previous) !=
+            AnalysisCapabilities.from(draft)
+        settings.replace(draft)
 
         for (editor in EditorFactory.getInstance().allEditors) {
-            GuideLineHighlightingPass.refreshSettings(editor)
+            EditorGuideSession.get(editor)?.updateOptions(draft)
         }
-        if (enabledChanged) {
+        if (capabilitiesChanged) {
             for (project in ProjectManager.getInstance().openProjects) {
                 DaemonCodeAnalyzer.getInstance(project).restart()
             }
@@ -194,7 +197,7 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
 
     override fun reset() {
         if (!controlsCreated) return
-        val state = PluginSettings.getInstance().state
+        val state = PluginSettings.getInstance().options
         val scheme = EditorColorsManager.getInstance().globalScheme
         updatingUi = true
         try {
@@ -435,9 +438,9 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
         }
     }
 
-    private fun captureDraftState(): PluginSettings.State {
+    private fun captureDraftState(): PluginOptions {
         val independent = useIndependentComponentColors.isSelected
-        return PluginSettings.State(
+        return PluginOptions(
             enabled = enabled.isSelected,
             colorBracketTokens = colorBracketTokens.isSelected,
             showActiveGuide = showActiveGuide.isSelected,
@@ -450,7 +453,7 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
             pairBackgroundOpacityPercent = spinnerValue(pairBackgroundOpacityPercent),
             pairBorderStyle = selectedBorderStyle().name,
             useIndependentComponentColors = independent,
-            levelBaseColors = MutableList(BracketColorPalette.COLOR_COUNT) { index ->
+            levelBaseColors = List(BracketColorPalette.COLOR_COUNT) { index ->
                 if (baseColorsAreAutomatic[index]) {
                     BracketColorPalette.AUTOMATIC_COLOR
                 } else {
@@ -467,8 +470,8 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
 
     private fun componentColorsOrAutomatic(
         component: PaletteComponent,
-    ): MutableList<Int> {
-        return MutableList(BracketColorPalette.COLOR_COUNT) { level ->
+    ): List<Int> {
+        return List(BracketColorPalette.COLOR_COUNT) { level ->
             if (componentColorsAreAutomatic[component.ordinal][level]) {
                 BracketColorPalette.AUTOMATIC_COLOR
             } else {
@@ -490,25 +493,6 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
 
     private fun spinnerValue(spinner: JSpinner): Int =
         (spinner.value as Number).toInt()
-
-    private fun PluginSettings.State.copyFrom(other: PluginSettings.State) {
-        enabled = other.enabled
-        colorBracketTokens = other.colorBracketTokens
-        showActiveGuide = other.showActiveGuide
-        showVerticalGuide = other.showVerticalGuide
-        showHorizontalGuides = other.showHorizontalGuides
-        guideLineWidth = other.guideLineWidth
-        guideOpacityPercent = other.guideOpacityPercent
-        showActivePairBorder = other.showActivePairBorder
-        showActivePairBackground = other.showActivePairBackground
-        pairBackgroundOpacityPercent = other.pairBackgroundOpacityPercent
-        pairBorderStyle = other.pairBorderStyle
-        useIndependentComponentColors = other.useIndependentComponentColors
-        levelBaseColors = other.levelBaseColors.toMutableList()
-        guideLineColors = other.guideLineColors.toMutableList()
-        pairBorderColors = other.pairBorderColors.toMutableList()
-        pairBackgroundColors = other.pairBackgroundColors.toMutableList()
-    }
 
     companion object {
         private const val SPLITTER_PROPORTION_KEY =

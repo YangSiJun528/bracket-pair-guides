@@ -20,15 +20,15 @@ class GuidePositionIndexTest {
     fun `expands tabs using the editor tab size`() {
         val index = indexFor("{\n\tvalue\n    other\n}", tabSize = 4)
 
-        assertEquals(0, index.minimumIndent(1, 3))
-        assertEquals(4, index.minimumIndent(1, 2))
+        assertEquals(0, index.guideFor(pair(closeLine = 3)).guideColumn)
+        assertEquals(4, index.guideFor(pair(closeLine = 2)).guideColumn)
     }
 
     @Test
     fun `ignores blank lines in minimum queries`() {
         val index = indexFor("{\n\n      value\n  }")
 
-        assertEquals(2, index.minimumIndent(1, 3))
+        assertEquals(2, index.guideFor(pair(closeLine = 3)).guideColumn)
     }
 
     @Test
@@ -65,4 +65,14 @@ class GuidePositionIndexTest {
             tabSize = tabSize,
         )
     }
+
+    private fun pair(closeLine: Int): BracketPair = BracketPair(
+        openOffset = 0,
+        openTokenLength = 1,
+        closeOffset = 1,
+        closeTokenLength = 1,
+        depth = 0,
+        openLine = 0,
+        closeLine = closeLine,
+    )
 }

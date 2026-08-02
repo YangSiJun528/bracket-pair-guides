@@ -14,7 +14,10 @@ class GuideLineHighlightingPassFactory :
     TextEditorHighlightingPassFactoryRegistrar,
     DumbAware {
 
-    override fun registerHighlightingPassFactory(registrar: TextEditorHighlightingPassRegistrar, project: Project) {
+    override fun registerHighlightingPassFactory(
+        registrar: TextEditorHighlightingPassRegistrar,
+        project: Project,
+    ) {
         registrar.registerTextEditorHighlightingPass(this, null, null, false, -1)
     }
 

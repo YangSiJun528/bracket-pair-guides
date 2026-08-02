@@ -12,6 +12,7 @@ import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import java.awt.Color
 import java.awt.image.BufferedImage
 import kotlin.system.measureTimeMillis
 
@@ -279,7 +280,7 @@ class BracketGuideRendererTest : BasePlatformTestCase() {
 
     private fun paint(
         pair: BracketPair,
-        options: GuideRenderOptions = GuideRenderOptions.DEFAULT,
+        options: GuideRenderOptions = DEFAULT_OPTIONS,
         guideColumn: Int = 0,
         anchorLine: Int = pair.openLine,
     ): BufferedImage {
@@ -298,7 +299,7 @@ class BracketGuideRendererTest : BasePlatformTestCase() {
 
     private fun createGuideHighlighter(
         pair: BracketPair,
-        options: GuideRenderOptions = GuideRenderOptions.DEFAULT,
+        options: GuideRenderOptions = DEFAULT_OPTIONS,
         guideColumn: Int = 0,
         anchorLine: Int = pair.openLine,
     ) =
@@ -310,14 +311,23 @@ class BracketGuideRendererTest : BasePlatformTestCase() {
             HighlighterTargetArea.EXACT_RANGE,
         ).also { highlighter ->
             highlighter.putUserData(
-                GuideLineHighlightingPass.GUIDE_KEY,
-                BracketGuide(pair, guideColumn, anchorLine),
-            )
-            highlighter.putUserData(
-                GuideLineHighlightingPass.GUIDE_RENDER_OPTIONS_KEY,
-                options,
+                GUIDE_PAINT_STATE_KEY,
+                GuidePaintState(
+                    BracketGuide(pair, guideColumn, anchorLine),
+                    options,
+                    Color.WHITE,
+                ),
             )
         }
+
+    companion object {
+        private val DEFAULT_OPTIONS = GuideRenderOptions(
+            showVertical = true,
+            showHorizontal = true,
+            lineWidth = 1,
+            opacityPercent = 100,
+        )
+    }
 
     private class FixedWidthInlayRenderer(
         private val width: Int,

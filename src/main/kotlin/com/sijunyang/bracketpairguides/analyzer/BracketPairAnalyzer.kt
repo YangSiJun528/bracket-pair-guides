@@ -14,7 +14,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.psi.tree.IElementType
 import java.util.Locale
 
-data class BracketPair(
+internal data class BracketPair(
     val openOffset: Int,
     val openTokenLength: Int,
     val closeOffset: Int,
@@ -34,7 +34,7 @@ data class BracketPair(
  * the current editor highlighter and language plugin. Separate PSI injections are
  * analyzed when the platform supplies their injected editor/document.
  */
-class BracketPairAnalyzer(
+internal class BracketPairAnalyzer(
     private val editor: Editor,
     private val fileType: FileType,
 ) : BracketPairProvider {
