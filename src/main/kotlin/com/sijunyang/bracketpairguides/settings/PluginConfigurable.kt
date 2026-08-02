@@ -171,8 +171,7 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
         enabled.takeIf { controlsCreated }
 
     override fun isModified(): Boolean {
-        if (!controlsCreated) return false
-        return captureDraftState() != resetSnapshot
+        return controlsCreated && captureDraftState() != resetSnapshot
     }
 
     override fun apply() {

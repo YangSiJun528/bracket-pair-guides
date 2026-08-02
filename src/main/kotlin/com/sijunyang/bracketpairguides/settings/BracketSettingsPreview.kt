@@ -245,6 +245,9 @@ internal class BracketSettingsPreview(
         recognizeAfterDocumentReplacement()
     }
 
+    // Document has a Java setter without a Kotlin-writable property at the
+    // Kotlin 1.9 language level required by the minimum supported IDE.
+    @Suppress("UsePropertyAccessSyntax")
     private fun replaceDocument(
         buffer: PreviewBuffer,
         nextFileType: FileType? = null,

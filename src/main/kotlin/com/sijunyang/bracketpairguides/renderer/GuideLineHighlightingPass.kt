@@ -215,6 +215,9 @@ class GuideLineHighlightingPass internal constructor(
         return AppliedEntry(highlighter, colorKey, depth)
     }
 
+    // RangeHighlighter exposes an incompatible getter/setter pair, so Kotlin 1.9
+    // cannot compile the property-assignment syntax suggested by newer IDEs.
+    @Suppress("UsePropertyAccessSyntax")
     private fun applyBracketPresentation(
         highlighter: RangeHighlighter,
         colorKey: TextAttributesKey,
@@ -335,6 +338,9 @@ class GuideLineHighlightingPass internal constructor(
             editor.contentComponent.repaint()
         }
 
+        // See applyBracketPresentation: property syntax does not compile with the
+        // Kotlin 1.9 language level required by the minimum supported IDE.
+        @Suppress("UsePropertyAccessSyntax")
         internal fun refreshSettings(editor: Editor) {
             val application = ApplicationManager.getApplication()
             if (!application.isDispatchThread) {

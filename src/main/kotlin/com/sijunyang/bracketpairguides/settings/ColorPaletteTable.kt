@@ -125,8 +125,8 @@ internal class ColorPaletteTable(
         }
 
         override fun isCellEditable(rowIndex: Int, columnIndex: Int): Boolean {
-            if (columnIndex == 0) return false
-            return disabledReason(PaletteComponent.entries[columnIndex - 1]) == null
+            return columnIndex != 0 &&
+                disabledReason(PaletteComponent.entries[columnIndex - 1]) == null
         }
 
         override fun setValueAt(value: Any?, rowIndex: Int, columnIndex: Int) {
@@ -164,7 +164,7 @@ internal class ColorPaletteTable(
             } else {
                 blend(color, background, DISABLED_COLOR_PERCENT)
             }
-            horizontalAlignment = SwingConstants.CENTER
+            horizontalAlignment = CENTER
             icon = ColorIcon(
                 JBUI.scale(SWATCH_WIDTH),
                 JBUI.scale(SWATCH_HEIGHT),
