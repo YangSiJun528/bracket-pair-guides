@@ -500,6 +500,85 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
     }
 
+    fun testDocumentEditRecalculatesVerticalGuideColumnImmediately() {
+        val source = """
+            class Sample {
+              void run() {
+                call();
+              }
+            }
+        """.trimIndent()
+        myFixture.configureByText("ImmediateColumn.java", source)
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(source.indexOf("call"))
+        applyPass()
+
+        assertEquals(
+            2,
+            activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY)?.guideColumn,
+        )
+        val closeLineStart = source.indexOf("  }\n}")
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.insertString(closeLineStart, "  ")
+        }
+
+        val guide = checkNotNull(
+            activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY),
+        )
+        assertEquals(4, guide.guideColumn)
+        assertEquals(
+            editor.document.text.indexOf('}', closeLineStart),
+            guide.pair.closeOffset,
+        )
+    }
+
+    fun testNewMultilineLayoutGetsAnImmediateGuideColumnWithoutAFullPass() {
+        val source = "class Sample { void run() { call(); } }"
+        myFixture.configureByText("ImmediateMultiline.java", source)
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(source.indexOf("call"))
+        applyPass()
+        val openingBrace = source.indexOf('{', source.indexOf("run"))
+        val closingBrace = source.indexOf('}', openingBrace)
+
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.replaceString(
+                openingBrace + 1,
+                closingBrace,
+                "\n    call();\n  ",
+            )
+        }
+
+        val guide = checkNotNull(
+            activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY),
+        )
+        assertEquals(2, guide.guideColumn)
+        assertEquals(0, guide.pair.openLine)
+        assertEquals(2, guide.pair.closeLine)
+    }
+
+    fun testBracketEditResolvesTheNewInnermostPairBeforeAFullPass() {
+        val source = "class Sample { void run() { call(); } }"
+        myFixture.configureByText("ImmediatePair.java", source)
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(source.indexOf("call") + 2)
+        applyPass()
+        val start = source.indexOf("call")
+        val end = source.indexOf(';', start) + 1
+
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.insertString(end, ")")
+            editor.document.insertString(start, "(")
+        }
+
+        val pair = checkNotNull(
+            activeGuide()?.getUserData(GuideLineHighlightingPass.GUIDE_KEY)?.pair,
+        )
+        assertEquals(start, pair.openOffset)
+        assertEquals(end + 1, pair.closeOffset)
+        assertEquals(2, pair.depth)
+    }
+
     fun testRapidPairSwitchesReuseOneGuideHighlighter() {
         val pairCount = 10_000
         val source = "(x)".repeat(pairCount)
@@ -524,6 +603,35 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertSame(persistentGuide, activeGuide())
         assertEquals(1, guideHighlighters().size)
         assertTrue("2k active-pair switches took ${elapsed}ms", elapsed < 2_000)
+    }
+
+    fun testLargeLineInsertionUpdatesIndentationIndexWithinInteractiveBudget() {
+        val originalLineCount = 50_000
+        val source = "    value\n".repeat(originalLineCount)
+        myFixture.configureByText("LargeIndent.java", source)
+        val document = myFixture.editor.document
+        val index = GuidePositionIndex.from(document, 4, EmptyProgressIndicator())
+        val insertionOffset = document.getLineStartOffset(originalLineCount / 2)
+
+        WriteCommandAction.runWriteCommandAction(project) {
+            document.insertString(insertionOffset, "\n")
+        }
+        lateinit var updated: GuidePositionIndex
+        val elapsed = measureTimeMillis {
+            updated = index.afterDocumentChange(
+                document = document,
+                change = DocumentChange(
+                    offset = insertionOffset,
+                    oldLineBreakCount = 0,
+                    newLineBreakCount = 1,
+                    mayAffectBracketStructure = false,
+                ),
+                tabSize = 4,
+            )
+        }
+
+        assertEquals(4, updated.minimumIndent(0, document.lineCount - 1))
+        assertTrue("50k-line incremental rebuild took ${elapsed}ms", elapsed < 1_000)
     }
 
     private fun applyPass(

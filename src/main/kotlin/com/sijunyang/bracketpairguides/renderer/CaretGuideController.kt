@@ -52,8 +52,9 @@ internal class CaretGuideController :
     }
 
     override fun documentChanged(event: DocumentEvent) {
+        val change = DocumentChange.from(event)
         for (editor in EditorFactory.getInstance().getEditors(event.document)) {
-            GuideLineHighlightingPass.updateAfterDocumentChange(editor)
+            GuideLineHighlightingPass.updateAfterDocumentChange(editor, change)
         }
     }
 

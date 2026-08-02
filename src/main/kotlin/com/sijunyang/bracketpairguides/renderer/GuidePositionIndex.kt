@@ -44,6 +44,122 @@ internal class GuidePositionIndex private constructor(
         return minimum
     }
 
+    /**
+     * Updates only the indentation lines affected by one document event. When
+     * line count changes, unchanged indentation values are copied and the range
+     * tree is rebuilt without rescanning the rest of the document text.
+     */
+    internal fun afterDocumentChange(
+        document: Document,
+        change: DocumentChange,
+        tabSize: Int,
+    ): GuidePositionIndex {
+        val newLineCount = document.lineCount
+        val expectedLineCount = lineCount - change.oldLineBreakCount +
+            change.newLineBreakCount
+        if (expectedLineCount != newLineCount) {
+            return from(document, tabSize)
+        }
+
+        val startLine = document.getLineNumber(
+            change.offset.coerceIn(0, document.textLength),
+        )
+        val oldAffectedLineCount = change.oldLineBreakCount + 1
+        val newAffectedLineCount = change.newLineBreakCount + 1
+        if (newLineCount == lineCount) {
+            updateLinesInPlace(
+                document = document,
+                firstLine = startLine,
+                lineCount = newAffectedLineCount,
+                tabSize = tabSize,
+            )
+            return this
+        }
+
+        val indentations = IntArray(newLineCount) { NO_INDENT }
+        val prefixCount = startLine.coerceAtMost(minOf(lineCount, newLineCount))
+        copyIndentations(
+            indentations,
+            sourceStart = 0,
+            targetStart = 0,
+            count = prefixCount,
+        )
+
+        val firstOldSuffix = (startLine + oldAffectedLineCount).coerceAtMost(lineCount)
+        val firstNewSuffix = (startLine + newAffectedLineCount).coerceAtMost(newLineCount)
+        val suffixCount = minOf(
+            lineCount - firstOldSuffix,
+            newLineCount - firstNewSuffix,
+        )
+        copyIndentations(
+            indentations,
+            sourceStart = firstOldSuffix,
+            targetStart = firstNewSuffix,
+            count = suffixCount,
+        )
+
+        val text = document.immutableCharSequence
+        val lastChangedLine = (startLine + newAffectedLineCount - 1)
+            .coerceAtMost(newLineCount - 1)
+        var line = startLine
+        while (line <= lastChangedLine) {
+            indentations[line] = indentationColumn(
+                text = text,
+                start = document.getLineStartOffset(line),
+                end = document.getLineEndOffset(line),
+                tabSize = tabSize.coerceAtLeast(1),
+            )
+            line++
+        }
+        return fromIndentations(indentations)
+    }
+
+    private fun updateLinesInPlace(
+        document: Document,
+        firstLine: Int,
+        lineCount: Int,
+        tabSize: Int,
+    ) {
+        if (this.lineCount == 0) return
+        val text = document.immutableCharSequence
+        val lastLine = (firstLine + lineCount - 1).coerceAtMost(this.lineCount - 1)
+        var line = firstLine.coerceAtLeast(0)
+        while (line <= lastLine) {
+            var node = treeSize + line
+            minimumTree[node] = indentationColumn(
+                text = text,
+                start = document.getLineStartOffset(line),
+                end = document.getLineEndOffset(line),
+                tabSize = tabSize.coerceAtLeast(1),
+            )
+            node /= 2
+            while (node > 0) {
+                minimumTree[node] = minOf(
+                    minimumTree[node * 2],
+                    minimumTree[node * 2 + 1],
+                )
+                node /= 2
+            }
+            line++
+        }
+    }
+
+    private fun copyIndentations(
+        target: IntArray,
+        sourceStart: Int,
+        targetStart: Int,
+        count: Int,
+    ) {
+        if (count <= 0) return
+        System.arraycopy(
+            minimumTree,
+            treeSize + sourceStart,
+            target,
+            targetStart,
+            count,
+        )
+    }
+
     companion object {
         internal const val NO_INDENT: Int = Int.MAX_VALUE
 
@@ -67,6 +183,23 @@ internal class GuidePositionIndex private constructor(
                 tabSize = tabSize,
                 checkCanceled = progress::checkCanceled,
             )
+        }
+
+        internal fun from(document: Document, tabSize: Int): GuidePositionIndex {
+            val lineCount = document.lineCount
+            val indentations = IntArray(lineCount)
+            val text = document.immutableCharSequence
+            var line = 0
+            while (line < lineCount) {
+                indentations[line] = indentationColumn(
+                    text = text,
+                    start = document.getLineStartOffset(line),
+                    end = document.getLineEndOffset(line),
+                    tabSize = tabSize.coerceAtLeast(1),
+                )
+                line++
+            }
+            return fromIndentations(indentations)
         }
 
         internal fun from(
@@ -102,6 +235,20 @@ internal class GuidePositionIndex private constructor(
             return GuidePositionIndex(lineCount, treeSize, tree)
         }
 
+        private fun fromIndentations(indentations: IntArray): GuidePositionIndex {
+            val lineCount = indentations.size
+            var treeSize = 1
+            while (treeSize < lineCount) treeSize *= 2
+            val tree = IntArray(treeSize * 2) { NO_INDENT }
+            indentations.copyInto(tree, destinationOffset = treeSize)
+            var node = treeSize - 1
+            while (node > 0) {
+                tree[node] = minOf(tree[node * 2], tree[node * 2 + 1])
+                node--
+            }
+            return GuidePositionIndex(lineCount, treeSize, tree)
+        }
+
         private fun indentationColumn(
             text: CharSequence,
             start: Int,
@@ -119,6 +266,25 @@ internal class GuidePositionIndex private constructor(
                     '\t' -> column += tabSize - column % tabSize
                     else -> return column
                 }
+            }
+            return NO_INDENT
+        }
+
+        private fun indentationColumn(
+            text: CharSequence,
+            start: Int,
+            end: Int,
+            tabSize: Int,
+        ): Int {
+            var column = 0
+            var offset = start
+            while (offset < end) {
+                when (text[offset]) {
+                    ' ' -> column++
+                    '\t' -> column += tabSize - column % tabSize
+                    else -> return column
+                }
+                offset++
             }
             return NO_INDENT
         }

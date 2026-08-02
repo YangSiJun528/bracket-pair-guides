@@ -9,7 +9,9 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.editor.markup.RangeHighlighter
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
@@ -26,6 +28,7 @@ class GuideLineHighlightingPass internal constructor(
     private val editor: Editor,
     private val pairProvider: BracketPairProvider,
     private val visibleRangeProvider: (Editor) -> TextRange = Editor::calculateVisibleRange,
+    private val activePairResolver: ActiveBracketPairResolver = ActiveBracketPairResolver.NONE,
 ) : TextEditorHighlightingPass(project, editor.document, false) {
     init {
         CaretGuideController.ensureInitialized()
@@ -35,12 +38,17 @@ class GuideLineHighlightingPass internal constructor(
         project = project,
         editor = editor,
         pairProvider = BracketPairAnalyzer(editor),
+        activePairResolver = EditorHighlighterActiveBracketPairResolver(
+            FileDocumentManager.getInstance().getFile(editor.document)?.fileType
+                ?: PlainTextFileType.INSTANCE,
+        ),
     )
 
     constructor(project: Project, editor: Editor, fileType: FileType) : this(
         project = project,
         editor = editor,
         pairProvider = BracketPairAnalyzer(editor, fileType),
+        activePairResolver = EditorHighlighterActiveBracketPairResolver(fileType),
     )
 
     private var collectedStamp: AnalysisStamp? = null
@@ -141,9 +149,11 @@ class GuideLineHighlightingPass internal constructor(
                 tokenIndex = tokenIndex,
                 activeIndex = activeIndex,
                 positionIndex = positionIndex,
+                activePairResolver = activePairResolver,
                 visibleRangeProvider = visibleRangeProvider,
                 tokenDecorations = tokenDecorations,
                 activePairIndex = activePresentation.pairIndex,
+                activePair = activePresentation.pair,
                 activeRange = activePresentation.range,
                 activeGuide = activePresentation.guide,
                 activePairHighlights = activePresentation.pairHighlights,
@@ -165,9 +175,11 @@ class GuideLineHighlightingPass internal constructor(
         val tokenIndex: BracketTokenIndex,
         val activeIndex: ActiveBracketPairIndex,
         val positionIndex: GuidePositionIndex?,
+        val activePairResolver: ActiveBracketPairResolver,
         val visibleRangeProvider: (Editor) -> TextRange,
         val tokenDecorations: VisibleTokenDecorations,
         val activePairIndex: Int,
+        val activePair: BracketPair?,
         val activeRange: RangeMarker?,
         val activeGuide: RangeHighlighter?,
         val activePairHighlights: List<RangeHighlighter>,
@@ -175,6 +187,7 @@ class GuideLineHighlightingPass internal constructor(
 
     private data class ActivePresentation(
         val pairIndex: Int,
+        val pair: BracketPair?,
         val range: RangeMarker?,
         val guide: RangeHighlighter?,
         val pairHighlights: List<RangeHighlighter>,
@@ -182,6 +195,7 @@ class GuideLineHighlightingPass internal constructor(
         companion object {
             val EMPTY = ActivePresentation(
                 ActiveBracketPairIndex.NO_PAIR,
+                null,
                 null,
                 null,
                 emptyList(),
@@ -249,6 +263,7 @@ class GuideLineHighlightingPass internal constructor(
                 APPLIED_STATE_KEY,
                 state.copy(
                     activePairIndex = activePresentation.pairIndex,
+                    activePair = activePresentation.pair,
                     activeRange = activePresentation.range,
                     activeGuide = activePresentation.guide,
                     activePairHighlights = activePresentation.pairHighlights,
@@ -283,11 +298,11 @@ class GuideLineHighlightingPass internal constructor(
             editor.contentComponent.repaint()
         }
 
-        internal fun updateAfterDocumentChange(editor: Editor) {
+        internal fun updateAfterDocumentChange(editor: Editor, change: DocumentChange) {
             val application = ApplicationManager.getApplication()
             if (!application.isDispatchThread) {
                 application.invokeLater {
-                    if (!editor.isDisposed) updateAfterDocumentChange(editor)
+                    if (!editor.isDisposed) updateAfterDocumentChange(editor, change)
                 }
                 return
             }
@@ -295,7 +310,7 @@ class GuideLineHighlightingPass internal constructor(
 
             val state = editor.getUserData(APPLIED_STATE_KEY) ?: return
             if (state.stamp == currentStamp(editor)) return
-            updateOptimisticActivePresentation(editor, state)
+            updateOptimisticActivePresentation(editor, state, change)
         }
 
         internal fun refreshSettings(editor: Editor) {
@@ -353,6 +368,7 @@ class GuideLineHighlightingPass internal constructor(
                 state.copy(
                     tokenDecorations = tokenDecorations,
                     activePairIndex = activePresentation.pairIndex,
+                    activePair = activePresentation.pair,
                     activeRange = activePresentation.range,
                     activeGuide = activePresentation.guide,
                     activePairHighlights = activePresentation.pairHighlights,
@@ -407,6 +423,7 @@ class GuideLineHighlightingPass internal constructor(
             }
             return ActivePresentation(
                 pairIndex = pairIndex,
+                pair = pair,
                 range = range,
                 guide = ActivePairDecoration.addGuide(editor, guide, settings, reusableGuide),
                 pairHighlights = ActivePairDecoration.addPairHighlights(editor, guide, settings),
@@ -423,9 +440,34 @@ class GuideLineHighlightingPass internal constructor(
             for (highlighter in state.activePairHighlights) highlighter.dispose()
         }
 
-        private fun updateOptimisticActivePresentation(editor: Editor, state: AppliedState) {
-            val pair = adjustedActivePair(editor, state)
+        private fun updateOptimisticActivePresentation(
+            editor: Editor,
+            state: AppliedState,
+            change: DocumentChange? = null,
+        ) {
+            val positionIndex = if (change == null) {
+                state.positionIndex
+            } else {
+                state.positionIndex?.afterDocumentChange(
+                    document = editor.document,
+                    change = change,
+                    tabSize = editor.settings.getTabSize(editor.project).coerceAtLeast(1),
+                )
+            }
+            val adjustedPair = adjustedActivePair(editor, state)
             val caretOffset = editor.caretModel.primaryCaret.offset
+            val adjustedContainsCaret = adjustedPair != null &&
+                caretOffset > adjustedPair.openOffset &&
+                caretOffset < adjustedPair.closeOffset + adjustedPair.closeTokenLength
+            val shouldResolve = !adjustedContainsCaret ||
+                change?.mayAffectBracketStructure == true
+            val resolvedPair = if (shouldResolve) {
+                state.activePairResolver.findInnermost(editor, caretOffset)
+            } else {
+                null
+            }
+            val pair = resolvedPair?.withDepthHint(adjustedPair) ?: adjustedPair
+
             if (pair == null || caretOffset <= pair.openOffset ||
                 caretOffset >= pair.closeOffset + pair.closeTokenLength
             ) {
@@ -433,7 +475,9 @@ class GuideLineHighlightingPass internal constructor(
                 editor.putUserData(
                     APPLIED_STATE_KEY,
                     state.copy(
+                        positionIndex = positionIndex,
                         activePairIndex = ActiveBracketPairIndex.NO_PAIR,
+                        activePair = null,
                         activeRange = null,
                         activeGuide = null,
                         activePairHighlights = emptyList(),
@@ -443,18 +487,43 @@ class GuideLineHighlightingPass internal constructor(
                 return
             }
 
-            val oldGuide = state.activeGuide?.getUserData(GUIDE_KEY)
-            if (oldGuide != null) {
-                state.activeGuide.putUserData(
-                    GUIDE_KEY,
-                    BracketGuide(pair, oldGuide.guideColumn),
+            if (resolvedPair != null && resolvedPair.hasDifferentRangeFrom(adjustedPair)) {
+                disposeActivePresentation(state, preserveGuide = true)
+                val activePresentation = createActivePresentation(
+                    editor = editor,
+                    pair = pair,
+                    pairIndex = ActiveBracketPairIndex.NO_PAIR,
+                    positionIndex = positionIndex,
+                    settings = PluginSettings.getInstance().state,
+                    reusableGuide = state.activeGuide,
+                )
+                editor.putUserData(
+                    APPLIED_STATE_KEY,
+                    state.copy(
+                        positionIndex = positionIndex,
+                        activePairIndex = activePresentation.pairIndex,
+                        activePair = activePresentation.pair,
+                        activeRange = activePresentation.range,
+                        activeGuide = activePresentation.guide,
+                        activePairHighlights = activePresentation.pairHighlights,
+                    ),
+                )
+            } else {
+                val guide = createGuideDescriptor(editor, pair, positionIndex)
+                if (guide != null) state.activeGuide?.putUserData(GUIDE_KEY, guide)
+                editor.putUserData(
+                    APPLIED_STATE_KEY,
+                    state.copy(
+                        positionIndex = positionIndex,
+                        activePair = pair,
+                    ),
                 )
             }
             editor.contentComponent.repaint()
         }
 
         private fun adjustedActivePair(editor: Editor, state: AppliedState): BracketPair? {
-            val original = state.pairs.getOrNull(state.activePairIndex) ?: return null
+            val original = state.activePair ?: return null
             val range = state.activeRange?.takeIf(RangeMarker::isValid) ?: return null
             val closeOffset = range.endOffset - original.closeTokenLength
             if (range.startOffset + original.openTokenLength > closeOffset) return null
@@ -464,6 +533,26 @@ class GuideLineHighlightingPass internal constructor(
                 openLine = editor.document.getLineNumber(range.startOffset),
                 closeLine = editor.document.getLineNumber(closeOffset),
             )
+        }
+
+        private fun BracketPair.withDepthHint(previous: BracketPair?): BracketPair {
+            if (previous == null) return this
+            val depth = when {
+                openOffset == previous.openOffset && closeOffset == previous.closeOffset ->
+                    previous.depth
+                openOffset > previous.openOffset && closeOffset < previous.closeOffset ->
+                    previous.depth + 1
+                else -> previous.depth
+            }
+            return copy(depth = depth)
+        }
+
+        private fun BracketPair.hasDifferentRangeFrom(other: BracketPair?): Boolean {
+            return other == null ||
+                openOffset != other.openOffset ||
+                openTokenLength != other.openTokenLength ||
+                closeOffset != other.closeOffset ||
+                closeTokenLength != other.closeTokenLength
         }
 
         private fun createGuideDescriptor(
@@ -478,17 +567,21 @@ class GuideLineHighlightingPass internal constructor(
             ) {
                 return null
             }
-            return guideFor(pair, positionIndex)
+            return guideFor(editor, pair, positionIndex)
         }
 
         private fun guideFor(
+            editor: Editor,
             pair: BracketPair,
             positionIndex: GuidePositionIndex?,
         ): BracketGuide {
             return if (pair.openLine == pair.closeLine) {
                 BracketGuide(pair, guideColumn = 0)
             } else {
-                checkNotNull(positionIndex).guideFor(pair)
+                (positionIndex ?: GuidePositionIndex.from(
+                    editor.document,
+                    editor.settings.getTabSize(editor.project).coerceAtLeast(1),
+                )).guideFor(pair)
             }
         }
 
