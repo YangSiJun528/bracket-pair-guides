@@ -10,16 +10,27 @@ document.
 Production uses `BracketPairAnalyzer`; renderer tests inject fixed pair
 descriptors without requiring a lexer or language plugin.
 
-The analyzer reads the editor's token stream and asks the platform for the
-registered `PairedBraceMatcher` or file-type `BraceMatcher`. It preserves XML
-tag-name rules and keeps token languages isolated for layered highlighters. It
-does not scan raw characters, so brackets in comments and strings follow the
-host language's lexer.
+The analyzer reads the editor's token stream and resolves only the token
+language's `com.intellij.lang.braceMatcher` registration through
+`LanguageBraceMatching`. A plain `PairedBraceMatcher` is wrapped with the
+platform's `PairedBraceMatcherAdapter`; a matcher that already implements
+`BraceMatcher` is used unchanged. The latter preserves contextual decisions
+such as treating the same token type as a brace only at selected positions.
+
+There is no product backend, legacy file-type matcher fallback, or raw-character
+fallback. Languages are isolated for layered highlighters, and comments and
+strings follow the host language's lexer. If a language-registered matcher also
+provides strict tag context, that context remains part of pairing.
 
 `GuideLineHighlightingPassFactory` registers a `TextEditorHighlightingPass`.
 The pass collects immutable results under the platform's background read and
 cancellation lifecycle, then updates editor markup on the event dispatch
 thread.
+
+The bounded synchronous resolver used while a snapshot is stale applies the
+same language-registration gate before invoking the platform match routine.
+Consequently a legacy file-type matcher cannot make an otherwise unsupported
+language appear supported during edits.
 
 ## Caret activation and caching
 
@@ -42,11 +53,12 @@ active-symbol ranges.
 
 ## Cost model
 
-Let `T` be token count, `L` line count, and `P` recognized pair count.
+Let `T` be token count, `L` line count, and `P` recognized pair count. Brace
+definitions per language are bounded by the registered matcher.
 
 | Event | Work |
 |---|---|
-| Initial analysis or structural edit | Token recognition `O(T)`, line index `O(L)`, guide positions `O(P log L)`, active index `O(P log P)` |
+| Initial analysis or structural edit | One token pass `O(T)`, line index `O(L)`, guide positions `O(P log L)`, active index `O(P log P)` |
 | Caret move inside the same pair | `O(log P)` lookup; no markup change |
 | Caret move to another pair | `O(log P)` lookup; replace at most three ranges |
 | Theme or palette change | Refresh attributes; no pair recognition |
@@ -93,8 +105,9 @@ are bounded to protect the Settings UI.
 - Complete active-scope background shading is intentionally not provided.
 - Folded endpoints are not painted.
 - The host pass does not traverse separate injected documents on its own.
-- File types without a registered brace matcher are not analyzed.
-- Rider C# needs a dedicated, verified ReSharper-backed provider.
+- Languages without `com.intellij.lang.braceMatcher` are not analyzed.
+- A legacy `com.intellij.braceMatcher` registration by itself is intentionally
+  insufficient.
 
 ## Platform references
 

@@ -13,16 +13,19 @@
   symbols.
 - One Settings page with theme-aware Base colors, optional per-component color
   overrides, guide geometry, and an editable Preview.
-- Java, Kotlin, Kotlin script, JSON, XML, and Markdown regression coverage,
-  including pinned real-world JetBrains source files and large inputs.
+- Java, Kotlin, Kotlin script, JSON, contextual matcher, unsupported-language,
+  pinned real-world source, and large-input regression coverage.
 - Light and dark plugin icons and the MIT License.
 
 ### Changed
 
 - New installations show bracket-token colors and the active guide while
   leaving optional active-symbol borders and backgrounds disabled.
-- Bracket recognition uses the brace matchers registered by the IDE and
-  language plugins instead of scanning raw characters.
+- Bracket recognition uses only each token language's
+  `com.intellij.lang.braceMatcher`; product backends, legacy file-type matcher
+  fallbacks, and raw-character fallbacks are intentionally absent.
+- Context-sensitive `BraceMatcher` implementations registered through the
+  language extension are preserved instead of being reduced to static pairs.
 - Recognition and decoration are separated behind mockable interfaces.
 - Structural results are cached so caret movement uses an interval-index lookup
   and updates at most one guide and two active-symbol ranges.

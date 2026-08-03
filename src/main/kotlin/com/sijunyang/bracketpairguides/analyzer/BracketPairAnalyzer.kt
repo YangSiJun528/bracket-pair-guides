@@ -3,12 +3,10 @@ package com.sijunyang.bracketpairguides.analyzer
 import com.intellij.codeInsight.highlighting.BraceMatcher
 import com.intellij.codeInsight.highlighting.XmlAwareBraceMatcher
 import com.intellij.lang.Language
-import com.intellij.lang.LanguageBraceMatching
-import com.intellij.lang.PairedBraceMatcher
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.fileTypes.FileTypeExtension
 import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.psi.tree.IElementType
@@ -25,14 +23,11 @@ internal data class BracketPair(
 )
 
 /**
- * Reads the editor's already-tokenized stream and applies the brace definitions
- * supplied by each language's [com.intellij.lang.PairedBraceMatcher] or legacy
- * file-type [BraceMatcher].
+ * Pairs tokens recognized by each token language's `lang.braceMatcher`.
  *
- * This deliberately does not inspect raw characters. Comments, strings, layered
- * tokens, and language-specific bracket definitions remain the responsibility of
- * the current editor highlighter and language plugin. Separate PSI injections are
- * analyzed when the platform supplies their injected editor/document.
+ * Recognition stays on the editor's token stream. The analyzer neither scans
+ * raw characters nor falls back to the legacy file-type brace matcher. A
+ * language without a registered matcher is therefore deliberately ignored.
  */
 internal class BracketPairAnalyzer(
     private val editor: Editor,
@@ -48,11 +43,8 @@ internal class BracketPairAnalyzer(
         val document = editor.document
         if (document.textLength == 0) return emptyList()
 
-        val collector = BracketStack<IElementType, Language>()
-        val contextualCollector =
-            ContextualBracketStack<IElementType, ContextualGroup>()
-        val tokenSets = HashMap<Language, BraceTokenRules>()
-        val contextualMatchers = HashMap<Language, ResolvedFileTypeMatcher?>()
+        val collector = BraceMatcherStack<IElementType, MatcherGroup>()
+        val matchers = HashMap<Language, ResolvedLanguageBraceMatcher?>()
         val result = ArrayList<BracketPair>()
         val iterator = editor.highlighter.createIterator(0)
         if (iterator.document !== document) return emptyList()
@@ -68,129 +60,66 @@ internal class BracketPairAnalyzer(
             val tokenType = iterator.tokenType
             if (tokenType != null) {
                 val language = tokenType.language
-                val tokens = tokenSets.getOrPut(language) {
-                    LanguageBraceMatching.INSTANCE
-                        .forLanguage(language)
-                        ?.pairs
-                        ?.let(::BraceTokenRules)
-                        ?: BraceTokenRules.EMPTY
-                }
+                val resolved = matchers.cached(language)
+                if (resolved != null) {
+                    val matcher = resolved.matcher
+                    val isLeft = matcher.isLBraceToken(iterator, text, fileType)
+                    val isSymmetric = isLeft && resolved.isPureSymmetric(tokenType)
+                    val isRight = (!isLeft || isSymmetric) &&
+                        matcher.isRBraceToken(iterator, text, fileType)
 
-                if (!tokens.isEmpty) {
-                    val expectedCloses = tokens.expectedCloses(tokenType)
-                    val isClose = tokens.isClose(tokenType)
-                    if (tokens.isPureSymmetric(tokenType)) {
-                        val symmetricClose = checkNotNull(expectedCloses)
-                        val match = collector.close(language, tokenType, checkCanceled)
-                        if (match == null) {
-                            collector.open(
-                                group = language,
-                                expectedCloses = symmetricClose,
-                                offset = iterator.start,
-                                tokenLength = iterator.end - iterator.start,
-                                line = document.getLineNumber(iterator.start),
-                            )
-                        } else {
-                            result += match.toPair(
-                                closeOffset = iterator.start,
-                                closeTokenLength = iterator.end - iterator.start,
-                                closeLine = document.getLineNumber(iterator.start),
-                            )
-                        }
-                    } else if (expectedCloses != null) {
-                        collector.open(
-                            group = language,
-                            expectedCloses = expectedCloses,
-                            offset = iterator.start,
-                            tokenLength = iterator.end - iterator.start,
-                            line = document.getLineNumber(iterator.start),
+                    if (isLeft || isRight) {
+                        val group = MatcherGroup(
+                            language = language,
+                            tokenGroup = matcher.getBraceTokenGroupId(tokenType),
                         )
-                    } else if (isClose) {
-                        collector.close(language, tokenType, checkCanceled)?.let { match ->
-                            result += match.toPair(
-                                closeOffset = iterator.start,
-                                closeTokenLength = iterator.end - iterator.start,
-                                closeLine = document.getLineNumber(iterator.start),
-                            )
-                        }
-                    }
-                } else {
-                    val resolvedMatcher = if (contextualMatchers.containsKey(language)) {
-                        contextualMatchers[language]
-                    } else {
-                        findFileTypeMatcher(language).also { resolved ->
-                            contextualMatchers[language] = resolved
-                        }
-                    }
-                    if (resolvedMatcher != null) {
-                        val matcher = resolvedMatcher.matcher
-                        val isLeft = matcher.isLBraceToken(iterator, text, fileType)
-                        val isPureSymmetric =
-                            isLeft && resolvedMatcher.isPureSymmetric(tokenType)
-                        val isRight = (!isLeft || isPureSymmetric) &&
-                            matcher.isRBraceToken(iterator, text, fileType)
+                        val context = matcher.contextAt(iterator, text)
+                        val closeOffset = iterator.start
+                        val closeTokenLength = iterator.end - iterator.start
+                        val line = document.getLineNumber(iterator.start)
 
-                        if (isPureSymmetric && isRight) {
-                            val context = matcher.contextAt(iterator, text)
-                            val group = ContextualGroup(
-                                matcherClass = matcher.javaClass,
-                                tokenGroup = matcher.getBraceTokenGroupId(tokenType),
-                            )
-                            val match = contextualCollector.close(
+                        if (isSymmetric && isRight) {
+                            val match = collector.close(
                                 group = group,
                                 token = tokenType,
                                 context = context.value,
                                 strictContext = context.strict,
-                                isPair = matcher::isPairBraces,
+                                isPair = resolved.isPair,
                                 checkCanceled = checkCanceled,
                             )
                             if (match == null) {
-                                contextualCollector.open(
+                                collector.open(
                                     group = group,
                                     token = tokenType,
                                     context = context.value,
-                                    offset = iterator.start,
-                                    tokenLength = iterator.end - iterator.start,
-                                    line = document.getLineNumber(iterator.start),
+                                    strictContext = context.strict,
+                                    offset = closeOffset,
+                                    tokenLength = closeTokenLength,
+                                    line = line,
                                 )
                             } else {
-                                result += match.toPair(
-                                    closeOffset = iterator.start,
-                                    closeTokenLength = iterator.end - iterator.start,
-                                    closeLine = document.getLineNumber(iterator.start),
-                                )
+                                result += match.toPair(closeOffset, closeTokenLength, line)
                             }
                         } else if (isLeft) {
-                            val context = matcher.contextAt(iterator, text)
-                            contextualCollector.open(
-                                group = ContextualGroup(
-                                    matcherClass = matcher.javaClass,
-                                    tokenGroup = matcher.getBraceTokenGroupId(tokenType),
-                                ),
-                                token = tokenType,
-                                context = context.value,
-                                offset = iterator.start,
-                                tokenLength = iterator.end - iterator.start,
-                                line = document.getLineNumber(iterator.start),
-                            )
-                        } else if (isRight) {
-                            val context = matcher.contextAt(iterator, text)
-                            contextualCollector.close(
-                                group = ContextualGroup(
-                                    matcherClass = matcher.javaClass,
-                                    tokenGroup = matcher.getBraceTokenGroupId(tokenType),
-                                ),
+                            collector.open(
+                                group = group,
                                 token = tokenType,
                                 context = context.value,
                                 strictContext = context.strict,
-                                isPair = matcher::isPairBraces,
+                                offset = closeOffset,
+                                tokenLength = closeTokenLength,
+                                line = line,
+                            )
+                        } else if (isRight) {
+                            collector.close(
+                                group = group,
+                                token = tokenType,
+                                context = context.value,
+                                strictContext = context.strict,
+                                isPair = resolved.isPair,
                                 checkCanceled = checkCanceled,
                             )?.let { match ->
-                                result += match.toPair(
-                                    closeOffset = iterator.start,
-                                    closeTokenLength = iterator.end - iterator.start,
-                                    closeLine = document.getLineNumber(iterator.start),
-                                )
+                                result += match.toPair(closeOffset, closeTokenLength, line)
                             }
                         }
                     }
@@ -204,53 +133,29 @@ internal class BracketPairAnalyzer(
         return result
     }
 
-    private fun findFileTypeMatcher(language: Language): ResolvedFileTypeMatcher? {
-        FILE_TYPE_MATCHERS.forFileType(fileType)?.let {
-            return ResolvedFileTypeMatcher(it)
-        }
-        val associatedFileType = language.associatedFileType
-        return if (associatedFileType != null && associatedFileType !== fileType) {
-            FILE_TYPE_MATCHERS.forFileType(associatedFileType)
-                ?.let(::ResolvedFileTypeMatcher)
-        } else {
-            null
-        }
+    private fun HashMap<Language, ResolvedLanguageBraceMatcher?>.cached(
+        language: Language,
+    ): ResolvedLanguageBraceMatcher? {
+        if (containsKey(language)) return this[language]
+        return LanguageBraceMatchers.resolve(language).also { this[language] = it }
     }
 
-    private fun BracketStack.Match<IElementType>.toPair(
+    private fun BraceMatcherStack.Match<IElementType>.toPair(
         closeOffset: Int,
         closeTokenLength: Int,
         closeLine: Int,
-    ): BracketPair {
-        return BracketPair(
-            openOffset = open.offset,
-            openTokenLength = open.tokenLength,
-            closeOffset = closeOffset,
-            closeTokenLength = closeTokenLength,
-            depth = open.depth,
-            openLine = open.line,
-            closeLine = closeLine,
-        )
-    }
-
-    private fun ContextualBracketStack.Match<IElementType>.toPair(
-        closeOffset: Int,
-        closeTokenLength: Int,
-        closeLine: Int,
-    ): BracketPair {
-        return BracketPair(
-            openOffset = open.offset,
-            openTokenLength = open.tokenLength,
-            closeOffset = closeOffset,
-            closeTokenLength = closeTokenLength,
-            depth = open.depth,
-            openLine = open.line,
-            closeLine = closeLine,
-        )
-    }
+    ): BracketPair = BracketPair(
+        openOffset = open.offset,
+        openTokenLength = open.tokenLength,
+        closeOffset = closeOffset,
+        closeTokenLength = closeTokenLength,
+        depth = open.depth,
+        openLine = open.line,
+        closeLine = closeLine,
+    )
 
     private fun BraceMatcher.contextAt(
-        iterator: com.intellij.openapi.editor.highlighter.HighlighterIterator,
+        iterator: HighlighterIterator,
         text: CharSequence,
     ): TokenContext {
         val xmlMatcher = this as? XmlAwareBraceMatcher ?: return TokenContext.NONE
@@ -265,21 +170,10 @@ internal class BracketPairAnalyzer(
         return TokenContext(strict = true, value = tagName)
     }
 
-    private data class ContextualGroup(
-        val matcherClass: Class<out BraceMatcher>,
+    private data class MatcherGroup(
+        val language: Language,
         val tokenGroup: Int,
     )
-
-    private class ResolvedFileTypeMatcher(val matcher: BraceMatcher) {
-        private val pairRules =
-            (matcher as? PairedBraceMatcher)?.pairs?.let(::BraceTokenRules)
-
-        fun isPureSymmetric(tokenType: IElementType): Boolean {
-            pairRules?.let { return it.isPureSymmetric(tokenType) }
-            return matcher.getOppositeBraceTokenType(tokenType) == tokenType &&
-                matcher.isPairBraces(tokenType, tokenType)
-        }
-    }
 
     private data class TokenContext(
         val strict: Boolean,
@@ -291,9 +185,6 @@ internal class BracketPairAnalyzer(
     }
 
     private companion object {
-        val FILE_TYPE_MATCHERS =
-            FileTypeExtension<BraceMatcher>(BraceMatcher.EP_NAME.name)
-
         const val CANCELLATION_MASK = 0xFF
     }
 }

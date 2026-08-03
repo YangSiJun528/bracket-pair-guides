@@ -25,7 +25,6 @@ dependencies {
         // Required only by language-aware lexer integration tests.
         testBundledPlugin("com.intellij.java")
         testBundledPlugin("org.jetbrains.kotlin")
-        testBundledPlugin("org.intellij.plugins.markdown")
 
         testFramework(TestFrameworkType.Platform)
     }

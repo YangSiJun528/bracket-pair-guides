@@ -1,7 +1,9 @@
 package com.sijunyang.bracketpairguides.settings
 
+import com.sijunyang.bracketpairguides.analyzer.LanguageBraceMatchers
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
+import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.fileTypes.UnknownFileType
 
@@ -127,7 +129,10 @@ internal data class PreviewExample(
             val supported = catalog.filter { example ->
                 val fileType = example.resolveFileType()
                 fileType !== UnknownFileType.INSTANCE &&
-                    fileType !== PlainTextFileType.INSTANCE
+                    fileType !== PlainTextFileType.INSTANCE &&
+                    (fileType as? LanguageFileType)?.language?.let(
+                        LanguageBraceMatchers::isRegistered,
+                    ) == true
             }
             return supported.ifEmpty { listOf(FALLBACK) }
         }
@@ -137,7 +142,7 @@ internal data class PreviewExample(
             displayName = "Plain text",
             extension = "txt",
             source = """
-                Preview unavailable: no supported language file type is installed.
+                Preview unavailable: no language with lang.braceMatcher is installed.
 
                 Install a language plugin, then reopen this settings page.<caret>
             """.trimIndent(),

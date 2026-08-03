@@ -32,14 +32,6 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         verifyFixture("PlatformIconMappings.json", minimumPairCount = 120)
     }
 
-    fun testXmlPluginDescriptor() {
-        verifyFixture("intellij.xml.impl.xml", minimumPairCount = 500)
-    }
-
-    fun testMarkdownDocument() {
-        verifyFixture("configurable.md", minimumPairCount = 15)
-    }
-
     fun testKotlinScript() {
         verifyFixture("loadVSCBundles.main.kts", minimumPairCount = 450)
     }

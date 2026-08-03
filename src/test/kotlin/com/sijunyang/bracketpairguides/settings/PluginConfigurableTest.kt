@@ -256,7 +256,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         }
     }
 
-    fun testPreviewOffersFiveLexerBackedEditableExamples() {
+    fun testPreviewOffersOnlyExamplesWithLanguageBraceMatchers() {
         val preview = BracketSettingsPreview()
         val editor = preview.previewEditor
         try {
@@ -265,7 +265,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 preview.exampleSelector.getItemAt(index)
             }
             assertEquals(
-                listOf("java", "kotlin", "json", "xml", "markdown"),
+                listOf("java", "kotlin", "json"),
                 examples.map(PreviewExample::id),
             )
             assertFalse(editor.isViewer)

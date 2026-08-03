@@ -49,7 +49,7 @@ before Apply.
 The README screenshots enable the optional pair border and background to show
 their appearance; a new installation leaves both options off.
 
-1. Select an available Java, Kotlin, JSON, XML, or Markdown example.
+1. Select any example offered by the language matcher capability filter.
 2. Edit the example or move the caret into another pair.
 3. Switch examples without losing the temporary text and caret position.
 4. Select **Reset** to restore the current example.
@@ -86,12 +86,14 @@ Recommended setup:
 Bracket Pair Guides removes only highlighters it created. It does not clear an
 editor's markup model or change another feature's settings.
 
-Rider C# uses a ReSharper-backed analysis path and is not currently listed as a
-verified language. File types without a registered brace matcher are left
-unchanged.
+Language support follows `com.intellij.lang.braceMatcher`, not the IDE product
+name. The same plugin build can therefore support a language in Rider,
+RustRover, CLion, WebStorm, GoLand, or another JetBrains IDE when that language
+plugin registers the extension. Languages with only the legacy file-type
+matcher are left unchanged.
 
 Related JetBrains documentation:
 
 - [Customize editor appearance](https://www.jetbrains.com/help/idea/customize-editor.html)
 - [Indent guides](https://www.jetbrains.com/help/idea/indentation.html)
-- [Matching delimiters in Rider](https://www.jetbrains.com/help/rider/Coding_Assistance__Matching_Delimiters.html)
+- [Brace matching extension](https://plugins.jetbrains.com/docs/intellij/additional-minor-features.html)

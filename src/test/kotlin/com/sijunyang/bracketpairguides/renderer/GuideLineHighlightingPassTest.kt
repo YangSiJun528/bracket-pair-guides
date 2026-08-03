@@ -98,6 +98,19 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
     }
 
+    fun testStaleSnapshotResolverDoesNotUseALegacyFileTypeMatcher() {
+        val source = "<root>content</root>"
+        myFixture.configureByText("Unsupported.xml", source)
+        val editor = myFixture.editor
+
+        val pair = inReadAction {
+            EditorHighlighterActiveBracketPairResolver(myFixture.file.fileType)
+                .findInnermost(editor, source.indexOf("content") + 2)
+        }
+
+        assertNull(pair)
+    }
+
     fun testCaretMovementReplacesOnlyActivePresentationUsingCachedRecognition() {
         val source = "x { outer (inner) tail } y"
         myFixture.configureByText("Sample.txt", source)

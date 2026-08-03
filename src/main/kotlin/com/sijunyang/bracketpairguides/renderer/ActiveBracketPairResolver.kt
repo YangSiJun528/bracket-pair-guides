@@ -1,7 +1,9 @@
 package com.sijunyang.bracketpairguides.renderer
 
 import com.sijunyang.bracketpairguides.analyzer.BracketPair
+import com.sijunyang.bracketpairguides.analyzer.LanguageBraceMatchers
 import com.intellij.codeInsight.highlighting.BraceMatchingUtil
+import com.intellij.lang.Language
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
@@ -19,9 +21,9 @@ internal fun interface ActiveBracketPairResolver {
 }
 
 /**
- * Finds the containing pair with the same public brace matcher used by the IDE.
- * A shared token budget keeps this synchronous EDT fast path bounded; the normal
- * background highlighting pass remains the authoritative fallback.
+ * Finds the containing pair with the platform matcher, but only after the
+ * token language passes the same `lang.braceMatcher` capability gate as the
+ * full analyzer. A shared token budget keeps this synchronous EDT path bounded.
  */
 internal class EditorHighlighterActiveBracketPairResolver(
     private val fileType: FileType,
@@ -36,6 +38,7 @@ internal class EditorHighlighterActiveBracketPairResolver(
         val highlighter = editor.highlighter
         val text = document.immutableCharSequence
         val budget = TraversalBudget(tokenBudget)
+        val languageSupport = HashMap<Language, Boolean>()
         var iterator = highlighter.createIterator((caretOffset - 1).coerceAtMost(text.lastIndex))
         if (iterator.document !== document) return null
 
@@ -43,6 +46,11 @@ internal class EditorHighlighterActiveBracketPairResolver(
             val tokenStart = iterator.start
             val tokenEnd = iterator.end
             if (tokenStart >= caretOffset) {
+                retreat(iterator, budget)
+                continue
+            }
+
+            if (!iterator.hasLanguageMatcher(languageSupport)) {
                 retreat(iterator, budget)
                 continue
             }
@@ -114,6 +122,13 @@ internal class EditorHighlighterActiveBracketPairResolver(
 
     private fun retreat(iterator: HighlighterIterator, budget: TraversalBudget) {
         if (budget.consume()) iterator.retreat()
+    }
+
+    private fun HighlighterIterator.hasLanguageMatcher(
+        cache: HashMap<Language, Boolean>,
+    ): Boolean {
+        val language = tokenType?.language ?: return false
+        return cache.getOrPut(language) { LanguageBraceMatchers.isRegistered(language) }
     }
 
     private data class Match(val start: Int, val end: Int) {

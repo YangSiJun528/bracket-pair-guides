@@ -1,9 +1,24 @@
 package com.sijunyang.bracketpairguides.analyzer
 
+import com.intellij.codeInsight.highlighting.PairedBraceMatcherAdapter
+import com.intellij.lang.BracePair
+import com.intellij.lang.Language
+import com.intellij.lang.LanguageBraceMatching
+import com.intellij.lang.PairedBraceMatcher
+import com.intellij.lexer.Lexer
+import com.intellij.lexer.LexerBase
 import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.ex.util.LexerEditorHighlighter
+import com.intellij.openapi.editor.highlighter.HighlighterIterator
+import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.SyntaxHighlighter
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.psi.PsiFile
+import com.intellij.psi.tree.IElementType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import kotlin.system.measureTimeMillis
 
@@ -98,67 +113,41 @@ class BracketPairAnalyzerTest : BasePlatformTestCase() {
         }
     }
 
-    fun testXmlMatcherUsesCaseSensitiveTagNamesAndRecoversMalformedNesting() {
-        val mismatched = "<Root></root>"
-        myFixture.configureByText("Mismatched.xml", mismatched)
-        assertFalse(
-            analyze(EmptyProgressIndicator()).any { pair ->
-                pair.openOffset == 0 && pair.closeOffset == mismatched.lastIndexOf('>')
-            },
-        )
+    fun testLegacyFileTypeMatcherIsNotARecognitionFallback() {
+        myFixture.configureByText("Unsupported.xml", "<root><child/></root>")
 
-        val nested = "<root><child/></root>"
-        myFixture.configureByText("Nested.xml", nested)
-        val nestedPairs = analyze(EmptyProgressIndicator())
-        assertTrue(
-            nestedPairs.any { pair ->
-                pair.openOffset == 0 &&
-                    pair.closeOffset == nested.lastIndexOf('>') &&
-                    pair.depth == 0
-            },
-        )
-        assertTrue(
-            nestedPairs.any { pair ->
-                pair.openOffset == nested.indexOf('<', startIndex = 1) &&
-                    pair.closeOffset == nested.indexOf("/>") &&
-                    pair.closeTokenLength == 2 &&
-                    pair.depth == 1
-            },
-        )
-
-        val malformed = "<root><dangling></root>"
-        myFixture.configureByText("Malformed.xml", malformed)
-        val malformedPairs = analyze(EmptyProgressIndicator())
-        assertTrue(
-            malformedPairs.any { pair ->
-                pair.openOffset == 0 && pair.closeOffset == malformed.lastIndexOf('>')
-            },
-        )
-        assertFalse(
-            malformedPairs.any { pair ->
-                pair.openOffset == malformed.indexOf("<dangling>")
-            },
-        )
+        assertTrue(analyze(EmptyProgressIndicator()).isEmpty())
     }
 
-    fun testMarkdownFileTypeMatcherFindsLinkDelimiters() {
-        val source = "[label](target)"
-        myFixture.configureByText("Link.md", source)
+    fun testRawCharactersWithoutALanguageMatcherAreUnsupported() {
+        myFixture.configureByText("Unsupported.txt", "{[(content)]}")
 
-        val pairs = analyze(EmptyProgressIndicator())
+        assertTrue(analyze(EmptyProgressIndicator()).isEmpty())
+    }
 
-        assertTrue(
-            pairs.any { pair ->
-                pair.openOffset == source.indexOf('[') &&
-                    pair.closeOffset == source.indexOf(']')
-            },
+    fun testUsesContextualBehaviorFromARegisteredLanguageMatcher() {
+        val source = "a < b > T<x>"
+        myFixture.configureByText("Dynamic.txt", source)
+        (myFixture.editor as EditorEx).setHighlighter(
+            LexerEditorHighlighter(DYNAMIC_SYNTAX_HIGHLIGHTER, myFixture.editor.colorsScheme),
         )
-        assertTrue(
-            pairs.any { pair ->
-                pair.openOffset == source.indexOf('(') &&
-                    pair.closeOffset == source.indexOf(')')
-            },
-        )
+        val matcher = ContextualAngleMatcher()
+        LanguageBraceMatching.INSTANCE.addExplicitExtension(DYNAMIC_LANGUAGE, matcher)
+
+        try {
+            val pairs = analyze(EmptyProgressIndicator())
+            val supportedOpen = source.lastIndexOf('<')
+
+            assertEquals(1, pairs.size)
+            assertEquals(supportedOpen, pairs.single().openOffset)
+            assertEquals(source.lastIndexOf('>'), pairs.single().closeOffset)
+            assertFalse(
+                "Static pair metadata must not turn comparison operators into braces",
+                pairs.any { it.openOffset == source.indexOf('<') },
+            )
+        } finally {
+            LanguageBraceMatching.INSTANCE.removeExplicitExtension(DYNAMIC_LANGUAGE, matcher)
+        }
     }
 
     private fun analyze(indicator: ProgressIndicator): List<BracketPair> {
@@ -187,5 +176,90 @@ class BracketPairAnalyzerTest : BasePlatformTestCase() {
     private companion object {
         const val PAIRS_PER_GENERATED_METHOD = 5
         const val LARGE_ANALYSIS_LIMIT_MILLIS = 15_000L
+
+        val DYNAMIC_LANGUAGE = object : Language("BRACKET_PAIR_GUIDES_DYNAMIC_TEST") {}
+        val LEFT_ANGLE = IElementType("DYNAMIC_LEFT_ANGLE", DYNAMIC_LANGUAGE)
+        val RIGHT_ANGLE = IElementType("DYNAMIC_RIGHT_ANGLE", DYNAMIC_LANGUAGE)
+        val OTHER = IElementType("DYNAMIC_OTHER", DYNAMIC_LANGUAGE)
+
+        val ANGLE_PAIRS = object : PairedBraceMatcher {
+            override fun getPairs(): Array<BracePair> =
+                arrayOf(BracePair(LEFT_ANGLE, RIGHT_ANGLE, false))
+
+            override fun isPairedBracesAllowedBeforeType(
+                lbraceType: IElementType,
+                contextType: IElementType?,
+            ): Boolean = true
+
+            override fun getCodeConstructStart(
+                file: PsiFile,
+                openingBraceOffset: Int,
+            ): Int = openingBraceOffset
+        }
+
+        val DYNAMIC_SYNTAX_HIGHLIGHTER = object : SyntaxHighlighter {
+            override fun getHighlightingLexer(): Lexer = CharacterLexer()
+
+            override fun getTokenHighlights(
+                tokenType: IElementType,
+            ): Array<TextAttributesKey> = emptyArray()
+        }
+    }
+
+    private class ContextualAngleMatcher :
+        PairedBraceMatcherAdapter(ANGLE_PAIRS, DYNAMIC_LANGUAGE) {
+        override fun isLBraceToken(
+            iterator: HighlighterIterator,
+            fileText: CharSequence,
+            fileType: FileType,
+        ): Boolean = iterator.tokenType === LEFT_ANGLE &&
+            iterator.start > 0 && fileText[iterator.start - 1] == 'T'
+
+        override fun isRBraceToken(
+            iterator: HighlighterIterator,
+            fileText: CharSequence,
+            fileType: FileType,
+        ): Boolean = iterator.tokenType === RIGHT_ANGLE &&
+            iterator.start > 0 && fileText[iterator.start - 1] == 'x'
+    }
+
+    private class CharacterLexer : LexerBase() {
+        private var buffer: CharSequence = ""
+        private var endOffset: Int = 0
+        private var offset: Int = 0
+
+        override fun start(
+            buffer: CharSequence,
+            startOffset: Int,
+            endOffset: Int,
+            initialState: Int,
+        ) {
+            this.buffer = buffer
+            this.endOffset = endOffset
+            offset = startOffset
+        }
+
+        override fun getState(): Int = 0
+
+        override fun getTokenType(): IElementType? {
+            if (offset >= endOffset) return null
+            return when (buffer[offset]) {
+                '<' -> LEFT_ANGLE
+                '>' -> RIGHT_ANGLE
+                else -> OTHER
+            }
+        }
+
+        override fun getTokenStart(): Int = offset
+
+        override fun getTokenEnd(): Int = (offset + 1).coerceAtMost(endOffset)
+
+        override fun advance() {
+            if (offset < endOffset) offset++
+        }
+
+        override fun getBufferSequence(): CharSequence = buffer
+
+        override fun getBufferEnd(): Int = endOffset
     }
 }

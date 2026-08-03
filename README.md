@@ -18,12 +18,17 @@ Both are off by default; the default active presentation draws only the guide.
 - One caret-activated guide for the innermost containing pair.
 - Optional border and background emphasis on the active opening and closing symbols.
 - One Settings page for colors, guide geometry, active-pair styling, and an editable preview.
-- Language-aware matching through the brace matchers registered by the IDE and language plugins.
+- Language-aware matching through each token language's
+  `com.intellij.lang.braceMatcher`.
 
 ## Requirements
 
 - IntelliJ Platform 2024.1 or newer.
-- A language or file type that provides a JetBrains brace matcher.
+- An active token language that registers `com.intellij.lang.braceMatcher`.
+
+Support is capability-based rather than tied to an IDE product list. A
+language works in any JetBrains IDE where its plugin registers that extension.
+Legacy file-type-only `com.intellij.braceMatcher` registrations are not used.
 
 ## Install a local build
 
@@ -46,8 +51,8 @@ options and coexistence guidance.
 ```
 
 `runIde` opens a sandboxed IntelliJ IDEA instance with the plugin installed.
-The regression suite covers Java, Kotlin, Kotlin script, JSON, XML, and
-Markdown, including pinned real-world JetBrains source files and large inputs.
+The regression suite covers Java, Kotlin, Kotlin script, JSON, contextual
+language matchers, unsupported legacy-only file types, and large inputs.
 
 For implementation details, see
 [Architecture and performance](docs/explanation_architecture.md).

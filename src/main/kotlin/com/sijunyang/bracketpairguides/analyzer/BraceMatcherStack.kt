@@ -1,17 +1,18 @@
 package com.sijunyang.bracketpairguides.analyzer
 
 /**
- * Pairing state for legacy [com.intellij.codeInsight.highlighting.BraceMatcher]
- * implementations whose decision can depend on iterator context and tag names.
+ * One-pass pairing state for language brace matchers.
  *
- * Normal well-formed closes are O(1). Before malformed-input recovery scans the
- * stack, active opener token/tag counts reject unrelated closes without walking
- * the full nesting depth.
+ * Normal closes are O(1). Before malformed-input recovery scans a stack,
+ * active token/context counts reject unrelated closes. Any recovery scan
+ * discards the visited openers, so total stack traversal remains amortized
+ * linear in the token count.
  */
-internal class ContextualBracketStack<T, G> {
+internal class BraceMatcherStack<T, G> {
     data class Open<T>(
         val token: T,
         val context: String?,
+        val strictContext: Boolean,
         val offset: Int,
         val tokenLength: Int,
         val line: Int,
@@ -37,18 +38,20 @@ internal class ContextualBracketStack<T, G> {
         offset: Int,
         tokenLength: Int,
         line: Int,
+        strictContext: Boolean = false,
     ) {
         val state = states.getOrPut(group) { State() }
         state.stack += Open(
             token = token,
             context = context,
+            strictContext = strictContext,
             offset = offset,
             tokenLength = tokenLength,
             line = line,
             depth = state.stack.size,
         )
         increment(state.tokenCounts, token)
-        increment(state.contextCounts, ContextKey(token, context))
+        if (strictContext) increment(state.contextCounts, ContextKey(token, context))
     }
 
     fun close(
@@ -123,14 +126,14 @@ internal class ContextualBracketStack<T, G> {
         closeContext: String?,
         strictContext: Boolean,
         isPair: (T, T) -> Boolean,
-    ): Boolean {
-        return isPair(open.token, closeToken) &&
-            (!strictContext || open.context == closeContext)
-    }
+    ): Boolean = isPair(open.token, closeToken) &&
+        (!strictContext || (open.strictContext && open.context == closeContext))
 
     private fun decrement(state: State<T>, open: Open<T>) {
         decrement(state.tokenCounts, open.token)
-        decrement(state.contextCounts, ContextKey(open.token, open.context))
+        if (open.strictContext) {
+            decrement(state.contextCounts, ContextKey(open.token, open.context))
+        }
     }
 
     private fun removeGroupIfEmpty(group: G, state: State<T>) {

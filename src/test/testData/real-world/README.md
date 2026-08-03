@@ -20,6 +20,4 @@ from that commit (SHA-256
 | `YAMLUtil.java` | `plugins/yaml/src/YAMLUtil.java` | `39c5355b1d9ea1f8437d21f3757d94f01b7b53b7a2d3af23296375ef4b2e203f` |
 | `IconUtil.kt` | `platform/core-ui/src/util/IconUtil.kt` | `b1be933e35c9953be61de1065e9dffa63155418bd85a70ac3b219075238b0796` |
 | `PlatformIconMappings.json` | `platform/icons/src/PlatformIconMappings.json` | `f8a99b95ff565023ab58398abe41050a1989cb5f72c8e51d0a1e2bec8e67220d` |
-| `intellij.xml.impl.xml` | `xml/impl/resources/intellij.xml.impl.xml` | `4e59441a109f926c58ea0d0b283fb38ab782fe1e4b0f6cf450eaf4b773c414e7` |
-| `configurable.md` | `docs/configurable.md` | `2abb0b6dff9e12f8220f6db14fe04b063dd40ad63f94627a0f22d91f32e22d8b` |
 | `loadVSCBundles.main.kts` | `plugins/textmate/loadVSCBundles.main.kts` | `ce103c7a31e0f7f3294a2cd254304ee87ff313515e14c01d27554db80f36bbbd` |
