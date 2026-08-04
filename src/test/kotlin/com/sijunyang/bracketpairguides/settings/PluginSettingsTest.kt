@@ -75,4 +75,51 @@ class PluginSettingsTest {
         assertTrue(settings.options.isLanguageEnabled("JAVA"))
     }
 
+    @Test
+    fun `round trips every persisted option`() {
+        val expected = PluginOptions(
+            enabled = false,
+            disabledLanguageIds = setOf("Rust", "JavaScript"),
+            colorBracketTokens = false,
+            showActiveGuide = false,
+            showVerticalGuide = false,
+            showHorizontalGuides = false,
+            guideLineWidth = 3,
+            guideOpacityPercent = 70,
+            showActivePairBorder = true,
+            showActivePairBackground = true,
+            pairBackgroundOpacityPercent = 45,
+            useIndependentComponentColors = true,
+            levelBaseColors = List(BracketColorPalette.COLOR_COUNT) { 0x101010 + it },
+            guideLineColors = List(BracketColorPalette.COLOR_COUNT) { 0x202020 + it },
+            pairBorderColors = List(BracketColorPalette.COLOR_COUNT) { 0x303030 + it },
+            pairBackgroundColors = List(BracketColorPalette.COLOR_COUNT) { 0x404040 + it },
+        )
+        val source = PluginSettings().apply { replace(expected) }
+        val restored = PluginSettings()
+
+        restored.loadState(source.state)
+
+        assertEquals(expected, restored.options)
+    }
+
+    @Test
+    fun `load and get state do not expose mutable persistence collections`() {
+        val input = PluginSettings.State(
+            disabledLanguageIds = mutableListOf("Rust"),
+            levelBaseColors = mutableListOf(0x123456),
+        )
+        val settings = PluginSettings()
+        settings.loadState(input)
+
+        input.disabledLanguageIds.clear()
+        input.levelBaseColors[0] = 0x654321
+        val exported = settings.state
+        exported.disabledLanguageIds.clear()
+        exported.levelBaseColors[0] = 0x654321
+
+        assertEquals(setOf("Rust"), settings.options.disabledLanguageIds)
+        assertEquals(0x123456, settings.options.levelBaseColors[0])
+    }
+
 }
