@@ -21,6 +21,7 @@ import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.ui.OnePixelDivider
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.Computable
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.Alarm
 import com.intellij.util.concurrency.AppExecutorUtil
@@ -115,7 +116,7 @@ internal class BracketSettingsPreview(
         }
         previewEditor.setHorizontalScrollbarVisible(true)
         previewEditor.caretModel.moveToOffset(currentExample.initialCaretOffset)
-        previewEditor.document.addDocumentListener(documentListener)
+        previewEditor.document.addDocumentListener(documentListener, lifetime)
         previewEditor.caretModel.addCaretListener(caretListener)
         decoration = PreviewDecorationController(previewEditor)
         ApplicationManager.getApplication().messageBus.connect(lifetime).subscribe(
@@ -150,7 +151,6 @@ internal class BracketSettingsPreview(
         recognitionGeneration++
         recognitionAlarm.cancelAllRequests()
         Disposer.dispose(lifetime)
-        previewEditor.document.removeDocumentListener(documentListener)
         previewEditor.caretModel.removeCaretListener(caretListener)
         decoration.dispose()
         EditorFactory.getInstance().releaseEditor(previewEditor)
@@ -413,14 +413,16 @@ internal class BracketSettingsPreview(
             decoration.clearRecognition()
             return
         }
-        val result = ReadAction.compute<AnalysisSnapshot, RuntimeException> {
-            recognizer.recognize(
-                previewEditor,
-                currentFileType,
-                currentSettings.disabledLanguageIds,
-                EmptyProgressIndicator(),
-            )
-        }
+        val result = ApplicationManager.getApplication().runReadAction(
+            Computable {
+                recognizer.recognize(
+                    previewEditor,
+                    currentFileType,
+                    currentSettings.disabledLanguageIds,
+                    EmptyProgressIndicator(),
+                )
+            },
+        )
         applyRecognition(result)
     }
 

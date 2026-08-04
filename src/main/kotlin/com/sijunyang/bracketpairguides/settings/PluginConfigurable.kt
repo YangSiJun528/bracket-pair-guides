@@ -220,7 +220,7 @@ internal class PluginConfigurable(
         }
         if (capabilitiesChanged || languagesChanged) {
             for (project in ProjectManager.getInstance().openProjects) {
-                DaemonCodeAnalyzer.getInstance(project).restart()
+                DaemonRestartBridge.restart(DaemonCodeAnalyzer.getInstance(project))
             }
         }
         resetSnapshot = captureDraftState()
