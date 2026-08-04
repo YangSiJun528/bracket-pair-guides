@@ -46,6 +46,8 @@
   explicit draft colors and the page's modified state.
 - The Preview selector is associated with its mnemonic label, and the selector
   and palette expose descriptive accessibility names.
+- Preview text above 100,000 characters now shows an explicit paused state and
+  blocks costly example-buffer switching until the text is reduced or reset.
 
 ### Fixed
 

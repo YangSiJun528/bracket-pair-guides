@@ -696,6 +696,35 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         }
     }
 
+    fun testOversizedPreviewPausesAnalysisAndExampleSwitchingUntilReset() {
+        val preview = BracketSettingsPreview()
+        try {
+            val selected = preview.exampleSelector.selectedItem as PreviewExample
+            val oversized = "x".repeat(100_001)
+            replacePreviewText(preview, oversized)
+
+            assertFalse(preview.exampleSelector.isEnabled)
+            assertTrue(preview.analysisStatusLabel.isVisible)
+            assertTrue(preview.analysisStatusLabel.text.contains("100,000"))
+            val another = (0 until preview.exampleSelector.itemCount)
+                .map(preview.exampleSelector::getItemAt)
+                .first { it != selected }
+
+            preview.exampleSelector.selectedItem = another
+
+            assertSame(selected, preview.exampleSelector.selectedItem)
+            assertEquals(oversized, preview.previewEditor.document.text)
+
+            preview.resetExampleButton.doClick()
+
+            assertEquals(selected.source, preview.previewEditor.document.text)
+            assertTrue(preview.exampleSelector.isEnabled)
+            assertFalse(preview.analysisStatusLabel.isVisible)
+        } finally {
+            preview.dispose()
+        }
+    }
+
     fun testDensePreviewDecoratesEveryRecognizedToken() {
         val preview = BracketSettingsPreview()
         val editor = preview.previewEditor

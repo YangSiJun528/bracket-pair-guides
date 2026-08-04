@@ -58,6 +58,7 @@ internal class BracketSettingsPreview(
 
     internal val exampleSelector = JComboBox(examples.toTypedArray())
     internal val resetExampleButton = JButton("Reset")
+    internal val analysisStatusLabel = JBLabel()
     internal val previewEditor: EditorEx
     private var currentExample = examples.first()
     @Volatile
@@ -74,6 +75,7 @@ internal class BracketSettingsPreview(
     private val documentListener = object : DocumentListener {
         override fun documentChanged(event: DocumentEvent) {
             if (changingDocument || disposed) return
+            updateLengthState()
             scheduleRecognition()
         }
     }
@@ -126,6 +128,7 @@ internal class BracketSettingsPreview(
 
         configureLayout()
         wireControls()
+        updateLengthState()
         recognizeSynchronously()
     }
 
@@ -161,6 +164,7 @@ internal class BracketSettingsPreview(
                 exampleLabel,
                 GridBagConstraints().apply {
                     gridx = 0
+                    gridy = 0
                     weightx = 0.0
                     anchor = GridBagConstraints.WEST
                     insets = Insets(0, 0, 0, JBUI.scale(8))
@@ -170,6 +174,7 @@ internal class BracketSettingsPreview(
                 exampleSelector,
                 GridBagConstraints().apply {
                     gridx = 1
+                    gridy = 0
                     weightx = 1.0
                     fill = GridBagConstraints.HORIZONTAL
                     anchor = GridBagConstraints.WEST
@@ -180,8 +185,21 @@ internal class BracketSettingsPreview(
                 resetExampleButton,
                 GridBagConstraints().apply {
                     gridx = 2
+                    gridy = 0
                     weightx = 0.0
                     anchor = GridBagConstraints.EAST
+                },
+            )
+            add(
+                analysisStatusLabel,
+                GridBagConstraints().apply {
+                    gridx = 0
+                    gridy = 1
+                    gridwidth = 3
+                    weightx = 1.0
+                    fill = GridBagConstraints.HORIZONTAL
+                    anchor = GridBagConstraints.WEST
+                    insets = Insets(JBUI.scale(6), 0, 0, 0)
                 },
             )
         }
@@ -197,6 +215,7 @@ internal class BracketSettingsPreview(
             accessibleDescription = exampleSelector.toolTipText
         }
         resetExampleButton.toolTipText = "Restore this format's boilerplate"
+        analysisStatusLabel.accessibleContext.accessibleName = "Preview analysis status"
         previewEditor.component.accessibleContext.accessibleName =
             "Editable bracket pair preview"
 
@@ -218,6 +237,10 @@ internal class BracketSettingsPreview(
         exampleSelector.addActionListener {
             val selected = exampleSelector.selectedItem as? PreviewExample
                 ?: return@addActionListener
+            if (previewEditor.document.textLength > MAX_PREVIEW_LENGTH) {
+                if (selected != currentExample) exampleSelector.selectedItem = currentExample
+                return@addActionListener
+            }
             if (selected != currentExample) switchExample(selected)
         }
         resetExampleButton.addActionListener {
@@ -267,7 +290,19 @@ internal class BracketSettingsPreview(
             )
         } finally {
             changingDocument = false
+            updateLengthState()
         }
+    }
+
+    private fun updateLengthState() {
+        val analysisPaused = previewEditor.document.textLength > MAX_PREVIEW_LENGTH
+        exampleSelector.isEnabled = !analysisPaused
+        analysisStatusLabel.text = if (analysisPaused) {
+            "Analysis and example switching are paused above 100,000 characters."
+        } else {
+            ""
+        }
+        analysisStatusLabel.isVisible = analysisPaused
     }
 
     private fun installFileTypeHighlighter(fileType: FileType) {
