@@ -98,7 +98,8 @@ internal object AnalysisSnapshotBuilder {
             ActiveBracketPairIndex.build(emptyList())
         }
         val positionIndex = if (
-            stamp.capabilities.guidePosition && pairs.any { it.openLine != it.closeLine }
+            stamp.capabilities.guidePosition &&
+            containsMultilinePair(pairs, progress::checkCanceled)
         ) {
             // Oversized documents intentionally return null here. The session
             // then uses ActiveGuidePositionResolver's bounded on-demand scan.
@@ -113,6 +114,20 @@ internal object AnalysisSnapshotBuilder {
         return AnalysisSnapshot(stamp, pairs, tokenIndex, activeIndex, positionIndex)
     }
 
+    internal fun containsMultilinePair(
+        pairs: List<BracketPair>,
+        checkCanceled: () -> Unit = {},
+    ): Boolean {
+        var index = 0
+        for (pair in pairs) {
+            if (index and CANCELLATION_MASK == 0) checkCanceled()
+            if (pair.openLine != pair.closeLine) return true
+            index++
+        }
+        checkCanceled()
+        return false
+    }
+
     private fun empty(stamp: AnalysisStamp): AnalysisSnapshot = AnalysisSnapshot(
         stamp = stamp,
         pairs = emptyList(),
@@ -120,4 +135,6 @@ internal object AnalysisSnapshotBuilder {
         activeIndex = ActiveBracketPairIndex.build(emptyList()),
         positionIndex = null,
     )
+
+    private const val CANCELLATION_MASK = 0xFF
 }
