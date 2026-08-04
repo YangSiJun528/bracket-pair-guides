@@ -712,6 +712,41 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertEquals(3, ownedHighlighters().size)
     }
 
+    fun testDisablingAllPairFeaturesReleasesAndRebuildsTheSnapshot() {
+        val source = "x { content } y"
+        myFixture.configureByText("ReleasedSnapshot.txt", source)
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        var collections = 0
+        val provider = BracketPairProvider {
+            collections++
+            listOf(pair)
+        }
+        val editor = myFixture.editor
+        val enabled = PluginSettings.getInstance().options
+
+        applyPass(provider)
+        val acceptedStamp = AnalysisStamp.current(
+            editor,
+            AnalysisCapabilities.from(enabled),
+            enabled.disabledLanguageIds,
+        )
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, acceptedStamp))
+        assertEquals(1, collections)
+
+        applyOptions(enabled.copy(enabled = false))
+
+        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, acceptedStamp))
+        assertTrue(ownedHighlighters().isEmpty())
+
+        applyOptions(enabled)
+        applyPass(provider)
+
+        assertEquals(2, collections)
+        assertTrue(bracketColorHighlighters().isNotEmpty())
+    }
+
     fun testReenablingActivePresentationUsesTheFastResolverImmediately() {
         val source = "x { content } y"
         myFixture.configureByText("ReenabledFastPath.txt", source)

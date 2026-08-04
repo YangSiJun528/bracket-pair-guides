@@ -16,6 +16,7 @@ internal class EditorGuideSession private constructor(
     private var activePairResolver: ActiveBracketPairResolver,
     private var visibleRangeProvider: (Editor) -> TextRange,
     private var options: PluginOptions,
+    private val retainAnalysisWhenInactive: Boolean,
 ) {
     private var disposed = false
     private var activePairResolverHighlighterIdentity =
@@ -144,6 +145,13 @@ internal class EditorGuideSession private constructor(
             previousOptions.disabledLanguageIds != nextOptions.disabledLanguageIds
         options = nextOptions
         if (discardPresentationFromReplacedHighlighter()) return
+        if (!retainAnalysisWhenInactive &&
+            !AnalysisCapabilities.from(nextOptions).pairs
+        ) {
+            clear()
+            editor.contentComponent.repaint()
+            return
+        }
         if (languagesChanged) {
             clear()
             updateProvisional(null, resolveImmediately)
@@ -504,6 +512,7 @@ internal class EditorGuideSession private constructor(
                 resolver,
                 visibleRangeProvider,
                 PluginSettings.getInstance().options,
+                retainAnalysisWhenInactive = false,
             ).also {
                 editor.putUserData(KEY, it)
             }
@@ -520,6 +529,7 @@ internal class EditorGuideSession private constructor(
                 ActiveBracketPairResolver.NONE,
                 visibleRangeProvider,
                 options,
+                retainAnalysisWhenInactive = true,
             )
         }
 

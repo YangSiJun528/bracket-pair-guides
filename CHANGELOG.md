@@ -79,6 +79,8 @@
 - Invalidated pair/index snapshots are released immediately after edits while
   RangeMarker-backed decoration stays visible, avoiding roughly 70–90 MiB of
   stale snapshot overlap per editor at one million pairs.
+- Disabling every pair feature now releases the complete per-editor snapshot
+  instead of retaining proportional indexes for invisible presentation.
 - Capped token-decoration slices recenter while scrolling inside a cached
   viewport instead of remaining fixed at the previous focus.
 - Settings Preview examples preserve caret and horizontal/vertical scroll state,

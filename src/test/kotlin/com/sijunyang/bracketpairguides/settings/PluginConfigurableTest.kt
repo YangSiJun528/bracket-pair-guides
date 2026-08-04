@@ -725,7 +725,12 @@ class PluginConfigurableTest : BasePlatformTestCase() {
 
             PlatformTestUtil.waitWithEventsDispatching(
                 "preview refresh after guide analysis becomes stale",
-                { collections.get() == 2 },
+                {
+                    collections.get() == 2 &&
+                        preview.previewEditor.markupModel.allHighlighters
+                            .countGuide() == 1 &&
+                        !preview.analysisStatusLabel.isVisible
+                },
                 10_000,
             )
             assertEquals(

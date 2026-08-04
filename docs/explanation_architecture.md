@@ -148,6 +148,10 @@ stays visible until the replacement pass. For a default one-million-pair
 snapshot this avoids overlapping roughly 70–90 MiB of stale structures per
 editor with the new analysis, depending on interval shape. Token-only analysis
 also ignores tab-size changes because tab width affects only guide positioning.
+When token, guide, border, and background features are all disabled, the
+session releases the complete snapshot instead of retaining proportional pair
+indexes for an invisible feature. Re-enabling analysis starts a new background
+pass.
 
 For multiline pairs, `GuidePositionIndex` builds a tab-aware range-minimum
 indentation index once. Its build cost is `O(L)` and each guide-column query is
