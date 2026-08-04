@@ -31,7 +31,7 @@ internal class PreviewDecorationController(
     fun updateOptions(options: PluginOptions, refreshColors: Boolean) {
         session.updateOptions(
             options,
-            resolveImmediately = true,
+            resolveImmediately = !refreshColors,
             refreshColors = refreshColors,
         )
     }

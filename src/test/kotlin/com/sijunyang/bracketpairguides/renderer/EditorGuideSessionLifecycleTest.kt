@@ -4,6 +4,7 @@ import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import com.sijunyang.bracketpairguides.analyzer.BracketPairProvider
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.ex.EditorEx
@@ -206,6 +207,31 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
                 resolveImmediately = true,
             )
             assertEquals(1, resolverCalls)
+        } finally {
+            EditorGuideSession.dispose(editor)
+        }
+    }
+
+    fun testThemeRefreshDoesNotRunImmediateResolution() {
+        myFixture.configureByText("ThemeRefresh.txt", "{ value }")
+        val editor = myFixture.editor
+        var resolverCalls = 0
+        EditorGuideSession.dispose(editor)
+        EditorGuideSession.install(
+            editor = editor,
+            resolver = ActiveBracketPairResolver { _, _ ->
+                resolverCalls++
+                ActiveBracketPairResolution.Complete(null)
+            },
+            visibleRangeProvider = { TextRange(0, editor.document.textLength) },
+        )
+        try {
+            EditorGuideEventRouter.ensureInitialized()
+            ApplicationManager.getApplication()
+                .getService(EditorGuideEventRouter::class.java)
+                .globalSchemeChange(null)
+
+            assertEquals(0, resolverCalls)
         } finally {
             EditorGuideSession.dispose(editor)
         }
