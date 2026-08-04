@@ -5,12 +5,14 @@ import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.editor.VisualPosition
 import com.intellij.openapi.editor.markup.CustomHighlighterRenderer
 import com.intellij.openapi.editor.markup.RangeHighlighter
-import com.intellij.ui.paint.LinePainter2D
+import com.intellij.ui.paint.PaintUtil
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.Rectangle
+import java.awt.RenderingHints
+import java.awt.geom.Path2D
 
 /**
  * Paints one complete bracket-pair guide for one range highlighter.
@@ -73,10 +75,9 @@ internal object BracketGuideRenderer : CustomHighlighterRenderer {
         val g = graphics.create() as Graphics2D
         try {
             g.color = color
-            g.stroke = BasicStroke(
-                options.lineWidth.coerceAtLeast(1).toFloat(),
-                BasicStroke.CAP_SQUARE,
-                BasicStroke.JOIN_MITER,
+            val guideShape = GuideStrokeShape(
+                graphics = g,
+                lineWidth = options.lineWidth.coerceAtLeast(1),
             )
 
             if (currentOpenLine == currentCloseLine) {
@@ -84,10 +85,10 @@ internal object BracketGuideRenderer : CustomHighlighterRenderer {
                 if (openPosition.line == closePosition.line) {
                     val contentStartX = editor.offsetToXY(openEndOffset).x
                     val y = openPoint.y + lineHeight - 1
-                    drawHorizontal(g, contentStartX, closePoint.x, y)
+                    guideShape.addHorizontal(contentStartX, closePoint.x, y)
                 } else {
                     drawWrappedLogicalLine(
-                        g = g,
+                        guideShape = guideShape,
                         editor = editor,
                         openEndOffset = openEndOffset,
                         closeOffset = closeOffset,
@@ -95,6 +96,7 @@ internal object BracketGuideRenderer : CustomHighlighterRenderer {
                         clip = g.clipBounds,
                     )
                 }
+                guideShape.paint()
                 return
             }
 
@@ -111,7 +113,7 @@ internal object BracketGuideRenderer : CustomHighlighterRenderer {
 
             if (options.showVertical) {
                 drawVerticalClipped(
-                    g = g,
+                    guideShape = guideShape,
                     editor = editor,
                     guideColumn = guide.guideColumn,
                     x = guideX,
@@ -123,9 +125,10 @@ internal object BracketGuideRenderer : CustomHighlighterRenderer {
                 )
             }
             if (options.showHorizontal) {
-                drawHorizontal(g, guideX, openPoint.x, openBottomY)
-                drawHorizontal(g, guideX, closePoint.x, closeBottomY)
+                guideShape.addHorizontal(guideX, openPoint.x, openBottomY)
+                guideShape.addHorizontal(guideX, closePoint.x, closeBottomY)
             }
+            guideShape.paint()
         } finally {
             g.dispose()
         }
@@ -137,7 +140,7 @@ internal object BracketGuideRenderer : CustomHighlighterRenderer {
      * two possible positions at a wrap boundary.
      */
     private fun drawWrappedLogicalLine(
-        g: Graphics2D,
+        guideShape: GuideStrokeShape,
         editor: Editor,
         openEndOffset: Int,
         closeOffset: Int,
@@ -174,8 +177,7 @@ internal object BracketGuideRenderer : CustomHighlighterRenderer {
                 )
                 editor.offsetToXY(nextLineOffset, false, true).x
             }
-            drawHorizontal(
-                g,
+            guideShape.addHorizontal(
                 startX,
                 endX,
                 editor.visualLineToY(visualLine) + lineHeight - 1,
@@ -184,7 +186,7 @@ internal object BracketGuideRenderer : CustomHighlighterRenderer {
     }
 
     private fun drawVerticalClipped(
-        g: Graphics2D,
+        guideShape: GuideStrokeShape,
         editor: Editor,
         guideColumn: Int,
         x: Int,
@@ -234,30 +236,65 @@ internal object BracketGuideRenderer : CustomHighlighterRenderer {
             if (wrappedLineStartY + editor.lineHeight <= segmentStart) continue
 
             if (segmentStart < wrappedLineStartY) {
-                drawVertical(g, x, segmentStart, wrappedLineStartY - 1)
+                guideShape.addVertical(x, segmentStart, wrappedLineStartY - 1)
             }
             segmentStart = maxOf(segmentStart, wrappedLineStartY + editor.lineHeight)
         }
 
         if (segmentStart < visibleEnd) {
-            drawVertical(g, x, segmentStart, visibleEnd)
+            guideShape.addVertical(x, segmentStart, visibleEnd)
         }
     }
 
-    private fun drawVertical(g: Graphics2D, x: Int, startY: Int, endY: Int) {
-        if (startY < endY) {
-            LinePainter2D.paint(g, x.toDouble(), startY.toDouble(), x.toDouble(), endY.toDouble())
-        }
-    }
+    /**
+     * Builds every visible guide segment from a centered stroke and fills the
+     * combined outline once. This preserves square-cap stroke geometry while
+     * applying a translucent color only once where segments overlap.
+     */
+    private class GuideStrokeShape(
+        private val graphics: Graphics2D,
+        lineWidth: Int,
+    ) {
+        private val centerLines = Path2D.Double(Path2D.WIND_NON_ZERO)
+        private val thickness = PaintUtil.alignToInt(lineWidth.toDouble(), graphics)
+            .coerceAtLeast(PaintUtil.devPixel(graphics))
+        private var isEmpty = true
 
-    private fun drawHorizontal(g: Graphics2D, firstX: Int, secondX: Int, y: Int) {
-        if (firstX == secondX) return
-        LinePainter2D.paint(
-            g,
-            minOf(firstX, secondX).toDouble(),
-            y.toDouble(),
-            maxOf(firstX, secondX).toDouble(),
-            y.toDouble(),
-        )
+        fun addVertical(x: Int, startY: Int, endY: Int) {
+            if (startY >= endY) return
+
+            val centerX = PaintUtil.alignToInt(x.toDouble(), graphics)
+            val top = PaintUtil.alignToInt(startY.toDouble(), graphics)
+            val bottom = PaintUtil.alignToInt(endY.toDouble(), graphics)
+            centerLines.moveTo(centerX, top)
+            centerLines.lineTo(centerX, bottom)
+            isEmpty = false
+        }
+
+        fun addHorizontal(firstX: Int, secondX: Int, y: Int) {
+            if (firstX == secondX) return
+
+            val left = PaintUtil.alignToInt(minOf(firstX, secondX).toDouble(), graphics)
+            val right = PaintUtil.alignToInt(maxOf(firstX, secondX).toDouble(), graphics)
+            val centerY = PaintUtil.alignToInt(y.toDouble(), graphics)
+            centerLines.moveTo(left, centerY)
+            centerLines.lineTo(right, centerY)
+            isEmpty = false
+        }
+
+        fun paint() {
+            if (isEmpty) return
+            val outline = BasicStroke(
+                thickness.toFloat(),
+                BasicStroke.CAP_SQUARE,
+                BasicStroke.JOIN_MITER,
+            ).createStrokedShape(centerLines)
+            PaintUtil.paintWithAA(
+                graphics,
+                RenderingHints.VALUE_ANTIALIAS_DEFAULT,
+            ) {
+                graphics.fill(outline)
+            }
+        }
     }
 }

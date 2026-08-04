@@ -31,3 +31,8 @@
   and updates at most one guide and two active-symbol ranges.
 - Preview recognition is debounced, cancellable, and isolated from persisted
   settings and source editors.
+
+### Fixed
+
+- Guide opacity now remains uniform where horizontal and vertical segments
+  overlap.

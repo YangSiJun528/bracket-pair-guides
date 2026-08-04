@@ -10,10 +10,12 @@ import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import java.awt.Color
 import java.awt.image.BufferedImage
+import kotlin.math.roundToInt
 import kotlin.system.measureTimeMillis
 
 class BracketGuideRendererTest : BasePlatformTestCase() {
@@ -209,6 +211,121 @@ class BracketGuideRendererTest : BasePlatformTestCase() {
         assertTrue(image.maximumAlpha() in 1..200)
     }
 
+    fun testAppliesOpacityOnlyOnceAtHorizontalVerticalJoints() {
+        val source = "{\n    call();\n}"
+        myFixture.configureByText("Sample.java", source)
+        val editor = myFixture.editor
+        val closeOffset = source.lastIndexOf('}')
+        val guideColumn = 4
+        val pair = BracketPair(
+            openOffset = 0,
+            openTokenLength = 1,
+            closeOffset = closeOffset,
+            closeTokenLength = 1,
+            depth = 0,
+            openLine = 0,
+            closeLine = 2,
+        )
+        val image = paint(
+            pair = pair,
+            options = GuideRenderOptions(
+                showVertical = true,
+                showHorizontal = true,
+                lineWidth = 4,
+                opacityPercent = 50,
+            ),
+            guideColumn = guideColumn,
+            anchorLine = 1,
+        )
+        val anchorVisualLine = editor.logicalToVisualPosition(
+            LogicalPosition(1, 0),
+        ).line
+        val guideX = editor.visualPositionToXY(
+            VisualPosition(anchorVisualLine, guideColumn),
+        ).x
+        val openBottomY = editor.offsetToXY(pair.openOffset).y + editor.lineHeight - 1
+        val closeBottomY = editor.offsetToXY(pair.closeOffset).y + editor.lineHeight - 1
+        val bodyY = editor.visualLineToY(anchorVisualLine) + editor.lineHeight / 2
+        val bodyAlpha = image.alphaAt(guideX, bodyY)
+
+        assertTrue(
+            "Expected a half-transparent guide, alpha=$bodyAlpha",
+            bodyAlpha in 100..150,
+        )
+        assertEquals(bodyAlpha, image.alphaAt(guideX, openBottomY + 1))
+        assertEquals(bodyAlpha, image.alphaAt(guideX, closeBottomY))
+        assertEquals(bodyAlpha, image.maximumAlpha())
+    }
+
+    fun testThickGuideSegmentsRemainCenteredOnTheirAxes() {
+        val source = "{\n    call();\n}"
+        myFixture.configureByText("Sample.java", source)
+        val editor = myFixture.editor
+        val pair = BracketPair(
+            openOffset = 0,
+            openTokenLength = 1,
+            closeOffset = source.lastIndexOf('}'),
+            closeTokenLength = 1,
+            depth = 0,
+            openLine = 0,
+            closeLine = 2,
+        )
+        val guideColumn = 4
+        val anchorVisualLine = editor.logicalToVisualPosition(
+            LogicalPosition(1, 0),
+        ).line
+        val guideX = editor.visualPositionToXY(
+            VisualPosition(anchorVisualLine, guideColumn),
+        ).x
+        val bodyY = editor.visualLineToY(anchorVisualLine) + editor.lineHeight / 2
+        val openPoint = editor.offsetToXY(pair.openOffset)
+        val openBottomY = openPoint.y + editor.lineHeight - 1
+        val horizontalSampleX = (guideX + openPoint.x) / 2
+
+        for (scale in listOf(1.0, 2.0)) {
+            for (lineWidth in 2..4) {
+                val image = paint(
+                    pair = pair,
+                    options = GuideRenderOptions(
+                        showVertical = true,
+                        showHorizontal = true,
+                        lineWidth = lineWidth,
+                        opacityPercent = 100,
+                    ),
+                    guideColumn = guideColumn,
+                    anchorLine = 1,
+                    graphicsScale = scale,
+                )
+                val deviceGuideX = guideX * scale
+                val deviceBodyY = (bodyY * scale).roundToInt()
+                val deviceHorizontalX = (horizontalSampleX * scale).roundToInt()
+                val deviceOpenBottomY = openBottomY * scale
+                val searchRadius = (lineWidth * scale).roundToInt() + 3
+
+                assertEquals(
+                    "Vertical width $lineWidth at ${scale}x must stay centered",
+                    deviceGuideX,
+                    image.alphaWeightedCenterX(
+                        y = deviceBodyY,
+                        centerX = deviceGuideX.roundToInt(),
+                        radius = searchRadius,
+                    ),
+                    CENTER_TOLERANCE_IN_DEVICE_PIXELS,
+                )
+                assertEquals(
+                    "Horizontal width $lineWidth at ${scale}x must stay centered",
+                    deviceOpenBottomY,
+                    image.alphaWeightedCenterY(
+                        x = deviceHorizontalX,
+                        centerY = deviceOpenBottomY.roundToInt(),
+                        radius = searchRadius,
+                    ),
+                    CENTER_TOLERANCE_IN_DEVICE_PIXELS,
+                )
+            }
+        }
+    }
+
     fun testHugeSoftWrappedPairPaintIsBoundedByTheViewportClip() {
         val source = "call(" + "abcdefghij,".repeat(5_000) + "last)"
         myFixture.configureByText("Generated.java", source)
@@ -283,12 +400,19 @@ class BracketGuideRendererTest : BasePlatformTestCase() {
         options: GuideRenderOptions = DEFAULT_OPTIONS,
         guideColumn: Int = 0,
         anchorLine: Int = pair.openLine,
+        graphicsScale: Double = 1.0,
     ): BufferedImage {
         val highlighter = createGuideHighlighter(pair, options, guideColumn, anchorLine)
 
-        return BufferedImage(1_000, 1_000, BufferedImage.TYPE_INT_ARGB).also { image ->
+        val imageSize = (1_000 * graphicsScale).roundToInt()
+        return BufferedImage(
+            imageSize,
+            imageSize,
+            BufferedImage.TYPE_INT_ARGB,
+        ).also { image ->
             val graphics = image.createGraphics()
             try {
+                graphics.scale(graphicsScale, graphicsScale)
                 BracketGuideRenderer.paint(myFixture.editor, highlighter, graphics)
             } finally {
                 graphics.dispose()
@@ -321,6 +445,7 @@ class BracketGuideRendererTest : BasePlatformTestCase() {
         }
 
     companion object {
+        private const val CENTER_TOLERANCE_IN_DEVICE_PIXELS = 0.55
         private val DEFAULT_OPTIONS = GuideRenderOptions(
             showVertical = true,
             showHorizontal = true,
@@ -376,5 +501,43 @@ class BracketGuideRendererTest : BasePlatformTestCase() {
             }
         }
         return maximum
+    }
+
+    private fun BufferedImage.alphaAt(x: Int, y: Int): Int = getRGB(x, y) ushr 24
+
+    private fun BufferedImage.alphaWeightedCenterX(
+        y: Int,
+        centerX: Int,
+        radius: Int,
+    ): Double {
+        var weightedPosition = 0.0
+        var totalAlpha = 0L
+        for (x in (centerX - radius).coerceAtLeast(0)..
+            (centerX + radius).coerceAtMost(width - 1)
+        ) {
+            val alpha = alphaAt(x, y)
+            weightedPosition += (x + 0.5) * alpha
+            totalAlpha += alpha
+        }
+        assertTrue("Expected vertical guide ink near x=$centerX", totalAlpha > 0)
+        return weightedPosition / totalAlpha
+    }
+
+    private fun BufferedImage.alphaWeightedCenterY(
+        x: Int,
+        centerY: Int,
+        radius: Int,
+    ): Double {
+        var weightedPosition = 0.0
+        var totalAlpha = 0L
+        for (y in (centerY - radius).coerceAtLeast(0)..
+            (centerY + radius).coerceAtMost(height - 1)
+        ) {
+            val alpha = alphaAt(x, y)
+            weightedPosition += (y + 0.5) * alpha
+            totalAlpha += alpha
+        }
+        assertTrue("Expected horizontal guide ink near y=$centerY", totalAlpha > 0)
+        return weightedPosition / totalAlpha
     }
 }
