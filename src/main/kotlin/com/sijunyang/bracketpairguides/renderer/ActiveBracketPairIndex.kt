@@ -62,8 +62,7 @@ internal class ActiveBracketPairIndex private constructor(
             if (eventCount == 0) return EMPTY
 
             val sortedEvents = if (eventCount == events.size) events else events.copyOf(eventCount)
-            sortedEvents.sort()
-            checkCanceled()
+            sortedEvents.sortCancellable(checkCanceled)
 
             val active = BooleanArray(pairs.size)
             val heap = CandidateHeap(candidateStarts, candidateEnds, pairs.size)
@@ -83,13 +82,18 @@ internal class ActiveBracketPairIndex private constructor(
                 while (eventIndex < eventCount &&
                     eventOffset(sortedEvents[eventIndex]) == offset
                 ) {
+                    if (eventIndex and CANCELLATION_MASK == 0) checkCanceled()
                     val event = sortedEvents[eventIndex++]
                     val pairIndex = eventPairIndex(event)
                     val startsHere = isStartEvent(event)
                     active[pairIndex] = startsHere
                     if (startsHere) heap.add(pairIndex)
                 }
-                while (heap.isNotEmpty() && !active[heap.peek()]) heap.removeTop()
+                var removedCandidates = 0
+                while (heap.isNotEmpty() && !active[heap.peek()]) {
+                    if (removedCandidates++ and CANCELLATION_MASK == 0) checkCanceled()
+                    heap.removeTop()
+                }
 
                 val winner = if (heap.isNotEmpty()) heap.peek() else NO_PAIR
                 if (segmentCount == 0 || winners[segmentCount - 1] != winner) {

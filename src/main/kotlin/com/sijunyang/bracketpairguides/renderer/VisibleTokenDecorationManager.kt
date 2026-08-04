@@ -33,6 +33,8 @@ internal data class VisibleTokenEntry(
     val attributes: TextAttributes,
 )
 
+internal const val MAX_VISIBLE_TOKEN_DECORATIONS = 2_048
+
 internal object VisibleTokenDecorationManager {
     fun replace(
         editor: Editor,
@@ -41,10 +43,18 @@ internal object VisibleTokenDecorationManager {
         reportedVisibleRange: TextRange,
         options: PluginOptions,
     ): VisibleTokenDecorations {
-        val window = desiredWindow(editor, reportedVisibleRange)
+        val visibleRange = normalizedVisibleRange(editor, reportedVisibleRange)
+        val window = desiredWindow(editor, visibleRange)
         val reusable = ReusableHighlighters(previous?.entries.orEmpty())
         val entries = if (options.enabled && options.colorBracketTokens) {
-            createEntries(editor, tokenIndex, window, reusable, options)
+            createEntries(
+                editor,
+                tokenIndex,
+                window,
+                decorationFocusOffset(editor, visibleRange),
+                reusable,
+                options,
+            )
         } else {
             emptyList()
         }
@@ -96,17 +106,30 @@ internal object VisibleTokenDecorationManager {
         editor: Editor,
         tokenIndex: BracketTokenIndex,
         window: TextRange,
+        focusOffset: Int,
         reusable: ReusableHighlighters,
         options: PluginOptions,
     ): List<VisibleTokenEntry> {
         val palette = TokenPalette(editor, options)
-        val entries = ArrayList<VisibleTokenEntry>(
-            tokenIndex.countIn(window.startOffset, window.endOffset),
-        )
-        var index = tokenIndex.firstIndexInRange(window.startOffset)
-        while (index < tokenIndex.size) {
+        val firstCandidate = tokenIndex.firstIndexInRange(window.startOffset)
+        val lastCandidate = tokenIndex.firstIndexAtOrAfter(window.endOffset)
+        val candidateCount = lastCandidate - firstCandidate
+        var firstSelected = firstCandidate
+        var lastSelected = lastCandidate
+        if (candidateCount > MAX_VISIBLE_TOKEN_DECORATIONS) {
+            val focusIndex = tokenIndex.firstIndexAtOrAfter(focusOffset)
+                .coerceIn(firstCandidate, lastCandidate)
+            firstSelected = (focusIndex - MAX_VISIBLE_TOKEN_DECORATIONS / 2)
+                .coerceAtLeast(firstCandidate)
+            lastSelected = (firstSelected + MAX_VISIBLE_TOKEN_DECORATIONS)
+                .coerceAtMost(lastCandidate)
+            firstSelected = (lastSelected - MAX_VISIBLE_TOKEN_DECORATIONS)
+                .coerceAtLeast(firstCandidate)
+        }
+        val entries = ArrayList<VisibleTokenEntry>(lastSelected - firstSelected)
+        var index = firstSelected
+        while (index < lastSelected) {
             val startOffset = tokenIndex.offsetAt(index)
-            if (startOffset >= window.endOffset) break
             val endOffset = startOffset.toLong() + tokenIndex.lengthAt(index)
             if (endOffset > window.startOffset && endOffset <= editor.document.textLength) {
                 val levelIndex = BracketColorPalette.levelIndex(tokenIndex.depthAt(index))
@@ -210,19 +233,42 @@ internal object VisibleTokenDecorationManager {
         var endOffset = reported.endOffset.coerceIn(startOffset, documentLength)
         if (startOffset == endOffset) {
             startOffset = minOf(startOffset, caretOffset)
-            endOffset = maxOf(endOffset, (caretOffset + 1).coerceAtMost(documentLength))
+            endOffset = maxOf(
+                endOffset,
+                (caretOffset.toLong() + 1)
+                    .coerceAtMost(documentLength.toLong())
+                    .toInt(),
+            )
         }
         if (endOffset - startOffset > MAX_REPORTED_VISIBLE_CHARACTERS) {
-            startOffset = (caretOffset - MAX_REPORTED_VISIBLE_CHARACTERS / 2).coerceAtLeast(0)
-            endOffset = (startOffset + MAX_REPORTED_VISIBLE_CHARACTERS)
-                .coerceAtMost(documentLength)
+            val anchorOffset = if (caretOffset in startOffset..endOffset) {
+                caretOffset
+            } else {
+                (startOffset.toLong() + (endOffset - startOffset) / 2)
+                    .coerceAtMost(documentLength.toLong())
+                    .toInt()
+            }
+            startOffset = (anchorOffset - MAX_REPORTED_VISIBLE_CHARACTERS / 2)
+                .coerceAtLeast(0)
+            endOffset = (startOffset.toLong() + MAX_REPORTED_VISIBLE_CHARACTERS)
+                .coerceAtMost(documentLength.toLong())
+                .toInt()
             startOffset = (endOffset - MAX_REPORTED_VISIBLE_CHARACTERS).coerceAtLeast(0)
         }
         return TextRange(startOffset, endOffset)
     }
 
-    private fun desiredWindow(editor: Editor, reported: TextRange): TextRange {
-        val visible = normalizedVisibleRange(editor, reported)
+    private fun decorationFocusOffset(editor: Editor, visible: TextRange): Int {
+        val caretOffset = editor.caretModel.primaryCaret.offset
+            .coerceIn(0, editor.document.textLength)
+        return if (caretOffset in visible.startOffset..visible.endOffset) {
+            caretOffset
+        } else {
+            visible.startOffset + visible.length / 2
+        }
+    }
+
+    private fun desiredWindow(editor: Editor, visible: TextRange): TextRange {
         val padding = maxOf(
             MIN_TOKEN_WINDOW_PADDING,
             minOf(visible.length, MAX_TOKEN_WINDOW_PADDING),

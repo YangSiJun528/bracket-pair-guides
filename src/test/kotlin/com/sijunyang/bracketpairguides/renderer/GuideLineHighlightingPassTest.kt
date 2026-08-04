@@ -653,6 +653,37 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertTrue("50k-pair viewport refresh took ${scrollMillis}ms", scrollMillis < 1_000)
     }
 
+    fun testOversizedDenseViewportStaysAnchoredAwayFromCaretAndCapsDecorations() {
+        val pairCount = 50_000
+        val source = "()".repeat(pairCount)
+        myFixture.configureByText("DenseViewport.txt", source)
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(1)
+        val pairs = List(pairCount) { index ->
+            BracketPair(
+                openOffset = index * 2,
+                openTokenLength = 1,
+                closeOffset = index * 2 + 1,
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 0,
+            )
+        }
+
+        applyPass(BracketPairProvider { pairs }) {
+            TextRange(50_000, source.length)
+        }
+
+        val decorations = bracketColorHighlighters()
+        assertTrue(decorations.isNotEmpty())
+        assertTrue(decorations.size <= MAX_VISIBLE_TOKEN_DECORATIONS)
+        assertTrue(
+            "Decorations should follow the reported viewport instead of the off-screen caret",
+            decorations.minOf { it.startOffset } > 50_000,
+        )
+    }
+
     fun testAppliesActiveGuideBeforeRequestingViewportDecorations() {
         val source = "x { content } y"
         myFixture.configureByText("ActiveFirst.txt", source)

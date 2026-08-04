@@ -28,6 +28,20 @@ internal class BracketTokenIndex private constructor(
         return low
     }
 
+    fun firstIndexAtOrAfter(offset: Int): Int {
+        var low = 0
+        var high = encodedTokens.size
+        while (low < high) {
+            val middle = (low + high).ushr(1)
+            if (offsetAt(middle) < offset) {
+                low = middle + 1
+            } else {
+                high = middle
+            }
+        }
+        return low
+    }
+
     fun countIn(startOffset: Int, endOffset: Int): Int {
         var index = firstIndexInRange(startOffset)
         var count = 0
@@ -82,11 +96,8 @@ internal class BracketTokenIndex private constructor(
                     maximumLength = maxOf(maximumLength, pair.closeTokenLength)
                 }
             }
-            checkCanceled()
-
             val sorted = if (tokenCount == encoded.size) encoded else encoded.copyOf(tokenCount)
-            sorted.sort()
-            checkCanceled()
+            sorted.sortCancellable(checkCanceled)
             return BracketTokenIndex(pairs, sorted, maximumLength)
         }
 
