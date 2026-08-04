@@ -16,9 +16,17 @@ internal data class VisibleTokenDecorations(
     val windowStartOffset: Int,
     val windowEndOffset: Int,
     val entries: List<VisibleTokenEntry>,
+    val stableFocusStartOffset: Int = windowStartOffset,
+    val stableFocusEndOffset: Int = windowEndOffset,
+    val isCapped: Boolean = false,
 ) {
-    fun contains(range: TextRange): Boolean {
-        return windowStartOffset <= range.startOffset && windowEndOffset >= range.endOffset
+    /** A capped token slice must follow scrolling even inside its padded window. */
+    fun canReuseFor(range: TextRange, focusOffset: Int): Boolean {
+        if (windowStartOffset > range.startOffset || windowEndOffset < range.endOffset) {
+            return false
+        }
+        return !isCapped ||
+            focusOffset in stableFocusStartOffset..stableFocusEndOffset
     }
 
     companion object {
@@ -46,7 +54,7 @@ internal object VisibleTokenDecorationManager {
         val visibleRange = normalizedVisibleRange(editor, reportedVisibleRange)
         val window = desiredWindow(editor, visibleRange)
         val reusable = ReusableHighlighters(previous?.entries.orEmpty())
-        val entries = if (options.enabled && options.colorBracketTokens) {
+        val selection = if (options.enabled && options.colorBracketTokens) {
             createEntries(
                 editor,
                 tokenIndex,
@@ -56,10 +64,19 @@ internal object VisibleTokenDecorationManager {
                 options,
             )
         } else {
-            emptyList()
+            EntrySelection.EMPTY
         }
         reusable.disposeRemaining()
-        return VisibleTokenDecorations(window.startOffset, window.endOffset, entries)
+        return VisibleTokenDecorations(
+            windowStartOffset = window.startOffset,
+            windowEndOffset = window.endOffset,
+            entries = selection.entries,
+            stableFocusStartOffset = selection.stableFocusStartOffset
+                ?: window.startOffset,
+            stableFocusEndOffset = selection.stableFocusEndOffset
+                ?: window.endOffset,
+            isCapped = selection.isCapped,
+        )
     }
 
     fun replaceIfOutsideWindow(
@@ -70,7 +87,8 @@ internal object VisibleTokenDecorationManager {
         options: PluginOptions,
     ): VisibleTokenDecorations? {
         val visibleRange = normalizedVisibleRange(editor, reportedVisibleRange)
-        if (current.contains(visibleRange)) return null
+        val focusOffset = decorationFocusOffset(editor, visibleRange)
+        if (current.canReuseFor(visibleRange, focusOffset)) return null
         return replace(editor, current, tokenIndex, visibleRange, options)
     }
 
@@ -109,14 +127,15 @@ internal object VisibleTokenDecorationManager {
         focusOffset: Int,
         reusable: ReusableHighlighters,
         options: PluginOptions,
-    ): List<VisibleTokenEntry> {
+    ): EntrySelection {
         val palette = TokenPalette(editor, options)
         val firstCandidate = tokenIndex.firstIndexInRange(window.startOffset)
         val lastCandidate = tokenIndex.firstIndexAtOrAfter(window.endOffset)
         val candidateCount = lastCandidate - firstCandidate
         var firstSelected = firstCandidate
         var lastSelected = lastCandidate
-        if (candidateCount > MAX_VISIBLE_TOKEN_DECORATIONS) {
+        val isCapped = candidateCount > MAX_VISIBLE_TOKEN_DECORATIONS
+        val focusIndex = if (isCapped) {
             val focusIndex = tokenIndex.firstIndexAtOrAfter(focusOffset)
                 .coerceIn(firstCandidate, lastCandidate)
             firstSelected = (focusIndex - MAX_VISIBLE_TOKEN_DECORATIONS / 2)
@@ -125,6 +144,9 @@ internal object VisibleTokenDecorationManager {
                 .coerceAtMost(lastCandidate)
             firstSelected = (lastSelected - MAX_VISIBLE_TOKEN_DECORATIONS)
                 .coerceAtLeast(firstCandidate)
+            focusIndex
+        } else {
+            firstCandidate
         }
         val entries = ArrayList<VisibleTokenEntry>(lastSelected - firstSelected)
         var index = firstSelected
@@ -144,7 +166,30 @@ internal object VisibleTokenDecorationManager {
             }
             index++
         }
-        return entries
+        if (!isCapped) return EntrySelection(entries)
+
+        val selectedFocusIndex = focusIndex.coerceIn(firstSelected, lastSelected - 1)
+        val tolerance = MAX_VISIBLE_TOKEN_DECORATIONS / 4
+        val stableFirstIndex = (selectedFocusIndex - tolerance)
+            .coerceAtLeast(firstSelected)
+        val stableAfterLastIndex = (selectedFocusIndex + tolerance + 1)
+            .coerceAtMost(lastSelected)
+        val stableFocusStartOffset = if (stableFirstIndex == firstCandidate) {
+            window.startOffset
+        } else {
+            tokenIndex.offsetAt(stableFirstIndex)
+        }
+        val stableFocusEndOffset = if (stableAfterLastIndex == lastCandidate) {
+            window.endOffset
+        } else {
+            tokenIndex.offsetAt(stableAfterLastIndex)
+        }
+        return EntrySelection(
+            entries = entries,
+            stableFocusStartOffset = stableFocusStartOffset,
+            stableFocusEndOffset = stableFocusEndOffset,
+            isCapped = true,
+        )
     }
 
     private fun applyToken(
@@ -290,6 +335,17 @@ internal object VisibleTokenDecorationManager {
     private class TokenPalette(editor: Editor, options: PluginOptions) {
         val attributes = Array(BracketColorPalette.COLOR_COUNT) { level ->
             BracketColorPalette.bracketTextAttributes(editor.colorsScheme, options, level)
+        }
+    }
+
+    private data class EntrySelection(
+        val entries: List<VisibleTokenEntry>,
+        val stableFocusStartOffset: Int? = null,
+        val stableFocusEndOffset: Int? = null,
+        val isCapped: Boolean = false,
+    ) {
+        companion object {
+            val EMPTY = EntrySelection(emptyList())
         }
     }
 

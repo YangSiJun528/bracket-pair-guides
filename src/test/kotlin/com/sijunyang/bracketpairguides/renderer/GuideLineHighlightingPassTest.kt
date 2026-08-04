@@ -684,6 +684,44 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
     }
 
+    fun testCappedDenseDecorationsRecenterWhenScrollingInsideTheCachedPadding() {
+        val pairCount = 25_000
+        val source = "()".repeat(pairCount)
+        myFixture.configureByText("DenseViewportScroll.txt", source)
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(1)
+        val pairs = List(pairCount) { index ->
+            BracketPair(
+                openOffset = index * 2,
+                openTokenLength = 1,
+                closeOffset = index * 2 + 1,
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 0,
+            )
+        }
+        var visibleRange = TextRange(20_000, 36_384)
+
+        applyPass(BracketPairProvider { pairs }) { visibleRange }
+        val initialDecorations = bracketColorHighlighters()
+        assertEquals(MAX_VISIBLE_TOKEN_DECORATIONS, initialDecorations.size)
+        val initialLastOffset = initialDecorations.maxOf { it.startOffset }
+
+        // This viewport still fits in the first padded character window. The
+        // capped token slice nevertheless has to follow its new center.
+        visibleRange = TextRange(24_000, 40_384)
+        session().visibleAreaChanged()
+
+        val scrolledDecorations = bracketColorHighlighters()
+        assertEquals(MAX_VISIBLE_TOKEN_DECORATIONS, scrolledDecorations.size)
+        assertTrue(
+            "Capped decorations must be recentered within a cached character window",
+            scrolledDecorations.minOf { it.startOffset } > initialLastOffset,
+        )
+        assertTrue(initialDecorations.any { !it.isValid })
+    }
+
     fun testAppliesActiveGuideBeforeRequestingViewportDecorations() {
         val source = "x { content } y"
         myFixture.configureByText("ActiveFirst.txt", source)
