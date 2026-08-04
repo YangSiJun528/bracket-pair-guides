@@ -72,6 +72,7 @@ internal class BracketSettingsPreview(
     private var currentSettings = PluginOptions()
     @Volatile
     private var recognitionGeneration = 0L
+    private var analyzingGeneration: Long? = null
     private var changingDocument = false
     @Volatile
     private var disposed = false
@@ -153,6 +154,7 @@ internal class BracketSettingsPreview(
         if (disposed) return
         disposed = true
         recognitionGeneration++
+        analyzingGeneration = null
         recognitionAlarm.cancelAllRequests()
         Disposer.dispose(lifetime)
         previewEditor.caretModel.removeCaretListener(caretListener)
@@ -333,16 +335,18 @@ internal class BracketSettingsPreview(
     private fun updateLengthState() {
         val analysisPaused = previewEditor.document.textLength > MAX_PREVIEW_LENGTH
         exampleSelector.isEnabled = !analysisPaused
-        val status = if (analysisPaused) {
-            "Analysis and example switching are paused above 100,000 characters. " +
-                "Shorten the text or Reset to resume."
-        } else {
-            ""
+        val status = when {
+            analysisPaused ->
+                "Analysis and example switching are paused above 100,000 characters. " +
+                    "Shorten the text or Reset to resume."
+            analyzingGeneration == recognitionGeneration ->
+                "Analyzing preview in the background..."
+            else -> ""
         }
         analysisStatusLabel.text = status
         analysisStatusLabel.accessibleContext.accessibleDescription =
             status.takeIf(String::isNotEmpty)
-        analysisStatusLabel.isVisible = analysisPaused
+        analysisStatusLabel.isVisible = status.isNotEmpty()
     }
 
     private fun installFileTypeHighlighter(fileType: FileType) {
@@ -364,9 +368,15 @@ internal class BracketSettingsPreview(
         recognitionGeneration++
         recognitionAlarm.cancelAllRequests()
         if (previewEditor.document.textLength > MAX_PREVIEW_LENGTH) {
+            analyzingGeneration = null
             decoration.clearRecognition()
+            updateLengthState()
             return
         }
+        analyzingGeneration = recognitionGeneration.takeIf {
+            previewEditor.document.textLength > IMMEDIATE_RECOGNITION_LENGTH
+        }
+        updateLengthState()
         recognitionAlarm.addRequest(
             { submitRecognition() },
             delayMillis,
@@ -406,6 +416,10 @@ internal class BracketSettingsPreview(
                 ) {
                     return@finishOnUiThread
                 }
+                if (analyzingGeneration == generation) {
+                    analyzingGeneration = null
+                    updateLengthState()
+                }
                 applyRecognition(result)
             }
             .submit(AppExecutorUtil.getAppExecutorService())
@@ -414,11 +428,14 @@ internal class BracketSettingsPreview(
     private fun recognizeSynchronously() {
         if (disposed || previewEditor.isDisposed) return
         recognitionGeneration++
+        analyzingGeneration = null
         recognitionAlarm.cancelAllRequests()
         if (previewEditor.document.textLength > MAX_PREVIEW_LENGTH) {
             decoration.clearRecognition()
+            updateLengthState()
             return
         }
+        updateLengthState()
         val result = ApplicationManager.getApplication().runReadAction(
             Computable {
                 recognizer.recognize(

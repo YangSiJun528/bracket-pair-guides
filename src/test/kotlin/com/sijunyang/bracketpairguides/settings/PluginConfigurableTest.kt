@@ -816,6 +816,12 @@ class PluginConfigurableTest : BasePlatformTestCase() {
 
             assertEquals(largeJava, preview.previewEditor.document.text)
             assertTrue(preview.previewEditor.markupModel.allHighlighters.isEmpty())
+            assertTrue(preview.analysisStatusLabel.isVisible)
+            assertTrue(preview.analysisStatusLabel.text.contains("Analyzing"))
+            assertEquals(
+                preview.analysisStatusLabel.text,
+                preview.analysisStatusLabel.accessibleContext.accessibleDescription,
+            )
             PlatformTestUtil.waitWithEventsDispatching(
                 "large preview background recognition",
                 {
@@ -829,6 +835,8 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 1,
                 preview.previewEditor.markupModel.allHighlighters.countGuide(),
             )
+            assertFalse(preview.analysisStatusLabel.isVisible)
+            assertNull(preview.analysisStatusLabel.accessibleContext.accessibleDescription)
         } finally {
             preview.dispose()
         }
@@ -860,8 +868,8 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             replacePreviewText(preview, "x".repeat(100_000))
 
             assertTrue(preview.exampleSelector.isEnabled)
-            assertFalse(preview.analysisStatusLabel.isVisible)
-            assertNull(preview.analysisStatusLabel.accessibleContext.accessibleDescription)
+            assertTrue(preview.analysisStatusLabel.isVisible)
+            assertTrue(preview.analysisStatusLabel.text.contains("Analyzing"))
 
             replacePreviewText(preview, oversized)
             assertFalse(preview.exampleSelector.isEnabled)
