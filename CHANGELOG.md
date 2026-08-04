@@ -36,3 +36,5 @@
 
 - Guide opacity now remains uniform where horizontal and vertical segments
   overlap.
+- The active pair is revalidated immediately before the first full analysis,
+  after edits, and when the caret moves between nested scopes in a stale file.

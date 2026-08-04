@@ -63,8 +63,8 @@ internal class EditorGuideSession private constructor(
 
     fun caretMoved() {
         if (disposed || editor.isDisposed) return
-        val currentSnapshot = snapshot ?: return
-        if (!isCurrent(currentSnapshot)) {
+        val currentSnapshot = snapshot
+        if (currentSnapshot == null || !isCurrent(currentSnapshot)) {
             updateProvisional(null)
             return
         }
@@ -81,7 +81,7 @@ internal class EditorGuideSession private constructor(
     }
 
     fun documentChanged(change: DocumentChange) {
-        if (disposed || editor.isDisposed || snapshot == null) return
+        if (disposed || editor.isDisposed) return
         updateProvisional(change)
     }
 
@@ -152,20 +152,20 @@ internal class EditorGuideSession private constructor(
     private fun updateProvisional(change: DocumentChange?) {
         val adjustedPair = adjustedActivePair()
         val caretOffset = caretOffset()
-        val adjustedContainsCaret = adjustedPair?.contains(caretOffset) == true
-        val resolvedPair = if (!adjustedContainsCaret || change?.mayAffectBracketStructure == true) {
-            activePairResolver.findInnermost(editor, caretOffset)
-        } else {
-            null
+        val pair = when (
+            val resolution = activePairResolver.findInnermost(editor, caretOffset)
+        ) {
+            is ActiveBracketPairResolution.Complete ->
+                resolution.pair?.withDepthHint(adjustedPair)
+            ActiveBracketPairResolution.Incomplete -> adjustedPair
         }
-        val pair = resolvedPair?.withDepthHint(adjustedPair) ?: adjustedPair
         if (pair?.contains(caretOffset) != true) {
             clearActive(preserveGuide = false)
             editor.contentComponent.repaint()
             return
         }
 
-        if (resolvedPair != null && resolvedPair.hasDifferentRangeFrom(adjustedPair)) {
+        if (pair.hasDifferentRangeFrom(adjustedPair)) {
             replaceActive(
                 pair = pair,
                 pairIndex = ActiveBracketPairIndex.NO_PAIR,

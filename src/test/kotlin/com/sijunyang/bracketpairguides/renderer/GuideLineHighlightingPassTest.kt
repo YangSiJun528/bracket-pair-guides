@@ -103,12 +103,152 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         myFixture.configureByText("Unsupported.xml", source)
         val editor = myFixture.editor
 
-        val pair = inReadAction {
+        val resolution = inReadAction {
             EditorHighlighterActiveBracketPairResolver(myFixture.file.fileType)
                 .findInnermost(editor, source.indexOf("content") + 2)
         }
 
-        assertNull(pair)
+        assertEquals(ActiveBracketPairResolution.Complete(null), resolution)
+    }
+
+    fun testCaretMovementResolvesActivePairBeforeTheFirstFullSnapshot() {
+        val source = "x { content } y"
+        myFixture.configureByText("InitialFastPath.txt", source)
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        var resolutions = 0
+        var collections = 0
+        GuideLineHighlightingPass(
+            project = project,
+            editor = myFixture.editor,
+            pairProvider = BracketPairProvider {
+                collections++
+                listOf(pair)
+            },
+            activePairResolver = ActiveBracketPairResolver { _, caretOffset ->
+                resolutions++
+                ActiveBracketPairResolution.Complete(
+                    pair.takeIf {
+                        caretOffset > it.openOffset &&
+                            caretOffset < it.closeOffset + it.closeTokenLength
+                    },
+                )
+            },
+        )
+
+        myFixture.editor.caretModel.moveToOffset(source.indexOf("content"))
+
+        assertEquals(0, collections)
+        assertEquals(1, resolutions)
+        assertEquals(pair, activeGuideState()?.guide?.pair)
+    }
+
+    fun testStaleCaretMovementRevalidatesAnInwardScopeChange() {
+        val source = "x { outer (inner) tail } y"
+        myFixture.configureByText("StaleCaret.txt", source)
+        val outer = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        val inner = BracketPair(
+            source.indexOf('('), 1, source.indexOf(')'), 1, 1, 0, 0,
+        )
+        val editor = myFixture.editor
+        val tailOffset = source.indexOf("tail")
+        val innerOffset = source.indexOf("inner")
+        editor.caretModel.moveToOffset(tailOffset)
+        val resolvedOffsets = ArrayList<Int>()
+        val resolver = ActiveBracketPairResolver { _, caretOffset ->
+            resolvedOffsets += caretOffset
+            ActiveBracketPairResolution.Complete(
+                when {
+                    caretOffset > inner.openOffset &&
+                        caretOffset < inner.closeOffset + inner.closeTokenLength -> inner
+                    caretOffset > outer.openOffset &&
+                        caretOffset < outer.closeOffset + outer.closeTokenLength -> outer
+                    else -> null
+                },
+            )
+        }
+        applyPass(
+            GuideLineHighlightingPass(
+                project = project,
+                editor = editor,
+                pairProvider = BracketPairProvider { listOf(outer, inner) },
+                activePairResolver = resolver,
+            ),
+        )
+        assertEquals(outer, activeGuideState()?.guide?.pair)
+
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.insertString(editor.document.textLength, "z")
+        }
+        editor.caretModel.moveToOffset(innerOffset)
+
+        assertEquals(listOf(tailOffset, innerOffset), resolvedOffsets)
+        assertEquals(inner, activeGuideState()?.guide?.pair)
+    }
+
+    fun testEveryDocumentEditRevalidatesTheCurrentPair() {
+        val source = "x { content } y"
+        myFixture.configureByText("ContextChange.txt", source)
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(source.indexOf("content"))
+        var resolvedPair: BracketPair? = pair
+        var resolutions = 0
+        val resolver = ActiveBracketPairResolver { _, _ ->
+            resolutions++
+            ActiveBracketPairResolution.Complete(resolvedPair)
+        }
+        applyPass(
+            GuideLineHighlightingPass(
+                project = project,
+                editor = editor,
+                pairProvider = BracketPairProvider { listOf(pair) },
+                activePairResolver = resolver,
+            ),
+        )
+        assertEquals(pair, activeGuideState()?.guide?.pair)
+
+        resolvedPair = null
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.insertString(source.indexOf("content") + 1, "x")
+        }
+
+        assertEquals(1, resolutions)
+        assertNull(activeGuide())
+    }
+
+    fun testIncompleteDocumentRevalidationKeepsTheAdjustedPair() {
+        val source = "x { content } y"
+        myFixture.configureByText("IncompleteFastPath.txt", source)
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(source.indexOf("content"))
+        applyPass(
+            GuideLineHighlightingPass(
+                project = project,
+                editor = editor,
+                pairProvider = BracketPairProvider { listOf(pair) },
+                activePairResolver = ActiveBracketPairResolver { _, _ ->
+                    ActiveBracketPairResolution.Incomplete
+                },
+            ),
+        )
+
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.insertString(source.indexOf("content") + 1, "x")
+        }
+
+        assertEquals(
+            pair.closeOffset + 1,
+            activeGuideState()?.guide?.pair?.closeOffset,
+        )
     }
 
     fun testCaretMovementReplacesOnlyActivePresentationUsingCachedRecognition() {
@@ -588,6 +728,10 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
                 visibleRangeProvider,
             )
         }
+        applyPass(pass)
+    }
+
+    private fun applyPass(pass: GuideLineHighlightingPass) {
         inReadAction {
             pass.doCollectInformation(EmptyProgressIndicator())
         }

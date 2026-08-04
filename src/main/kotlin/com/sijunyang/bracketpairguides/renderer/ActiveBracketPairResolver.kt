@@ -11,12 +11,20 @@ import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.psi.tree.IElementType
 
-/** Fast-path recognition used only while the full highlighting pass is stale. */
+/** Result of a bounded active-pair lookup. */
+internal sealed interface ActiveBracketPairResolution {
+    data class Complete(val pair: BracketPair?) : ActiveBracketPairResolution
+
+    /** The token budget was exhausted, or no resolver is available. */
+    data object Incomplete : ActiveBracketPairResolution
+}
+
+/** Fast-path recognition used while the full highlighting snapshot is absent or stale. */
 internal fun interface ActiveBracketPairResolver {
-    fun findInnermost(editor: Editor, caretOffset: Int): BracketPair?
+    fun findInnermost(editor: Editor, caretOffset: Int): ActiveBracketPairResolution
 
     companion object {
-        val NONE = ActiveBracketPairResolver { _, _ -> null }
+        val NONE = ActiveBracketPairResolver { _, _ -> ActiveBracketPairResolution.Incomplete }
     }
 }
 
@@ -29,10 +37,13 @@ internal class EditorHighlighterActiveBracketPairResolver(
     private val fileType: FileType,
     private val tokenBudget: Int = DEFAULT_TOKEN_BUDGET,
 ) : ActiveBracketPairResolver {
-    override fun findInnermost(editor: Editor, caretOffset: Int): BracketPair? {
+    override fun findInnermost(
+        editor: Editor,
+        caretOffset: Int,
+    ): ActiveBracketPairResolution {
         val document = editor.document
         if (caretOffset <= 0 || caretOffset > document.textLength || document.textLength == 0) {
-            return null
+            return ActiveBracketPairResolution.Complete(null)
         }
 
         val highlighter = editor.highlighter
@@ -40,7 +51,7 @@ internal class EditorHighlighterActiveBracketPairResolver(
         val budget = TraversalBudget(tokenBudget)
         val languageSupport = HashMap<Language, Boolean>()
         var iterator = highlighter.createIterator((caretOffset - 1).coerceAtMost(text.lastIndex))
-        if (iterator.document !== document) return null
+        if (iterator.document !== document) return ActiveBracketPairResolution.Incomplete
 
         while (!iterator.atEnd() && !budget.exhausted) {
             val tokenStart = iterator.start
@@ -65,10 +76,12 @@ internal class EditorHighlighterActiveBracketPairResolver(
                 )
                 if (matched != null) {
                     if (caretOffset < tokenEnd) {
-                        return matched.toPair(
-                            closeOffset = tokenStart,
-                            closeTokenLength = tokenEnd - tokenStart,
-                            document = document,
+                        return ActiveBracketPairResolution.Complete(
+                            matched.toPair(
+                                closeOffset = tokenStart,
+                                closeTokenLength = tokenEnd - tokenStart,
+                                document = document,
+                            ),
                         )
                     }
 
@@ -87,17 +100,23 @@ internal class EditorHighlighterActiveBracketPairResolver(
                     budget = budget,
                 )
                 if (matched != null && caretOffset < matched.end) {
-                    return Match(tokenStart, tokenEnd).toPair(
-                        closeOffset = matched.start,
-                        closeTokenLength = matched.end - matched.start,
-                        document = document,
+                    return ActiveBracketPairResolution.Complete(
+                        Match(tokenStart, tokenEnd).toPair(
+                            closeOffset = matched.start,
+                            closeTokenLength = matched.end - matched.start,
+                            document = document,
+                        ),
                     )
                 }
             }
 
             retreat(iterator, budget)
         }
-        return null
+        return if (budget.exhausted) {
+            ActiveBracketPairResolution.Incomplete
+        } else {
+            ActiveBracketPairResolution.Complete(null)
+        }
     }
 
     private fun matchFrom(
