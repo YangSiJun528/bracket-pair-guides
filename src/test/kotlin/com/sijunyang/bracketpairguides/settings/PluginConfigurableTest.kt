@@ -5,7 +5,10 @@ import com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer
 import com.sijunyang.bracketpairguides.analyzer.BracketPairProvider
 import com.sijunyang.bracketpairguides.analyzer.LanguageBraceMatchers
 import com.sijunyang.bracketpairguides.analyzer.SupportedBraceLanguage
+import com.sijunyang.bracketpairguides.renderer.ActiveBracketPairResolution
+import com.sijunyang.bracketpairguides.renderer.ActiveBracketPairResolver
 import com.sijunyang.bracketpairguides.renderer.ActiveBracketPairIndex
+import com.sijunyang.bracketpairguides.renderer.EditorGuideSession
 import com.sijunyang.bracketpairguides.renderer.GUIDE_PAINT_STATE_KEY
 import com.intellij.lang.Language
 import com.intellij.openapi.application.ApplicationManager
@@ -21,6 +24,7 @@ import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.fileTypes.UnknownFileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
+import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.ui.ColorPanel
@@ -225,6 +229,46 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 checkBox.toolTipText,
                 checkBox.accessibleContext.accessibleDescription,
             )
+        }
+    }
+
+    fun testApplyingLanguageChangeRunsOneImmediateResolverAcrossEditors() {
+        val language = SupportedBraceLanguage("alpha", "Alpha", listOf("Alpha"))
+        val editorFactory = EditorFactory.getInstance()
+        val document = editorFactory.createDocument("{ value }")
+        val firstEditor = editorFactory.createEditor(document, project)
+        val secondEditor = editorFactory.createEditor(document, project)
+        var firstResolverCalls = 0
+        var secondResolverCalls = 0
+        try {
+            EditorGuideSession.install(
+                firstEditor,
+                resolver = ActiveBracketPairResolver { _, _ ->
+                    firstResolverCalls++
+                    ActiveBracketPairResolution.Complete(null)
+                },
+                visibleRangeProvider = { TextRange(0, document.textLength) },
+            )
+            EditorGuideSession.install(
+                secondEditor,
+                resolver = ActiveBracketPairResolver { _, _ ->
+                    secondResolverCalls++
+                    ActiveBracketPairResolution.Complete(null)
+                },
+                visibleRangeProvider = { TextRange(0, document.textLength) },
+            )
+
+            withConfigurable(listOf(language)) { configurable, component ->
+                component.languageCheckBox("alpha").doClick()
+                configurable.apply()
+            }
+
+            assertEquals(1, firstResolverCalls + secondResolverCalls)
+        } finally {
+            EditorGuideSession.dispose(firstEditor)
+            EditorGuideSession.dispose(secondEditor)
+            editorFactory.releaseEditor(firstEditor)
+            editorFactory.releaseEditor(secondEditor)
         }
     }
 
