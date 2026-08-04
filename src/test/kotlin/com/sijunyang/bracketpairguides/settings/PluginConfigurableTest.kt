@@ -9,6 +9,7 @@ import com.sijunyang.bracketpairguides.renderer.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.renderer.GUIDE_PAINT_STATE_KEY
 import com.intellij.lang.Language
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.colors.EditorColorsManager
@@ -699,6 +700,33 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 editor.markupModel.allHighlighters.tokenHighlighters().toSet(),
             )
             assertEquals(1, collections)
+        } finally {
+            preview.dispose()
+        }
+    }
+
+    fun testPreviewKeepsAdjustedDecorationsDuringDebouncedEditing() {
+        val preview = BracketSettingsPreview()
+        val editor = preview.previewEditor
+        try {
+            preview.update(PluginOptions())
+            val tokensBeforeEdit = editor.markupModel.allHighlighters
+                .tokenHighlighters()
+                .toSet()
+            assertTrue(tokensBeforeEdit.isNotEmpty())
+            assertEquals(1, editor.markupModel.allHighlighters.countGuide())
+            val insertionOffset = editor.document.text.indexOf("value")
+
+            WriteCommandAction.runWriteCommandAction(project) {
+                editor.document.insertString(insertionOffset, "x")
+            }
+
+            val tokensAfterEdit = editor.markupModel.allHighlighters
+                .tokenHighlighters()
+                .toSet()
+            assertTrue(tokensAfterEdit.isNotEmpty())
+            assertTrue(tokensAfterEdit.any { highlighter -> highlighter in tokensBeforeEdit })
+            assertEquals(1, editor.markupModel.allHighlighters.countGuide())
         } finally {
             preview.dispose()
         }

@@ -2,6 +2,7 @@ package com.sijunyang.bracketpairguides.settings
 
 import com.sijunyang.bracketpairguides.renderer.AnalysisSnapshot
 import com.sijunyang.bracketpairguides.renderer.ActiveBracketPairResolver
+import com.sijunyang.bracketpairguides.renderer.DocumentChange
 import com.sijunyang.bracketpairguides.renderer.EditorGuideSession
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.event.VisibleAreaListener
@@ -39,6 +40,10 @@ internal class PreviewDecorationController(
 
     fun caretMoved() {
         session.caretMoved()
+    }
+
+    fun documentChanged(change: DocumentChange) {
+        session.documentChanged(change)
     }
 
     fun clearRecognition() {

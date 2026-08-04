@@ -2,6 +2,7 @@ package com.sijunyang.bracketpairguides.settings
 
 import com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer
 import com.sijunyang.bracketpairguides.renderer.AnalysisSnapshot
+import com.sijunyang.bracketpairguides.renderer.DocumentChange
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
@@ -80,6 +81,9 @@ internal class BracketSettingsPreview(
         override fun documentChanged(event: DocumentEvent) {
             if (changingDocument || disposed) return
             updateLengthState()
+            if (event.document.textLength <= MAX_PREVIEW_LENGTH) {
+                decoration.documentChanged(DocumentChange.from(event))
+            }
             scheduleRecognition()
         }
     }
@@ -356,9 +360,9 @@ internal class BracketSettingsPreview(
         delayMillis: Int = RECOGNITION_DEBOUNCE_MILLIS,
     ) {
         recognitionGeneration++
-        decoration.clearRecognition()
         recognitionAlarm.cancelAllRequests()
         if (previewEditor.document.textLength > MAX_PREVIEW_LENGTH) {
+            decoration.clearRecognition()
             return
         }
         recognitionAlarm.addRequest(
