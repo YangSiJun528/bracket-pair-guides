@@ -26,6 +26,7 @@ internal class GuideLineHighlightingPass(
     private val activePairResolver: ActiveBracketPairResolver = ActiveBracketPairResolver.NONE,
 ) : TextEditorHighlightingPass(project, editor.document, false) {
     private var collected: AnalysisSnapshot? = null
+    private var collectedStamp: AnalysisStamp? = null
 
     init {
         if (ApplicationManager.getApplication().isDispatchThread && !editor.isDisposed) {
@@ -63,6 +64,7 @@ internal class GuideLineHighlightingPass(
 
     override fun doCollectInformation(progress: ProgressIndicator) {
         collected = null
+        collectedStamp = null
         val options = PluginSettings.getInstance().options
         val capabilities = AnalysisCapabilities.from(options)
         val stamp = AnalysisStamp.current(
@@ -70,15 +72,37 @@ internal class GuideLineHighlightingPass(
             capabilities,
             options.disabledLanguageIds,
         )
+        collectedStamp = stamp
         if (EditorGuideSession.hasAcceptedAnalysis(editor, stamp)) return
         collected = AnalysisSnapshotBuilder.build(editor, pairProvider, stamp, progress)
     }
 
     override fun doApplyInformationToEditor() {
         val snapshot = collected
+        val passStamp = collectedStamp
         collected = null
+        collectedStamp = null
+        if (editor.isDisposed || passStamp?.let(::isCurrent) == false) return
         val session = installSession() ?: return
+        if (passStamp != null) {
+            session.updateDependenciesIfCurrent(
+                activePairResolver,
+                visibleRangeProvider,
+                passStamp,
+            )
+        }
         if (snapshot != null) session.accept(snapshot)
+    }
+
+    private fun isCurrent(passStamp: AnalysisStamp): Boolean {
+        val options = PluginSettings.getInstance().options
+        return passStamp.satisfies(
+            AnalysisStamp.current(
+                editor,
+                AnalysisCapabilities.from(options),
+                options.disabledLanguageIds,
+            ),
+        )
     }
 
     private fun installSession(): EditorGuideSession? {

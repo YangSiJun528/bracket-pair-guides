@@ -36,13 +36,16 @@ internal class EditorGuideSession private constructor(
     internal var activePairHighlights: List<RangeHighlighter> = emptyList()
         private set
 
-    fun updateDependencies(
+    fun updateDependenciesIfCurrent(
         resolver: ActiveBracketPairResolver,
         rangeProvider: (Editor) -> TextRange,
-    ) {
+        passStamp: AnalysisStamp,
+    ): Boolean {
         assertEdt()
+        if (disposed || editor.isDisposed || !passStamp.satisfies(currentStamp())) return false
         activePairResolver = resolver
         visibleRangeProvider = rangeProvider
+        return true
     }
 
     fun accept(nextSnapshot: AnalysisSnapshot) {
@@ -122,11 +125,12 @@ internal class EditorGuideSession private constructor(
             return
         }
         val currentSnapshot = snapshot
-        tokenDecorations = if (currentSnapshot != null && isCurrent(currentSnapshot)) {
+        val currentAnalysis = currentSnapshot?.takeIf(::isCurrent)
+        tokenDecorations = if (currentAnalysis != null) {
             VisibleTokenDecorationManager.replace(
                 editor,
                 tokenDecorations,
-                currentSnapshot.tokenIndex,
+                currentAnalysis.tokenIndex,
                 visibleRangeProvider(editor),
                 options,
             )
@@ -134,23 +138,29 @@ internal class EditorGuideSession private constructor(
             VisibleTokenDecorationManager.updateAttributes(editor, tokenDecorations, options)
         }
 
-        val pairIndex = if (currentSnapshot != null && isCurrent(currentSnapshot)) {
-            currentSnapshot.activeIndex.activePairIndex(caretOffset())
+        val pairIndex = if (currentAnalysis != null) {
+            currentAnalysis.activeIndex.activePairIndex(caretOffset())
         } else {
             ActiveBracketPairIndex.NO_PAIR
         }
         val pair = if (pairIndex == ActiveBracketPairIndex.NO_PAIR) {
             adjustedActivePair()
         } else {
-            currentSnapshot?.pairs?.getOrNull(pairIndex)
+            currentAnalysis?.pairs?.getOrNull(pairIndex)
         }
         replaceActive(
             pair = pair,
             pairIndex = pairIndex,
-            positionIndex = currentSnapshot?.positionIndex
-                ?.takeIf { isCurrent(currentSnapshot) },
+            positionIndex = currentAnalysis?.positionIndex,
             change = null,
         )
+        if (pair == null &&
+            currentAnalysis == null &&
+            AnalysisCapabilities.from(options).activePair
+        ) {
+            updateProvisional(null)
+            return
+        }
         editor.contentComponent.repaint()
     }
 
@@ -266,6 +276,8 @@ internal class EditorGuideSession private constructor(
     ): BracketGuide? {
         if (!options.enabled || !options.showsGuide) return null
         if (pair.openLine == pair.closeLine) return BracketGuide(pair, 0)
+        // A full snapshot can intentionally omit the proportional-size index
+        // for an oversized document; keep that path bounded on the EDT.
         return positionIndex?.guideFor(pair) ?: ActiveGuidePositionResolver.resolve(
             editor,
             pair,
@@ -380,10 +392,7 @@ internal class EditorGuideSession private constructor(
         ): EditorGuideSession {
             assertEdt()
             val existing = editor.getUserData(KEY)
-            if (existing != null) {
-                existing.updateDependencies(resolver, visibleRangeProvider)
-                return existing
-            }
+            if (existing != null) return existing
             return EditorGuideSession(
                 editor,
                 resolver,

@@ -539,6 +539,43 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertEquals(3, ownedHighlighters().size)
     }
 
+    fun testReenablingActivePresentationUsesTheFastResolverImmediately() {
+        val source = "x { content } y"
+        myFixture.configureByText("ReenabledFastPath.txt", source)
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(source.indexOf("content"))
+        var collections = 0
+        var resolutions = 0
+        PluginSettings.getInstance().replace(PluginOptions(enabled = false))
+        applyPass(
+            GuideLineHighlightingPass(
+                project = project,
+                editor = editor,
+                pairProvider = BracketPairProvider {
+                    collections++
+                    listOf(pair)
+                },
+                activePairResolver = ActiveBracketPairResolver { _, _ ->
+                    resolutions++
+                    ActiveBracketPairResolution.Complete(pair)
+                },
+            ),
+        )
+        assertEquals(0, collections)
+        assertNull(activeGuide())
+
+        val enabled = PluginOptions()
+        PluginSettings.getInstance().replace(enabled)
+        session().updateOptions(enabled)
+
+        assertEquals(0, collections)
+        assertEquals(1, resolutions)
+        assertEquals(pair, activeGuideState()?.guide?.pair)
+    }
+
     fun testLanguageSelectionInvalidatesTheSnapshotAndUsesTheSameFastPathGate() {
         val source = "class Sample { void run() { call(); } }"
         myFixture.configureByText("LanguageSelection.java", source)
@@ -688,6 +725,128 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         deduplicatedPass.doApplyInformationToEditor()
         assertSame(acceptedSession, session())
         assertEquals(pair, activeGuideState()?.guide?.pair)
+    }
+
+    fun testStaleBackgroundPassDoesNotInstallItsDependenciesIntoANewSession() {
+        val source = "x { content } y"
+        myFixture.configureByText("StaleBackgroundInstall.txt", source)
+        val editor = myFixture.editor
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        editor.caretModel.moveToOffset(source.indexOf("content"))
+        EditorGuideSession.dispose(editor)
+        assertNull(EditorGuideSession.get(editor))
+        val staleResolverCalls = AtomicInteger()
+        val stalePass = AppExecutorUtil.getAppExecutorService()
+            .submit<GuideLineHighlightingPass> {
+                inReadAction {
+                    GuideLineHighlightingPass(
+                        project = project,
+                        editor = editor,
+                        pairProvider = BracketPairProvider { listOf(pair) },
+                        activePairResolver = ActiveBracketPairResolver { _, _ ->
+                            staleResolverCalls.incrementAndGet()
+                            ActiveBracketPairResolution.Complete(pair)
+                        },
+                    ).also { pass ->
+                        pass.doCollectInformation(EmptyProgressIndicator())
+                    }
+                }
+            }
+            .get(10, TimeUnit.SECONDS)
+        assertNull(EditorGuideSession.get(editor))
+
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.insertString(editor.document.textLength, "z")
+        }
+        stalePass.doApplyInformationToEditor()
+
+        assertNull(EditorGuideSession.get(editor))
+        assertEquals(0, staleResolverCalls.get())
+
+        var currentResolverCalls = 0
+        applyPass(
+            GuideLineHighlightingPass(
+                project = project,
+                editor = editor,
+                pairProvider = BracketPairProvider { listOf(pair) },
+                activePairResolver = ActiveBracketPairResolver { _, _ ->
+                    currentResolverCalls++
+                    ActiveBracketPairResolution.Complete(pair)
+                },
+            ),
+        )
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.insertString(editor.document.textLength, "z")
+        }
+
+        assertEquals(0, staleResolverCalls.get())
+        assertEquals(1, currentResolverCalls)
+    }
+
+    fun testRejectedStalePassDoesNotReplaceCurrentSessionDependencies() {
+        val source = "x { content } y"
+        myFixture.configureByText("DependencyOrder.txt", source)
+        val editor = myFixture.editor
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        editor.caretModel.moveToOffset(source.indexOf("content"))
+        var staleVisibleRangeCalls = 0
+        var currentVisibleRangeCalls = 0
+        var staleResolverCalls = 0
+        var currentResolverCalls = 0
+        val stalePass = GuideLineHighlightingPass(
+            project = project,
+            editor = editor,
+            pairProvider = BracketPairProvider { listOf(pair) },
+            visibleRangeProvider = {
+                staleVisibleRangeCalls++
+                TextRange(0, it.document.textLength)
+            },
+            activePairResolver = ActiveBracketPairResolver { _, _ ->
+                staleResolverCalls++
+                ActiveBracketPairResolution.Complete(pair)
+            },
+        )
+        inReadAction {
+            stalePass.doCollectInformation(EmptyProgressIndicator())
+        }
+
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.insertString(editor.document.textLength, "z")
+        }
+        val currentPass = GuideLineHighlightingPass(
+            project = project,
+            editor = editor,
+            pairProvider = BracketPairProvider { listOf(pair) },
+            visibleRangeProvider = {
+                currentVisibleRangeCalls++
+                TextRange(0, it.document.textLength)
+            },
+            activePairResolver = ActiveBracketPairResolver { _, _ ->
+                currentResolverCalls++
+                ActiveBracketPairResolution.Complete(pair)
+            },
+        )
+        applyPass(currentPass)
+
+        stalePass.doApplyInformationToEditor()
+        staleVisibleRangeCalls = 0
+        currentVisibleRangeCalls = 0
+        staleResolverCalls = 0
+        currentResolverCalls = 0
+
+        session().visibleAreaChanged()
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.insertString(editor.document.textLength, "z")
+        }
+
+        assertEquals(0, staleVisibleRangeCalls)
+        assertEquals(1, currentVisibleRangeCalls)
+        assertEquals(0, staleResolverCalls)
+        assertEquals(1, currentResolverCalls)
     }
 
     fun testDocumentEditAdjustsTheActiveGuideBeforeFullRecognitionCompletes() {
