@@ -79,6 +79,9 @@ background remain off on a new installation.
 3. Switch examples without losing temporary text, caret, or scroll position.
 4. Select **Reset** to restore the current example.
 
+When the selected example's matcher family is cleared in **Languages**, the
+Preview names that disabled state and explains which family to enable.
+
 If none of the bundled examples has an installed language matcher, the selector
 shows a **Plain text** explanation instead of a brace example. Matcher-backed
 third-party languages can still appear in **Languages** even when the Preview

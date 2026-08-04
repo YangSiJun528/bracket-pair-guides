@@ -613,6 +613,15 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 PluginOptions(disabledLanguageIds = setOf(capabilityId)),
             )
             assertTrue(preview.previewEditor.markupModel.allHighlighters.isEmpty())
+            assertEquals("Example language disabled.", preview.analysisStatusLabel.text)
+            assertTrue(preview.analysisStatusLabel.isVisible)
+            assertTrue(
+                preview.analysisStatusLabel.toolTipText.contains("in Languages"),
+            )
+            assertEquals(
+                preview.analysisStatusLabel.toolTipText,
+                preview.analysisStatusLabel.accessibleContext.accessibleDescription,
+            )
 
             preview.update(PluginOptions())
             waitForPreviewDecoration(preview, "reenabled matcher family")
@@ -621,6 +630,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                     .tokenHighlighters()
                     .isNotEmpty(),
             )
+            assertFalse(preview.analysisStatusLabel.isVisible)
         } finally {
             preview.dispose()
         }

@@ -1,6 +1,7 @@
 package com.sijunyang.bracketpairguides.settings
 
 import com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer
+import com.sijunyang.bracketpairguides.analyzer.LanguageBraceMatchers
 import com.sijunyang.bracketpairguides.renderer.AnalysisCapabilities
 import com.sijunyang.bracketpairguides.renderer.AnalysisSnapshot
 import com.sijunyang.bracketpairguides.renderer.DocumentChange
@@ -20,6 +21,7 @@ import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.progress.ProgressIndicator
@@ -350,6 +352,7 @@ internal class BracketSettingsPreview(
 
     private fun updateLengthState() {
         val analysisPaused = previewEditor.document.textLength > MAX_PREVIEW_LENGTH
+        val disabledExampleLanguage = currentExampleDisabledLanguageName()
         exampleSelector.isEnabled = !analysisPaused
         val (status, statusDescription) = when {
             analysisPaused -> Pair(
@@ -365,12 +368,26 @@ internal class BracketSettingsPreview(
                 "Preview analysis failed.",
                 "Preview analysis failed. Edit the text or Reset to retry.",
             )
+            disabledExampleLanguage != null -> {
+                Pair(
+                    "Example language disabled.",
+                    "Enable $disabledExampleLanguage in Languages to show bracket highlighting " +
+                        "for this example.",
+                )
+            }
             else -> "" to null
         }
         analysisStatusLabel.text = status
         analysisStatusLabel.toolTipText = statusDescription
         analysisStatusLabel.accessibleContext.accessibleDescription = statusDescription
         analysisStatusLabel.isVisible = status.isNotEmpty()
+    }
+
+    private fun currentExampleDisabledLanguageName(): String? {
+        val language = (currentFileType as? LanguageFileType)?.language ?: return null
+        val owner = LanguageBraceMatchers.capabilityOwner(language) ?: return null
+        if (currentSettings.isLanguageEnabled(owner.id)) return null
+        return owner.displayName.ifBlank { owner.id }
     }
 
     private fun installFileTypeHighlighter(fileType: FileType) {
