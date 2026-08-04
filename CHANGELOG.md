@@ -33,6 +33,9 @@
 - Recognition and decoration are separated behind mockable interfaces.
 - Structural results are cached so caret movement uses an interval-index lookup
   and updates at most one guide and two active-symbol ranges.
+- Editor snapshots and markup remain EDT-confined; background pass deduplication
+  reads only an immutable stamp, and active presentation is applied before
+  viewport token decoration.
 - Preview recognition is debounced, cancellable, and isolated from persisted
   settings and source editors.
 - Language changes in previews larger than 10,000 characters now reanalyze in

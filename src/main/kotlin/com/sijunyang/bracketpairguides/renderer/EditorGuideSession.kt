@@ -3,6 +3,7 @@ package com.sijunyang.bracketpairguides.renderer
 import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.editor.markup.RangeHighlighter
@@ -17,6 +18,11 @@ internal class EditorGuideSession private constructor(
     private var options: PluginOptions,
 ) {
     private var disposed = false
+    /** The only session state read by background highlighting passes. */
+    @Volatile
+    private var acceptedStamp: AnalysisStamp? = null
+
+    /** EDT-owned recognition and presentation state. */
     private var snapshot: AnalysisSnapshot? = null
     private var activePairIndex = ActiveBracketPairIndex.NO_PAIR
     private var activePair: BracketPair? = null
@@ -34,23 +40,16 @@ internal class EditorGuideSession private constructor(
         resolver: ActiveBracketPairResolver,
         rangeProvider: (Editor) -> TextRange,
     ) {
+        assertEdt()
         activePairResolver = resolver
         visibleRangeProvider = rangeProvider
     }
 
-    fun hasSnapshot(stamp: AnalysisStamp): Boolean = snapshot?.stamp?.satisfies(stamp) == true
-
     fun accept(nextSnapshot: AnalysisSnapshot) {
+        assertEdt()
         if (disposed || editor.isDisposed || !nextSnapshot.stamp.satisfies(currentStamp())) return
 
         snapshot = nextSnapshot
-        tokenDecorations = VisibleTokenDecorationManager.replace(
-            editor,
-            tokenDecorations,
-            nextSnapshot.tokenIndex,
-            visibleRangeProvider(editor),
-            options,
-        )
         val pairIndex = nextSnapshot.activeIndex.activePairIndex(caretOffset())
         replaceActive(
             pair = nextSnapshot.pairs.getOrNull(pairIndex),
@@ -58,10 +57,19 @@ internal class EditorGuideSession private constructor(
             positionIndex = nextSnapshot.positionIndex,
             change = null,
         )
+        tokenDecorations = VisibleTokenDecorationManager.replace(
+            editor,
+            tokenDecorations,
+            nextSnapshot.tokenIndex,
+            visibleRangeProvider(editor),
+            options,
+        )
+        acceptedStamp = nextSnapshot.stamp
         editor.contentComponent.repaint()
     }
 
     fun caretMoved() {
+        assertEdt()
         if (disposed || editor.isDisposed) return
         val currentSnapshot = snapshot
         if (currentSnapshot == null || !isCurrent(currentSnapshot)) {
@@ -81,11 +89,13 @@ internal class EditorGuideSession private constructor(
     }
 
     fun documentChanged(change: DocumentChange) {
+        assertEdt()
         if (disposed || editor.isDisposed) return
         updateProvisional(change)
     }
 
     fun visibleAreaChanged() {
+        assertEdt()
         if (disposed || editor.isDisposed) return
         val currentSnapshot = snapshot ?: return
         if (!isCurrent(currentSnapshot)) return
@@ -101,6 +111,7 @@ internal class EditorGuideSession private constructor(
     }
 
     fun updateOptions(nextOptions: PluginOptions) {
+        assertEdt()
         if (disposed || editor.isDisposed) return
         val languagesChanged =
             options.disabledLanguageIds != nextOptions.disabledLanguageIds
@@ -144,12 +155,15 @@ internal class EditorGuideSession private constructor(
     }
 
     fun dispose() {
+        assertEdt()
         if (disposed) return
         disposed = true
         clear()
     }
 
     fun clear() {
+        assertEdt()
+        acceptedStamp = null
         snapshot = null
         clearActive(preserveGuide = false)
         VisibleTokenDecorationManager.dispose(tokenDecorations)
@@ -364,6 +378,7 @@ internal class EditorGuideSession private constructor(
             resolver: ActiveBracketPairResolver,
             visibleRangeProvider: (Editor) -> TextRange,
         ): EditorGuideSession {
+            assertEdt()
             val existing = editor.getUserData(KEY)
             if (existing != null) {
                 existing.updateDependencies(resolver, visibleRangeProvider)
@@ -383,18 +398,36 @@ internal class EditorGuideSession private constructor(
             editor: Editor,
             options: PluginOptions,
             visibleRangeProvider: (Editor) -> TextRange,
-        ): EditorGuideSession = EditorGuideSession(
-            editor,
-            ActiveBracketPairResolver.NONE,
-            visibleRangeProvider,
-            options,
-        )
+        ): EditorGuideSession {
+            assertEdt()
+            return EditorGuideSession(
+                editor,
+                ActiveBracketPairResolver.NONE,
+                visibleRangeProvider,
+                options,
+            )
+        }
+
+        /** The only session query allowed from a background highlighting pass. */
+        fun hasAcceptedAnalysis(editor: Editor, required: AnalysisStamp): Boolean =
+            editor.getUserData(KEY)?.acceptedStamp?.satisfies(required) == true
 
         fun get(editor: Editor): EditorGuideSession? = editor.getUserData(KEY)
 
         fun dispose(editor: Editor) {
-            editor.getUserData(KEY)?.dispose()
+            val application = ApplicationManager.getApplication()
+            if (!application.isDisposed) assertEdt()
+            val session = editor.getUserData(KEY)
             editor.putUserData(KEY, null)
+            if (application.isDisposed && !application.isDispatchThread) {
+                session?.acceptedStamp = null
+                return
+            }
+            session?.dispose()
+        }
+
+        private fun assertEdt() {
+            ApplicationManager.getApplication().assertIsDispatchThread()
         }
     }
 }

@@ -17,9 +17,12 @@ import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.intellij.util.concurrency.AppExecutorUtil
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import java.awt.Color
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
 
 class GuideLineHighlightingPassTest : BasePlatformTestCase() {
@@ -611,6 +614,80 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertTrue(bracketColorHighlighters().size <= 1_536)
         assertTrue(firstViewport.any { !it.isValid })
         assertTrue("50k-pair viewport refresh took ${scrollMillis}ms", scrollMillis < 1_000)
+    }
+
+    fun testAppliesActiveGuideBeforeRequestingViewportDecorations() {
+        val source = "x { content } y"
+        myFixture.configureByText("ActiveFirst.txt", source)
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(source.indexOf("content"))
+        PluginSettings.getInstance().replace(
+            PluginSettings.getInstance().options.copy(showActivePairBorder = true),
+        )
+        var activePairWhenViewportWasRequested: BracketPair? = null
+        var activeHighlightsWhenViewportWasRequested = 0
+        val pass = GuideLineHighlightingPass(
+            project = project,
+            editor = editor,
+            pairProvider = BracketPairProvider { listOf(pair) },
+            visibleRangeProvider = {
+                activePairWhenViewportWasRequested = activeGuideState()?.guide?.pair
+                activeHighlightsWhenViewportWasRequested = activePairHighlighters().size
+                TextRange(0, source.length)
+            },
+        )
+
+        applyPass(pass)
+
+        assertEquals(pair, activePairWhenViewportWasRequested)
+        assertEquals(2, activeHighlightsWhenViewportWasRequested)
+        assertEquals(pair, activeGuideState()?.guide?.pair)
+    }
+
+    fun testBackgroundPassConstructionAndDedupDoNotReadPresentationState() {
+        val source = "x { content } y"
+        myFixture.configureByText("BackgroundDedup.txt", source)
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(source.indexOf("content"))
+        val collections = AtomicInteger()
+        val provider = BracketPairProvider {
+            collections.incrementAndGet()
+            listOf(pair)
+        }
+        EditorGuideSession.dispose(editor)
+        assertNull(EditorGuideSession.get(editor))
+        fun collectInBackground(): GuideLineHighlightingPass {
+            return AppExecutorUtil.getAppExecutorService()
+                .submit<GuideLineHighlightingPass> {
+                    inReadAction {
+                        GuideLineHighlightingPass(project, editor, provider).also { pass ->
+                            pass.doCollectInformation(EmptyProgressIndicator())
+                        }
+                    }
+                }
+                .get(10, TimeUnit.SECONDS)
+        }
+
+        val initialPass = collectInBackground()
+        assertNull(EditorGuideSession.get(editor))
+        assertEquals(1, collections.get())
+        initialPass.doApplyInformationToEditor()
+        val acceptedSession = session()
+        assertEquals(pair, activeGuideState()?.guide?.pair)
+
+        val deduplicatedPass = collectInBackground()
+
+        assertSame(acceptedSession, session())
+        assertEquals(1, collections.get())
+        deduplicatedPass.doApplyInformationToEditor()
+        assertSame(acceptedSession, session())
+        assertEquals(pair, activeGuideState()?.guide?.pair)
     }
 
     fun testDocumentEditAdjustsTheActiveGuideBeforeFullRecognitionCompletes() {

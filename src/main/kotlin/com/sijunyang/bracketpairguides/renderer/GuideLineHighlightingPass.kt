@@ -4,6 +4,7 @@ import com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer
 import com.sijunyang.bracketpairguides.analyzer.BracketPairProvider
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
@@ -12,23 +13,24 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 
-/** Collects an immutable snapshot in the platform highlighting lifecycle. */
+/**
+ * Collects an immutable snapshot in the platform highlighting lifecycle.
+ * Platform-managed passes may be constructed off EDT and are collected off EDT,
+ * then applied on EDT.
+ */
 internal class GuideLineHighlightingPass(
     project: Project,
     private val editor: Editor,
     private val pairProvider: BracketPairProvider,
-    visibleRangeProvider: (Editor) -> TextRange = Editor::calculateVisibleRange,
-    activePairResolver: ActiveBracketPairResolver = ActiveBracketPairResolver.NONE,
+    private val visibleRangeProvider: (Editor) -> TextRange = Editor::calculateVisibleRange,
+    private val activePairResolver: ActiveBracketPairResolver = ActiveBracketPairResolver.NONE,
 ) : TextEditorHighlightingPass(project, editor.document, false) {
-    private val session = EditorGuideSession.install(
-        editor,
-        activePairResolver,
-        visibleRangeProvider,
-    )
     private var collected: AnalysisSnapshot? = null
 
     init {
-        EditorGuideEventRouter.ensureInitialized()
+        if (ApplicationManager.getApplication().isDispatchThread && !editor.isDisposed) {
+            installSession()
+        }
     }
 
     constructor(project: Project, editor: Editor) : this(
@@ -68,14 +70,25 @@ internal class GuideLineHighlightingPass(
             capabilities,
             options.disabledLanguageIds,
         )
-        if (session.hasSnapshot(stamp)) return
+        if (EditorGuideSession.hasAcceptedAnalysis(editor, stamp)) return
         collected = AnalysisSnapshotBuilder.build(editor, pairProvider, stamp, progress)
     }
 
     override fun doApplyInformationToEditor() {
-        val snapshot = collected ?: return
+        val snapshot = collected
         collected = null
-        session.accept(snapshot)
+        val session = installSession() ?: return
+        if (snapshot != null) session.accept(snapshot)
+    }
+
+    private fun installSession(): EditorGuideSession? {
+        if (editor.isDisposed) return null
+        EditorGuideEventRouter.ensureInitialized()
+        return EditorGuideSession.install(
+            editor,
+            activePairResolver,
+            visibleRangeProvider,
+        )
     }
 }
 
