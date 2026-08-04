@@ -1,7 +1,12 @@
 package com.sijunyang.bracketpairguides.renderer
 
 import com.sijunyang.bracketpairguides.analyzer.LanguageBraceMatchers
+import com.intellij.ide.highlighter.custom.CustomFileHighlighter
+import com.intellij.ide.highlighter.custom.SyntaxTable
 import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.ex.util.LexerEditorHighlighter
+import com.intellij.openapi.fileTypes.impl.AbstractFileType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
 class ActiveBracketPairResolverTest : BasePlatformTestCase() {
@@ -82,6 +87,46 @@ class ActiveBracketPairResolverTest : BasePlatformTestCase() {
         )
 
         assertEquals(ActiveBracketPairResolution.Complete(null), resolution)
+    }
+
+    fun testCustomFileTypeImmediateLookupMatchesFullRecognitionAndTextGate() {
+        val source = "{ [ ( value ) ] }"
+        myFixture.configureByText("Custom.txt", source)
+        val syntaxTable = SyntaxTable().apply {
+            isHasBraces = true
+            isHasBrackets = true
+            isHasParens = true
+        }
+        val customFileType = AbstractFileType(syntaxTable)
+        (myFixture.editor as EditorEx).setHighlighter(
+            LexerEditorHighlighter(
+                CustomFileHighlighter(syntaxTable),
+                myFixture.editor.colorsScheme,
+            ),
+        )
+        val caretOffset = source.indexOf("value") + 2
+
+        val enabled = resolve(
+            EditorHighlighterActiveBracketPairResolver(
+                fileType = customFileType,
+                clock = FROZEN_CLOCK,
+            ),
+            caretOffset,
+        )
+        val pair = (enabled as? ActiveBracketPairResolution.Complete)?.pair
+        assertNotNull(pair)
+        assertEquals(source.indexOf('('), pair?.openOffset)
+        assertEquals(source.indexOf(')'), pair?.closeOffset)
+
+        val disabled = resolve(
+            EditorHighlighterActiveBracketPairResolver(
+                fileType = customFileType,
+                isLanguageEnabled = { capabilityId -> capabilityId != "TEXT" },
+                clock = FROZEN_CLOCK,
+            ),
+            caretOffset,
+        )
+        assertEquals(ActiveBracketPairResolution.Complete(null), disabled)
     }
 
     private fun resolve(

@@ -169,8 +169,16 @@ class BracketPairAnalyzerTest : BasePlatformTestCase() {
         }
 
         assertEquals(3, pairs.size)
-        assertEquals(setOf('{', '[', '('), pairs.map { source[it.openOffset] }.toSet())
-        assertEquals(setOf('}', ']', ')'), pairs.map { source[it.closeOffset] }.toSet())
+        assertEquals(
+            listOf(
+                Triple('{', '}', 0),
+                Triple('[', ']', 1),
+                Triple('(', ')', 2),
+            ),
+            pairs.sortedBy(BracketPair::openOffset).map { pair ->
+                Triple(source[pair.openOffset], source[pair.closeOffset], pair.depth)
+            },
+        )
     }
 
     fun testCustomFileTypeCapabilityCanBeDisabled() {
