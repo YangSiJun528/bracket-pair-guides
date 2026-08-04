@@ -55,8 +55,10 @@ internal class GuidePositionIndex private constructor(
             document: Document,
             tabSize: Int,
             progress: ProgressIndicator,
-        ): GuidePositionIndex {
+        ): GuidePositionIndex? {
+            progress.checkCanceled()
             val lineCount = document.lineCount
+            val storage = storageFor(lineCount) ?: return null
             val starts = IntArray(lineCount)
             val ends = IntArray(lineCount)
             for (line in 0 until lineCount) {
@@ -64,12 +66,13 @@ internal class GuidePositionIndex private constructor(
                 starts[line] = document.getLineStartOffset(line)
                 ends[line] = document.getLineEndOffset(line)
             }
-            return from(
+            return build(
                 text = document.immutableCharSequence,
                 lineStarts = starts,
                 lineEnds = ends,
                 tabSize = tabSize,
                 checkCanceled = progress::checkCanceled,
+                storage = storage,
             )
         }
 
@@ -79,12 +82,29 @@ internal class GuidePositionIndex private constructor(
             lineEnds: IntArray,
             tabSize: Int,
             checkCanceled: () -> Unit = {},
+        ): GuidePositionIndex = build(
+            text = text,
+            lineStarts = lineStarts,
+            lineEnds = lineEnds,
+            tabSize = tabSize,
+            checkCanceled = checkCanceled,
+            storage = checkNotNull(storageFor(lineStarts.size)) {
+                "Guide position index exceeds its $MAXIMUM_TREE_PAYLOAD_BYTES-byte tree budget"
+            },
+        )
+
+        private fun build(
+            text: CharSequence,
+            lineStarts: IntArray,
+            lineEnds: IntArray,
+            tabSize: Int,
+            checkCanceled: () -> Unit,
+            storage: TreeStorage,
         ): GuidePositionIndex {
             require(lineStarts.size == lineEnds.size)
             val lineCount = lineStarts.size
-            var treeSize = 1
-            while (treeSize < lineCount) treeSize *= 2
-            val tree = LongArray(treeSize * 2) { NO_INDENT_ENTRY }
+            val treeSize = storage.leafCount
+            val tree = LongArray(storage.entryCount) { NO_INDENT_ENTRY }
             val effectiveTabSize = tabSize.coerceAtLeast(1)
 
             for (line in 0 until lineCount) {
@@ -107,6 +127,39 @@ internal class GuidePositionIndex private constructor(
             checkCanceled()
 
             return GuidePositionIndex(lineCount, treeSize, tree)
+        }
+
+        /**
+         * The segment tree rounds its leaf count to a power of two. Allowing the
+         * next boundary after 1,048,576 lines would double only this LongArray
+         * from 16 MiB to 32 MiB. Oversized documents instead omit the index and
+         * use the existing bounded active-guide scan; its result can be
+         * provisional, but it does not allocate in proportion to line count.
+         */
+        internal fun supportsLineCount(lineCount: Int): Boolean = storageFor(lineCount) != null
+
+        /** LongArray payload only; excludes the small JVM array header. */
+        internal fun treePayloadBytes(lineCount: Int): Long? = storagePlan(lineCount)?.payloadBytes
+
+        private fun storageFor(lineCount: Int): TreeStorage? = storagePlan(lineCount)
+            ?.takeIf { it.payloadBytes <= MAXIMUM_TREE_PAYLOAD_BYTES }
+
+        private fun storagePlan(lineCount: Int): TreeStorage? {
+            if (lineCount < 0) return null
+
+            var leafCount = 1L
+            val requiredLeaves = lineCount.coerceAtLeast(1).toLong()
+            while (leafCount < requiredLeaves) {
+                leafCount = leafCount shl 1
+            }
+
+            val entryCount = leafCount * TREE_ENTRIES_PER_LEAF
+            if (leafCount > Int.MAX_VALUE || entryCount > Int.MAX_VALUE) return null
+            return TreeStorage(
+                leafCount = leafCount.toInt(),
+                entryCount = entryCount.toInt(),
+                payloadBytes = entryCount * Long.SIZE_BYTES,
+            )
         }
 
         private fun entry(column: Int, line: Int): Long =
@@ -142,5 +195,13 @@ internal class GuidePositionIndex private constructor(
         private const val CANCELLATION_CHARACTER_MASK = 0xFFF
         private const val NO_INDENT_ENTRY = Long.MAX_VALUE
         private const val UINT_MASK = 0xFFFF_FFFFL
+        private const val TREE_ENTRIES_PER_LEAF = 2L
+        internal const val MAXIMUM_TREE_PAYLOAD_BYTES = 16L * 1024 * 1024
+
+        private data class TreeStorage(
+            val leafCount: Int,
+            val entryCount: Int,
+            val payloadBytes: Long,
+        )
     }
 }

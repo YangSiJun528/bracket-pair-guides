@@ -2,6 +2,7 @@ package com.sijunyang.bracketpairguides.renderer
 
 import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -45,6 +46,28 @@ class GuidePositionIndexTest {
         )
 
         assertTrue(cancellationChecks > 2)
+    }
+
+    @Test
+    fun `tree payload calculation exposes the power of two boundary`() {
+        val boundary = 1_048_576
+
+        assertEquals(
+            GuidePositionIndex.MAXIMUM_TREE_PAYLOAD_BYTES,
+            GuidePositionIndex.treePayloadBytes(boundary),
+        )
+        assertEquals(
+            GuidePositionIndex.MAXIMUM_TREE_PAYLOAD_BYTES * 2,
+            GuidePositionIndex.treePayloadBytes(boundary + 1),
+        )
+        assertTrue(GuidePositionIndex.supportsLineCount(boundary))
+        assertFalse(GuidePositionIndex.supportsLineCount(boundary + 1))
+    }
+
+    @Test
+    fun `storage planning is overflow safe for the maximum line count`() {
+        assertEquals(null, GuidePositionIndex.treePayloadBytes(Int.MAX_VALUE))
+        assertFalse(GuidePositionIndex.supportsLineCount(Int.MAX_VALUE))
     }
 
     private fun indexFor(text: String, tabSize: Int = 4): GuidePositionIndex {

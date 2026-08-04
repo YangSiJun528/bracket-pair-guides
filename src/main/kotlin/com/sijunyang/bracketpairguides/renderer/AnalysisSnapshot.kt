@@ -100,6 +100,8 @@ internal object AnalysisSnapshotBuilder {
         val positionIndex = if (
             stamp.capabilities.guidePosition && pairs.any { it.openLine != it.closeLine }
         ) {
+            // Oversized documents intentionally return null here. The session
+            // then uses ActiveGuidePositionResolver's bounded on-demand scan.
             GuidePositionIndex.from(
                 document = editor.document,
                 tabSize = stamp.tabSize,
