@@ -802,11 +802,12 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 "large language change background completion",
                 {
                     backgroundCollections.get() > 0 &&
-                        !preview.analysisStatusLabel.isVisible
+                        preview.analysisStatusLabel.text == "Example language disabled."
                 },
                 10_000,
             )
             assertEquals(0, edtCollections.get())
+            assertTrue(preview.analysisStatusLabel.isVisible)
             assertTrue(preview.previewEditor.markupModel.allHighlighters.isEmpty())
         } finally {
             preview.dispose()
