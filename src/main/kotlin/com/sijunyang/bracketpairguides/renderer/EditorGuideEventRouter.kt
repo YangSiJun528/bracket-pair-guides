@@ -17,6 +17,7 @@ import com.intellij.openapi.editor.event.EditorFactoryEvent
 import com.intellij.openapi.editor.event.EditorFactoryListener
 import com.intellij.openapi.editor.event.VisibleAreaEvent
 import com.intellij.openapi.editor.event.VisibleAreaListener
+import com.intellij.openapi.fileEditor.FileEditorManager
 
 /** Routes platform editor events to the state owned by each editor session. */
 @Service(Service.Level.APP)
@@ -47,8 +48,16 @@ internal class EditorGuideEventRouter :
 
     override fun documentChanged(event: DocumentEvent) {
         val change = DocumentChange.from(event)
-        for (editor in EditorFactory.getInstance().getEditors(event.document)) {
-            onEdt(editor) { EditorGuideSession.get(editor)?.documentChanged(change) }
+        val editors = EditorFactory.getInstance().getEditors(event.document).toList()
+        onEdt {
+            val sessionEditors = editors.filter { editor ->
+                !editor.isDisposed && EditorGuideSession.get(editor) != null
+            }
+            routeDocumentChange(
+                editors = sessionEditors,
+                change = change,
+                immediateEditor = preferredImmediateEditor(sessionEditors),
+            )
         }
     }
 
@@ -75,17 +84,52 @@ internal class EditorGuideEventRouter :
     }
 
     private fun onEdt(editor: Editor, action: () -> Unit) {
-        val application = ApplicationManager.getApplication()
-        if (application.isDispatchThread) {
+        onEdt {
             if (!editor.isDisposed) action()
-        } else {
-            application.invokeLater {
-                if (!editor.isDisposed) action()
-            }
         }
     }
 
+    private fun onEdt(action: () -> Unit) {
+        val application = ApplicationManager.getApplication()
+        if (application.isDispatchThread) {
+            action()
+        } else {
+            application.invokeLater { action() }
+        }
+    }
+
+    private fun preferredImmediateEditor(editors: List<Editor>): Editor? =
+        editors.firstOrNull { editor -> editor.contentComponent.hasFocus() }
+            ?: editors.firstOrNull { editor ->
+                val project = editor.project
+                project != null &&
+                    !project.isDisposed &&
+                    FileEditorManager.getInstance(project).selectedTextEditor === editor
+            }
+            ?: editors.firstOrNull { editor -> editor.contentComponent.isShowing }
+            ?: editors.firstOrNull()
+
     companion object {
+        internal fun routeDocumentChange(
+            editors: List<Editor>,
+            change: DocumentChange,
+            immediateEditor: Editor?,
+        ) {
+            if (immediateEditor != null && !immediateEditor.isDisposed) {
+                EditorGuideSession.get(immediateEditor)?.documentChanged(
+                    change,
+                    resolveImmediately = true,
+                )
+            }
+            for (editor in editors) {
+                if (editor === immediateEditor || editor.isDisposed) continue
+                EditorGuideSession.get(editor)?.documentChanged(
+                    change,
+                    resolveImmediately = false,
+                )
+            }
+        }
+
         fun ensureInitialized() {
             ApplicationManager.getApplication().getService(EditorGuideEventRouter::class.java)
         }

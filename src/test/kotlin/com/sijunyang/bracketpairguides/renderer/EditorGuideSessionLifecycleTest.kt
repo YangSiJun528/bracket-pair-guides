@@ -5,6 +5,7 @@ import com.sijunyang.bracketpairguides.analyzer.BracketPairProvider
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.fileTypes.PlainTextFileType
@@ -101,6 +102,46 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
             assertEquals(0, session.activePairHighlights.size)
         } finally {
             EditorGuideSession.dispose(editor)
+        }
+    }
+
+    fun testSplitDocumentRunsOnlyOneImmediateResolver() {
+        val document = EditorFactory.getInstance().createDocument("{ value }")
+        val firstEditor = EditorFactory.getInstance().createEditor(document, project)
+        val secondEditor = EditorFactory.getInstance().createEditor(document, project)
+        var firstResolverCalls = 0
+        var secondResolverCalls = 0
+        try {
+            EditorGuideSession.install(
+                firstEditor,
+                resolver = ActiveBracketPairResolver { _, _ ->
+                    firstResolverCalls++
+                    ActiveBracketPairResolution.Complete(null)
+                },
+                visibleRangeProvider = { TextRange(0, document.textLength) },
+            )
+            EditorGuideSession.install(
+                secondEditor,
+                resolver = ActiveBracketPairResolver { _, _ ->
+                    secondResolverCalls++
+                    ActiveBracketPairResolution.Complete(null)
+                },
+                visibleRangeProvider = { TextRange(0, document.textLength) },
+            )
+
+            EditorGuideEventRouter.routeDocumentChange(
+                editors = listOf(firstEditor, secondEditor),
+                change = DocumentChange(offset = 2, mayAffectGuidePosition = true),
+                immediateEditor = secondEditor,
+            )
+
+            assertEquals(0, firstResolverCalls)
+            assertEquals(1, secondResolverCalls)
+        } finally {
+            EditorGuideSession.dispose(firstEditor)
+            EditorGuideSession.dispose(secondEditor)
+            EditorFactory.getInstance().releaseEditor(firstEditor)
+            EditorFactory.getInstance().releaseEditor(secondEditor)
         }
     }
 }

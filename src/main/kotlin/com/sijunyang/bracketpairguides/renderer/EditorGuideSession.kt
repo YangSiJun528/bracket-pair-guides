@@ -94,10 +94,13 @@ internal class EditorGuideSession private constructor(
         editor.contentComponent.repaint()
     }
 
-    fun documentChanged(change: DocumentChange) {
+    fun documentChanged(
+        change: DocumentChange,
+        resolveImmediately: Boolean = true,
+    ) {
         assertEdt()
         if (disposed || editor.isDisposed) return
-        updateProvisional(change)
+        updateProvisional(change, resolveImmediately)
     }
 
     fun visibleAreaChanged() {
@@ -185,7 +188,10 @@ internal class EditorGuideSession private constructor(
         tokenDecorations = VisibleTokenDecorations.EMPTY
     }
 
-    private fun updateProvisional(change: DocumentChange?) {
+    private fun updateProvisional(
+        change: DocumentChange?,
+        resolveImmediately: Boolean = true,
+    ) {
         if (!AnalysisCapabilities.from(options).activePair) {
             val hadActivePresentation = activeGuide != null || activePairHighlights.isNotEmpty()
             clearActive(preserveGuide = false)
@@ -195,9 +201,12 @@ internal class EditorGuideSession private constructor(
         if (discardPresentationFromReplacedHighlighter()) return
         val adjustedPair = adjustedActivePair()
         val caretOffset = caretOffset()
-        val pair = when (
-            val resolution = activePairResolver.findInnermost(editor, caretOffset)
-        ) {
+        val resolution = if (resolveImmediately) {
+            activePairResolver.findInnermost(editor, caretOffset)
+        } else {
+            ActiveBracketPairResolution.Incomplete
+        }
+        val pair = when (resolution) {
             is ActiveBracketPairResolution.Complete ->
                 resolution.pair?.withDepthHint(adjustedPair)
             ActiveBracketPairResolution.Incomplete -> adjustedPair
@@ -215,10 +224,31 @@ internal class EditorGuideSession private constructor(
                 positionIndex = null,
                 change = change,
             )
-        } else {
+        } else if (resolveImmediately) {
             refreshProvisionalPair(pair, change)
+        } else {
+            refreshAdjustedPair(pair)
         }
         editor.contentComponent.repaint()
+    }
+
+    /** Keeps inactive split editors coherent without multiplying the resolver budget. */
+    private fun refreshAdjustedPair(pair: BracketPair) {
+        val previousGuide = paintState()?.guide
+        val guide = when {
+            !options.enabled || !options.showsGuide -> null
+            pair.openLine == pair.closeLine -> BracketGuide(pair, guideColumn = 0)
+            previousGuide == null -> null
+            else -> previousGuide.copy(
+                pair = pair,
+                anchorLine = (activeAnchorLine() ?: previousGuide.anchorLine)
+                    .coerceIn(pair.openLine, pair.closeLine),
+            )
+        }
+        updateGuide(guide)
+        updateAnchor(guide)
+        activePair = pair
+        activePairIndex = ActiveBracketPairIndex.NO_PAIR
     }
 
     private fun refreshProvisionalPair(pair: BracketPair, change: DocumentChange?) {
