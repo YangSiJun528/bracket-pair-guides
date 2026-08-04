@@ -146,6 +146,8 @@
   replacement snapshot and survives example highlighter changes correctly.
 - Publishing a stable or prerelease draft now triggers the release workflow
   through GitHub's `published` event.
+- Draft releases now target the exact commit that completed CI instead of a
+  potentially newer default-branch revision.
 - Platform custom file types now route only their official syntax-table bracket
   tokens through the `TEXT` matcher, while raw plain text remains unsupported.
 - Failed Preview matcher runs now clear stale token and guide decoration before
