@@ -247,6 +247,123 @@ class BracketPairingParityTest : BasePlatformTestCase() {
         }
     }
 
+    fun testEarlierStructuralContextMakesTheBoundedResultIncomplete() {
+        val source = "{(x})"
+        configure(source) { character ->
+            when (character) {
+                '(' -> STRUCTURAL_REGULAR_LEFT
+                ')' -> STRUCTURAL_REGULAR_RIGHT
+                '{' -> STRUCTURAL_LEFT
+                '}' -> STRUCTURAL_RIGHT
+                else -> OTHER
+            }
+        }
+        val matcher = TestBraceMatcher(
+            arrayOf(
+                BracePair(STRUCTURAL_REGULAR_LEFT, STRUCTURAL_REGULAR_RIGHT, false),
+                BracePair(STRUCTURAL_LEFT, STRUCTURAL_RIGHT, true),
+            ),
+        )
+
+        withMatchers(STRUCTURAL_LANGUAGE to matcher) {
+            val full = analyze()
+
+            assertEquals(1, full.size)
+            assertEquals(source.indexOf('{'), full.single().openOffset)
+            assertSame(
+                ActiveBracketPairResolution.Incomplete,
+                resolve(source.indexOf('x') + 1),
+            )
+        }
+    }
+
+    fun testUnmatchedStructuralCloserMakesTheBoundedResultIncomplete() {
+        val source = "(x})"
+        configure(source) { character ->
+            when (character) {
+                '(' -> STRUCTURAL_REGULAR_LEFT
+                ')' -> STRUCTURAL_REGULAR_RIGHT
+                '}' -> STRUCTURAL_RIGHT
+                else -> OTHER
+            }
+        }
+        val matcher = TestBraceMatcher(
+            arrayOf(
+                BracePair(STRUCTURAL_REGULAR_LEFT, STRUCTURAL_REGULAR_RIGHT, false),
+                BracePair(STRUCTURAL_LEFT, STRUCTURAL_RIGHT, true),
+            ),
+        )
+
+        withMatchers(STRUCTURAL_LANGUAGE to matcher) {
+            val full = analyze()
+
+            assertEquals(1, full.size)
+            assertEquals(source.indexOf('('), full.single().openOffset)
+            assertSame(
+                ActiveBracketPairResolution.Incomplete,
+                resolve(source.indexOf('x') + 1),
+            )
+        }
+    }
+
+    fun testForeignStructuralCloserDoesNotInvalidateTheTrackedLanguage() {
+        val source = "(x})"
+        configure(source) { character ->
+            when (character) {
+                '(' -> STRUCTURAL_REGULAR_LEFT
+                ')' -> STRUCTURAL_REGULAR_RIGHT
+                '}' -> LAYER_B_RIGHT
+                else -> OTHER
+            }
+        }
+        val regularMatcher = TestBraceMatcher(
+            arrayOf(
+                BracePair(STRUCTURAL_REGULAR_LEFT, STRUCTURAL_REGULAR_RIGHT, false),
+            ),
+        )
+        val foreignStructuralMatcher = TestBraceMatcher(
+            arrayOf(BracePair(LAYER_B_LEFT, LAYER_B_RIGHT, true)),
+        )
+
+        withMatchers(
+            STRUCTURAL_LANGUAGE to regularMatcher,
+            LAYER_B_LANGUAGE to foreignStructuralMatcher,
+        ) {
+            val full = analyze().single()
+            val active = requireActivePair(resolve(source.indexOf('x') + 1))
+
+            assertPairOffsets(full, active)
+        }
+    }
+
+    fun testWellFormedStructuralNestingRemainsImmediate() {
+        val source = "{(x)}"
+        configure(source) { character ->
+            when (character) {
+                '(' -> STRUCTURAL_REGULAR_LEFT
+                ')' -> STRUCTURAL_REGULAR_RIGHT
+                '{' -> STRUCTURAL_LEFT
+                '}' -> STRUCTURAL_RIGHT
+                else -> OTHER
+            }
+        }
+        val matcher = TestBraceMatcher(
+            arrayOf(
+                BracePair(STRUCTURAL_REGULAR_LEFT, STRUCTURAL_REGULAR_RIGHT, false),
+                BracePair(STRUCTURAL_LEFT, STRUCTURAL_RIGHT, true),
+            ),
+        )
+
+        withMatchers(STRUCTURAL_LANGUAGE to matcher) {
+            val full = analyze().single { pair ->
+                pair.openOffset == source.indexOf('(')
+            }
+            val active = requireActivePair(resolve(source.indexOf('x') + 1))
+
+            assertPairOffsets(full, active)
+        }
+    }
+
     fun testSharedCloserRecoveryHasFullAndActiveParity() {
         val source = "bcqx"
         configure(source) { character ->

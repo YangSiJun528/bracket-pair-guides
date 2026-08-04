@@ -107,4 +107,7 @@ internal class ResolvedLanguageBraceMatcher(
 
     fun isStructuralOpen(tokenType: IElementType): Boolean =
         topology.isStructuralOpen(tokenType)
+
+    fun isStructuralClose(tokenType: IElementType): Boolean =
+        topology.isStructuralClose(tokenType)
 }

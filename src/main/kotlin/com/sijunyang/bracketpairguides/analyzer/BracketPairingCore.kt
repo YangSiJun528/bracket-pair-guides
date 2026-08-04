@@ -38,12 +38,21 @@ internal class BracketPairingCore(
         }
     }
 
-    fun newSession(checkCanceled: () -> Unit = {}): Session = Session(checkCanceled)
+    fun newSession(
+        checkCanceled: () -> Unit = {},
+        trackedOpenOffset: Int? = null,
+    ): Session = Session(checkCanceled, trackedOpenOffset)
 
     internal inner class Session(
         private val checkCanceled: () -> Unit,
+        private val trackedOpenOffset: Int?,
     ) {
-        private val collector = BraceMatcherStack<IElementType, MatcherGroup>()
+        private val collector = BraceMatcherStack<IElementType, MatcherGroup>(trackedOpenOffset)
+        private var trackedGroup: MatcherGroup? = null
+
+        /** A structural close may depend on an opener before this bounded replay. */
+        var requiresEarlierStructuralContext: Boolean = false
+            private set
 
         fun accept(iterator: HighlighterIterator): BracketPair? {
             val token = classify(iterator) ?: return null
@@ -87,19 +96,31 @@ internal class BracketPairingCore(
                 line = line,
                 structural = token.resolved.isStructuralOpen(token.type),
             )
+            if (offset == trackedOpenOffset) trackedGroup = token.group
         }
 
         private fun close(
             token: ClassifiedToken,
-        ): BraceMatcherStack.Match<IElementType>? = collector.close(
-            group = token.group,
-            token = token.type,
-            context = token.context.value,
-            strictContext = token.context.strict,
-            isPair = token.resolved.isPair,
-            isStructuralPair = token.resolved.isStructuralPair,
-            checkCanceled = checkCanceled,
-        )
+        ): BraceMatcherStack.Match<IElementType>? {
+            val match = collector.close(
+                group = token.group,
+                token = token.type,
+                context = token.context.value,
+                strictContext = token.context.strict,
+                isPair = token.resolved.isPair,
+                isStructuralPair = token.resolved.isStructuralPair,
+                checkCanceled = checkCanceled,
+                canCloseStructural = token.resolved.isStructuralClose(token.type),
+            )
+            if (trackedGroup == token.group &&
+                token.resolved.isStructuralClose(token.type) &&
+                (match == null ||
+                    !token.resolved.isStructuralPair(match.open.token, token.type))
+            ) {
+                requiresEarlierStructuralContext = true
+            }
+            return match
+        }
     }
 
     private fun classify(iterator: HighlighterIterator): ClassifiedToken? {

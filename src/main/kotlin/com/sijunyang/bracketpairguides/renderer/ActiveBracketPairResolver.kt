@@ -82,7 +82,7 @@ internal class EditorHighlighterActiveBracketPairResolver(
             val openingKind = pairing.openingKind(iterator)
             if (openingKind != null) {
                 if (budget.exhausted) break
-                val pair = matchCandidate(
+                val candidate = matchCandidate(
                     editor = editor,
                     pairing = pairing,
                     candidateOffset = tokenStart,
@@ -91,6 +91,10 @@ internal class EditorHighlighterActiveBracketPairResolver(
                     budget = budget,
                 )
                 if (budget.exhausted) break
+                if (candidate.requiresEarlierStructuralContext) {
+                    return ActiveBracketPairResolution.Incomplete
+                }
+                val pair = candidate.pair
                 if (pair != null && caretOffset < pair.closeOffset + pair.closeTokenLength) {
                     return ActiveBracketPairResolution.Complete(pair)
                 }
@@ -111,35 +115,66 @@ internal class EditorHighlighterActiveBracketPairResolver(
         candidateOffset: Int,
         replayFromStart: Boolean,
         budget: TraversalBudget,
-    ): BracketPair? {
+    ): CandidateMatch {
         val iterator = editor.highlighter.createIterator(
             if (replayFromStart) 0 else candidateOffset,
         )
-        if (iterator.atEnd()) return null
-        val session = pairing.newSession {
-            if (budget.exhausted) throw TraversalBudgetExceeded
-        }
+        if (iterator.atEnd()) return CandidateMatch.NONE
+        val session = pairing.newSession(
+            checkCanceled = {
+                if (budget.exhausted) throw TraversalBudgetExceeded
+            },
+            trackedOpenOffset = candidateOffset,
+        )
         var candidateAccepted = false
 
         try {
             while (!iterator.atEnd() && !budget.exhausted) {
                 val currentOffset = iterator.start
                 val pair = session.accept(iterator)
-                if (budget.exhausted) return null
+                if (budget.exhausted) return CandidateMatch.NONE
 
-                if (candidateAccepted && pair?.openOffset == candidateOffset) return pair
+                if (candidateAccepted && pair?.openOffset == candidateOffset) {
+                    return if (session.requiresEarlierStructuralContext) {
+                        CandidateMatch.REQUIRES_EARLIER_STRUCTURAL_CONTEXT
+                    } else {
+                        CandidateMatch(pair)
+                    }
+                }
                 if (currentOffset == candidateOffset) {
                     candidateAccepted = true
                 } else if (!candidateAccepted && currentOffset > candidateOffset) {
-                    return null
+                    return CandidateMatch.NONE
                 }
-                if (candidateAccepted && !session.hasOpenAt(candidateOffset)) return null
-                if (!advance(iterator, budget)) return null
+                if (candidateAccepted && !session.hasOpenAt(candidateOffset)) {
+                    return if (session.requiresEarlierStructuralContext) {
+                        CandidateMatch.REQUIRES_EARLIER_STRUCTURAL_CONTEXT
+                    } else {
+                        CandidateMatch.NONE
+                    }
+                }
+                if (!advance(iterator, budget)) return CandidateMatch.NONE
             }
         } catch (_: TraversalBudgetExceeded) {
-            return null
+            return CandidateMatch.NONE
         }
-        return null
+        return if (session.requiresEarlierStructuralContext) {
+            CandidateMatch.REQUIRES_EARLIER_STRUCTURAL_CONTEXT
+        } else {
+            CandidateMatch.NONE
+        }
+    }
+
+    private data class CandidateMatch(
+        val pair: BracketPair? = null,
+        val requiresEarlierStructuralContext: Boolean = false,
+    ) {
+        companion object {
+            val NONE = CandidateMatch()
+            val REQUIRES_EARLIER_STRUCTURAL_CONTEXT = CandidateMatch(
+                requiresEarlierStructuralContext = true,
+            )
+        }
     }
 
     private fun advance(

@@ -9,6 +9,7 @@ internal class BracePairTopology(pairs: Array<BracePair>) {
     private val opensByClose = HashMap<IElementType, MutableSet<IElementType>>(pairs.size)
     private val structuralClosesByOpen =
         HashMap<IElementType, MutableSet<IElementType>>(pairs.size)
+    private val structuralCloses = HashSet<IElementType>(pairs.size)
 
     init {
         for (pair in pairs) {
@@ -17,6 +18,7 @@ internal class BracePairTopology(pairs: Array<BracePair>) {
             if (pair.isStructural) {
                 structuralClosesByOpen.getOrPut(pair.leftBraceType) { HashSet() } +=
                     pair.rightBraceType
+                structuralCloses += pair.rightBraceType
             }
         }
     }
@@ -26,6 +28,9 @@ internal class BracePairTopology(pairs: Array<BracePair>) {
 
     fun isStructuralPair(left: IElementType, right: IElementType): Boolean =
         structuralClosesByOpen[left]?.contains(right) == true
+
+    fun isStructuralClose(type: IElementType): Boolean =
+        type in structuralCloses
 
     fun isPureSymmetric(type: IElementType): Boolean {
         val outgoing = closesByOpen[type] ?: return false

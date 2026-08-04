@@ -48,6 +48,8 @@ class BracePairTopologyTest {
         assertFalse(topology.isStructuralPair(left, right))
         assertTrue(topology.isStructuralPair(structuralLeft, structuralRight))
         assertFalse(topology.isStructuralPair(structuralLeft, right))
+        assertFalse(topology.isStructuralClose(right))
+        assertTrue(topology.isStructuralClose(structuralRight))
     }
 
     private companion object {

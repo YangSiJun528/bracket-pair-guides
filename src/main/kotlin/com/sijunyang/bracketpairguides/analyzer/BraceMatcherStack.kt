@@ -9,9 +9,12 @@ package com.sijunyang.bracketpairguides.analyzer
  * linear in the token count. Structural openers split regular-brace scopes:
  * structural pairs may recover across a scope boundary, regular pairs may not.
  * An unmatched structural opener is conservatively kept as a boundary because
- * this streaming API cannot know whether it will match later.
+ * this streaming API cannot know whether it will match later. Bounded active
+ * lookup may track one candidate offset; full analysis retains no offset map.
  */
-internal class BraceMatcherStack<T, G> {
+internal class BraceMatcherStack<T, G>(
+    private val trackedOpenOffset: Int? = null,
+) {
     data class Open<T>(
         val token: T,
         val context: String?,
@@ -28,8 +31,8 @@ internal class BraceMatcherStack<T, G> {
     private data class ContextKey<T>(val token: T, val context: String?)
 
     private class Counts<T> {
-        val tokenCounts = HashMap<T, Int>()
-        val contextCounts = HashMap<ContextKey<T>, Int>()
+        var tokenCounts: HashMap<T, Int>? = null
+        var contextCounts: HashMap<ContextKey<T>, Int>? = null
     }
 
     private class State<T> {
@@ -42,7 +45,7 @@ internal class BraceMatcherStack<T, G> {
     }
 
     private val states = HashMap<G, State<T>>()
-    private val openOffsetCounts = HashMap<Int, Int>()
+    private var trackedOpenCount = 0
 
     fun open(
         group: G,
@@ -66,7 +69,7 @@ internal class BraceMatcherStack<T, G> {
             depth = state.stack.size,
         )
         state.stack += open
-        increment(openOffsetCounts, offset)
+        if (offset == trackedOpenOffset) trackedOpenCount++
         increment(state.allCounts, open)
         if (structural) {
             state.structuralOpenCount++
@@ -77,7 +80,7 @@ internal class BraceMatcherStack<T, G> {
     }
 
     fun containsOpenAt(offset: Int): Boolean =
-        (openOffsetCounts[offset] ?: 0) > 0
+        offset == trackedOpenOffset && trackedOpenCount > 0
 
     fun close(
         group: G,
@@ -87,6 +90,7 @@ internal class BraceMatcherStack<T, G> {
         isPair: (T, T) -> Boolean,
         isStructuralPair: (T, T) -> Boolean = { _, _ -> false },
         checkCanceled: () -> Unit = {},
+        canCloseStructural: Boolean = true,
     ): Match<T>? {
         val state = states[group] ?: return null
 
@@ -98,7 +102,7 @@ internal class BraceMatcherStack<T, G> {
             return Match(top)
         }
 
-        if (state.structuralOpenCount > 0 &&
+        if (canCloseStructural && state.structuralOpenCount > 0 &&
             hasCandidate(
                 counts = state.allCounts,
                 closeToken = token,
@@ -167,12 +171,12 @@ internal class BraceMatcherStack<T, G> {
         checkCanceled: () -> Unit,
     ): Boolean {
         var visitedTypes = 0
-        for ((openToken, count) in counts.tokenCounts) {
+        for ((openToken, count) in counts.tokenCounts ?: return false) {
             if (visitedTypes++ and CANCELLATION_MASK == 0) checkCanceled()
             if (count == 0 || !isPair(openToken, closeToken)) continue
             if (isStructuralPair(openToken, closeToken) != structural) continue
             if (!strictContext ||
-                (counts.contextCounts[ContextKey(openToken, closeContext)] ?: 0) > 0
+                (counts.contextCounts?.get(ContextKey(openToken, closeContext)) ?: 0) > 0
             ) {
                 return true
             }
@@ -219,7 +223,7 @@ internal class BraceMatcherStack<T, G> {
 
     private fun removeLast(state: State<T>): Open<T> {
         val open = state.stack.removeLast()
-        decrement(openOffsetCounts, open.offset)
+        if (open.offset == trackedOpenOffset) trackedOpenCount--
         decrement(state.allCounts, open)
         if (open.structural) {
             state.structuralOpenCount--
@@ -231,16 +235,24 @@ internal class BraceMatcherStack<T, G> {
     }
 
     private fun increment(counts: Counts<T>, open: Open<T>) {
-        increment(counts.tokenCounts, open.token)
+        val tokenCounts = counts.tokenCounts
+            ?: HashMap<T, Int>().also { counts.tokenCounts = it }
+        increment(tokenCounts, open.token)
         if (open.strictContext) {
-            increment(counts.contextCounts, ContextKey(open.token, open.context))
+            val contextCounts = counts.contextCounts
+                ?: HashMap<ContextKey<T>, Int>().also { counts.contextCounts = it }
+            increment(contextCounts, ContextKey(open.token, open.context))
         }
     }
 
     private fun decrement(counts: Counts<T>, open: Open<T>) {
-        decrement(counts.tokenCounts, open.token)
+        counts.tokenCounts?.let { tokenCounts ->
+            decrement(tokenCounts, open.token)
+        }
         if (open.strictContext) {
-            decrement(counts.contextCounts, ContextKey(open.token, open.context))
+            counts.contextCounts?.let { contextCounts ->
+                decrement(contextCounts, ContextKey(open.token, open.context))
+            }
         }
     }
 

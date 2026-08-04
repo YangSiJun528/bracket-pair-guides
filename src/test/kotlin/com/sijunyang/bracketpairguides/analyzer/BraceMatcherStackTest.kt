@@ -22,7 +22,7 @@ class BraceMatcherStackTest {
 
     @Test
     fun `same offset remains live until every matcher group removes it`() {
-        val stack = BraceMatcherStack<Char, String>()
+        val stack = BraceMatcherStack<Char, String>(trackedOpenOffset = 7)
         stack.open("round", '(', null, 7, 1, 0)
         stack.open("square", '[', null, 7, 1, 0)
 
@@ -31,6 +31,22 @@ class BraceMatcherStackTest {
         assertTrue(stack.containsOpenAt(7))
         stack.close("square", ']', null, false, ::isPair)
         assertFalse(stack.containsOpenAt(7))
+    }
+
+    @Test
+    fun `does not retain unrelated opener offsets when tracking a candidate`() {
+        val stack = BraceMatcherStack<Char, String>(trackedOpenOffset = 7)
+        stack.open("round", '(', null, 3, 1, 0)
+        stack.open("round", '(', null, 7, 1, 0)
+        stack.open("round", '(', null, 9, 1, 0)
+
+        assertTrue(stack.containsOpenAt(7))
+        stack.close("round", ')', null, false, ::isPair)
+        assertTrue(stack.containsOpenAt(7))
+        stack.close("round", ')', null, false, ::isPair)
+        assertFalse(stack.containsOpenAt(7))
+        assertFalse(stack.containsOpenAt(3))
+        assertFalse(stack.containsOpenAt(9))
     }
 
     @Test
@@ -163,6 +179,30 @@ class BraceMatcherStackTest {
                 ::isStructuralPair,
             )?.open?.offset,
         )
+    }
+
+    @Test
+    fun `non-structural closer skips structural candidate scans`() {
+        val stack = BraceMatcherStack<Char, String>()
+        stack.open("main", '{', null, 0, 1, 0, structural = true)
+        stack.open("main", '(', null, 1, 1, 0)
+        var pairChecks = 0
+
+        val match = stack.close(
+            group = "main",
+            token = ')',
+            context = null,
+            strictContext = false,
+            isPair = { left, right ->
+                pairChecks++
+                isPair(left, right)
+            },
+            isStructuralPair = ::isStructuralPair,
+            canCloseStructural = false,
+        )
+
+        assertEquals(1, match?.open?.offset)
+        assertEquals(1, pairChecks)
     }
 
     @Test
