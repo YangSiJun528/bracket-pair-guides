@@ -100,6 +100,7 @@ internal class EditorGuideSession private constructor(
     ) {
         assertEdt()
         if (disposed || editor.isDisposed) return
+        discardStaleAnalysis()
         updateProvisional(change, resolveImmediately)
     }
 
@@ -394,6 +395,13 @@ internal class EditorGuideSession private constructor(
         clear()
         editor.contentComponent.repaint()
         return true
+    }
+
+    /** Releases proportional-size indexes while their RangeMarkers stay visible. */
+    private fun discardStaleAnalysis() {
+        val required = currentStamp()
+        if (snapshot?.stamp?.satisfies(required) == false) snapshot = null
+        if (acceptedStamp?.satisfies(required) == false) acceptedStamp = null
     }
 
     private fun currentStamp(): AnalysisStamp = AnalysisStamp.current(

@@ -282,6 +282,36 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
     }
 
+    fun testDocumentChangesReleaseStaleAnalysisButKeepTokenPresentation() {
+        val source = "class Sample { int value; }"
+        myFixture.configureByText("ReleaseStaleSnapshot.java", source)
+        val editor = myFixture.editor
+        val options = PluginSettings.getInstance().options.copy(
+            showActiveGuide = false,
+            showActivePairBorder = false,
+            showActivePairBackground = false,
+            colorBracketTokens = true,
+        )
+        PluginSettings.getInstance().replace(options)
+        applyPass()
+        val acceptedStamp = AnalysisStamp.current(
+            editor,
+            AnalysisCapabilities.from(options),
+            options.disabledLanguageIds,
+        )
+        val decorations = bracketColorHighlighters().toSet()
+        assertTrue(decorations.isNotEmpty())
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, acceptedStamp))
+
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.insertString(source.indexOf("value"), "x")
+        }
+
+        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, acceptedStamp))
+        assertEquals(decorations, bracketColorHighlighters().toSet())
+        assertTrue(decorations.all { it.isValid })
+    }
+
     fun testCaretMovementReplacesOnlyActivePresentationUsingCachedRecognition() {
         val source = "x { outer (inner) tail } y"
         myFixture.configureByText("Sample.txt", source)
