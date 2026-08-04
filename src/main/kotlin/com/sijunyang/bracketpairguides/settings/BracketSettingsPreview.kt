@@ -135,7 +135,7 @@ internal class BracketSettingsPreview(
             currentSettings.disabledLanguageIds != options.disabledLanguageIds
         currentSettings = options
         decoration.updateOptions(options)
-        if (languagesChanged) recognizeSynchronously()
+        if (languagesChanged) recognizeAfterDocumentReplacement()
     }
 
     override fun dispose() {

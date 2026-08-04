@@ -453,6 +453,47 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         }
     }
 
+    fun testLargePreviewLanguageChangeDoesNotCollectOnTheEdt() {
+        var edtCollections = 0
+        val preview = BracketSettingsPreview(
+            PreviewPairProviderFactory { editor, fileType, disabledLanguageIds ->
+                val delegate = BracketPairAnalyzer(editor, fileType) { capabilityId ->
+                    capabilityId !in disabledLanguageIds
+                }
+                BracketPairProvider { progress ->
+                    if (ApplicationManager.getApplication().isDispatchThread) {
+                        edtCollections++
+                    }
+                    delegate.collect(progress)
+                }
+            },
+        )
+        try {
+            selectExample(preview, "java")
+            val largeJava = buildString {
+                append("class Large { void run() {\n")
+                repeat(1_200) { append("call(); // padding\n") }
+                append("} }")
+            }
+            replacePreviewText(preview, largeJava)
+            val synchronousCollectionsBeforeUpdate = edtCollections
+            val fileType = (preview.exampleSelector.selectedItem as PreviewExample)
+                .resolveFileType() as LanguageFileType
+            val capabilityId = checkNotNull(
+                LanguageBraceMatchers.capabilityOwner(fileType.language),
+            ).id
+
+            preview.update(
+                PluginOptions(disabledLanguageIds = setOf(capabilityId)),
+            )
+
+            assertEquals(synchronousCollectionsBeforeUpdate, edtCollections)
+            assertTrue(preview.previewEditor.markupModel.allHighlighters.isEmpty())
+        } finally {
+            preview.dispose()
+        }
+    }
+
     fun testPreviewEditingUsesTheSelectedLexerAndIgnoresStringBraces() {
         val preview = BracketSettingsPreview()
         val editor = preview.previewEditor
