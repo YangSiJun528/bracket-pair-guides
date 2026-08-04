@@ -59,21 +59,21 @@ internal class GuidePositionIndex private constructor(
             progress.checkCanceled()
             val lineCount = document.lineCount
             val storage = storageFor(lineCount) ?: return null
-            val starts = IntArray(lineCount)
-            val ends = IntArray(lineCount)
-            for (line in 0 until lineCount) {
-                if (line and CANCELLATION_LINE_MASK == 0) progress.checkCanceled()
-                starts[line] = document.getLineStartOffset(line)
-                ends[line] = document.getLineEndOffset(line)
-            }
+            val text = document.immutableCharSequence
+            val effectiveTabSize = tabSize.coerceAtLeast(1)
             return build(
-                text = document.immutableCharSequence,
-                lineStarts = starts,
-                lineEnds = ends,
-                tabSize = tabSize,
+                lineCount = lineCount,
                 checkCanceled = progress::checkCanceled,
                 storage = storage,
-            )
+            ) { line ->
+                indentationColumn(
+                    text = text,
+                    start = document.getLineStartOffset(line),
+                    end = document.getLineEndOffset(line),
+                    tabSize = effectiveTabSize,
+                    checkCanceled = progress::checkCanceled,
+                )
+            }
         }
 
         internal fun from(
@@ -82,41 +82,40 @@ internal class GuidePositionIndex private constructor(
             lineEnds: IntArray,
             tabSize: Int,
             checkCanceled: () -> Unit = {},
-        ): GuidePositionIndex = build(
-            text = text,
-            lineStarts = lineStarts,
-            lineEnds = lineEnds,
-            tabSize = tabSize,
-            checkCanceled = checkCanceled,
-            storage = checkNotNull(storageFor(lineStarts.size)) {
-                "Guide position index exceeds its $MAXIMUM_TREE_PAYLOAD_BYTES-byte tree budget"
-            },
-        )
-
-        private fun build(
-            text: CharSequence,
-            lineStarts: IntArray,
-            lineEnds: IntArray,
-            tabSize: Int,
-            checkCanceled: () -> Unit,
-            storage: TreeStorage,
         ): GuidePositionIndex {
             require(lineStarts.size == lineEnds.size)
-            val lineCount = lineStarts.size
+            val effectiveTabSize = tabSize.coerceAtLeast(1)
+            return build(
+                lineCount = lineStarts.size,
+                checkCanceled = checkCanceled,
+                storage = checkNotNull(storageFor(lineStarts.size)) {
+                    "Guide position index exceeds its " +
+                        "$MAXIMUM_TREE_PAYLOAD_BYTES-byte tree budget"
+                },
+            ) { line ->
+                indentationColumn(
+                    text = text,
+                    start = lineStarts[line],
+                    end = lineEnds[line],
+                    tabSize = effectiveTabSize,
+                    checkCanceled = checkCanceled,
+                )
+            }
+        }
+
+        private inline fun build(
+            lineCount: Int,
+            checkCanceled: () -> Unit,
+            storage: TreeStorage,
+            indentationAt: (Int) -> Int,
+        ): GuidePositionIndex {
             val treeSize = storage.leafCount
             val tree = LongArray(storage.entryCount) { NO_INDENT_ENTRY }
-            val effectiveTabSize = tabSize.coerceAtLeast(1)
 
             for (line in 0 until lineCount) {
                 if (line and CANCELLATION_LINE_MASK == 0) checkCanceled()
                 tree[treeSize + line] = entry(
-                    indentationColumn(
-                        text = text,
-                        start = lineStarts[line],
-                        end = lineEnds[line],
-                        tabSize = effectiveTabSize,
-                        checkCanceled = checkCanceled,
-                    ),
+                    indentationAt(line),
                     line,
                 )
             }
