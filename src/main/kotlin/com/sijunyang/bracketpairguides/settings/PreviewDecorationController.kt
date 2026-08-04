@@ -51,6 +51,8 @@ internal class PreviewDecorationController(
         return true
     }
 
+    fun requiresRecognitionRefresh(): Boolean = session.requiresAnalysisRefresh()
+
     fun caretMoved() {
         session.caretMoved()
     }

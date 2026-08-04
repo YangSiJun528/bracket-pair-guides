@@ -149,3 +149,5 @@
 - Preview results rejected after an in-flight tab-size or highlighter change
   are resubmitted immediately instead of being treated as a successful empty
   result.
+- Re-enabling a Preview analysis capability now refreshes a retained snapshot
+  when a tab-size change made it stale.

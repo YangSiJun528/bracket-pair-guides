@@ -700,6 +700,43 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         }
     }
 
+    fun testPreviewRefreshesAStaleSnapshotWhenGuideAnalysisIsReenabled() {
+        val collections = AtomicInteger()
+        val preview = BracketSettingsPreview(
+            PreviewPairProviderFactory { editor, fileType, disabledLanguageIds ->
+                val delegate = BracketPairAnalyzer(editor, fileType) { capabilityId ->
+                    capabilityId !in disabledLanguageIds
+                }
+                BracketPairProvider { progress ->
+                    collections.incrementAndGet()
+                    delegate.collect(progress)
+                }
+            },
+        )
+        try {
+            assertEquals(1, collections.get())
+            val guideDisabled = PluginOptions(showActiveGuide = false)
+            preview.update(guideDisabled)
+            assertEquals(1, collections.get())
+
+            val previousTabSize = preview.previewEditor.settings.getTabSize(null)
+            preview.previewEditor.settings.setTabSize(previousTabSize + 1)
+            preview.update(guideDisabled.copy(showActiveGuide = true))
+
+            PlatformTestUtil.waitWithEventsDispatching(
+                "preview refresh after guide analysis becomes stale",
+                { collections.get() == 2 },
+                10_000,
+            )
+            assertEquals(
+                1,
+                preview.previewEditor.markupModel.allHighlighters.countGuide(),
+            )
+        } finally {
+            preview.dispose()
+        }
+    }
+
     fun testLargePreviewLanguageChangeDoesNotCollectOnTheEdt() {
         val edtCollections = AtomicInteger()
         val backgroundCollections = AtomicInteger()

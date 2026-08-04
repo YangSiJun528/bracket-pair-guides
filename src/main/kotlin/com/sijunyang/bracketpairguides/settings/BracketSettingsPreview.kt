@@ -1,6 +1,7 @@
 package com.sijunyang.bracketpairguides.settings
 
 import com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer
+import com.sijunyang.bracketpairguides.renderer.AnalysisCapabilities
 import com.sijunyang.bracketpairguides.renderer.AnalysisSnapshot
 import com.sijunyang.bracketpairguides.renderer.DocumentChange
 import com.intellij.openapi.Disposable
@@ -149,11 +150,18 @@ internal class BracketSettingsPreview(
 
     fun update(options: PluginOptions) {
         if (disposed || previewEditor.isDisposed) return
+        val previousCapabilities = AnalysisCapabilities.from(currentSettings)
+        val nextCapabilities = AnalysisCapabilities.from(options)
         val languagesChanged =
             currentSettings.disabledLanguageIds != options.disabledLanguageIds
         currentSettings = options
         decoration.updateOptions(options)
-        if (languagesChanged) recognizeAfterDocumentReplacement()
+        val capabilitiesExpanded = !previousCapabilities.includes(nextCapabilities)
+        if (languagesChanged ||
+            (capabilitiesExpanded && decoration.requiresRecognitionRefresh())
+        ) {
+            recognizeAfterDocumentReplacement()
+        }
     }
 
     override fun dispose() {

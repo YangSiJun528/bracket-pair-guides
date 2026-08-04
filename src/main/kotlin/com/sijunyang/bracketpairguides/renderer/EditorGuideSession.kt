@@ -183,6 +183,14 @@ internal class EditorGuideSession private constructor(
         editor.contentComponent.repaint()
     }
 
+    fun requiresAnalysisRefresh(): Boolean {
+        assertEdt()
+        if (disposed || editor.isDisposed) return false
+        val required = currentStamp()
+        return required.capabilities.pairs &&
+            snapshot?.stamp?.satisfies(required) != true
+    }
+
     private fun updateTokenPresentation(
         previousOptions: PluginOptions,
         currentAnalysis: AnalysisSnapshot?,
