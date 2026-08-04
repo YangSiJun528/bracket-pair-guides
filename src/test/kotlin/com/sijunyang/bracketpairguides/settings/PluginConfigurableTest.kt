@@ -1147,6 +1147,64 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         }
     }
 
+    fun testDisposedPreviewIgnoresInFlightRecognitionCompletion() {
+        val collectionStarted = CountDownLatch(1)
+        val allowCollectionToFinish = CountDownLatch(1)
+        val collectionExited = CountDownLatch(1)
+        val collections = AtomicInteger()
+        val editorFactory = EditorFactory.getInstance()
+        val editorsBefore = editorFactory.allEditors.toSet()
+        val preview = BracketSettingsPreview(
+            PreviewPairProviderFactory { editor, fileType, disabledLanguageIds ->
+                val delegate = BracketPairAnalyzer(editor, fileType) { capabilityId ->
+                    capabilityId !in disabledLanguageIds
+                }
+                BracketPairProvider { progress ->
+                    if (collections.incrementAndGet() != 2) {
+                        delegate.collect(progress)
+                    } else {
+                        collectionStarted.countDown()
+                        try {
+                            check(allowCollectionToFinish.await(10, TimeUnit.SECONDS)) {
+                                "Timed out waiting to finish disposed Preview recognition"
+                            }
+                            delegate.collect(progress)
+                        } finally {
+                            collectionExited.countDown()
+                        }
+                    }
+                }
+            },
+        )
+        val editor = preview.previewEditor
+        try {
+            selectExample(preview, "json")
+            PlatformTestUtil.waitWithEventsDispatching(
+                "in-flight Preview recognition start",
+                { collectionStarted.count == 0L },
+                10_000,
+            )
+
+            preview.dispose()
+            assertTrue(editor.isDisposed)
+            assertFalse(editor in editorFactory.allEditors)
+
+            allowCollectionToFinish.countDown()
+            PlatformTestUtil.waitWithEventsDispatching(
+                "disposed Preview recognition exit",
+                { collectionExited.count == 0L },
+                10_000,
+            )
+            UIUtil.dispatchAllInvocationEvents()
+
+            assertTrue(editor.isDisposed)
+            assertEquals(editorsBefore, editorFactory.allEditors.toSet())
+        } finally {
+            allowCollectionToFinish.countDown()
+            preview.dispose()
+        }
+    }
+
     fun testDensePreviewBoundsTokenDecorationsToTheVisibleWindow() {
         val preview = BracketSettingsPreview()
         val editor = preview.previewEditor
