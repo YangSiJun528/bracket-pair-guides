@@ -87,15 +87,18 @@ internal object AnalysisSnapshotBuilder {
         val pairs = pairProvider.collect(progress)
         if (pairs.isEmpty()) return empty(stamp)
 
-        val tokenIndex = if (stamp.capabilities.tokens) {
-            BracketTokenIndex.build(pairs, progress::checkCanceled)
-        } else {
-            BracketTokenIndex.build(emptyList())
-        }
         val activeIndex = if (stamp.capabilities.activePair) {
             ActiveBracketPairIndex.build(pairs, progress::checkCanceled)
         } else {
             ActiveBracketPairIndex.build(emptyList())
+        }
+        // Build the larger active index before retaining the token index. This
+        // avoids overlapping its peak workspace with 16 bytes per pair of
+        // stable token-index payload.
+        val tokenIndex = if (stamp.capabilities.tokens) {
+            BracketTokenIndex.build(pairs, progress::checkCanceled)
+        } else {
+            BracketTokenIndex.build(emptyList())
         }
         val positionIndex = if (
             stamp.capabilities.guidePosition &&
