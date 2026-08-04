@@ -32,8 +32,8 @@ internal object BracketGuideRenderer : CustomHighlighterRenderer {
         val document = editor.document
         val openOffset = guide.pair.openOffset
         val closeOffset = guide.pair.closeOffset
-        if (openOffset !in 0 until document.textLength) return
-        if (closeOffset !in openOffset until document.textLength) return
+        if (!guide.pair.hasWellFormedTokenRange(document.textLength)) return
+        val openEnd = openOffset.toLong() + guide.pair.openTokenLength
         if (editor.foldingModel.isOffsetCollapsed(openOffset) ||
             editor.foldingModel.isOffsetCollapsed(closeOffset)
         ) {
@@ -51,8 +51,7 @@ internal object BracketGuideRenderer : CustomHighlighterRenderer {
             if (headerRegion != null && headerRegion === tailRegion) return
         }
 
-        val openEndOffset = (openOffset + guide.pair.openTokenLength)
-            .coerceAtMost(document.textLength)
+        val openEndOffset = openEnd.toInt()
         val openPosition = editor.offsetToVisualPosition(openOffset)
         val closePosition = editor.offsetToVisualPosition(closeOffset)
         val openPoint = editor.offsetToXY(openOffset)

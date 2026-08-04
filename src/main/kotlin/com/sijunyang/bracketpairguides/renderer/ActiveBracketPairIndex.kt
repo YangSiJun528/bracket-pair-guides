@@ -46,13 +46,10 @@ internal class ActiveBracketPairIndex private constructor(
             for (pairIndex in pairs.indices) {
                 if (pairIndex and CANCELLATION_MASK == 0) checkCanceled()
                 val pair = pairs[pairIndex]
-                val endExclusive = (pair.closeOffset.toLong() + pair.closeTokenLength)
-                    .coerceAtMost(Int.MAX_VALUE.toLong())
-                    .toInt()
-                val start = (pair.openOffset.toLong() + 1)
-                    .coerceAtMost(Int.MAX_VALUE.toLong())
-                    .toInt()
-                if (pair.openOffset < 0 || start >= endExclusive) continue
+                if (!pair.hasWellFormedTokenRange()) continue
+
+                val endExclusive = pair.closeOffset + pair.closeTokenLength
+                val start = pair.openOffset + 1
 
                 candidateStarts[pairIndex] = start
                 candidateEnds[pairIndex] = endExclusive

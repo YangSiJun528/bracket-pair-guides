@@ -102,6 +102,30 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
     }
 
+    fun testInvalidProviderTokenBoundsDoNotCreateActivePresentation() {
+        val source = "opening content closing"
+        myFixture.configureByText("InvalidProviderPair.txt", source)
+        val pair = BracketPair(
+            openOffset = 0,
+            openTokenLength = "opening".length,
+            closeOffset = source.indexOf("closing"),
+            closeTokenLength = source.length,
+            depth = 0,
+            openLine = 0,
+            closeLine = 0,
+        )
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(source.indexOf("content"))
+        PluginSettings.getInstance().replace(
+            PluginSettings.getInstance().options.copy(showActivePairBorder = true),
+        )
+
+        applyPass(BracketPairProvider { listOf(pair) })
+
+        assertNull(activeGuide())
+        assertTrue(activePairHighlighters().isEmpty())
+    }
+
     fun testStaleSnapshotResolverDoesNotUseALegacyFileTypeMatcher() {
         val source = "<root>content</root>"
         myFixture.configureByText("Unsupported.xml", source)

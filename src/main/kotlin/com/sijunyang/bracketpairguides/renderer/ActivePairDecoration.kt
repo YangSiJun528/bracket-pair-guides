@@ -1,9 +1,9 @@
 package com.sijunyang.bracketpairguides.renderer
 
+import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import com.sijunyang.bracketpairguides.settings.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
-import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.markup.HighlighterLayer
@@ -74,6 +74,7 @@ internal object ActivePairDecoration {
         pair: BracketPair,
         settings: PluginOptions,
     ): List<RangeHighlighter> {
+        if (!pair.hasWellFormedTokenRange(editor.document.textLength)) return emptyList()
         val hasVisibleBackground = BracketColorPalette.hasVisiblePairBackground(settings)
         if (!settings.enabled ||
             (!settings.showActivePairBorder && !hasVisibleBackground)
@@ -107,4 +108,5 @@ internal object ActivePairDecoration {
     )
     private const val GUIDE_LAYER = HighlighterLayer.ADDITIONAL_SYNTAX
     private const val ACTIVE_PAIR_LAYER = HighlighterLayer.ELEMENT_UNDER_CARET
+
 }

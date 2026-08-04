@@ -395,6 +395,30 @@ class BracketGuideRendererTest : BasePlatformTestCase() {
         }
     }
 
+    fun testInvalidStoredTokenBoundsAreIgnored() {
+        val source = "call(argument)"
+        myFixture.configureByText("InvalidStoredPair.java", source)
+        val validPair = BracketPair(
+            openOffset = source.indexOf('('),
+            openTokenLength = 1,
+            closeOffset = source.lastIndexOf(')'),
+            closeTokenLength = 1,
+            depth = 0,
+            openLine = 0,
+            closeLine = 0,
+        )
+        val invalidPairs = listOf(
+            validPair.copy(openTokenLength = -10),
+            validPair.copy(closeTokenLength = source.length),
+            validPair.copy(closeOffset = validPair.openOffset),
+        )
+
+        for (pair in invalidPairs) {
+            val image = paintStoredGuide(pair)
+            assertFalse("Invalid token bounds must not paint: $pair", image.hasAnyInk())
+        }
+    }
+
     private fun paint(
         pair: BracketPair,
         options: GuideRenderOptions = DEFAULT_OPTIONS,
@@ -414,6 +438,31 @@ class BracketGuideRendererTest : BasePlatformTestCase() {
             try {
                 graphics.scale(graphicsScale, graphicsScale)
                 BracketGuideRenderer.paint(myFixture.editor, highlighter, graphics)
+            } finally {
+                graphics.dispose()
+                highlighter.dispose()
+            }
+        }
+    }
+
+    private fun paintStoredGuide(pair: BracketPair): BufferedImage {
+        val editor = myFixture.editor
+        val highlighter = editor.markupModel.addRangeHighlighter(
+            null,
+            0,
+            editor.document.textLength,
+            HighlighterLayer.ADDITIONAL_SYNTAX,
+            HighlighterTargetArea.EXACT_RANGE,
+        ).also {
+            it.putUserData(
+                GUIDE_PAINT_STATE_KEY,
+                GuidePaintState(BracketGuide(pair, 0), DEFAULT_OPTIONS, Color.WHITE),
+            )
+        }
+        return BufferedImage(1_000, 1_000, BufferedImage.TYPE_INT_ARGB).also { image ->
+            val graphics = image.createGraphics()
+            try {
+                BracketGuideRenderer.paint(editor, highlighter, graphics)
             } finally {
                 graphics.dispose()
                 highlighter.dispose()

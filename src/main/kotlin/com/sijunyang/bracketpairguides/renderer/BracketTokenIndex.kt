@@ -87,14 +87,15 @@ internal class BracketTokenIndex private constructor(
             for (pairIndex in pairs.indices) {
                 if (pairIndex and CANCELLATION_MASK == 0) checkCanceled()
                 val pair = pairs[pairIndex]
-                if (pair.openOffset >= 0 && pair.openTokenLength > 0) {
-                    encoded[tokenCount++] = encode(pair.openOffset, pairIndex, closing = false)
-                    maximumLength = maxOf(maximumLength, pair.openTokenLength)
-                }
-                if (pair.closeOffset >= 0 && pair.closeTokenLength > 0) {
-                    encoded[tokenCount++] = encode(pair.closeOffset, pairIndex, closing = true)
-                    maximumLength = maxOf(maximumLength, pair.closeTokenLength)
-                }
+                if (!pair.hasWellFormedTokenRange()) continue
+
+                encoded[tokenCount++] = encode(pair.openOffset, pairIndex, closing = false)
+                encoded[tokenCount++] = encode(pair.closeOffset, pairIndex, closing = true)
+                maximumLength = maxOf(
+                    maximumLength,
+                    pair.openTokenLength,
+                    pair.closeTokenLength,
+                )
             }
             val sorted = if (tokenCount == encoded.size) encoded else encoded.copyOf(tokenCount)
             sorted.sortCancellable(checkCanceled)

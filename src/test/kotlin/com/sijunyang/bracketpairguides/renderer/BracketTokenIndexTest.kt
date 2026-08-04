@@ -39,6 +39,25 @@ class BracketTokenIndexTest {
         assertEquals(0, index.firstIndexInRange(8))
     }
 
+    @Test
+    fun `ignores both endpoints of a structurally invalid pair`() {
+        val valid = pair(open = 0, close = 100, depth = 0)
+        val invalid = BracketPair(
+            openOffset = 10,
+            openTokenLength = 1,
+            closeOffset = -1,
+            closeTokenLength = 100,
+            depth = 1,
+            openLine = 0,
+            closeLine = 0,
+        )
+
+        val index = BracketTokenIndex.build(listOf(valid, invalid))
+
+        assertEquals(2, index.size)
+        assertEquals(0, index.countIn(9, 11))
+    }
+
     private fun pair(open: Int, close: Int, depth: Int): BracketPair {
         return BracketPair(open, 1, close, 1, depth, 0, 0)
     }

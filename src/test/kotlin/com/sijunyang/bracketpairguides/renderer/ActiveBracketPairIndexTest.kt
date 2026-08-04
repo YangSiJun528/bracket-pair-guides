@@ -44,6 +44,24 @@ class ActiveBracketPairIndexTest {
     }
 
     @Test
+    fun `malformed pair cannot hide a valid containing pair`() {
+        val valid = pair(open = 0, close = 100)
+        val malformed = BracketPair(
+            openOffset = 10,
+            openTokenLength = 1,
+            closeOffset = -1,
+            closeTokenLength = 100,
+            depth = 1,
+            openLine = 0,
+            closeLine = 0,
+        )
+
+        val index = ActiveBracketPairIndex.build(listOf(valid, malformed))
+
+        assertEquals(0, index.activePairIndex(20))
+    }
+
+    @Test
     fun `empty pair is active between its tokens`() {
         val pair = pair(open = 0, close = 1)
         val index = ActiveBracketPairIndex.build(listOf(pair))
