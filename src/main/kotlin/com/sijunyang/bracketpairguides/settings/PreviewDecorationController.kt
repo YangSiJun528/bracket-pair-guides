@@ -1,6 +1,7 @@
 package com.sijunyang.bracketpairguides.settings
 
 import com.sijunyang.bracketpairguides.renderer.AnalysisSnapshot
+import com.sijunyang.bracketpairguides.renderer.ActiveBracketPairResolver
 import com.sijunyang.bracketpairguides.renderer.EditorGuideSession
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.event.VisibleAreaListener
@@ -9,7 +10,7 @@ import com.intellij.openapi.util.TextRange
 /** Applies draft options to a detached editor session without touching persisted settings. */
 internal class PreviewDecorationController(
     private val editor: Editor,
-    visibleRangeProvider: (Editor) -> TextRange = Editor::calculateVisibleRange,
+    private val visibleRangeProvider: (Editor) -> TextRange = Editor::calculateVisibleRange,
 ) {
     private val session = EditorGuideSession.detached(
         editor = editor,
@@ -27,6 +28,12 @@ internal class PreviewDecorationController(
     }
 
     fun updateRecognition(snapshot: AnalysisSnapshot) {
+        val dependenciesAreCurrent = session.updateDependenciesIfCurrent(
+            ActiveBracketPairResolver.NONE,
+            visibleRangeProvider,
+            snapshot.stamp,
+        )
+        if (!dependenciesAreCurrent) return
         session.accept(snapshot)
     }
 
