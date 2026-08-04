@@ -658,6 +658,65 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertEquals(1, collections)
     }
 
+    fun testActiveToTokenOnlyRebuildsCompactAnalysisBeforeRestoringActivePresentation() {
+        val source = "x { content } y"
+        myFixture.configureByText("CompactTokenAnalysis.txt", source)
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(source.indexOf("content"))
+        var collections = 0
+        val provider = BracketPairProvider {
+            collections++
+            listOf(pair)
+        }
+        val fullOptions = PluginSettings.getInstance().options
+
+        applyPass(provider)
+        val fullStamp = AnalysisStamp.current(
+            editor,
+            AnalysisCapabilities.from(fullOptions),
+            fullOptions.disabledLanguageIds,
+        )
+        val originalTokens = bracketColorHighlighters().toSet()
+        assertEquals(1, collections)
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, fullStamp))
+        assertNotNull(activeGuide())
+
+        val tokenOnlyOptions = fullOptions.copy(
+            showActiveGuide = false,
+            showActivePairBorder = false,
+            showActivePairBackground = false,
+        )
+        applyOptions(tokenOnlyOptions)
+        val tokenOnlyStamp = AnalysisStamp.current(
+            editor,
+            AnalysisCapabilities.from(tokenOnlyOptions),
+            tokenOnlyOptions.disabledLanguageIds,
+        )
+
+        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, fullStamp))
+        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+        assertEquals(originalTokens, bracketColorHighlighters().toSet())
+        assertTrue(originalTokens.all { it.isValid })
+        assertNull(activeGuide())
+
+        applyPass(provider)
+
+        assertEquals(2, collections)
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+        assertEquals(originalTokens, bracketColorHighlighters().toSet())
+
+        applyOptions(fullOptions)
+        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, fullStamp))
+        applyPass(provider)
+
+        assertEquals(3, collections)
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, fullStamp))
+        assertEquals(pair, activeGuideState()?.guide?.pair)
+    }
+
     fun testThemeRefreshUpdatesTokenColorsWithoutRebuildingHighlighters() {
         val source = "x { content } y"
         myFixture.configureByText("ThemeTokens.txt", source)
@@ -811,6 +870,48 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         applyPass(provider)
 
         assertEquals(2, collections)
+        assertTrue(bracketColorHighlighters().isNotEmpty())
+    }
+
+    fun testLateFullPassCannotPreventCompactTokenOnlyRebuild() {
+        val source = "x { content } y"
+        myFixture.configureByText("LateCompactTokenAnalysis.txt", source)
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        var collections = 0
+        val provider = BracketPairProvider {
+            collections++
+            listOf(pair)
+        }
+        val editor = myFixture.editor
+        val fullOptions = PluginSettings.getInstance().options
+        val latePass = GuideLineHighlightingPass(project, editor, provider)
+        inReadAction {
+            latePass.doCollectInformation(EmptyProgressIndicator())
+        }
+
+        val tokenOnlyOptions = fullOptions.copy(
+            showActiveGuide = false,
+            showActivePairBorder = false,
+            showActivePairBackground = false,
+        )
+        applyOptions(tokenOnlyOptions)
+        val tokenOnlyStamp = AnalysisStamp.current(
+            editor,
+            AnalysisCapabilities.from(tokenOnlyOptions),
+            tokenOnlyOptions.disabledLanguageIds,
+        )
+        latePass.doApplyInformationToEditor()
+
+        assertEquals(1, collections)
+        assertTrue(bracketColorHighlighters().isNotEmpty())
+        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+
+        applyPass(provider)
+
+        assertEquals(2, collections)
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
         assertTrue(bracketColorHighlighters().isNotEmpty())
     }
 

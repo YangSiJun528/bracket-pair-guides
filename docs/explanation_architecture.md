@@ -154,6 +154,17 @@ indexes for an invisible feature. Re-enabling analysis starts a new background
 pass. A full result that was already in flight is reduced to a compact inactive
 stamp instead of repopulating the released indexes.
 
+When token colors are the only enabled pair feature, `BracketTokenIndex` copies
+the two token lengths and full nesting depth into primitive arrays instead of
+retaining the recognized `BracketPair` object graph. The sorted endpoint array
+plus detached metadata uses 28 bytes per pair. On a typical compressed-reference
+JVM, this reduces retained heap by about 30.5 MiB at one million pairs. Turning
+off active presentation releases a previously full snapshot while leaving its
+current RangeMarker-backed token colors visible; the daemon builds the compact
+token-only snapshot in the background. A late full-capability result may refresh
+that visible window, but it is not marked accepted, so it cannot suppress the
+compact replacement pass.
+
 For multiline pairs, `GuidePositionIndex` builds a tab-aware range-minimum
 indentation index once. Its build cost is `O(L)` and each guide-column query is
 `O(log L)`. The segment-tree payload is capped at 16 MiB (1,048,576 lines).

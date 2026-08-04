@@ -61,6 +61,27 @@ class BracketTokenIndexTest {
     }
 
     @Test
+    fun `detached index owns metadata after its mutable source is cleared`() {
+        val pairs = mutableListOf(
+            BracketPair(0, 2, 4, 3, Int.MIN_VALUE, 0, 0),
+            BracketPair(4, 1, 9, 2, Int.MAX_VALUE, 0, 0),
+            BracketPair(6, 0, 8, 1, 17, 0, 0),
+            BracketPair(4, 2, 9, 1, -1, 0, 0),
+        )
+
+        val index = BracketTokenIndex.buildDetached(pairs)
+        pairs.clear()
+
+        assertEquals(6, index.size)
+        assertEquals(listOf(0, 4, 4, 4, 9, 9), index.values(BracketTokenIndex::offsetAt))
+        assertEquals(listOf(2, 3, 1, 2, 2, 1), index.values(BracketTokenIndex::lengthAt))
+        assertEquals(
+            listOf(Int.MIN_VALUE, Int.MIN_VALUE, Int.MAX_VALUE, -1, Int.MAX_VALUE, -1),
+            index.values(BracketTokenIndex::depthAt),
+        )
+    }
+
+    @Test
     fun `compact index matches an independent token model across random ranges`() {
         val random = Random(0x70C3_11DE)
 
@@ -181,6 +202,9 @@ class BracketTokenIndexTest {
     private fun pair(open: Int, close: Int, depth: Int): BracketPair {
         return BracketPair(open, 1, close, 1, depth, 0, 0)
     }
+
+    private fun BracketTokenIndex.values(read: BracketTokenIndex.(Int) -> Int): List<Int> =
+        List(size) { index -> read(index) }
 
     private fun malformedPairs(baseOffset: Int, firstDepth: Int): List<BracketPair> = listOf(
         BracketPair(-1, 1, baseOffset + 20, 1, firstDepth, 0, 0),

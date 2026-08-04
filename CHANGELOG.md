@@ -83,6 +83,11 @@
   stale snapshot overlap per editor at one million pairs.
 - Disabling every pair feature now releases the complete per-editor snapshot
   instead of retaining proportional indexes for invisible presentation.
+- Token-only snapshots now detach compact primitive token metadata from the
+  recognized-pair object graph. At one million pairs this saves about 30.5 MiB
+  of retained heap on a typical compressed-reference JVM; switching from full
+  active analysis keeps visible token markup while rebuilding this compact
+  snapshot in the background.
 - Capped token-decoration slices recenter while scrolling inside a cached
   viewport instead of remaining fixed at the previous focus.
 - Settings Preview examples preserve caret and horizontal/vertical scroll state,

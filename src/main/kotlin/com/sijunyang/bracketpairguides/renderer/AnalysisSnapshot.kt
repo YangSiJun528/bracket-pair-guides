@@ -96,7 +96,11 @@ internal object AnalysisSnapshotBuilder {
         // avoids overlapping its peak workspace with 16 bytes per pair of
         // stable token-index payload.
         val tokenIndex = if (stamp.capabilities.tokens) {
-            BracketTokenIndex.build(pairs, progress::checkCanceled)
+            if (stamp.capabilities.activePair) {
+                BracketTokenIndex.build(pairs, progress::checkCanceled)
+            } else {
+                BracketTokenIndex.buildDetached(pairs, progress::checkCanceled)
+            }
         } else {
             BracketTokenIndex.build(emptyList())
         }
@@ -114,7 +118,13 @@ internal object AnalysisSnapshotBuilder {
         } else {
             null
         }
-        return AnalysisSnapshot(stamp, pairs, tokenIndex, activeIndex, positionIndex)
+        return AnalysisSnapshot(
+            stamp = stamp,
+            pairs = pairs.takeIf { stamp.capabilities.activePair }.orEmpty(),
+            tokenIndex = tokenIndex,
+            activeIndex = activeIndex,
+            positionIndex = positionIndex,
+        )
     }
 
     internal fun containsMultilinePair(

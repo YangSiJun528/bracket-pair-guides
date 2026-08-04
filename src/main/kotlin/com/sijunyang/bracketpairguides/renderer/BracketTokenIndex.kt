@@ -4,7 +4,9 @@ import com.sijunyang.bracketpairguides.analyzer.BracketPair
 
 /** Compact, offset-sorted lookup for bracket tokens near the editor viewport. */
 internal class BracketTokenIndex private constructor(
-    private val pairs: List<BracketPair>,
+    private val pairs: List<BracketPair>?,
+    private val detachedTokenLengths: LongArray?,
+    private val detachedDepths: IntArray?,
     private val encodedTokens: LongArray,
     private val maximumTokenLength: Int,
 ) {
@@ -57,18 +59,25 @@ internal class BracketTokenIndex private constructor(
     fun offsetAt(index: Int): Int = (encodedTokens[index] ushr OFFSET_SHIFT).toInt()
 
     fun lengthAt(index: Int): Int {
-        val pair = pairAt(index)
-        return if (isClosingToken(index)) pair.closeTokenLength else pair.openTokenLength
+        val tokenReference = tokenReferenceAt(index)
+        val pairIndex = tokenReference ushr TOKEN_KIND_BITS
+        val closing = tokenReference and CLOSING_TOKEN != 0
+        pairs?.get(pairIndex)?.let { pair ->
+            return if (closing) pair.closeTokenLength else pair.openTokenLength
+        }
+        val lengths = checkNotNull(detachedTokenLengths)
+        val packedLengths = lengths[pairIndex]
+        return if (closing) {
+            packedLengths.toInt()
+        } else {
+            (packedLengths ushr OFFSET_SHIFT).toInt()
+        }
     }
 
-    fun depthAt(index: Int): Int = pairAt(index).depth
-
-    private fun pairAt(index: Int): BracketPair {
-        return pairs[tokenReferenceAt(index) ushr TOKEN_KIND_BITS]
-    }
-
-    private fun isClosingToken(index: Int): Boolean {
-        return tokenReferenceAt(index) and CLOSING_TOKEN != 0
+    fun depthAt(index: Int): Int {
+        val pairIndex = tokenReferenceAt(index) ushr TOKEN_KIND_BITS
+        return pairs?.get(pairIndex)?.depth
+            ?: checkNotNull(detachedDepths)[pairIndex]
     }
 
     private fun tokenReferenceAt(index: Int): Int = encodedTokens[index].toInt()
@@ -77,11 +86,41 @@ internal class BracketTokenIndex private constructor(
         fun build(
             pairs: List<BracketPair>,
             checkCanceled: () -> Unit = {},
+        ): BracketTokenIndex = build(
+            pairs = pairs,
+            checkCanceled = checkCanceled,
+            detachPairMetadata = false,
+        )
+
+        /** Copies only token metadata so the source pair graph can be released. */
+        fun buildDetached(
+            pairs: List<BracketPair>,
+            checkCanceled: () -> Unit = {},
+        ): BracketTokenIndex = build(
+            pairs = pairs,
+            checkCanceled = checkCanceled,
+            detachPairMetadata = true,
+        )
+
+        private fun build(
+            pairs: List<BracketPair>,
+            checkCanceled: () -> Unit,
+            detachPairMetadata: Boolean,
         ): BracketTokenIndex {
             if (pairs.isEmpty()) return EMPTY
             require(pairs.size <= Int.MAX_VALUE / TOKENS_PER_PAIR)
 
             val encoded = LongArray(pairs.size * TOKENS_PER_PAIR)
+            val detachedTokenLengths = if (detachPairMetadata) {
+                LongArray(pairs.size)
+            } else {
+                null
+            }
+            val detachedDepths = if (detachPairMetadata) {
+                IntArray(pairs.size)
+            } else {
+                null
+            }
             var tokenCount = 0
             var maximumLength = 0
             for (pairIndex in pairs.indices) {
@@ -91,15 +130,30 @@ internal class BracketTokenIndex private constructor(
 
                 encoded[tokenCount++] = encode(pair.openOffset, pairIndex, closing = false)
                 encoded[tokenCount++] = encode(pair.closeOffset, pairIndex, closing = true)
+                if (detachedTokenLengths != null && detachedDepths != null) {
+                    detachedTokenLengths[pairIndex] =
+                        packLengths(pair.openTokenLength, pair.closeTokenLength)
+                    detachedDepths[pairIndex] = pair.depth
+                }
                 maximumLength = maxOf(
                     maximumLength,
                     pair.openTokenLength,
                     pair.closeTokenLength,
                 )
             }
+            if (tokenCount == 0) {
+                checkCanceled()
+                return EMPTY
+            }
             val sorted = if (tokenCount == encoded.size) encoded else encoded.copyOf(tokenCount)
             sorted.sortCancellable(checkCanceled)
-            return BracketTokenIndex(pairs, sorted, maximumLength)
+            return BracketTokenIndex(
+                pairs = pairs.takeUnless { detachPairMetadata },
+                detachedTokenLengths = detachedTokenLengths,
+                detachedDepths = detachedDepths,
+                encodedTokens = sorted,
+                maximumTokenLength = maximumLength,
+            )
         }
 
         private fun encode(offset: Int, pairIndex: Int, closing: Boolean): Long {
@@ -109,7 +163,17 @@ internal class BracketTokenIndex private constructor(
                 (tokenReference.toLong() and TOKEN_REFERENCE_MASK)
         }
 
-        private val EMPTY = BracketTokenIndex(emptyList(), LongArray(0), 0)
+        private fun packLengths(openLength: Int, closeLength: Int): Long =
+            (openLength.toLong() shl OFFSET_SHIFT) or
+                (closeLength.toLong() and TOKEN_REFERENCE_MASK)
+
+        private val EMPTY = BracketTokenIndex(
+            pairs = emptyList(),
+            detachedTokenLengths = null,
+            detachedDepths = null,
+            encodedTokens = LongArray(0),
+            maximumTokenLength = 0,
+        )
         private const val TOKENS_PER_PAIR = 2
         private const val TOKEN_KIND_BITS = 1
         private const val CLOSING_TOKEN = 1

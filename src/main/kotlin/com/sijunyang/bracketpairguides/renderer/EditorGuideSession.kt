@@ -78,7 +78,12 @@ internal class EditorGuideSession private constructor(
             visibleRangeProvider(editor),
             options,
         )
-        acceptedStamp = nextSnapshot.stamp
+        if (shouldReleasePairGraph(required, nextSnapshot.stamp.capabilities)) {
+            snapshot = null
+            acceptedStamp = null
+        } else {
+            acceptedStamp = nextSnapshot.stamp
+        }
         editor.contentComponent.repaint()
     }
 
@@ -166,15 +171,20 @@ internal class EditorGuideSession private constructor(
             updateProvisional(null, resolveImmediately)
             return
         }
-        val currentSnapshot = snapshot
-        val currentAnalysis = currentSnapshot?.takeIf(::isCurrent)
+        val required = currentStamp()
+        val currentAnalysis = snapshot?.takeIf { analysis ->
+            analysis.stamp.satisfies(required)
+        }
+        val releasePairGraph = currentAnalysis?.let { analysis ->
+            shouldReleasePairGraph(required, analysis.stamp.capabilities)
+        } == true
         tokenDecorations = updateTokenPresentation(
             previousOptions,
             currentAnalysis,
             refreshColors,
         )
 
-        val pairIndex = if (currentAnalysis != null) {
+        val pairIndex = if (required.capabilities.activePair && currentAnalysis != null) {
             currentAnalysis.activeIndex.activePairIndex(caretOffset())
         } else {
             ActiveBracketPairIndex.NO_PAIR
@@ -196,6 +206,10 @@ internal class EditorGuideSession private constructor(
         ) {
             updateProvisional(null, resolveImmediately)
             return
+        }
+        if (releasePairGraph) {
+            snapshot = null
+            acceptedStamp = null
         }
         editor.contentComponent.repaint()
     }
@@ -479,6 +493,14 @@ internal class EditorGuideSession private constructor(
 
     private fun isCurrent(candidate: AnalysisSnapshot): Boolean =
         candidate.stamp.satisfies(currentStamp())
+
+    private fun shouldReleasePairGraph(
+        required: AnalysisStamp,
+        provided: AnalysisCapabilities,
+    ): Boolean = !retainAnalysisWhenInactive &&
+        required.capabilities.tokens &&
+        !required.capabilities.activePair &&
+        provided.activePair
 
     private fun caretOffset(): Int = editor.caretModel.primaryCaret.offset
 
