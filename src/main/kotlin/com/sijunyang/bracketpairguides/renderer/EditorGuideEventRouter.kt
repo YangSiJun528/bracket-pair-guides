@@ -18,6 +18,7 @@ import com.intellij.openapi.editor.event.EditorFactoryListener
 import com.intellij.openapi.editor.event.VisibleAreaEvent
 import com.intellij.openapi.editor.event.VisibleAreaListener
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.util.Alarm
 
 /** Routes platform editor events to the state owned by each editor session. */
 @Service(Service.Level.APP)
@@ -28,6 +29,16 @@ internal class EditorGuideEventRouter :
     EditorColorsListener,
     VisibleAreaListener,
     Disposable {
+    private val visibleRefreshAlarm = Alarm(Alarm.ThreadToUse.SWING_THREAD, this)
+    private val visibleRefreshBatcher = IdentityEventBatcher<Editor>(
+        schedule = { refresh ->
+            visibleRefreshAlarm.addRequest(refresh, VISIBLE_REFRESH_DELAY_MILLIS)
+        },
+        consume = { editor ->
+            if (!editor.isDisposed) EditorGuideSession.get(editor)?.visibleAreaChanged()
+        },
+    )
+
     init {
         val editorFactory = EditorFactory.getInstance()
         editorFactory.eventMulticaster.addCaretListener(this, this)
@@ -39,7 +50,11 @@ internal class EditorGuideEventRouter :
     }
 
     override fun caretPositionChanged(event: CaretEvent) = onEdt(event.editor) {
-        EditorGuideSession.get(event.editor)?.caretMoved()
+        val session = EditorGuideSession.get(event.editor) ?: return@onEdt
+        session.caretMoved()
+        if (session.tokenDecorations.isCapped) {
+            visibleRefreshBatcher.request(event.editor)
+        }
     }
 
     override fun caretAdded(event: CaretEvent) = caretPositionChanged(event)
@@ -62,10 +77,13 @@ internal class EditorGuideEventRouter :
     }
 
     override fun visibleAreaChanged(event: VisibleAreaEvent) = onEdt(event.editor) {
-        EditorGuideSession.get(event.editor)?.visibleAreaChanged()
+        if (EditorGuideSession.get(event.editor) != null) {
+            visibleRefreshBatcher.request(event.editor)
+        }
     }
 
     override fun editorReleased(event: EditorFactoryEvent) {
+        visibleRefreshBatcher.remove(event.editor)
         EditorGuideSession.dispose(event.editor)
     }
 
@@ -78,6 +96,7 @@ internal class EditorGuideEventRouter :
     }
 
     override fun dispose() {
+        visibleRefreshBatcher.clear()
         for (editor in EditorFactory.getInstance().allEditors) {
             EditorGuideSession.dispose(editor)
         }
@@ -110,6 +129,8 @@ internal class EditorGuideEventRouter :
             ?: editors.firstOrNull()
 
     companion object {
+        private const val VISIBLE_REFRESH_DELAY_MILLIS = 16
+
         internal fun routeDocumentChange(
             editors: List<Editor>,
             change: DocumentChange,

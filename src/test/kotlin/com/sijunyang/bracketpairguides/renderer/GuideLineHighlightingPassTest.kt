@@ -16,6 +16,7 @@ import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.junit.Assert.assertEquals
@@ -745,6 +746,43 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             "Capped decorations must be recentered within a cached character window",
             scrolledDecorations.minOf { it.startOffset } > initialLastOffset,
         )
+        assertTrue(initialDecorations.any { !it.isValid })
+    }
+
+    fun testCappedDenseDecorationsFollowCaretMovementWithoutScrolling() {
+        val pairCount = 5_000
+        val source = "()".repeat(pairCount)
+        myFixture.configureByText("DenseViewportCaret.txt", source)
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(1)
+        val pairs = List(pairCount) { index ->
+            BracketPair(
+                openOffset = index * 2,
+                openTokenLength = 1,
+                closeOffset = index * 2 + 1,
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 0,
+            )
+        }
+
+        applyPass(BracketPairProvider { pairs }) { TextRange(0, source.length) }
+        val initialDecorations = bracketColorHighlighters()
+        assertEquals(MAX_VISIBLE_TOKEN_DECORATIONS, initialDecorations.size)
+        val initialLastOffset = initialDecorations.maxOf { it.startOffset }
+
+        editor.caretModel.moveToOffset(source.length - 1)
+
+        PlatformTestUtil.waitWithEventsDispatching(
+            "capped token window follows caret",
+            {
+                bracketColorHighlighters().minOfOrNull { it.startOffset }
+                    ?.let { it > initialLastOffset } == true
+            },
+            10_000,
+        )
+        assertEquals(MAX_VISIBLE_TOKEN_DECORATIONS, bracketColorHighlighters().size)
         assertTrue(initialDecorations.any { !it.isValid })
     }
 
