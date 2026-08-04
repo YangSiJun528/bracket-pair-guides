@@ -32,6 +32,7 @@ import javax.swing.ScrollPaneConstants
 import javax.swing.JSpinner
 import javax.swing.SpinnerNumberModel
 import javax.swing.event.ChangeListener
+import javax.swing.text.DefaultFormatter
 
 /** One settings page owns feature switches, language selection, and every visual color. */
 internal class PluginConfigurable(
@@ -197,7 +198,7 @@ internal class PluginConfigurable(
     }
 
     override fun getPreferredFocusedComponent(): JComponent? =
-        enabled.takeIf { controlsCreated }
+        if (controlsCreated) enabled else null
 
     override fun isModified(): Boolean {
         return controlsCreated && captureDraftState() != resetSnapshot
@@ -288,6 +289,7 @@ internal class PluginConfigurable(
     override fun disposeUIResources() {
         uiLifetime?.let(Disposer::dispose)
         uiLifetime = null
+        if (controlsCreated) paletteTable.cancelPendingEdit()
         preview?.dispose()
         preview = null
         panel = null
@@ -629,6 +631,11 @@ internal class PluginConfigurable(
             minimum: Int,
             maximum: Int,
             step: Int,
-        ): JSpinner = JSpinner(SpinnerNumberModel(value, minimum, maximum, step))
+        ): JSpinner = JSpinner(
+            SpinnerNumberModel(value, minimum, maximum, step),
+        ).also { spinner ->
+            val textField = (spinner.editor as? JSpinner.DefaultEditor)?.textField
+            (textField?.formatter as? DefaultFormatter)?.commitsOnValidEdit = true
+        }
     }
 }

@@ -26,6 +26,7 @@ import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.JBUI
+import com.intellij.util.ui.UIUtil
 import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Component
@@ -39,6 +40,24 @@ class PluginConfigurableTest : BasePlatformTestCase() {
     override fun setUp() {
         super.setUp()
         PluginSettings.getInstance().loadState(PluginSettings.State())
+    }
+
+    fun testPreferredFocusIsSafeAcrossTheUiLifecycle() {
+        val configurable = PluginConfigurable { emptyList() }
+        try {
+            assertNull(configurable.getPreferredFocusedComponent())
+            configurable.disposeUIResources()
+            assertNull(configurable.getPreferredFocusedComponent())
+
+            val component = configurable.createComponent()
+            assertSame(
+                component.checkBox("Enabled"),
+                configurable.getPreferredFocusedComponent(),
+            )
+        } finally {
+            configurable.disposeUIResources()
+        }
+        assertNull(configurable.getPreferredFocusedComponent())
     }
 
     fun testUsesCompactPaletteAndBoundedSidebarLayout() {
@@ -94,6 +113,10 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertEquals(
                 "Preview example",
                 preview.exampleSelector.accessibleContext.accessibleName,
+            )
+            assertEquals(
+                "Reset preview example",
+                preview.resetExampleButton.accessibleContext.accessibleName,
             )
             assertTrue(splitter.firstComponent is JBScrollPane)
             assertSame(preview, splitter.secondComponent)
@@ -378,6 +401,24 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         }
     }
 
+    fun testValidSpinnerTextIsCommittedBeforeFocusLeavesTheEditor() {
+        withConfigurable { configurable, component ->
+            val width = component.spinnerWithValue(1)
+            val textField = (width.editor as JSpinner.DefaultEditor).textField
+
+            textField.selectAll()
+            textField.replaceSelection("4")
+
+            assertEquals(4, (width.value as Number).toInt())
+            assertTrue(configurable.isModified)
+
+            configurable.apply()
+
+            assertEquals(4, PluginSettings.getInstance().options.guideLineWidth)
+            assertFalse(configurable.isModified)
+        }
+    }
+
     fun testPreviewUpdatesDraftWithoutPersistingUntilApply() {
         withConfigurable { configurable, component ->
             val preview = component.descendants()
@@ -456,8 +497,11 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 assertNotNull("${example.displayName} should start inside a pair", active)
                 assertEquals(1, editor.markupModel.allHighlighters.countGuide())
                 assertEquals(0, editor.markupModel.allHighlighters.countActivePairs())
+                val tokenHighlights = editor.markupModel.allHighlighters
+                    .tokenHighlighters()
+                assertTrue(tokenHighlights.isNotEmpty())
                 assertEquals(
-                    pairs.size * 2 + 1,
+                    tokenHighlights.size + 1,
                     editor.markupModel.allHighlighters.size,
                 )
             }
@@ -640,15 +684,34 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         }
     }
 
-    fun testEachExamplePreservesItsTemporaryBufferAndResetAffectsOnlyCurrentExample() {
+    fun testEachExamplePreservesItsBufferCaretAndScrollAndResetIsLocal() {
         val preview = BracketSettingsPreview()
         val editor = preview.previewEditor
         try {
             val java = selectExample(preview, "java")
-            val editedJava = "class Edited { void run() { call(); } }"
+            val editedJava = buildString {
+                append("class Edited { void run() {\n")
+                repeat(60) { line ->
+                    append("call($line); // ")
+                    append("horizontal-padding-".repeat(6))
+                    append('\n')
+                }
+                append("} }")
+            }
             val javaCaret = editedJava.indexOf("call")
             replacePreviewText(preview, editedJava)
             editor.caretModel.moveToOffset(javaCaret)
+            editor.scrollingModel.disableAnimation()
+            try {
+                editor.scrollingModel.scrollHorizontally(37)
+                editor.scrollingModel.scrollVertically(240)
+            } finally {
+                editor.scrollingModel.enableAnimation()
+            }
+            val javaHorizontalOffset = editor.scrollingModel.horizontalScrollOffset
+            val javaVerticalOffset = editor.scrollingModel.verticalScrollOffset
+            assertTrue(javaHorizontalOffset > 0)
+            assertTrue(javaVerticalOffset > 0)
 
             val json = selectExample(preview, "json")
             assertEquals(json.source, editor.document.text)
@@ -661,6 +724,14 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             selectExample(preview, "java")
             assertEquals(editedJava, editor.document.text)
             assertEquals(javaCaret, editor.caretModel.offset)
+            assertEquals(
+                javaHorizontalOffset,
+                editor.scrollingModel.horizontalScrollOffset,
+            )
+            assertEquals(
+                javaVerticalOffset,
+                editor.scrollingModel.verticalScrollOffset,
+            )
 
             preview.resetExampleButton.doClick()
             assertEquals(java.source, editor.document.text)
@@ -706,6 +777,10 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertFalse(preview.exampleSelector.isEnabled)
             assertTrue(preview.analysisStatusLabel.isVisible)
             assertTrue(preview.analysisStatusLabel.text.contains("100,000"))
+            assertEquals(
+                preview.analysisStatusLabel.text,
+                preview.analysisStatusLabel.accessibleContext.accessibleDescription,
+            )
             val another = (0 until preview.exampleSelector.itemCount)
                 .map(preview.exampleSelector::getItemAt)
                 .first { it != selected }
@@ -715,17 +790,46 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertSame(selected, preview.exampleSelector.selectedItem)
             assertEquals(oversized, preview.previewEditor.document.text)
 
+            replacePreviewText(preview, "x".repeat(100_000))
+
+            assertTrue(preview.exampleSelector.isEnabled)
+            assertFalse(preview.analysisStatusLabel.isVisible)
+            assertNull(preview.analysisStatusLabel.accessibleContext.accessibleDescription)
+
+            replacePreviewText(preview, oversized)
+            assertFalse(preview.exampleSelector.isEnabled)
             preview.resetExampleButton.doClick()
 
             assertEquals(selected.source, preview.previewEditor.document.text)
             assertTrue(preview.exampleSelector.isEnabled)
             assertFalse(preview.analysisStatusLabel.isVisible)
+            assertNull(preview.analysisStatusLabel.accessibleContext.accessibleDescription)
         } finally {
             preview.dispose()
         }
     }
 
-    fun testDensePreviewDecoratesEveryRecognizedToken() {
+    fun testDisposedPreviewIgnoresLateControlEvents() {
+        val preview = BracketSettingsPreview()
+        val document = preview.previewEditor.document
+        val edited = "class EditedAfterClose { void run() {} }"
+        try {
+            replacePreviewText(preview, edited)
+            val another = (0 until preview.exampleSelector.itemCount)
+                .map(preview.exampleSelector::getItemAt)
+                .first { it != preview.exampleSelector.selectedItem }
+
+            preview.dispose()
+            preview.resetExampleButton.doClick()
+            preview.exampleSelector.selectedItem = another
+
+            assertEquals(edited, document.text)
+        } finally {
+            preview.dispose()
+        }
+    }
+
+    fun testDensePreviewBoundsTokenDecorationsToTheVisibleWindow() {
         val preview = BracketSettingsPreview()
         val editor = preview.previewEditor
         try {
@@ -741,11 +845,15 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             selectExample(preview, "json")
             selectExample(preview, "java")
             val pairs = recognizedPairs(preview)
+            val tokenHighlights = editor.markupModel.allHighlighters.tokenHighlighters()
 
-            assertEquals(
-                pairs.size * 2,
-                editor.markupModel.allHighlighters.tokenHighlighters().size,
-            )
+            assertTrue(tokenHighlights.isNotEmpty())
+            assertTrue(tokenHighlights.size < pairs.size * 2)
+            assertTrue(tokenHighlights.size <= 2_048)
+            val recognizedOffsets = pairs.flatMap { pair ->
+                listOf(pair.openOffset, pair.closeOffset)
+            }.toSet()
+            assertTrue(tokenHighlights.all { it.startOffset in recognizedOffsets })
         } finally {
             preview.dispose()
         }
@@ -788,6 +896,27 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         disabledComponents = emptySet()
         palette.refreshAvailability()
         assertTrue(palette.table.model.isCellEditable(0, 2))
+    }
+
+    fun testDisablingPaletteCancelsItsDeferredColorChooser() {
+        var chooserCalls = 0
+        val palette = ColorPaletteTable(
+            disabledReason = { null },
+            onColorChanged = { _, _, _ -> },
+            chooseColor = { _, _, _ ->
+                chooserCalls++
+                Color.RED
+            },
+        )
+
+        assertTrue(palette.table.editCellAt(0, 1))
+        assertTrue(palette.table.isEditing)
+
+        palette.isEnabled = false
+        UIUtil.dispatchAllInvocationEvents()
+
+        assertFalse(palette.table.isEditing)
+        assertEquals(0, chooserCalls)
     }
 
     fun testRepeatedPreviewRefreshDoesNotAccumulateMarkupOrEditors() {

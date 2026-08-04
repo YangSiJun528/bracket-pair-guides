@@ -87,7 +87,12 @@ internal class ColorPaletteTable(
         table.repaint()
     }
 
+    fun cancelPendingEdit() {
+        if (table.isEditing) table.cellEditor?.cancelCellEditing()
+    }
+
     override fun setEnabled(enabled: Boolean) {
+        if (!enabled) cancelPendingEdit()
         super.setEnabled(enabled)
         table.isEnabled = enabled
         table.tableHeader.isEnabled = enabled

@@ -53,7 +53,10 @@ internal class BracketSettingsPreview(
     private val recognizer = PreviewRecognizer(pairProviderFactory)
     private val examples = PreviewExample.available()
     private val buffers = examples.associate { example ->
-        example.id to PreviewBuffer(example.source, example.initialCaretOffset)
+        example.id to PreviewBuffer(
+            text = example.source,
+            caretOffset = example.initialCaretOffset,
+        )
     }.toMutableMap()
 
     internal val exampleSelector = JComboBox(examples.toTypedArray())
@@ -215,6 +218,10 @@ internal class BracketSettingsPreview(
             accessibleDescription = exampleSelector.toolTipText
         }
         resetExampleButton.toolTipText = "Restore this format's boilerplate"
+        resetExampleButton.accessibleContext.apply {
+            accessibleName = "Reset preview example"
+            accessibleDescription = resetExampleButton.toolTipText
+        }
         analysisStatusLabel.accessibleContext.accessibleName = "Preview analysis status"
         previewEditor.component.accessibleContext.accessibleName =
             "Editable bracket pair preview"
@@ -235,6 +242,7 @@ internal class BracketSettingsPreview(
 
     private fun wireControls() {
         exampleSelector.addActionListener {
+            if (disposed || previewEditor.isDisposed) return@addActionListener
             val selected = exampleSelector.selectedItem as? PreviewExample
                 ?: return@addActionListener
             if (previewEditor.document.textLength > MAX_PREVIEW_LENGTH) {
@@ -244,9 +252,11 @@ internal class BracketSettingsPreview(
             if (selected != currentExample) switchExample(selected)
         }
         resetExampleButton.addActionListener {
+            if (disposed || previewEditor.isDisposed) return@addActionListener
             val buffer = buffers.getValue(currentExample.id)
             buffer.text = currentExample.source
             buffer.caretOffset = currentExample.initialCaretOffset
+            buffer.scrollPosition = null
             replaceDocument(buffer)
             recognizeAfterDocumentReplacement()
         }
@@ -256,6 +266,10 @@ internal class BracketSettingsPreview(
         val currentBuffer = buffers.getValue(currentExample.id)
         currentBuffer.text = previewEditor.document.text
         currentBuffer.caretOffset = previewEditor.caretModel.primaryCaret.offset
+        currentBuffer.scrollPosition = PreviewScrollPosition(
+            horizontalOffset = previewEditor.scrollingModel.horizontalScrollOffset,
+            verticalOffset = previewEditor.scrollingModel.verticalScrollOffset,
+        )
 
         currentExample = nextExample
         currentFileType = nextExample.resolveFileType()
@@ -285,9 +299,25 @@ internal class BracketSettingsPreview(
             previewEditor.caretModel.moveToOffset(
                 buffer.caretOffset.coerceIn(0, previewEditor.document.textLength),
             )
-            previewEditor.scrollingModel.scrollToCaret(
-                com.intellij.openapi.editor.ScrollType.CENTER,
-            )
+            val scrollPosition = buffer.scrollPosition
+            if (scrollPosition == null) {
+                previewEditor.scrollingModel.scrollToCaret(
+                    com.intellij.openapi.editor.ScrollType.CENTER,
+                )
+            } else {
+                val scrollingModel = previewEditor.scrollingModel
+                scrollingModel.disableAnimation()
+                try {
+                    scrollingModel.scrollHorizontally(
+                        scrollPosition.horizontalOffset,
+                    )
+                    scrollingModel.scrollVertically(
+                        scrollPosition.verticalOffset,
+                    )
+                } finally {
+                    scrollingModel.enableAnimation()
+                }
+            }
         } finally {
             changingDocument = false
             updateLengthState()
@@ -297,11 +327,15 @@ internal class BracketSettingsPreview(
     private fun updateLengthState() {
         val analysisPaused = previewEditor.document.textLength > MAX_PREVIEW_LENGTH
         exampleSelector.isEnabled = !analysisPaused
-        analysisStatusLabel.text = if (analysisPaused) {
-            "Analysis and example switching are paused above 100,000 characters."
+        val status = if (analysisPaused) {
+            "Analysis and example switching are paused above 100,000 characters. " +
+                "Shorten the text or Reset to resume."
         } else {
             ""
         }
+        analysisStatusLabel.text = status
+        analysisStatusLabel.accessibleContext.accessibleDescription =
+            status.takeIf(String::isNotEmpty)
         analysisStatusLabel.isVisible = analysisPaused
     }
 
@@ -397,6 +431,12 @@ internal class BracketSettingsPreview(
     private data class PreviewBuffer(
         var text: String,
         var caretOffset: Int,
+        var scrollPosition: PreviewScrollPosition? = null,
+    )
+
+    private data class PreviewScrollPosition(
+        val horizontalOffset: Int,
+        val verticalOffset: Int,
     )
 
     companion object {
