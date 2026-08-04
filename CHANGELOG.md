@@ -44,6 +44,8 @@
   viewport instead of leaving colors near the initial caret.
 - Theme changes now refresh automatic Settings palette cells while preserving
   explicit draft colors and the page's modified state.
+- The Preview selector is associated with its mnemonic label, and the selector
+  and palette expose descriptive accessibility names.
 
 ### Fixed
 

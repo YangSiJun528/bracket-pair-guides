@@ -50,6 +50,11 @@ internal class ColorPaletteTable(
             setDefaultRenderer(Color::class.java, ColorRenderer())
             setDefaultEditor(Color::class.java, ColorEditor())
             putClientProperty("terminateEditOnFocusLost", true)
+            accessibleContext.apply {
+                accessibleName = "Bracket level colors"
+                accessibleDescription =
+                    "Six repeating levels with Base, Guide, Border, and Background colors"
+            }
         }
         configureColumnWidths()
 

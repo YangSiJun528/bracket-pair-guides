@@ -151,10 +151,14 @@ internal class BracketSettingsPreview(
     }
 
     private fun configureLayout() {
+        val exampleLabel = JBLabel("Example:").apply {
+            displayedMnemonic = 'E'.code
+            labelFor = exampleSelector
+        }
         val toolbar = JPanel(GridBagLayout()).apply {
             border = JBUI.Borders.empty(8, 12, 8, 8)
             add(
-                JBLabel("Example:"),
+                exampleLabel,
                 GridBagConstraints().apply {
                     gridx = 0
                     weightx = 0.0
@@ -188,6 +192,10 @@ internal class BracketSettingsPreview(
             preferredSize = JBUI.size(PREFERRED_WIDTH, PREFERRED_EDITOR_HEIGHT)
         }
         exampleSelector.toolTipText = "Examples available from installed language plugins"
+        exampleSelector.accessibleContext.apply {
+            accessibleName = "Preview example"
+            accessibleDescription = exampleSelector.toolTipText
+        }
         resetExampleButton.toolTipText = "Restore this format's boilerplate"
         previewEditor.component.accessibleContext.accessibleName =
             "Editable bracket pair preview"

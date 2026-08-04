@@ -63,6 +63,10 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             val palette = descendants.filterIsInstance<ColorPaletteTable>().single()
             assertEquals(BracketColorPalette.COLOR_COUNT, palette.table.rowCount)
             assertEquals(5, palette.table.columnCount)
+            assertEquals(
+                "Bracket level colors",
+                palette.table.accessibleContext.accessibleName,
+            )
             assertTrue(palette.preferredSize.width <= JBUI.scale(420))
             assertTrue(palette.minimumSize.width <= palette.preferredSize.width)
             assertEquals(
@@ -84,6 +88,13 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertTrue(component is OnePixelSplitter)
             val splitter = component as OnePixelSplitter
             val preview = descendants.filterIsInstance<BracketSettingsPreview>().single()
+            val exampleLabel = descendants.filterIsInstance<JLabel>()
+                .single { it.text == "Example:" }
+            assertSame(preview.exampleSelector, exampleLabel.labelFor)
+            assertEquals(
+                "Preview example",
+                preview.exampleSelector.accessibleContext.accessibleName,
+            )
             assertTrue(splitter.firstComponent is JBScrollPane)
             assertSame(preview, splitter.secondComponent)
             assertNotNull(
