@@ -570,6 +570,34 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertEquals(1, collections)
     }
 
+    fun testGuideOnlyOptionsDoNotRebuildTheTokenWindow() {
+        val source = "class Sample { void run() { call(); } }"
+        myFixture.configureByText("GuideOnlyOptions.java", source)
+        var visibleRangeRequests = 0
+        applyPass(
+            BracketPairProvider {
+                inReadAction {
+                    BracketPairAnalyzer(myFixture.editor).collect(EmptyProgressIndicator())
+                }
+            },
+        ) {
+            visibleRangeRequests++
+            TextRange(0, source.length)
+        }
+        val tokenHighlighters = bracketColorHighlighters().toSet()
+        val requestsAfterAnalysis = visibleRangeRequests
+
+        session().updateOptions(
+            PluginSettings.getInstance().options.copy(
+                guideLineWidth = 3,
+                guideOpacityPercent = 60,
+            ),
+        )
+
+        assertEquals(requestsAfterAnalysis, visibleRangeRequests)
+        assertEquals(tokenHighlighters, bracketColorHighlighters().toSet())
+    }
+
     fun testDisabledPassSkipsRecognitionAndReenableCanAnalyze() {
         val source = "x { content } y"
         myFixture.configureByText("Sample.txt", source)

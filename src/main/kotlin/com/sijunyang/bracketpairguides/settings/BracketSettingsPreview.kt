@@ -135,7 +135,7 @@ internal class BracketSettingsPreview(
             EditorColorsListener {
                 ApplicationManager.getApplication().invokeLater {
                     if (!disposed && !previewEditor.isDisposed) {
-                        decoration.updateOptions(currentSettings)
+                        decoration.updateOptions(currentSettings, refreshColors = true)
                     }
                 }
             },

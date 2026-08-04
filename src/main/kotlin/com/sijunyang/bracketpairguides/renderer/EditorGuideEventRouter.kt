@@ -93,7 +93,10 @@ internal class EditorGuideEventRouter :
     override fun globalSchemeChange(scheme: EditorColorsScheme?) {
         for (editor in EditorFactory.getInstance().allEditors) {
             onEdt(editor) {
-                EditorGuideSession.get(editor)?.updateOptions(PluginSettings.getInstance().options)
+                EditorGuideSession.get(editor)?.updateOptions(
+                    PluginSettings.getInstance().options,
+                    refreshColors = true,
+                )
             }
         }
     }

@@ -121,14 +121,20 @@ internal class EditorGuideSession private constructor(
         editor.contentComponent.repaint()
     }
 
+    fun updateOptions(nextOptions: PluginOptions) {
+        updateOptions(nextOptions, resolveImmediately = true)
+    }
+
     fun updateOptions(
         nextOptions: PluginOptions,
         resolveImmediately: Boolean = true,
+        refreshColors: Boolean = false,
     ) {
         assertEdt()
         if (disposed || editor.isDisposed) return
+        val previousOptions = options
         val languagesChanged =
-            options.disabledLanguageIds != nextOptions.disabledLanguageIds
+            previousOptions.disabledLanguageIds != nextOptions.disabledLanguageIds
         options = nextOptions
         if (discardPresentationFromReplacedHighlighter()) return
         if (languagesChanged) {
@@ -138,17 +144,11 @@ internal class EditorGuideSession private constructor(
         }
         val currentSnapshot = snapshot
         val currentAnalysis = currentSnapshot?.takeIf(::isCurrent)
-        tokenDecorations = if (currentAnalysis != null) {
-            VisibleTokenDecorationManager.replace(
-                editor,
-                tokenDecorations,
-                currentAnalysis.tokenIndex,
-                visibleRangeProvider(editor),
-                options,
-            )
-        } else {
-            VisibleTokenDecorationManager.updateAttributes(editor, tokenDecorations, options)
-        }
+        tokenDecorations = updateTokenPresentation(
+            previousOptions,
+            currentAnalysis,
+            refreshColors,
+        )
 
         val pairIndex = if (currentAnalysis != null) {
             currentAnalysis.activeIndex.activePairIndex(caretOffset())
@@ -174,6 +174,38 @@ internal class EditorGuideSession private constructor(
             return
         }
         editor.contentComponent.repaint()
+    }
+
+    private fun updateTokenPresentation(
+        previousOptions: PluginOptions,
+        currentAnalysis: AnalysisSnapshot?,
+        refreshColors: Boolean,
+    ): VisibleTokenDecorations {
+        val wasVisible = previousOptions.enabled && previousOptions.colorBracketTokens
+        val isVisible = options.enabled && options.colorBracketTokens
+        return when {
+            wasVisible && !isVisible -> VisibleTokenDecorationManager.updateAttributes(
+                editor,
+                tokenDecorations,
+                options,
+            )
+            !wasVisible && isVisible && currentAnalysis != null ->
+                VisibleTokenDecorationManager.replace(
+                    editor,
+                    tokenDecorations,
+                    currentAnalysis.tokenIndex,
+                    visibleRangeProvider(editor),
+                    options,
+                )
+            isVisible &&
+                (refreshColors || previousOptions.levelBaseColors != options.levelBaseColors) ->
+                VisibleTokenDecorationManager.updateAttributes(
+                    editor,
+                    tokenDecorations,
+                    options,
+                )
+            else -> tokenDecorations
+        }
     }
 
     fun dispose() {
