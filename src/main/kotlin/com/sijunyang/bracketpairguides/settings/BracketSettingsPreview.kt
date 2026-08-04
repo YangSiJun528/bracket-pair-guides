@@ -370,7 +370,7 @@ internal class BracketSettingsPreview(
             )
             disabledExampleLanguage != null -> {
                 Pair(
-                    "Example language disabled.",
+                    "$disabledExampleLanguage is disabled.",
                     "Enable $disabledExampleLanguage in Languages to show bracket highlighting " +
                         "for this example.",
                 )
@@ -396,11 +396,15 @@ internal class BracketSettingsPreview(
     }
 
     private fun recognizeAfterDocumentReplacement() {
-        scheduleRecognition(delayMillis = 0)
+        scheduleRecognition(
+            delayMillis = 0,
+            showProgress = currentExampleDisabledLanguageName() == null,
+        )
     }
 
     private fun scheduleRecognition(
         delayMillis: Int = RECOGNITION_DEBOUNCE_MILLIS,
+        showProgress: Boolean = false,
     ) {
         recognitionGeneration++
         recognitionAlarm.cancelAllRequests()
@@ -412,7 +416,8 @@ internal class BracketSettingsPreview(
             return
         }
         analyzingGeneration = recognitionGeneration.takeIf {
-            previewEditor.document.textLength > IMMEDIATE_RECOGNITION_LENGTH
+            showProgress ||
+                previewEditor.document.textLength > IMMEDIATE_RECOGNITION_LENGTH
         }
         updateLengthState()
         recognitionAlarm.addRequest(
@@ -505,7 +510,7 @@ internal class BracketSettingsPreview(
         when (outcome) {
             is RecognitionOutcome.Success -> {
                 if (!decoration.tryUpdateRecognition(outcome.snapshot)) {
-                    scheduleRecognition(delayMillis = 0)
+                    scheduleRecognition(delayMillis = 0, showProgress = true)
                     return
                 }
                 analyzingGeneration = null

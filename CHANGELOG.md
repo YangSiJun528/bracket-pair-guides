@@ -57,8 +57,11 @@
   blocks costly example-buffer switching until the text is reduced or reset.
 - Preview status text stays short in narrow Settings layouts while its tooltip
   and accessible description retain the complete recovery instruction.
+- Small example switches and resets now expose their immediate background
+  analysis state instead of showing an unexplained empty Preview.
 - Disabling the selected Preview example's matcher family now shows an explicit
-  recovery status instead of leaving an unexplained unhighlighted example.
+  recovery status that names the corresponding Languages entry instead of
+  leaving an unexplained unhighlighted example.
 - Token coloring now follows oversized reported viewports even when the caret is
   off-screen and caps synchronous EDT decorations at 2,048 ranges.
 - Dense token-window refreshes now coalesce by editor on a fixed 16 ms delay;

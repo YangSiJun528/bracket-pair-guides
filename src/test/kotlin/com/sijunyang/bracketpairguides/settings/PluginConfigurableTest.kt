@@ -600,9 +600,11 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             preview.update(PluginOptions())
             val fileType = (preview.exampleSelector.selectedItem as PreviewExample)
                 .resolveFileType() as LanguageFileType
-            val capabilityId = checkNotNull(
+            val capabilityOwner = checkNotNull(
                 LanguageBraceMatchers.capabilityOwner(fileType.language),
-            ).id
+            )
+            val capabilityId = capabilityOwner.id
+            val capabilityName = capabilityOwner.displayName.ifBlank { capabilityId }
             assertTrue(
                 preview.previewEditor.markupModel.allHighlighters
                     .tokenHighlighters()
@@ -613,7 +615,8 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 PluginOptions(disabledLanguageIds = setOf(capabilityId)),
             )
             assertTrue(preview.previewEditor.markupModel.allHighlighters.isEmpty())
-            assertEquals("Example language disabled.", preview.analysisStatusLabel.text)
+            assertTrue(preview.analysisStatusLabel.text.contains(capabilityName))
+            assertTrue(preview.analysisStatusLabel.text.contains("disabled"))
             assertTrue(preview.analysisStatusLabel.isVisible)
             assertTrue(
                 preview.analysisStatusLabel.toolTipText.contains("in Languages"),
@@ -658,10 +661,17 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             val synchronousCollections = edtCollections.get()
 
             selectExample(preview, "json")
+            assertTrue(preview.analysisStatusLabel.isVisible)
+            assertTrue(preview.analysisStatusLabel.text.contains("Analyzing"))
+            assertEquals(
+                preview.analysisStatusLabel.toolTipText,
+                preview.analysisStatusLabel.accessibleContext.accessibleDescription,
+            )
             waitForPreviewDecoration(preview, "background example switch")
 
             assertTrue(backgroundCollections.get() > 0)
             assertEquals(synchronousCollections, edtCollections.get())
+            assertFalse(preview.analysisStatusLabel.isVisible)
         } finally {
             preview.dispose()
         }
@@ -802,7 +812,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 "large language change background completion",
                 {
                     backgroundCollections.get() > 0 &&
-                        preview.analysisStatusLabel.text == "Example language disabled."
+                        preview.analysisStatusLabel.text.contains("disabled")
                 },
                 10_000,
             )
@@ -1139,6 +1149,11 @@ class PluginConfigurableTest : BasePlatformTestCase() {
 
             assertEquals(selected.source, preview.previewEditor.document.text)
             assertTrue(preview.exampleSelector.isEnabled)
+            assertTrue(preview.analysisStatusLabel.isVisible)
+            assertTrue(preview.analysisStatusLabel.text.contains("Analyzing"))
+
+            waitForPreviewDecoration(preview, "preview recovery after oversized reset")
+
             assertFalse(preview.analysisStatusLabel.isVisible)
             assertNull(preview.analysisStatusLabel.accessibleContext.accessibleDescription)
         } finally {
