@@ -1,6 +1,7 @@
 package com.sijunyang.bracketpairguides.renderer
 
 import com.sijunyang.bracketpairguides.analyzer.BracketPair
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 
 /** Bounded indentation lookup used only while the authoritative snapshot is stale. */
@@ -17,37 +18,62 @@ internal object ActiveGuidePositionResolver {
         val document = editor.document
         val firstLine = (pair.openLine + 1).coerceIn(0, document.lineCount - 1)
         val lastLine = pair.closeLine.coerceIn(firstLine, document.lineCount - 1)
-        val previousGuide = previous?.takeIf {
-            it.pair.openOffset <= pair.closeOffset && it.pair.closeOffset >= pair.openOffset
-        }
-        if (previousGuide != null && change?.mayAffectGuidePosition != true) {
-            return previousGuide.withPair(pair, currentAnchorLine, firstLine, lastLine)
-        }
-
-        if (lastLine - firstLine + 1 <= MAX_SYNCHRONOUS_LINES) {
-            return scan(editor, pair, firstLine, lastLine)
+        if (previous != null &&
+            change?.mayAffectGuidePosition != true &&
+            previous.canReuseFor(pair, change)
+        ) {
+            return previous.withPair(pair, currentAnchorLine, firstLine, lastLine)
         }
 
-        if (previousGuide != null) {
-            val changedLine = change?.offset
-                ?.coerceIn(0, document.textLength)
-                ?.let(document::getLineNumber)
-            if (changedLine != null && changedLine in firstLine..lastLine) {
-                val changedIndent = indentationColumn(editor, changedLine)
-                if (changedIndent < previousGuide.guideColumn) {
-                    return BracketGuide(pair, changedIndent, changedLine)
-                }
-            }
-            return previousGuide.withPair(pair, currentAnchorLine, firstLine, lastLine)
-        }
-
-        val closingIndent = indentationColumn(editor, lastLine)
-        return BracketGuide(
+        val tabSize = editor.settings.getTabSize(editor.project).coerceAtLeast(1)
+        val changedLine = change?.offset
+            ?.coerceIn(0, document.textLength)
+            ?.let(document::getLineNumber)
+            ?.takeIf { it in firstLine..lastLine }
+        return scan(
+            editor = editor,
             pair = pair,
-            guideColumn = closingIndent.takeUnless { it == GuidePositionIndex.NO_INDENT } ?: 0,
-            anchorLine = lastLine,
+            firstLine = firstLine,
+            lastLine = lastLine,
+            changedLine = changedLine,
+            currentAnchorLine = currentAnchorLine,
+            tabSize = tabSize,
         )
     }
+
+    /**
+     * Exact ranges are unchanged. A uniform endpoint translation is also safe
+     * when the edit occurred before the pair and did not change its guide lines.
+     * Any one-sided boundary change can represent a rematch and must be scanned.
+     */
+    private fun BracketGuide.canReuseFor(
+        pair: BracketPair,
+        change: DocumentChange?,
+    ): Boolean {
+        val previousPair = this.pair
+        if (previousPair.hasSameRange(pair)) return true
+        if (change == null ||
+            previousPair.openTokenLength != pair.openTokenLength ||
+            previousPair.closeTokenLength != pair.closeTokenLength ||
+            previousPair.openLine != pair.openLine ||
+            previousPair.closeLine != pair.closeLine
+        ) {
+            return false
+        }
+
+        val openShift = pair.openOffset.toLong() - previousPair.openOffset
+        val closeShift = pair.closeOffset.toLong() - previousPair.closeOffset
+        return openShift == closeShift &&
+            change.offset <= minOf(previousPair.openOffset, pair.openOffset)
+    }
+
+    private fun BracketPair.hasSameRange(other: BracketPair): Boolean =
+        openOffset == other.openOffset &&
+            openTokenLength == other.openTokenLength &&
+            closeOffset == other.closeOffset &&
+            closeTokenLength == other.closeTokenLength &&
+            openLine == other.openLine &&
+            closeLine == other.closeLine
 
     private fun BracketGuide.withPair(
         pair: BracketPair,
@@ -66,35 +92,81 @@ internal object ActiveGuidePositionResolver {
         pair: BracketPair,
         firstLine: Int,
         lastLine: Int,
+        changedLine: Int?,
+        currentAnchorLine: Int?,
+        tabSize: Int,
     ): BracketGuide {
+        val document = editor.document
+        val text = document.immutableCharSequence
+        val budget = ScanBudget()
         var minimum = GuidePositionIndex.NO_INDENT
-        var anchorLine = firstLine
-        var line = firstLine
-        while (line <= lastLine) {
-            val indentation = indentationColumn(editor, line)
-            if (indentation < minimum) {
+        var anchorLine = currentAnchorLine?.coerceIn(firstLine, lastLine) ?: lastLine
+
+        fun inspect(line: Int): Boolean {
+            val indentation = indentationColumn(
+                document = document,
+                text = text,
+                line = line,
+                tabSize = tabSize,
+                budget = budget,
+            )
+            if (indentation != UNRESOLVED &&
+                indentation != GuidePositionIndex.NO_INDENT &&
+                (indentation < minimum || indentation == minimum && line < anchorLine)
+            ) {
                 minimum = indentation
                 anchorLine = line
-                if (minimum == 0) break
+            }
+            return minimum == 0 || budget.exhausted
+        }
+
+        if (inspect(lastLine)) return result(pair, minimum, anchorLine)
+        if (changedLine != null && changedLine != lastLine && inspect(changedLine)) {
+            return result(pair, minimum, anchorLine)
+        }
+        val previousAnchor = currentAnchorLine?.coerceIn(firstLine, lastLine)
+        if (previousAnchor != null &&
+            previousAnchor != lastLine &&
+            previousAnchor != changedLine &&
+            inspect(previousAnchor)
+        ) {
+            return result(pair, minimum, anchorLine)
+        }
+
+        var line = firstLine
+        while (line < lastLine && !budget.exhausted) {
+            if (line != changedLine && line != previousAnchor && inspect(line)) {
+                break
             }
             line++
         }
-        return BracketGuide(
-            pair = pair,
-            guideColumn = minimum.takeUnless { it == GuidePositionIndex.NO_INDENT } ?: 0,
-            anchorLine = anchorLine,
-        )
+        return result(pair, minimum, anchorLine)
     }
 
-    private fun indentationColumn(editor: Editor, line: Int): Int {
-        val document = editor.document
-        val text = document.immutableCharSequence
+    private fun result(
+        pair: BracketPair,
+        minimum: Int,
+        anchorLine: Int,
+    ): BracketGuide = BracketGuide(
+        pair = pair,
+        guideColumn = minimum.takeUnless { it == GuidePositionIndex.NO_INDENT } ?: 0,
+        anchorLine = anchorLine,
+    )
+
+    private fun indentationColumn(
+        document: Document,
+        text: CharSequence,
+        line: Int,
+        tabSize: Int,
+        budget: ScanBudget,
+    ): Int {
+        if (!budget.startLine()) return UNRESOLVED
         val start = document.getLineStartOffset(line)
-        val end = minOf(document.getLineEndOffset(line), start + MAX_SYNCHRONOUS_LINE_LENGTH)
-        val tabSize = editor.settings.getTabSize(editor.project).coerceAtLeast(1)
+        val end = document.getLineEndOffset(line)
         var column = 0
         var offset = start
         while (offset < end) {
+            if (!budget.consumeCharacter()) return UNRESOLVED
             when (text[offset]) {
                 ' ' -> column++
                 '\t' -> column += tabSize - column % tabSize
@@ -105,6 +177,27 @@ internal object ActiveGuidePositionResolver {
         return GuidePositionIndex.NO_INDENT
     }
 
-    private const val MAX_SYNCHRONOUS_LINES = 512
-    private const val MAX_SYNCHRONOUS_LINE_LENGTH = 4_096
+    private class ScanBudget {
+        private var remainingLines = MAX_SYNCHRONOUS_LINES
+        private var remainingCharacters = MAX_SYNCHRONOUS_CHARACTERS
+
+        val exhausted: Boolean
+            get() = remainingLines == 0 || remainingCharacters == 0
+
+        fun startLine(): Boolean {
+            if (remainingLines == 0) return false
+            remainingLines--
+            return true
+        }
+
+        fun consumeCharacter(): Boolean {
+            if (remainingCharacters == 0) return false
+            remainingCharacters--
+            return true
+        }
+    }
+
+    private const val MAX_SYNCHRONOUS_LINES = 256
+    private const val MAX_SYNCHRONOUS_CHARACTERS = 32_768
+    private const val UNRESOLVED = -1
 }
