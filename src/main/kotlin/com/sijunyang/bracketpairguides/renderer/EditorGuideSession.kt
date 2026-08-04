@@ -419,7 +419,7 @@ internal class EditorGuideSession private constructor(
         if (pair.openLine == pair.closeLine) return BracketGuide(pair, 0)
         // A full snapshot can intentionally omit the proportional-size index
         // for an oversized document; keep that path bounded on the EDT.
-        return positionIndex?.guideFor(pair) ?: ActiveGuidePositionResolver.resolve(
+        return positionIndex?.guideForOrNull(pair) ?: ActiveGuidePositionResolver.resolve(
             editor,
             pair,
             previousGuide,

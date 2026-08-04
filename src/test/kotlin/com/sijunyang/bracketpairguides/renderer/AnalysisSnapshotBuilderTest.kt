@@ -3,25 +3,45 @@ package com.sijunyang.bracketpairguides.renderer
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 
 class AnalysisSnapshotBuilderTest {
     @Test
-    fun `detects whether guide position work is needed`() {
-        assertFalse(
-            AnalysisSnapshotBuilder.containsMultilinePair(
+    fun `finds the minimum multiline guide query envelope`() {
+        assertEquals(
+            null,
+            AnalysisSnapshotBuilder.multilineGuideRange(
                 listOf(pair(openLine = 3, closeLine = 3)),
+                documentLength = 100,
+                documentLineCount = 20,
             ),
         )
-        assertTrue(
-            AnalysisSnapshotBuilder.containsMultilinePair(
+        assertEquals(
+            4..12,
+            AnalysisSnapshotBuilder.multilineGuideRange(
                 listOf(
-                    pair(openLine = 3, closeLine = 3),
                     pair(openLine = 3, closeLine = 4),
+                    pair(openLine = 9, closeLine = 12),
                 ),
+                documentLength = 100,
+                documentLineCount = 20,
+            ),
+        )
+        assertEquals(
+            4..4,
+            AnalysisSnapshotBuilder.multilineGuideRange(
+                listOf(
+                    pair(openLine = 3, closeLine = 4),
+                    pair(openLine = 0, closeLine = 1).copy(
+                        openOffset = 0,
+                        closeOffset = 10,
+                        openLine = Int.MIN_VALUE,
+                        closeLine = Int.MAX_VALUE,
+                    ),
+                ),
+                documentLength = 100,
+                documentLineCount = 20,
             ),
         )
     }
@@ -32,7 +52,11 @@ class AnalysisSnapshotBuilderTest {
         var cancellationChecks = 0
 
         try {
-            AnalysisSnapshotBuilder.containsMultilinePair(pairs) {
+            AnalysisSnapshotBuilder.multilineGuideRange(
+                pairs,
+                documentLength = 3_000,
+                documentLineCount = 2_001,
+            ) {
                 cancellationChecks++
                 if (cancellationChecks == 3) throw ProcessCanceledException()
             }

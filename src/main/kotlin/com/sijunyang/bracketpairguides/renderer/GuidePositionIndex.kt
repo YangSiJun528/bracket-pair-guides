@@ -11,21 +11,53 @@ internal data class BracketGuide(
 )
 
 /**
- * Precomputes indentation once per document and answers minimum-indentation
- * queries in O(log lineCount). A naive per-pair body scan becomes quadratic for
- * deeply nested or long scopes.
+ * Precomputes indentation once for the multiline-pair query envelope and
+ * answers minimum-indentation queries in O(log indexedLineCount). A naive
+ * per-pair body scan becomes quadratic for deeply nested or long scopes.
  */
 internal class GuidePositionIndex private constructor(
+    private val baseLine: Int,
     private val lineCount: Int,
     private val treeSize: Int,
     private val minimumTree: LongArray,
 ) {
     fun guideFor(pair: BracketPair): BracketGuide {
+        guideForOrNull(pair)?.let { return it }
+        if (lineCount == 0) return BracketGuide(pair, guideColumn = 0)
+
+        val lastIndexedLine = baseLine + lineCount - 1
+        val firstLine = lineAfterOpenOrClose(pair.openLine, pair.closeLine)
+            .coerceIn(baseLine, lastIndexedLine)
+        val lastLine = pair.closeLine.coerceIn(firstLine, lastIndexedLine)
+        return guideForRange(pair, firstLine, lastLine)
+    }
+
+    fun guideForOrNull(pair: BracketPair): BracketGuide? {
+        if (lineCount == 0 || pair.openLine >= pair.closeLine) return null
+
         val firstCandidateLine = lineAfterOpenOrClose(pair.openLine, pair.closeLine)
-        val minimum = minimumEntry(firstCandidateLine, pair.closeLine)
+        val lastIndexedLine = baseLine + lineCount - 1
+        if (firstCandidateLine < baseLine ||
+            pair.closeLine > lastIndexedLine
+        ) {
+            return null
+        }
+        return guideForRange(
+            pair,
+            firstLine = firstCandidateLine,
+            lastLine = pair.closeLine,
+        )
+    }
+
+    private fun guideForRange(
+        pair: BracketPair,
+        firstLine: Int,
+        lastLine: Int,
+    ): BracketGuide {
+        val minimum = minimumEntry(firstLine, lastLine)
         val column = entryColumn(minimum)
         return if (column == NO_INDENT) {
-            BracketGuide(pair, guideColumn = 0, anchorLine = firstCandidateLine)
+            BracketGuide(pair, guideColumn = 0, anchorLine = firstLine)
         } else {
             BracketGuide(pair, column, entryLine(minimum))
         }
@@ -34,8 +66,12 @@ internal class GuidePositionIndex private constructor(
     private fun minimumEntry(firstLine: Int, lastLine: Int): Long {
         if (lineCount == 0 || firstLine > lastLine) return NO_INDENT_ENTRY
 
-        var left = firstLine.coerceIn(0, lineCount - 1) + treeSize
-        var right = lastLine.coerceIn(0, lineCount - 1) + treeSize
+        val lastIndexedLine = baseLine + lineCount - 1
+        val boundedFirstLine = maxOf(firstLine, baseLine)
+        val boundedLastLine = minOf(lastLine, lastIndexedLine)
+        if (boundedFirstLine > boundedLastLine) return NO_INDENT_ENTRY
+        var left = boundedFirstLine - baseLine + treeSize
+        var right = boundedLastLine - baseLine + treeSize
         var minimum = NO_INDENT_ENTRY
 
         while (left <= right) {
@@ -55,17 +91,41 @@ internal class GuidePositionIndex private constructor(
             document: Document,
             tabSize: Int,
             progress: ProgressIndicator,
+        ): GuidePositionIndex? = from(
+            document = document,
+            tabSize = tabSize,
+            progress = progress,
+            indexedLineRange = 0 until document.lineCount,
+        )
+
+        fun from(
+            document: Document,
+            tabSize: Int,
+            progress: ProgressIndicator,
+            indexedLineRange: IntRange,
         ): GuidePositionIndex? {
             progress.checkCanceled()
-            val lineCount = document.lineCount
+            val documentLineCount = document.lineCount
+            if (documentLineCount <= 0 ||
+                indexedLineRange.isEmpty() ||
+                indexedLineRange.last < 0 ||
+                indexedLineRange.first >= documentLineCount
+            ) {
+                return null
+            }
+            val baseLine = maxOf(indexedLineRange.first, 0)
+            val lastLine = minOf(indexedLineRange.last, documentLineCount - 1)
+            val lineCount = (lastLine.toLong() - baseLine + 1).toInt()
             val storage = storageFor(lineCount) ?: return null
             val text = document.immutableCharSequence
             val effectiveTabSize = tabSize.coerceAtLeast(1)
             return build(
+                baseLine = baseLine,
                 lineCount = lineCount,
                 checkCanceled = progress::checkCanceled,
                 storage = storage,
-            ) { line ->
+            ) { relativeLine ->
+                val line = baseLine + relativeLine
                 indentationColumn(
                     text = text,
                     start = document.getLineStartOffset(line),
@@ -82,17 +142,51 @@ internal class GuidePositionIndex private constructor(
             lineEnds: IntArray,
             tabSize: Int,
             checkCanceled: () -> Unit = {},
+        ): GuidePositionIndex = from(
+            text = text,
+            lineStarts = lineStarts,
+            lineEnds = lineEnds,
+            tabSize = tabSize,
+            indexedLineRange = lineStarts.indices,
+            checkCanceled = checkCanceled,
+        )
+
+        internal fun from(
+            text: CharSequence,
+            lineStarts: IntArray,
+            lineEnds: IntArray,
+            tabSize: Int,
+            indexedLineRange: IntRange,
+            checkCanceled: () -> Unit = {},
         ): GuidePositionIndex {
             require(lineStarts.size == lineEnds.size)
             val effectiveTabSize = tabSize.coerceAtLeast(1)
+            require(!indexedLineRange.isEmpty() || lineStarts.isEmpty())
+            require(
+                lineStarts.isEmpty() ||
+                    (indexedLineRange.last >= 0 && indexedLineRange.first <= lineStarts.lastIndex),
+            ) { "Indexed line range does not intersect the supplied lines" }
+            val baseLine = if (lineStarts.isEmpty()) {
+                0
+            } else {
+                maxOf(indexedLineRange.first, 0)
+            }
+            val lastLine = if (lineStarts.isEmpty()) {
+                -1
+            } else {
+                minOf(indexedLineRange.last, lineStarts.lastIndex)
+            }
+            val lineCount = (lastLine.toLong() - baseLine + 1).toInt()
             return build(
-                lineCount = lineStarts.size,
+                baseLine = baseLine,
+                lineCount = lineCount,
                 checkCanceled = checkCanceled,
-                storage = checkNotNull(storageFor(lineStarts.size)) {
+                storage = checkNotNull(storageFor(lineCount)) {
                     "Guide position index exceeds its " +
                         "$MAXIMUM_TREE_PAYLOAD_BYTES-byte tree budget"
                 },
-            ) { line ->
+            ) { relativeLine ->
+                val line = baseLine + relativeLine
                 indentationColumn(
                     text = text,
                     start = lineStarts[line],
@@ -104,6 +198,7 @@ internal class GuidePositionIndex private constructor(
         }
 
         private inline fun build(
+            baseLine: Int,
             lineCount: Int,
             checkCanceled: () -> Unit,
             storage: TreeStorage,
@@ -116,7 +211,7 @@ internal class GuidePositionIndex private constructor(
                 if (line and CANCELLATION_LINE_MASK == 0) checkCanceled()
                 tree[treeSize + line] = entry(
                     indentationAt(line),
-                    line,
+                    baseLine + line,
                 )
             }
             for (node in treeSize - 1 downTo 1) {
@@ -125,12 +220,12 @@ internal class GuidePositionIndex private constructor(
             }
             checkCanceled()
 
-            return GuidePositionIndex(lineCount, treeSize, tree)
+            return GuidePositionIndex(baseLine, lineCount, treeSize, tree)
         }
 
         /**
          * The segment tree rounds its leaf count to a power of two. Allowing the
-         * next boundary after 1,048,576 lines would double only this LongArray
+         * next boundary after 1,048,576 indexed lines would double this LongArray
          * from 16 MiB to 32 MiB. Oversized documents instead omit the index and
          * use the existing bounded active-guide scan; its result can be
          * provisional, but it does not allocate in proportion to line count.

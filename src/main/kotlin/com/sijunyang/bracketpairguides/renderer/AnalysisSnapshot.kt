@@ -104,16 +104,24 @@ internal object AnalysisSnapshotBuilder {
         } else {
             BracketTokenIndex.build(emptyList())
         }
-        val positionIndex = if (
-            stamp.capabilities.guidePosition &&
-            containsMultilinePair(pairs, progress::checkCanceled)
-        ) {
-            // Oversized documents intentionally return null here. The session
+        val guideLineRange = if (stamp.capabilities.guidePosition) {
+            multilineGuideRange(
+                pairs,
+                editor.document.textLength,
+                editor.document.lineCount,
+                progress::checkCanceled,
+            )
+        } else {
+            null
+        }
+        val positionIndex = if (guideLineRange != null) {
+            // Oversized guide spans intentionally return null here. The session
             // then uses ActiveGuidePositionResolver's bounded on-demand scan.
             GuidePositionIndex.from(
                 document = editor.document,
                 tabSize = stamp.tabSize,
                 progress = progress,
+                indexedLineRange = guideLineRange,
             )
         } else {
             null
@@ -127,18 +135,33 @@ internal object AnalysisSnapshotBuilder {
         )
     }
 
-    internal fun containsMultilinePair(
+    internal fun multilineGuideRange(
         pairs: List<BracketPair>,
+        documentLength: Int,
+        documentLineCount: Int,
         checkCanceled: () -> Unit = {},
-    ): Boolean {
+    ): IntRange? {
+        if (documentLineCount <= 0) return null
+        val lastDocumentLine = documentLineCount - 1
+        var firstGuideLine = Int.MAX_VALUE
+        var lastGuideLine = -1
         var index = 0
         for (pair in pairs) {
             if (index and CANCELLATION_MASK == 0) checkCanceled()
-            if (pair.openLine != pair.closeLine) return true
+            if (pair.hasWellFormedTokenRange(documentLength) &&
+                pair.openLine >= 0 &&
+                pair.openLine < pair.closeLine &&
+                pair.closeLine <= lastDocumentLine
+            ) {
+                val firstLine = pair.openLine + 1
+                val lastLine = pair.closeLine
+                firstGuideLine = minOf(firstGuideLine, firstLine)
+                lastGuideLine = maxOf(lastGuideLine, lastLine)
+            }
             index++
         }
         checkCanceled()
-        return false
+        return if (lastGuideLine < 0) null else firstGuideLine..lastGuideLine
     }
 
     private fun empty(stamp: AnalysisStamp): AnalysisSnapshot = AnalysisSnapshot(

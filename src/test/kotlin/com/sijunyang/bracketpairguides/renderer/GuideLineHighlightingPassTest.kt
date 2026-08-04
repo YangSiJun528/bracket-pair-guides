@@ -108,6 +108,43 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
     }
 
+    fun testGuidePositionIndexRetainsOnlyTheMultilinePairEnvelope() {
+        val pairSource = "{\n    value\n  }\n"
+        val source = pairSource + "outside\n".repeat(5_000)
+        myFixture.configureByText("BoundedGuidePositionIndex.txt", source)
+        val editor = myFixture.editor
+        val pair = BracketPair(
+            openOffset = 0,
+            openTokenLength = 1,
+            closeOffset = pairSource.indexOf('}'),
+            closeTokenLength = 1,
+            depth = 0,
+            openLine = 0,
+            closeLine = 2,
+        )
+
+        val snapshot = inReadAction {
+            AnalysisSnapshotBuilder.build(
+                editor = editor,
+                pairProvider = BracketPairProvider { listOf(pair) },
+                stamp = AnalysisStamp.current(editor, AnalysisCapabilities.PREVIEW),
+                progress = EmptyProgressIndicator(),
+            )
+        }
+        val positionIndex = checkNotNull(snapshot.positionIndex)
+
+        assertEquals(
+            BracketGuide(pair, guideColumn = 2, anchorLine = 2),
+            positionIndex.guideFor(pair),
+        )
+        assertEquals(
+            null,
+            positionIndex.guideForOrNull(
+                pair.copy(openLine = 4_000, closeLine = 4_001),
+            ),
+        )
+    }
+
     fun testInvalidProviderTokenBoundsDoNotCreateActivePresentation() {
         val source = "opening content closing"
         myFixture.configureByText("InvalidProviderPair.txt", source)

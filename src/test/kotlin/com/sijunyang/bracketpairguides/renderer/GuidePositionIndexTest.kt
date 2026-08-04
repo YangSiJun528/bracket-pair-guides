@@ -4,6 +4,7 @@ import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 
 class GuidePositionIndexTest {
@@ -33,6 +34,70 @@ class GuidePositionIndexTest {
     }
 
     @Test
+    fun `restricted index retains absolute anchor lines`() {
+        val index = indexFor(
+            "ignored\n{\n    nested\n  }\nignored",
+            indexedLineRange = 2..3,
+        )
+
+        val guide = index.guideFor(pair(closeLine = 3).copy(openLine = 1))
+
+        assertEquals(2, guide.guideColumn)
+        assertEquals(3, guide.anchorLine)
+
+        assertEquals(
+            null,
+            index.guideForOrNull(pair(closeLine = 2).copy(openLine = 0)),
+        )
+        assertEquals(
+            null,
+            index.guideForOrNull(pair(closeLine = 11).copy(openLine = 10)),
+        )
+    }
+
+    @Test
+    fun `restricted index does not read text outside its range`() {
+        val text = "outside\nignored\n    nested\n  }\noutside"
+        val guardedText = object : CharSequence {
+            override val length: Int = text.length
+
+            override fun get(index: Int): Char {
+                check(index in 16 until 30) { "Read outside indexed lines: $index" }
+                return text[index]
+            }
+
+            override fun subSequence(startIndex: Int, endIndex: Int): CharSequence =
+                text.subSequence(startIndex, endIndex)
+        }
+
+        val index = GuidePositionIndex.from(
+            text = guardedText,
+            lineStarts = intArrayOf(0, 8, 16, 27, 31),
+            lineEnds = intArrayOf(7, 15, 26, 30, 38),
+            tabSize = 4,
+            indexedLineRange = 2..3,
+        )
+
+        assertEquals(2, index.guideFor(pair(closeLine = 3).copy(openLine = 1)).guideColumn)
+    }
+
+    @Test
+    fun `restricted index rejects a disjoint range`() {
+        try {
+            GuidePositionIndex.from(
+                text = "one\ntwo",
+                lineStarts = intArrayOf(0, 4),
+                lineEnds = intArrayOf(3, 7),
+                tabSize = 4,
+                indexedLineRange = 10..20,
+            )
+            fail("Expected a disjoint indexed range to be rejected")
+        } catch (_: IllegalArgumentException) {
+            // Expected.
+        }
+    }
+
+    @Test
     fun `checks cancellation while scanning a very long indentation`() {
         var cancellationChecks = 0
         val text = " ".repeat(20_000)
@@ -52,6 +117,12 @@ class GuidePositionIndexTest {
     fun `tree payload calculation exposes the power of two boundary`() {
         val boundary = 1_048_576
 
+        assertEquals(16L, GuidePositionIndex.treePayloadBytes(1))
+        assertEquals(32L, GuidePositionIndex.treePayloadBytes(2))
+        assertEquals(
+            GuidePositionIndex.MAXIMUM_TREE_PAYLOAD_BYTES,
+            GuidePositionIndex.treePayloadBytes(1_000_000),
+        )
         assertEquals(
             GuidePositionIndex.MAXIMUM_TREE_PAYLOAD_BYTES,
             GuidePositionIndex.treePayloadBytes(boundary),
@@ -91,7 +162,11 @@ class GuidePositionIndexTest {
         assertEquals(1, guide.anchorLine)
     }
 
-    private fun indexFor(text: String, tabSize: Int = 4): GuidePositionIndex {
+    private fun indexFor(
+        text: String,
+        tabSize: Int = 4,
+        indexedLineRange: IntRange? = null,
+    ): GuidePositionIndex {
         val starts = mutableListOf(0)
         val ends = mutableListOf<Int>()
         text.forEachIndexed { index, char ->
@@ -102,12 +177,19 @@ class GuidePositionIndexTest {
         }
         ends += text.length
 
-        return GuidePositionIndex.from(
-            text = text,
-            lineStarts = starts.toIntArray(),
-            lineEnds = ends.toIntArray(),
-            tabSize = tabSize,
-        )
+        val lineStarts = starts.toIntArray()
+        val lineEnds = ends.toIntArray()
+        return if (indexedLineRange == null) {
+            GuidePositionIndex.from(text, lineStarts, lineEnds, tabSize)
+        } else {
+            GuidePositionIndex.from(
+                text = text,
+                lineStarts = lineStarts,
+                lineEnds = lineEnds,
+                tabSize = tabSize,
+                indexedLineRange = indexedLineRange,
+            )
+        }
     }
 
     private fun pair(closeLine: Int): BracketPair = BracketPair(

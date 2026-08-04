@@ -104,12 +104,14 @@ immediate resolver is not invoked.
 
 ## Cost model
 
-Let `T` be token count, `L` line count, and `P` recognized pair count. Brace
+Let `T` be token count, `L` document line count, `G` the line span from the
+earliest multiline-pair body line to the latest closing line, `W` the leading
+whitespace characters scanned in that span, and `P` recognized pair count. Brace
 definitions per language are bounded by the registered matcher.
 
 | Event | Work |
 |---|---|
-| Initial analysis or structural edit | One token pass `O(T)`; token and active endpoint indexes are each `O(P log P)` when requested; a multiline guide-position tree is `O(L)` with one current-guide query `O(log L)` |
+| Initial analysis or structural edit | One token pass `O(T)`; token and active endpoint indexes are each `O(P log P)` when requested; finding the multiline envelope is `O(P)`, its guide-position tree is `O(G + W)`, and one current-guide query is `O(log G)` |
 | Caret move inside the same pair | `O(log P)` lookup; no markup change |
 | Caret move to another pair | `O(log P)` lookup; replace at most three ranges |
 | Caret move or edit with no current snapshot | At most 512 shared resolver-controlled backward/forward token transitions and a best-effort 4 ms deadline; indentation work is capped at 256 lines and 32,768 characters; full analysis remains asynchronous |
@@ -173,15 +175,17 @@ transition before compaction completes, the retained full snapshot is accepted
 again instead of collecting the same pairs twice.
 
 For multiline pairs, `GuidePositionIndex` builds a tab-aware range-minimum
-indentation index once. Its build cost is `O(L)` and each guide-column query is
-`O(log L)`. The segment-tree payload is capped at 16 MiB (1,048,576 lines).
-Above that boundary the snapshot omits this proportional-size index and active
-guides use the same 256-line/32,768-character bounded on-demand fallback as the
-stale path.
-At the supported boundary, the tree payload is about 16 MiB. The production
-builder reads line start/end offsets from `Document` while filling the tree,
-avoiding the former two `IntArray` copies (about 8 MiB of transient payload at
-1,048,576 lines).
+indentation index once. It covers only the bounding line span queried by the
+recognized multiline pairs, not unrelated lines before or after them. Its build
+cost is `O(G + W)` and each guide-column query is `O(log G)`. A two-indexed-line
+query envelope in a million-line document therefore scans two lines and retains
+32 bytes of tree payload instead of scanning the full document and retaining
+16 MiB.
+The segment-tree payload remains capped at 16 MiB (1,048,576 indexed lines).
+Above that span boundary the snapshot omits this proportional-size index and
+active guides use the same 256-line/32,768-character bounded on-demand fallback
+as the stale path. The production builder reads line offsets directly from
+`Document`, avoiding two additional `IntArray` copies.
 
 Provider output crosses one shared overflow-safe token-range validation boundary
 before entering token/active indexes or creating presentation. Extreme computed
@@ -245,8 +249,9 @@ token attributes in place.
 - The host pass does not traverse separate injected documents on its own.
 - In malformed input, an unmatched structural opener can conservatively suppress
   a regular pair that would become matchable only if that opener never closes.
-- Documents above 1,048,576 lines use a bounded provisional indentation scan,
-  so a guide can miss a lower indentation more than 256 lines inside its pair.
+- Multiline-pair query spans above 1,048,576 lines use a bounded provisional
+  indentation scan, so a guide can miss a lower indentation more than 256 lines
+  inside its pair. A larger document with a smaller pair span remains indexed.
 - Structural snapshots remain proportional to recognized pair count and are
   owned per editor view. Extremely dense generated files and many split views
   can therefore consume substantial memory; a hard pair cap is not applied

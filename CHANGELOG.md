@@ -77,10 +77,11 @@
   pairs this removes about six million comparisons, twelve million reference
   writes, and roughly 3.8 MiB of compressed-reference merge storage.
 - Multiline-result probes check cancellation every 256 pairs.
-- Guide-position indexing now caps its segment-tree payload at 16 MiB and uses
-  the bounded on-demand resolver above 1,048,576 lines. Its production build
-  reads document line offsets directly instead of retaining two additional
-  4 MiB arrays at that boundary.
+- Guide-position indexing now scans and retains only the multiline-pair query
+  envelope, caps that segment-tree span at 16 MiB, and uses the bounded
+  on-demand resolver above 1,048,576 indexed lines. A two-indexed-line envelope in a
+  million-line document now needs two line reads and 32 bytes of tree payload
+  instead of a full-document scan and 16 MiB tree.
 - Fully populated active-pair segment arrays are retained directly, avoiding a
   16 MiB transient copy and four million copied integers at one million pairs.
 - Building the active index before retaining the token index lowers the common
