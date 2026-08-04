@@ -761,6 +761,8 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
 
         assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, acceptedStamp))
         assertTrue(ownedHighlighters().isEmpty())
+        applyPass(provider)
+        assertEquals(1, collections)
 
         applyOptions(enabled)
         applyPass(provider)

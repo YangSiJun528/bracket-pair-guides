@@ -157,6 +157,7 @@ internal class EditorGuideSession private constructor(
             !AnalysisCapabilities.from(nextOptions).pairs
         ) {
             clear()
+            acceptedStamp = currentStamp()
             editor.contentComponent.repaint()
             return
         }
