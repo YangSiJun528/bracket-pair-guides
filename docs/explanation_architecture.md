@@ -184,8 +184,9 @@ query envelope in a million-line document therefore scans two lines and retains
 The segment-tree payload remains capped at 16 MiB (1,048,576 indexed lines).
 Above that span boundary the snapshot omits this proportional-size index and
 active guides use the same 256-line/32,768-character bounded on-demand fallback
-as the stale path. The production builder reads line offsets directly from
-`Document`, avoiding two additional `IntArray` copies.
+as the stale path. That accepted snapshot does not currently schedule a second,
+exact scan. The production builder reads line offsets directly from `Document`,
+avoiding two additional `IntArray` copies.
 
 Provider output crosses one shared overflow-safe token-range validation boundary
 before entering token/active indexes or creating presentation. Extreme computed
@@ -249,9 +250,10 @@ token attributes in place.
 - The host pass does not traverse separate injected documents on its own.
 - In malformed input, an unmatched structural opener can conservatively suppress
   a regular pair that would become matchable only if that opener never closes.
-- Multiline-pair query spans above 1,048,576 lines use a bounded provisional
+- Multiline-pair query spans above 1,048,576 lines use a bounded approximate
   indentation scan, so a guide can miss a lower indentation more than 256 lines
-  inside its pair. A larger document with a smaller pair span remains indexed.
+  inside its pair and is not automatically refined by that accepted snapshot.
+  A larger document with a smaller pair span remains indexed.
 - Structural snapshots remain proportional to recognized pair count and are
   owned per editor view. Extremely dense generated files and many split views
   can therefore consume substantial memory; a hard pair cap is not applied
