@@ -2,7 +2,9 @@ package com.sijunyang.bracketpairguides.analyzer
 
 import com.intellij.openapi.progress.ProcessCanceledException
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 
@@ -16,6 +18,19 @@ class BraceMatcherStackTest {
 
         assertEquals(1, stack.close("main", ']', null, false, ::isPair)?.open?.depth)
         assertEquals(0, stack.close("main", ')', null, false, ::isPair)?.open?.depth)
+    }
+
+    @Test
+    fun `same offset remains live until every matcher group removes it`() {
+        val stack = BraceMatcherStack<Char, String>()
+        stack.open("round", '(', null, 7, 1, 0)
+        stack.open("square", '[', null, 7, 1, 0)
+
+        assertTrue(stack.containsOpenAt(7))
+        stack.close("round", ')', null, false, ::isPair)
+        assertTrue(stack.containsOpenAt(7))
+        stack.close("square", ']', null, false, ::isPair)
+        assertFalse(stack.containsOpenAt(7))
     }
 
     @Test

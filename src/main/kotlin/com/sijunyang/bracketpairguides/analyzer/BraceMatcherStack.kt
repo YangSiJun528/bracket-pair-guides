@@ -42,6 +42,7 @@ internal class BraceMatcherStack<T, G> {
     }
 
     private val states = HashMap<G, State<T>>()
+    private val openOffsetCounts = HashMap<Int, Int>()
 
     fun open(
         group: G,
@@ -65,6 +66,7 @@ internal class BraceMatcherStack<T, G> {
             depth = state.stack.size,
         )
         state.stack += open
+        increment(openOffsetCounts, offset)
         increment(state.allCounts, open)
         if (structural) {
             state.structuralOpenCount++
@@ -73,6 +75,9 @@ internal class BraceMatcherStack<T, G> {
             increment(state.regularScopes.last(), open)
         }
     }
+
+    fun containsOpenAt(offset: Int): Boolean =
+        (openOffsetCounts[offset] ?: 0) > 0
 
     fun close(
         group: G,
@@ -214,6 +219,7 @@ internal class BraceMatcherStack<T, G> {
 
     private fun removeLast(state: State<T>): Open<T> {
         val open = state.stack.removeLast()
+        decrement(openOffsetCounts, open.offset)
         decrement(state.allCounts, open)
         if (open.structural) {
             state.structuralOpenCount--

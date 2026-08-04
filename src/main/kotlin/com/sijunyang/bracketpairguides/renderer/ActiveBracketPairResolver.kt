@@ -1,21 +1,16 @@
 package com.sijunyang.bracketpairguides.renderer
 
 import com.sijunyang.bracketpairguides.analyzer.BracketPair
-import com.sijunyang.bracketpairguides.analyzer.LanguageBraceMatchers
-import com.intellij.codeInsight.highlighting.BraceMatchingUtil
-import com.intellij.lang.Language
-import com.intellij.openapi.editor.Document
+import com.sijunyang.bracketpairguides.analyzer.BracketPairingCore
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
-import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.fileTypes.FileType
-import com.intellij.psi.tree.IElementType
 
 /** Result of a bounded active-pair lookup. */
 internal sealed interface ActiveBracketPairResolution {
     data class Complete(val pair: BracketPair?) : ActiveBracketPairResolution
 
-    /** The token budget was exhausted, or no resolver is available. */
+    /** The transition/deadline budget was exhausted, or no resolver is available. */
     data object Incomplete : ActiveBracketPairResolution
 }
 
@@ -37,14 +32,13 @@ private object SystemMonotonicClock : MonotonicClock {
 }
 
 /**
- * Finds the containing pair with the platform matcher, but only after the
- * token language passes the same `lang.braceMatcher` capability gate as the
- * full analyzer. The default 512-token and 4ms ceilings reserve most of a
- * 16ms UI frame for input, layout, and painting.
+ * Searches backward for opening-token candidates, then runs the same forward
+ * pairing core as full analysis until that candidate matches or is discarded.
+ * The default 512-transition and 4ms ceilings are shared by the entire lookup
+ * and reserve most of a 16ms UI frame for input, layout, and painting.
  *
- * The elapsed ceiling is best-effort: `BraceMatchingUtil.matchBrace` is one
- * synchronous platform call and cannot be interrupted between iterator
- * callbacks. A slow call can therefore overrun the deadline before returning.
+ * The elapsed ceiling is best-effort for a single language-matcher callback,
+ * which cannot be interrupted while it is running.
  */
 internal class EditorHighlighterActiveBracketPairResolver(
     private val fileType: FileType,
@@ -65,72 +59,44 @@ internal class EditorHighlighterActiveBracketPairResolver(
         val highlighter = editor.highlighter
         val text = document.immutableCharSequence
         val budget = TraversalBudget(
-            maximumTokens = tokenBudget,
+            maximumTransitions = tokenBudget,
             maximumElapsedNanos = elapsedBudgetNanos,
             clock = clock,
         )
-        val languageSupport = HashMap<Language, Boolean>()
+        val pairing = BracketPairingCore(
+            document = document,
+            fileType = fileType,
+            text = text,
+            isLanguageEnabled = isLanguageEnabled,
+        )
         var iterator = highlighter.createIterator((caretOffset - 1).coerceAtMost(text.lastIndex))
         if (iterator.document !== document) return ActiveBracketPairResolution.Incomplete
 
         while (!iterator.atEnd() && !budget.exhausted) {
             val tokenStart = iterator.start
-            val tokenEnd = iterator.end
             if (tokenStart >= caretOffset) {
-                retreat(iterator, budget)
+                if (!retreat(iterator, budget)) break
                 continue
             }
 
-            if (!iterator.hasLanguageMatcher(languageSupport)) {
-                retreat(iterator, budget)
-                continue
-            }
-
-            if (BraceMatchingUtil.isRBraceToken(iterator, text, fileType)) {
-                val matched = matchFrom(
+            val openingKind = pairing.openingKind(iterator)
+            if (openingKind != null) {
+                if (budget.exhausted) break
+                val pair = matchCandidate(
                     editor = editor,
-                    text = text,
-                    offset = tokenStart,
-                    forward = false,
+                    pairing = pairing,
+                    candidateOffset = tokenStart,
+                    replayFromStart =
+                        openingKind == BracketPairingCore.OpeningKind.SYMMETRIC_TOGGLE,
                     budget = budget,
                 )
-                if (matched != null) {
-                    if (caretOffset < tokenEnd) {
-                        return ActiveBracketPairResolution.Complete(
-                            matched.toPair(
-                                closeOffset = tokenStart,
-                                closeTokenLength = tokenEnd - tokenStart,
-                                document = document,
-                            ),
-                        )
-                    }
-
-                    iterator = highlighter.createIterator(matched.start)
-                    retreat(iterator, budget)
-                    continue
+                if (budget.exhausted) break
+                if (pair != null && caretOffset < pair.closeOffset + pair.closeTokenLength) {
+                    return ActiveBracketPairResolution.Complete(pair)
                 }
             }
 
-            if (BraceMatchingUtil.isLBraceToken(iterator, text, fileType)) {
-                val matched = matchFrom(
-                    editor = editor,
-                    text = text,
-                    offset = tokenStart,
-                    forward = true,
-                    budget = budget,
-                )
-                if (matched != null && caretOffset < matched.end) {
-                    return ActiveBracketPairResolution.Complete(
-                        Match(tokenStart, tokenEnd).toPair(
-                            closeOffset = matched.start,
-                            closeTokenLength = matched.end - matched.start,
-                            document = document,
-                        ),
-                    )
-                }
-            }
-
-            retreat(iterator, budget)
+            if (!retreat(iterator, budget)) break
         }
         return if (budget.exhausted) {
             ActiveBracketPairResolution.Incomplete
@@ -139,65 +105,67 @@ internal class EditorHighlighterActiveBracketPairResolver(
         }
     }
 
-    private fun matchFrom(
+    private fun matchCandidate(
         editor: Editor,
-        text: CharSequence,
-        offset: Int,
-        forward: Boolean,
+        pairing: BracketPairingCore,
+        candidateOffset: Int,
+        replayFromStart: Boolean,
         budget: TraversalBudget,
-    ): Match? {
-        val iterator = BudgetedHighlighterIterator(
-            editor.highlighter.createIterator(offset),
-            budget,
+    ): BracketPair? {
+        val iterator = editor.highlighter.createIterator(
+            if (replayFromStart) 0 else candidateOffset,
         )
-        if (iterator.atEnd() ||
-            !BraceMatchingUtil.matchBrace(text, fileType, iterator, forward) ||
-            iterator.atEnd()
-        ) {
+        if (iterator.atEnd()) return null
+        val session = pairing.newSession {
+            if (budget.exhausted) throw TraversalBudgetExceeded
+        }
+        var candidateAccepted = false
+
+        try {
+            while (!iterator.atEnd() && !budget.exhausted) {
+                val currentOffset = iterator.start
+                val pair = session.accept(iterator)
+                if (budget.exhausted) return null
+
+                if (candidateAccepted && pair?.openOffset == candidateOffset) return pair
+                if (currentOffset == candidateOffset) {
+                    candidateAccepted = true
+                } else if (!candidateAccepted && currentOffset > candidateOffset) {
+                    return null
+                }
+                if (candidateAccepted && !session.hasOpenAt(candidateOffset)) return null
+                if (!advance(iterator, budget)) return null
+            }
+        } catch (_: TraversalBudgetExceeded) {
             return null
         }
-        return Match(iterator.start, iterator.end)
+        return null
     }
 
-    private fun retreat(iterator: HighlighterIterator, budget: TraversalBudget) {
-        if (budget.consume()) iterator.retreat()
-    }
-
-    private fun HighlighterIterator.hasLanguageMatcher(
-        cache: HashMap<Language, Boolean>,
+    private fun advance(
+        iterator: HighlighterIterator,
+        budget: TraversalBudget,
     ): Boolean {
-        val language = tokenType?.language ?: return false
-        return cache.getOrPut(language) {
-            val capabilityId = LanguageBraceMatchers.capabilityOwner(language)?.id
-                ?: return@getOrPut false
-            isLanguageEnabled(capabilityId)
-        }
+        if (!budget.consume()) return false
+        iterator.advance()
+        return true
     }
 
-    private data class Match(val start: Int, val end: Int) {
-        fun toPair(
-            closeOffset: Int,
-            closeTokenLength: Int,
-            document: Document,
-        ): BracketPair {
-            return BracketPair(
-                openOffset = start,
-                openTokenLength = end - start,
-                closeOffset = closeOffset,
-                closeTokenLength = closeTokenLength,
-                depth = 0,
-                openLine = document.getLineNumber(start),
-                closeLine = document.getLineNumber(closeOffset),
-            )
-        }
+    private fun retreat(
+        iterator: HighlighterIterator,
+        budget: TraversalBudget,
+    ): Boolean {
+        if (!budget.consume()) return false
+        iterator.retreat()
+        return true
     }
 
     private class TraversalBudget(
-        maximumTokens: Int,
+        maximumTransitions: Int,
         maximumElapsedNanos: Long,
         private val clock: MonotonicClock,
     ) {
-        private var remaining = maximumTokens.coerceAtLeast(1)
+        private var remaining = maximumTransitions.coerceAtLeast(1)
         private val elapsedLimitNanos = maximumElapsedNanos.coerceAtLeast(1L)
         private val startedAtNanos = clock.nowNanos()
 
@@ -213,30 +181,7 @@ internal class EditorHighlighterActiveBracketPairResolver(
         private fun elapsedNanos(): Long = clock.nowNanos() - startedAtNanos
     }
 
-    private class BudgetedHighlighterIterator(
-        private val delegate: HighlighterIterator,
-        private val budget: TraversalBudget,
-    ) : HighlighterIterator {
-        override fun getTextAttributes(): TextAttributes = delegate.textAttributes
-
-        override fun getStart(): Int = delegate.start
-
-        override fun getEnd(): Int = delegate.end
-
-        override fun getTokenType(): IElementType? = delegate.tokenType
-
-        override fun advance() {
-            if (budget.consume()) delegate.advance()
-        }
-
-        override fun retreat() {
-            if (budget.consume()) delegate.retreat()
-        }
-
-        override fun atEnd(): Boolean = budget.exhausted || delegate.atEnd()
-
-        override fun getDocument(): Document = delegate.document
-    }
+    private object TraversalBudgetExceeded : RuntimeException(null, null, false, false)
 
     companion object {
         private const val DEFAULT_TOKEN_BUDGET = 512
