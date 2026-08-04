@@ -3,6 +3,7 @@ package com.sijunyang.bracketpairguides.settings
 import com.sijunyang.bracketpairguides.analyzer.LanguageBraceMatchers
 import com.sijunyang.bracketpairguides.analyzer.SupportedBraceLanguage
 import com.sijunyang.bracketpairguides.renderer.AnalysisCapabilities
+import com.sijunyang.bracketpairguides.renderer.EditorGuideEventRouter
 import com.sijunyang.bracketpairguides.renderer.EditorGuideSession
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.Disposable
@@ -215,8 +216,15 @@ internal class PluginConfigurable(
             AnalysisCapabilities.from(applied)
         val languagesChanged = previous.disabledLanguageIds != applied.disabledLanguageIds
 
-        for (editor in EditorFactory.getInstance().allEditors) {
-            EditorGuideSession.get(editor)?.updateOptions(applied)
+        val sessionEditors = EditorFactory.getInstance().allEditors.filter { editor ->
+            !editor.isDisposed && EditorGuideSession.get(editor) != null
+        }
+        val immediateEditor = EditorGuideEventRouter.preferredImmediateEditor(sessionEditors)
+        for (editor in sessionEditors) {
+            EditorGuideSession.get(editor)?.updateOptions(
+                applied,
+                resolveImmediately = editor === immediateEditor,
+            )
         }
         if (capabilitiesChanged || languagesChanged) {
             for (project in ProjectManager.getInstance().openProjects) {

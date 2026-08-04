@@ -180,4 +180,34 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
             EditorGuideSession.dispose(editor)
         }
     }
+
+    fun testBackgroundOptionRefreshSkipsImmediateResolution() {
+        myFixture.configureByText("OptionRefresh.txt", "{ value }")
+        val editor = myFixture.editor
+        var resolverCalls = 0
+        EditorGuideSession.dispose(editor)
+        val session = EditorGuideSession.install(
+            editor = editor,
+            resolver = ActiveBracketPairResolver { _, _ ->
+                resolverCalls++
+                ActiveBracketPairResolution.Complete(null)
+            },
+            visibleRangeProvider = { TextRange(0, editor.document.textLength) },
+        )
+        try {
+            session.updateOptions(
+                PluginOptions(disabledLanguageIds = setOf("first")),
+                resolveImmediately = false,
+            )
+            assertEquals(0, resolverCalls)
+
+            session.updateOptions(
+                PluginOptions(disabledLanguageIds = setOf("second")),
+                resolveImmediately = true,
+            )
+            assertEquals(1, resolverCalls)
+        } finally {
+            EditorGuideSession.dispose(editor)
+        }
+    }
 }

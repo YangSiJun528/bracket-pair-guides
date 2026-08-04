@@ -128,17 +128,6 @@ internal class EditorGuideEventRouter :
         }
     }
 
-    private fun preferredImmediateEditor(editors: List<Editor>): Editor? =
-        editors.firstOrNull { editor -> editor.contentComponent.hasFocus() }
-            ?: editors.firstOrNull { editor ->
-                val project = editor.project
-                project != null &&
-                    !project.isDisposed &&
-                    FileEditorManager.getInstance(project).selectedTextEditor === editor
-            }
-            ?: editors.firstOrNull { editor -> editor.contentComponent.isShowing }
-            ?: editors.firstOrNull()
-
     companion object {
         private const val VISIBLE_REFRESH_DELAY_MILLIS = 16
 
@@ -161,6 +150,17 @@ internal class EditorGuideEventRouter :
                 )
             }
         }
+
+        internal fun preferredImmediateEditor(editors: List<Editor>): Editor? =
+            editors.firstOrNull { editor -> editor.contentComponent.hasFocus() }
+                ?: editors.firstOrNull { editor ->
+                    val project = editor.project
+                    project != null &&
+                        !project.isDisposed &&
+                        FileEditorManager.getInstance(project).selectedTextEditor === editor
+                }
+                ?: editors.firstOrNull { editor -> editor.contentComponent.isShowing }
+                ?: editors.firstOrNull()
 
         fun ensureInitialized() {
             ApplicationManager.getApplication().getService(EditorGuideEventRouter::class.java)

@@ -121,7 +121,10 @@ internal class EditorGuideSession private constructor(
         editor.contentComponent.repaint()
     }
 
-    fun updateOptions(nextOptions: PluginOptions) {
+    fun updateOptions(
+        nextOptions: PluginOptions,
+        resolveImmediately: Boolean = true,
+    ) {
         assertEdt()
         if (disposed || editor.isDisposed) return
         val languagesChanged =
@@ -130,7 +133,7 @@ internal class EditorGuideSession private constructor(
         if (discardPresentationFromReplacedHighlighter()) return
         if (languagesChanged) {
             clear()
-            updateProvisional(null)
+            updateProvisional(null, resolveImmediately)
             return
         }
         val currentSnapshot = snapshot
@@ -167,7 +170,7 @@ internal class EditorGuideSession private constructor(
             currentAnalysis == null &&
             AnalysisCapabilities.from(options).activePair
         ) {
-            updateProvisional(null)
+            updateProvisional(null, resolveImmediately)
             return
         }
         editor.contentComponent.repaint()
