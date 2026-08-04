@@ -13,6 +13,8 @@
   symbols.
 - One Settings page with theme-aware Base colors, optional per-component color
   overrides, guide geometry, and an editable Preview.
+- Per-language matcher-family controls with individual and bulk enable/disable
+  actions; newly installed supported languages remain enabled by default.
 - Java, Kotlin, Kotlin script, JSON, contextual matcher, unsupported-language,
   pinned real-world source, and large-input regression coverage.
 - Light and dark plugin icons and the MIT License.

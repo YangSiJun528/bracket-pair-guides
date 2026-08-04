@@ -8,6 +8,7 @@ import com.intellij.openapi.components.Storage
 /** Immutable settings consumed by analysis, rendering, and the settings preview. */
 internal data class PluginOptions(
     val enabled: Boolean = true,
+    val disabledLanguageIds: Set<String> = emptySet(),
     val colorBracketTokens: Boolean = true,
     val showActiveGuide: Boolean = true,
     val showVerticalGuide: Boolean = true,
@@ -24,6 +25,9 @@ internal data class PluginOptions(
     val pairBorderColors: List<Int> = automaticColors(),
     val pairBackgroundColors: List<Int> = automaticColors(),
 ) {
+    fun isLanguageEnabled(languageId: String): Boolean =
+        languageId !in disabledLanguageIds
+
     val showsActivePair: Boolean
         get() = showActivePairBorder ||
             (showActivePairBackground && pairBackgroundOpacityPercent > 0)
@@ -46,6 +50,7 @@ internal class PluginSettings : PersistentStateComponent<PluginSettings.State> {
     /** Mutable bean used only at the XML serialization boundary. */
     data class State(
         var enabled: Boolean = true,
+        var disabledLanguageIds: MutableList<String> = mutableListOf(),
         var colorBracketTokens: Boolean = true,
         var showActiveGuide: Boolean = true,
         var showVerticalGuide: Boolean = true,
@@ -80,6 +85,7 @@ internal class PluginSettings : PersistentStateComponent<PluginSettings.State> {
 
     private fun State.toOptions(): PluginOptions = PluginOptions(
         enabled = enabled,
+        disabledLanguageIds = disabledLanguageIds.toSet(),
         colorBracketTokens = colorBracketTokens,
         showActiveGuide = showActiveGuide,
         showVerticalGuide = showVerticalGuide,
@@ -97,6 +103,12 @@ internal class PluginSettings : PersistentStateComponent<PluginSettings.State> {
     ).normalized()
 
     private fun PluginOptions.normalized(): PluginOptions = copy(
+        disabledLanguageIds = disabledLanguageIds.asSequence()
+            .map { languageId -> languageId.trim() }
+            .filter { languageId -> languageId.isNotEmpty() }
+            .distinct()
+            .sorted()
+            .toSet(),
         guideLineWidth = guideLineWidth.coerceIn(
             MIN_GUIDE_LINE_WIDTH,
             MAX_GUIDE_LINE_WIDTH,
@@ -117,6 +129,7 @@ internal class PluginSettings : PersistentStateComponent<PluginSettings.State> {
 
     private fun PluginOptions.toState(): State = State(
         enabled = enabled,
+        disabledLanguageIds = disabledLanguageIds.sorted().toMutableList(),
         colorBracketTokens = colorBracketTokens,
         showActiveGuide = showActiveGuide,
         showVerticalGuide = showVerticalGuide,

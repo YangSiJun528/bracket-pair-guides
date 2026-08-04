@@ -36,6 +36,7 @@ internal fun interface ActiveBracketPairResolver {
 internal class EditorHighlighterActiveBracketPairResolver(
     private val fileType: FileType,
     private val tokenBudget: Int = DEFAULT_TOKEN_BUDGET,
+    private val isLanguageEnabled: (String) -> Boolean = { true },
 ) : ActiveBracketPairResolver {
     override fun findInnermost(
         editor: Editor,
@@ -147,7 +148,11 @@ internal class EditorHighlighterActiveBracketPairResolver(
         cache: HashMap<Language, Boolean>,
     ): Boolean {
         val language = tokenType?.language ?: return false
-        return cache.getOrPut(language) { LanguageBraceMatchers.isRegistered(language) }
+        return cache.getOrPut(language) {
+            val capabilityId = LanguageBraceMatchers.capabilityOwner(language)?.id
+                ?: return@getOrPut false
+            isLanguageEnabled(capabilityId)
+        }
     }
 
     private data class Match(val start: Int, val end: Int) {

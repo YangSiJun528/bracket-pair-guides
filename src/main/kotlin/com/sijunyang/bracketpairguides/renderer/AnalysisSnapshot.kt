@@ -43,22 +43,26 @@ internal data class AnalysisStamp(
     val tabSize: Int,
     val highlighterIdentity: Int,
     val capabilities: AnalysisCapabilities,
+    val disabledLanguageIds: Set<String> = emptySet(),
 ) {
     fun satisfies(required: AnalysisStamp): Boolean =
         documentStamp == required.documentStamp &&
             tabSize == required.tabSize &&
             highlighterIdentity == required.highlighterIdentity &&
+            disabledLanguageIds == required.disabledLanguageIds &&
             capabilities.includes(required.capabilities)
 
     companion object {
         fun current(
             editor: Editor,
             capabilities: AnalysisCapabilities,
+            disabledLanguageIds: Set<String> = emptySet(),
         ): AnalysisStamp = AnalysisStamp(
             documentStamp = editor.document.modificationStamp,
             tabSize = editor.settings.getTabSize(editor.project).coerceAtLeast(1),
             highlighterIdentity = System.identityHashCode(editor.highlighter),
             capabilities = capabilities,
+            disabledLanguageIds = disabledLanguageIds,
         )
     }
 }

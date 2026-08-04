@@ -3,6 +3,7 @@ package com.sijunyang.bracketpairguides.renderer
 import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer
 import com.sijunyang.bracketpairguides.analyzer.BracketPairProvider
+import com.sijunyang.bracketpairguides.analyzer.LanguageBraceMatchers
 import com.sijunyang.bracketpairguides.settings.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
@@ -533,6 +534,39 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         applyPass(provider)
         assertEquals(1, collections)
         assertEquals(3, ownedHighlighters().size)
+    }
+
+    fun testLanguageSelectionInvalidatesTheSnapshotAndUsesTheSameFastPathGate() {
+        val source = "class Sample { void run() { call(); } }"
+        myFixture.configureByText("LanguageSelection.java", source)
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(source.indexOf("call") + 2)
+        val capabilityId = checkNotNull(
+            LanguageBraceMatchers.capabilityOwner(myFixture.file.language),
+        ).id
+
+        applyPass()
+        assertTrue(bracketColorHighlighters().isNotEmpty())
+        assertNotNull(activeGuide())
+
+        val disabled = PluginSettings.getInstance().options.copy(
+            disabledLanguageIds = setOf(capabilityId),
+        )
+        applyOptions(disabled)
+        assertTrue(bracketColorHighlighters().isEmpty())
+        assertNull(activeGuide())
+
+        applyPass()
+        assertTrue(ownedHighlighters().isEmpty())
+
+        val enabled = disabled.copy(disabledLanguageIds = emptySet())
+        applyOptions(enabled)
+        assertTrue(bracketColorHighlighters().isEmpty())
+        assertNotNull("Fast path should restore the active guide immediately", activeGuide())
+
+        applyPass()
+        assertTrue(bracketColorHighlighters().isNotEmpty())
+        assertNotNull(activeGuide())
     }
 
     fun testViewportBoundsMarkupForFiftyThousandPairsAndScrollReusesRecognition() {

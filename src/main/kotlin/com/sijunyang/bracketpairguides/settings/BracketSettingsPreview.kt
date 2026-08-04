@@ -37,12 +37,16 @@ import javax.swing.JPanel
 /**
  * Editable, lexer-backed preview for draft settings.
  *
- * Recognition is rerun only after a document or file-type change. Caret and
- * appearance changes reuse the most recent immutable recognition snapshot.
+ * Recognition is rerun only after a document, file-type, or language-selection
+ * change. Caret and appearance changes reuse the latest immutable snapshot.
  */
 internal class BracketSettingsPreview(
     pairProviderFactory: PreviewPairProviderFactory =
-        PreviewPairProviderFactory(::BracketPairAnalyzer),
+        PreviewPairProviderFactory { editor, fileType, disabledLanguageIds ->
+            BracketPairAnalyzer(editor, fileType) { capabilityId ->
+                capabilityId !in disabledLanguageIds
+            }
+        },
 ) : JPanel(BorderLayout()), Disposable {
     private val lifetime = Disposer.newDisposable("Bracket settings preview")
     private val recognitionAlarm = Alarm(Alarm.ThreadToUse.SWING_THREAD, lifetime)
@@ -58,7 +62,8 @@ internal class BracketSettingsPreview(
     private var currentExample = examples.first()
     @Volatile
     private var currentFileType: FileType = currentExample.resolveFileType()
-    private var currentSettings: PluginOptions? = null
+    @Volatile
+    private var currentSettings = PluginOptions()
     @Volatile
     private var recognitionGeneration = 0L
     private var changingDocument = false
@@ -113,7 +118,7 @@ internal class BracketSettingsPreview(
             EditorColorsListener {
                 ApplicationManager.getApplication().invokeLater {
                     if (!disposed && !previewEditor.isDisposed) {
-                        currentSettings?.let(decoration::updateOptions)
+                        decoration.updateOptions(currentSettings)
                     }
                 }
             },
@@ -126,8 +131,11 @@ internal class BracketSettingsPreview(
 
     fun update(options: PluginOptions) {
         if (disposed || previewEditor.isDisposed) return
+        val languagesChanged =
+            currentSettings.disabledLanguageIds != options.disabledLanguageIds
         currentSettings = options
         decoration.updateOptions(options)
+        if (languagesChanged) recognizeSynchronously()
     }
 
     override fun dispose() {
@@ -139,7 +147,6 @@ internal class BracketSettingsPreview(
         previewEditor.document.removeDocumentListener(documentListener)
         previewEditor.caretModel.removeCaretListener(caretListener)
         decoration.dispose()
-        currentSettings = null
         EditorFactory.getInstance().releaseEditor(previewEditor)
     }
 
@@ -288,23 +295,31 @@ internal class BracketSettingsPreview(
         val generation = recognitionGeneration
         val modificationStamp = previewEditor.document.modificationStamp
         val fileType = currentFileType
+        val disabledLanguageIds = currentSettings.disabledLanguageIds
         ReadAction.nonBlocking<AnalysisSnapshot> {
             val indicator = ProgressManager.getInstance().progressIndicator
                 ?: EmptyProgressIndicator()
-            recognizer.recognize(previewEditor, fileType, indicator)
+            recognizer.recognize(
+                previewEditor,
+                fileType,
+                disabledLanguageIds,
+                indicator,
+            )
         }.expireWith(lifetime)
             .expireWhen {
                 disposed ||
                     generation != recognitionGeneration ||
                     modificationStamp != previewEditor.document.modificationStamp ||
-                    fileType !== currentFileType
+                    fileType !== currentFileType ||
+                    disabledLanguageIds != currentSettings.disabledLanguageIds
             }
             .coalesceBy(this)
             .finishOnUiThread(ModalityState.any()) { result ->
                 if (disposed || previewEditor.isDisposed) return@finishOnUiThread
                 if (generation != recognitionGeneration ||
                     modificationStamp != previewEditor.document.modificationStamp ||
-                    fileType !== currentFileType
+                    fileType !== currentFileType ||
+                    disabledLanguageIds != currentSettings.disabledLanguageIds
                 ) {
                     return@finishOnUiThread
                 }
@@ -325,6 +340,7 @@ internal class BracketSettingsPreview(
             recognizer.recognize(
                 previewEditor,
                 currentFileType,
+                currentSettings.disabledLanguageIds,
                 EmptyProgressIndicator(),
             )
         }

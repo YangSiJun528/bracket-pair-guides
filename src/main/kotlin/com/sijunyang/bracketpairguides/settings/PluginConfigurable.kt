@@ -1,5 +1,7 @@
 package com.sijunyang.bracketpairguides.settings
 
+import com.sijunyang.bracketpairguides.analyzer.LanguageBraceMatchers
+import com.sijunyang.bracketpairguides.analyzer.SupportedBraceLanguage
 import com.sijunyang.bracketpairguides.renderer.AnalysisCapabilities
 import com.sijunyang.bracketpairguides.renderer.EditorGuideSession
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
@@ -26,8 +28,11 @@ import javax.swing.JSpinner
 import javax.swing.SpinnerNumberModel
 import javax.swing.event.ChangeListener
 
-/** One settings page owns both feature switches and every visual color. */
-internal class PluginConfigurable : Configurable, Configurable.NoScroll {
+/** One settings page owns feature switches, language selection, and every visual color. */
+internal class PluginConfigurable(
+    private val supportedLanguagesProvider: () -> List<SupportedBraceLanguage> =
+        LanguageBraceMatchers::supportedLanguages,
+) : Configurable, Configurable.NoScroll {
     private lateinit var enabled: JBCheckBox
     private lateinit var colorBracketTokens: JBCheckBox
     private lateinit var showActiveGuide: JBCheckBox
@@ -39,8 +44,13 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
     private lateinit var showActivePairBackground: JBCheckBox
     private lateinit var pairBackgroundOpacityPercent: JSpinner
     private lateinit var useIndependentComponentColors: JBCheckBox
+    private lateinit var enableAllLanguages: JButton
+    private lateinit var disableAllLanguages: JButton
     private lateinit var resetColors: JButton
     private lateinit var paletteTable: ColorPaletteTable
+    private var supportedLanguages: List<SupportedBraceLanguage> = emptyList()
+    private var languageCheckBoxes: Map<String, JBCheckBox> = emptyMap()
+    private var unavailableDisabledLanguageIds: Set<String> = emptySet()
     private var preview: BracketSettingsPreview? = null
     private var panel: JComponent? = null
     private var resetSnapshot: PluginOptions? = null
@@ -60,6 +70,26 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
         val controlsPanel = panel {
             row {
                 cell(enabled)
+            }
+
+            group("Languages") {
+                row {
+                    label("Installed language families with brace-matching support.")
+                }
+                row {
+                    cell(enableAllLanguages)
+                    cell(disableAllLanguages)
+                }
+                for (language in supportedLanguages) {
+                    row {
+                        cell(checkNotNull(languageCheckBoxes[language.id]))
+                    }
+                }
+                if (supportedLanguages.isEmpty()) {
+                    row {
+                        label("No supported language plugin is currently installed.")
+                    }
+                }
             }
 
             group("Appearance") {
@@ -171,14 +201,16 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
         val settings = PluginSettings.getInstance()
         val previous = settings.options
         val draft = captureDraftState()
-        val capabilitiesChanged = AnalysisCapabilities.from(previous) !=
-            AnalysisCapabilities.from(draft)
         settings.replace(draft)
+        val applied = settings.options
+        val capabilitiesChanged = AnalysisCapabilities.from(previous) !=
+            AnalysisCapabilities.from(applied)
+        val languagesChanged = previous.disabledLanguageIds != applied.disabledLanguageIds
 
         for (editor in EditorFactory.getInstance().allEditors) {
-            EditorGuideSession.get(editor)?.updateOptions(draft)
+            EditorGuideSession.get(editor)?.updateOptions(applied)
         }
-        if (capabilitiesChanged) {
+        if (capabilitiesChanged || languagesChanged) {
             for (project in ProjectManager.getInstance().openProjects) {
                 DaemonCodeAnalyzer.getInstance(project).restart()
             }
@@ -193,6 +225,11 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
         updatingUi = true
         try {
             enabled.isSelected = state.enabled
+            unavailableDisabledLanguageIds =
+                state.disabledLanguageIds - languageCheckBoxes.keys
+            for ((languageId, checkBox) in languageCheckBoxes) {
+                checkBox.isSelected = state.isLanguageEnabled(languageId)
+            }
             colorBracketTokens.isSelected = state.colorBracketTokens
             showActiveGuide.isSelected = state.showActiveGuide
             showVerticalGuide.isSelected = state.showVerticalGuide
@@ -246,11 +283,38 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
         preview = null
         panel = null
         resetSnapshot = null
+        supportedLanguages = emptyList()
+        languageCheckBoxes = emptyMap()
+        unavailableDisabledLanguageIds = emptySet()
         controlsCreated = false
     }
 
     private fun createControls() {
         enabled = JBCheckBox("Enabled")
+        enableAllLanguages = JButton("Enable all")
+        disableAllLanguages = JButton("Disable all")
+        supportedLanguages = supportedLanguagesProvider()
+        val duplicateNames = supportedLanguages
+            .groupingBy(SupportedBraceLanguage::displayName)
+            .eachCount()
+        languageCheckBoxes = supportedLanguages.associate { language ->
+            val label = if (duplicateNames.getValue(language.displayName) > 1) {
+                "${language.displayName} (${language.id})"
+            } else {
+                language.displayName
+            }
+            language.id to JBCheckBox(label).apply {
+                name = "language.${language.id}"
+                val family = language.familyDisplayNames.joinToString()
+                toolTipText = if (family == language.displayName) {
+                    "Matcher family ID: ${language.id}"
+                } else {
+                    "Matcher family ID: ${language.id}. Includes: $family"
+                }
+                accessibleContext.accessibleName = "$label language"
+                accessibleContext.accessibleDescription = toolTipText
+            }
+        }
         colorBracketTokens = JBCheckBox("Bracket colorization")
         showActiveGuide = JBCheckBox("Active guide")
         showVerticalGuide = JBCheckBox("Vertical")
@@ -291,7 +355,7 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
     }
 
     private fun wireListeners() {
-        for (button in listOf<AbstractButton>(
+        val buttons = listOf<AbstractButton>(
             enabled,
             colorBracketTokens,
             showActiveGuide,
@@ -299,7 +363,8 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
             showHorizontalGuides,
             showActivePairBorder,
             showActivePairBackground,
-        )) {
+        ) + languageCheckBoxes.values
+        for (button in buttons) {
             button.addActionListener {
                 if (updatingUi) return@addActionListener
                 updateControlStates()
@@ -318,6 +383,12 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
         guideLineWidth.addChangeListener(spinnerListener)
         guideOpacityPercent.addChangeListener(spinnerListener)
         pairBackgroundOpacityPercent.addChangeListener(spinnerListener)
+        enableAllLanguages.addActionListener {
+            setAllLanguagesEnabled(true)
+        }
+        disableAllLanguages.addActionListener {
+            setAllLanguagesEnabled(false)
+        }
         resetColors.addActionListener { resetPaletteToThemeDefaults() }
     }
 
@@ -364,7 +435,18 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
 
     private fun updateControlStates() {
         if (!controlsCreated) return
+        enableAllLanguages.isEnabled = languageCheckBoxes.values.any { !it.isSelected }
+        disableAllLanguages.isEnabled = languageCheckBoxes.values.any { it.isSelected }
         paletteTable.refreshAvailability()
+    }
+
+    private fun setAllLanguagesEnabled(selected: Boolean) {
+        if (updatingUi) return
+        for (checkBox in languageCheckBoxes.values) {
+            checkBox.isSelected = selected
+        }
+        updateControlStates()
+        refreshPreview()
     }
 
     private fun resetPaletteToThemeDefaults() {
@@ -426,6 +508,12 @@ internal class PluginConfigurable : Configurable, Configurable.NoScroll {
         val independent = useIndependentComponentColors.isSelected
         return PluginOptions(
             enabled = enabled.isSelected,
+            disabledLanguageIds = buildSet {
+                addAll(unavailableDisabledLanguageIds)
+                for ((languageId, checkBox) in languageCheckBoxes) {
+                    if (!checkBox.isSelected) add(languageId)
+                }
+            },
             colorBracketTokens = colorBracketTokens.isSelected,
             showActiveGuide = showActiveGuide.isSelected,
             showVerticalGuide = showVerticalGuide.isSelected,

@@ -34,24 +34,40 @@ internal class GuideLineHighlightingPass(
     constructor(project: Project, editor: Editor) : this(
         project = project,
         editor = editor,
-        pairProvider = BracketPairAnalyzer(editor),
+        pairProvider = BracketPairAnalyzer(
+            editor = editor,
+            isLanguageEnabled = ::isConfiguredLanguageEnabled,
+        ),
         activePairResolver = EditorHighlighterActiveBracketPairResolver(
-            FileDocumentManager.getInstance().getFile(editor.document)?.fileType
+            fileType = FileDocumentManager.getInstance().getFile(editor.document)?.fileType
                 ?: PlainTextFileType.INSTANCE,
+            isLanguageEnabled = ::isConfiguredLanguageEnabled,
         ),
     )
 
     constructor(project: Project, editor: Editor, fileType: FileType) : this(
         project = project,
         editor = editor,
-        pairProvider = BracketPairAnalyzer(editor, fileType),
-        activePairResolver = EditorHighlighterActiveBracketPairResolver(fileType),
+        pairProvider = BracketPairAnalyzer(
+            editor = editor,
+            fileType = fileType,
+            isLanguageEnabled = ::isConfiguredLanguageEnabled,
+        ),
+        activePairResolver = EditorHighlighterActiveBracketPairResolver(
+            fileType = fileType,
+            isLanguageEnabled = ::isConfiguredLanguageEnabled,
+        ),
     )
 
     override fun doCollectInformation(progress: ProgressIndicator) {
         collected = null
-        val capabilities = AnalysisCapabilities.from(PluginSettings.getInstance().options)
-        val stamp = AnalysisStamp.current(editor, capabilities)
+        val options = PluginSettings.getInstance().options
+        val capabilities = AnalysisCapabilities.from(options)
+        val stamp = AnalysisStamp.current(
+            editor,
+            capabilities,
+            options.disabledLanguageIds,
+        )
         if (session.hasSnapshot(stamp)) return
         collected = AnalysisSnapshotBuilder.build(editor, pairProvider, stamp, progress)
     }
@@ -62,3 +78,6 @@ internal class GuideLineHighlightingPass(
         session.accept(snapshot)
     }
 }
+
+private fun isConfiguredLanguageEnabled(capabilityId: String): Boolean =
+    PluginSettings.getInstance().options.isLanguageEnabled(capabilityId)

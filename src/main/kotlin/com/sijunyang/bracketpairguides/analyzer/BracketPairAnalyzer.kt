@@ -32,11 +32,22 @@ internal data class BracketPair(
 internal class BracketPairAnalyzer(
     private val editor: Editor,
     private val fileType: FileType,
+    private val isLanguageEnabled: (String) -> Boolean = { true },
 ) : BracketPairProvider {
     constructor(editor: Editor) : this(
         editor = editor,
         fileType = FileDocumentManager.getInstance().getFile(editor.document)?.fileType
             ?: PlainTextFileType.INSTANCE,
+    )
+
+    constructor(
+        editor: Editor,
+        isLanguageEnabled: (String) -> Boolean,
+    ) : this(
+        editor = editor,
+        fileType = FileDocumentManager.getInstance().getFile(editor.document)?.fileType
+            ?: PlainTextFileType.INSTANCE,
+        isLanguageEnabled = isLanguageEnabled,
     )
 
     override fun collect(progress: ProgressIndicator): List<BracketPair> {
@@ -137,7 +148,11 @@ internal class BracketPairAnalyzer(
         language: Language,
     ): ResolvedLanguageBraceMatcher? {
         if (containsKey(language)) return this[language]
-        return LanguageBraceMatchers.resolve(language).also { this[language] = it }
+        val candidate = LanguageBraceMatchers.resolve(language)
+        val resolved = candidate?.takeIf { matcher ->
+            isLanguageEnabled(matcher.capabilityId)
+        }
+        return resolved.also { this[language] = it }
     }
 
     private fun BraceMatcherStack.Match<IElementType>.toPair(

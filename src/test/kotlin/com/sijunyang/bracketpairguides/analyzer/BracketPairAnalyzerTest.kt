@@ -125,6 +125,42 @@ class BracketPairAnalyzerTest : BasePlatformTestCase() {
         assertTrue(analyze(EmptyProgressIndicator()).isEmpty())
     }
 
+    fun testDisabledMatcherFamilyIsExcludedFromFullAnalysis() {
+        myFixture.configureByText(
+            "Disabled.java",
+            "class Disabled { void run() { call(); } }",
+        )
+        val capabilityId = checkNotNull(
+            LanguageBraceMatchers.capabilityOwner(myFixture.file.language),
+        ).id
+
+        val pairs = ReadAction.compute<List<BracketPair>, RuntimeException> {
+            BracketPairAnalyzer(
+                editor = myFixture.editor,
+                fileType = myFixture.file.fileType,
+                isLanguageEnabled = { id -> id != capabilityId },
+            ).collect(EmptyProgressIndicator())
+        }
+
+        assertTrue(pairs.isEmpty())
+    }
+
+    fun testInheritedMatcherUsesTheHighestSharedBaseLanguageAsCapabilityOwner() {
+        LanguageBraceMatching.INSTANCE.addExplicitExtension(DYNAMIC_LANGUAGE, ANGLE_PAIRS)
+        try {
+            assertSame(
+                DYNAMIC_LANGUAGE,
+                LanguageBraceMatchers.capabilityOwner(DYNAMIC_DIALECT_LANGUAGE),
+            )
+            assertEquals(
+                DYNAMIC_LANGUAGE.id,
+                LanguageBraceMatchers.resolve(DYNAMIC_DIALECT_LANGUAGE)?.capabilityId,
+            )
+        } finally {
+            LanguageBraceMatching.INSTANCE.removeExplicitExtension(DYNAMIC_LANGUAGE, ANGLE_PAIRS)
+        }
+    }
+
     fun testUsesContextualBehaviorFromARegisteredLanguageMatcher() {
         val source = "a < b > T<x>"
         myFixture.configureByText("Dynamic.txt", source)
@@ -178,6 +214,10 @@ class BracketPairAnalyzerTest : BasePlatformTestCase() {
         const val LARGE_ANALYSIS_LIMIT_MILLIS = 15_000L
 
         val DYNAMIC_LANGUAGE = object : Language("BRACKET_PAIR_GUIDES_DYNAMIC_TEST") {}
+        val DYNAMIC_DIALECT_LANGUAGE = object : Language(
+            DYNAMIC_LANGUAGE,
+            "BRACKET_PAIR_GUIDES_DYNAMIC_DIALECT_TEST",
+        ) {}
         val LEFT_ANGLE = IElementType("DYNAMIC_LEFT_ANGLE", DYNAMIC_LANGUAGE)
         val RIGHT_ANGLE = IElementType("DYNAMIC_RIGHT_ANGLE", DYNAMIC_LANGUAGE)
         val OTHER = IElementType("DYNAMIC_OTHER", DYNAMIC_LANGUAGE)

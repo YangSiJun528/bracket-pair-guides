@@ -102,7 +102,14 @@ internal class EditorGuideSession private constructor(
 
     fun updateOptions(nextOptions: PluginOptions) {
         if (disposed || editor.isDisposed) return
+        val languagesChanged =
+            options.disabledLanguageIds != nextOptions.disabledLanguageIds
         options = nextOptions
+        if (languagesChanged) {
+            clear()
+            updateProvisional(null)
+            return
+        }
         val currentSnapshot = snapshot
         tokenDecorations = if (currentSnapshot != null && isCurrent(currentSnapshot)) {
             VisibleTokenDecorationManager.replace(
@@ -313,6 +320,7 @@ internal class EditorGuideSession private constructor(
     private fun currentStamp(): AnalysisStamp = AnalysisStamp.current(
         editor,
         AnalysisCapabilities.from(options),
+        options.disabledLanguageIds,
     )
 
     private fun isCurrent(candidate: AnalysisSnapshot): Boolean =

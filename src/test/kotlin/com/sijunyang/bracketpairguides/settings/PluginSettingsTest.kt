@@ -11,6 +11,7 @@ class PluginSettingsTest {
         val state = PluginSettings.State()
 
         assertTrue(state.enabled)
+        assertTrue(state.disabledLanguageIds.isEmpty())
         assertTrue(state.colorBracketTokens)
         assertTrue(state.showActiveGuide)
         assertTrue(state.showVerticalGuide)
@@ -50,6 +51,28 @@ class PluginSettingsTest {
         assertEquals(0x123456, settings.state.levelBaseColors[0])
         assertEquals(BracketColorPalette.AUTOMATIC_COLOR, settings.state.levelBaseColors[1])
         assertEquals(BracketColorPalette.AUTOMATIC_COLOR, settings.state.levelBaseColors[2])
+    }
+
+    @Test
+    fun `normalizes and preserves disabled matcher family IDs`() {
+        val settings = PluginSettings()
+        settings.loadState(
+            PluginSettings.State(
+                disabledLanguageIds = mutableListOf(
+                    " Rust ",
+                    "",
+                    "JavaScript",
+                    "Rust",
+                ),
+            ),
+        )
+
+        assertEquals(
+            listOf("JavaScript", "Rust"),
+            settings.state.disabledLanguageIds,
+        )
+        assertFalse(settings.options.isLanguageEnabled("Rust"))
+        assertTrue(settings.options.isLanguageEnabled("JAVA"))
     }
 
 }

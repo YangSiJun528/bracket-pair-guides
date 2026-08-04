@@ -11,7 +11,11 @@ import com.intellij.openapi.progress.ProgressIndicator
 
 /** Injectable boundary between preview recognition and preview decoration. */
 internal fun interface PreviewPairProviderFactory {
-    fun create(editor: Editor, fileType: FileType): BracketPairProvider
+    fun create(
+        editor: Editor,
+        fileType: FileType,
+        disabledLanguageIds: Set<String>,
+    ): BracketPairProvider
 }
 
 internal class PreviewRecognizer(
@@ -20,11 +24,16 @@ internal class PreviewRecognizer(
     fun recognize(
         editor: Editor,
         fileType: FileType,
+        disabledLanguageIds: Set<String>,
         progress: ProgressIndicator,
     ): AnalysisSnapshot = AnalysisSnapshotBuilder.build(
         editor = editor,
-        pairProvider = providerFactory.create(editor, fileType),
-        stamp = AnalysisStamp.current(editor, AnalysisCapabilities.PREVIEW),
+        pairProvider = providerFactory.create(editor, fileType, disabledLanguageIds),
+        stamp = AnalysisStamp.current(
+            editor,
+            AnalysisCapabilities.PREVIEW,
+            disabledLanguageIds,
+        ),
         progress = progress,
     )
 }

@@ -3,14 +3,18 @@ package com.sijunyang.bracketpairguides.settings
 import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer
 import com.sijunyang.bracketpairguides.analyzer.BracketPairProvider
+import com.sijunyang.bracketpairguides.analyzer.LanguageBraceMatchers
+import com.sijunyang.bracketpairguides.analyzer.SupportedBraceLanguage
 import com.sijunyang.bracketpairguides.renderer.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.renderer.GUIDE_PAINT_STATE_KEY
+import com.intellij.lang.Language
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.fileTypes.PlainTextFileType
+import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.fileTypes.UnknownFileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -23,6 +27,7 @@ import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Component
 import java.awt.Container
+import javax.swing.JButton
 import javax.swing.JEditorPane
 import javax.swing.JLabel
 import javax.swing.JSpinner
@@ -112,6 +117,120 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 component.preferredSize.width <= JBUI.scale(850),
             )
             assertFalse(configurable.isModified)
+        }
+    }
+
+    fun testLanguageFamiliesAreDiscoveredAndDisabledByStableMatcherOwnerId() {
+        val supported = LanguageBraceMatchers.supportedLanguages()
+        assertTrue(supported.isNotEmpty())
+        for (candidate in supported) {
+            val owner = checkNotNull(Language.findLanguageByID(candidate.id))
+            assertEquals(
+                candidate.id,
+                LanguageBraceMatchers.capabilityOwner(owner)?.id,
+            )
+            assertTrue(candidate.familyDisplayNames.isNotEmpty())
+        }
+        val language = supported.first()
+        PluginSettings.getInstance().loadState(
+            PluginSettings.State(
+                disabledLanguageIds = mutableListOf(UNAVAILABLE_LANGUAGE_ID),
+            ),
+        )
+
+        withConfigurable { configurable, component ->
+            val checkBox = component.languageCheckBox(language.id)
+            assertTrue(checkBox.isSelected)
+            assertTrue(checkBox.toolTipText.contains(language.id))
+            assertFalse(configurable.isModified)
+
+            checkBox.doClick()
+            assertTrue(configurable.isModified)
+            configurable.apply()
+
+            assertEquals(
+                setOf(UNAVAILABLE_LANGUAGE_ID, language.id),
+                PluginSettings.getInstance().options.disabledLanguageIds,
+            )
+            assertFalse(configurable.isModified)
+
+            checkBox.doClick()
+            configurable.apply()
+            assertEquals(
+                setOf(UNAVAILABLE_LANGUAGE_ID),
+                PluginSettings.getInstance().options.disabledLanguageIds,
+            )
+        }
+    }
+
+    fun testLanguageControlsSupportIndividualBulkApplyAndResetWithoutDroppingUnknownIds() {
+        val languages = listOf(
+            SupportedBraceLanguage("alpha", "Alpha", listOf("Alpha")),
+            SupportedBraceLanguage("beta", "Beta", listOf("Beta", "Beta Dialect")),
+            SupportedBraceLanguage("gamma", "Gamma", listOf("Gamma")),
+        )
+        PluginSettings.getInstance().loadState(
+            PluginSettings.State(
+                disabledLanguageIds = mutableListOf(
+                    UNAVAILABLE_LANGUAGE_ID,
+                    "beta",
+                ),
+            ),
+        )
+
+        withConfigurable(languages) { configurable, component ->
+            val alpha = component.languageCheckBox("alpha")
+            val beta = component.languageCheckBox("beta")
+            val gamma = component.languageCheckBox("gamma")
+            val enableAll = component.button("Enable all")
+            val disableAll = component.button("Disable all")
+
+            assertTrue(alpha.isSelected)
+            assertFalse(beta.isSelected)
+            assertTrue(gamma.isSelected)
+            assertTrue(beta.toolTipText.contains("Beta Dialect"))
+            assertFalse(configurable.isModified)
+
+            component.checkBox("Enabled").doClick()
+            assertTrue(alpha.isEnabled)
+            assertTrue(enableAll.isEnabled)
+
+            enableAll.doClick()
+            assertTrue(listOf(alpha, beta, gamma).all { it.isSelected })
+            assertTrue(configurable.isModified)
+            assertFalse(enableAll.isEnabled)
+            assertTrue(disableAll.isEnabled)
+
+            disableAll.doClick()
+            assertTrue(listOf(alpha, beta, gamma).none { it.isSelected })
+            assertTrue(enableAll.isEnabled)
+            assertFalse(disableAll.isEnabled)
+
+            alpha.doClick()
+            configurable.apply()
+            assertEquals(
+                setOf(UNAVAILABLE_LANGUAGE_ID, "beta", "gamma"),
+                PluginSettings.getInstance().options.disabledLanguageIds,
+            )
+            assertFalse(configurable.isModified)
+
+            PluginSettings.getInstance().replace(
+                PluginSettings.getInstance().options.copy(
+                    disabledLanguageIds = setOf(UNAVAILABLE_LANGUAGE_ID, "gamma"),
+                ),
+            )
+            configurable.reset()
+            assertTrue(alpha.isSelected)
+            assertTrue(beta.isSelected)
+            assertFalse(gamma.isSelected)
+            assertFalse(configurable.isModified)
+
+            enableAll.doClick()
+            configurable.apply()
+            assertEquals(
+                setOf(UNAVAILABLE_LANGUAGE_ID),
+                PluginSettings.getInstance().options.disabledLanguageIds,
+            )
         }
     }
 
@@ -303,6 +422,37 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         assertTrue(editor.isDisposed)
     }
 
+    fun testPreviewReanalyzesWhenItsMatcherFamilyIsDisabledAndReenabled() {
+        val preview = BracketSettingsPreview()
+        try {
+            preview.update(PluginOptions())
+            val fileType = (preview.exampleSelector.selectedItem as PreviewExample)
+                .resolveFileType() as LanguageFileType
+            val capabilityId = checkNotNull(
+                LanguageBraceMatchers.capabilityOwner(fileType.language),
+            ).id
+            assertTrue(
+                preview.previewEditor.markupModel.allHighlighters
+                    .tokenHighlighters()
+                    .isNotEmpty(),
+            )
+
+            preview.update(
+                PluginOptions(disabledLanguageIds = setOf(capabilityId)),
+            )
+            assertTrue(preview.previewEditor.markupModel.allHighlighters.isEmpty())
+
+            preview.update(PluginOptions())
+            assertTrue(
+                preview.previewEditor.markupModel.allHighlighters
+                    .tokenHighlighters()
+                    .isNotEmpty(),
+            )
+        } finally {
+            preview.dispose()
+        }
+    }
+
     fun testPreviewEditingUsesTheSelectedLexerAndIgnoresStringBraces() {
         val preview = BracketSettingsPreview()
         val editor = preview.previewEditor
@@ -340,7 +490,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
     fun testCaretMovementReusesRecognitionAndTokenHighlights() {
         var collections = 0
         val preview = BracketSettingsPreview(
-            PreviewPairProviderFactory { editor, fileType ->
+            PreviewPairProviderFactory { editor, fileType, _ ->
                 val delegate = BracketPairAnalyzer(editor, fileType)
                 BracketPairProvider { progress ->
                     collections++
@@ -530,7 +680,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         val factory = EditorFactory.getInstance()
         val editorsBefore = factory.allEditors.toSet()
         val preview = BracketSettingsPreview(
-            PreviewPairProviderFactory { editor, fileType ->
+            PreviewPairProviderFactory { editor, fileType, _ ->
                 val delegate = BracketPairAnalyzer(editor, fileType)
                 BracketPairProvider { progress ->
                     collections++
@@ -586,8 +736,29 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         }
     }
 
+    private inline fun withConfigurable(
+        supportedLanguages: List<SupportedBraceLanguage>,
+        block: (PluginConfigurable, Component) -> Unit,
+    ) {
+        val configurable = PluginConfigurable { supportedLanguages }
+        val component = configurable.createComponent()
+        try {
+            block(configurable, component)
+        } finally {
+            configurable.disposeUIResources()
+        }
+    }
+
     private fun Component.checkBox(text: String): JBCheckBox = descendants()
         .filterIsInstance<JBCheckBox>()
+        .single { it.text == text }
+
+    private fun Component.languageCheckBox(languageId: String): JBCheckBox = descendants()
+        .filterIsInstance<JBCheckBox>()
+        .single { it.name == "language.$languageId" }
+
+    private fun Component.button(text: String): JButton = descendants()
+        .filterIsInstance<JButton>()
         .single { it.text == text }
 
     private fun Component.spinnerWithValue(value: Int): JSpinner = descendants()
@@ -667,5 +838,9 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         if (this@descendants is Container) {
             this@descendants.components.forEach { addAll(it.descendants()) }
         }
+    }
+
+    private companion object {
+        const val UNAVAILABLE_LANGUAGE_ID = "BRACKET_PAIR_GUIDES_UNAVAILABLE_TEST"
     }
 }
