@@ -362,7 +362,11 @@ internal class PluginConfigurable(
                 val family = language.familyDisplayNames.joinToString()
                 toolTipText = buildList {
                     add("Matcher family ID: ${language.id}")
-                    if (family != language.displayName) add("Includes: $family")
+                    if (language.constraintDescription == null &&
+                        family != language.displayName
+                    ) {
+                        add("Includes: $family")
+                    }
                     language.constraintDescription?.let(::add)
                 }
                     .joinToString(". ", postfix = ".")

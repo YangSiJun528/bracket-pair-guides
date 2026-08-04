@@ -227,8 +227,10 @@ internal class BracketSettingsPreview(
             accessibleDescription = resetExampleButton.toolTipText
         }
         analysisStatusLabel.accessibleContext.accessibleName = "Preview analysis status"
-        previewEditor.component.accessibleContext.accessibleName =
-            "Editable bracket pair preview"
+        val previewAccessibleName = "Editable bracket pair preview"
+        previewEditor.component.accessibleContext.accessibleName = previewAccessibleName
+        previewEditor.contentComponent.accessibleContext.accessibleName =
+            previewAccessibleName
 
         border = JBUI.Borders.customLine(
             OnePixelDivider.BACKGROUND,

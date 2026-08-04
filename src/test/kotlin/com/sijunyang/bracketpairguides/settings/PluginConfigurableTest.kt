@@ -120,6 +120,10 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 "Reset preview example",
                 preview.resetExampleButton.accessibleContext.accessibleName,
             )
+            assertEquals(
+                "Editable bracket pair preview",
+                preview.previewEditor.contentComponent.accessibleContext.accessibleName,
+            )
             assertTrue(splitter.firstComponent is JBScrollPane)
             assertSame(preview, splitter.secondComponent)
             assertNotNull(
@@ -215,6 +219,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             val checkBox = component.languageCheckBox("TEXT")
             assertEquals("Custom file types", checkBox.text)
             assertTrue(checkBox.toolTipText.contains("raw plain text is not scanned"))
+            assertFalse(checkBox.toolTipText.contains("Includes: Plain text"))
             assertEquals(
                 checkBox.toolTipText,
                 checkBox.accessibleContext.accessibleDescription,
