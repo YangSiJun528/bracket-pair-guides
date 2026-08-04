@@ -3,17 +3,24 @@ package com.sijunyang.bracketpairguides.settings
 import com.sijunyang.bracketpairguides.renderer.AnalysisSnapshot
 import com.sijunyang.bracketpairguides.renderer.EditorGuideSession
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.event.VisibleAreaListener
 import com.intellij.openapi.util.TextRange
 
 /** Applies draft options to a detached editor session without touching persisted settings. */
 internal class PreviewDecorationController(
-    editor: Editor,
+    private val editor: Editor,
+    visibleRangeProvider: (Editor) -> TextRange = Editor::calculateVisibleRange,
 ) {
     private val session = EditorGuideSession.detached(
         editor = editor,
         options = PluginOptions(),
-        visibleRangeProvider = { current -> TextRange(0, current.document.textLength) },
+        visibleRangeProvider = visibleRangeProvider,
     )
+    private val visibleAreaListener = VisibleAreaListener { visibleAreaChanged() }
+
+    init {
+        editor.scrollingModel.addVisibleAreaListener(visibleAreaListener)
+    }
 
     fun updateOptions(options: PluginOptions) {
         session.updateOptions(options)
@@ -31,7 +38,12 @@ internal class PreviewDecorationController(
         session.clear()
     }
 
+    internal fun visibleAreaChanged() {
+        session.visibleAreaChanged()
+    }
+
     fun dispose() {
+        editor.scrollingModel.removeVisibleAreaListener(visibleAreaListener)
         session.dispose()
     }
 }

@@ -40,6 +40,8 @@
   settings and source editors.
 - Language changes in previews larger than 10,000 characters now reanalyze in
   the background instead of blocking the Settings event thread.
+- Long previews now move a bounded token-color window with their actual
+  viewport instead of leaving colors near the initial caret.
 
 ### Fixed
 
