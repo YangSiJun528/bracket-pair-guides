@@ -221,7 +221,7 @@ internal data class PreviewExample(
             ),
             marked(
                 id = "shell",
-                displayName = "Shell",
+                displayName = "Shell Script",
                 extension = "sh",
                 source = """
                     #!/usr/bin/env bash
