@@ -101,10 +101,15 @@ internal class ActiveBracketPairIndex private constructor(
             checkCanceled()
 
             return ActiveBracketPairIndex(
-                segmentStarts = starts.copyOf(segmentCount),
-                segmentPairIndices = winners.copyOf(segmentCount),
+                // Deeply nested inputs can use every allocated segment. Keep
+                // those full arrays instead of copying another 4P integers.
+                segmentStarts = starts.copyIfSmaller(segmentCount),
+                segmentPairIndices = winners.copyIfSmaller(segmentCount),
             )
         }
+
+        private fun IntArray.copyIfSmaller(size: Int): IntArray =
+            if (size == this.size) this else copyOf(size)
 
         private fun encodeEvent(offset: Int, pairIndex: Int, isStart: Boolean): Long {
             val reference = (pairIndex shl EVENT_KIND_BITS) or
