@@ -21,6 +21,7 @@ import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.fileTypes.UnknownFileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
+import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.ui.ColorPanel
 import com.intellij.ui.OnePixelSplitter
@@ -810,6 +811,19 @@ class PluginConfigurableTest : BasePlatformTestCase() {
 
             assertEquals(largeJava, preview.previewEditor.document.text)
             assertTrue(preview.previewEditor.markupModel.allHighlighters.isEmpty())
+            PlatformTestUtil.waitWithEventsDispatching(
+                "large preview background recognition",
+                {
+                    preview.previewEditor.markupModel.allHighlighters
+                        .tokenHighlighters()
+                        .isNotEmpty()
+                },
+                10_000,
+            )
+            assertEquals(
+                1,
+                preview.previewEditor.markupModel.allHighlighters.countGuide(),
+            )
         } finally {
             preview.dispose()
         }
