@@ -31,7 +31,7 @@ internal object LanguageBraceMatchers {
     }
 
     /**
-     * User-facing installed language families backed by the official matcher extension.
+     * Installed language families backed by the official matcher extension.
      * Dialects inheriting the same matcher are grouped under the highest matching base
      * language so the persisted ID is also the ID checked during token analysis.
      */
@@ -50,16 +50,14 @@ internal object LanguageBraceMatchers {
             )
 
         return families.mapNotNull { (ownerId, members) ->
-            val visibleMembers = members
-                .filter { language -> language.associatedFileType != null }
+            val familyMembers = members
                 .distinctBy(Language::getID)
-            if (visibleMembers.isEmpty()) return@mapNotNull null
 
-            val owner = capabilityOwner(visibleMembers.first()) ?: return@mapNotNull null
+            val owner = capabilityOwner(familyMembers.first()) ?: return@mapNotNull null
             SupportedBraceLanguage(
                 id = ownerId,
                 displayName = owner.displayName.ifBlank { ownerId },
-                familyDisplayNames = visibleMembers
+                familyDisplayNames = familyMembers
                     .map { language -> language.displayName.ifBlank { language.id } }
                     .distinct()
                     .sortedWith(String.CASE_INSENSITIVE_ORDER),
