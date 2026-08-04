@@ -877,6 +877,11 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 preview.analysisStatusLabel.text,
                 preview.analysisStatusLabel.accessibleContext.accessibleDescription,
             )
+
+            preview.resetExampleButton.doClick()
+
+            assertFalse(preview.analysisStatusLabel.isVisible)
+            assertNull(preview.analysisStatusLabel.accessibleContext.accessibleDescription)
         } finally {
             preview.dispose()
         }
