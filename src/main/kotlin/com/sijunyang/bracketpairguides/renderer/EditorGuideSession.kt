@@ -128,7 +128,14 @@ internal class EditorGuideSession private constructor(
     fun updateOptions(
         nextOptions: PluginOptions,
         resolveImmediately: Boolean = true,
-        refreshColors: Boolean = false,
+    ) {
+        updateOptions(nextOptions, resolveImmediately, refreshColors = false)
+    }
+
+    fun updateOptions(
+        nextOptions: PluginOptions,
+        resolveImmediately: Boolean,
+        refreshColors: Boolean,
     ) {
         assertEdt()
         if (disposed || editor.isDisposed) return

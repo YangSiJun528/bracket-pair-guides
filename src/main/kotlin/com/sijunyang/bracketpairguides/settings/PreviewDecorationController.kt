@@ -29,7 +29,11 @@ internal class PreviewDecorationController(
     }
 
     fun updateOptions(options: PluginOptions, refreshColors: Boolean) {
-        session.updateOptions(options, refreshColors = refreshColors)
+        session.updateOptions(
+            options,
+            resolveImmediately = true,
+            refreshColors = refreshColors,
+        )
     }
 
     fun updateRecognition(snapshot: AnalysisSnapshot) {

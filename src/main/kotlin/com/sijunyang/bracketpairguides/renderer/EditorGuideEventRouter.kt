@@ -95,6 +95,7 @@ internal class EditorGuideEventRouter :
             onEdt(editor) {
                 EditorGuideSession.get(editor)?.updateOptions(
                     PluginSettings.getInstance().options,
+                    resolveImmediately = true,
                     refreshColors = true,
                 )
             }
