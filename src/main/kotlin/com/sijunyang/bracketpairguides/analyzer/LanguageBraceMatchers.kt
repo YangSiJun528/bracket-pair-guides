@@ -11,6 +11,7 @@ internal data class SupportedBraceLanguage(
     val id: String,
     val displayName: String,
     val familyDisplayNames: List<String>,
+    val constraintDescription: String? = null,
 )
 
 /** The sole capability gate for bracket recognition. */
@@ -56,11 +57,20 @@ internal object LanguageBraceMatchers {
             val owner = capabilityOwner(familyMembers.first()) ?: return@mapNotNull null
             SupportedBraceLanguage(
                 id = ownerId,
-                displayName = owner.displayName.ifBlank { ownerId },
+                displayName = if (ownerId == CUSTOM_FILE_TYPE_LANGUAGE_ID) {
+                    "Custom file types"
+                } else {
+                    owner.displayName.ifBlank { ownerId }
+                },
                 familyDisplayNames = familyMembers
                     .map { language -> language.displayName.ifBlank { language.id } }
                     .distinct()
                     .sortedWith(String.CASE_INSENSITIVE_ORDER),
+                constraintDescription = if (ownerId == CUSTOM_FILE_TYPE_LANGUAGE_ID) {
+                    "Custom syntax-table bracket tokens only; raw plain text is not scanned"
+                } else {
+                    null
+                },
             )
         }
             .sortedWith(
@@ -91,6 +101,8 @@ internal object LanguageBraceMatchers {
         }
         return owner
     }
+
+    private const val CUSTOM_FILE_TYPE_LANGUAGE_ID = "TEXT"
 }
 
 internal class ResolvedLanguageBraceMatcher(

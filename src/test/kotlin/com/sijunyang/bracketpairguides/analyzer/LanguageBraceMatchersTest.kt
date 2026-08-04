@@ -9,6 +9,16 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
 class LanguageBraceMatchersTest : BasePlatformTestCase() {
+    fun testTextMatcherIsPresentedAsCustomFileTypeCapability() {
+        val family = LanguageBraceMatchers.supportedLanguages().single { language ->
+            language.id == "TEXT"
+        }
+
+        assertEquals("Custom file types", family.displayName)
+        assertTrue(family.familyDisplayNames.contains("Plain text"))
+        assertTrue(family.constraintDescription.orEmpty().contains("raw plain text"))
+    }
+
     fun testMatcherFamilyWithoutStandaloneFileTypeIsExposedToSettings() {
         assertNull(EMBEDDED_LANGUAGE.associatedFileType)
         assertNull(EMBEDDED_DIALECT.associatedFileType)

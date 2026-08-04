@@ -200,6 +200,26 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         }
     }
 
+    fun testCustomFileTypeLanguageControlExplainsItsTokenBoundary() {
+        val language = SupportedBraceLanguage(
+            id = "TEXT",
+            displayName = "Custom file types",
+            familyDisplayNames = listOf("Plain text"),
+            constraintDescription =
+                "Custom syntax-table bracket tokens only; raw plain text is not scanned",
+        )
+
+        withConfigurable(listOf(language)) { _, component ->
+            val checkBox = component.languageCheckBox("TEXT")
+            assertEquals("Custom file types", checkBox.text)
+            assertTrue(checkBox.toolTipText.contains("raw plain text is not scanned"))
+            assertEquals(
+                checkBox.toolTipText,
+                checkBox.accessibleContext.accessibleDescription,
+            )
+        }
+    }
+
     fun testThemeChangeRefreshesOnlyAutomaticPaletteCells() {
         withConfigurable { configurable, component ->
             val palette = component.descendants()

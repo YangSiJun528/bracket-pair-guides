@@ -360,11 +360,12 @@ internal class PluginConfigurable(
             language.id to JBCheckBox(label).apply {
                 name = "language.${language.id}"
                 val family = language.familyDisplayNames.joinToString()
-                toolTipText = if (family == language.displayName) {
-                    "Matcher family ID: ${language.id}"
-                } else {
-                    "Matcher family ID: ${language.id}. Includes: $family"
+                toolTipText = buildList {
+                    add("Matcher family ID: ${language.id}")
+                    if (family != language.displayName) add("Includes: $family")
+                    language.constraintDescription?.let(::add)
                 }
+                    .joinToString(". ", postfix = ".")
                 accessibleContext.accessibleName = "$label language"
                 accessibleContext.accessibleDescription = toolTipText
             }
