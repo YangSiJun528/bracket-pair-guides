@@ -7,16 +7,15 @@ Pair Guides**. There is no separate Color Scheme page.
 
 | Setting | Default | Effect |
 |---|---:|---|
-| Enable bracket pair guides | On | Enables or disables all plugin highlighting |
-| Color matching bracket tokens by nesting level | On | Colors both symbols of every matched pair |
-| Show active pair guide | On | Shows a guide for the innermost pair containing the primary caret |
-| Vertical segment | On | Shows the vertical part of a multiline guide |
-| Opening and closing segments | On | Shows horizontal arms and single-line guides |
-| Line width | 1 px | Sets the guide width from 1 to 4 pixels |
+| Enabled | On | Enables or disables all plugin highlighting |
+| Bracket colorization | On | Colors both symbols of every matched pair |
+| Active guide | On | Shows a guide for the innermost pair containing the primary caret |
+| Vertical | On | Shows the vertical part of a multiline guide |
+| Horizontal | On | Shows opening/closing arms and single-line guides |
+| Width (px) | 1 | Sets the guide width from 1 to 4 pixels |
 | Opacity | 100% | Sets guide opacity from 10% to 100% |
-| Show pair border | Off | Adds a border to the two active symbols |
-| Border style | Box when enabled | Selects Box or Rounded box |
-| Show pair background | Off | Adds a background to the two active symbols |
+| Pair border | Off | Adds a border to the two active symbols |
+| Pair background | Off | Adds a background to the two active symbols |
 | Background opacity | 22% when enabled | Blends the pair color with the editor background |
 
 The plugin does not shade the complete range between the active symbols.
@@ -26,48 +25,86 @@ The default active presentation uses only the vertical and horizontal guide
 segments. Enable either pair option when the two active symbols need additional
 emphasis.
 
+## Choose languages
+
+The **Languages** group lists every installed language family that provides the
+`com.intellij.lang.braceMatcher` capability, including embedded-only
+languages without a standalone file type. Every family is enabled by default.
+
+- Clear a family to exclude it from token colors, active guides, and pair
+  emphasis.
+- Use **Enable all** or **Disable all** for the currently installed families.
+- Derived languages that inherit the same matcher are grouped together. For
+  example, TypeScript and JSX can appear in the JavaScript family tooltip.
+- A newly installed supported family starts enabled. A disabled selection is
+  retained if its language plugin is temporarily removed.
+- **Custom file types** means syntax-table bracket tokens registered through
+  the platform `TEXT` matcher; ordinary raw plain text is not scanned.
+
+Applying a language change clears stale decorations, recalculates the focused
+or selected editor's current pair immediately, and schedules complete
+background analysis. Other open editors and split views remain undecorated
+until their background pass completes. Reopen the Settings page after
+installing a language plugin so the family list can be rediscovered.
+
+Only matcher-defined pairs are affected. Enabling YAML does not turn indentation
+blocks into bracket pairs, and unsupported legacy-only languages are not added
+to this list. See the [IDE and language support reference](reference_language_support.md).
+
 ## Set level colors
 
-The **Level Colors** table contains six levels. Deeper levels repeat the same
+The **Colors** table contains six levels. Deeper levels repeat the same
 palette: level 7 uses level 1, level 8 uses level 2, and so on.
 
 By default, one Base color per level supplies the bracket-token foreground,
 guide line, pair border, and pair background. The built-in Base colors differ
-by level and follow light and dark editor schemes. Select **Reset to current
-theme defaults** to discard explicit colors and resume using theme defaults.
+by level and follow light and dark editor schemes. Select **Reset colors** to
+discard explicit colors and resume using theme defaults.
 
-Enable **Customize component colors separately** only when Guide, Border, or
-Background should differ from Base. A component cell is editable only when its
-feature and the advanced-color switch are enabled. Turning the switch off
-retains the advanced values for later use; resetting the palette clears them.
+Enable **Component overrides** only when Guide, Border, or Background should
+differ from Base. A component cell is editable only when its feature and the
+override switch are enabled. Turning the switch off retains the override values
+for later use; resetting the palette clears them.
 
 ## Use the Preview
 
 The editable **Preview** is beside the controls and reflects draft settings
 before Apply.
 
-The README screenshots enable the optional pair border and background to show
-their appearance; a new installation leaves both options off.
+The README image uses the default appearance; optional pair border and
+background remain off on a new installation.
 
 1. Select any example offered by the language matcher capability filter.
 2. Edit the example or move the caret into another pair.
-3. Switch examples without losing the temporary text and caret position.
+3. Switch examples without losing temporary text, caret, or scroll position.
 4. Select **Reset** to restore the current example.
+
+If no installed language provides the matcher capability, the selector shows a
+**Plain text** explanation instead of a brace example.
 
 Preview text is session-only. **Apply** and **OK** persist settings, not preview
 content. Open source editors receive draft appearance changes only after Apply
 or OK.
 
+Token decoration follows the Preview's actual visible range; recognition still
+covers the complete preview document. After the initial bundled sample, edits,
+example switches, Reset, and language changes are analyzed in the background.
+Previews above 10,000 characters show an analyzing status. Above 100,000
+characters, recognition and example switching pause and the status text
+explains why; edit the text below that limit or select **Reset** to resume. In a
+narrow Settings window, hover the compact status for the complete recovery
+instruction; assistive technology receives the same full description.
+
 ## Map familiar settings
 
 | VS Code setting | Bracket Pair Guides setting |
 |---|---|
-| `editor.bracketPairColorization.enabled` | Color matching bracket tokens by nesting level |
-| `editor.guides.bracketPairs: "active"` | Show active pair guide |
-| `editor.guides.bracketPairsHorizontal: "active"` | Opening and closing segments |
-| `editor.guides.highlightActiveBracketPair` | Show pair border / Show pair background |
+| `editor.bracketPairColorization.enabled` | Bracket colorization |
+| `editor.guides.bracketPairs: "active"` | Active guide |
+| `editor.guides.bracketPairsHorizontal: "active"` | Horizontal |
+| `editor.guides.highlightActiveBracketPair` | Pair border / Pair background |
 | `editorBracketHighlight.foreground1..6` | Base colors |
-| `editorBracketPairGuide.activeBackground1..6` | Guide colors in advanced mode |
+| `editorBracketPairGuide.activeBackground1..6` | Guide colors with Component overrides enabled |
 
 ## Avoid duplicate highlighting
 
@@ -87,13 +124,13 @@ Bracket Pair Guides removes only highlighters it created. It does not clear an
 editor's markup model or change another feature's settings.
 
 Language support follows `com.intellij.lang.braceMatcher`, not the IDE product
-name. The same plugin build can therefore support a language in Rider,
-RustRover, CLion, WebStorm, GoLand, or another JetBrains IDE when that language
-plugin registers the extension. Languages with only the legacy file-type
-matcher are left unchanged.
+name. An IDE can load the plugin while its primary language remains unsupported;
+for example, load compatibility with CLion does not imply C/C++ recognition.
+Languages with only the legacy file-type matcher are left unchanged.
 
 Related JetBrains documentation:
 
 - [Customize editor appearance](https://www.jetbrains.com/help/idea/customize-editor.html)
 - [Indent guides](https://www.jetbrains.com/help/idea/indentation.html)
 - [Brace matching extension](https://plugins.jetbrains.com/docs/intellij/additional-minor-features.html)
+- [Plugin compatibility](https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html)

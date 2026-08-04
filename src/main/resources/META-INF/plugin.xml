@@ -6,7 +6,7 @@
 
     <description><![CDATA[
         <p>Colorizes matching brackets by nesting level and shows an active guide for the innermost pair containing the caret.</p>
-        <p>Customize colors, guide lines, and active-pair emphasis in Editor settings.</p>
+        <p>Uses the IntelliJ Platform's language brace-matching extension. Select language families and customize colors, guide lines, and active-pair emphasis in Editor settings.</p>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>

@@ -5,30 +5,55 @@ innermost pair containing the caret.
 
 ## Preview
 
-| Dark theme | Light theme |
-|---|---|
-| ![Bracket Pair Guides settings and preview in a dark theme](docs/images/settings-preview-dark.png) | ![Bracket Pair Guides settings and preview in a light theme](docs/images/settings-preview-light.png) |
+![Bracket Pair Guides language controls and editable preview](docs/images/settings-preview-current.png)
 
-The screenshots demonstrate the optional active-symbol border and background.
-Both are off by default; the default active presentation draws only the guide.
+This image is rendered from the actual Settings component in the IntelliJ IDEA
+2024.1.7 test fixture. The language list follows the plugins installed in the
+running IDE, so other products can show a different set.
 
 ## Features
 
 - Six repeating nesting-level colors for matching bracket tokens.
-- One caret-activated guide for the innermost containing pair.
+- One caret-activated guide for the innermost containing pair, with independent
+  horizontal and vertical segments.
 - Optional border and background emphasis on the active opening and closing symbols.
 - One Settings page for colors, guide geometry, active-pair styling, and an editable preview.
 - Language-aware matching through each token language's
   `com.intellij.lang.braceMatcher`.
+- Immediate, bounded active-pair refresh after caret or edit changes; complete
+  document recognition remains in a cancellable background highlighting pass.
 
-## Requirements
+## IDE and language support
 
-- IntelliJ Platform 2024.1 or newer.
-- An active token language that registers `com.intellij.lang.braceMatcher`.
+The plugin requires IntelliJ Platform build 241 (2024.1) or newer and only the
+platform-wide `platform` and `lang` modules. It is load-compatible with
+standalone JetBrains IDEs such as IntelliJ IDEA, WebStorm, PyCharm, GoLand,
+RustRover, PhpStorm, RubyMine, CLion, Rider, and DataGrip. The current
+Plugin Verifier matrix covers IntelliJ IDEA Community 2024.1 through 2025.2
+and IntelliJ IDEA Ultimate 2026.2; the other products are load-compatible but
+are not all verifier- or runtime-tested.
 
-Support is capability-based rather than tied to an IDE product list. A
-language works in any JetBrains IDE where its plugin registers that extension.
-Legacy file-type-only `com.intellij.braceMatcher` registrations are not used.
+Language recognition is a separate capability check. A token language works
+when its installed language plugin registers `com.intellij.lang.braceMatcher`.
+
+| Audit status | Languages and limits |
+|---|---|
+| Direct, common registrations confirmed | Java, Kotlin/KTS, JSON, JavaScript, Python, Go, Rust, Shell Script, TOML, Groovy, SQL |
+| Direct, web and data registrations confirmed | CSS, LESS, SASS, SCSS, protobuf, prototext, MongoDB-JSON, MongoJS |
+| Direct, build/config/template registrations confirmed | CMake, Makefile, Devicetree (DTS), Linker Script, Go Template, Go build constraints, Go modules/workspaces, HCL/Terraform, HIL, EJS |
+| Direct, specialized registrations confirmed | RegExp, Mermaid, JSONPath, EditorConfig, XPath, RELAX-NG Compact, JQL, Qute, EL, JPAQL, JSP, FreeMarker, Velocity, Micronaut EL, SpEL, Dockerfile, DockerIgnore, GitHub Expression, Android Gradle Declarative, Git Ignore/Git Exclude, Hg Ignore |
+| Conditional or partial | TypeScript/JSX/TSX through JavaScript; YAML flow collections; JavaScript regions in Vue/Angular; platform custom file types using syntax-table bracket tokens |
+| No compatible registration found in the audit | XML, HTML, Markdown, TextMate, C/C++ |
+| Not conclusively audited | PHP, Ruby, C#, and third-party language plugins |
+
+This table is an audit snapshot, not a hard-coded allowlist. The runtime
+capability check and the **Languages** list in Settings are authoritative, so
+an installed language plugin can add support without a Bracket Pair Guides
+release. Legacy file-type-only `com.intellij.braceMatcher` registrations are
+intentionally not used. See the
+[IDE and language support reference](docs/reference_language_support.md) for
+the verified boundary and the [language showcase](docs/example_language_showcase.md)
+for representative source examples.
 
 ## Install a local build
 
@@ -39,7 +64,7 @@ Legacy file-type-only `com.intellij.braceMatcher` registrations are not used.
 
 Open **Settings | Editor | Bracket Pair Guides** to configure the plugin. See
 [Configuration and conflict handling](docs/guide_configuration.md) for all
-options and coexistence guidance.
+options, per-language controls, and coexistence guidance.
 
 ## Develop and verify
 
@@ -51,8 +76,11 @@ options and coexistence guidance.
 ```
 
 `runIde` opens a sandboxed IntelliJ IDEA instance with the plugin installed.
-The regression suite covers Java, Kotlin, Kotlin script, JSON, contextual
-language matchers, unsupported legacy-only file types, and large inputs.
+`verifyPlugin` resolves JetBrains' recommended cross-version matrix plus an
+explicit IntelliJ IDEA 2026.2 endpoint; the minimum published build remains
+pinned to 241 when the test fixture is upgraded.
+The regression suite covers Java, Kotlin, Kotlin script, JSON, contextual and
+custom-file-type matchers, unsupported legacy-only file types, and large inputs.
 
 For implementation details, see
 [Architecture and performance](docs/explanation_architecture.md).
