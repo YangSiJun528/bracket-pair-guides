@@ -84,6 +84,9 @@ custom-file-type matchers, unsupported legacy-only file types, and large inputs.
 
 For implementation details, see
 [Architecture and performance](docs/explanation_architecture.md).
+Before the first public release, follow the
+[release checklist](docs/how_to_release.md); JetBrains requires the initial
+Marketplace publication to be uploaded manually before Gradle-based updates.
 
 ## License
 

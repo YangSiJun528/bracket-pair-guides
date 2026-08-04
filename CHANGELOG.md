@@ -19,6 +19,8 @@
 - An audited IDE and language capability reference, including Rust and the
   official build/config/template matcher registrations found in installed
   JetBrains language plugins.
+- A release checklist covering the first manual Marketplace upload, listing
+  metadata, verification, signing, and the later automated update path.
 - Per-language matcher-family controls with individual and bulk enable/disable
   actions; newly installed supported languages remain enabled by default.
 - Java, Kotlin, Kotlin script, JSON, contextual matcher, unsupported-language,
@@ -160,6 +162,12 @@
   through GitHub's `published` event.
 - Draft releases now target the exact commit that completed CI instead of a
   potentially newer default-branch revision.
+- Draft preparation now replaces only the current version's prior draft instead
+  of deleting every unrelated draft in the repository.
+- GitHub releases now prefer a verified signed ZIP when signing credentials are
+  configured and upload it before optional Marketplace publishing, so a
+  Marketplace failure does not also suppress the GitHub artifact or block a
+  safe workflow retry.
 - Platform custom file types now route only their official syntax-table bracket
   tokens through the `TEXT` matcher, while raw plain text remains unsupported.
 - Failed Preview matcher runs now clear stale token and guide decoration before
