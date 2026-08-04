@@ -41,11 +41,11 @@ languages without a standalone file type. Every family is enabled by default.
 - **Custom file types** means syntax-table bracket tokens registered through
   the platform `TEXT` matcher; ordinary raw plain text is not scanned.
 
-Applying a language change clears stale decorations, recalculates the focused
-or selected editor's current pair immediately, and schedules complete
-background analysis. Other open editors and split views remain undecorated
-until their background pass completes. Reopen the Settings page after
-installing a language plugin so the family list can be rediscovered.
+Applying a language change clears stale decorations, runs the bounded immediate
+resolver for the focused or selected editor's current pair, and schedules
+complete background analysis. Other open editors and split views remain
+undecorated until their background pass completes. Reopen the Settings page
+after installing a language plugin so the family list can be rediscovered.
 
 Only matcher-defined pairs are affected. Enabling YAML does not turn indentation
 blocks into bracket pairs, and unsupported legacy-only languages are not added
