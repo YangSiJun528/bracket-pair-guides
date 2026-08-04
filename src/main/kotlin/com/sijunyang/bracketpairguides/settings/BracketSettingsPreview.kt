@@ -233,12 +233,13 @@ internal class BracketSettingsPreview(
             minimumSize = JBUI.size(0, MINIMUM_EDITOR_HEIGHT)
             preferredSize = JBUI.size(PREFERRED_WIDTH, PREFERRED_EDITOR_HEIGHT)
         }
-        exampleSelector.toolTipText = "Examples available from installed language plugins"
+        exampleSelector.toolTipText =
+            "Bundled examples available for installed brace matchers"
         exampleSelector.accessibleContext.apply {
             accessibleName = "Preview example"
             accessibleDescription = exampleSelector.toolTipText
         }
-        resetExampleButton.toolTipText = "Restore this format's boilerplate"
+        resetExampleButton.toolTipText = "Restore the current bundled example"
         resetExampleButton.accessibleContext.apply {
             accessibleName = "Reset preview example"
             accessibleDescription = resetExampleButton.toolTipText

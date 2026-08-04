@@ -124,8 +124,16 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 preview.exampleSelector.accessibleContext.accessibleName,
             )
             assertEquals(
+                preview.exampleSelector.toolTipText,
+                preview.exampleSelector.accessibleContext.accessibleDescription,
+            )
+            assertEquals(
                 "Reset preview example",
                 preview.resetExampleButton.accessibleContext.accessibleName,
+            )
+            assertEquals(
+                preview.resetExampleButton.toolTipText,
+                preview.resetExampleButton.accessibleContext.accessibleDescription,
             )
             assertEquals(
                 "Editable bracket pair preview",

@@ -79,8 +79,10 @@ background remain off on a new installation.
 3. Switch examples without losing temporary text, caret, or scroll position.
 4. Select **Reset** to restore the current example.
 
-If no installed language provides the matcher capability, the selector shows a
-**Plain text** explanation instead of a brace example.
+If none of the bundled examples has an installed language matcher, the selector
+shows a **Plain text** explanation instead of a brace example. Matcher-backed
+third-party languages can still appear in **Languages** even when the Preview
+has no bundled example for them.
 
 Preview text is session-only. **Apply** and **OK** persist settings, not preview
 content. Open source editors receive draft appearance changes only after Apply

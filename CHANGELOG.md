@@ -155,6 +155,8 @@
 - Preview results rejected after an in-flight tab-size or highlighter change
   are resubmitted immediately instead of being treated as a successful empty
   result.
+- Preview fallback text now distinguishes a missing bundled example from a
+  complete absence of installed matcher-backed languages.
 - Re-enabling a Preview analysis capability now refreshes a retained snapshot
   when a tab-size change made it stale.
 - A full source-editor result already in flight can no longer repopulate

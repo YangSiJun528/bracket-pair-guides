@@ -311,9 +311,9 @@ internal data class PreviewExample(
             displayName = "Plain text",
             extension = "txt",
             source = """
-                Preview unavailable: no language with lang.braceMatcher is installed.
+                Preview unavailable: no bundled example matches an installed brace matcher.
 
-                Install a language plugin, then reopen this settings page.<caret>
+                Install a supported example language plugin, then reopen this settings page.<caret>
             """.trimIndent(),
         )
 
