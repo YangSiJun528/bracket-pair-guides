@@ -78,6 +78,7 @@ internal class EditorGuideSession private constructor(
     fun caretMoved() {
         assertEdt()
         if (disposed || editor.isDisposed) return
+        if (!AnalysisCapabilities.from(options).activePair) return
         val currentSnapshot = snapshot
         if (currentSnapshot == null || !isCurrent(currentSnapshot)) {
             updateProvisional(null)

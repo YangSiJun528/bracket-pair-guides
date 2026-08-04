@@ -61,6 +61,8 @@
   off-screen and caps synchronous EDT decorations at 2,048 ranges.
 - Dense token-window refreshes now coalesce by editor on a fixed 16 ms delay;
   capped windows also follow caret-only movement without waiting for a scroll.
+- Disabling token colors now clears capped-window refresh state, and disabling
+  active-pair presentation skips caret-side active-index work.
 - Large token and active-pair index sorts now check cancellation between bounded
   sort and merge work instead of holding a stale background pass to one sort.
 - The redundant final recognized-pair object sort was removed because both

@@ -99,7 +99,12 @@ internal object VisibleTokenDecorationManager {
     ): VisibleTokenDecorations {
         if (!options.enabled || !options.colorBracketTokens) {
             disposeEntries(current.entries)
-            return current.copy(entries = emptyList())
+            return current.copy(
+                entries = emptyList(),
+                stableFocusStartOffset = current.windowStartOffset,
+                stableFocusEndOffset = current.windowEndOffset,
+                isCapped = false,
+            )
         }
 
         val palette = TokenPalette(editor, options)

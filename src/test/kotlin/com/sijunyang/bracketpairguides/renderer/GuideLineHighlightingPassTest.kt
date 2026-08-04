@@ -601,6 +601,28 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertEquals(tokenHighlighters, bracketColorHighlighters().toSet())
     }
 
+    fun testDisablingACappedTokenWindowClearsItsRefreshState() {
+        val pairCount = 10_000
+        val source = "()".repeat(pairCount)
+        myFixture.configureByText("DisabledCappedTokens.txt", source)
+        val pairs = List(pairCount) { index ->
+            val openOffset = index * 2
+            BracketPair(openOffset, 1, openOffset + 1, 1, 0, 0, 0)
+        }
+        applyPass(BracketPairProvider { pairs }) { TextRange(0, source.length) }
+        assertTrue(session().tokenDecorations.isCapped)
+
+        applyOptions(
+            PluginSettings.getInstance().options.copy(colorBracketTokens = false),
+        )
+
+        val disabled = session().tokenDecorations
+        assertTrue(disabled.entries.isEmpty())
+        assertFalse(disabled.isCapped)
+        assertEquals(disabled.windowStartOffset, disabled.stableFocusStartOffset)
+        assertEquals(disabled.windowEndOffset, disabled.stableFocusEndOffset)
+    }
+
     fun testReenablingBracketColorsRestoresTheCachedTokenIndex() {
         val source = "x { content } y"
         myFixture.configureByText("CachedTokens.txt", source)
