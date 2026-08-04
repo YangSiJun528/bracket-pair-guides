@@ -137,7 +137,7 @@ class ActiveGuidePositionResolverTest : BasePlatformTestCase() {
                     }
                 }
                 if (line != 0 && random.nextInt(5) == 0) {
-                    indentation
+                    indentation.ifEmpty { " " }
                 } else {
                     "${indentation}value-$line"
                 }
