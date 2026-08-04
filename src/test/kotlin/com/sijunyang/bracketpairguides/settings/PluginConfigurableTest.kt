@@ -819,9 +819,10 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertTrue(preview.analysisStatusLabel.isVisible)
             assertTrue(preview.analysisStatusLabel.text.contains("Analyzing"))
             assertEquals(
-                preview.analysisStatusLabel.text,
                 preview.analysisStatusLabel.accessibleContext.accessibleDescription,
+                preview.analysisStatusLabel.toolTipText,
             )
+            assertTrue(preview.analysisStatusLabel.toolTipText.contains("background"))
             PlatformTestUtil.waitWithEventsDispatching(
                 "large preview background recognition",
                 {
@@ -874,9 +875,10 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             )
             assertFalse(preview.analysisStatusLabel.text.contains("Analyzing"))
             assertEquals(
-                preview.analysisStatusLabel.text,
                 preview.analysisStatusLabel.accessibleContext.accessibleDescription,
+                preview.analysisStatusLabel.toolTipText,
             )
+            assertTrue(preview.analysisStatusLabel.toolTipText.contains("Reset to retry"))
 
             preview.resetExampleButton.doClick()
 
@@ -897,10 +899,12 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertFalse(preview.exampleSelector.isEnabled)
             assertTrue(preview.analysisStatusLabel.isVisible)
             assertTrue(preview.analysisStatusLabel.text.contains("100,000"))
+            assertTrue(preview.analysisStatusLabel.text.length < 40)
             assertEquals(
-                preview.analysisStatusLabel.text,
                 preview.analysisStatusLabel.accessibleContext.accessibleDescription,
+                preview.analysisStatusLabel.toolTipText,
             )
+            assertTrue(preview.analysisStatusLabel.toolTipText.contains("Shorten the text"))
             val another = (0 until preview.exampleSelector.itemCount)
                 .map(preview.exampleSelector::getItemAt)
                 .first { it != selected }

@@ -341,19 +341,25 @@ internal class BracketSettingsPreview(
     private fun updateLengthState() {
         val analysisPaused = previewEditor.document.textLength > MAX_PREVIEW_LENGTH
         exampleSelector.isEnabled = !analysisPaused
-        val status = when {
-            analysisPaused ->
+        val (status, statusDescription) = when {
+            analysisPaused -> Pair(
+                "Analysis paused (>100,000 chars).",
                 "Analysis and example switching are paused above 100,000 characters. " +
-                    "Shorten the text or Reset to resume."
-            analyzingGeneration == recognitionGeneration ->
-                "Analyzing preview in the background..."
-            failedGeneration == recognitionGeneration ->
-                "Preview analysis failed. Edit the text or Reset to retry."
-            else -> ""
+                    "Shorten the text or Reset to resume.",
+            )
+            analyzingGeneration == recognitionGeneration -> Pair(
+                "Analyzing preview...",
+                "Analyzing preview in the background...",
+            )
+            failedGeneration == recognitionGeneration -> Pair(
+                "Preview analysis failed.",
+                "Preview analysis failed. Edit the text or Reset to retry.",
+            )
+            else -> "" to null
         }
         analysisStatusLabel.text = status
-        analysisStatusLabel.accessibleContext.accessibleDescription =
-            status.takeIf(String::isNotEmpty)
+        analysisStatusLabel.toolTipText = statusDescription
+        analysisStatusLabel.accessibleContext.accessibleDescription = statusDescription
         analysisStatusLabel.isVisible = status.isNotEmpty()
     }
 
