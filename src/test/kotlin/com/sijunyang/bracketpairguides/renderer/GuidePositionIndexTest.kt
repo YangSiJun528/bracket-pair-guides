@@ -70,6 +70,27 @@ class GuidePositionIndexTest {
         assertFalse(GuidePositionIndex.supportsLineCount(Int.MAX_VALUE))
     }
 
+    @Test
+    fun `indentation column saturates before the no-indent sentinel`() {
+        val index = indexFor("{\n\t\tvalue", tabSize = Int.MAX_VALUE)
+
+        val guide = index.guideFor(pair(closeLine = 1))
+
+        assertEquals(Int.MAX_VALUE - 1, guide.guideColumn)
+        assertEquals(1, guide.anchorLine)
+    }
+
+    @Test
+    fun `line selection does not overflow after the maximum open line`() {
+        val index = indexFor("  first\n    last")
+        val malformed = pair(closeLine = Int.MAX_VALUE).copy(openLine = Int.MAX_VALUE)
+
+        val guide = index.guideFor(malformed)
+
+        assertEquals(4, guide.guideColumn)
+        assertEquals(1, guide.anchorLine)
+    }
+
     private fun indexFor(text: String, tabSize: Int = 4): GuidePositionIndex {
         val starts = mutableListOf(0)
         val ends = mutableListOf<Int>()

@@ -87,6 +87,25 @@ class ActiveGuidePositionResolverTest : BasePlatformTestCase() {
         assertEquals(301, guide.anchorLine)
     }
 
+    fun testSameLineFallbackClampsAnOverflowedProviderLine() {
+        val source = "{\n    value\n}"
+        myFixture.configureByText("OverflowedLine.txt", source)
+        val malformed = pairFor(source, closeLine = Int.MAX_VALUE).copy(
+            openLine = Int.MAX_VALUE,
+        )
+
+        val guide = ActiveGuidePositionResolver.resolve(
+            editor = myFixture.editor,
+            pair = malformed,
+            previous = null,
+            currentAnchorLine = null,
+            change = null,
+        )
+
+        assertEquals(0, guide.guideColumn)
+        assertEquals(2, guide.anchorLine)
+    }
+
     private fun pairFor(source: String, closeLine: Int): BracketPair = BracketPair(
         openOffset = source.indexOf('{'),
         openTokenLength = 1,

@@ -13,10 +13,17 @@ internal object ActiveGuidePositionResolver {
         currentAnchorLine: Int?,
         change: DocumentChange?,
     ): BracketGuide {
-        if (pair.openLine == pair.closeLine) return BracketGuide(pair, 0)
-
         val document = editor.document
-        val firstLine = (pair.openLine + 1).coerceIn(0, document.lineCount - 1)
+        if (pair.openLine == pair.closeLine) {
+            return BracketGuide(
+                pair = pair,
+                guideColumn = 0,
+                anchorLine = pair.openLine.coerceIn(0, document.lineCount - 1),
+            )
+        }
+
+        val firstLine = GuidePositionIndex.lineAfterOpenOrClose(pair.openLine, pair.closeLine)
+            .coerceIn(0, document.lineCount - 1)
         val lastLine = pair.closeLine.coerceIn(firstLine, document.lineCount - 1)
         if (previous != null &&
             change?.mayAffectGuidePosition != true &&
