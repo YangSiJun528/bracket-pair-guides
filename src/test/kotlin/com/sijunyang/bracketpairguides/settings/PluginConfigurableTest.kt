@@ -11,8 +11,11 @@ import com.intellij.lang.Language
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.colors.EditorColorsManager
+import com.intellij.openapi.editor.colors.impl.EditorColorsSchemeImpl
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.RangeHighlighter
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.fileTypes.UnknownFileType
@@ -160,6 +163,37 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 setOf(UNAVAILABLE_LANGUAGE_ID),
                 PluginSettings.getInstance().options.disabledLanguageIds,
             )
+        }
+    }
+
+    fun testThemeChangeRefreshesOnlyAutomaticPaletteCells() {
+        withConfigurable { configurable, component ->
+            val palette = component.descendants()
+                .filterIsInstance<ColorPaletteTable>()
+                .single()
+            val customDraftColor = Color(0x12, 0x34, 0x56)
+            palette.table.model.setValueAt(customDraftColor, 0, 1)
+            val modifiedBeforeThemeChange = configurable.isModified
+
+            val themeColor = Color(0x65, 0x43, 0x21)
+            val theme = EditorColorsSchemeImpl(
+                EditorColorsManager.getInstance().globalScheme,
+            ).apply {
+                setAttributes(
+                    BracketColorPalette.LEVEL_KEYS[1],
+                    TextAttributes().apply { foregroundColor = themeColor },
+                )
+            }
+
+            ApplicationManager.getApplication().messageBus
+                .syncPublisher(EditorColorsManager.TOPIC)
+                .globalSchemeChange(theme)
+
+            assertEquals(customDraftColor, palette.color(0, PaletteComponent.BASE))
+            assertEquals(customDraftColor, palette.color(0, PaletteComponent.GUIDE))
+            assertEquals(themeColor, palette.color(1, PaletteComponent.BASE))
+            assertEquals(themeColor, palette.color(1, PaletteComponent.GUIDE))
+            assertEquals(modifiedBeforeThemeChange, configurable.isModified)
         }
     }
 

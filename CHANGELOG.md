@@ -42,6 +42,8 @@
   the background instead of blocking the Settings event thread.
 - Long previews now move a bounded token-color window with their actual
   viewport instead of leaving colors near the initial caret.
+- Theme changes now refresh automatic Settings palette cells while preserving
+  explicit draft colors and the page's modified state.
 
 ### Fixed
 

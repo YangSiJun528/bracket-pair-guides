@@ -5,11 +5,16 @@ import com.sijunyang.bracketpairguides.analyzer.SupportedBraceLanguage
 import com.sijunyang.bracketpairguides.renderer.AnalysisCapabilities
 import com.sijunyang.bracketpairguides.renderer.EditorGuideSession
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.colors.EditorColorsListener
 import com.intellij.openapi.editor.colors.EditorColorsManager
+import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.ui.Splitter
+import com.intellij.openapi.util.Disposer
 import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBScrollPane
@@ -52,6 +57,7 @@ internal class PluginConfigurable(
     private var languageCheckBoxes: Map<String, JBCheckBox> = emptyMap()
     private var unavailableDisabledLanguageIds: Set<String> = emptySet()
     private var preview: BracketSettingsPreview? = null
+    private var uiLifetime: Disposable? = null
     private var panel: JComponent? = null
     private var resetSnapshot: PluginOptions? = null
     private var baseColorsAreAutomatic = BooleanArray(BracketColorPalette.COLOR_COUNT)
@@ -186,6 +192,7 @@ internal class PluginConfigurable(
         panel = result
         wireListeners()
         reset()
+        installThemeListener()
         return result
     }
 
@@ -279,6 +286,8 @@ internal class PluginConfigurable(
     }
 
     override fun disposeUIResources() {
+        uiLifetime?.let(Disposer::dispose)
+        uiLifetime = null
         preview?.dispose()
         preview = null
         panel = null
@@ -287,6 +296,49 @@ internal class PluginConfigurable(
         languageCheckBoxes = emptyMap()
         unavailableDisabledLanguageIds = emptySet()
         controlsCreated = false
+    }
+
+    private fun installThemeListener() {
+        val lifetime = Disposer.newDisposable("Bracket Pair Guides settings UI")
+        uiLifetime = lifetime
+        ApplicationManager.getApplication().messageBus.connect(lifetime).subscribe(
+            EditorColorsManager.TOPIC,
+            EditorColorsListener { scheme ->
+                val application = ApplicationManager.getApplication()
+                val refresh = {
+                    if (controlsCreated && uiLifetime === lifetime) {
+                        refreshAutomaticPalette(scheme)
+                    }
+                }
+                if (application.isDispatchThread) refresh() else application.invokeLater(refresh)
+            },
+        )
+    }
+
+    private fun refreshAutomaticPalette(scheme: EditorColorsScheme?) {
+        val activeScheme = scheme ?: EditorColorsManager.getInstance().globalScheme
+        updatingUi = true
+        try {
+            for (level in 0 until BracketColorPalette.COLOR_COUNT) {
+                if (baseColorsAreAutomatic[level]) {
+                    val themeColor = activeScheme
+                        .getAttributes(BracketColorPalette.LEVEL_KEYS[level])
+                        .foregroundColor ?: activeScheme.defaultForeground
+                    paletteTable.setColor(level, PaletteComponent.BASE, themeColor)
+                }
+                val baseColor = paletteTable.color(level, PaletteComponent.BASE)
+                for (component in PaletteComponent.entries) {
+                    if (component != PaletteComponent.BASE &&
+                        componentColorsAreAutomatic[component.ordinal][level]
+                    ) {
+                        paletteTable.setColor(level, component, baseColor)
+                    }
+                }
+            }
+        } finally {
+            updatingUi = false
+        }
+        paletteTable.refreshAvailability()
     }
 
     private fun createControls() {
