@@ -769,6 +769,49 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertTrue(bracketColorHighlighters().isNotEmpty())
     }
 
+    fun testLateFullPassCannotRestoreASnapshotAfterAllFeaturesAreDisabled() {
+        val source = "x { content } y"
+        myFixture.configureByText("LateDisabledSnapshot.txt", source)
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        var collections = 0
+        val provider = BracketPairProvider {
+            collections++
+            listOf(pair)
+        }
+        val editor = myFixture.editor
+        val enabled = PluginSettings.getInstance().options
+        val latePass = GuideLineHighlightingPass(project, editor, provider)
+        inReadAction {
+            latePass.doCollectInformation(EmptyProgressIndicator())
+        }
+        val fullStamp = AnalysisStamp.current(
+            editor,
+            AnalysisCapabilities.from(enabled),
+            enabled.disabledLanguageIds,
+        )
+
+        val disabled = enabled.copy(enabled = false)
+        applyOptions(disabled)
+        latePass.doApplyInformationToEditor()
+        val disabledStamp = AnalysisStamp.current(
+            editor,
+            AnalysisCapabilities.from(disabled),
+            disabled.disabledLanguageIds,
+        )
+
+        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, fullStamp))
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, disabledStamp))
+        assertTrue(ownedHighlighters().isEmpty())
+
+        applyOptions(enabled)
+        applyPass(provider)
+
+        assertEquals(2, collections)
+        assertTrue(bracketColorHighlighters().isNotEmpty())
+    }
+
     fun testReenablingActivePresentationUsesTheFastResolverImmediately() {
         val source = "x { content } y"
         myFixture.configureByText("ReenabledFastPath.txt", source)

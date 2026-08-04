@@ -155,3 +155,5 @@
   result.
 - Re-enabling a Preview analysis capability now refreshes a retained snapshot
   when a tab-size change made it stale.
+- A full source-editor result already in flight can no longer repopulate
+  proportional indexes after every pair feature has been disabled.

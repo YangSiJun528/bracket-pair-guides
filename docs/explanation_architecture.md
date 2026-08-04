@@ -151,7 +151,8 @@ also ignores tab-size changes because tab width affects only guide positioning.
 When token, guide, border, and background features are all disabled, the
 session releases the complete snapshot instead of retaining proportional pair
 indexes for an invisible feature. Re-enabling analysis starts a new background
-pass.
+pass. A full result that was already in flight is reduced to a compact inactive
+stamp instead of repopulating the released indexes.
 
 For multiline pairs, `GuidePositionIndex` builds a tab-aware range-minimum
 indentation index once. Its build cost is `O(L)` and each guide-column query is

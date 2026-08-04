@@ -54,7 +54,14 @@ internal class EditorGuideSession private constructor(
 
     fun accept(nextSnapshot: AnalysisSnapshot) {
         assertEdt()
-        if (disposed || editor.isDisposed || !nextSnapshot.stamp.satisfies(currentStamp())) return
+        if (disposed || editor.isDisposed) return
+        val required = currentStamp()
+        if (!nextSnapshot.stamp.satisfies(required)) return
+        if (!retainAnalysisWhenInactive && !required.capabilities.pairs) {
+            clear()
+            acceptedStamp = required
+            return
+        }
 
         snapshot = nextSnapshot
         val pairIndex = nextSnapshot.activeIndex.activePairIndex(caretOffset())
