@@ -1,6 +1,8 @@
 package com.sijunyang.bracketpairguides.analyzer
 
 import com.intellij.codeInsight.highlighting.PairedBraceMatcherAdapter
+import com.intellij.ide.highlighter.custom.CustomFileHighlighter
+import com.intellij.ide.highlighter.custom.SyntaxTable
 import com.intellij.lang.BracePair
 import com.intellij.lang.Language
 import com.intellij.lang.LanguageBraceMatching
@@ -13,6 +15,7 @@ import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.ex.util.LexerEditorHighlighter
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.impl.AbstractFileType
 import com.intellij.openapi.fileTypes.SyntaxHighlighter
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProcessCanceledException
@@ -134,6 +137,57 @@ class BracketPairAnalyzerTest : BasePlatformTestCase() {
         myFixture.configureByText("Unsupported.txt", "{[(content)]}")
 
         assertTrue(analyze(EmptyProgressIndicator()).isEmpty())
+    }
+
+    fun testUsesOfficialCustomFileTypeBracketTokens() {
+        val source = "{ [ ( value ) ] }"
+        myFixture.configureByText("Custom.txt", source)
+        val syntaxTable = SyntaxTable().apply {
+            isHasBraces = true
+            isHasBrackets = true
+            isHasParens = true
+        }
+        val customFileType = AbstractFileType(syntaxTable)
+        (myFixture.editor as EditorEx).setHighlighter(
+            LexerEditorHighlighter(
+                CustomFileHighlighter(syntaxTable),
+                myFixture.editor.colorsScheme,
+            ),
+        )
+
+        val pairs = ReadAction.compute<List<BracketPair>, RuntimeException> {
+            BracketPairAnalyzer(
+                editor = myFixture.editor,
+                fileType = customFileType,
+            ).collect(EmptyProgressIndicator())
+        }
+
+        assertEquals(3, pairs.size)
+        assertEquals(setOf('{', '[', '('), pairs.map { source[it.openOffset] }.toSet())
+        assertEquals(setOf('}', ']', ')'), pairs.map { source[it.closeOffset] }.toSet())
+    }
+
+    fun testCustomFileTypeCapabilityCanBeDisabled() {
+        val source = "{ value }"
+        myFixture.configureByText("DisabledCustom.txt", source)
+        val syntaxTable = SyntaxTable().apply { isHasBraces = true }
+        val customFileType = AbstractFileType(syntaxTable)
+        (myFixture.editor as EditorEx).setHighlighter(
+            LexerEditorHighlighter(
+                CustomFileHighlighter(syntaxTable),
+                myFixture.editor.colorsScheme,
+            ),
+        )
+
+        val pairs = ReadAction.compute<List<BracketPair>, RuntimeException> {
+            BracketPairAnalyzer(
+                editor = myFixture.editor,
+                fileType = customFileType,
+                isLanguageEnabled = { capabilityId -> capabilityId != "TEXT" },
+            ).collect(EmptyProgressIndicator())
+        }
+
+        assertTrue(pairs.isEmpty())
     }
 
     fun testDisabledMatcherFamilyIsExcludedFromFullAnalysis() {

@@ -6,6 +6,9 @@ import com.intellij.lang.Language
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.PlainTextLanguage
+import com.intellij.openapi.fileTypes.UserFileType
+import com.intellij.psi.CustomHighlighterTokenType
 import com.intellij.psi.tree.IElementType
 import java.util.Locale
 
@@ -125,7 +128,7 @@ internal class BracketPairingCore(
 
     private fun classify(iterator: HighlighterIterator): ClassifiedToken? {
         val tokenType = iterator.tokenType ?: return null
-        val language = tokenType.language
+        val language = matcherLanguage(tokenType)
         val resolved = matchers.cached(language) ?: return null
         val matcher = resolved.matcher
         val isLeft = matcher.isLBraceToken(iterator, text, fileType)
@@ -146,6 +149,26 @@ internal class BracketPairingCore(
             isRight = isRight,
             isSymmetric = isSymmetric,
         )
+    }
+
+    /** Custom syntax-table bracket tokens use the platform's TEXT matcher. */
+    private fun matcherLanguage(tokenType: IElementType): Language = when {
+        fileType !is UserFileType<*> -> tokenType.language
+        tokenType.isCustomFileTypeBrace() -> PlainTextLanguage.INSTANCE
+        else -> tokenType.language
+    }
+
+    private fun IElementType.isCustomFileTypeBrace(): Boolean = when (this) {
+        CustomHighlighterTokenType.L_BRACE,
+        CustomHighlighterTokenType.R_BRACE,
+        CustomHighlighterTokenType.L_ANGLE,
+        CustomHighlighterTokenType.R_ANGLE,
+        CustomHighlighterTokenType.L_BRACKET,
+        CustomHighlighterTokenType.R_BRACKET,
+        CustomHighlighterTokenType.L_PARENTH,
+        CustomHighlighterTokenType.R_PARENTH,
+        -> true
+        else -> false
     }
 
     private fun HashMap<Language, ResolvedLanguageBraceMatcher?>.cached(
