@@ -47,7 +47,7 @@ internal data class AnalysisStamp(
 ) {
     fun satisfies(required: AnalysisStamp): Boolean =
         documentStamp == required.documentStamp &&
-            tabSize == required.tabSize &&
+            (!required.capabilities.guidePosition || tabSize == required.tabSize) &&
             highlighterIdentity == required.highlighterIdentity &&
             disabledLanguageIds == required.disabledLanguageIds &&
             capabilities.includes(required.capabilities)
