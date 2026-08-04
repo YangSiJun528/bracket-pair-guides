@@ -842,6 +842,46 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         }
     }
 
+    fun testLargePreviewFailureReplacesAnalyzingStateWithRecoveryStatus() {
+        val preview = BracketSettingsPreview(
+            PreviewPairProviderFactory { editor, fileType, disabledLanguageIds ->
+                val delegate = BracketPairAnalyzer(editor, fileType) { capabilityId ->
+                    capabilityId !in disabledLanguageIds
+                }
+                BracketPairProvider { progress ->
+                    if (editor.document.textLength > 10_000) {
+                        throw IllegalStateException("injected preview matcher failure")
+                    }
+                    delegate.collect(progress)
+                }
+            },
+        )
+        try {
+            selectExample(preview, "java")
+            val largeJava = buildString {
+                append("class Large { void run() {\n")
+                repeat(1_200) { append("call(); // padding\n") }
+                append("} }")
+            }
+
+            replacePreviewText(preview, largeJava)
+
+            assertTrue(preview.analysisStatusLabel.text.contains("Analyzing"))
+            PlatformTestUtil.waitWithEventsDispatching(
+                "large preview failure status",
+                { preview.analysisStatusLabel.text.contains("failed") },
+                10_000,
+            )
+            assertFalse(preview.analysisStatusLabel.text.contains("Analyzing"))
+            assertEquals(
+                preview.analysisStatusLabel.text,
+                preview.analysisStatusLabel.accessibleContext.accessibleDescription,
+            )
+        } finally {
+            preview.dispose()
+        }
+    }
+
     fun testOversizedPreviewPausesAnalysisAndExampleSwitchingUntilReset() {
         val preview = BracketSettingsPreview()
         try {

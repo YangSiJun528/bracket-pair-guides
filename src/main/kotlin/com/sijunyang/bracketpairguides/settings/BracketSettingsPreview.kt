@@ -7,6 +7,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.EditorKind
 import com.intellij.openapi.editor.event.CaretEvent
@@ -19,6 +20,8 @@ import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
+import com.intellij.openapi.progress.ProcessCanceledException
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.ui.OnePixelDivider
 import com.intellij.openapi.util.Disposer
@@ -32,6 +35,7 @@ import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
+import java.util.concurrent.CancellationException
 import javax.swing.JButton
 import javax.swing.JComboBox
 import javax.swing.JPanel
@@ -73,6 +77,7 @@ internal class BracketSettingsPreview(
     @Volatile
     private var recognitionGeneration = 0L
     private var analyzingGeneration: Long? = null
+    private var failedGeneration: Long? = null
     private var changingDocument = false
     @Volatile
     private var disposed = false
@@ -155,6 +160,7 @@ internal class BracketSettingsPreview(
         disposed = true
         recognitionGeneration++
         analyzingGeneration = null
+        failedGeneration = null
         recognitionAlarm.cancelAllRequests()
         Disposer.dispose(lifetime)
         previewEditor.caretModel.removeCaretListener(caretListener)
@@ -341,6 +347,8 @@ internal class BracketSettingsPreview(
                     "Shorten the text or Reset to resume."
             analyzingGeneration == recognitionGeneration ->
                 "Analyzing preview in the background..."
+            failedGeneration == recognitionGeneration ->
+                "Preview analysis failed. Edit the text or Reset to retry."
             else -> ""
         }
         analysisStatusLabel.text = status
@@ -367,6 +375,7 @@ internal class BracketSettingsPreview(
     ) {
         recognitionGeneration++
         recognitionAlarm.cancelAllRequests()
+        failedGeneration = null
         if (previewEditor.document.textLength > MAX_PREVIEW_LENGTH) {
             analyzingGeneration = null
             decoration.clearRecognition()
@@ -389,15 +398,10 @@ internal class BracketSettingsPreview(
         val modificationStamp = previewEditor.document.modificationStamp
         val fileType = currentFileType
         val disabledLanguageIds = currentSettings.disabledLanguageIds
-        ReadAction.nonBlocking<AnalysisSnapshot> {
+        ReadAction.nonBlocking<RecognitionOutcome> {
             val indicator = ProgressManager.getInstance().progressIndicator
                 ?: EmptyProgressIndicator()
-            recognizer.recognize(
-                previewEditor,
-                fileType,
-                disabledLanguageIds,
-                indicator,
-            )
+            recognizeSafely(fileType, disabledLanguageIds, indicator)
         }.expireWith(lifetime)
             .expireWhen {
                 disposed ||
@@ -407,7 +411,7 @@ internal class BracketSettingsPreview(
                     disabledLanguageIds != currentSettings.disabledLanguageIds
             }
             .coalesceBy(this)
-            .finishOnUiThread(ModalityState.any()) { result ->
+            .finishOnUiThread(ModalityState.any()) { outcome ->
                 if (disposed || previewEditor.isDisposed) return@finishOnUiThread
                 if (generation != recognitionGeneration ||
                     modificationStamp != previewEditor.document.modificationStamp ||
@@ -416,11 +420,7 @@ internal class BracketSettingsPreview(
                 ) {
                     return@finishOnUiThread
                 }
-                if (analyzingGeneration == generation) {
-                    analyzingGeneration = null
-                    updateLengthState()
-                }
-                applyRecognition(result)
+                applyRecognition(outcome, generation)
             }
             .submit(AppExecutorUtil.getAppExecutorService())
     }
@@ -429,6 +429,7 @@ internal class BracketSettingsPreview(
         if (disposed || previewEditor.isDisposed) return
         recognitionGeneration++
         analyzingGeneration = null
+        failedGeneration = null
         recognitionAlarm.cancelAllRequests()
         if (previewEditor.document.textLength > MAX_PREVIEW_LENGTH) {
             decoration.clearRecognition()
@@ -436,21 +437,59 @@ internal class BracketSettingsPreview(
             return
         }
         updateLengthState()
-        val result = ApplicationManager.getApplication().runReadAction(
+        val generation = recognitionGeneration
+        val outcome = ApplicationManager.getApplication().runReadAction(
             Computable {
-                recognizer.recognize(
-                    previewEditor,
+                recognizeSafely(
                     currentFileType,
                     currentSettings.disabledLanguageIds,
                     EmptyProgressIndicator(),
                 )
             },
         )
-        applyRecognition(result)
+        applyRecognition(outcome, generation)
     }
 
-    private fun applyRecognition(result: AnalysisSnapshot) {
-        decoration.updateRecognition(result)
+    private fun recognizeSafely(
+        fileType: FileType,
+        disabledLanguageIds: Set<String>,
+        indicator: ProgressIndicator,
+    ): RecognitionOutcome = try {
+        RecognitionOutcome.Success(
+            recognizer.recognize(
+                previewEditor,
+                fileType,
+                disabledLanguageIds,
+                indicator,
+            ),
+        )
+    } catch (exception: ProcessCanceledException) {
+        throw exception
+    } catch (exception: CancellationException) {
+        throw exception
+    } catch (exception: RuntimeException) {
+        RecognitionOutcome.Failure(exception)
+    }
+
+    private fun applyRecognition(outcome: RecognitionOutcome, generation: Long) {
+        if (generation != recognitionGeneration) return
+        analyzingGeneration = null
+        when (outcome) {
+            is RecognitionOutcome.Success -> {
+                failedGeneration = null
+                decoration.updateRecognition(outcome.snapshot)
+            }
+            is RecognitionOutcome.Failure -> {
+                failedGeneration = generation
+                LOG.warn("Preview recognition failed", outcome.exception)
+            }
+        }
+        updateLengthState()
+    }
+
+    private sealed interface RecognitionOutcome {
+        data class Success(val snapshot: AnalysisSnapshot) : RecognitionOutcome
+        data class Failure(val exception: RuntimeException) : RecognitionOutcome
     }
 
     private data class PreviewBuffer(
@@ -465,6 +504,7 @@ internal class BracketSettingsPreview(
     )
 
     companion object {
+        private val LOG = Logger.getInstance(BracketSettingsPreview::class.java)
         private const val RECOGNITION_DEBOUNCE_MILLIS = 150
         private const val IMMEDIATE_RECOGNITION_LENGTH = 10_000
         private const val MAX_PREVIEW_LENGTH = 100_000
