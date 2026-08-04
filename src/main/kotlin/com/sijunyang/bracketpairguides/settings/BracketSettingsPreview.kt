@@ -476,13 +476,17 @@ internal class BracketSettingsPreview(
 
     private fun applyRecognition(outcome: RecognitionOutcome, generation: Long) {
         if (generation != recognitionGeneration) return
-        analyzingGeneration = null
         when (outcome) {
             is RecognitionOutcome.Success -> {
+                if (!decoration.tryUpdateRecognition(outcome.snapshot)) {
+                    scheduleRecognition(delayMillis = 0)
+                    return
+                }
+                analyzingGeneration = null
                 failedGeneration = null
-                decoration.updateRecognition(outcome.snapshot)
             }
             is RecognitionOutcome.Failure -> {
+                analyzingGeneration = null
                 failedGeneration = generation
                 decoration.clearRecognition()
                 LOG.warn("Preview recognition failed", outcome.exception)

@@ -37,6 +37,8 @@ import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Component
 import java.awt.Container
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.JButton
 import javax.swing.JEditorPane
@@ -643,6 +645,57 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertTrue(backgroundCollections.get() > 0)
             assertEquals(synchronousCollections, edtCollections.get())
         } finally {
+            preview.dispose()
+        }
+    }
+
+    fun testPreviewRetriesWhenACompletedSnapshotBecomesStale() {
+        val staleCollectionStarted = CountDownLatch(1)
+        val allowStaleCollectionToFinish = CountDownLatch(1)
+        val collections = AtomicInteger()
+        val preview = BracketSettingsPreview(
+            PreviewPairProviderFactory { editor, fileType, disabledLanguageIds ->
+                val delegate = BracketPairAnalyzer(editor, fileType) { capabilityId ->
+                    capabilityId !in disabledLanguageIds
+                }
+                BracketPairProvider { progress ->
+                    if (collections.incrementAndGet() == 2) {
+                        staleCollectionStarted.countDown()
+                        check(
+                            allowStaleCollectionToFinish.await(10, TimeUnit.SECONDS),
+                        ) { "Timed out waiting to finish the stale preview collection" }
+                    }
+                    delegate.collect(progress)
+                }
+            },
+        )
+        try {
+            assertEquals(1, collections.get())
+            selectExample(preview, "json")
+            PlatformTestUtil.waitWithEventsDispatching(
+                "stale preview collection start",
+                { staleCollectionStarted.count == 0L },
+                10_000,
+            )
+
+            val previousTabSize = preview.previewEditor.settings.getTabSize(null)
+            preview.previewEditor.settings.setTabSize(previousTabSize + 1)
+            allowStaleCollectionToFinish.countDown()
+
+            PlatformTestUtil.waitWithEventsDispatching(
+                "preview retry after stale snapshot rejection",
+                {
+                    collections.get() >= 3 &&
+                        preview.previewEditor.markupModel.allHighlighters
+                            .tokenHighlighters()
+                            .isNotEmpty() &&
+                        !preview.analysisStatusLabel.isVisible
+                },
+                10_000,
+            )
+            assertFalse(preview.analysisStatusLabel.text.contains("failed"))
+        } finally {
+            allowStaleCollectionToFinish.countDown()
             preview.dispose()
         }
     }

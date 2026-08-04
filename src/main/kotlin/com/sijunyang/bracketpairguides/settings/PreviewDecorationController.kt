@@ -37,13 +37,18 @@ internal class PreviewDecorationController(
     }
 
     fun updateRecognition(snapshot: AnalysisSnapshot) {
+        tryUpdateRecognition(snapshot)
+    }
+
+    fun tryUpdateRecognition(snapshot: AnalysisSnapshot): Boolean {
         val dependenciesAreCurrent = session.updateDependenciesIfCurrent(
             ActiveBracketPairResolver.NONE,
             visibleRangeProvider,
             snapshot.stamp,
         )
-        if (!dependenciesAreCurrent) return
+        if (!dependenciesAreCurrent) return false
         session.accept(snapshot)
+        return true
     }
 
     fun caretMoved() {
