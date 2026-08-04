@@ -1,6 +1,5 @@
 package com.sijunyang.bracketpairguides
 
-import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer
 import com.sijunyang.bracketpairguides.renderer.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.renderer.BracketGuideRenderer
@@ -60,12 +59,6 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
             "$fileName should contain at least $minimumPairCount pairs, but had ${first.size}",
             first.size >= minimumPairCount,
         )
-        assertEquals(
-            "$fileName pairs must be ordered by opening and then closing offset",
-            first.sortedWith(compareBy(BracketPair::openOffset, BracketPair::closeOffset)),
-            first,
-        )
-
         first.forEachIndexed { index, pair ->
             assertTrue("$fileName pair $index has an invalid opening offset", pair.openOffset >= 0)
             assertTrue("$fileName pair $index has an empty opening token", pair.openTokenLength > 0)

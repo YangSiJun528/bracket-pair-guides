@@ -75,8 +75,12 @@ class BracketPairAnalyzerTest : BasePlatformTestCase() {
             "Analyzing ${source.length} Java characters took ${firstElapsedMillis}ms",
             firstElapsedMillis < LARGE_ANALYSIS_LIMIT_MILLIS,
         )
-        assertEquals(source.indexOf('{'), first.first().openOffset)
-        assertEquals(source.lastIndex, first.first().closeOffset)
+        assertTrue(
+            first.any { pair ->
+                pair.openOffset == source.indexOf('{') &&
+                    pair.closeOffset == source.lastIndex
+            },
+        )
     }
 
     fun testMalformedDeepJavaInputIgnoresUnrelatedClosersAndRecoversPairs() {
@@ -87,13 +91,15 @@ class BracketPairAnalyzerTest : BasePlatformTestCase() {
         val pairs = analyze(EmptyProgressIndicator())
 
         assertEquals(depth, pairs.size)
-        assertEquals((0 until depth).toList(), pairs.map(BracketPair::openOffset))
-        assertEquals((0 until depth).toList(), pairs.map(BracketPair::depth))
+        val pairsByOpenOffset = pairs.associateBy(BracketPair::openOffset)
+        assertEquals(depth, pairsByOpenOffset.size)
+        repeat(depth) { openOffset ->
+            val pair = checkNotNull(pairsByOpenOffset[openOffset])
+            assertEquals(openOffset, pair.depth)
+            assertEquals(source.lastIndex - openOffset, pair.closeOffset)
+        }
         assertTrue(pairs.all { pair -> source[pair.openOffset] == '(' })
         assertTrue(pairs.all { pair -> source[pair.closeOffset] == ')' })
-        assertTrue(pairs.zipWithNext().all { (outer, inner) ->
-            outer.openOffset < inner.openOffset && outer.closeOffset > inner.closeOffset
-        })
     }
 
     fun testMalformedRegularPairDoesNotCrossAJavaStructuralPair() {

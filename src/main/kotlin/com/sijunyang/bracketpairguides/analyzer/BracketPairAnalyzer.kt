@@ -71,7 +71,6 @@ internal class BracketPairAnalyzer(
         }
 
         progress.checkCanceled()
-        result.sortBracketPairsCancellable(progress::checkCanceled)
         return result
     }
 
