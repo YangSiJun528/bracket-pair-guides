@@ -21,8 +21,10 @@ import com.intellij.util.concurrency.AppExecutorUtil
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import java.awt.Color
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.system.measureTimeMillis
 
 class GuideLineHighlightingPassTest : BasePlatformTestCase() {
@@ -818,6 +820,66 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         deduplicatedPass.doApplyInformationToEditor()
         assertSame(acceptedSession, session())
         assertEquals(pair, activeGuideState()?.guide?.pair)
+    }
+
+    fun testBackgroundProviderUsesStampedLanguageSelectionAcrossAbaChange() {
+        val source = "x { content } y"
+        myFixture.configureByText("LanguageSelectionSnapshot.txt", source)
+        val editor = myFixture.editor
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        editor.caretModel.moveToOffset(source.indexOf("content"))
+        val initialOptions = PluginSettings.getInstance().options
+        val disabledDuringCollection = setOf("test.matcher.family")
+        val providerEntered = CountDownLatch(1)
+        val continueCollection = CountDownLatch(1)
+        val capturedDisabledLanguageIds = AtomicReference<Set<String>>()
+        val observedGlobalLanguageIds = AtomicReference<Set<String>>()
+        val pass = GuideLineHighlightingPass(
+            project = project,
+            editor = editor,
+            pairProviderFactory = { disabledLanguageIds ->
+                capturedDisabledLanguageIds.set(disabledLanguageIds)
+                BracketPairProvider {
+                    providerEntered.countDown()
+                    check(continueCollection.await(10, TimeUnit.SECONDS))
+                    observedGlobalLanguageIds.set(
+                        PluginSettings.getInstance().options.disabledLanguageIds,
+                    )
+                    if (disabledDuringCollection.single() in disabledLanguageIds) {
+                        emptyList()
+                    } else {
+                        listOf(pair)
+                    }
+                }
+            },
+        )
+        val collection = AppExecutorUtil.getAppExecutorService().submit<Unit> {
+            inReadAction {
+                pass.doCollectInformation(EmptyProgressIndicator())
+            }
+        }
+
+        try {
+            assertTrue(providerEntered.await(10, TimeUnit.SECONDS))
+            PluginSettings.getInstance().replace(
+                initialOptions.copy(disabledLanguageIds = disabledDuringCollection),
+            )
+            continueCollection.countDown()
+            collection.get(10, TimeUnit.SECONDS)
+            PluginSettings.getInstance().replace(initialOptions)
+
+            pass.doApplyInformationToEditor()
+
+            assertEquals(initialOptions.disabledLanguageIds, capturedDisabledLanguageIds.get())
+            assertEquals(disabledDuringCollection, observedGlobalLanguageIds.get())
+            assertEquals(pair, activeGuideState()?.guide?.pair)
+        } finally {
+            continueCollection.countDown()
+            PluginSettings.getInstance().replace(initialOptions)
+            collection.cancel(true)
+        }
     }
 
     fun testStaleBackgroundPassDoesNotInstallItsDependenciesIntoANewSession() {

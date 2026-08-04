@@ -21,7 +21,7 @@ import com.intellij.openapi.util.TextRange
 internal class GuideLineHighlightingPass(
     project: Project,
     private val editor: Editor,
-    private val pairProvider: BracketPairProvider,
+    private val pairProviderFactory: (Set<String>) -> BracketPairProvider,
     private val visibleRangeProvider: (Editor) -> TextRange = Editor::calculateVisibleRange,
     private val activePairResolver: ActiveBracketPairResolver = ActiveBracketPairResolver.NONE,
 ) : TextEditorHighlightingPass(project, editor.document, false) {
@@ -35,27 +35,33 @@ internal class GuideLineHighlightingPass(
     }
 
     constructor(project: Project, editor: Editor) : this(
+        project,
+        editor,
+        editorFileType(editor),
+    )
+
+    constructor(
+        project: Project,
+        editor: Editor,
+        pairProvider: BracketPairProvider,
+        visibleRangeProvider: (Editor) -> TextRange = Editor::calculateVisibleRange,
+        activePairResolver: ActiveBracketPairResolver = ActiveBracketPairResolver.NONE,
+    ) : this(
         project = project,
         editor = editor,
-        pairProvider = BracketPairAnalyzer(
-            editor = editor,
-            isLanguageEnabled = ::isConfiguredLanguageEnabled,
-        ),
-        activePairResolver = EditorHighlighterActiveBracketPairResolver(
-            fileType = FileDocumentManager.getInstance().getFile(editor.document)?.fileType
-                ?: PlainTextFileType.INSTANCE,
-            isLanguageEnabled = ::isConfiguredLanguageEnabled,
-        ),
+        pairProviderFactory = { pairProvider },
+        visibleRangeProvider = visibleRangeProvider,
+        activePairResolver = activePairResolver,
     )
 
     constructor(project: Project, editor: Editor, fileType: FileType) : this(
         project = project,
         editor = editor,
-        pairProvider = BracketPairAnalyzer(
-            editor = editor,
-            fileType = fileType,
-            isLanguageEnabled = ::isConfiguredLanguageEnabled,
-        ),
+        pairProviderFactory = { disabledLanguageIds ->
+            BracketPairAnalyzer(editor, fileType) { capabilityId ->
+                capabilityId !in disabledLanguageIds
+            }
+        },
         activePairResolver = EditorHighlighterActiveBracketPairResolver(
             fileType = fileType,
             isLanguageEnabled = ::isConfiguredLanguageEnabled,
@@ -74,6 +80,7 @@ internal class GuideLineHighlightingPass(
         )
         collectedStamp = stamp
         if (EditorGuideSession.hasAcceptedAnalysis(editor, stamp)) return
+        val pairProvider = pairProviderFactory(stamp.disabledLanguageIds)
         collected = AnalysisSnapshotBuilder.build(editor, pairProvider, stamp, progress)
     }
 
@@ -115,6 +122,10 @@ internal class GuideLineHighlightingPass(
         )
     }
 }
+
+private fun editorFileType(editor: Editor): FileType =
+    FileDocumentManager.getInstance().getFile(editor.document)?.fileType
+        ?: PlainTextFileType.INSTANCE
 
 private fun isConfiguredLanguageEnabled(capabilityId: String): Boolean =
     PluginSettings.getInstance().options.isLanguageEnabled(capabilityId)
