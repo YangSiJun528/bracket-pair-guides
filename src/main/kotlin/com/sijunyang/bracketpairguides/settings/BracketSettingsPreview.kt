@@ -487,6 +487,7 @@ internal class BracketSettingsPreview(
             }
             is RecognitionOutcome.Failure -> {
                 failedGeneration = generation
+                decoration.clearRecognition()
                 LOG.warn("Preview recognition failed", outcome.exception)
             }
         }

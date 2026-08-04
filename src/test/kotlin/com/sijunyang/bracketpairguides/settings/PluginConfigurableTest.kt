@@ -879,11 +879,18 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 preview.analysisStatusLabel.toolTipText,
             )
             assertTrue(preview.analysisStatusLabel.toolTipText.contains("Reset to retry"))
+            assertTrue(preview.previewEditor.markupModel.allHighlighters.isEmpty())
 
             preview.resetExampleButton.doClick()
 
             assertFalse(preview.analysisStatusLabel.isVisible)
             assertNull(preview.analysisStatusLabel.accessibleContext.accessibleDescription)
+            assertTrue(
+                preview.previewEditor.markupModel.allHighlighters
+                    .tokenHighlighters()
+                    .isNotEmpty(),
+            )
+            assertEquals(1, preview.previewEditor.markupModel.allHighlighters.countGuide())
         } finally {
             preview.dispose()
         }
