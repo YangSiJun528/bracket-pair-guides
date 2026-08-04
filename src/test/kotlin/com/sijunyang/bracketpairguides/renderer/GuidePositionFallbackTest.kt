@@ -8,7 +8,7 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.junit.Assert.assertEquals
 
 class GuidePositionFallbackTest : BasePlatformTestCase() {
-    fun testSnapshotWithoutPositionIndexUsesTheBoundedActiveGuideResolver() {
+    fun testSnapshotWithOutOfRangePositionIndexUsesTheBoundedActiveGuideResolver() {
         val body = List(300) { index ->
             if (index == 260) "value" else "        value"
         }.joinToString("\n")
@@ -29,6 +29,16 @@ class GuidePositionFallbackTest : BasePlatformTestCase() {
             GuidePositionIndex.from(editor.document, 4, EmptyProgressIndicator()),
         )
         assertEquals(0, exactIndex.guideFor(pair).guideColumn)
+        val unrelatedIndex = checkNotNull(
+            GuidePositionIndex.from(
+                editor.document,
+                4,
+                EmptyProgressIndicator(),
+                indexedLineRange = 261..261,
+            ),
+        )
+        assertEquals(0, unrelatedIndex.guideFor(pair).guideColumn)
+        assertEquals(null, unrelatedIndex.guideForOrNull(pair))
 
         val options = PluginOptions(colorBracketTokens = false)
         val stamp = AnalysisStamp.current(editor, AnalysisCapabilities.from(options))
@@ -44,7 +54,7 @@ class GuidePositionFallbackTest : BasePlatformTestCase() {
                     pairs = listOf(pair),
                     tokenIndex = BracketTokenIndex.build(emptyList()),
                     activeIndex = ActiveBracketPairIndex.build(listOf(pair)),
-                    positionIndex = null,
+                    positionIndex = unrelatedIndex,
                 ),
             )
 
