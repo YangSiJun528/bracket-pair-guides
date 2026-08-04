@@ -111,16 +111,6 @@ internal class BracketTokenIndex private constructor(
             require(pairs.size <= Int.MAX_VALUE / TOKENS_PER_PAIR)
 
             val encoded = LongArray(pairs.size * TOKENS_PER_PAIR)
-            val detachedTokenLengths = if (detachPairMetadata) {
-                LongArray(pairs.size)
-            } else {
-                null
-            }
-            val detachedDepths = if (detachPairMetadata) {
-                IntArray(pairs.size)
-            } else {
-                null
-            }
             var tokenCount = 0
             var maximumLength = 0
             for (pairIndex in pairs.indices) {
@@ -130,11 +120,6 @@ internal class BracketTokenIndex private constructor(
 
                 encoded[tokenCount++] = encode(pair.openOffset, pairIndex, closing = false)
                 encoded[tokenCount++] = encode(pair.closeOffset, pairIndex, closing = true)
-                if (detachedTokenLengths != null && detachedDepths != null) {
-                    detachedTokenLengths[pairIndex] =
-                        packLengths(pair.openTokenLength, pair.closeTokenLength)
-                    detachedDepths[pairIndex] = pair.depth
-                }
                 maximumLength = maxOf(
                     maximumLength,
                     pair.openTokenLength,
@@ -147,13 +132,43 @@ internal class BracketTokenIndex private constructor(
             }
             val sorted = if (tokenCount == encoded.size) encoded else encoded.copyOf(tokenCount)
             sorted.sortCancellable(checkCanceled)
+            val detachedMetadata = if (detachPairMetadata) {
+                copyDetachedMetadata(pairs, checkCanceled)
+            } else {
+                null
+            }
             return BracketTokenIndex(
                 pairs = pairs.takeUnless { detachPairMetadata },
-                detachedTokenLengths = detachedTokenLengths,
-                detachedDepths = detachedDepths,
+                detachedTokenLengths = detachedMetadata?.lengths,
+                detachedDepths = detachedMetadata?.depths,
                 encodedTokens = sorted,
                 maximumTokenLength = maximumLength,
             )
+        }
+
+        /** Runs after sorting so these arrays do not overlap its merge workspace. */
+        private fun copyDetachedMetadata(
+            pairs: List<BracketPair>,
+            checkCanceled: () -> Unit,
+        ): DetachedMetadata {
+            checkCanceled()
+            val lengths = LongArray(pairs.size)
+            checkCanceled()
+            val depths = IntArray(pairs.size)
+            for (pairIndex in pairs.indices) {
+                if (pairIndex != 0 && (pairIndex and CANCELLATION_MASK) == 0) {
+                    checkCanceled()
+                }
+                val pair = pairs[pairIndex]
+                if (!pair.hasWellFormedTokenRange()) continue
+                lengths[pairIndex] = packLengths(
+                    pair.openTokenLength,
+                    pair.closeTokenLength,
+                )
+                depths[pairIndex] = pair.depth
+            }
+            checkCanceled()
+            return DetachedMetadata(lengths, depths)
         }
 
         private fun encode(offset: Int, pairIndex: Int, closing: Boolean): Long {
@@ -166,6 +181,11 @@ internal class BracketTokenIndex private constructor(
         private fun packLengths(openLength: Int, closeLength: Int): Long =
             (openLength.toLong() shl OFFSET_SHIFT) or
                 (closeLength.toLong() and TOKEN_REFERENCE_MASK)
+
+        private data class DetachedMetadata(
+            val lengths: LongArray,
+            val depths: IntArray,
+        )
 
         private val EMPTY = BracketTokenIndex(
             pairs = emptyList(),

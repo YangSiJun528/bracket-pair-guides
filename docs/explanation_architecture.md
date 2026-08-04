@@ -159,11 +159,18 @@ the two token lengths and full nesting depth into primitive arrays instead of
 retaining the recognized `BracketPair` object graph. The sorted endpoint array
 plus detached metadata uses 28 bytes per pair. On a typical compressed-reference
 JVM, this reduces retained heap by about 30.5 MiB at one million pairs. Turning
-off active presentation releases a previously full snapshot while leaving its
-current RangeMarker-backed token colors visible; the daemon builds the compact
-token-only snapshot in the background. A late full-capability result may refresh
-that visible window, but it is not marked accepted, so it cannot suppress the
-compact replacement pass.
+off active presentation marks a previously full snapshot unaccepted while
+retaining it temporarily as a scrolling fallback; the daemon replaces it with
+the compact token-only snapshot in the background. Once that compact result is
+accepted, a late full-capability result cannot overwrite it or suppress future
+viewport refresh. Detached metadata is copied only after endpoint
+sorting returns, so its 12 bytes per pair do not overlap the sort merge
+workspace; this lowers the live-array peak by about 11.4 MiB at one million
+pairs compared with allocating it before the sort. In the reverse token-only to
+active transition, viewport refresh continues using the current compact token
+subset while active indexes are rebuilt. If the user reverses a full-to-token-only
+transition before compaction completes, the retained full snapshot is accepted
+again instead of collecting the same pairs twice.
 
 For multiline pairs, `GuidePositionIndex` builds a tab-aware range-minimum
 indentation index once. Its build cost is `O(L)` and each guide-column query is

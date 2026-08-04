@@ -62,6 +62,23 @@ internal class EditorGuideSession private constructor(
             acceptedStamp = required
             return
         }
+        if (shouldReleasePairGraph(required, nextSnapshot.stamp.capabilities)) {
+            val compactSnapshot = snapshot?.takeIf { current ->
+                current.stamp.satisfies(required) &&
+                    !shouldReleasePairGraph(required, current.stamp.capabilities)
+            }
+            if (compactSnapshot != null) {
+                tokenDecorations = VisibleTokenDecorationManager.replace(
+                    editor,
+                    tokenDecorations,
+                    compactSnapshot.tokenIndex,
+                    visibleRangeProvider(editor),
+                    options,
+                )
+                editor.contentComponent.repaint()
+                return
+            }
+        }
 
         snapshot = nextSnapshot
         val pairIndex = nextSnapshot.activeIndex.activePairIndex(caretOffset())
@@ -79,7 +96,6 @@ internal class EditorGuideSession private constructor(
             options,
         )
         if (shouldReleasePairGraph(required, nextSnapshot.stamp.capabilities)) {
-            snapshot = null
             acceptedStamp = null
         } else {
             acceptedStamp = nextSnapshot.stamp
@@ -123,7 +139,7 @@ internal class EditorGuideSession private constructor(
         if (disposed || editor.isDisposed) return
         if (discardPresentationFromReplacedHighlighter()) return
         val currentSnapshot = snapshot ?: return
-        if (!isCurrent(currentSnapshot)) return
+        if (!hasCurrentTokenAnalysis(currentSnapshot)) return
         val nextDecorations = VisibleTokenDecorationManager.replaceIfOutsideWindow(
             editor,
             tokenDecorations,
@@ -208,8 +224,9 @@ internal class EditorGuideSession private constructor(
             return
         }
         if (releasePairGraph) {
-            snapshot = null
             acceptedStamp = null
+        } else if (currentAnalysis != null) {
+            acceptedStamp = currentAnalysis.stamp
         }
         editor.contentComponent.repaint()
     }
@@ -493,6 +510,20 @@ internal class EditorGuideSession private constructor(
 
     private fun isCurrent(candidate: AnalysisSnapshot): Boolean =
         candidate.stamp.satisfies(currentStamp())
+
+    private fun hasCurrentTokenAnalysis(candidate: AnalysisSnapshot): Boolean {
+        val required = currentStamp()
+        if (!required.capabilities.tokens) return false
+        return candidate.stamp.satisfies(
+            required.copy(
+                capabilities = AnalysisCapabilities(
+                    tokens = true,
+                    activePair = false,
+                    guidePosition = false,
+                ),
+            ),
+        )
+    }
 
     private fun shouldReleasePairGraph(
         required: AnalysisStamp,

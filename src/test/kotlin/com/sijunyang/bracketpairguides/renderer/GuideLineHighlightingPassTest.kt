@@ -717,6 +717,99 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertEquals(pair, activeGuideState()?.guide?.pair)
     }
 
+    fun testTokenViewportKeepsFollowingCapabilityTransitionsBeforeBackgroundPasses() {
+        val pairCount = 30_000
+        val source = "()".repeat(pairCount)
+        myFixture.configureByText("CapabilityTransitionViewport.txt", source)
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(1)
+        val pairs = sequentialPairs(pairCount)
+        var collections = 0
+        var visibleRange = TextRange(0, 256)
+        val provider = BracketPairProvider {
+            collections++
+            pairs
+        }
+        val fullOptions = PluginSettings.getInstance().options
+
+        applyPass(provider) { visibleRange }
+        assertEquals(1, collections)
+
+        val tokenOnlyOptions = fullOptions.copy(
+            showActiveGuide = false,
+            showActivePairBorder = false,
+            showActivePairBackground = false,
+        )
+        applyOptions(tokenOnlyOptions)
+
+        visibleRange = TextRange(50_000, 50_256)
+        session().visibleAreaChanged()
+
+        assertEquals(1, collections)
+        assertTrue(
+            "The unaccepted full snapshot should cover scrolling until compaction finishes",
+            bracketColorHighlighters().any {
+                it.startOffset in visibleRange.startOffset until visibleRange.endOffset
+            },
+        )
+
+        applyPass(provider) { visibleRange }
+        val tokenOnlyStamp = AnalysisStamp.current(
+            editor,
+            AnalysisCapabilities.from(tokenOnlyOptions),
+            tokenOnlyOptions.disabledLanguageIds,
+        )
+        assertEquals(2, collections)
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+
+        applyOptions(fullOptions)
+        visibleRange = TextRange(0, 256)
+        session().visibleAreaChanged()
+
+        assertEquals(2, collections)
+        assertTrue(
+            "The compact token index should remain usable while full analysis is pending",
+            bracketColorHighlighters().any {
+                it.startOffset in visibleRange.startOffset until visibleRange.endOffset
+            },
+        )
+    }
+
+    fun testReversingTokenOnlyTransitionBeforeCompactionReusesFullSnapshot() {
+        myFixture.configureByText("ReversedCapabilityTransition.txt", "()".repeat(1_000))
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(1)
+        var collections = 0
+        val provider = BracketPairProvider {
+            collections++
+            sequentialPairs(1_000)
+        }
+        val fullOptions = PluginSettings.getInstance().options
+
+        applyPass(provider)
+        assertEquals(1, collections)
+
+        applyOptions(
+            fullOptions.copy(
+                showActiveGuide = false,
+                showActivePairBorder = false,
+                showActivePairBackground = false,
+            ),
+        )
+        applyOptions(fullOptions)
+
+        val fullStamp = AnalysisStamp.current(
+            editor,
+            AnalysisCapabilities.from(fullOptions),
+            fullOptions.disabledLanguageIds,
+        )
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, fullStamp))
+
+        applyPass(provider)
+
+        assertEquals(1, collections)
+    }
+
     fun testThemeRefreshUpdatesTokenColorsWithoutRebuildingHighlighters() {
         val source = "x { content } y"
         myFixture.configureByText("ThemeTokens.txt", source)
@@ -913,6 +1006,61 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertEquals(2, collections)
         assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
         assertTrue(bracketColorHighlighters().isNotEmpty())
+    }
+
+    fun testLateFullPassCannotReplaceAnAcceptedCompactTokenOnlySnapshot() {
+        val pairCount = 30_000
+        val source = "()".repeat(pairCount)
+        myFixture.configureByText("LateFullAfterCompactTokens.txt", source)
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(1)
+        val pairs = sequentialPairs(pairCount)
+        var collections = 0
+        var visibleRange = TextRange(0, 256)
+        val provider = BracketPairProvider {
+            collections++
+            pairs
+        }
+        val fullOptions = PluginSettings.getInstance().options
+        val lateFullPass = GuideLineHighlightingPass(
+            project = project,
+            editor = editor,
+            pairProvider = provider,
+            visibleRangeProvider = { visibleRange },
+        )
+        inReadAction {
+            lateFullPass.doCollectInformation(EmptyProgressIndicator())
+        }
+
+        val tokenOnlyOptions = fullOptions.copy(
+            showActiveGuide = false,
+            showActivePairBorder = false,
+            showActivePairBackground = false,
+        )
+        applyOptions(tokenOnlyOptions)
+        applyPass(provider) { visibleRange }
+        val tokenOnlyStamp = AnalysisStamp.current(
+            editor,
+            AnalysisCapabilities.from(tokenOnlyOptions),
+            tokenOnlyOptions.disabledLanguageIds,
+        )
+        assertEquals(2, collections)
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+
+        lateFullPass.doApplyInformationToEditor()
+
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+        visibleRange = TextRange(50_000, 50_256)
+        session().visibleAreaChanged()
+
+        assertEquals(2, collections)
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+        assertTrue(
+            "A late full pass must not discard the compact viewport index",
+            bracketColorHighlighters().any {
+                it.startOffset in visibleRange.startOffset until visibleRange.endOffset
+            },
+        )
     }
 
     fun testReenablingActivePresentationUsesTheFastResolverImmediately() {
@@ -1613,6 +1761,12 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         PluginSettings.getInstance().replace(options)
         session().updateOptions(options)
     }
+
+    private fun sequentialPairs(pairCount: Int): List<BracketPair> =
+        List(pairCount) { index ->
+            val openOffset = index * 2
+            BracketPair(openOffset, 1, openOffset + 1, 1, 0, 0, 0)
+        }
 
     private fun List<Int>.updated(index: Int, value: Int): List<Int> =
         toMutableList().also { it[index] = value }

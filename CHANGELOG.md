@@ -90,6 +90,8 @@
   of retained heap on a typical compressed-reference JVM; switching from full
   active analysis keeps visible token markup while rebuilding this compact
   snapshot in the background.
+- Detached token metadata is copied after endpoint sorting, avoiding about
+  11.4 MiB of live-array overlap with the sort workspace at one million pairs.
 - Capped token-decoration slices recenter while scrolling inside a cached
   viewport instead of remaining fixed at the previous focus.
 - Settings Preview examples preserve caret and horizontal/vertical scroll state,
@@ -168,3 +170,7 @@
   when a tab-size change made it stale.
 - A full source-editor result already in flight can no longer repopulate
   proportional indexes after every pair feature has been disabled.
+- Full-to-token-only transitions retain an unaccepted scrolling fallback until
+  compact analysis arrives, and a late full result can no longer erase an
+  already accepted compact token index. Reversing the transition before
+  compaction re-accepts the retained full snapshot without recollecting pairs.
