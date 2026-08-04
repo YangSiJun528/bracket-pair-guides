@@ -523,6 +523,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                     activeIndex.activePairIndex(editor.caretModel.offset),
                 )
                 assertNotNull("${example.displayName} should start inside a pair", active)
+                waitForPreviewDecoration(preview, "${example.displayName} preview recognition")
                 assertEquals(1, editor.markupModel.allHighlighters.countGuide())
                 assertEquals(0, editor.markupModel.allHighlighters.countActivePairs())
                 val tokenHighlights = editor.markupModel.allHighlighters
@@ -560,11 +561,43 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertTrue(preview.previewEditor.markupModel.allHighlighters.isEmpty())
 
             preview.update(PluginOptions())
+            waitForPreviewDecoration(preview, "reenabled matcher family")
             assertTrue(
                 preview.previewEditor.markupModel.allHighlighters
                     .tokenHighlighters()
                     .isNotEmpty(),
             )
+        } finally {
+            preview.dispose()
+        }
+    }
+
+    fun testExampleSwitchRecognitionRunsOffTheEdt() {
+        val edtCollections = AtomicInteger()
+        val backgroundCollections = AtomicInteger()
+        val preview = BracketSettingsPreview(
+            PreviewPairProviderFactory { editor, fileType, disabledLanguageIds ->
+                val delegate = BracketPairAnalyzer(editor, fileType) { capabilityId ->
+                    capabilityId !in disabledLanguageIds
+                }
+                BracketPairProvider { progress ->
+                    if (ApplicationManager.getApplication().isDispatchThread) {
+                        edtCollections.incrementAndGet()
+                    } else {
+                        backgroundCollections.incrementAndGet()
+                    }
+                    delegate.collect(progress)
+                }
+            },
+        )
+        try {
+            val synchronousCollections = edtCollections.get()
+
+            selectExample(preview, "json")
+            waitForPreviewDecoration(preview, "background example switch")
+
+            assertTrue(backgroundCollections.get() > 0)
+            assertEquals(synchronousCollections, edtCollections.get())
         } finally {
             preview.dispose()
         }
@@ -644,6 +677,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             selectExample(preview, "java")
 
             assertEquals(source, editor.document.text)
+            waitForPreviewDecoration(preview, "restored edited Java preview")
             assertTrue(editor.markupModel.allHighlighters.tokenHighlighters().isNotEmpty())
             val ignoredBraceOffset = source.indexOf("\"}\"") + 1
             assertFalse(
@@ -896,6 +930,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
 
             preview.resetExampleButton.doClick()
 
+            waitForPreviewDecoration(preview, "preview recovery after reset")
             assertFalse(preview.analysisStatusLabel.isVisible)
             assertNull(preview.analysisStatusLabel.accessibleContext.accessibleDescription)
             assertTrue(
@@ -989,6 +1024,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             selectExample(preview, "json")
             selectExample(preview, "java")
             val pairs = recognizedPairs(preview)
+            waitForPreviewDecoration(preview, "dense restored preview")
             val tokenHighlights = editor.markupModel.allHighlighters.tokenHighlighters()
 
             assertTrue(tokenHighlights.isNotEmpty())
@@ -1185,6 +1221,22 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         ApplicationManager.getApplication().runWriteAction {
             preview.previewEditor.document.setText(text)
         }
+    }
+
+    private fun waitForPreviewDecoration(
+        preview: BracketSettingsPreview,
+        message: String,
+    ) {
+        PlatformTestUtil.waitWithEventsDispatching(
+            message,
+            {
+                preview.previewEditor.markupModel.allHighlighters
+                    .tokenHighlighters()
+                    .isNotEmpty() &&
+                    preview.previewEditor.markupModel.allHighlighters.countGuide() == 1
+            },
+            10_000,
+        )
     }
 
     private fun recognizedPairs(preview: BracketSettingsPreview): List<BracketPair> {

@@ -370,11 +370,7 @@ internal class BracketSettingsPreview(
     }
 
     private fun recognizeAfterDocumentReplacement() {
-        if (previewEditor.document.textLength <= IMMEDIATE_RECOGNITION_LENGTH) {
-            recognizeSynchronously()
-        } else {
-            scheduleRecognition(delayMillis = 0)
-        }
+        scheduleRecognition(delayMillis = 0)
     }
 
     private fun scheduleRecognition(
