@@ -96,6 +96,7 @@ internal class BracketSettingsPreview(
     private val caretListener = object : CaretListener {
         override fun caretPositionChanged(event: CaretEvent) {
             if (changingDocument || disposed) return
+            if (event.caret?.let { it !== event.editor.caretModel.primaryCaret } == true) return
             buffers.getValue(currentExample.id).caretOffset =
                 event.editor.caretModel.primaryCaret.offset
             decoration.caretMoved()

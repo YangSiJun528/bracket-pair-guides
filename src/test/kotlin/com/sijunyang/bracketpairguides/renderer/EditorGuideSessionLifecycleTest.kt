@@ -15,6 +15,7 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
 
 class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
     override fun setUp() {
@@ -142,6 +143,41 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
             EditorGuideSession.dispose(secondEditor)
             EditorFactory.getInstance().releaseEditor(firstEditor)
             EditorFactory.getInstance().releaseEditor(secondEditor)
+        }
+    }
+
+    fun testSecondaryCaretMovementDoesNotRepeatPrimaryResolution() {
+        myFixture.configureByText("MultipleCarets.txt", "{ first second }")
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(3)
+        var resolverCalls = 0
+        EditorGuideEventRouter.ensureInitialized()
+        EditorGuideSession.dispose(editor)
+        EditorGuideSession.install(
+            editor = editor,
+            resolver = ActiveBracketPairResolver { _, _ ->
+                resolverCalls++
+                ActiveBracketPairResolution.Complete(null)
+            },
+            visibleRangeProvider = { TextRange(0, editor.document.textLength) },
+        )
+        try {
+            val addedCaret = checkNotNull(
+                editor.caretModel.addCaret(editor.offsetToVisualPosition(9)),
+            )
+            assertSame(addedCaret, editor.caretModel.primaryCaret)
+            val secondaryCaret = editor.caretModel.allCarets.single {
+                it !== editor.caretModel.primaryCaret
+            }
+            val callsAfterPrimarySelection = resolverCalls
+
+            secondaryCaret.moveToOffset(6)
+
+            assertEquals(callsAfterPrimarySelection, resolverCalls)
+            editor.caretModel.primaryCaret.moveToOffset(10)
+            assertEquals(callsAfterPrimarySelection + 1, resolverCalls)
+        } finally {
+            EditorGuideSession.dispose(editor)
         }
     }
 }

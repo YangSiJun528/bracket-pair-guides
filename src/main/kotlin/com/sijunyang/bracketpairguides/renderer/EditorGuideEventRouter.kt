@@ -50,16 +50,19 @@ internal class EditorGuideEventRouter :
     }
 
     override fun caretPositionChanged(event: CaretEvent) = onEdt(event.editor) {
-        val session = EditorGuideSession.get(event.editor) ?: return@onEdt
-        session.caretMoved()
-        if (session.tokenDecorations.isCapped) {
-            visibleRefreshBatcher.request(event.editor)
+        if (event.caret?.let { it !== event.editor.caretModel.primaryCaret } == true) {
+            return@onEdt
         }
+        primaryCaretChanged(event.editor)
     }
 
     override fun caretAdded(event: CaretEvent) = caretPositionChanged(event)
 
-    override fun caretRemoved(event: CaretEvent) = caretPositionChanged(event)
+    // The removed caret is no longer primary when this callback runs, so the
+    // post-removal primary selection must be refreshed without the event filter.
+    override fun caretRemoved(event: CaretEvent) = onEdt(event.editor) {
+        primaryCaretChanged(event.editor)
+    }
 
     override fun documentChanged(event: DocumentEvent) {
         val change = DocumentChange.from(event)
@@ -99,6 +102,14 @@ internal class EditorGuideEventRouter :
         visibleRefreshBatcher.clear()
         for (editor in EditorFactory.getInstance().allEditors) {
             EditorGuideSession.dispose(editor)
+        }
+    }
+
+    private fun primaryCaretChanged(editor: Editor) {
+        val session = EditorGuideSession.get(editor) ?: return
+        session.caretMoved()
+        if (session.tokenDecorations.isCapped) {
+            visibleRefreshBatcher.request(editor)
         }
     }
 
