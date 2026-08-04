@@ -186,6 +186,12 @@ internal class EditorGuideSession private constructor(
     }
 
     private fun updateProvisional(change: DocumentChange?) {
+        if (!AnalysisCapabilities.from(options).activePair) {
+            val hadActivePresentation = activeGuide != null || activePairHighlights.isNotEmpty()
+            clearActive(preserveGuide = false)
+            if (hadActivePresentation) editor.contentComponent.repaint()
+            return
+        }
         if (discardPresentationFromReplacedHighlighter()) return
         val adjustedPair = adjustedActivePair()
         val caretOffset = caretOffset()
