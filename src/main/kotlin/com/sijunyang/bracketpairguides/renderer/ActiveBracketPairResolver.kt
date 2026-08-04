@@ -28,15 +28,30 @@ internal fun interface ActiveBracketPairResolver {
     }
 }
 
+internal fun interface MonotonicClock {
+    fun nowNanos(): Long
+}
+
+private object SystemMonotonicClock : MonotonicClock {
+    override fun nowNanos(): Long = System.nanoTime()
+}
+
 /**
  * Finds the containing pair with the platform matcher, but only after the
  * token language passes the same `lang.braceMatcher` capability gate as the
- * full analyzer. A shared token budget keeps this synchronous EDT path bounded.
+ * full analyzer. The default 512-token and 4ms ceilings reserve most of a
+ * 16ms UI frame for input, layout, and painting.
+ *
+ * The elapsed ceiling is best-effort: `BraceMatchingUtil.matchBrace` is one
+ * synchronous platform call and cannot be interrupted between iterator
+ * callbacks. A slow call can therefore overrun the deadline before returning.
  */
 internal class EditorHighlighterActiveBracketPairResolver(
     private val fileType: FileType,
     private val tokenBudget: Int = DEFAULT_TOKEN_BUDGET,
     private val isLanguageEnabled: (String) -> Boolean = { true },
+    private val elapsedBudgetNanos: Long = DEFAULT_ELAPSED_BUDGET_NANOS,
+    private val clock: MonotonicClock = SystemMonotonicClock,
 ) : ActiveBracketPairResolver {
     override fun findInnermost(
         editor: Editor,
@@ -49,7 +64,11 @@ internal class EditorHighlighterActiveBracketPairResolver(
 
         val highlighter = editor.highlighter
         val text = document.immutableCharSequence
-        val budget = TraversalBudget(tokenBudget)
+        val budget = TraversalBudget(
+            maximumTokens = tokenBudget,
+            maximumElapsedNanos = elapsedBudgetNanos,
+            clock = clock,
+        )
         val languageSupport = HashMap<Language, Boolean>()
         var iterator = highlighter.createIterator((caretOffset - 1).coerceAtMost(text.lastIndex))
         if (iterator.document !== document) return ActiveBracketPairResolution.Incomplete
@@ -173,17 +192,25 @@ internal class EditorHighlighterActiveBracketPairResolver(
         }
     }
 
-    private class TraversalBudget(maximumTokens: Int) {
+    private class TraversalBudget(
+        maximumTokens: Int,
+        maximumElapsedNanos: Long,
+        private val clock: MonotonicClock,
+    ) {
         private var remaining = maximumTokens.coerceAtLeast(1)
+        private val elapsedLimitNanos = maximumElapsedNanos.coerceAtLeast(1L)
+        private val startedAtNanos = clock.nowNanos()
 
         val exhausted: Boolean
-            get() = remaining == 0
+            get() = remaining == 0 || elapsedNanos() >= elapsedLimitNanos
 
         fun consume(): Boolean {
-            if (remaining == 0) return false
+            if (exhausted) return false
             remaining--
             return true
         }
+
+        private fun elapsedNanos(): Long = clock.nowNanos() - startedAtNanos
     }
 
     private class BudgetedHighlighterIterator(
@@ -212,6 +239,7 @@ internal class EditorHighlighterActiveBracketPairResolver(
     }
 
     companion object {
-        private const val DEFAULT_TOKEN_BUDGET = 4_096
+        private const val DEFAULT_TOKEN_BUDGET = 512
+        private const val DEFAULT_ELAPSED_BUDGET_NANOS = 4_000_000L
     }
 }
