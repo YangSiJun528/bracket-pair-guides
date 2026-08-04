@@ -33,6 +33,7 @@ import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Component
 import java.awt.Container
+import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.JButton
 import javax.swing.JEditorPane
 import javax.swing.JLabel
@@ -570,15 +571,20 @@ class PluginConfigurableTest : BasePlatformTestCase() {
     }
 
     fun testLargePreviewLanguageChangeDoesNotCollectOnTheEdt() {
-        var edtCollections = 0
+        val edtCollections = AtomicInteger()
+        val backgroundCollections = AtomicInteger()
         val preview = BracketSettingsPreview(
             PreviewPairProviderFactory { editor, fileType, disabledLanguageIds ->
                 val delegate = BracketPairAnalyzer(editor, fileType) { capabilityId ->
                     capabilityId !in disabledLanguageIds
                 }
                 BracketPairProvider { progress ->
-                    if (ApplicationManager.getApplication().isDispatchThread) {
-                        edtCollections++
+                    if (editor.document.textLength > 10_000) {
+                        if (ApplicationManager.getApplication().isDispatchThread) {
+                            edtCollections.incrementAndGet()
+                        } else {
+                            backgroundCollections.incrementAndGet()
+                        }
                     }
                     delegate.collect(progress)
                 }
@@ -592,7 +598,6 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 append("} }")
             }
             replacePreviewText(preview, largeJava)
-            val synchronousCollectionsBeforeUpdate = edtCollections
             val fileType = (preview.exampleSelector.selectedItem as PreviewExample)
                 .resolveFileType() as LanguageFileType
             val capabilityId = checkNotNull(
@@ -603,7 +608,15 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 PluginOptions(disabledLanguageIds = setOf(capabilityId)),
             )
 
-            assertEquals(synchronousCollectionsBeforeUpdate, edtCollections)
+            PlatformTestUtil.waitWithEventsDispatching(
+                "large language change background completion",
+                {
+                    backgroundCollections.get() > 0 &&
+                        !preview.analysisStatusLabel.isVisible
+                },
+                10_000,
+            )
+            assertEquals(0, edtCollections.get())
             assertTrue(preview.previewEditor.markupModel.allHighlighters.isEmpty())
         } finally {
             preview.dispose()

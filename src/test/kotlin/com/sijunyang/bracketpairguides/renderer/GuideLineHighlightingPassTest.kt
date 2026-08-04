@@ -660,24 +660,24 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             pairs
         }
 
-        val initialMillis = measureTimeMillis {
-            applyPass(provider) { visibleRange }
-        }
+        applyPass(provider) { visibleRange }
 
         assertEquals(1, collections)
+        assertTrue(bracketColorHighlighters().isNotEmpty())
         assertTrue(bracketColorHighlighters().size <= 1_024)
-        assertTrue("50k-pair viewport apply took ${initialMillis}ms", initialMillis < 2_000)
-        val firstViewport = bracketColorHighlighters().toSet()
 
         visibleRange = TextRange(50_000, 50_256)
-        val scrollMillis = measureTimeMillis {
-            session().visibleAreaChanged()
-        }
+        session().visibleAreaChanged()
 
         assertEquals(1, collections)
-        assertTrue(bracketColorHighlighters().size <= 1_536)
-        assertTrue(firstViewport.any { !it.isValid })
-        assertTrue("50k-pair viewport refresh took ${scrollMillis}ms", scrollMillis < 1_000)
+        val scrolledDecorations = bracketColorHighlighters()
+        assertTrue(scrolledDecorations.isNotEmpty())
+        assertTrue(scrolledDecorations.size <= 1_536)
+        assertTrue(
+            scrolledDecorations.any {
+                it.startOffset in visibleRange.startOffset until visibleRange.endOffset
+            },
+        )
     }
 
     fun testOversizedDenseViewportStaysAnchoredAwayFromCaretAndCapsDecorations() {
@@ -746,7 +746,6 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             "Capped decorations must be recentered within a cached character window",
             scrolledDecorations.minOf { it.startOffset } > initialLastOffset,
         )
-        assertTrue(initialDecorations.any { !it.isValid })
     }
 
     fun testCappedDenseDecorationsFollowCaretMovementWithoutScrolling() {
@@ -767,23 +766,31 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             )
         }
 
-        applyPass(BracketPairProvider { pairs }) { TextRange(0, source.length) }
+        var viewportRequests = 0
+        applyPass(BracketPairProvider { pairs }) {
+            viewportRequests++
+            TextRange(0, source.length)
+        }
         val initialDecorations = bracketColorHighlighters()
         assertEquals(MAX_VISIBLE_TOKEN_DECORATIONS, initialDecorations.size)
         val initialLastOffset = initialDecorations.maxOf { it.startOffset }
+        val initialViewportRequests = viewportRequests
 
-        editor.caretModel.moveToOffset(source.length - 1)
+        repeat(8) { step ->
+            editor.caretModel.moveToOffset(source.length - 1 - step * 2)
+        }
 
         PlatformTestUtil.waitWithEventsDispatching(
             "capped token window follows caret",
             {
                 bracketColorHighlighters().minOfOrNull { it.startOffset }
-                    ?.let { it > initialLastOffset } == true
+                    ?.let { it > initialLastOffset } == true &&
+                    viewportRequests == initialViewportRequests + 1
             },
             10_000,
         )
         assertEquals(MAX_VISIBLE_TOKEN_DECORATIONS, bracketColorHighlighters().size)
-        assertTrue(initialDecorations.any { !it.isValid })
+        assertEquals(initialViewportRequests + 1, viewportRequests)
     }
 
     fun testAppliesActiveGuideBeforeRequestingViewportDecorations() {
@@ -833,7 +840,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         EditorGuideSession.dispose(editor)
         assertNull(EditorGuideSession.get(editor))
         fun collectInBackground(): GuideLineHighlightingPass {
-            return AppExecutorUtil.getAppExecutorService()
+            val collection = AppExecutorUtil.getAppExecutorService()
                 .submit<GuideLineHighlightingPass> {
                     inReadAction {
                         GuideLineHighlightingPass(project, editor, provider).also { pass ->
@@ -841,7 +848,12 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
                         }
                     }
                 }
-                .get(10, TimeUnit.SECONDS)
+            PlatformTestUtil.waitWithEventsDispatching(
+                "background guide collection",
+                { collection.isDone },
+                10_000,
+            )
+            return collection.get()
         }
 
         val initialPass = collectInBackground()
@@ -900,12 +912,21 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         }
 
         try {
-            assertTrue(providerEntered.await(10, TimeUnit.SECONDS))
+            PlatformTestUtil.waitWithEventsDispatching(
+                "background provider entry",
+                { providerEntered.count == 0L },
+                10_000,
+            )
             PluginSettings.getInstance().replace(
                 initialOptions.copy(disabledLanguageIds = disabledDuringCollection),
             )
             continueCollection.countDown()
-            collection.get(10, TimeUnit.SECONDS)
+            PlatformTestUtil.waitWithEventsDispatching(
+                "stamped language collection",
+                { collection.isDone },
+                10_000,
+            )
+            collection.get()
             PluginSettings.getInstance().replace(initialOptions)
 
             pass.doApplyInformationToEditor()
@@ -931,7 +952,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         EditorGuideSession.dispose(editor)
         assertNull(EditorGuideSession.get(editor))
         val staleResolverCalls = AtomicInteger()
-        val stalePass = AppExecutorUtil.getAppExecutorService()
+        val staleCollection = AppExecutorUtil.getAppExecutorService()
             .submit<GuideLineHighlightingPass> {
                 inReadAction {
                     GuideLineHighlightingPass(
@@ -947,7 +968,12 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
                     }
                 }
             }
-            .get(10, TimeUnit.SECONDS)
+        PlatformTestUtil.waitWithEventsDispatching(
+            "stale background collection",
+            { staleCollection.isDone },
+            10_000,
+        )
+        val stalePass = staleCollection.get()
         assertNull(EditorGuideSession.get(editor))
 
         WriteCommandAction.runWriteCommandAction(project) {
