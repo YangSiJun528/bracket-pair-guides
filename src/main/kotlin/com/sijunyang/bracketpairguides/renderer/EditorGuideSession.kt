@@ -18,6 +18,8 @@ internal class EditorGuideSession private constructor(
     private var options: PluginOptions,
 ) {
     private var disposed = false
+    private var activePairResolverHighlighterIdentity =
+        System.identityHashCode(editor.highlighter)
     /** The only session state read by background highlighting passes. */
     @Volatile
     private var acceptedStamp: AnalysisStamp? = null
@@ -44,6 +46,7 @@ internal class EditorGuideSession private constructor(
         assertEdt()
         if (disposed || editor.isDisposed || !passStamp.satisfies(currentStamp())) return false
         activePairResolver = resolver
+        activePairResolverHighlighterIdentity = passStamp.highlighterIdentity
         visibleRangeProvider = rangeProvider
         return true
     }
@@ -100,6 +103,7 @@ internal class EditorGuideSession private constructor(
     fun visibleAreaChanged() {
         assertEdt()
         if (disposed || editor.isDisposed) return
+        if (discardPresentationFromReplacedHighlighter()) return
         val currentSnapshot = snapshot ?: return
         if (!isCurrent(currentSnapshot)) return
         val nextDecorations = VisibleTokenDecorationManager.replaceIfOutsideWindow(
@@ -119,6 +123,7 @@ internal class EditorGuideSession private constructor(
         val languagesChanged =
             options.disabledLanguageIds != nextOptions.disabledLanguageIds
         options = nextOptions
+        if (discardPresentationFromReplacedHighlighter()) return
         if (languagesChanged) {
             clear()
             updateProvisional(null)
@@ -181,6 +186,7 @@ internal class EditorGuideSession private constructor(
     }
 
     private fun updateProvisional(change: DocumentChange?) {
+        if (discardPresentationFromReplacedHighlighter()) return
         val adjustedPair = adjustedActivePair()
         val caretOffset = caretOffset()
         val pair = when (
@@ -230,7 +236,7 @@ internal class EditorGuideSession private constructor(
         clearActive(preserveGuide = true)
         if (pair == null || !options.enabled ||
             (!options.showsGuide && !options.showsActivePair) ||
-            !pair.isValid(editor.document.textLength)
+            !pair.hasWellFormedTokenRange(editor.document.textLength)
         ) {
             activeGuide?.dispose()
             activeGuide = null
@@ -343,6 +349,17 @@ internal class EditorGuideSession private constructor(
     private fun paintState(): GuidePaintState? =
         activeGuide?.takeIf(RangeHighlighter::isValid)?.getUserData(GUIDE_PAINT_STATE_KEY)
 
+    private fun discardPresentationFromReplacedHighlighter(): Boolean {
+        if (activePairResolverHighlighterIdentity ==
+            System.identityHashCode(editor.highlighter)
+        ) {
+            return false
+        }
+        clear()
+        editor.contentComponent.repaint()
+        return true
+    }
+
     private fun currentStamp(): AnalysisStamp = AnalysisStamp.current(
         editor,
         AnalysisCapabilities.from(options),
@@ -356,11 +373,6 @@ internal class EditorGuideSession private constructor(
 
     private fun BracketPair.contains(offset: Int): Boolean =
         offset > openOffset && offset < closeOffset + closeTokenLength
-
-    private fun BracketPair.isValid(documentLength: Int): Boolean {
-        val closeEnd = closeOffset.toLong() + closeTokenLength
-        return openOffset >= 0 && openOffset.toLong() < closeEnd && closeEnd <= documentLength
-    }
 
     private fun BracketPair.withDepthHint(previous: BracketPair?): BracketPair {
         if (previous == null) return this
