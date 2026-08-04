@@ -30,20 +30,21 @@ internal data class PreviewExample(
                 extension = "java",
                 source = """
                     class Preview {
+                        private static final String DECOY = "ignored: ( [ }";
+
                         Object render(Object value) {
-                            return list(
-                                map(
-                                    "items",
-                                    array(
-                                        call(
-                                            format(
-                                                <caret>value
-                                            )
-                                        )
-                                    )
+                            // Lexer decoy: closing brackets ) ] }
+                            return java.util.List.of(
+                                java.util.Map.of(
+                                    "items", new Object[] {
+                                        format(<caret>value),
+                                        java.util.List.of("nested")
+                                    }
                                 )
                             );
                         }
+
+                        Object format(Object value) { return value; }
                     }
                 """.trimIndent(),
             ),
@@ -53,20 +54,125 @@ internal data class PreviewExample(
                 extension = "kt",
                 source = """
                     class Preview {
+                        private val decoy = "ignored: ( [ }"
+
                         fun render(value: Any): Any {
+                            // Lexer decoy: closing brackets ) ] }
                             return listOf(
                                 mapOf(
                                     "items" to arrayOf(
-                                        call(
-                                            format(
-                                                <caret>value,
-                                            ),
-                                        ),
+                                        format(<caret>value),
+                                        listOf("nested"),
                                     ),
                                 ),
                             )
                         }
+
+                        private fun format(value: Any): Any = value
                     }
+                """.trimIndent(),
+            ),
+            marked(
+                id = "javascript",
+                displayName = "JavaScript",
+                extension = "js",
+                source = """
+                    const decoy = "ignored: ( [ }";
+
+                    export function render(value) {
+                      // Lexer decoy: closing brackets ) ] }
+                      return {
+                        items: [
+                          format(<caret>value),
+                          { nested: [value] },
+                        ],
+                      };
+                    }
+
+                    function format(value) { return value; }
+                """.trimIndent(),
+            ),
+            marked(
+                id = "typescript",
+                displayName = "TypeScript",
+                extension = "ts",
+                source = """
+                    type PreviewResult = { items: unknown[] };
+                    const decoy: string = "ignored: ( [ }";
+
+                    export function render(value: unknown): PreviewResult {
+                      // Lexer decoy: closing brackets ) ] }
+                      return {
+                        items: [
+                          format(<caret>value),
+                          { nested: [value] },
+                        ],
+                      };
+                    }
+
+                    function format(value: unknown): unknown { return value; }
+                """.trimIndent(),
+            ),
+            marked(
+                id = "python",
+                displayName = "Python",
+                extension = "py",
+                source = """
+                    DECOY = "ignored: ( [ }"
+
+                    def render(value):
+                        # Lexer decoy: closing brackets ) ] }
+                        return {
+                            "items": [
+                                format_value(<caret>value),
+                                {"nested": ("tuple", value)},
+                            ],
+                        }
+
+                    def format_value(value):
+                        return value
+                """.trimIndent(),
+            ),
+            marked(
+                id = "go",
+                displayName = "Go",
+                extension = "go",
+                source = """
+                    package preview
+
+                    var decoy = "ignored: ( [ }"
+
+                    func render(value any) map[string]any {
+                        // Lexer decoy: closing brackets ) ] }
+                        return map[string]any{
+                            "items": []any{
+                                format(<caret>value),
+                                map[string]bool{"nested": true},
+                            },
+                        }
+                    }
+
+                    func format(value any) any { return value }
+                """.trimIndent(),
+            ),
+            marked(
+                id = "rust",
+                displayName = "Rust",
+                extension = "rs",
+                source = """
+                    const DECOY: &str = "ignored: ( [ }";
+
+                    fn render<'a>(value: &'a str) -> Vec<Vec<&'a str>> {
+                        // Lexer decoy: closing brackets ) ] }
+                        vec![
+                            vec![
+                                format_value(<caret>value),
+                            ],
+                            vec!["nested", value],
+                        ]
+                    }
+
+                    fn format_value<'a>(value: &'a str) -> &'a str { value }
                 """.trimIndent(),
             ),
             marked(
@@ -75,8 +181,10 @@ internal data class PreviewExample(
                 extension = "json",
                 source = """
                     {
+                      "decoy": "ignored: ( [ }",
                       "items": [
                         {
+                          "inline": [1, 2],
                           "groups": [
                             {
                               "values": [
@@ -91,11 +199,72 @@ internal data class PreviewExample(
                 """.trimIndent(),
             ),
             marked(
+                id = "yaml",
+                displayName = "YAML",
+                extension = "yaml",
+                source = """
+                    decoy: "ignored: ( [ }"
+                    # Lexer decoy: closing brackets ) ] }
+                    preview: {
+                      items: [
+                        {
+                          name: active,
+                          values: [
+                            <caret>true,
+                            false
+                          ]
+                        },
+                        { name: inline, values: [one, two] }
+                      ]
+                    }
+                """.trimIndent(),
+            ),
+            marked(
+                id = "shell",
+                displayName = "Shell",
+                extension = "sh",
+                source = """
+                    #!/usr/bin/env bash
+                    decoy='ignored: ( [ }'
+
+                    render() {
+                      # Lexer decoy: closing brackets ) ] }
+                      local value
+                      value="${'$'}(
+                        printf '%s' "${'$'}(
+                          printf '%s' '<caret>active'
+                        )"
+                      )"
+                      printf '%s\n' "${'$'}{value:-fallback}"
+                    }
+
+                    render
+                """.trimIndent(),
+            ),
+            marked(
+                id = "toml",
+                displayName = "TOML",
+                extension = "toml",
+                source = """
+                    title = "ignored: ( [ }"
+                    # Lexer decoy: closing brackets ) ] }
+                    items = [
+                      [
+                        "<caret>active",
+                        "value",
+                      ],
+                      ["inline", "pair"],
+                    ]
+                    options = { enabled = true, labels = ["one", "two"] }
+                """.trimIndent(),
+            ),
+            marked(
                 id = "xml",
                 displayName = "XML",
                 extension = "xml",
                 source = """
-                    <preview>
+                    <preview label="ignored: ( [ }">
+                      <!-- Lexer decoy: closing brackets ) ] } -->
                       <items>
                         <item>
                           <value>

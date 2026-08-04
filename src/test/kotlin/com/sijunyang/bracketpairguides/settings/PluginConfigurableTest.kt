@@ -383,9 +383,9 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             val examples = (0 until preview.exampleSelector.itemCount).map { index ->
                 preview.exampleSelector.getItemAt(index)
             }
-            assertEquals(
-                listOf("java", "kotlin", "json"),
-                examples.map(PreviewExample::id),
+            val installedFixtureExamples = examples.map(PreviewExample::id).toSet()
+            assertTrue(
+                installedFixtureExamples.containsAll(setOf("java", "kotlin", "json")),
             )
             assertFalse(editor.isViewer)
 
