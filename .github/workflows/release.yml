@@ -5,7 +5,9 @@
 name: Release
 on:
   release:
-    types: [ prereleased, released ]
+    # `published` covers both stable and prerelease publications, including
+    # releases that transition from the draft created by the Build workflow.
+    types: [ published ]
 
 jobs:
 
