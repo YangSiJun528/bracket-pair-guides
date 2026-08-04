@@ -124,7 +124,7 @@ internal object ActiveGuidePositionResolver {
                 minimum = indentation
                 anchorLine = line
             }
-            return minimum == 0 || budget.exhausted
+            return budget.exhausted
         }
 
         if (inspect(lastLine)) return result(pair, minimum, anchorLine)
@@ -139,15 +139,29 @@ internal object ActiveGuidePositionResolver {
         ) {
             return result(pair, minimum, anchorLine)
         }
+        if (minimum == 0 && anchorLine == firstLine) {
+            return result(pair, minimum, anchorLine)
+        }
 
         var line = firstLine
         while (line < lastLine && !budget.exhausted) {
             if (line != changedLine && line != previousAnchor && inspect(line)) {
                 break
             }
+            // Zero is the absolute minimum, but the exact index breaks ties by
+            // the earliest line. Stop only after every earlier candidate has
+            // either been inspected above or visited by this forward scan.
+            if (minimum == 0 && anchorLine <= line) break
             line++
         }
-        return result(pair, minimum, anchorLine)
+        val resolvedAnchorLine = if (minimum == GuidePositionIndex.NO_INDENT &&
+            !budget.exhausted
+        ) {
+            firstLine
+        } else {
+            anchorLine
+        }
+        return result(pair, minimum, resolvedAnchorLine)
     }
 
     private fun result(

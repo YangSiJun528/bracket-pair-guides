@@ -2,8 +2,10 @@ package com.sijunyang.bracketpairguides.renderer
 
 import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.junit.Assert.assertEquals
+import kotlin.random.Random
 
 class ActiveGuidePositionResolverTest : BasePlatformTestCase() {
     fun testChangedCloserBoundaryRecomputesGuideInsteadOfReusingOverlappingPair() {
@@ -121,6 +123,71 @@ class ActiveGuidePositionResolverTest : BasePlatformTestCase() {
 
         assertEquals(GuideIndentation.MAXIMUM_COLUMN, guide.guideColumn)
         assertEquals(1, guide.anchorLine)
+    }
+
+    fun testBoundedResolverMatchesTheExactIndexAcrossRandomIndentationRanges() {
+        val random = Random(0x61D3_5EED)
+
+        repeat(20) { sample ->
+            val lineCount = random.nextInt(8, 65)
+            val lines = List(lineCount) { line ->
+                val indentation = buildString {
+                    repeat(random.nextInt(0, 13)) {
+                        append(if (random.nextBoolean()) ' ' else '\t')
+                    }
+                }
+                if (line != 0 && random.nextInt(5) == 0) {
+                    indentation
+                } else {
+                    "${indentation}value-$line"
+                }
+            }
+            val source = lines.joinToString("\n")
+            myFixture.configureByText("RandomIndentation-$sample.txt", source)
+            val editor = myFixture.editor
+            val tabSize = listOf(1, 2, 4, 8)[random.nextInt(4)]
+            editor.settings.setTabSize(tabSize)
+            val exactIndex = checkNotNull(
+                GuidePositionIndex.from(
+                    document = editor.document,
+                    tabSize = tabSize,
+                    progress = EmptyProgressIndicator(),
+                ),
+            )
+
+            repeat(80) { range ->
+                val openLine = random.nextInt(0, lineCount - 1)
+                val closeLine = random.nextInt(openLine + 1, lineCount)
+                val pair = BracketPair(
+                    openOffset = editor.document.getLineStartOffset(openLine),
+                    openTokenLength = 1,
+                    closeOffset = editor.document.getLineStartOffset(closeLine),
+                    closeTokenLength = 1,
+                    depth = 0,
+                    openLine = openLine,
+                    closeLine = closeLine,
+                )
+                val exact = exactIndex.guideFor(pair)
+                val immediate = ActiveGuidePositionResolver.resolve(
+                    editor = editor,
+                    pair = pair,
+                    previous = null,
+                    currentAnchorLine = null,
+                    change = null,
+                )
+
+                assertEquals(
+                    "sample=$sample range=$range lines=$openLine..$closeLine column",
+                    exact.guideColumn,
+                    immediate.guideColumn,
+                )
+                assertEquals(
+                    "sample=$sample range=$range lines=$openLine..$closeLine anchor",
+                    exact.anchorLine,
+                    immediate.anchorLine,
+                )
+            }
+        }
     }
 
     private fun pairFor(source: String, closeLine: Int): BracketPair = BracketPair(
