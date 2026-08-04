@@ -93,6 +93,17 @@ class BracketPairAnalyzerTest : BasePlatformTestCase() {
         })
     }
 
+    fun testMalformedRegularPairDoesNotCrossAJavaStructuralPair() {
+        val source = "class Broken ( { ) }"
+        myFixture.configureByText("Structural.java", source)
+
+        val pairs = analyze(EmptyProgressIndicator())
+
+        assertEquals(1, pairs.size)
+        assertEquals(source.indexOf('{'), pairs.single().openOffset)
+        assertEquals(source.indexOf('}'), pairs.single().closeOffset)
+    }
+
     fun testLongAnalysisHonorsCancellationDuringTokenTraversal() {
         myFixture.configureByText("Canceled.java", largeJavaSource(1_000))
         val delegate = EmptyProgressIndicator()

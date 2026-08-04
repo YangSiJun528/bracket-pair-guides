@@ -101,7 +101,12 @@ internal class ResolvedLanguageBraceMatcher(
     val capabilityId: String,
 ) {
     val isPair: (IElementType, IElementType) -> Boolean = matcher::isPairBraces
+    val isStructuralPair: (IElementType, IElementType) -> Boolean =
+        topology::isStructuralPair
 
     fun isPureSymmetric(tokenType: IElementType): Boolean =
         topology.isPureSymmetric(tokenType)
+
+    fun isStructuralOpen(tokenType: IElementType): Boolean =
+        topology.isStructuralOpen(tokenType)
 }

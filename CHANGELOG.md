@@ -42,3 +42,5 @@
   after edits, and when the caret moves between nested scopes in a stale file.
 - Provisional guide-column lookup now recomputes rematched pairs and caps EDT
   indentation work at 256 lines and 32,768 characters.
+- Malformed-input recovery now honors official structural-brace priority and
+  prevents regular pairs from crossing a structural scope boundary.

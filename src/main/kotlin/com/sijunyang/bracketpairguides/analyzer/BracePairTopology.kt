@@ -7,13 +7,25 @@ import com.intellij.psi.tree.IElementType
 internal class BracePairTopology(pairs: Array<BracePair>) {
     private val closesByOpen = HashMap<IElementType, MutableSet<IElementType>>(pairs.size)
     private val opensByClose = HashMap<IElementType, MutableSet<IElementType>>(pairs.size)
+    private val structuralClosesByOpen =
+        HashMap<IElementType, MutableSet<IElementType>>(pairs.size)
 
     init {
         for (pair in pairs) {
             closesByOpen.getOrPut(pair.leftBraceType) { HashSet() } += pair.rightBraceType
             opensByClose.getOrPut(pair.rightBraceType) { HashSet() } += pair.leftBraceType
+            if (pair.isStructural) {
+                structuralClosesByOpen.getOrPut(pair.leftBraceType) { HashSet() } +=
+                    pair.rightBraceType
+            }
         }
     }
+
+    fun isStructuralOpen(type: IElementType): Boolean =
+        structuralClosesByOpen.containsKey(type)
+
+    fun isStructuralPair(left: IElementType, right: IElementType): Boolean =
+        structuralClosesByOpen[left]?.contains(right) == true
 
     fun isPureSymmetric(type: IElementType): Boolean {
         val outgoing = closesByOpen[type] ?: return false

@@ -6,13 +6,17 @@ package com.sijunyang.bracketpairguides.analyzer
  * Normal closes are O(1). Before malformed-input recovery scans a stack,
  * active token/context counts reject unrelated closes. Any recovery scan
  * discards the visited openers, so total stack traversal remains amortized
- * linear in the token count.
+ * linear in the token count. Structural openers split regular-brace scopes:
+ * structural pairs may recover across a scope boundary, regular pairs may not.
+ * An unmatched structural opener is conservatively kept as a boundary because
+ * this streaming API cannot know whether it will match later.
  */
 internal class BraceMatcherStack<T, G> {
     data class Open<T>(
         val token: T,
         val context: String?,
         val strictContext: Boolean,
+        val structural: Boolean,
         val offset: Int,
         val tokenLength: Int,
         val line: Int,
@@ -23,10 +27,18 @@ internal class BraceMatcherStack<T, G> {
 
     private data class ContextKey<T>(val token: T, val context: String?)
 
-    private class State<T> {
-        val stack = ArrayDeque<Open<T>>()
+    private class Counts<T> {
         val tokenCounts = HashMap<T, Int>()
         val contextCounts = HashMap<ContextKey<T>, Int>()
+    }
+
+    private class State<T> {
+        val stack = ArrayDeque<Open<T>>()
+        val allCounts = Counts<T>()
+        val regularScopes = ArrayDeque<Counts<T>>().apply {
+            addLast(Counts())
+        }
+        var structuralOpenCount = 0
     }
 
     private val states = HashMap<G, State<T>>()
@@ -39,19 +51,27 @@ internal class BraceMatcherStack<T, G> {
         tokenLength: Int,
         line: Int,
         strictContext: Boolean = false,
+        structural: Boolean = false,
     ) {
         val state = states.getOrPut(group) { State() }
-        state.stack += Open(
+        val open = Open(
             token = token,
             context = context,
             strictContext = strictContext,
+            structural = structural,
             offset = offset,
             tokenLength = tokenLength,
             line = line,
             depth = state.stack.size,
         )
-        increment(state.tokenCounts, token)
-        if (strictContext) increment(state.contextCounts, ContextKey(token, context))
+        state.stack += open
+        increment(state.allCounts, open)
+        if (structural) {
+            state.structuralOpenCount++
+            state.regularScopes.addLast(Counts())
+        } else {
+            increment(state.regularScopes.last(), open)
+        }
     }
 
     fun close(
@@ -60,36 +80,120 @@ internal class BraceMatcherStack<T, G> {
         context: String?,
         strictContext: Boolean,
         isPair: (T, T) -> Boolean,
+        isStructuralPair: (T, T) -> Boolean = { _, _ -> false },
         checkCanceled: () -> Unit = {},
     ): Match<T>? {
         val state = states[group] ?: return null
 
         val top = state.stack.last()
-        if (matches(top, token, context, strictContext, isPair)) {
-            state.stack.removeLast()
-            decrement(state, top)
+        val topMatches = matches(top, token, context, strictContext, isPair)
+        if (topMatches && isStructuralPair(top.token, token)) {
+            removeLast(state)
             removeGroupIfEmpty(group, state)
             return Match(top)
         }
 
-        if (!hasCandidate(
+        if (state.structuralOpenCount > 0 &&
+            hasCandidate(
+                counts = state.allCounts,
+                closeToken = token,
+                closeContext = context,
+                strictContext = strictContext,
+                isPair = isPair,
+                isStructuralPair = isStructuralPair,
+                structural = true,
+                checkCanceled = checkCanceled,
+            )
+        ) {
+            return recover(
+                group = group,
                 state = state,
                 closeToken = token,
                 closeContext = context,
                 strictContext = strictContext,
                 isPair = isPair,
+                isStructuralPair = isStructuralPair,
+                structural = true,
+                checkCanceled = checkCanceled,
+            )
+        }
+
+        if (topMatches) {
+            removeLast(state)
+            removeGroupIfEmpty(group, state)
+            return Match(top)
+        }
+
+        if (!hasCandidate(
+                counts = state.regularScopes.last(),
+                closeToken = token,
+                closeContext = context,
+                strictContext = strictContext,
+                isPair = isPair,
+                isStructuralPair = isStructuralPair,
+                structural = false,
                 checkCanceled = checkCanceled,
             )
         ) {
             return null
         }
 
+        return recover(
+            group = group,
+            state = state,
+            closeToken = token,
+            closeContext = context,
+            strictContext = strictContext,
+            isPair = isPair,
+            isStructuralPair = isStructuralPair,
+            structural = false,
+            checkCanceled = checkCanceled,
+        )
+    }
+
+    private fun hasCandidate(
+        counts: Counts<T>,
+        closeToken: T,
+        closeContext: String?,
+        strictContext: Boolean,
+        isPair: (T, T) -> Boolean,
+        isStructuralPair: (T, T) -> Boolean,
+        structural: Boolean,
+        checkCanceled: () -> Unit,
+    ): Boolean {
+        var visitedTypes = 0
+        for ((openToken, count) in counts.tokenCounts) {
+            if (visitedTypes++ and CANCELLATION_MASK == 0) checkCanceled()
+            if (count == 0 || !isPair(openToken, closeToken)) continue
+            if (isStructuralPair(openToken, closeToken) != structural) continue
+            if (!strictContext ||
+                (counts.contextCounts[ContextKey(openToken, closeContext)] ?: 0) > 0
+            ) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun recover(
+        group: G,
+        state: State<T>,
+        closeToken: T,
+        closeContext: String?,
+        strictContext: Boolean,
+        isPair: (T, T) -> Boolean,
+        isStructuralPair: (T, T) -> Boolean,
+        structural: Boolean,
+        checkCanceled: () -> Unit,
+    ): Match<T>? {
         var discarded = 0
         while (state.stack.isNotEmpty()) {
+            if (!structural && state.stack.last().structural) return null
             if (discarded++ and CANCELLATION_MASK == 0) checkCanceled()
-            val open = state.stack.removeLast()
-            decrement(state, open)
-            if (matches(open, token, context, strictContext, isPair)) {
+            val open = removeLast(state)
+            if (matches(open, closeToken, closeContext, strictContext, isPair) &&
+                isStructuralPair(open.token, closeToken) == structural
+            ) {
                 removeGroupIfEmpty(group, state)
                 return Match(open)
             }
@@ -97,27 +201,6 @@ internal class BraceMatcherStack<T, G> {
 
         states.remove(group)
         return null
-    }
-
-    private fun hasCandidate(
-        state: State<T>,
-        closeToken: T,
-        closeContext: String?,
-        strictContext: Boolean,
-        isPair: (T, T) -> Boolean,
-        checkCanceled: () -> Unit,
-    ): Boolean {
-        var visitedTypes = 0
-        for ((openToken, count) in state.tokenCounts) {
-            if (visitedTypes++ and CANCELLATION_MASK == 0) checkCanceled()
-            if (count == 0 || !isPair(openToken, closeToken)) continue
-            if (!strictContext ||
-                (state.contextCounts[ContextKey(openToken, closeContext)] ?: 0) > 0
-            ) {
-                return true
-            }
-        }
-        return false
     }
 
     private fun matches(
@@ -129,10 +212,29 @@ internal class BraceMatcherStack<T, G> {
     ): Boolean = isPair(open.token, closeToken) &&
         (!strictContext || (open.strictContext && open.context == closeContext))
 
-    private fun decrement(state: State<T>, open: Open<T>) {
-        decrement(state.tokenCounts, open.token)
+    private fun removeLast(state: State<T>): Open<T> {
+        val open = state.stack.removeLast()
+        decrement(state.allCounts, open)
+        if (open.structural) {
+            state.structuralOpenCount--
+            state.regularScopes.removeLast()
+        } else {
+            decrement(state.regularScopes.last(), open)
+        }
+        return open
+    }
+
+    private fun increment(counts: Counts<T>, open: Open<T>) {
+        increment(counts.tokenCounts, open.token)
         if (open.strictContext) {
-            decrement(state.contextCounts, ContextKey(open.token, open.context))
+            increment(counts.contextCounts, ContextKey(open.token, open.context))
+        }
+    }
+
+    private fun decrement(counts: Counts<T>, open: Open<T>) {
+        decrement(counts.tokenCounts, open.token)
+        if (open.strictContext) {
+            decrement(counts.contextCounts, ContextKey(open.token, open.context))
         }
     }
 

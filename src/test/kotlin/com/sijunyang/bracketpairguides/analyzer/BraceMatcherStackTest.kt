@@ -38,6 +38,119 @@ class BraceMatcherStackTest {
     }
 
     @Test
+    fun `structural pair recovers past unmatched regular openers`() {
+        val stack = BraceMatcherStack<Char, String>()
+        stack.open("main", '{', null, 0, 1, 0, structural = true)
+        stack.open("main", '(', null, 1, 1, 0)
+        stack.open("main", '[', null, 2, 1, 0)
+
+        assertEquals(
+            0,
+            stack.close(
+                "main",
+                '}',
+                null,
+                false,
+                ::isPair,
+                ::isStructuralPair,
+            )?.open?.offset,
+        )
+        assertNull(
+            stack.close("main", ')', null, false, ::isPair, ::isStructuralPair),
+        )
+    }
+
+    @Test
+    fun `structural candidate has priority over a regular top candidate`() {
+        val stack = BraceMatcherStack<Char, String>()
+        val sharesClose = { left: Char, right: Char ->
+            right == 'x' && (left == '{' || left == '(')
+        }
+        val structural = { left: Char, right: Char -> left == '{' && right == 'x' }
+        stack.open("main", '{', null, 0, 1, 0, structural = true)
+        stack.open("main", '(', null, 1, 1, 0)
+
+        assertEquals(
+            0,
+            stack.close("main", 'x', null, false, sharesClose, structural)?.open?.offset,
+        )
+    }
+
+    @Test
+    fun `regular pair cannot end inside a structural pair`() {
+        val stack = BraceMatcherStack<Char, String>()
+        stack.open("main", '(', null, 0, 1, 0)
+        stack.open("main", '{', null, 1, 1, 0, structural = true)
+
+        assertNull(
+            stack.close("main", ')', null, false, ::isPair, ::isStructuralPair),
+        )
+        assertEquals(
+            1,
+            stack.close(
+                "main",
+                '}',
+                null,
+                false,
+                ::isPair,
+                ::isStructuralPair,
+            )?.open?.offset,
+        )
+        assertEquals(
+            0,
+            stack.close(
+                "main",
+                ')',
+                null,
+                false,
+                ::isPair,
+                ::isStructuralPair,
+            )?.open?.offset,
+        )
+    }
+
+    @Test
+    fun `unmatched structural opener conservatively blocks a regular match`() {
+        val stack = BraceMatcherStack<Char, String>()
+        stack.open("main", '(', null, 0, 1, 0)
+        stack.open("main", '{', null, 1, 1, 0, structural = true)
+
+        assertNull(
+            stack.close("main", ')', null, false, ::isPair, ::isStructuralPair),
+        )
+    }
+
+    @Test
+    fun `regular pair can be fully contained by a structural pair`() {
+        val stack = BraceMatcherStack<Char, String>()
+        stack.open("main", '{', null, 0, 1, 0, structural = true)
+        stack.open("main", '(', null, 1, 1, 0)
+
+        assertEquals(
+            1,
+            stack.close(
+                "main",
+                ')',
+                null,
+                false,
+                ::isPair,
+                ::isStructuralPair,
+            )?.open?.offset,
+        )
+        assertEquals(
+            0,
+            stack.close(
+                "main",
+                '}',
+                null,
+                false,
+                ::isPair,
+                ::isStructuralPair,
+            )?.open?.offset,
+        )
+    }
+
+    @Test
     fun `keeps matcher groups independent`() {
         val stack = BraceMatcherStack<Char, String>()
         stack.open("host", '{', null, 0, 1, 0)
@@ -84,6 +197,46 @@ class BraceMatcherStackTest {
         }
     }
 
+    @Test(timeout = 10_000)
+    fun `regular closers do not rescan beyond a structural boundary`() {
+        val depth = 50_000
+        val stack = BraceMatcherStack<Char, String>()
+        repeat(depth) { offset ->
+            stack.open("main", '(', null, offset, 1, 0)
+        }
+        stack.open("main", '{', null, depth, 1, 0, structural = true)
+
+        repeat(depth) {
+            assertNull(
+                stack.close("main", ')', null, false, ::isPair, ::isStructuralPair),
+            )
+        }
+        assertEquals(
+            depth,
+            stack.close(
+                "main",
+                '}',
+                null,
+                false,
+                ::isPair,
+                ::isStructuralPair,
+            )?.open?.offset,
+        )
+        repeat(depth) {
+            assertEquals(
+                depth - it - 1,
+                stack.close(
+                    "main",
+                    ')',
+                    null,
+                    false,
+                    ::isPair,
+                    ::isStructuralPair,
+                )?.open?.depth,
+            )
+        }
+    }
+
     @Test
     fun `checks cancellation during deep malformed recovery`() {
         val stack = BraceMatcherStack<String, String>()
@@ -125,4 +278,7 @@ class BraceMatcherStackTest {
         '{' -> right == '}'
         else -> false
     }
+
+    private fun isStructuralPair(left: Char, right: Char): Boolean =
+        left == '{' && right == '}'
 }

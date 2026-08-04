@@ -96,6 +96,7 @@ internal class BracketPairAnalyzer(
                                 context = context.value,
                                 strictContext = context.strict,
                                 isPair = resolved.isPair,
+                                isStructuralPair = resolved.isStructuralPair,
                                 checkCanceled = checkCanceled,
                             )
                             if (match == null) {
@@ -107,6 +108,7 @@ internal class BracketPairAnalyzer(
                                     offset = closeOffset,
                                     tokenLength = closeTokenLength,
                                     line = line,
+                                    structural = resolved.isStructuralOpen(tokenType),
                                 )
                             } else {
                                 result += match.toPair(closeOffset, closeTokenLength, line)
@@ -120,6 +122,7 @@ internal class BracketPairAnalyzer(
                                 offset = closeOffset,
                                 tokenLength = closeTokenLength,
                                 line = line,
+                                structural = resolved.isStructuralOpen(tokenType),
                             )
                         } else if (isRight) {
                             collector.close(
@@ -128,6 +131,7 @@ internal class BracketPairAnalyzer(
                                 context = context.value,
                                 strictContext = context.strict,
                                 isPair = resolved.isPair,
+                                isStructuralPair = resolved.isStructuralPair,
                                 checkCanceled = checkCanceled,
                             )?.let { match ->
                                 result += match.toPair(closeOffset, closeTokenLength, line)

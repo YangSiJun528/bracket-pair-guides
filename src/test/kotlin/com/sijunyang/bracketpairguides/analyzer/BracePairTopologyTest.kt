@@ -9,7 +9,10 @@ import org.junit.Test
 
 class BracePairTopologyTest {
     private val language = TEST_LANGUAGE
+    private val left = IElementType("LEFT", language)
     private val right = IElementType("RIGHT", language)
+    private val structuralLeft = IElementType("STRUCTURAL_LEFT", language)
+    private val structuralRight = IElementType("STRUCTURAL_RIGHT", language)
     private val symmetric = IElementType("SYMMETRIC", language)
 
     @Test
@@ -29,6 +32,22 @@ class BracePairTopologyTest {
         )
 
         assertFalse(topology.isPureSymmetric(symmetric))
+    }
+
+    @Test
+    fun `reports structurality for the exact registered pair`() {
+        val topology = BracePairTopology(
+            arrayOf(
+                BracePair(left, right, false),
+                BracePair(structuralLeft, structuralRight, true),
+            ),
+        )
+
+        assertFalse(topology.isStructuralOpen(left))
+        assertTrue(topology.isStructuralOpen(structuralLeft))
+        assertFalse(topology.isStructuralPair(left, right))
+        assertTrue(topology.isStructuralPair(structuralLeft, structuralRight))
+        assertFalse(topology.isStructuralPair(structuralLeft, right))
     }
 
     private companion object {
