@@ -10,9 +10,12 @@ import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.colors.impl.EditorColorsSchemeImpl
+import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.RangeHighlighter
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
@@ -596,6 +599,91 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
 
         assertEquals(requestsAfterAnalysis, visibleRangeRequests)
         assertEquals(tokenHighlighters, bracketColorHighlighters().toSet())
+    }
+
+    fun testReenablingBracketColorsRestoresTheCachedTokenIndex() {
+        val source = "x { content } y"
+        myFixture.configureByText("CachedTokens.txt", source)
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        var collections = 0
+        val provider = BracketPairProvider {
+            collections++
+            listOf(pair)
+        }
+
+        applyPass(provider)
+        val originalRanges = bracketColorHighlighters().map { highlighter ->
+            highlighter.startOffset to highlighter.endOffset
+        }.toSet()
+        assertTrue(originalRanges.isNotEmpty())
+
+        val disabled = PluginSettings.getInstance().options.copy(
+            colorBracketTokens = false,
+        )
+        applyOptions(disabled)
+        assertTrue(bracketColorHighlighters().isEmpty())
+
+        applyOptions(disabled.copy(colorBracketTokens = true))
+
+        assertEquals(
+            originalRanges,
+            bracketColorHighlighters().map { highlighter ->
+                highlighter.startOffset to highlighter.endOffset
+            }.toSet(),
+        )
+        assertEquals(1, collections)
+    }
+
+    fun testThemeRefreshUpdatesTokenColorsWithoutRebuildingHighlighters() {
+        val source = "x { content } y"
+        myFixture.configureByText("ThemeTokens.txt", source)
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        var collections = 0
+        val options = PluginOptions(
+            showActiveGuide = false,
+            showActivePairBorder = false,
+            showActivePairBackground = false,
+        )
+        PluginSettings.getInstance().replace(options)
+        applyPass(
+            BracketPairProvider {
+                collections++
+                listOf(pair)
+            },
+        )
+        val originalHighlighters = bracketColorHighlighters().toSet()
+        val editor = myFixture.editor as EditorEx
+        val originalScheme = editor.colorsScheme
+        val refreshedColor = Color(0x12, 0x6A, 0xD4)
+        val refreshedScheme = EditorColorsSchemeImpl(originalScheme).apply {
+            setAttributes(
+                BracketColorPalette.LEVEL_KEYS[0],
+                TextAttributes().apply { foregroundColor = refreshedColor },
+            )
+        }
+        try {
+            editor.setColorsScheme(refreshedScheme)
+            session().updateOptions(
+                options,
+                resolveImmediately = false,
+                refreshColors = true,
+            )
+
+            assertEquals(originalHighlighters, bracketColorHighlighters().toSet())
+            assertTrue(
+                bracketColorHighlighters().all { highlighter ->
+                    highlighter.getTextAttributes(editor.colorsScheme)?.foregroundColor ==
+                        refreshedColor
+                },
+            )
+            assertEquals(1, collections)
+        } finally {
+            editor.setColorsScheme(originalScheme)
+        }
     }
 
     fun testDisabledPassSkipsRecognitionAndReenableCanAnalyze() {
