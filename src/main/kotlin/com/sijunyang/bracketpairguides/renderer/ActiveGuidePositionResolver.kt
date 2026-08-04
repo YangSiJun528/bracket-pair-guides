@@ -175,8 +175,8 @@ internal object ActiveGuidePositionResolver {
         while (offset < end) {
             if (!budget.consumeCharacter()) return UNRESOLVED
             when (text[offset]) {
-                ' ' -> column++
-                '\t' -> column += tabSize - column % tabSize
+                ' ' -> column = GuideIndentation.afterSpace(column)
+                '\t' -> column = GuideIndentation.afterTab(column, tabSize)
                 else -> return column
             }
             offset++

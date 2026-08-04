@@ -182,8 +182,8 @@ internal class GuidePositionIndex private constructor(
                     checkCanceled()
                 }
                 when (text[offset]) {
-                    ' ' -> column = (column + 1).coerceAtMost(MAXIMUM_INDENT_COLUMN)
-                    '\t' -> column = nextTabStop(column, tabSize)
+                    ' ' -> column = GuideIndentation.afterSpace(column)
+                    '\t' -> column = GuideIndentation.afterTab(column, tabSize)
                     else -> return column
                 }
             }
@@ -193,20 +193,12 @@ internal class GuidePositionIndex private constructor(
         internal fun lineAfterOpenOrClose(openLine: Int, closeLine: Int): Int =
             if (openLine < closeLine) openLine + 1 else closeLine
 
-        private fun nextTabStop(column: Int, tabSize: Int): Int {
-            val advance = tabSize - column % tabSize
-            return (column.toLong() + advance)
-                .coerceAtMost(MAXIMUM_INDENT_COLUMN.toLong())
-                .toInt()
-        }
-
         private const val CANCELLATION_LINE_MASK = 0xFF
         private const val CANCELLATION_TREE_MASK = 0xFFF
         private const val CANCELLATION_CHARACTER_MASK = 0xFFF
         private const val NO_INDENT_ENTRY = Long.MAX_VALUE
         private const val UINT_MASK = 0xFFFF_FFFFL
         private const val TREE_ENTRIES_PER_LEAF = 2L
-        private const val MAXIMUM_INDENT_COLUMN = Int.MAX_VALUE - 1
         internal const val MAXIMUM_TREE_PAYLOAD_BYTES = 16L * 1024 * 1024
 
         private data class TreeStorage(

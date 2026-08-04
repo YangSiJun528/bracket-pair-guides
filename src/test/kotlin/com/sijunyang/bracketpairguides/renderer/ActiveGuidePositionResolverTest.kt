@@ -106,6 +106,23 @@ class ActiveGuidePositionResolverTest : BasePlatformTestCase() {
         assertEquals(2, guide.anchorLine)
     }
 
+    fun testIndentationColumnSaturatesBeforeOverflowOnImmediatePath() {
+        val source = "{\n\t\tvalue}"
+        myFixture.configureByText("OverflowedIndent.txt", source)
+        myFixture.editor.settings.setTabSize(Int.MAX_VALUE)
+
+        val guide = ActiveGuidePositionResolver.resolve(
+            editor = myFixture.editor,
+            pair = pairFor(source, closeLine = 1),
+            previous = null,
+            currentAnchorLine = null,
+            change = null,
+        )
+
+        assertEquals(GuideIndentation.MAXIMUM_COLUMN, guide.guideColumn)
+        assertEquals(1, guide.anchorLine)
+    }
+
     private fun pairFor(source: String, closeLine: Int): BracketPair = BracketPair(
         openOffset = source.indexOf('{'),
         openTokenLength = 1,

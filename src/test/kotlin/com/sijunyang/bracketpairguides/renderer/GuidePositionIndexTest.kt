@@ -76,7 +76,7 @@ class GuidePositionIndexTest {
 
         val guide = index.guideFor(pair(closeLine = 1))
 
-        assertEquals(Int.MAX_VALUE - 1, guide.guideColumn)
+        assertEquals(GuideIndentation.MAXIMUM_COLUMN, guide.guideColumn)
         assertEquals(1, guide.anchorLine)
     }
 
