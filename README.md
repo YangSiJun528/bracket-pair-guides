@@ -81,6 +81,8 @@ explicit IntelliJ IDEA 2026.2 endpoint; the minimum published build remains
 pinned to 241 when the test fixture is upgraded.
 The regression suite covers Java, Kotlin, Kotlin script, JSON, contextual and
 custom-file-type matchers, unsupported legacy-only file types, and large inputs.
+Performance experiments live in the isolated `benchmarks` module; see
+[Run the performance benchmarks](benchmarks/guide_benchmarking.md).
 
 For implementation details, see
 [Architecture and performance](docs/explanation_architecture.md).
