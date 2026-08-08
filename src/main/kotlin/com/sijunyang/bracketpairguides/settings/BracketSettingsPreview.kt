@@ -8,7 +8,6 @@ import com.sijunyang.bracketpairguides.renderer.DocumentChange
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.application.readAction
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.EditorFactory
@@ -459,13 +458,12 @@ internal class BracketSettingsPreview(
         }
         updateLengthState()
         val generation = recognitionGeneration
-        val outcome = ReadAction.compute<RecognitionOutcome, RuntimeException> {
-            recognizeSafely(
-                currentFileType,
-                currentSettings.disabledLanguageIds,
-                EmptyProgressIndicator(),
-            )
-        }
+        ApplicationManager.getApplication().assertReadAccessAllowed()
+        val outcome = recognizeSafely(
+            currentFileType,
+            currentSettings.disabledLanguageIds,
+            EmptyProgressIndicator(),
+        )
         applyRecognition(outcome, generation)
     }
 
