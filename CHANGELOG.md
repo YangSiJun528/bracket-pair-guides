@@ -12,17 +12,15 @@
 - Optional border and background emphasis on the active opening and closing
   symbols.
 - One Settings page with theme-aware Base colors, optional per-component color
-  overrides, guide geometry, and an editable Preview.
-- Capability-filtered Preview examples for Java, Kotlin, JSON, JavaScript,
-  TypeScript, Python, Go, Rust, YAML, Shell Script, and TOML.
+  overrides, language controls, and guide geometry.
 - Documentation showcase examples for audited CSS-family and SQL registrations.
 - An audited IDE and language capability reference, including Rust and the
   official build/config/template matcher registrations found in installed
   JetBrains language plugins.
 - A release checklist covering the first manual Marketplace upload, listing
   metadata, verification, signing, and the later automated update path.
-- Per-language matcher-family controls with individual and bulk enable/disable
-  actions; newly installed supported languages remain enabled by default.
+- Per-language matcher-family controls; newly installed supported languages
+  remain enabled by default.
 - Java, Kotlin, Kotlin script, JSON, contextual matcher, unsupported-language,
   pinned real-world source, large-input, and seeded index parity regression
   coverage.
@@ -43,27 +41,11 @@
 - Editor snapshots and markup remain EDT-confined; background pass deduplication
   reads only an immutable stamp, and active presentation is applied before
   viewport token decoration.
-- Preview recognition is debounced, cancellable, and isolated from persisted
-  settings and source editors.
-- Preview edits, example switches, Reset, and language changes now reanalyze in
-  a coalesced background read action instead of blocking the Settings event
-  thread; previews above 10,000 characters expose an explicit analyzing state.
-- Long previews now move a bounded token-color window with their actual
-  viewport instead of leaving colors near the initial caret.
-- Theme changes now refresh automatic Settings palette cells while preserving
-  explicit draft colors and the page's modified state.
-- The Preview selector is associated with its mnemonic label, and the selector
-  and palette expose descriptive accessibility names; the actual focusable
-  editor content exposes the Preview name to assistive technology.
-- Preview text above 100,000 characters now shows an explicit paused state and
-  blocks costly example-buffer switching until the text is reduced or reset.
-- Preview status text stays short in narrow Settings layouts while its tooltip
-  and accessible description retain the complete recovery instruction.
-- Small example switches and resets now expose their immediate background
-  analysis state instead of showing an unexplained empty Preview.
-- Disabling the selected Preview example's matcher family now shows an explicit
-  recovery status that names the corresponding Languages entry instead of
-  leaving an unexplained unhighlighted example.
+- The Settings page now uses platform `BoundConfigurable`, Kotlin UI DSL
+  bindings, integer spinners, and standard color selectors instead of custom
+  draft, table, splitter, and preview infrastructure.
+- Production plugin sources and build tasks now live in the `plugin` module;
+  the root project coordinates it with the isolated `benchmarks` module.
 - Token coloring now follows oversized reported viewports even when the caret is
   off-screen and caps synchronous EDT decorations at 2,048 ranges.
 - Dense token-window refreshes now coalesce by editor on a fixed 16 ms delay;
@@ -100,8 +82,6 @@
   11.4 MiB of live-array overlap with the sort workspace at one million pairs.
 - Capped token-decoration slices recenter while scrolling inside a cached
   viewport instead of remaining fixed at the previous focus.
-- Settings Preview examples preserve caret and horizontal/vertical scroll state,
-  commit valid spinner input immediately, and expose clearer paused-state controls.
 - The `TEXT` matcher family is labeled **Custom file types** and explains that
   raw plain text is not scanned.
 - Guide-only and active-pair-only setting changes reuse the current token
@@ -140,8 +120,6 @@
   or line-selection arithmetic.
 - Replacing an editor highlighter now removes presentation from the previous
   language semantics without invoking its stale active-pair resolver.
-- Disposed Settings controls can no longer run delayed preview or color-chooser
-  actions against released UI resources.
 - Background recognition now evaluates language gates from the same immutable
   disabled-language set recorded in its analysis stamp.
 - Immediate guide positioning now uses the same earliest-line tie break as the
@@ -157,8 +135,6 @@
   tab width remains a dependency only when guide positioning is requested.
 - Editors with active guides and pair emphasis disabled skip immediate
   active-pair resolution entirely.
-- Preview decoration remains visible while a debounced edit is awaiting its
-  replacement snapshot and survives example highlighter changes correctly.
 - Publishing a stable or prerelease draft now triggers the release workflow
   through GitHub's `published` event.
 - Draft releases now target the exact commit that completed CI instead of a
@@ -171,15 +147,6 @@
   safe workflow retry.
 - Platform custom file types now route only their official syntax-table bracket
   tokens through the `TEXT` matcher, while raw plain text remains unsupported.
-- Failed Preview matcher runs now clear stale token and guide decoration before
-  showing the recovery state.
-- Preview results rejected after an in-flight tab-size or highlighter change
-  are resubmitted immediately instead of being treated as a successful empty
-  result.
-- Preview fallback text now distinguishes a missing bundled example from a
-  complete absence of installed matcher-backed languages.
-- Re-enabling a Preview analysis capability now refreshes a retained snapshot
-  when a tab-size change made it stale.
 - A full source-editor result already in flight can no longer repopulate
   proportional indexes after every pair feature has been disabled.
 - Full-to-token-only transitions retain an unaccepted scrolling fallback until

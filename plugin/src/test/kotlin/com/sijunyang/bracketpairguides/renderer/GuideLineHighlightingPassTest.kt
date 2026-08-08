@@ -127,7 +127,14 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             AnalysisSnapshotBuilder.build(
                 editor = editor,
                 pairProvider = BracketPairProvider { listOf(pair) },
-                stamp = AnalysisStamp.current(editor, AnalysisCapabilities.PREVIEW),
+                stamp = AnalysisStamp.current(
+                    editor,
+                    AnalysisCapabilities(
+                        tokens = true,
+                        activePair = true,
+                        guidePosition = true,
+                    ),
+                ),
                 progress = EmptyProgressIndicator(),
             )
         }

@@ -10,10 +10,7 @@ import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.editor.markup.RangeHighlighter
 
-/**
- * Shared active-pair presentation used by production editors and settings preview.
- * The caller supplies an explicit state, so a preview never mutates persisted settings.
- */
+/** Adds and updates the active-pair presentation owned by a source editor session. */
 internal object ActivePairDecoration {
     fun addGuide(
         editor: Editor,

@@ -206,36 +206,18 @@ The plugin keeps references to its own ranges and removes only those ranges.
 It does not call `removeAllHighlighters` in source editors or remove markup by
 layer number. This keeps built-in and third-party highlighting isolated.
 
-## Settings and Preview
+## Settings
 
-The single Settings page uses the JetBrains Kotlin UI DSL. Installed
-matcher-backed languages are grouped by capability owner and can be enabled
-individually or in bulk. One six-level Base palette supplies token, guide,
-border, and background colors by default; advanced mode can override individual
-components. Theme defaults live in `additionalTextAttributes`, while explicit
-overrides live in plugin settings.
+The single Settings page extends the platform `BoundConfigurable` and uses
+Kotlin UI DSL bindings for checkboxes, integer spinners, and the standard
+`ColorPanel`. Installed matcher-backed languages are grouped by capability
+owner and bound directly to stable disabled-family IDs. One six-level Base
+palette supplies token, guide, border, and background colors by default;
+component overrides remain available. Theme defaults live in
+`additionalTextAttributes`, while explicit overrides live in plugin settings.
 
-The Preview uses an isolated `EditorKind.PREVIEW` editor. `PreviewRecognition`
-owns recognition and `PreviewDecorationController` owns markup, preserving the
-same mockable recognition/rendering split as production. After the initial
-small bundled Java sample, document edits, example switches, Reset, and language
-changes cancel and replace one coroutine owned by an application service scope.
-Each job enters a write-allowing `readAction`, then applies the current result on
-the EDT; edits retain the 150 ms debounce while replacement actions submit with
-zero delay. Caret and appearance changes reuse the latest result. Previews above
-10,000 characters
-show an analyzing status until the background result is visible. Existing valid
-decoration remains while ordinary debounced edits wait for replacement. Above
-100,000 characters, recognition and example switching
-pause with a higher-priority explicit status; the editor remains editable and
-reducing or resetting the text resumes work.
-Each example buffer also retains its caret and horizontal/vertical scroll
-position. Valid spinner edits commit to their model before focus changes, and
-disposed controls reject delayed preview or color-chooser callbacks.
-Long analysis states use a compact visible label; the full recovery action is
-available in both the tooltip and accessibility description.
-If tab size or highlighter semantics change while a Preview result is in
-flight, the stale stamp is rejected and recognition is resubmitted immediately.
+There is no settings-only editor, recognition pipeline, or preview state. Apply,
+Reset, and modified-state tracking use the platform binding lifecycle.
 
 Applying settings performs bounded immediate resolution for at most one
 focused, selected, or showing source editor; other open editors wait for the

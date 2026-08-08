@@ -24,6 +24,8 @@ class PluginSettingsTest {
         assertFalse(state.useIndependentComponentColors)
         assertTrue(state.levelBaseColors.all { it == BracketColorPalette.AUTOMATIC_COLOR })
         assertTrue(state.guideLineColors.all { it == BracketColorPalette.AUTOMATIC_COLOR })
+        assertTrue(state.pairBorderColors.all { it == BracketColorPalette.AUTOMATIC_COLOR })
+        assertTrue(state.pairBackgroundColors.all { it == BracketColorPalette.AUTOMATIC_COLOR })
         assertEquals(1, state.guideLineWidth)
         assertEquals(100, state.guideOpacityPercent)
         assertEquals(22, state.pairBackgroundOpacityPercent)
@@ -167,5 +169,15 @@ class PluginSettingsTest {
 
         assertTrue(settings.stateModificationCount > before)
         assertFalse(settings.options.enabled)
+    }
+
+    @Test
+    fun `replace skips platform updates when normalized state is unchanged`() {
+        val settings = PluginSettings()
+        val before = settings.stateModificationCount
+
+        settings.replace(PluginOptions())
+
+        assertEquals(before, settings.stateModificationCount)
     }
 }

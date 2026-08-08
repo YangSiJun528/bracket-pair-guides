@@ -29,12 +29,6 @@ internal data class AnalysisCapabilities(
                 guidePosition = activePair && options.showsGuide,
             )
         }
-
-        val PREVIEW = AnalysisCapabilities(
-            tokens = true,
-            activePair = true,
-            guidePosition = true,
-        )
     }
 }
 

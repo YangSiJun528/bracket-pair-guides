@@ -6,7 +6,7 @@ import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.util.xmlb.annotations.Property
 
-/** Immutable settings consumed by analysis, rendering, and the settings preview. */
+/** Immutable settings consumed by analysis, rendering, and the settings page. */
 internal data class PluginOptions(
     @JvmField @field:Property val enabled: Boolean = true,
     @JvmField @field:Property val disabledLanguageIds: Set<String> = emptySet(),
@@ -60,7 +60,10 @@ internal class PluginSettings : SerializablePersistentStateComponent<PluginOptio
     }
 
     fun replace(options: PluginOptions) {
-        updateState { options.normalized() }
+        val normalized = options.normalized()
+        if (state != normalized) {
+            updateState { normalized }
+        }
     }
 
     private fun PluginOptions.normalized(): PluginOptions = copy(

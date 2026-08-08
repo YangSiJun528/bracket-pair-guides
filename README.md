@@ -3,21 +3,13 @@
 Colorizes matching brackets by nesting level and shows an active guide for the
 innermost pair containing the caret.
 
-## Preview
-
-![Bracket Pair Guides language controls and editable preview](docs/images/settings-preview-current.png)
-
-This image is rendered from the actual Settings component in the IntelliJ IDEA
-2024.1.7 test fixture. The language list follows the plugins installed in the
-running IDE, so other products can show a different set.
-
 ## Features
 
 - Six repeating nesting-level colors for matching bracket tokens.
 - One caret-activated guide for the innermost containing pair, with independent
   horizontal and vertical segments.
 - Optional border and background emphasis on the active opening and closing symbols.
-- One Settings page for colors, guide geometry, active-pair styling, and an editable preview.
+- One standard Settings page for languages, colors, guide geometry, and active-pair styling.
 - Language-aware matching through each token language's
   `com.intellij.lang.braceMatcher`.
 - Immediate, bounded active-pair refresh after caret or edit changes; complete
@@ -79,6 +71,8 @@ options, per-language controls, and coexistence guidance.
 `:plugin:verifyPlugin` resolves JetBrains' recommended cross-version matrix plus an
 explicit IntelliJ IDEA 2026.2 endpoint; the minimum published build remains
 pinned to 241 when the test fixture is upgraded.
+Production plugin sources and tasks live in the `plugin` module; the repository
+root only coordinates the Gradle build and shared release metadata.
 The regression suite covers Java, Kotlin, Kotlin script, JSON, contextual and
 custom-file-type matchers, unsupported legacy-only file types, and large inputs.
 Performance experiments live in the isolated `benchmarks` module; see

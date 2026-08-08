@@ -33,7 +33,6 @@ languages without a standalone file type. Every family is enabled by default.
 
 - Clear a family to exclude it from token colors, active guides, and pair
   emphasis.
-- Use **Enable all** or **Disable all** for the currently installed families.
 - Derived languages that inherit the same matcher are grouped together. For
   example, TypeScript and JSX can appear in the JavaScript family tooltip.
 - A newly installed supported family starts enabled. A disabled selection is
@@ -53,52 +52,19 @@ to this list. See the [IDE and language support reference](reference_language_su
 
 ## Set level colors
 
-The **Colors** table contains six levels. Deeper levels repeat the same
-palette: level 7 uses level 1, level 8 uses level 2, and so on.
+The **Colors** grid contains six levels. Deeper levels repeat the same sequence:
+level 7 uses level 1, level 8 uses level 2, and so on. The selectors are the
+IntelliJ Platform's standard color controls.
 
-By default, one Base color per level supplies the bracket-token foreground,
-guide line, pair border, and pair background. The built-in Base colors differ
-by level and follow light and dark editor schemes. Select **Reset colors** to
-discard explicit colors and resume using theme defaults.
+An empty Base selector uses the active editor theme. By default, Base supplies
+the bracket-token foreground, guide line, pair border, and pair background for
+that level. Select **Reset colors** to clear explicit values and return every
+level to this automatic behavior.
 
 Enable **Component overrides** only when Guide, Border, or Background should
-differ from Base. A component cell is editable only when its feature and the
-override switch are enabled. Turning the switch off retains the override values
-for later use; resetting the palette clears them.
-
-## Use the Preview
-
-The editable **Preview** is beside the controls and reflects draft settings
-before Apply.
-
-The README image uses the default appearance; optional pair border and
-background remain off on a new installation.
-
-1. Select any example offered by the language matcher capability filter.
-2. Edit the example or move the caret into another pair.
-3. Switch examples without losing temporary text, caret, or scroll position.
-4. Select **Reset** to restore the current example.
-
-When the selected example's matcher family is cleared in **Languages**, the
-Preview names that disabled state and explains which family to enable.
-
-If none of the bundled examples has an installed language matcher, the selector
-shows a **Plain text** explanation instead of a brace example. Matcher-backed
-third-party languages can still appear in **Languages** even when the Preview
-has no bundled example for them.
-
-Preview text is session-only. **Apply** and **OK** persist settings, not preview
-content. Open source editors receive draft appearance changes only after Apply
-or OK.
-
-Token decoration follows the Preview's actual visible range; recognition still
-covers the complete preview document. After the initial bundled sample, edits,
-example switches, Reset, and language changes are analyzed in the background.
-Previews above 10,000 characters show an analyzing status. Above 100,000
-characters, recognition and example switching pause and the status text
-explains why; edit the text below that limit or select **Reset** to resume. In a
-narrow Settings window, hover the compact status for the complete recovery
-instruction; assistive technology receives the same full description.
+differ from Base. An empty component selector inherits Base. Turning the switch
+off retains explicit component values for later use; **Reset colors** clears
+them.
 
 ## Map familiar settings
 
