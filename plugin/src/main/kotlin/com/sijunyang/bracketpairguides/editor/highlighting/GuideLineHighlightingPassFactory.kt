@@ -8,9 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import org.jetbrains.annotations.ApiStatus
 
-@ApiStatus.Internal
 internal class GuideLineHighlightingPassFactory public constructor() :
     TextEditorHighlightingPassFactory,
     TextEditorHighlightingPassFactoryRegistrar,

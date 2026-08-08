@@ -7,7 +7,6 @@ import com.intellij.openapi.editor.VisualPosition
 import com.intellij.openapi.editor.markup.CustomHighlighterRenderer
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.ui.paint.PaintUtil
-import org.jetbrains.annotations.ApiStatus
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics
@@ -23,7 +22,6 @@ import java.awt.geom.Path2D
  * font changes use current visual positions. Graphics state is isolated from
  * the rest of the editor paint pipeline.
  */
-@ApiStatus.Internal
 internal object BracketGuideRenderer : CustomHighlighterRenderer {
     public override fun paint(
         editor: Editor,

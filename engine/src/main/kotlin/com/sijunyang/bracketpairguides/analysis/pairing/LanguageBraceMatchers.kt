@@ -6,10 +6,8 @@ import com.intellij.codeInsight.highlighting.PairedBraceMatcherAdapter
 import com.intellij.lang.Language
 import com.intellij.lang.LanguageBraceMatching
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.annotations.ApiStatus
 
 /** The sole capability gate for bracket recognition. */
-@ApiStatus.Internal
 internal object LanguageBraceMatchers {
     public fun resolve(language: Language): ResolvedLanguageBraceMatcher? {
         val pairedMatcher =
@@ -24,7 +22,6 @@ internal object LanguageBraceMatchers {
     }
 }
 
-@ApiStatus.Internal
 internal class ResolvedLanguageBraceMatcher(
     public val matcher: BraceMatcher,
     private val topology: BracePairTopology,

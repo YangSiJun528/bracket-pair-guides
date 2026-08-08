@@ -11,7 +11,6 @@ import com.intellij.openapi.fileTypes.PlainTextLanguage
 import com.intellij.openapi.fileTypes.UserFileType
 import com.intellij.psi.CustomHighlighterTokenType
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.annotations.ApiStatus
 import java.util.Locale
 
 /**
@@ -21,7 +20,6 @@ import java.util.Locale
  * Each [Session] owns independent stack state, while matcher resolution is cached
  * by this core so repeated bounded sessions do not repeat extension lookup.
  */
-@ApiStatus.Internal
 internal class IntellijBracketPairingEngine(
     private val document: Document,
     private val fileType: FileType,

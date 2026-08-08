@@ -1,19 +1,28 @@
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.intellij.platform.module")
 }
 
+@OptIn(ExperimentalAbiValidation::class)
 kotlin {
     jvmToolchain(17)
     explicitApi()
+    abiValidation {
+        enabled.set(true)
+    }
     compilerOptions {
         // IntelliJ Platform 2024.1 bundles Kotlin stdlib 1.9.22.
         languageVersion = KotlinVersion.KOTLIN_1_9
         apiVersion = KotlinVersion.KOTLIN_1_9
     }
+}
+
+tasks.named("check") {
+    dependsOn("checkLegacyAbi")
 }
 
 dependencies {

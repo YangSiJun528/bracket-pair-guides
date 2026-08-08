@@ -19,12 +19,10 @@ import com.intellij.openapi.editor.event.VisibleAreaEvent
 import com.intellij.openapi.editor.event.VisibleAreaListener
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.util.Alarm
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.TestOnly
 
 /** Routes platform editor events to the state owned by each editor session. */
 @Service(Service.Level.APP)
-@ApiStatus.Internal
 internal class EditorGuideEventRouter public constructor() :
     CaretListener,
     DocumentListener,

@@ -1,11 +1,9 @@
 package com.sijunyang.bracketpairguides.editor
 
-import org.jetbrains.annotations.ApiStatus
 import java.util.Collections
 import java.util.IdentityHashMap
 
 /** Coalesces equal-by-identity values into one fixed-delay callback. */
-@ApiStatus.Internal
 internal class IdentityEventBatcher<T : Any>(
     private val schedule: (() -> Unit) -> Unit,
     private val consume: (T) -> Unit,

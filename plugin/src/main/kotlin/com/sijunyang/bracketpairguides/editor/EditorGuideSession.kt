@@ -21,11 +21,9 @@ import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.TestOnly
 
 /** EDT-owned state and presentation for one editor. */
-@ApiStatus.Internal
 internal class EditorGuideSession private constructor(
     private val editor: Editor,
     private var activePairResolver: ActiveBracketPairResolver,

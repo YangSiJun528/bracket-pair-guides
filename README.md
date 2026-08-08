@@ -68,6 +68,14 @@ options, per-language controls, and coexistence guidance.
 ./gradlew :plugin:runIde
 ```
 
+The module `check` tasks verify the committed ABI baselines in `engine/api/`
+and `plugin/api/`. Only after reviewing an intentional public-boundary change,
+update them with:
+
+```shell
+./gradlew :engine:updateLegacyAbi :plugin:updateLegacyAbi
+```
+
 `:plugin:runIde` opens a sandboxed IntelliJ IDEA instance with the plugin installed.
 `:plugin:verifyPlugin` resolves JetBrains' recommended cross-version matrix plus an
 explicit IntelliJ IDEA 2026.2 endpoint; the minimum published build remains

@@ -9,10 +9,8 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.editor.markup.RangeHighlighter
-import org.jetbrains.annotations.ApiStatus
 
 /** Adds and updates the active-pair presentation owned by a source editor session. */
-@ApiStatus.Internal
 internal object ActivePairDecoration {
     public fun addGuide(
         editor: Editor,

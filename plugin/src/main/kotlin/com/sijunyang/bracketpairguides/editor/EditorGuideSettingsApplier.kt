@@ -4,13 +4,11 @@ import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.project.ProjectManager
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.TestOnly
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
 /** Propagates applied plugin options to live editor sessions and the daemon. */
-@ApiStatus.Internal
 internal object EditorGuideSettingsApplier {
     private const val RESTART_REASON = "Bracket Pair Guides settings changed"
 

@@ -3,6 +3,7 @@ import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.ComposedJarTask
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
@@ -18,16 +19,24 @@ base {
     archivesName.set(rootProject.name)
 }
 
+@OptIn(ExperimentalAbiValidation::class)
 kotlin {
     jvmToolchain(17)
     // This plugin is not a library. Cross-file implementation stays internal;
     // the engine module owns the explicitly public build-time bridge.
     explicitApi()
+    abiValidation {
+        enabled.set(true)
+    }
     compilerOptions {
         // IntelliJ Platform 2024.1 bundles Kotlin stdlib 1.9.22.
         languageVersion = KotlinVersion.KOTLIN_1_9
         apiVersion = KotlinVersion.KOTLIN_1_9
     }
+}
+
+tasks.named("check") {
+    dependsOn("checkLegacyAbi")
 }
 
 intellijPlatform {

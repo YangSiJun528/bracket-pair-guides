@@ -47,6 +47,8 @@
 - Recognition and index code now lives in an `engine` module with a compiler-
   enforced dependency boundary. The `plugin` module composes it into the
   existing single-JAR distribution, while `benchmarks` depends on it directly.
+- Committed Kotlin ABI baselines now make the complete engine bridge explicit
+  and fail module checks when the public surface changes unintentionally.
 - Token coloring now follows oversized reported viewports even when the caret is
   off-screen and caps synchronous EDT decorations at 2,048 ranges.
 - Dense token-window refreshes now coalesce by editor on a fixed 16 ms delay;

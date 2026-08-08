@@ -6,10 +6,8 @@ import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.GuideIndentation
 import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
-import org.jetbrains.annotations.ApiStatus
 
 /** Bounded indentation lookup used only while the authoritative snapshot is stale. */
-@ApiStatus.Internal
 internal object ActiveGuidePositionResolver {
     public fun resolve(
         editor: Editor,

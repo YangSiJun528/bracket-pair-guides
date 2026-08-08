@@ -21,13 +21,11 @@ import com.intellij.ui.dsl.builder.selected
 import com.intellij.ui.layout.ComponentPredicate
 import com.intellij.ui.layout.and
 import com.intellij.ui.layout.or
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.TestOnly
 import java.awt.Color
 import java.util.Locale
 
 /** Standard platform controls bound directly to the persisted plugin options. */
-@ApiStatus.Internal
 internal class PluginConfigurable private constructor(
     private val supportedLanguagesProvider: () -> List<BraceLanguageFamily>,
 ) : BoundConfigurable("Bracket Pair Guides") {

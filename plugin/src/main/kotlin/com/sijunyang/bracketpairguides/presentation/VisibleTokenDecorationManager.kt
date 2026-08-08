@@ -12,10 +12,8 @@ import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.TestOnly
 
-@ApiStatus.Internal
 internal data class VisibleTokenDecorations(
     public val windowStartOffset: Int,
     public val windowEndOffset: Int,
@@ -40,7 +38,6 @@ private fun VisibleTokenDecorations.canReuseFor(
     return !isCapped || focusOffset in stableFocusStartOffset..stableFocusEndOffset
 }
 
-@ApiStatus.Internal
 internal data class VisibleTokenEntry(
     public val highlighter: RangeHighlighter,
     public val colorKey: TextAttributesKey,
@@ -50,7 +47,6 @@ internal data class VisibleTokenEntry(
 
 private const val MAX_VISIBLE_TOKEN_DECORATIONS = 2_048
 
-@ApiStatus.Internal
 internal object VisibleTokenDecorationManager {
     @get:TestOnly
     public val maximumDecorationCountForTest: Int

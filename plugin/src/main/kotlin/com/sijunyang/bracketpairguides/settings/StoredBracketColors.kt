@@ -1,10 +1,8 @@
 package com.sijunyang.bracketpairguides.settings
 
-import org.jetbrains.annotations.ApiStatus
 import java.awt.Color
 
 /** Stable conversion rules for colors persisted in [PluginOptions]. */
-@ApiStatus.Internal
 internal object StoredBracketColors {
     public const val COLOR_COUNT: Int = 6
     public const val AUTOMATIC_COLOR: Int = -1

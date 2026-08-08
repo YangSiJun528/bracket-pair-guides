@@ -1,6 +1,5 @@
 package com.sijunyang.bracketpairguides.analysis.pairing
 
-import org.jetbrains.annotations.ApiStatus
 
 /**
  * One-pass pairing state for language brace matchers.
@@ -14,7 +13,6 @@ import org.jetbrains.annotations.ApiStatus
  * this streaming API cannot know whether it will match later. Bounded active
  * lookup may track one candidate offset; full analysis retains no offset map.
  */
-@ApiStatus.Internal
 internal class BraceMatcherStack<T, G>(
     private val trackedOpenOffset: Int? = null,
 ) {

@@ -1,10 +1,8 @@
 package com.sijunyang.bracketpairguides.settings
 
 import com.intellij.util.xmlb.annotations.Property
-import org.jetbrains.annotations.ApiStatus
 
 /** Immutable persisted options consumed by the plugin runtime and settings page. */
-@ApiStatus.Internal
 internal data class PluginOptions(
     @JvmField @field:Property public val enabled: Boolean = true,
     @JvmField @field:Property public val disabledLanguageIds: Set<String> = emptySet(),

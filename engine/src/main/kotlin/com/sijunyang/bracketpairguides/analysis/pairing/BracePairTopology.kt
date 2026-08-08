@@ -2,10 +2,8 @@ package com.sijunyang.bracketpairguides.analysis.pairing
 
 import com.intellij.lang.BracePair
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.annotations.ApiStatus
 
 /** Distinguishes a true symmetric toggle from a token with mixed brace roles. */
-@ApiStatus.Internal
 internal class BracePairTopology(pairs: Array<BracePair>) {
     private val closesByOpen = HashMap<IElementType, MutableSet<IElementType>>(pairs.size)
     private val opensByClose = HashMap<IElementType, MutableSet<IElementType>>(pairs.size)

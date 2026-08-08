@@ -21,7 +21,6 @@ import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -29,7 +28,6 @@ import org.jetbrains.annotations.TestOnly
  * Platform-managed passes may be constructed off EDT and are collected off EDT,
  * then applied on EDT.
  */
-@ApiStatus.Internal
 internal class GuideLineHighlightingPass private constructor(
     project: Project,
     private val editor: Editor,

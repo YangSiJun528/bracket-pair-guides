@@ -7,7 +7,6 @@ import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.TextAttributes
-import org.jetbrains.annotations.ApiStatus
 import java.awt.Color
 import org.jetbrains.annotations.TestOnly
 
@@ -16,7 +15,6 @@ import org.jetbrains.annotations.TestOnly
  * independent component colors. Keeping this logic outside both recognition
  * and painting makes the palette rules deterministic and directly testable.
  */
-@ApiStatus.Internal
 internal object BracketColorPalette {
     private val levelKeys: Array<TextAttributesKey> =
         Array(StoredBracketColors.COLOR_COUNT) { index ->

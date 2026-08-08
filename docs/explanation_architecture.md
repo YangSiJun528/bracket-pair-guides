@@ -30,18 +30,22 @@ The Gradle dependency direction is `plugin -> engine` and
 `benchmarks -> engine`; `engine` cannot reference editor, presentation, or
 settings code. Both production modules use Kotlin explicit API mode. File-local
 implementation is `private`, module-local contracts are `internal`, and only
-the contracts consumed across the module boundary are `public`. JVM-visible
-implementation contracts and the public bridge both carry JetBrains'
+the contracts consumed across the module boundary are `public` with JetBrains'
 `@ApiStatus.Internal` marker. The deployable plugin module has no supported
-Kotlin library API.
+Kotlin library API. The committed `engine/api/engine.api` dump lists the entire
+module bridge, while the empty `plugin/api/plugin.api` dump asserts that the
+deployable module exposes no Kotlin API. Validation intentionally includes every
+package so a public declaration cannot escape review by being placed outside a
+designated API package.
 
 Kotlin module metadata enforces `internal` access during compilation.
 `@ApiStatus.Internal` additionally tells IDE inspections and Plugin Verifier
-that these JVM-visible declarations are not consumer APIs; it is not JVM access
-control. Kotlin `internal` declarations and IntelliJ-created services and
-extensions remain JVM-public in bytecode. The engine output is composed
-into the plugin's existing single JAR, so this build boundary does not opt into
-the experimental Plugin Model v2 or change the runtime classloader layout.
+that the unavoidable public engine bridge is not a consumer API; it is not JVM
+access control. Kotlin ABI validation compares both dumps during each module's
+`check` task, so adding or changing public declarations requires an explicit
+baseline review. The engine output is composed into the plugin's existing
+single JAR, so this build boundary does not opt into the experimental Plugin
+Model v2 or change the runtime classloader layout.
 
 ## Recognition boundary
 
