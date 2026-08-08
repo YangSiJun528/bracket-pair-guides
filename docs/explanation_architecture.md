@@ -5,11 +5,35 @@ caches the structural result. Caret movement against a current snapshot uses
 only the active-pair index; an absent or stale snapshot uses a bounded local
 resolver and never starts a full synchronous document scan.
 
+## Module and package boundaries
+
+The repository has two Gradle modules. `plugin` is the deployable IntelliJ
+plugin, while `benchmarks` compiles selected production primitives into an
+isolated JMH harness. The plugin remains one Gradle module because its internal
+parts share the same IntelliJ runtime and release lifecycle.
+
+Inside `plugin`, packages separate responsibilities without adding module-level
+APIs or dependency plumbing:
+
+| Package | Responsibility |
+|---|---|
+| `analysis`, `analysis.pairing`, `analysis.index` | Brace recognition, pairing rules, immutable snapshots, and lookup indexes |
+| `editor`, `editor.highlighting` | Editor events, session lifetime, immediate resolution, and IntelliJ highlighting passes |
+| `presentation` | Token and active-pair decorations, palette resolution, and guide painting |
+| `settings` | Immutable persisted options and stable stored-value normalization |
+| `settings.ui` | Platform Settings controls and propagation of applied values to live editors |
+
+`analysis` does not depend on editor, presentation, or settings types. The
+editor layer translates persisted options into analysis capabilities and
+coordinates analysis with presentation. This keeps the recognition core usable
+by both the bounded immediate path and the background highlighting pass without
+introducing parallel implementations.
+
 ## Recognition boundary
 
 `BracketPairProvider` is the boundary between recognition and highlighting.
-Production uses `BracketPairAnalyzer`; renderer tests inject fixed pair
-descriptors without requiring a lexer or language plugin.
+Production uses `BracketPairAnalyzer`; highlighting and editor tests inject
+fixed pair descriptors without requiring a lexer or language plugin.
 
 The analyzer reads the editor's token stream and resolves only the token
 language's `com.intellij.lang.braceMatcher` registration through
