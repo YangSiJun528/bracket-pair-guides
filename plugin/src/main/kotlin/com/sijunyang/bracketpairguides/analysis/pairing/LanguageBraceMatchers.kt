@@ -16,9 +16,6 @@ internal data class SupportedBraceLanguage(
 
 /** The sole capability gate for bracket recognition. */
 internal object LanguageBraceMatchers {
-    fun isRegistered(language: Language): Boolean =
-        LanguageBraceMatching.INSTANCE.forLanguage(language) != null
-
     fun resolve(language: Language): ResolvedLanguageBraceMatcher? {
         val pairedMatcher =
             LanguageBraceMatching.INSTANCE.forLanguage(language) ?: return null
@@ -81,7 +78,7 @@ internal object LanguageBraceMatchers {
             )
     }
 
-    fun capabilityOwner(language: Language): Language? {
+    private fun capabilityOwner(language: Language): Language? {
         val matcher = LanguageBraceMatching.INSTANCE.forLanguage(language) ?: return null
         return capabilityOwner(language, matcher)
     }

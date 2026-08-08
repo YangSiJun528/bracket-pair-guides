@@ -20,6 +20,9 @@ base {
 
 kotlin {
     jvmToolchain(17)
+    // This plugin is not a library. Platform entry points stay Kotlin-internal
+    // while remaining JVM-accessible for descriptor and service reflection.
+    explicitApi()
     compilerOptions {
         // IntelliJ Platform 2024.1 bundles Kotlin stdlib 1.9.22.
         languageVersion = KotlinVersion.KOTLIN_1_9

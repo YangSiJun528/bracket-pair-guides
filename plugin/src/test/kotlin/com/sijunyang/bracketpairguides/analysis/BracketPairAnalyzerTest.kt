@@ -211,8 +211,8 @@ class BracketPairAnalyzerTest : BasePlatformTestCase() {
             "class Disabled { void run() { call(); } }",
         )
         val capabilityId = checkNotNull(
-            LanguageBraceMatchers.capabilityOwner(myFixture.file.language),
-        ).id
+            LanguageBraceMatchers.resolve(myFixture.file.language)?.capabilityId,
+        )
 
         val pairs = ReadAction.compute<List<BracketPair>, RuntimeException> {
             BracketPairAnalyzer(
@@ -228,10 +228,6 @@ class BracketPairAnalyzerTest : BasePlatformTestCase() {
     fun testInheritedMatcherUsesTheHighestSharedBaseLanguageAsCapabilityOwner() {
         LanguageBraceMatching.INSTANCE.addExplicitExtension(DYNAMIC_LANGUAGE, ANGLE_PAIRS)
         try {
-            assertSame(
-                DYNAMIC_LANGUAGE,
-                LanguageBraceMatchers.capabilityOwner(DYNAMIC_DIALECT_LANGUAGE),
-            )
             assertEquals(
                 DYNAMIC_LANGUAGE.id,
                 LanguageBraceMatchers.resolve(DYNAMIC_DIALECT_LANGUAGE)?.capabilityId,

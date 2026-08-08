@@ -72,8 +72,8 @@ class ActiveBracketPairResolverTest : BasePlatformTestCase() {
         val source = "class Disabled { void run() { call(); } }"
         myFixture.configureByText("DisabledFamily.java", source)
         val disabledCapabilityId = checkNotNull(
-            LanguageBraceMatchers.capabilityOwner(myFixture.file.language),
-        ).id
+            LanguageBraceMatchers.resolve(myFixture.file.language)?.capabilityId,
+        )
 
         val resolution = resolve(
             EditorHighlighterActiveBracketPairResolver(

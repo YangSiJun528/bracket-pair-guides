@@ -1165,8 +1165,8 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("call") + 2)
         val capabilityId = checkNotNull(
-            LanguageBraceMatchers.capabilityOwner(myFixture.file.language),
-        ).id
+            LanguageBraceMatchers.resolve(myFixture.file.language)?.capabilityId,
+        )
 
         applyPass()
         assertTrue(bracketColorHighlighters().isNotEmpty())
