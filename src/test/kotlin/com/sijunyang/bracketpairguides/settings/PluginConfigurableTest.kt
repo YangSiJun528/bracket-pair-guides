@@ -24,6 +24,7 @@ import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.fileTypes.UnknownFileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -38,6 +39,7 @@ import java.awt.Color
 import java.awt.Component
 import java.awt.Container
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.JButton
@@ -672,6 +674,93 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertTrue(backgroundCollections.get() > 0)
             assertEquals(synchronousCollections, edtCollections.get())
             assertFalse(preview.analysisStatusLabel.isVisible)
+        } finally {
+            preview.dispose()
+        }
+    }
+
+    fun testRapidPreviewEditsCoalesceToTheLatestRecognition() {
+        val collections = AtomicInteger()
+        val preview = BracketSettingsPreview(
+            PreviewPairProviderFactory { editor, fileType, disabledLanguageIds ->
+                val delegate = BracketPairAnalyzer(editor, fileType) { capabilityId ->
+                    capabilityId !in disabledLanguageIds
+                }
+                BracketPairProvider { progress ->
+                    collections.incrementAndGet()
+                    delegate.collect(progress)
+                }
+            },
+        )
+        val latestSource = "class Latest { void run() { call(); } }"
+        try {
+            assertEquals(1, collections.get())
+
+            replacePreviewText(preview, "class First { void run() {} }")
+            replacePreviewText(preview, "class Second { void run() { nested(); } }")
+            replacePreviewText(preview, latestSource)
+
+            PlatformTestUtil.waitWithEventsDispatching(
+                "coalesced preview recognition",
+                {
+                    collections.get() == 2 &&
+                        preview.previewEditor.markupModel.allHighlighters
+                            .tokenHighlighters()
+                            .isNotEmpty()
+                },
+                10_000,
+            )
+            assertEquals(latestSource, preview.previewEditor.document.text)
+            assertEquals(2, collections.get())
+        } finally {
+            preview.dispose()
+        }
+    }
+
+    fun testDisposingPreviewCancelsRunningCoroutineRecognition() {
+        val collectionStarted = CountDownLatch(1)
+        val cancellationObserved = CountDownLatch(1)
+        val collections = AtomicInteger()
+        val preview = BracketSettingsPreview(
+            PreviewPairProviderFactory { editor, fileType, _ ->
+                val delegate = BracketPairAnalyzer(editor, fileType)
+                BracketPairProvider { progress ->
+                    if (collections.incrementAndGet() == 1) {
+                        delegate.collect(progress)
+                    } else {
+                        collectionStarted.countDown()
+                        val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10)
+                        try {
+                            while (System.nanoTime() < deadline) {
+                                progress.checkCanceled()
+                                Thread.yield()
+                            }
+                            throw AssertionError("Coroutine recognition was not cancelled")
+                        } catch (exception: ProcessCanceledException) {
+                            cancellationObserved.countDown()
+                            throw exception
+                        } catch (exception: CancellationException) {
+                            cancellationObserved.countDown()
+                            throw exception
+                        }
+                    }
+                }
+            },
+        )
+        try {
+            selectExample(preview, "json")
+            PlatformTestUtil.waitWithEventsDispatching(
+                "running preview recognition",
+                { collectionStarted.count == 0L },
+                10_000,
+            )
+
+            preview.dispose()
+
+            assertTrue(
+                "Coroutine recognition did not observe disposal cancellation",
+                cancellationObserved.await(10, TimeUnit.SECONDS),
+            )
         } finally {
             preview.dispose()
         }

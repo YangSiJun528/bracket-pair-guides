@@ -219,9 +219,11 @@ The Preview uses an isolated `EditorKind.PREVIEW` editor. `PreviewRecognition`
 owns recognition and `PreviewDecorationController` owns markup, preserving the
 same mockable recognition/rendering split as production. After the initial
 small bundled Java sample, document edits, example switches, Reset, and language
-changes are analyzed in a coalesced non-blocking read action; edits retain the
-150 ms debounce while replacement actions submit with zero delay. Caret and
-appearance changes reuse the latest result. Previews above 10,000 characters
+changes cancel and replace one coroutine owned by an application service scope.
+Each job enters a write-allowing `readAction`, then applies the current result on
+the EDT; edits retain the 150 ms debounce while replacement actions submit with
+zero delay. Caret and appearance changes reuse the latest result. Previews above
+10,000 characters
 show an analyzing status until the background result is visible. Existing valid
 decoration remains while ordinary debounced edits wait for replacement. Above
 100,000 characters, recognition and example switching

@@ -6,9 +6,10 @@ import com.sijunyang.bracketpairguides.renderer.AnalysisCapabilities
 import com.sijunyang.bracketpairguides.renderer.AnalysisSnapshot
 import com.sijunyang.bracketpairguides.renderer.DocumentChange
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.application.readAction
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.EditorKind
@@ -28,11 +29,12 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.ui.OnePixelDivider
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.util.Computable
 import com.intellij.ui.components.JBLabel
-import com.intellij.util.Alarm
-import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.ui.JBUI
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.GridBagConstraints
@@ -58,7 +60,6 @@ internal class BracketSettingsPreview(
         },
 ) : JPanel(BorderLayout()), Disposable {
     private val lifetime = Disposer.newDisposable("Bracket settings preview")
-    private val recognitionAlarm = Alarm(Alarm.ThreadToUse.SWING_THREAD, lifetime)
     private val recognizer = PreviewRecognizer(pairProviderFactory)
     private val examples = PreviewExample.available()
     private val buffers = examples.associate { example ->
@@ -73,16 +74,13 @@ internal class BracketSettingsPreview(
     internal val analysisStatusLabel = JBLabel()
     internal val previewEditor: EditorEx
     private var currentExample = examples.first()
-    @Volatile
     private var currentFileType: FileType = currentExample.resolveFileType()
-    @Volatile
     private var currentSettings = PluginOptions()
-    @Volatile
     private var recognitionGeneration = 0L
     private var analyzingGeneration: Long? = null
     private var failedGeneration: Long? = null
+    private var recognitionJob: Job? = null
     private var changingDocument = false
-    @Volatile
     private var disposed = false
     private lateinit var decoration: PreviewDecorationController
 
@@ -172,7 +170,7 @@ internal class BracketSettingsPreview(
         recognitionGeneration++
         analyzingGeneration = null
         failedGeneration = null
-        recognitionAlarm.cancelAllRequests()
+        cancelPendingRecognition()
         Disposer.dispose(lifetime)
         previewEditor.caretModel.removeCaretListener(caretListener)
         decoration.dispose()
@@ -300,7 +298,7 @@ internal class BracketSettingsPreview(
         currentExample = nextExample
         currentFileType = nextExample.resolveFileType()
         recognitionGeneration++
-        recognitionAlarm.cancelAllRequests()
+        cancelPendingRecognition()
         replaceDocument(
             buffer = buffers.getValue(nextExample.id),
             nextFileType = currentFileType,
@@ -407,7 +405,7 @@ internal class BracketSettingsPreview(
         showProgress: Boolean = false,
     ) {
         recognitionGeneration++
-        recognitionAlarm.cancelAllRequests()
+        cancelPendingRecognition()
         failedGeneration = null
         if (previewEditor.document.textLength > MAX_PREVIEW_LENGTH) {
             analyzingGeneration = null
@@ -420,43 +418,32 @@ internal class BracketSettingsPreview(
                 previewEditor.document.textLength > IMMEDIATE_RECOGNITION_LENGTH
         }
         updateLengthState()
-        recognitionAlarm.addRequest(
-            { submitRecognition() },
-            delayMillis,
-        )
-    }
-
-    private fun submitRecognition() {
-        if (disposed || previewEditor.isDisposed) return
         val generation = recognitionGeneration
         val modificationStamp = previewEditor.document.modificationStamp
         val fileType = currentFileType
         val disabledLanguageIds = currentSettings.disabledLanguageIds
-        ReadAction.nonBlocking<RecognitionOutcome> {
-            val indicator = ProgressManager.getInstance().progressIndicator
-                ?: EmptyProgressIndicator()
-            recognizeSafely(fileType, disabledLanguageIds, indicator)
-        }.expireWith(lifetime)
-            .expireWhen {
-                disposed ||
-                    generation != recognitionGeneration ||
-                    modificationStamp != previewEditor.document.modificationStamp ||
-                    fileType !== currentFileType ||
-                    disabledLanguageIds != currentSettings.disabledLanguageIds
+        recognitionJob = PreviewRecognitionService.getInstance().launch {
+            delay(delayMillis.toLong())
+            val outcome = readAction {
+                recognizeSafely(
+                    fileType,
+                    disabledLanguageIds,
+                    coroutineProgressIndicator(),
+                )
             }
-            .coalesceBy(this)
-            .finishOnUiThread(ModalityState.any()) { outcome ->
-                if (disposed || previewEditor.isDisposed) return@finishOnUiThread
+            withContext(Dispatchers.EDT) {
+                if (disposed || previewEditor.isDisposed) return@withContext
                 if (generation != recognitionGeneration ||
                     modificationStamp != previewEditor.document.modificationStamp ||
                     fileType !== currentFileType ||
                     disabledLanguageIds != currentSettings.disabledLanguageIds
                 ) {
-                    return@finishOnUiThread
+                    return@withContext
                 }
+                recognitionJob = null
                 applyRecognition(outcome, generation)
             }
-            .submit(AppExecutorUtil.getAppExecutorService())
+        }
     }
 
     private fun recognizeSynchronously() {
@@ -464,7 +451,7 @@ internal class BracketSettingsPreview(
         recognitionGeneration++
         analyzingGeneration = null
         failedGeneration = null
-        recognitionAlarm.cancelAllRequests()
+        cancelPendingRecognition()
         if (previewEditor.document.textLength > MAX_PREVIEW_LENGTH) {
             decoration.clearRecognition()
             updateLengthState()
@@ -472,17 +459,27 @@ internal class BracketSettingsPreview(
         }
         updateLengthState()
         val generation = recognitionGeneration
-        val outcome = ApplicationManager.getApplication().runReadAction(
-            Computable {
-                recognizeSafely(
-                    currentFileType,
-                    currentSettings.disabledLanguageIds,
-                    EmptyProgressIndicator(),
-                )
-            },
-        )
+        val outcome = ReadAction.compute<RecognitionOutcome, RuntimeException> {
+            recognizeSafely(
+                currentFileType,
+                currentSettings.disabledLanguageIds,
+                EmptyProgressIndicator(),
+            )
+        }
         applyRecognition(outcome, generation)
     }
+
+    private fun cancelPendingRecognition() {
+        recognitionJob?.cancel()
+        recognitionJob = null
+    }
+
+    private fun coroutineProgressIndicator(): ProgressIndicator =
+        object : ProgressIndicator by EmptyProgressIndicator() {
+            override fun checkCanceled() {
+                ProgressManager.checkCanceled()
+            }
+        }
 
     private fun recognizeSafely(
         fileType: FileType,
