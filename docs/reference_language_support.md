@@ -148,8 +148,8 @@ runtime test.
 - Load compatibility: `plugin/src/main/resources/META-INF/plugin.xml`, the explicitly
   pinned `since-build="241"`, JetBrains' recommended Plugin Verifier matrix,
   and the explicit IntelliJ IDEA 2026.2 endpoint in `plugin/build.gradle.kts`.
-- Runtime fixture: `plugin/build.gradle.kts` and the repository language regression
-  tests.
+- Runtime fixture: `engine/build.gradle.kts`, `plugin/build.gradle.kts`, and the
+  repository language regression tests.
 - Binary compatibility: six Plugin Verifier reports—five IntelliJ IDEA
   Community releases from 2024.1 through 2025.2 and IntelliJ IDEA Ultimate
   2026.2—produced by the audit.

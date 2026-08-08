@@ -25,7 +25,7 @@ import org.jetbrains.annotations.TestOnly
 /** Routes platform editor events to the state owned by each editor session. */
 @Service(Service.Level.APP)
 @ApiStatus.Internal
-public class EditorGuideEventRouter public constructor() :
+internal class EditorGuideEventRouter public constructor() :
     CaretListener,
     DocumentListener,
     EditorFactoryListener,

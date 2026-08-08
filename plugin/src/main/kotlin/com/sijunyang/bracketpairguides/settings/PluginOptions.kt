@@ -5,7 +5,7 @@ import org.jetbrains.annotations.ApiStatus
 
 /** Immutable persisted options consumed by the plugin runtime and settings page. */
 @ApiStatus.Internal
-public data class PluginOptions(
+internal data class PluginOptions(
     @JvmField @field:Property public val enabled: Boolean = true,
     @JvmField @field:Property public val disabledLanguageIds: Set<String> = emptySet(),
     @JvmField @field:Property public val colorBracketTokens: Boolean = true,

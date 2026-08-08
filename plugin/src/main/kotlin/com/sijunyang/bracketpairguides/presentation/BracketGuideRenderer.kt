@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.VisualPosition
 import com.intellij.openapi.editor.markup.CustomHighlighterRenderer
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.ui.paint.PaintUtil
+import org.jetbrains.annotations.ApiStatus
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics
@@ -14,7 +15,6 @@ import java.awt.Graphics2D
 import java.awt.Rectangle
 import java.awt.RenderingHints
 import java.awt.geom.Path2D
-import org.jetbrains.annotations.ApiStatus
 
 /**
  * Paints one complete bracket-pair guide for one range highlighter.
@@ -24,7 +24,7 @@ import org.jetbrains.annotations.ApiStatus
  * the rest of the editor paint pipeline.
  */
 @ApiStatus.Internal
-public object BracketGuideRenderer : CustomHighlighterRenderer {
+internal object BracketGuideRenderer : CustomHighlighterRenderer {
     public override fun paint(
         editor: Editor,
         highlighter: RangeHighlighter,

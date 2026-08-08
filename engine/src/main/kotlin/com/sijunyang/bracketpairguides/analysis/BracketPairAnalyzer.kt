@@ -23,14 +23,14 @@ public class BracketPairAnalyzer(
     private val isLanguageEnabled: (String) -> Boolean = { true },
 ) : BracketPairProvider {
     @TestOnly
-    public constructor(editor: Editor) : this(
+    internal constructor(editor: Editor) : this(
         editor = editor,
         fileType = FileDocumentManager.getInstance().getFile(editor.document)?.fileType
             ?: PlainTextFileType.INSTANCE,
     )
 
     @TestOnly
-    public constructor(
+    internal constructor(
         editor: Editor,
         isLanguageEnabled: (String) -> Boolean,
     ) : this(

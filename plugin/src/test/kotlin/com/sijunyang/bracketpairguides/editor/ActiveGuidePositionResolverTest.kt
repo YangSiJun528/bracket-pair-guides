@@ -2,9 +2,7 @@ package com.sijunyang.bracketpairguides.editor
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
-import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.junit.Assert.assertEquals
 import kotlin.random.Random
@@ -149,14 +147,6 @@ class ActiveGuidePositionResolverTest : BasePlatformTestCase() {
             val editor = myFixture.editor
             val tabSize = listOf(1, 2, 4, 8)[random.nextInt(4)]
             editor.settings.setTabSize(tabSize)
-            val exactIndex = checkNotNull(
-                GuidePositionIndex.from(
-                    document = editor.document,
-                    tabSize = tabSize,
-                    progress = EmptyProgressIndicator(),
-                ),
-            )
-
             repeat(80) { range ->
                 val openLine = random.nextInt(0, lineCount - 1)
                 val closeLine = random.nextInt(openLine + 1, lineCount)
@@ -169,7 +159,7 @@ class ActiveGuidePositionResolverTest : BasePlatformTestCase() {
                     openLine = openLine,
                     closeLine = closeLine,
                 )
-                val exact = exactIndex.guideFor(pair)
+                val exact = exactGuide(lines, pair, tabSize)
                 val immediate = ActiveGuidePositionResolver.resolve(
                     editor = editor,
                     pair = pair,
@@ -201,4 +191,37 @@ class ActiveGuidePositionResolverTest : BasePlatformTestCase() {
         openLine = 0,
         closeLine = closeLine,
     )
+
+    private fun exactGuide(
+        lines: List<String>,
+        pair: BracketPair,
+        tabSize: Int,
+    ): BracketGuide {
+        var minimumColumn = Int.MAX_VALUE
+        var anchorLine = pair.openLine + 1
+        for (line in pair.openLine + 1..pair.closeLine) {
+            val column = indentationColumn(lines[line], tabSize) ?: continue
+            if (column < minimumColumn) {
+                minimumColumn = column
+                anchorLine = line
+            }
+        }
+        return BracketGuide(
+            pair = pair,
+            guideColumn = minimumColumn.takeUnless { it == Int.MAX_VALUE } ?: 0,
+            anchorLine = anchorLine,
+        )
+    }
+
+    private fun indentationColumn(line: String, tabSize: Int): Int? {
+        var column = 0
+        for (character in line) {
+            when (character) {
+                ' ' -> column++
+                '\t' -> column += tabSize - column % tabSize
+                else -> return column
+            }
+        }
+        return null
+    }
 }

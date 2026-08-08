@@ -10,9 +10,9 @@ plugin.
 - An otherwise idle machine
 - The same JDK, heap settings, and power mode for every comparison
 
-The module depends on the compiled `plugin` project and invokes its production
+The module depends on the compiled `engine` project and invokes its production
 `CancellableLongArraySort.kt` implementation. It neither copies the
-implementation nor registers the plugin source directory as a benchmark source
+implementation nor registers the engine source directory as a benchmark source
 root, so the benchmark cannot drift from the shipped class or confuse IDE
 module ownership.
 

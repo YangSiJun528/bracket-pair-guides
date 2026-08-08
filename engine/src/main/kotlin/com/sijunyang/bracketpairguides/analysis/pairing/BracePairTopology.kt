@@ -6,7 +6,7 @@ import org.jetbrains.annotations.ApiStatus
 
 /** Distinguishes a true symmetric toggle from a token with mixed brace roles. */
 @ApiStatus.Internal
-public class BracePairTopology(pairs: Array<BracePair>) {
+internal class BracePairTopology(pairs: Array<BracePair>) {
     private val closesByOpen = HashMap<IElementType, MutableSet<IElementType>>(pairs.size)
     private val opensByClose = HashMap<IElementType, MutableSet<IElementType>>(pairs.size)
     private val structuralClosesByOpen =

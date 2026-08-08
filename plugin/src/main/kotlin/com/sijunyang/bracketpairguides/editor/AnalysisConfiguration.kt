@@ -6,7 +6,7 @@ import org.jetbrains.annotations.ApiStatus
 
 /** Maps persisted options to the analysis work required by editor sessions. */
 @ApiStatus.Internal
-public fun PluginOptions.analysisCapabilities(): AnalysisCapabilities {
+internal fun PluginOptions.analysisCapabilities(): AnalysisCapabilities {
     val activePair = enabled && (showsGuide || showsActivePair)
     return AnalysisCapabilities(
         tokens = enabled && colorBracketTokens,

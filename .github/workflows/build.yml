@@ -68,14 +68,16 @@ jobs:
           cache-read-only: true
 
       - name: Run Tests
-        run: ./gradlew :plugin:check
+        run: ./gradlew :engine:check :plugin:check :benchmarks:jmhJar
 
       - name: Collect Failed Test Reports
         if: ${{ failure() }}
         uses: actions/upload-artifact@v7
         with:
           name: tests-result
-          path: ${{ github.workspace }}/plugin/build/reports/tests
+          path: |
+            ${{ github.workspace }}/engine/build/reports/tests
+            ${{ github.workspace }}/plugin/build/reports/tests
 
   inspectCode:
     name: Inspect Code

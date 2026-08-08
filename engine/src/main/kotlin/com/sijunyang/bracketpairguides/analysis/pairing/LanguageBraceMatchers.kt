@@ -10,7 +10,7 @@ import org.jetbrains.annotations.ApiStatus
 
 /** The sole capability gate for bracket recognition. */
 @ApiStatus.Internal
-public object LanguageBraceMatchers {
+internal object LanguageBraceMatchers {
     public fun resolve(language: Language): ResolvedLanguageBraceMatcher? {
         val pairedMatcher =
             LanguageBraceMatching.INSTANCE.forLanguage(language) ?: return null
@@ -25,7 +25,7 @@ public object LanguageBraceMatchers {
 }
 
 @ApiStatus.Internal
-public class ResolvedLanguageBraceMatcher(
+internal class ResolvedLanguageBraceMatcher(
     public val matcher: BraceMatcher,
     private val topology: BracePairTopology,
     public val capabilityId: String,

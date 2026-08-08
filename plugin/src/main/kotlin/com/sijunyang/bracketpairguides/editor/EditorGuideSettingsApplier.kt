@@ -11,7 +11,7 @@ import java.lang.reflect.Method
 
 /** Propagates applied plugin options to live editor sessions and the daemon. */
 @ApiStatus.Internal
-public object EditorGuideSettingsApplier {
+internal object EditorGuideSettingsApplier {
     private const val RESTART_REASON = "Bracket Pair Guides settings changed"
 
     private val restartMethods = object : ClassValue<Method>() {

@@ -1,7 +1,10 @@
 package com.sijunyang.bracketpairguides
 
 import com.sijunyang.bracketpairguides.analysis.BracketPairAnalyzer
-import com.sijunyang.bracketpairguides.analysis.index.ActiveBracketPairIndex
+import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
+import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshotBuilder
+import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
+import com.sijunyang.bracketpairguides.analysis.BracketPairProvider
 import com.sijunyang.bracketpairguides.presentation.BracketGuideRenderer
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.sijunyang.bracketpairguides.editor.highlighting.GuideLineHighlightingPass
@@ -130,7 +133,21 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         PluginSettings.getInstance().replace(emphasized)
         session.updateOptions(emphasized)
 
-        val activeIndex = ActiveBracketPairIndex.build(first)
+        val activeIndex = inReadAction {
+            AnalysisSnapshotBuilder.build(
+                editor = editor,
+                pairProvider = BracketPairProvider { first },
+                stamp = AnalysisStamp.current(
+                    editor,
+                    AnalysisCapabilities(
+                        tokens = false,
+                        activePair = true,
+                        guidePosition = false,
+                    ),
+                ),
+                progress = EmptyProgressIndicator(),
+            ).activeIndex
+        }
         val sampledOffsets = buildSet {
             val sections = 24
             repeat(sections + 1) { section ->

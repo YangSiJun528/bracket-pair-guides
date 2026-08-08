@@ -26,7 +26,7 @@ import org.jetbrains.annotations.TestOnly
 
 /** EDT-owned state and presentation for one editor. */
 @ApiStatus.Internal
-public class EditorGuideSession private constructor(
+internal class EditorGuideSession private constructor(
     private val editor: Editor,
     private var activePairResolver: ActiveBracketPairResolver,
     private var visibleRangeProvider: (Editor) -> TextRange,

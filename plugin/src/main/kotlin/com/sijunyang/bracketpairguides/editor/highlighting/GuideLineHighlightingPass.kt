@@ -30,7 +30,7 @@ import org.jetbrains.annotations.TestOnly
  * then applied on EDT.
  */
 @ApiStatus.Internal
-public class GuideLineHighlightingPass private constructor(
+internal class GuideLineHighlightingPass private constructor(
     project: Project,
     private val editor: Editor,
     private val pairProviderFactory: (Set<String>) -> BracketPairProvider,

@@ -15,7 +15,7 @@ public class BracketTokenIndex private constructor(
     private val maximumTokenLength: Int,
 ) {
     @get:TestOnly
-    public val size: Int
+    internal val size: Int
         get() = encodedTokens.size
 
     public fun firstIndexInRange(startOffset: Int): Int {
@@ -50,7 +50,7 @@ public class BracketTokenIndex private constructor(
     }
 
     @TestOnly
-    public fun countIn(startOffset: Int, endOffset: Int): Int {
+    internal fun countIn(startOffset: Int, endOffset: Int): Int {
         var index = firstIndexInRange(startOffset)
         var count = 0
         while (index < encodedTokens.size) {
@@ -89,7 +89,7 @@ public class BracketTokenIndex private constructor(
     private fun tokenReferenceAt(index: Int): Int = encodedTokens[index].toInt()
 
     public companion object {
-        public fun build(
+        internal fun build(
             pairs: List<BracketPair>,
             checkCanceled: () -> Unit = {},
         ): BracketTokenIndex = build(
@@ -99,7 +99,7 @@ public class BracketTokenIndex private constructor(
         )
 
         /** Copies only token metadata so the source pair graph can be released. */
-        public fun buildDetached(
+        internal fun buildDetached(
             pairs: List<BracketPair>,
             checkCanceled: () -> Unit = {},
         ): BracketTokenIndex = build(

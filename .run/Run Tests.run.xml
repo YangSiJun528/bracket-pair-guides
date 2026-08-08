@@ -11,6 +11,7 @@
       </option>
       <option name="taskNames">
         <list>
+          <option value=":engine:check" />
           <option value=":plugin:check" />
         </list>
       </option>

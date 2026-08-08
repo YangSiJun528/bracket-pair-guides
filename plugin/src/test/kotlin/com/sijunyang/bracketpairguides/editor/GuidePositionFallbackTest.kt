@@ -1,14 +1,12 @@
 package com.sijunyang.bracketpairguides.editor
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
-import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshot
+import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshotBuilder
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
-import com.sijunyang.bracketpairguides.analysis.index.ActiveBracketPairIndex
-import com.sijunyang.bracketpairguides.analysis.index.BracketTokenIndex
-import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
+import com.sijunyang.bracketpairguides.analysis.BracketPairProvider
 import com.sijunyang.bracketpairguides.presentation.ActivePairDecoration
 import com.sijunyang.bracketpairguides.settings.PluginOptions
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -32,38 +30,43 @@ class GuidePositionFallbackTest : BasePlatformTestCase() {
             closeLine = 301,
         )
         editor.caretModel.moveToOffset(source.indexOf("value"))
-        val exactIndex = checkNotNull(
-            GuidePositionIndex.from(editor.document, 4, EmptyProgressIndicator()),
+        val unrelatedPair = BracketPair(
+            openOffset = editor.document.getLineStartOffset(260),
+            openTokenLength = 1,
+            closeOffset = editor.document.getLineStartOffset(261),
+            closeTokenLength = 1,
+            depth = 0,
+            openLine = 260,
+            closeLine = 261,
         )
-        assertEquals(0, exactIndex.guideFor(pair).guideColumn)
-        val unrelatedIndex = checkNotNull(
-            GuidePositionIndex.from(
-                editor.document,
-                4,
-                EmptyProgressIndicator(),
-                indexedLineRange = 261..261,
-            ),
-        )
-        assertEquals(0, unrelatedIndex.guideFor(pair).guideColumn)
-        assertEquals(null, unrelatedIndex.guideForOrNull(pair))
-
         val options = PluginOptions(colorBracketTokens = false)
         val stamp = AnalysisStamp.current(editor, options.analysisCapabilities())
+        val unrelatedIndex = inReadAction {
+            checkNotNull(
+                AnalysisSnapshotBuilder.build(
+                    editor = editor,
+                    pairProvider = BracketPairProvider { listOf(unrelatedPair) },
+                    stamp = stamp,
+                    progress = EmptyProgressIndicator(),
+                ).positionIndex,
+            )
+        }
+        assertEquals(null, unrelatedIndex.guideForOrNull(pair))
+        val snapshot = inReadAction {
+            AnalysisSnapshotBuilder.build(
+                editor = editor,
+                pairProvider = BracketPairProvider { listOf(pair) },
+                stamp = stamp,
+                progress = EmptyProgressIndicator(),
+            )
+        }.copy(positionIndex = unrelatedIndex)
         val session = EditorGuideSession.detached(
             editor = editor,
             options = options,
             visibleRangeProvider = { TextRange(0, editor.document.textLength) },
         )
         try {
-            session.accept(
-                AnalysisSnapshot(
-                    stamp = stamp,
-                    pairs = listOf(pair),
-                    tokenIndex = BracketTokenIndex.build(emptyList()),
-                    activeIndex = ActiveBracketPairIndex.build(listOf(pair)),
-                    positionIndex = unrelatedIndex,
-                ),
-            )
+            session.accept(snapshot)
 
             val guide = checkNotNull(
                 ActivePairDecoration.guideOf(session.activeGuide),
@@ -74,4 +77,7 @@ class GuidePositionFallbackTest : BasePlatformTestCase() {
             session.dispose()
         }
     }
+
+    private fun <T> inReadAction(action: () -> T): T =
+        ReadAction.compute<T, RuntimeException>(action)
 }

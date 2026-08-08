@@ -8,9 +8,9 @@ import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolver
 import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
 import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshotBuilder
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
+import com.sijunyang.bracketpairguides.analysis.BracketLanguageSupport
 import com.sijunyang.bracketpairguides.analysis.EditorHighlighterActiveBracketPairResolver
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
-import com.sijunyang.bracketpairguides.analysis.pairing.LanguageBraceMatchers
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.sijunyang.bracketpairguides.editor.analysisCapabilities
 import com.sijunyang.bracketpairguides.presentation.BracketGuideRenderer
@@ -62,7 +62,9 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("()") + 1)
         val expectedPairCount = inReadAction {
-            BracketPairAnalyzer(editor).collect(EmptyProgressIndicator()).size
+            BracketPairAnalyzer(editor, myFixture.file.fileType)
+                .collect(EmptyProgressIndicator())
+                .size
         }
 
         applyPass()
@@ -159,7 +161,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
 
         assertEquals(
             BracketGuide(pair, guideColumn = 2, anchorLine = 2),
-            positionIndex.guideFor(pair),
+            positionIndex.guideForOrNull(pair),
         )
         assertEquals(
             null,
@@ -641,7 +643,8 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         applyPass(
             BracketPairProvider {
                 inReadAction {
-                    BracketPairAnalyzer(myFixture.editor).collect(EmptyProgressIndicator())
+                    BracketPairAnalyzer(myFixture.editor, myFixture.file.fileType)
+                        .collect(EmptyProgressIndicator())
                 }
             },
         ) {
@@ -1167,7 +1170,9 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("call") + 2)
         val capabilityId = checkNotNull(
-            LanguageBraceMatchers.resolve(myFixture.file.language)?.capabilityId,
+            BracketLanguageSupport.installedFamilies()
+                .firstOrNull { family -> myFixture.file.language in family.members }
+                ?.id,
         )
 
         applyPass()

@@ -44,8 +44,9 @@
 - The Settings page now uses platform `BoundConfigurable`, Kotlin UI DSL
   bindings, integer spinners, and standard color selectors instead of custom
   draft, table, splitter, and preview infrastructure.
-- Production plugin sources and build tasks now live in the `plugin` module;
-  the root project coordinates it with the isolated `benchmarks` module.
+- Recognition and index code now lives in an `engine` module with a compiler-
+  enforced dependency boundary. The `plugin` module composes it into the
+  existing single-JAR distribution, while `benchmarks` depends on it directly.
 - Token coloring now follows oversized reported viewports even when the caret is
   off-screen and caps synchronous EDT decorations at 2,048 ranges.
 - Dense token-window refreshes now coalesce by editor on a fixed 16 ms delay;

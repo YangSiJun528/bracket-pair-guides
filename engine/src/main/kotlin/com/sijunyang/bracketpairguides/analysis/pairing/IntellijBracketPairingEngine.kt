@@ -22,7 +22,7 @@ import java.util.Locale
  * by this core so repeated bounded sessions do not repeat extension lookup.
  */
 @ApiStatus.Internal
-public class IntellijBracketPairingEngine(
+internal class IntellijBracketPairingEngine(
     private val document: Document,
     private val fileType: FileType,
     private val text: CharSequence,

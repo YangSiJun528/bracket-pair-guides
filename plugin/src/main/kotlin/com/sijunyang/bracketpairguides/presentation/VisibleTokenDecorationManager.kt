@@ -16,7 +16,7 @@ import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.TestOnly
 
 @ApiStatus.Internal
-public data class VisibleTokenDecorations(
+internal data class VisibleTokenDecorations(
     public val windowStartOffset: Int,
     public val windowEndOffset: Int,
     public val entries: List<VisibleTokenEntry>,
@@ -41,7 +41,7 @@ private fun VisibleTokenDecorations.canReuseFor(
 }
 
 @ApiStatus.Internal
-public data class VisibleTokenEntry(
+internal data class VisibleTokenEntry(
     public val highlighter: RangeHighlighter,
     public val colorKey: TextAttributesKey,
     public val levelIndex: Int,
@@ -51,7 +51,7 @@ public data class VisibleTokenEntry(
 private const val MAX_VISIBLE_TOKEN_DECORATIONS = 2_048
 
 @ApiStatus.Internal
-public object VisibleTokenDecorationManager {
+internal object VisibleTokenDecorationManager {
     @get:TestOnly
     public val maximumDecorationCountForTest: Int
         get() = MAX_VISIBLE_TOKEN_DECORATIONS

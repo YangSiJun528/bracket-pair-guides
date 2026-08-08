@@ -13,7 +13,7 @@ import org.jetbrains.annotations.ApiStatus
 
 /** Adds and updates the active-pair presentation owned by a source editor session. */
 @ApiStatus.Internal
-public object ActivePairDecoration {
+internal object ActivePairDecoration {
     public fun addGuide(
         editor: Editor,
         guide: BracketGuide,

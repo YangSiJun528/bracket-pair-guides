@@ -124,7 +124,7 @@ public object AnalysisSnapshotBuilder {
     }
 
     @TestOnly
-    public fun multilineGuideRange(
+    internal fun multilineGuideRange(
         pairs: List<BracketPair>,
         documentLength: Int,
         documentLineCount: Int,

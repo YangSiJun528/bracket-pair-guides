@@ -21,7 +21,7 @@ public class GuidePositionIndex private constructor(
     private val minimumTree: LongArray,
 ) {
     @TestOnly
-    public fun guideFor(pair: BracketPair): BracketGuide {
+    internal fun guideFor(pair: BracketPair): BracketGuide {
         guideForOrNull(pair)?.let { return it }
         if (lineCount == 0) return BracketGuide(pair, guideColumn = 0)
 
@@ -87,7 +87,7 @@ public class GuidePositionIndex private constructor(
     public companion object {
         public const val NO_INDENT: Int = Int.MAX_VALUE
 
-        public fun from(
+        internal fun from(
             document: Document,
             tabSize: Int,
             progress: ProgressIndicator,
@@ -98,7 +98,7 @@ public class GuidePositionIndex private constructor(
             indexedLineRange = 0 until document.lineCount,
         )
 
-        public fun from(
+        internal fun from(
             document: Document,
             tabSize: Int,
             progress: ProgressIndicator,
@@ -137,7 +137,7 @@ public class GuidePositionIndex private constructor(
         }
 
         @TestOnly
-        public fun from(
+        internal fun from(
             text: CharSequence,
             lineStarts: IntArray,
             lineEnds: IntArray,
@@ -153,7 +153,7 @@ public class GuidePositionIndex private constructor(
         )
 
         @TestOnly
-        public fun from(
+        internal fun from(
             text: CharSequence,
             lineStarts: IntArray,
             lineEnds: IntArray,
@@ -233,11 +233,11 @@ public class GuidePositionIndex private constructor(
          * provisional, but it does not allocate in proportion to line count.
          */
         @TestOnly
-        public fun supportsLineCount(lineCount: Int): Boolean = storageFor(lineCount) != null
+        internal fun supportsLineCount(lineCount: Int): Boolean = storageFor(lineCount) != null
 
         /** LongArray payload only; excludes the small JVM array header. */
         @TestOnly
-        public fun treePayloadBytes(lineCount: Int): Long? = storagePlan(lineCount)?.payloadBytes
+        internal fun treePayloadBytes(lineCount: Int): Long? = storagePlan(lineCount)?.payloadBytes
 
         private fun storageFor(lineCount: Int): TreeStorage? = storagePlan(lineCount)
             ?.takeIf { it.payloadBytes <= MAXIMUM_TREE_PAYLOAD_BYTES }

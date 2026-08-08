@@ -28,7 +28,7 @@ import java.util.Locale
 
 /** Standard platform controls bound directly to the persisted plugin options. */
 @ApiStatus.Internal
-public class PluginConfigurable private constructor(
+internal class PluginConfigurable private constructor(
     private val supportedLanguagesProvider: () -> List<BraceLanguageFamily>,
 ) : BoundConfigurable("Bracket Pair Guides") {
     private var appliedSnapshot = PluginOptions()

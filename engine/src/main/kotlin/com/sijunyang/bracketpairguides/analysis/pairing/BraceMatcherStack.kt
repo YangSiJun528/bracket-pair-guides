@@ -15,7 +15,7 @@ import org.jetbrains.annotations.ApiStatus
  * lookup may track one candidate offset; full analysis retains no offset map.
  */
 @ApiStatus.Internal
-public class BraceMatcherStack<T, G>(
+internal class BraceMatcherStack<T, G>(
     private val trackedOpenOffset: Int? = null,
 ) {
     public data class Open<T>(

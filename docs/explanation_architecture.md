@@ -7,21 +7,18 @@ resolver and never starts a full synchronous document scan.
 
 ## Module and package boundaries
 
-The repository has two Gradle modules. `plugin` is the deployable IntelliJ
-plugin, while `benchmarks` runs selected compiled production primitives through
-an isolated JMH harness. The plugin remains one Gradle module because its
-internal parts share the same IntelliJ runtime and release lifecycle.
+The repository has three Gradle modules. `engine` owns bracket recognition and
+its indexes, `plugin` owns editor integration and the deployable IntelliJ plugin,
+and `benchmarks` runs selected compiled engine primitives through an isolated
+JMH harness.
 
-Inside `plugin`, packages separate responsibilities without adding module-level
-APIs or dependency plumbing:
-
-| Package | Responsibility |
+| Module and package | Responsibility |
 |---|---|
-| `analysis`, `analysis.pairing`, `analysis.index` | Installed matcher capabilities, brace recognition, pairing rules, immutable snapshots, and lookup indexes |
-| `editor`, `editor.highlighting` | Editor events, session lifetime, settings propagation, immediate resolution, and IntelliJ highlighting passes |
-| `presentation` | Token and active-pair decorations, palette resolution, and guide painting |
-| `settings` | Immutable persisted options and stable stored-value normalization |
-| `settings.ui` | Platform Settings controls, binding, Apply, and Reset entry points |
+| `engine`: `analysis`, `analysis.pairing`, `analysis.index` | Installed matcher capabilities, brace recognition, pairing rules, immutable snapshots, and lookup indexes |
+| `plugin`: `editor`, `editor.highlighting` | Editor events, session lifetime, settings propagation, immediate resolution, and IntelliJ highlighting passes |
+| `plugin`: `presentation` | Token and active-pair decorations, palette resolution, and guide painting |
+| `plugin`: `settings` | Immutable persisted options and stable stored-value normalization |
+| `plugin`: `settings.ui` | Platform Settings controls, binding, Apply, and Reset entry points |
 
 `analysis` does not depend on editor, presentation, or settings types. The
 editor layer translates persisted options into analysis capabilities and
@@ -29,18 +26,22 @@ coordinates analysis with presentation. This keeps the recognition core usable
 by both the bounded immediate path and the background highlighting pass without
 introducing parallel implementations.
 
-The plugin exposes no supported Kotlin library API. File-local implementation
-is `private`; contracts shared between source files are explicitly `public` and
-marked with JetBrains' `@ApiStatus.Internal`. Kotlin explicit API mode rejects
-an accidental public declaration that does not state its visibility and type.
-IntelliJ-created services and extension classes use the same marker while
-remaining public for descriptor and service reflection.
+The Gradle dependency direction is `plugin -> engine` and
+`benchmarks -> engine`; `engine` cannot reference editor, presentation, or
+settings code. Both production modules use Kotlin explicit API mode. File-local
+implementation is `private`, module-local contracts are `internal`, and only
+the contracts consumed across the module boundary are `public`. JVM-visible
+implementation contracts and the public bridge both carry JetBrains'
+`@ApiStatus.Internal` marker. The deployable plugin module has no supported
+Kotlin library API.
 
-`@ApiStatus.Internal` is an IDE and Plugin Verifier contract, not JVM access
-control. It warns external consumers but does not prevent bytecode calls.
-Kotlin has no package-private visibility, so package dependency direction
-remains an architectural rule; a separate Gradle module should be added only
-when that boundary needs compiler enforcement.
+Kotlin module metadata enforces `internal` access during compilation.
+`@ApiStatus.Internal` additionally tells IDE inspections and Plugin Verifier
+that these JVM-visible declarations are not consumer APIs; it is not JVM access
+control. Kotlin `internal` declarations and IntelliJ-created services and
+extensions remain JVM-public in bytecode. The engine output is composed
+into the plugin's existing single JAR, so this build boundary does not opt into
+the experimental Plugin Model v2 or change the runtime classloader layout.
 
 ## Recognition boundary
 

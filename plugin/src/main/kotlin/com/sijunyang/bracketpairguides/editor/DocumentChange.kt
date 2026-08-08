@@ -5,7 +5,7 @@ import org.jetbrains.annotations.ApiStatus
 
 /** Immutable document-event data that remains safe if an EDT handoff is needed. */
 @ApiStatus.Internal
-public data class DocumentChange(
+internal data class DocumentChange(
     public val offset: Int,
     public val mayAffectGuidePosition: Boolean,
 ) {

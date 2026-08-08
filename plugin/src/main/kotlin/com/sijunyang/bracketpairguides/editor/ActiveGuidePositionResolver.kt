@@ -10,7 +10,7 @@ import org.jetbrains.annotations.ApiStatus
 
 /** Bounded indentation lookup used only while the authoritative snapshot is stale. */
 @ApiStatus.Internal
-public object ActiveGuidePositionResolver {
+internal object ActiveGuidePositionResolver {
     public fun resolve(
         editor: Editor,
         pair: BracketPair,

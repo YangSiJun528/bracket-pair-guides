@@ -38,13 +38,24 @@ private val systemMonotonicClock: () -> Long = System::nanoTime
  * which cannot be interrupted while it is running.
  */
 @ApiStatus.Internal
-public class EditorHighlighterActiveBracketPairResolver(
+public class EditorHighlighterActiveBracketPairResolver internal constructor(
     private val fileType: FileType,
     private val tokenBudget: Int = DEFAULT_TOKEN_BUDGET,
     private val isLanguageEnabled: (String) -> Boolean = { true },
     private val elapsedBudgetNanos: Long = DEFAULT_ELAPSED_BUDGET_NANOS,
     private val clock: () -> Long = systemMonotonicClock,
 ) : ActiveBracketPairResolver {
+    public constructor(
+        fileType: FileType,
+        isLanguageEnabled: (String) -> Boolean = { true },
+    ) : this(
+        fileType = fileType,
+        tokenBudget = DEFAULT_TOKEN_BUDGET,
+        isLanguageEnabled = isLanguageEnabled,
+        elapsedBudgetNanos = DEFAULT_ELAPSED_BUDGET_NANOS,
+        clock = systemMonotonicClock,
+    )
+
     override fun findInnermost(
         editor: Editor,
         caretOffset: Int,

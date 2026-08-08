@@ -61,7 +61,8 @@ options, per-language controls, and coexistence guidance.
 ## Develop and verify
 
 ```shell
-./gradlew :plugin:check
+./gradlew :engine:check :plugin:check
+./gradlew :benchmarks:jmhJar
 ./gradlew :plugin:buildPlugin
 ./gradlew :plugin:verifyPlugin
 ./gradlew :plugin:runIde
@@ -71,8 +72,9 @@ options, per-language controls, and coexistence guidance.
 `:plugin:verifyPlugin` resolves JetBrains' recommended cross-version matrix plus an
 explicit IntelliJ IDEA 2026.2 endpoint; the minimum published build remains
 pinned to 241 when the test fixture is upgraded.
-Production plugin sources and tasks live in the `plugin` module; the repository
-root only coordinates the Gradle build and shared release metadata.
+Recognition and index code lives in `engine`; editor integration, settings, and
+deployable plugin tasks live in `plugin`. The repository root coordinates the
+Gradle build and shared release metadata.
 The regression suite covers Java, Kotlin, Kotlin script, JSON, contextual and
 custom-file-type matchers, unsupported legacy-only file types, and large inputs.
 Performance experiments live in the isolated `benchmarks` module; see

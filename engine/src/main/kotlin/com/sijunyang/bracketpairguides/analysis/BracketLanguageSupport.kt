@@ -41,7 +41,7 @@ public object BracketLanguageSupport {
             .sortedBy(BraceLanguageFamily::id)
     }
 
-    public fun capabilityId(language: Language, matcher: PairedBraceMatcher): String =
+    internal fun capabilityId(language: Language, matcher: PairedBraceMatcher): String =
         capabilityOwner(language, matcher).id
 
     private fun capabilityOwner(language: Language): Language? {

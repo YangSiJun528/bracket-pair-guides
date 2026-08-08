@@ -35,7 +35,7 @@ public class ActiveBracketPairIndex private constructor(
     }
 
     public companion object {
-        public fun build(
+        internal fun build(
             pairs: List<BracketPair>,
             checkCanceled: () -> Unit = {},
         ): ActiveBracketPairIndex {

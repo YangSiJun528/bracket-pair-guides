@@ -20,8 +20,8 @@ base {
 
 kotlin {
     jvmToolchain(17)
-    // This plugin is not a library. Cross-file contracts are explicitly public
-    // and marked ApiStatus.Internal; file-local implementation stays private.
+    // This plugin is not a library. Cross-file implementation stays internal;
+    // the engine module owns the explicitly public build-time bridge.
     explicitApi()
     compilerOptions {
         // IntelliJ Platform 2024.1 bundles Kotlin stdlib 1.9.22.
@@ -70,6 +70,10 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 
     intellijPlatform {
+        // Compile against the analysis boundary and merge it into the classic
+        // single-JAR plugin distribution rather than Plugin Model v2 modules.
+        pluginComposedModule(implementation(project(":engine")))
+
         intellijIdeaCommunity("2024.1.7")
 
         // Required only by language-aware lexer integration tests.

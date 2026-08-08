@@ -11,7 +11,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
-public class GuideLineHighlightingPassFactory public constructor() :
+internal class GuideLineHighlightingPassFactory public constructor() :
     TextEditorHighlightingPassFactory,
     TextEditorHighlightingPassFactoryRegistrar,
     DumbAware {

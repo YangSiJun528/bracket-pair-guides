@@ -11,7 +11,7 @@ import org.jetbrains.annotations.ApiStatus
     storages = [Storage("bracket-pair-guides.xml")],
 )
 @ApiStatus.Internal
-public class PluginSettings : SerializablePersistentStateComponent<PluginOptions>(
+internal class PluginSettings : SerializablePersistentStateComponent<PluginOptions>(
     PluginOptions(),
 ) {
     public val options: PluginOptions

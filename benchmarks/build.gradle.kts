@@ -14,13 +14,13 @@ kotlin {
 }
 
 dependencies {
-    // The plugin module uses the Kotlin runtime bundled with IntelliJ. This
+    // Production modules use the Kotlin runtime bundled with IntelliJ. This
     // standalone benchmark process needs its own runtime on the JMH classpath.
     implementation(kotlin("stdlib"))
 
-    // Use the compiled production class instead of registering the plugin's
-    // source directory as a second IntelliJ module source root.
-    jmhImplementation(project(":plugin"))
+    // Benchmark the compiled owner directly without registering a second
+    // source root or depending on the deployable plugin project.
+    jmhImplementation(project(":engine"))
 }
 
 val smokeRun = providers.gradleProperty("benchmarkSmoke")
