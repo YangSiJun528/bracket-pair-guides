@@ -2,9 +2,9 @@ package com.sijunyang.bracketpairguides.settings
 
 import com.sijunyang.bracketpairguides.analysis.pairing.LanguageBraceMatchers
 import com.sijunyang.bracketpairguides.analysis.pairing.SupportedBraceLanguage
-import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
-import com.sijunyang.bracketpairguides.renderer.EditorGuideEventRouter
-import com.sijunyang.bracketpairguides.renderer.EditorGuideSession
+import com.sijunyang.bracketpairguides.editor.EditorGuideEventRouter
+import com.sijunyang.bracketpairguides.editor.EditorGuideSession
+import com.sijunyang.bracketpairguides.editor.analysisCapabilities
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.options.BoundConfigurable
@@ -320,8 +320,8 @@ internal class PluginConfigurable(
 
     private fun applyOptions(previous: PluginOptions, applied: PluginOptions) {
         if (previous == applied) return
-        val capabilitiesChanged = AnalysisCapabilities.from(previous) !=
-            AnalysisCapabilities.from(applied)
+        val capabilitiesChanged = previous.analysisCapabilities() !=
+            applied.analysisCapabilities()
         val languagesChanged = previous.disabledLanguageIds != applied.disabledLanguageIds
 
         val sessionEditors = EditorFactory.getInstance().allEditors.filter { editor ->

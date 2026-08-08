@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.renderer
+package com.sijunyang.bracketpairguides.editor.highlighting
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.BracketPairAnalyzer
@@ -11,6 +11,14 @@ import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.EditorHighlighterActiveBracketPairResolver
 import com.sijunyang.bracketpairguides.analysis.index.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.pairing.LanguageBraceMatchers
+import com.sijunyang.bracketpairguides.editor.EditorGuideSession
+import com.sijunyang.bracketpairguides.editor.analysisCapabilities
+import com.sijunyang.bracketpairguides.presentation.BracketGuideRenderer
+import com.sijunyang.bracketpairguides.presentation.GUIDE_PAINT_STATE_KEY
+import com.sijunyang.bracketpairguides.presentation.GuidePaintState
+import com.sijunyang.bracketpairguides.presentation.GuideRenderOptions
+import com.sijunyang.bracketpairguides.presentation.MAX_VISIBLE_TOKEN_DECORATIONS
+import com.sijunyang.bracketpairguides.presentation.VisibleTokenEntry
 import com.sijunyang.bracketpairguides.settings.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
@@ -350,7 +358,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         applyPass()
         val acceptedStamp = AnalysisStamp.current(
             editor,
-            AnalysisCapabilities.from(options),
+            options.analysisCapabilities(),
             options.disabledLanguageIds,
         )
         val decorations = bracketColorHighlighters().toSet()
@@ -727,7 +735,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         applyPass(provider)
         val fullStamp = AnalysisStamp.current(
             editor,
-            AnalysisCapabilities.from(fullOptions),
+            fullOptions.analysisCapabilities(),
             fullOptions.disabledLanguageIds,
         )
         val originalTokens = bracketColorHighlighters().toSet()
@@ -743,7 +751,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         applyOptions(tokenOnlyOptions)
         val tokenOnlyStamp = AnalysisStamp.current(
             editor,
-            AnalysisCapabilities.from(tokenOnlyOptions),
+            tokenOnlyOptions.analysisCapabilities(),
             tokenOnlyOptions.disabledLanguageIds,
         )
 
@@ -807,7 +815,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         applyPass(provider) { visibleRange }
         val tokenOnlyStamp = AnalysisStamp.current(
             editor,
-            AnalysisCapabilities.from(tokenOnlyOptions),
+            tokenOnlyOptions.analysisCapabilities(),
             tokenOnlyOptions.disabledLanguageIds,
         )
         assertEquals(2, collections)
@@ -851,7 +859,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
 
         val fullStamp = AnalysisStamp.current(
             editor,
-            AnalysisCapabilities.from(fullOptions),
+            fullOptions.analysisCapabilities(),
             fullOptions.disabledLanguageIds,
         )
         assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, fullStamp))
@@ -954,7 +962,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         applyPass(provider)
         val acceptedStamp = AnalysisStamp.current(
             editor,
-            AnalysisCapabilities.from(enabled),
+            enabled.analysisCapabilities(),
             enabled.disabledLanguageIds,
         )
         assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, acceptedStamp))
@@ -993,7 +1001,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         }
         val fullStamp = AnalysisStamp.current(
             editor,
-            AnalysisCapabilities.from(enabled),
+            enabled.analysisCapabilities(),
             enabled.disabledLanguageIds,
         )
 
@@ -1002,7 +1010,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         latePass.doApplyInformationToEditor()
         val disabledStamp = AnalysisStamp.current(
             editor,
-            AnalysisCapabilities.from(disabled),
+            disabled.analysisCapabilities(),
             disabled.disabledLanguageIds,
         )
 
@@ -1043,7 +1051,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         applyOptions(tokenOnlyOptions)
         val tokenOnlyStamp = AnalysisStamp.current(
             editor,
-            AnalysisCapabilities.from(tokenOnlyOptions),
+            tokenOnlyOptions.analysisCapabilities(),
             tokenOnlyOptions.disabledLanguageIds,
         )
         latePass.doApplyInformationToEditor()
@@ -1092,7 +1100,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         applyPass(provider) { visibleRange }
         val tokenOnlyStamp = AnalysisStamp.current(
             editor,
-            AnalysisCapabilities.from(tokenOnlyOptions),
+            tokenOnlyOptions.analysisCapabilities(),
             tokenOnlyOptions.disabledLanguageIds,
         )
         assertEquals(2, collections)

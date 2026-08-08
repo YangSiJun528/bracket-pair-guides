@@ -6,7 +6,6 @@ import com.sijunyang.bracketpairguides.analysis.index.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.analysis.index.BracketTokenIndex
 import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
 import com.sijunyang.bracketpairguides.analysis.index.hasWellFormedTokenRange
-import com.sijunyang.bracketpairguides.settings.PluginOptions
 
 internal data class AnalysisCapabilities(
     val tokens: Boolean,
@@ -21,17 +20,6 @@ internal data class AnalysisCapabilities(
             (!required.activePair || activePair) &&
             (!required.guidePosition || guidePosition)
 
-    companion object {
-        fun from(options: PluginOptions): AnalysisCapabilities {
-            val enabled = options.enabled
-            val activePair = enabled && (options.showsGuide || options.showsActivePair)
-            return AnalysisCapabilities(
-                tokens = enabled && options.colorBracketTokens,
-                activePair = activePair,
-                guidePosition = activePair && options.showsGuide,
-            )
-        }
-    }
 }
 
 internal data class AnalysisStamp(

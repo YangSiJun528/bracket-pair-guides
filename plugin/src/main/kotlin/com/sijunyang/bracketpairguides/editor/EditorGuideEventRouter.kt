@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.renderer
+package com.sijunyang.bracketpairguides.editor
 
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.openapi.Disposable

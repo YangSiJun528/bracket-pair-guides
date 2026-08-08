@@ -3,7 +3,7 @@ package com.sijunyang.bracketpairguides.settings
 import com.sijunyang.bracketpairguides.analysis.pairing.SupportedBraceLanguage
 import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolution
 import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolver
-import com.sijunyang.bracketpairguides.renderer.EditorGuideSession
+import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase

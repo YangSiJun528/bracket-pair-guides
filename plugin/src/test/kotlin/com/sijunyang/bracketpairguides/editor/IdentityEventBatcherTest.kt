@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.renderer
+package com.sijunyang.bracketpairguides.editor
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

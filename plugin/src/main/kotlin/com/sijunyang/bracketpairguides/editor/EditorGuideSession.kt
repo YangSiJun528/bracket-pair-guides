@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.renderer
+package com.sijunyang.bracketpairguides.editor
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolution
@@ -10,6 +10,11 @@ import com.sijunyang.bracketpairguides.analysis.index.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.analysis.index.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
 import com.sijunyang.bracketpairguides.analysis.index.hasWellFormedTokenRange
+import com.sijunyang.bracketpairguides.presentation.ActivePairDecoration
+import com.sijunyang.bracketpairguides.presentation.GUIDE_PAINT_STATE_KEY
+import com.sijunyang.bracketpairguides.presentation.GuidePaintState
+import com.sijunyang.bracketpairguides.presentation.VisibleTokenDecorationManager
+import com.sijunyang.bracketpairguides.presentation.VisibleTokenDecorations
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.openapi.application.ApplicationManager
@@ -115,7 +120,7 @@ internal class EditorGuideSession private constructor(
     fun caretMoved() {
         assertEdt()
         if (disposed || editor.isDisposed) return
-        if (!AnalysisCapabilities.from(options).activePair) return
+        if (!options.analysisCapabilities().activePair) return
         val currentSnapshot = snapshot
         if (currentSnapshot == null || !isCurrent(currentSnapshot)) {
             updateProvisional(null)
@@ -184,7 +189,7 @@ internal class EditorGuideSession private constructor(
         options = nextOptions
         if (discardPresentationFromReplacedHighlighter()) return
         if (!retainAnalysisWhenInactive &&
-            !AnalysisCapabilities.from(nextOptions).pairs
+            !nextOptions.analysisCapabilities().pairs
         ) {
             clear()
             acceptedStamp = currentStamp()
@@ -227,7 +232,7 @@ internal class EditorGuideSession private constructor(
         )
         if (pair == null &&
             currentAnalysis == null &&
-            AnalysisCapabilities.from(options).activePair
+            options.analysisCapabilities().activePair
         ) {
             updateProvisional(null, resolveImmediately)
             return
@@ -300,7 +305,7 @@ internal class EditorGuideSession private constructor(
         change: DocumentChange?,
         resolveImmediately: Boolean = true,
     ) {
-        if (!AnalysisCapabilities.from(options).activePair) {
+        if (!options.analysisCapabilities().activePair) {
             val hadActivePresentation = activeGuide != null || activePairHighlights.isNotEmpty()
             clearActive(preserveGuide = false)
             if (hadActivePresentation) editor.contentComponent.repaint()
@@ -513,7 +518,7 @@ internal class EditorGuideSession private constructor(
 
     private fun currentStamp(): AnalysisStamp = AnalysisStamp.current(
         editor,
-        AnalysisCapabilities.from(options),
+        options.analysisCapabilities(),
         options.disabledLanguageIds,
     )
 

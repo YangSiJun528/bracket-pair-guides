@@ -14,7 +14,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <highlightingPassFactory
-                implementation="com.sijunyang.bracketpairguides.renderer.GuideLineHighlightingPassFactory"/>
+                implementation="com.sijunyang.bracketpairguides.editor.highlighting.GuideLineHighlightingPassFactory"/>
 
         <applicationService
                 serviceImplementation="com.sijunyang.bracketpairguides.settings.PluginSettings"/>

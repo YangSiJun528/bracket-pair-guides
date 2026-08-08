@@ -2,10 +2,10 @@ package com.sijunyang.bracketpairguides
 
 import com.sijunyang.bracketpairguides.analysis.BracketPairAnalyzer
 import com.sijunyang.bracketpairguides.analysis.index.ActiveBracketPairIndex
-import com.sijunyang.bracketpairguides.renderer.BracketGuideRenderer
-import com.sijunyang.bracketpairguides.renderer.EditorGuideSession
-import com.sijunyang.bracketpairguides.renderer.GUIDE_PAINT_STATE_KEY
-import com.sijunyang.bracketpairguides.renderer.GuideLineHighlightingPass
+import com.sijunyang.bracketpairguides.presentation.BracketGuideRenderer
+import com.sijunyang.bracketpairguides.editor.EditorGuideSession
+import com.sijunyang.bracketpairguides.editor.highlighting.GuideLineHighlightingPass
+import com.sijunyang.bracketpairguides.presentation.GUIDE_PAINT_STATE_KEY
 import com.sijunyang.bracketpairguides.settings.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings

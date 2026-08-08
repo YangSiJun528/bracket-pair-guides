@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.renderer
+package com.sijunyang.bracketpairguides.editor
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
@@ -7,6 +7,7 @@ import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.index.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.analysis.index.BracketTokenIndex
 import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
+import com.sijunyang.bracketpairguides.presentation.GUIDE_PAINT_STATE_KEY
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
@@ -47,7 +48,7 @@ class GuidePositionFallbackTest : BasePlatformTestCase() {
         assertEquals(null, unrelatedIndex.guideForOrNull(pair))
 
         val options = PluginOptions(colorBracketTokens = false)
-        val stamp = AnalysisStamp.current(editor, AnalysisCapabilities.from(options))
+        val stamp = AnalysisStamp.current(editor, options.analysisCapabilities())
         val session = EditorGuideSession.detached(
             editor = editor,
             options = options,

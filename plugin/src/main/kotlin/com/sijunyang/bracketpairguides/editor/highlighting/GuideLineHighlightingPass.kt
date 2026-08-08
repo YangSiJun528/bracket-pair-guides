@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.renderer
+package com.sijunyang.bracketpairguides.editor.highlighting
 
 import com.sijunyang.bracketpairguides.analysis.BracketPairAnalyzer
 import com.sijunyang.bracketpairguides.analysis.BracketPairProvider
@@ -8,6 +8,9 @@ import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshot
 import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshotBuilder
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.EditorHighlighterActiveBracketPairResolver
+import com.sijunyang.bracketpairguides.editor.EditorGuideEventRouter
+import com.sijunyang.bracketpairguides.editor.EditorGuideSession
+import com.sijunyang.bracketpairguides.editor.analysisCapabilities
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
 import com.intellij.openapi.application.ApplicationManager
@@ -78,7 +81,7 @@ internal class GuideLineHighlightingPass(
         collected = null
         collectedStamp = null
         val options = PluginSettings.getInstance().options
-        val capabilities = AnalysisCapabilities.from(options)
+        val capabilities = options.analysisCapabilities()
         val stamp = AnalysisStamp.current(
             editor,
             capabilities,
@@ -112,7 +115,7 @@ internal class GuideLineHighlightingPass(
         return passStamp.satisfies(
             AnalysisStamp.current(
                 editor,
-                AnalysisCapabilities.from(options),
+                options.analysisCapabilities(),
                 options.disabledLanguageIds,
             ),
         )

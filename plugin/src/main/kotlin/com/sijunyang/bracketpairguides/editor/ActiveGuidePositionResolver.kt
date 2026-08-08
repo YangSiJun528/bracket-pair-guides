@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.renderer
+package com.sijunyang.bracketpairguides.editor
 
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor

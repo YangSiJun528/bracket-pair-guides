@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.renderer
+package com.sijunyang.bracketpairguides.presentation
 
 import com.intellij.openapi.util.Key
 import com.sijunyang.bracketpairguides.analysis.index.BracketGuide
