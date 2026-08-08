@@ -14,17 +14,19 @@ JMH harness.
 
 | Module and package | Responsibility |
 |---|---|
-| `engine`: `analysis`, `analysis.pairing`, `analysis.index` | Installed matcher capabilities, brace recognition, pairing rules, immutable snapshots, and lookup indexes |
+| `engine`: `analysis.api` | The typed `BracketEngine` service contract, immutable requests/results, and presentation DTOs |
+| `engine`: `analysis`, `analysis.pairing`, `analysis.index`, `analysis.internal` | Installed matcher capabilities, brace recognition, pairing rules, compact indexes, and the service implementation |
 | `plugin`: `editor`, `editor.highlighting` | Editor events, session lifetime, settings propagation, immediate resolution, and IntelliJ highlighting passes |
 | `plugin`: `presentation` | Token and active-pair decorations, palette resolution, and guide painting |
 | `plugin`: `settings` | Immutable persisted options and stable stored-value normalization |
 | `plugin`: `settings.ui` | Platform Settings controls, binding, Apply, and Reset entry points |
 
-`analysis` does not depend on editor, presentation, or settings types. The
-editor layer translates persisted options into analysis capabilities and
-coordinates analysis with presentation. This keeps the recognition core usable
-by both the bounded immediate path and the background highlighting pass without
-introducing parallel implementations.
+The engine does not depend on editor, presentation, or settings types. The
+editor layer translates persisted options into an `AnalyzeRequest` or
+`ActivePairRequest` and consumes only `AnalysisResult` queries. Analyzer,
+snapshot-builder, pairing, sort, and index types stay internal to the engine.
+Both the bounded immediate path and the background highlighting pass therefore
+share one implementation without exposing its data structures.
 
 The Gradle dependency direction is `plugin -> engine` and
 `benchmarks -> engine`; `engine` cannot reference editor, presentation, or
@@ -36,7 +38,8 @@ Kotlin library API. The committed `engine/api/engine.api` dump lists the entire
 module bridge, while the empty `plugin/api/plugin.api` dump asserts that the
 deployable module exposes no Kotlin API. Validation intentionally includes every
 package so a public declaration cannot escape review by being placed outside a
-designated API package.
+designated API package. A second engine check rejects any committed public ABI
+class outside `analysis.api`, even after an intentional baseline update.
 
 Kotlin module metadata enforces `internal` access during compilation.
 `@ApiStatus.Internal` additionally tells IDE inspections and Plugin Verifier
@@ -49,9 +52,18 @@ Model v2 or change the runtime classloader layout.
 
 ## Recognition boundary
 
-`BracketPairProvider` is the boundary between recognition and highlighting.
-Production uses `BracketPairAnalyzer`; highlighting and editor tests inject
-fixed pair descriptors without requiring a lexer or language plugin.
+`BracketEngine` is an IntelliJ Application Service registered by interface and
+internal implementation. It is the only plugin-to-engine entry point:
+
+- `analyze(AnalyzeRequest, ProgressIndicator)` returns an immutable
+  `AnalysisResult`;
+- `resolveActivePair(ActivePairRequest)` returns a bounded `ActivePairResult`;
+- `installedLanguages()` returns UI-ready matcher-family DTOs.
+
+`AnalysisResult` exposes queries for the active pair, exact guide, and a capped
+primitive visible-token view. It never exposes `AnalysisSnapshotBuilder`,
+`BracketPairAnalyzer`, or the active, guide-position, and token indexes. Plugin
+tests inject a fake `BracketEngine`; engine tests cover the internal pipeline.
 
 The analyzer reads the editor's token stream and resolves only the token
 language's `com.intellij.lang.braceMatcher` registration through
@@ -68,11 +80,11 @@ provides strict tag context, that context remains part of pairing.
 Language settings persist disabled matcher-family IDs. A dialect that inherits
 the same matcher as its base language shares that base capability ID, so the UI
 and token-level analysis cannot disagree about whether the family is enabled.
-The disabled-ID set is part of the analysis stamp; changing it invalidates both
+The disabled-ID set is part of the analysis revision; changing it invalidates both
 the background snapshot and the bounded active-pair resolver.
-Each production pass constructs its analyzer from the same captured set stored
-in that stamp. A settings sequence such as A→B→A during collection therefore
-cannot produce B-filtered tokens carrying an A stamp.
+Each production request defensively captures the same set used by its internal
+analyzer. A settings sequence such as A→B→A during collection therefore cannot
+produce B-filtered tokens carrying an A revision.
 The platform `TEXT` registration is presented as **Custom file types** because
 its matcher consumes the eight official custom syntax-table bracket token
 types. Only platform `UserFileType` tokens take this narrow mapping; other
@@ -81,16 +93,19 @@ types. Only platform `UserFileType` tokens take this narrow mapping; other
 `GuideLineHighlightingPassFactory` registers a `TextEditorHighlightingPass`.
 The pass collects immutable results under the platform's background read and
 cancellation lifecycle, then updates editor markup on the event dispatch
-thread. Session snapshots, range markers, and highlighters are EDT-confined;
+thread. `BracketEngine` is synchronous and uses the pass-provided
+`ProgressIndicator`; it does not create an executor or coroutine scope. Session
+results, range markers, and highlighters are EDT-confined;
 background pass deduplication reads only a separately published immutable
-analysis stamp. Applying a snapshot updates the active presentation before it
+analysis revision. Applying a result updates the active presentation before it
 refreshes the larger viewport token window. A pass may replace the session's
-active resolver and visible-range provider only while its collected stamp still
-satisfies the current document, highlighter, language selection, and capability
-requirements; a late stale pass is rejected as one unit.
+engine dependency and visible-range provider only while its collected revision
+still satisfies the current document, highlighter, language selection, and
+capability requirements; a late stale pass is rejected as one unit.
 The session also records the highlighter identity that supplied its active
-resolver. If the editor changes file type or highlighter semantics, the old
-token and active presentation is discarded before any old resolver can run.
+request semantics. If the editor changes file type or highlighter semantics,
+the old token and active presentation is discarded before any old request can
+run.
 
 The bounded synchronous resolver used before the first snapshot and while a
 snapshot is stale reuses the full analyzer's token-pairing core. It searches
@@ -293,4 +308,5 @@ token attributes in place.
 - [Syntax and error highlighting](https://plugins.jetbrains.com/docs/intellij/syntax-highlighting-and-error-highlighting.html)
 - [Color scheme management](https://plugins.jetbrains.com/docs/intellij/color-scheme-management.html)
 - [Brace matching](https://plugins.jetbrains.com/docs/intellij/additional-minor-features.html)
+- [Services](https://plugins.jetbrains.com/docs/intellij/plugin-services.html)
 - [Disposer and plugin unload](https://plugins.jetbrains.com/docs/intellij/disposers.html)

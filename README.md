@@ -64,13 +64,16 @@ options, per-language controls, and coexistence guidance.
 ./gradlew :engine:check :plugin:check
 ./gradlew :benchmarks:jmhJar
 ./gradlew :plugin:buildPlugin
+./gradlew :plugin:verifyPluginProjectConfiguration :plugin:verifyPluginStructure
 ./gradlew :plugin:verifyPlugin
 ./gradlew :plugin:runIde
 ```
 
 The module `check` tasks verify the committed ABI baselines in `engine/api/`
-and `plugin/api/`. Only after reviewing an intentional public-boundary change,
-update them with:
+and `plugin/api/`. The engine baseline contains only the typed
+`analysis.api.BracketEngine` request/result contract, and a package check rejects
+public ABI elsewhere. Only after reviewing an intentional boundary change,
+update the baselines with:
 
 ```shell
 ./gradlew :engine:updateLegacyAbi :plugin:updateLegacyAbi
@@ -80,9 +83,10 @@ update them with:
 `:plugin:verifyPlugin` resolves JetBrains' recommended cross-version matrix plus an
 explicit IntelliJ IDEA 2026.2 endpoint; the minimum published build remains
 pinned to 241 when the test fixture is upgraded.
-Recognition and index code lives in `engine`; editor integration, settings, and
-deployable plugin tasks live in `plugin`. The repository root coordinates the
-Gradle build and shared release metadata.
+The `engine` module exposes one IntelliJ Application Service interface and keeps
+recognition, pairing, sort, and index implementations internal. Editor
+integration, settings, and deployable plugin tasks live in `plugin`. The
+repository root coordinates the Gradle build and shared release metadata.
 The regression suite covers Java, Kotlin, Kotlin script, JSON, contextual and
 custom-file-type matchers, unsupported legacy-only file types, and large inputs.
 Performance experiments live in the isolated `benchmarks` module; see

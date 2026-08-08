@@ -14,7 +14,10 @@ The module depends on the compiled `engine` project and invokes its production
 `CancellableLongArraySort.kt` implementation. It neither copies the
 implementation nor registers the engine source directory as a benchmark source
 root, so the benchmark cannot drift from the shipped class or confuse IDE
-module ownership.
+module ownership. This is an intentional privileged implementation probe: the
+sort remains Kotlin `internal` and is absent from the supported engine ABI, but
+the Java JMH harness can call its JVM method from the benchmark-only module.
+`:benchmarks:jmhJar` in CI detects changes that break this narrow probe.
 
 ## Run a smoke benchmark
 

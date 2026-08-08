@@ -35,11 +35,12 @@
   fallbacks, and raw-character fallbacks are intentionally absent.
 - Context-sensitive `BraceMatcher` implementations registered through the
   language extension are preserved instead of being reduced to static pairs.
-- Recognition and decoration are separated behind mockable interfaces.
+- Recognition and decoration are separated by one typed `BracketEngine`
+  Application Service with immutable analysis and active-pair requests/results.
 - Structural results are cached so caret movement uses an interval-index lookup
   and updates at most one guide and two active-symbol ranges.
-- Editor snapshots and markup remain EDT-confined; background pass deduplication
-  reads only an immutable stamp, and active presentation is applied before
+- Editor results and markup remain EDT-confined; background pass deduplication
+  reads only an immutable revision, and active presentation is applied before
   viewport token decoration.
 - The Settings page now uses platform `BoundConfigurable`, Kotlin UI DSL
   bindings, integer spinners, and standard color selectors instead of custom
@@ -47,8 +48,11 @@
 - Recognition and index code now lives in an `engine` module with a compiler-
   enforced dependency boundary. The `plugin` module composes it into the
   existing single-JAR distribution, while `benchmarks` depends on it directly.
-- Committed Kotlin ABI baselines now make the complete engine bridge explicit
-  and fail module checks when the public surface changes unintentionally.
+- Committed Kotlin ABI baselines now contain only the `analysis.api` service
+  contract. Module checks fail on unreviewed ABI changes and reject public
+  engine classes outside that package.
+- Analyzer, snapshot-builder, pairing, sort, and index implementations are now
+  hidden behind result queries instead of being exposed to the plugin module.
 - Token coloring now follows oversized reported viewports even when the caret is
   off-screen and caps synchronous EDT decorations at 2,048 ranges.
 - Dense token-window refreshes now coalesce by editor on a fixed 16 ms delay;
@@ -112,7 +116,7 @@
 - Re-enabling active presentation now resolves the current pair immediately
   even when the cached snapshot was collected with active analysis disabled.
 - A rejected stale highlighting pass can no longer replace the current
-  session's active resolver or visible-range provider.
+  session's engine dependency or visible-range provider.
 - Malformed-input recovery now honors official structural-brace priority and
   prevents regular pairs from crossing a structural scope boundary.
 - Ambiguous malformed fast-path matches remain provisional when proving them
@@ -124,7 +128,7 @@
 - Replacing an editor highlighter now removes presentation from the previous
   language semantics without invoking its stale active-pair resolver.
 - Background recognition now evaluates language gates from the same immutable
-  disabled-language set recorded in its analysis stamp.
+  disabled-language set recorded in its analysis revision.
 - Immediate guide positioning now uses the same earliest-line tie break as the
   complete index, including all-whitespace ranges.
 - Split editors no longer each spend the bounded immediate resolver budget for
