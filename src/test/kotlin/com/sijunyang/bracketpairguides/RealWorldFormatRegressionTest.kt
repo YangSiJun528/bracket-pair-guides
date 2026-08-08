@@ -7,6 +7,7 @@ import com.sijunyang.bracketpairguides.renderer.EditorGuideSession
 import com.sijunyang.bracketpairguides.renderer.GUIDE_PAINT_STATE_KEY
 import com.sijunyang.bracketpairguides.renderer.GuideLineHighlightingPass
 import com.sijunyang.bracketpairguides.settings.BracketColorPalette
+import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.fileTypes.PlainTextFileType
@@ -16,7 +17,7 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 class RealWorldFormatRegressionTest : BasePlatformTestCase() {
     override fun setUp() {
         super.setUp()
-        PluginSettings.getInstance().loadState(PluginSettings.State())
+        PluginSettings.getInstance().loadState(PluginOptions())
     }
 
     fun testJavaSource() {

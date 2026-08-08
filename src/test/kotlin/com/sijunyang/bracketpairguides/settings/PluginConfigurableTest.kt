@@ -48,7 +48,7 @@ import javax.swing.JSpinner
 class PluginConfigurableTest : BasePlatformTestCase() {
     override fun setUp() {
         super.setUp()
-        PluginSettings.getInstance().loadState(PluginSettings.State())
+        PluginSettings.getInstance().loadState(PluginOptions())
     }
 
     fun testPreferredFocusIsSafeAcrossTheUiLifecycle() {
@@ -191,8 +191,8 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         }
         val language = supported.first()
         PluginSettings.getInstance().loadState(
-            PluginSettings.State(
-                disabledLanguageIds = mutableListOf(UNAVAILABLE_LANGUAGE_ID),
+            PluginOptions(
+                disabledLanguageIds = setOf(UNAVAILABLE_LANGUAGE_ID),
             ),
         )
 
@@ -320,8 +320,8 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             SupportedBraceLanguage("gamma", "Gamma", listOf("Gamma")),
         )
         PluginSettings.getInstance().loadState(
-            PluginSettings.State(
-                disabledLanguageIds = mutableListOf(
+            PluginOptions(
+                disabledLanguageIds = setOf(
                     UNAVAILABLE_LANGUAGE_ID,
                     "beta",
                 ),

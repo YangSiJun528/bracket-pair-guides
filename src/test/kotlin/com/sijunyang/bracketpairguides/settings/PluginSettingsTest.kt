@@ -1,14 +1,17 @@
 package com.sijunyang.bracketpairguides.settings
 
+import com.intellij.openapi.util.JDOMUtil
+import com.intellij.util.xmlb.XmlSerializer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PluginSettingsTest {
     @Test
     fun `defaults to token colors and active guides without pair emphasis`() {
-        val state = PluginSettings.State()
+        val state = PluginOptions()
 
         assertTrue(state.enabled)
         assertTrue(state.disabledLanguageIds.isEmpty())
@@ -29,11 +32,11 @@ class PluginSettingsTest {
     @Test
     fun `normalizes persisted numeric guide options`() {
         val settings = PluginSettings()
-        val state = PluginSettings.State(
+        val state = PluginOptions(
             guideLineWidth = Int.MAX_VALUE,
             guideOpacityPercent = Int.MIN_VALUE,
             pairBackgroundOpacityPercent = Int.MAX_VALUE,
-            levelBaseColors = mutableListOf(0x123456, -9, 0xFFFFFF + 1),
+            levelBaseColors = listOf(0x123456, -9, 0xFFFFFF + 1),
         )
 
         settings.loadState(state)
@@ -57,8 +60,8 @@ class PluginSettingsTest {
     fun `normalizes and preserves disabled matcher family IDs`() {
         val settings = PluginSettings()
         settings.loadState(
-            PluginSettings.State(
-                disabledLanguageIds = mutableListOf(
+            PluginOptions(
+                disabledLanguageIds = setOf(
                     " Rust ",
                     "",
                     "JavaScript",
@@ -68,7 +71,7 @@ class PluginSettingsTest {
         )
 
         assertEquals(
-            listOf("JavaScript", "Rust"),
+            setOf("JavaScript", "Rust"),
             settings.state.disabledLanguageIds,
         )
         assertFalse(settings.options.isLanguageEnabled("Rust"))
@@ -98,28 +101,71 @@ class PluginSettingsTest {
         val source = PluginSettings().apply { replace(expected) }
         val restored = PluginSettings()
 
-        restored.loadState(source.state)
+        val serialized = XmlSerializer.serialize(source.state)
+        restored.loadState(XmlSerializer.deserialize(serialized, PluginOptions::class.java))
 
         assertEquals(expected, restored.options)
     }
 
     @Test
-    fun `load and get state do not expose mutable persistence collections`() {
-        val input = PluginSettings.State(
-            disabledLanguageIds = mutableListOf("Rust"),
-            levelBaseColors = mutableListOf(0x123456),
+    fun `loads settings written by the previous mutable list state`() {
+        val legacyXml = JDOMUtil.load(
+            """
+            <state>
+              <option name="disabledLanguageIds">
+                <list>
+                  <option value=" Rust " />
+                  <option value="JavaScript" />
+                  <option value="Rust" />
+                </list>
+              </option>
+              <option name="guideLineWidth" value="3" />
+              <option name="levelBaseColors">
+                <list>
+                  <option value="1193046" />
+                </list>
+              </option>
+            </state>
+            """.trimIndent(),
+        )
+        val legacyState = XmlSerializer.deserialize(legacyXml, PluginOptions::class.java)
+        val settings = PluginSettings()
+        settings.loadState(legacyState)
+
+        assertEquals(setOf("JavaScript", "Rust"), settings.options.disabledLanguageIds)
+        assertEquals(3, settings.options.guideLineWidth)
+        assertEquals(0x123456, settings.options.levelBaseColors[0])
+        assertEquals(BracketColorPalette.COLOR_COUNT, settings.options.levelBaseColors.size)
+    }
+
+    @Test
+    fun `load isolates state from mutable caller collections`() {
+        val disabledLanguageIds = mutableSetOf("Rust")
+        val levelBaseColors = mutableListOf(0x123456)
+        val input = PluginOptions(
+            disabledLanguageIds = disabledLanguageIds,
+            levelBaseColors = levelBaseColors,
         )
         val settings = PluginSettings()
         settings.loadState(input)
 
-        input.disabledLanguageIds.clear()
-        input.levelBaseColors[0] = 0x654321
-        val exported = settings.state
-        exported.disabledLanguageIds.clear()
-        exported.levelBaseColors[0] = 0x654321
+        disabledLanguageIds.clear()
+        levelBaseColors[0] = 0x654321
 
         assertEquals(setOf("Rust"), settings.options.disabledLanguageIds)
         assertEquals(0x123456, settings.options.levelBaseColors[0])
+        assertNotSame(input.disabledLanguageIds, settings.options.disabledLanguageIds)
+        assertNotSame(input.levelBaseColors, settings.options.levelBaseColors)
     }
 
+    @Test
+    fun `replace participates in platform modification tracking`() {
+        val settings = PluginSettings()
+        val before = settings.stateModificationCount
+
+        settings.replace(PluginOptions(enabled = false))
+
+        assertTrue(settings.stateModificationCount > before)
+        assertFalse(settings.options.enabled)
+    }
 }

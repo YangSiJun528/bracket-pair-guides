@@ -21,7 +21,7 @@ import org.junit.Assert.assertSame
 class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
     override fun setUp() {
         super.setUp()
-        PluginSettings.getInstance().loadState(PluginSettings.State())
+        PluginSettings.getInstance().loadState(PluginOptions())
     }
 
     fun testHighlighterReplacementRejectsTheResolverFromThePreviousSemantics() {
