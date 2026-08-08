@@ -2,10 +2,8 @@ package com.sijunyang.bracketpairguides.editor
 
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
-import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.BracketGuide
-import com.sijunyang.bracketpairguides.analysis.GuideIndentation
-import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
+import com.sijunyang.bracketpairguides.analysis.api.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.api.BracketPair
 
 /** Bounded indentation lookup used only while the authoritative snapshot is stale. */
 internal object ActiveGuidePositionResolver {
@@ -25,7 +23,7 @@ internal object ActiveGuidePositionResolver {
             )
         }
 
-        val firstLine = GuidePositionIndex.lineAfterOpenOrClose(pair.openLine, pair.closeLine)
+        val firstLine = lineAfterOpenOrClose(pair.openLine, pair.closeLine)
             .coerceIn(0, document.lineCount - 1)
         val lastLine = pair.closeLine.coerceIn(firstLine, document.lineCount - 1)
         if (previous != null &&
@@ -109,7 +107,7 @@ internal object ActiveGuidePositionResolver {
         val document = editor.document
         val text = document.immutableCharSequence
         val budget = ScanBudget()
-        var minimum = GuidePositionIndex.NO_INDENT
+        var minimum = NO_INDENT
         var anchorLine = currentAnchorLine?.coerceIn(firstLine, lastLine) ?: lastLine
 
         fun inspect(line: Int): Boolean {
@@ -121,7 +119,7 @@ internal object ActiveGuidePositionResolver {
                 budget = budget,
             )
             if (indentation != UNRESOLVED &&
-                indentation != GuidePositionIndex.NO_INDENT &&
+                indentation != NO_INDENT &&
                 (indentation < minimum || indentation == minimum && line < anchorLine)
             ) {
                 minimum = indentation
@@ -157,7 +155,7 @@ internal object ActiveGuidePositionResolver {
             if (minimum == 0 && anchorLine <= line) break
             line++
         }
-        val resolvedAnchorLine = if (minimum == GuidePositionIndex.NO_INDENT &&
+        val resolvedAnchorLine = if (minimum == NO_INDENT &&
             !budget.exhausted
         ) {
             firstLine
@@ -173,7 +171,7 @@ internal object ActiveGuidePositionResolver {
         anchorLine: Int,
     ): BracketGuide = BracketGuide(
         pair = pair,
-        guideColumn = minimum.takeUnless { it == GuidePositionIndex.NO_INDENT } ?: 0,
+        guideColumn = minimum.takeUnless { it == NO_INDENT } ?: 0,
         anchorLine = anchorLine,
     )
 
@@ -192,13 +190,26 @@ internal object ActiveGuidePositionResolver {
         while (offset < end) {
             if (!budget.consumeCharacter()) return UNRESOLVED
             when (text[offset]) {
-                ' ' -> column = GuideIndentation.afterSpace(column)
-                '\t' -> column = GuideIndentation.afterTab(column, tabSize)
+                ' ' -> column = incrementColumn(column)
+                '\t' -> column = nextTabStop(column, tabSize)
                 else -> return column
             }
             offset++
         }
-        return GuidePositionIndex.NO_INDENT
+        return NO_INDENT
+    }
+
+    private fun lineAfterOpenOrClose(openLine: Int, closeLine: Int): Int =
+        if (openLine < closeLine) openLine + 1 else closeLine
+
+    private fun incrementColumn(column: Int): Int =
+        (column.toLong() + 1).coerceAtMost(MAXIMUM_COLUMN.toLong()).toInt()
+
+    private fun nextTabStop(column: Int, tabSize: Int): Int {
+        val effectiveTabSize = tabSize.coerceAtLeast(1)
+        val remainder = column % effectiveTabSize
+        val step = if (remainder == 0) effectiveTabSize else effectiveTabSize - remainder
+        return (column.toLong() + step).coerceAtMost(MAXIMUM_COLUMN.toLong()).toInt()
     }
 
     private class ScanBudget {
@@ -223,5 +234,7 @@ internal object ActiveGuidePositionResolver {
 
     private const val MAX_SYNCHRONOUS_LINES = 256
     private const val MAX_SYNCHRONOUS_CHARACTERS = 32_768
+    private const val MAXIMUM_COLUMN = Int.MAX_VALUE - 1
+    private const val NO_INDENT = Int.MAX_VALUE
     private const val UNRESOLVED = -1
 }

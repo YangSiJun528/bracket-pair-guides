@@ -22,7 +22,28 @@ kotlin {
 }
 
 tasks.named("check") {
-    dependsOn("checkLegacyAbi")
+    dependsOn("checkLegacyAbi", "checkEngineApiPackages")
+}
+
+val checkEngineApiPackages by tasks.registering {
+    group = "verification"
+    description = "Rejects public engine ABI outside the typed analysis.api boundary."
+
+    val abiBaseline = layout.projectDirectory.file("api/engine.api")
+    inputs.file(abiBaseline)
+
+    doLast {
+        val allowedPrefix = "com/sijunyang/bracketpairguides/analysis/api/"
+        val classDeclaration = Regex("^public .* class ([^ :]+)")
+        val unexpected = abiBaseline.asFile.readLines()
+            .mapNotNull { line -> classDeclaration.matchEntire(line)?.groupValues?.get(1) }
+            .filterNot { className -> className.startsWith(allowedPrefix) }
+
+        check(unexpected.isEmpty()) {
+            "Public engine ABI must stay under analysis.api; found: " +
+                unexpected.joinToString()
+        }
+    }
 }
 
 dependencies {

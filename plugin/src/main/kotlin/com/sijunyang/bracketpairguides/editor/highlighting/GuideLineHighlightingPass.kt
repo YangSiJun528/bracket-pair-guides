@@ -1,19 +1,8 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
-import com.sijunyang.bracketpairguides.analysis.BracketPairAnalyzer
-import com.sijunyang.bracketpairguides.analysis.BracketPairProvider
-import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolver
-import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
-import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshot
-import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshotBuilder
-import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
-import com.sijunyang.bracketpairguides.analysis.EditorHighlighterActiveBracketPairResolver
-import com.sijunyang.bracketpairguides.editor.EditorGuideEventRouter
-import com.sijunyang.bracketpairguides.editor.EditorGuideSession
-import com.sijunyang.bracketpairguides.editor.analysisCapabilities
-import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
@@ -21,140 +10,128 @@ import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.sijunyang.bracketpairguides.analysis.api.AnalysisResult
+import com.sijunyang.bracketpairguides.analysis.api.AnalysisRevision
+import com.sijunyang.bracketpairguides.analysis.api.AnalyzeRequest
+import com.sijunyang.bracketpairguides.analysis.api.BracketEngine
+import com.sijunyang.bracketpairguides.editor.EditorGuideEventRouter
+import com.sijunyang.bracketpairguides.editor.EditorGuideSession
+import com.sijunyang.bracketpairguides.editor.analysisCapabilities
+import com.sijunyang.bracketpairguides.settings.PluginSettings
 import org.jetbrains.annotations.TestOnly
 
 /**
- * Collects an immutable snapshot in the platform highlighting lifecycle.
+ * Collects an immutable result in the platform highlighting lifecycle.
  * Platform-managed passes may be constructed off EDT and are collected off EDT,
- * then applied on EDT.
+ * then applied on EDT. The engine remains synchronous and observes the pass's
+ * [ProgressIndicator].
  */
 internal class GuideLineHighlightingPass private constructor(
     project: Project,
     private val editor: Editor,
-    private val pairProviderFactory: (Set<String>) -> BracketPairProvider,
+    private val fileType: FileType,
+    private val engineProvider: () -> BracketEngine,
     private val visibleRangeProvider: (Editor) -> TextRange = Editor::calculateVisibleRange,
-    private val activePairResolver: ActiveBracketPairResolver = ActiveBracketPairResolver.NONE,
 ) : TextEditorHighlightingPass(project, editor.document, false) {
-    private var collected: AnalysisSnapshot? = null
-    private var collectedStamp: AnalysisStamp? = null
+    private var collected: AnalysisResult? = null
+    private var collectedRevision: AnalysisRevision? = null
 
     init {
         if (ApplicationManager.getApplication().isDispatchThread && !editor.isDisposed) {
-            installSession()
+            installSession(engineProvider())
         }
     }
 
     @TestOnly
     public constructor(project: Project, editor: Editor) : this(
-        project,
-        editor,
-        editorFileType(editor),
+        project = project,
+        editor = editor,
+        fileType = editorFileType(editor),
+        engineProvider = ::bracketEngine,
     )
 
     @TestOnly
     public constructor(
         project: Project,
         editor: Editor,
-        pairProvider: BracketPairProvider,
+        engine: BracketEngine,
         visibleRangeProvider: (Editor) -> TextRange = Editor::calculateVisibleRange,
-        activePairResolver: ActiveBracketPairResolver = ActiveBracketPairResolver.NONE,
+        fileType: FileType = editorFileType(editor),
     ) : this(
         project = project,
         editor = editor,
-        pairProviderFactory = { pairProvider },
+        fileType = fileType,
+        engineProvider = { engine },
         visibleRangeProvider = visibleRangeProvider,
-        activePairResolver = activePairResolver,
     )
 
     public constructor(project: Project, editor: Editor, fileType: FileType) : this(
         project = project,
         editor = editor,
-        pairProviderFactory = { disabledLanguageIds ->
-            BracketPairAnalyzer(editor, fileType) { capabilityId ->
-                capabilityId !in disabledLanguageIds
-            }
-        },
-        activePairResolver = EditorHighlighterActiveBracketPairResolver(
-            fileType = fileType,
-            isLanguageEnabled = ::isConfiguredLanguageEnabled,
-        ),
+        fileType = fileType,
+        engineProvider = ::bracketEngine,
     )
 
     public override fun doCollectInformation(progress: ProgressIndicator): Unit {
         collected = null
-        collectedStamp = null
-        val options = PluginSettings.getInstance().options
-        val capabilities = options.analysisCapabilities()
-        val stamp = AnalysisStamp.current(
-            editor,
-            capabilities,
-            options.disabledLanguageIds,
-        )
-        collectedStamp = stamp
-        if (EditorGuideSession.hasAcceptedAnalysis(editor, stamp)) return
-        val pairProvider = pairProviderFactory(stamp.disabledLanguageIds)
-        collected = AnalysisSnapshotBuilder.build(editor, pairProvider, stamp, progress)
+        collectedRevision = null
+        val request = currentRequest()
+        collectedRevision = request.revision
+        if (EditorGuideSession.hasAcceptedAnalysis(editor, request.revision)) return
+        collected = engineProvider().analyze(request, progress)
     }
 
     public override fun doApplyInformationToEditor(): Unit {
-        val snapshot = collected
-        val passStamp = collectedStamp
+        val result = collected
+        val passRevision = collectedRevision
         collected = null
-        collectedStamp = null
-        if (editor.isDisposed || passStamp?.let(::isCurrent) == false) return
-        val session = installSession() ?: return
-        if (passStamp != null) {
+        collectedRevision = null
+        if (editor.isDisposed || passRevision?.let(::isCurrent) == false) return
+        val engine = engineProvider()
+        val session = installSession(engine) ?: return
+        if (passRevision != null) {
             session.updateDependenciesIfCurrent(
-                activePairResolver,
-                visibleRangeProvider,
-                passStamp,
+                engine = engine,
+                rangeProvider = visibleRangeProvider,
+                passRevision = passRevision,
             )
         }
-        if (snapshot != null) session.accept(snapshot)
+        if (result != null) session.accept(result)
     }
 
-    private fun isCurrent(passStamp: AnalysisStamp): Boolean {
+    private fun currentRequest(): AnalyzeRequest {
         val options = PluginSettings.getInstance().options
-        return passStamp.satisfies(
-            AnalysisStamp.current(
-                editor,
-                options.analysisCapabilities(),
-                options.disabledLanguageIds,
-            ),
+        return AnalyzeRequest(
+            editor = editor,
+            fileType = fileType,
+            capabilities = options.analysisCapabilities(),
+            disabledLanguageIds = options.disabledLanguageIds,
         )
     }
 
-    private fun installSession(): EditorGuideSession? {
+    private fun isCurrent(passRevision: AnalysisRevision): Boolean {
+        val options = PluginSettings.getInstance().options
+        return passRevision.satisfiesCurrent(
+            editor,
+            editorFileType(editor),
+            options.analysisCapabilities(),
+            options.disabledLanguageIds,
+        )
+    }
+
+    private fun installSession(engine: BracketEngine): EditorGuideSession? {
         if (editor.isDisposed) return null
         EditorGuideEventRouter.ensureInitialized()
         return EditorGuideSession.install(
-            editor,
-            activePairResolver,
-            visibleRangeProvider,
-        )
-    }
-
-    public companion object {
-        @TestOnly
-        public fun forTest(
-            project: Project,
-            editor: Editor,
-            pairProviderFactory: (Set<String>) -> BracketPairProvider,
-            visibleRangeProvider: (Editor) -> TextRange = Editor::calculateVisibleRange,
-            activePairResolver: ActiveBracketPairResolver = ActiveBracketPairResolver.NONE,
-        ): GuideLineHighlightingPass = GuideLineHighlightingPass(
-            project = project,
             editor = editor,
-            pairProviderFactory = pairProviderFactory,
+            engine = engine,
             visibleRangeProvider = visibleRangeProvider,
-            activePairResolver = activePairResolver,
         )
     }
 }
 
+private fun bracketEngine(): BracketEngine = service()
+
 private fun editorFileType(editor: Editor): FileType =
     FileDocumentManager.getInstance().getFile(editor.document)?.fileType
         ?: PlainTextFileType.INSTANCE
-
-private fun isConfiguredLanguageEnabled(capabilityId: String): Boolean =
-    PluginSettings.getInstance().options.isLanguageEnabled(capabilityId)

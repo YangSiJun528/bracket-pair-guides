@@ -1,6 +1,7 @@
 package com.sijunyang.bracketpairguides.analysis
 
 import com.sijunyang.bracketpairguides.analysis.pairing.LanguageBraceMatchers
+import com.sijunyang.bracketpairguides.analysis.api.ActivePairResult
 import com.intellij.ide.highlighter.custom.CustomFileHighlighter
 import com.intellij.ide.highlighter.custom.SyntaxTable
 import com.intellij.openapi.application.ReadAction
@@ -23,7 +24,7 @@ class ActiveBracketPairResolverTest : BasePlatformTestCase() {
             caretOffset,
         )
 
-        val pair = (resolution as? ActiveBracketPairResolution.Complete)?.pair
+        val pair = (resolution as? ActivePairResult.Complete)?.pair
         assertNotNull(pair)
         val expectedOpen = source.indexOf('{', source.indexOf("if"))
         val expectedClose = source.indexOf('}', source.indexOf("call"))
@@ -47,7 +48,7 @@ class ActiveBracketPairResolverTest : BasePlatformTestCase() {
             source.indexOf("target") + 2,
         )
 
-        assertSame(ActiveBracketPairResolution.Incomplete, resolution)
+        assertSame(ActivePairResult.Incomplete, resolution)
     }
 
     fun testElapsedCeilingUsesAnInjectableClockAndReturnsIncomplete() {
@@ -64,7 +65,7 @@ class ActiveBracketPairResolverTest : BasePlatformTestCase() {
             source.indexOf("call") + 2,
         )
 
-        assertSame(ActiveBracketPairResolution.Incomplete, resolution)
+        assertSame(ActivePairResult.Incomplete, resolution)
         assertTrue(clock.reads >= 2)
     }
 
@@ -86,7 +87,7 @@ class ActiveBracketPairResolverTest : BasePlatformTestCase() {
             source.indexOf("call") + 2,
         )
 
-        assertEquals(ActiveBracketPairResolution.Complete(null), resolution)
+        assertEquals(ActivePairResult.Complete(null), resolution)
     }
 
     fun testCustomFileTypeImmediateLookupMatchesFullRecognitionAndTextGate() {
@@ -113,7 +114,7 @@ class ActiveBracketPairResolverTest : BasePlatformTestCase() {
             ),
             caretOffset,
         )
-        val pair = (enabled as? ActiveBracketPairResolution.Complete)?.pair
+        val pair = (enabled as? ActivePairResult.Complete)?.pair
         assertNotNull(pair)
         assertEquals(source.indexOf('('), pair?.openOffset)
         assertEquals(source.indexOf(')'), pair?.closeOffset)
@@ -126,14 +127,14 @@ class ActiveBracketPairResolverTest : BasePlatformTestCase() {
             ),
             caretOffset,
         )
-        assertEquals(ActiveBracketPairResolution.Complete(null), disabled)
+        assertEquals(ActivePairResult.Complete(null), disabled)
     }
 
     private fun resolve(
         resolver: EditorHighlighterActiveBracketPairResolver,
         caretOffset: Int,
-    ): ActiveBracketPairResolution = ReadAction.compute<
-        ActiveBracketPairResolution,
+    ): ActivePairResult = ReadAction.compute<
+        ActivePairResult,
         RuntimeException,
     > {
         resolver.findInnermost(myFixture.editor, caretOffset)

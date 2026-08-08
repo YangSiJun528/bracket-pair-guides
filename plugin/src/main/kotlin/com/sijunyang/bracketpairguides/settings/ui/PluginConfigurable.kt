@@ -1,12 +1,13 @@
 package com.sijunyang.bracketpairguides.settings.ui
 
-import com.sijunyang.bracketpairguides.analysis.BracketLanguageSupport
-import com.sijunyang.bracketpairguides.analysis.BraceLanguageFamily
+import com.sijunyang.bracketpairguides.analysis.api.BracketEngine
+import com.sijunyang.bracketpairguides.analysis.api.BraceLanguageFamily
 import com.sijunyang.bracketpairguides.editor.EditorGuideSettingsApplier
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.sijunyang.bracketpairguides.settings.StoredBracketColors
 import com.intellij.openapi.options.BoundConfigurable
+import com.intellij.openapi.components.service
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.ColorPanel
 import com.intellij.ui.JBIntSpinner
@@ -31,7 +32,7 @@ internal class PluginConfigurable private constructor(
 ) : BoundConfigurable("Bracket Pair Guides") {
     private var appliedSnapshot = PluginOptions()
 
-    public constructor() : this(BracketLanguageSupport::installedFamilies)
+    public constructor() : this({ service<BracketEngine>().installedLanguages() })
 
     override fun createPanel(): DialogPanel {
         val settings = PluginSettings.getInstance()
@@ -333,10 +334,10 @@ internal class PluginConfigurable private constructor(
             displayName = if (isCustomFileType) {
                 "Custom file types"
             } else {
-                family.owner.displayName.ifBlank { family.id }
+                family.displayName.ifBlank { family.id }
             },
-            familyDisplayNames = family.members
-                .map { language -> language.displayName.ifBlank { language.id } }
+            familyDisplayNames = family.memberDisplayNames
+                .map { displayName -> displayName.ifBlank { family.id } }
                 .distinct()
                 .sortedWith(String.CASE_INSENSITIVE_ORDER),
             constraintDescription = if (isCustomFileType) {

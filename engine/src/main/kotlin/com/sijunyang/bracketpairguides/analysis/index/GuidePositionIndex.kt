@@ -1,11 +1,10 @@
 package com.sijunyang.bracketpairguides.analysis.index
 
-import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.BracketGuide
-import com.sijunyang.bracketpairguides.analysis.GuideIndentation
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.progress.ProgressIndicator
-import org.jetbrains.annotations.ApiStatus
+import com.sijunyang.bracketpairguides.analysis.GuideIndentation
+import com.sijunyang.bracketpairguides.analysis.api.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.api.BracketPair
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -13,8 +12,7 @@ import org.jetbrains.annotations.TestOnly
  * answers minimum-indentation queries in O(log indexedLineCount). A naive
  * per-pair body scan becomes quadratic for deeply nested or long scopes.
  */
-@ApiStatus.Internal
-public class GuidePositionIndex private constructor(
+internal class GuidePositionIndex private constructor(
     private val baseLine: Int,
     private val lineCount: Int,
     private val treeSize: Int,

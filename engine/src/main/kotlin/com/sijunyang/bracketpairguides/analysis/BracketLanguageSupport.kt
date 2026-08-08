@@ -3,18 +3,10 @@ package com.sijunyang.bracketpairguides.analysis
 import com.intellij.lang.Language
 import com.intellij.lang.LanguageBraceMatching
 import com.intellij.lang.PairedBraceMatcher
-import org.jetbrains.annotations.ApiStatus
-
-@ApiStatus.Internal
-public data class BraceLanguageFamily(
-    public val id: String,
-    public val owner: Language,
-    public val members: List<Language>,
-)
+import com.sijunyang.bracketpairguides.analysis.api.BraceLanguageFamily
 
 /** Discovers installed language families backed by the official matcher API. */
-@ApiStatus.Internal
-public object BracketLanguageSupport {
+internal object BracketLanguageSupport {
     public fun installedFamilies(): List<BraceLanguageFamily> {
         val families = Language.getRegisteredLanguages()
             .asSequence()
@@ -34,8 +26,11 @@ public object BracketLanguageSupport {
             val owner = capabilityOwner(familyMembers.first()) ?: return@mapNotNull null
             BraceLanguageFamily(
                 id = ownerId,
-                owner = owner,
-                members = familyMembers,
+                displayName = owner.displayName.ifBlank { ownerId },
+                memberDisplayNames = familyMembers
+                    .map { language -> language.displayName.ifBlank { language.id } }
+                    .distinct()
+                    .sortedWith(String.CASE_INSENSITIVE_ORDER),
             )
         }
             .sortedBy(BraceLanguageFamily::id)

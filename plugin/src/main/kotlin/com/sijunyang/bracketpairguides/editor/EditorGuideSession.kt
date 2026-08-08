@@ -1,23 +1,26 @@
 package com.sijunyang.bracketpairguides.editor
 
-import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolution
-import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolver
-import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
-import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshot
-import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
-import com.sijunyang.bracketpairguides.analysis.index.ActiveBracketPairIndex
-import com.sijunyang.bracketpairguides.analysis.BracketGuide
-import com.sijunyang.bracketpairguides.analysis.hasWellFormedTokenRange
-import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
+import com.sijunyang.bracketpairguides.analysis.api.ActivePairRequest
+import com.sijunyang.bracketpairguides.analysis.api.ActivePairResult
+import com.sijunyang.bracketpairguides.analysis.api.AnalysisCapabilities
+import com.sijunyang.bracketpairguides.analysis.api.AnalysisResult
+import com.sijunyang.bracketpairguides.analysis.api.AnalysisRevision
+import com.sijunyang.bracketpairguides.analysis.api.AnalyzeRequest
+import com.sijunyang.bracketpairguides.analysis.api.BracketEngine
+import com.sijunyang.bracketpairguides.analysis.api.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.api.BracketPair
 import com.sijunyang.bracketpairguides.presentation.ActivePairDecoration
 import com.sijunyang.bracketpairguides.presentation.VisibleTokenDecorationManager
 import com.sijunyang.bracketpairguides.presentation.VisibleTokenDecorations
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.RangeMarker
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
@@ -26,21 +29,20 @@ import org.jetbrains.annotations.TestOnly
 /** EDT-owned state and presentation for one editor. */
 internal class EditorGuideSession private constructor(
     private val editor: Editor,
-    private var activePairResolver: ActiveBracketPairResolver,
+    private var engine: BracketEngine,
     private var visibleRangeProvider: (Editor) -> TextRange,
     private var options: PluginOptions,
     private val retainAnalysisWhenInactive: Boolean,
 ) {
     private var disposed = false
-    private var activePairResolverHighlighterIdentity =
+    private var analysisHighlighterIdentity =
         System.identityHashCode(editor.highlighter)
     /** The only session state read by background highlighting passes. */
     @Volatile
-    private var acceptedStamp: AnalysisStamp? = null
+    private var acceptedRevision: AnalysisRevision? = null
 
     /** EDT-owned recognition and presentation state. */
-    private var snapshot: AnalysisSnapshot? = null
-    private var activePairIndex = ActiveBracketPairIndex.NO_PAIR
+    private var analysis: AnalysisResult? = null
     private var activePair: BracketPair? = null
     private var activeRange: RangeMarker? = null
     private var activeAnchor: RangeMarker? = null
@@ -65,38 +67,65 @@ internal class EditorGuideSession private constructor(
         get() = activePairHighlightState
 
     public fun updateDependenciesIfCurrent(
-        resolver: ActiveBracketPairResolver,
+        engine: BracketEngine,
         rangeProvider: (Editor) -> TextRange,
-        passStamp: AnalysisStamp,
+        passRevision: AnalysisRevision,
     ): Boolean {
         assertEdt()
-        if (disposed || editor.isDisposed || !passStamp.satisfies(currentStamp())) return false
-        activePairResolver = resolver
-        activePairResolverHighlighterIdentity = passStamp.highlighterIdentity
+        val requiredCapabilities = options.analysisCapabilities()
+        if (disposed || editor.isDisposed ||
+            !passRevision.satisfiesCurrent(
+                editor,
+                editorFileType(editor),
+                requiredCapabilities,
+                options.disabledLanguageIds,
+            )
+        ) {
+            return false
+        }
+        this.engine = engine
+        analysisHighlighterIdentity = System.identityHashCode(editor.highlighter)
         visibleRangeProvider = rangeProvider
         return true
     }
 
-    public fun accept(nextSnapshot: AnalysisSnapshot): Unit {
+    public fun accept(nextAnalysis: AnalysisResult): Unit {
         assertEdt()
         if (disposed || editor.isDisposed) return
-        val required = currentStamp()
-        if (!nextSnapshot.stamp.satisfies(required)) return
-        if (!retainAnalysisWhenInactive && !required.capabilities.pairs) {
-            clear()
-            acceptedStamp = required
+        val requiredCapabilities = options.analysisCapabilities()
+        val currentFileType = editorFileType(editor)
+        if (!nextAnalysis.revision.satisfiesCurrent(
+                editor,
+                currentFileType,
+                requiredCapabilities,
+                options.disabledLanguageIds,
+            )
+        ) {
             return
         }
-        if (shouldReleasePairGraph(required, nextSnapshot.stamp.capabilities)) {
-            val compactSnapshot = snapshot?.takeIf { current ->
-                current.stamp.satisfies(required) &&
-                    !shouldReleasePairGraph(required, current.stamp.capabilities)
+        if (!retainAnalysisWhenInactive && !requiredCapabilities.pairs) {
+            clear()
+            acceptedRevision = currentRevision()
+            return
+        }
+        if (shouldReleasePairGraph(requiredCapabilities, nextAnalysis.revision.capabilities)) {
+            val compactAnalysis = analysis?.takeIf { current ->
+                current.revision.satisfiesCurrent(
+                    editor,
+                    currentFileType,
+                    requiredCapabilities,
+                    options.disabledLanguageIds,
+                ) &&
+                    !shouldReleasePairGraph(
+                        requiredCapabilities,
+                        current.revision.capabilities,
+                    )
             }
-            if (compactSnapshot != null) {
+            if (compactAnalysis != null) {
                 tokenDecorationState = VisibleTokenDecorationManager.replace(
                     editor,
                     tokenDecorationState,
-                    compactSnapshot.tokenIndex,
+                    compactAnalysis,
                     visibleRangeProvider(editor),
                     options,
                 )
@@ -105,25 +134,28 @@ internal class EditorGuideSession private constructor(
             }
         }
 
-        snapshot = nextSnapshot
-        val pairIndex = nextSnapshot.activeIndex.activePairIndex(caretOffset())
+        analysis = nextAnalysis
+        val pair = nextAnalysis.activePairAt(caretOffset())
         replaceActive(
-            pair = nextSnapshot.pairs.getOrNull(pairIndex),
-            pairIndex = pairIndex,
-            positionIndex = nextSnapshot.positionIndex,
+            pair = pair,
+            indexedGuide = pair?.let(nextAnalysis::guideFor),
             change = null,
         )
         tokenDecorationState = VisibleTokenDecorationManager.replace(
             editor,
             tokenDecorationState,
-            nextSnapshot.tokenIndex,
+            nextAnalysis,
             visibleRangeProvider(editor),
             options,
         )
-        if (shouldReleasePairGraph(required, nextSnapshot.stamp.capabilities)) {
-            acceptedStamp = null
+        if (shouldReleasePairGraph(
+                requiredCapabilities,
+                nextAnalysis.revision.capabilities,
+            )
+        ) {
+            acceptedRevision = null
         } else {
-            acceptedStamp = nextSnapshot.stamp
+            acceptedRevision = nextAnalysis.revision
         }
         editor.contentComponent.repaint()
     }
@@ -132,18 +164,17 @@ internal class EditorGuideSession private constructor(
         assertEdt()
         if (disposed || editor.isDisposed) return
         if (!options.analysisCapabilities().activePair) return
-        val currentSnapshot = snapshot
-        if (currentSnapshot == null || !isCurrent(currentSnapshot)) {
+        val currentAnalysis = analysis
+        if (currentAnalysis == null || !isCurrent(currentAnalysis)) {
             updateProvisional(null)
             return
         }
 
-        val pairIndex = currentSnapshot.activeIndex.activePairIndex(caretOffset())
-        if (pairIndex == activePairIndex) return
+        val pair = currentAnalysis.activePairAt(caretOffset())
+        if (pair == activePair) return
         replaceActive(
-            pair = currentSnapshot.pairs.getOrNull(pairIndex),
-            pairIndex = pairIndex,
-            positionIndex = currentSnapshot.positionIndex,
+            pair = pair,
+            indexedGuide = pair?.let(currentAnalysis::guideFor),
             change = null,
         )
         editor.contentComponent.repaint()
@@ -163,12 +194,12 @@ internal class EditorGuideSession private constructor(
         assertEdt()
         if (disposed || editor.isDisposed) return
         if (discardPresentationFromReplacedHighlighter()) return
-        val currentSnapshot = snapshot ?: return
-        if (!hasCurrentTokenAnalysis(currentSnapshot)) return
+        val currentAnalysis = analysis ?: return
+        if (!hasCurrentTokenAnalysis(currentAnalysis)) return
         val nextDecorations = VisibleTokenDecorationManager.replaceIfOutsideWindow(
             editor,
             tokenDecorationState,
-            currentSnapshot.tokenIndex,
+            currentAnalysis,
             visibleRangeProvider(editor),
             options,
         ) ?: return
@@ -203,7 +234,7 @@ internal class EditorGuideSession private constructor(
             !nextOptions.analysisCapabilities().pairs
         ) {
             clear()
-            acceptedStamp = currentStamp()
+            acceptedRevision = currentRevision()
             editor.contentComponent.repaint()
             return
         }
@@ -212,12 +243,18 @@ internal class EditorGuideSession private constructor(
             updateProvisional(null, resolveImmediately)
             return
         }
-        val required = currentStamp()
-        val currentAnalysis = snapshot?.takeIf { analysis ->
-            analysis.stamp.satisfies(required)
+        val requiredCapabilities = options.analysisCapabilities()
+        val currentFileType = editorFileType(editor)
+        val currentAnalysis = analysis?.takeIf { candidate ->
+            candidate.revision.satisfiesCurrent(
+                editor,
+                currentFileType,
+                requiredCapabilities,
+                options.disabledLanguageIds,
+            )
         }
-        val releasePairGraph = currentAnalysis?.let { analysis ->
-            shouldReleasePairGraph(required, analysis.stamp.capabilities)
+        val releasePairGraph = currentAnalysis?.let { candidate ->
+            shouldReleasePairGraph(requiredCapabilities, candidate.revision.capabilities)
         } == true
         tokenDecorationState = updateTokenPresentation(
             previousOptions,
@@ -225,20 +262,13 @@ internal class EditorGuideSession private constructor(
             refreshColors,
         )
 
-        val pairIndex = if (required.capabilities.activePair && currentAnalysis != null) {
-            currentAnalysis.activeIndex.activePairIndex(caretOffset())
-        } else {
-            ActiveBracketPairIndex.NO_PAIR
-        }
-        val pair = if (pairIndex == ActiveBracketPairIndex.NO_PAIR) {
-            adjustedActivePair()
-        } else {
-            currentAnalysis?.pairs?.getOrNull(pairIndex)
-        }
+        val pair = currentAnalysis
+            ?.takeIf { requiredCapabilities.activePair }
+            ?.activePairAt(caretOffset())
+            ?: adjustedActivePair()
         replaceActive(
             pair = pair,
-            pairIndex = pairIndex,
-            positionIndex = currentAnalysis?.positionIndex,
+            indexedGuide = pair?.let { currentAnalysis?.guideFor(it) },
             change = null,
         )
         if (pair == null &&
@@ -249,16 +279,16 @@ internal class EditorGuideSession private constructor(
             return
         }
         if (releasePairGraph) {
-            acceptedStamp = null
+            acceptedRevision = null
         } else if (currentAnalysis != null) {
-            acceptedStamp = currentAnalysis.stamp
+            acceptedRevision = currentAnalysis.revision
         }
         editor.contentComponent.repaint()
     }
 
     private fun updateTokenPresentation(
         previousOptions: PluginOptions,
-        currentAnalysis: AnalysisSnapshot?,
+        currentAnalysis: AnalysisResult?,
         refreshColors: Boolean,
     ): VisibleTokenDecorations {
         val wasVisible = previousOptions.enabled && previousOptions.colorBracketTokens
@@ -273,7 +303,7 @@ internal class EditorGuideSession private constructor(
                 VisibleTokenDecorationManager.replace(
                     editor,
                     tokenDecorationState,
-                    currentAnalysis.tokenIndex,
+                    currentAnalysis,
                     visibleRangeProvider(editor),
                     options,
                 )
@@ -297,8 +327,8 @@ internal class EditorGuideSession private constructor(
 
     private fun clear() {
         assertEdt()
-        acceptedStamp = null
-        snapshot = null
+        acceptedRevision = null
+        analysis = null
         clearActive(preserveGuide = false)
         VisibleTokenDecorationManager.dispose(tokenDecorationState)
         tokenDecorationState = VisibleTokenDecorations.EMPTY
@@ -319,14 +349,21 @@ internal class EditorGuideSession private constructor(
         val adjustedPair = adjustedActivePair()
         val caretOffset = caretOffset()
         val resolution = if (resolveImmediately) {
-            activePairResolver.findInnermost(editor, caretOffset)
+            engine.resolveActivePair(
+                ActivePairRequest(
+                    editor = editor,
+                    fileType = editorFileType(editor),
+                    caretOffset = caretOffset,
+                    disabledLanguageIds = options.disabledLanguageIds,
+                ),
+            )
         } else {
-            ActiveBracketPairResolution.Incomplete
+            ActivePairResult.Incomplete
         }
         val pair = when (resolution) {
-            is ActiveBracketPairResolution.Complete ->
+            is ActivePairResult.Complete ->
                 resolution.pair?.withDepthHint(adjustedPair)
-            ActiveBracketPairResolution.Incomplete -> adjustedPair
+            ActivePairResult.Incomplete -> adjustedPair
         }
         if (pair?.contains(caretOffset) != true) {
             clearActive(preserveGuide = false)
@@ -337,8 +374,7 @@ internal class EditorGuideSession private constructor(
         if (pair.hasDifferentRangeFrom(adjustedPair)) {
             replaceActive(
                 pair = pair,
-                pairIndex = ActiveBracketPairIndex.NO_PAIR,
-                positionIndex = null,
+                indexedGuide = null,
                 change = change,
             )
         } else if (resolveImmediately) {
@@ -365,7 +401,6 @@ internal class EditorGuideSession private constructor(
         updateGuide(guide)
         updateAnchor(guide)
         activePair = pair
-        activePairIndex = ActiveBracketPairIndex.NO_PAIR
     }
 
     private fun refreshProvisionalPair(pair: BracketPair, change: DocumentChange?) {
@@ -375,13 +410,11 @@ internal class EditorGuideSession private constructor(
         updateGuide(guide)
         updateAnchor(guide)
         activePair = pair
-        activePairIndex = ActiveBracketPairIndex.NO_PAIR
     }
 
     private fun replaceActive(
         pair: BracketPair?,
-        pairIndex: Int,
-        positionIndex: GuidePositionIndex?,
+        indexedGuide: BracketGuide?,
         change: DocumentChange?,
     ) {
         val previousGuide = currentGuide()
@@ -398,12 +431,11 @@ internal class EditorGuideSession private constructor(
 
         val guide = createGuide(
             pair,
-            positionIndex,
+            indexedGuide,
             previousGuide,
             currentAnchorLine,
             change,
         )
-        activePairIndex = pairIndex
         activePair = pair
         activeRange = editor.document.createRangeMarker(
             pair.openOffset,
@@ -428,7 +460,7 @@ internal class EditorGuideSession private constructor(
 
     private fun createGuide(
         pair: BracketPair,
-        positionIndex: GuidePositionIndex?,
+        indexedGuide: BracketGuide?,
         previousGuide: BracketGuide?,
         currentAnchorLine: Int?,
         change: DocumentChange?,
@@ -437,7 +469,7 @@ internal class EditorGuideSession private constructor(
         if (pair.openLine == pair.closeLine) return BracketGuide(pair, 0)
         // A full snapshot can intentionally omit the proportional-size index
         // for an oversized document; keep that path bounded on the EDT.
-        return positionIndex?.guideForOrNull(pair) ?: ActiveGuidePositionResolver.resolve(
+        return indexedGuide ?: ActiveGuidePositionResolver.resolve(
             editor,
             pair,
             previousGuide,
@@ -475,7 +507,6 @@ internal class EditorGuideSession private constructor(
             activeGuideState?.dispose()
             activeGuideState = null
         }
-        activePairIndex = ActiveBracketPairIndex.NO_PAIR
         activePair = null
     }
 
@@ -503,7 +534,7 @@ internal class EditorGuideSession private constructor(
         ActivePairDecoration.guideOf(activeGuideState)
 
     private fun discardPresentationFromReplacedHighlighter(): Boolean {
-        if (activePairResolverHighlighterIdentity ==
+        if (analysisHighlighterIdentity ==
             System.identityHashCode(editor.highlighter)
         ) {
             return false
@@ -515,46 +546,65 @@ internal class EditorGuideSession private constructor(
 
     /** Releases proportional-size indexes while their RangeMarkers stay visible. */
     private fun discardStaleAnalysis() {
-        val required = currentStamp()
-        if (snapshot?.stamp?.satisfies(required) == false) snapshot = null
-        if (acceptedStamp?.satisfies(required) == false) acceptedStamp = null
+        val requiredCapabilities = options.analysisCapabilities()
+        val currentFileType = editorFileType(editor)
+        if (analysis?.revision?.satisfiesCurrent(
+                editor,
+                currentFileType,
+                requiredCapabilities,
+                options.disabledLanguageIds,
+            ) == false
+        ) {
+            analysis = null
+        }
+        if (acceptedRevision?.satisfiesCurrent(
+                editor,
+                currentFileType,
+                requiredCapabilities,
+                options.disabledLanguageIds,
+            ) == false
+        ) {
+            acceptedRevision = null
+        }
     }
 
-    private fun currentStamp(): AnalysisStamp = AnalysisStamp.current(
-        editor,
-        options.analysisCapabilities(),
-        options.disabledLanguageIds,
-    )
+    private fun currentRevision(): AnalysisRevision = AnalyzeRequest(
+        editor = editor,
+        fileType = editorFileType(editor),
+        capabilities = options.analysisCapabilities(),
+        disabledLanguageIds = options.disabledLanguageIds,
+    ).revision
 
-    private fun isCurrent(candidate: AnalysisSnapshot): Boolean =
-        candidate.stamp.satisfies(currentStamp())
+    private fun isCurrent(candidate: AnalysisResult): Boolean =
+        candidate.revision.satisfiesCurrent(
+            editor,
+            editorFileType(editor),
+            options.analysisCapabilities(),
+            options.disabledLanguageIds,
+        )
 
-    private fun hasCurrentTokenAnalysis(candidate: AnalysisSnapshot): Boolean {
-        val required = currentStamp()
-        if (!required.capabilities.tokens) return false
-        return candidate.stamp.satisfies(
-            required.copy(
-                capabilities = AnalysisCapabilities(
-                    tokens = true,
-                    activePair = false,
-                    guidePosition = false,
-                ),
-            ),
+    private fun hasCurrentTokenAnalysis(candidate: AnalysisResult): Boolean {
+        if (!options.analysisCapabilities().tokens) return false
+        return candidate.revision.satisfiesCurrent(
+            editor,
+            editorFileType(editor),
+            TOKEN_ANALYSIS_CAPABILITIES,
+            options.disabledLanguageIds,
         )
     }
 
     private fun shouldReleasePairGraph(
-        required: AnalysisStamp,
+        required: AnalysisCapabilities,
         provided: AnalysisCapabilities,
     ): Boolean = !retainAnalysisWhenInactive &&
-        required.capabilities.tokens &&
-        !required.capabilities.activePair &&
+        required.tokens &&
+        !required.activePair &&
         provided.activePair
 
     private fun caretOffset(): Int = editor.caretModel.primaryCaret.offset
 
     private fun BracketPair.contains(offset: Int): Boolean =
-        offset > openOffset && offset < closeOffset + closeTokenLength
+        offset > openOffset && offset.toLong() < closeOffset.toLong() + closeTokenLength
 
     private fun BracketPair.withDepthHint(previous: BracketPair?): BracketPair {
         if (previous == null) return this
@@ -581,7 +631,7 @@ internal class EditorGuideSession private constructor(
 
         public fun install(
             editor: Editor,
-            resolver: ActiveBracketPairResolver,
+            engine: BracketEngine,
             visibleRangeProvider: (Editor) -> TextRange,
         ): EditorGuideSession {
             assertEdt()
@@ -589,7 +639,7 @@ internal class EditorGuideSession private constructor(
             if (existing != null) return existing
             return EditorGuideSession(
                 editor,
-                resolver,
+                engine,
                 visibleRangeProvider,
                 PluginSettings.getInstance().options,
                 retainAnalysisWhenInactive = false,
@@ -607,7 +657,7 @@ internal class EditorGuideSession private constructor(
             assertEdt()
             return EditorGuideSession(
                 editor,
-                ActiveBracketPairResolver.NONE,
+                bracketEngine(),
                 visibleRangeProvider,
                 options,
                 retainAnalysisWhenInactive = true,
@@ -615,8 +665,8 @@ internal class EditorGuideSession private constructor(
         }
 
         /** The only session query allowed from a background highlighting pass. */
-        public fun hasAcceptedAnalysis(editor: Editor, required: AnalysisStamp): Boolean =
-            editor.getUserData(KEY)?.acceptedStamp?.satisfies(required) == true
+        public fun hasAcceptedAnalysis(editor: Editor, required: AnalysisRevision): Boolean =
+            editor.getUserData(KEY)?.acceptedRevision?.satisfies(required) == true
 
         public fun get(editor: Editor): EditorGuideSession? = editor.getUserData(KEY)
 
@@ -626,7 +676,7 @@ internal class EditorGuideSession private constructor(
             val session = editor.getUserData(KEY)
             editor.putUserData(KEY, null)
             if (application.isDisposed && !application.isDispatchThread) {
-                session?.acceptedStamp = null
+                session?.acceptedRevision = null
                 return
             }
             session?.dispose()
@@ -637,3 +687,15 @@ internal class EditorGuideSession private constructor(
         }
     }
 }
+
+private val TOKEN_ANALYSIS_CAPABILITIES = AnalysisCapabilities(
+    tokens = true,
+    activePair = false,
+    guidePosition = false,
+)
+
+private fun bracketEngine(): BracketEngine = service()
+
+private fun editorFileType(editor: Editor): FileType =
+    FileDocumentManager.getInstance().getFile(editor.document)?.fileType
+        ?: PlainTextFileType.INSTANCE

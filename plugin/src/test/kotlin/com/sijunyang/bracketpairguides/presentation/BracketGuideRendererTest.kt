@@ -1,7 +1,7 @@
 package com.sijunyang.bracketpairguides.presentation
 
-import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.api.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.api.BracketPair
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.EditorCustomElementRenderer
 import com.intellij.openapi.editor.Inlay

@@ -15,8 +15,8 @@ class BracketLanguageSupportTest : BasePlatformTestCase() {
             language.id == "TEXT"
         }
 
-        assertEquals("TEXT", family.owner.id)
-        assertTrue(family.members.any { language -> language.displayName == "Plain text" })
+        assertEquals("TEXT", family.id)
+        assertTrue("Plain text" in family.memberDisplayNames)
     }
 
     fun testMatcherFamilyWithoutStandaloneFileTypeIsExposedToSettings() {
@@ -30,10 +30,10 @@ class BracketLanguageSupportTest : BasePlatformTestCase() {
                 language.id == EMBEDDED_LANGUAGE.id
             }
 
-            assertSame(EMBEDDED_LANGUAGE, family.owner)
+            assertEquals(EMBEDDED_LANGUAGE.displayName, family.displayName)
             assertEquals(
-                setOf(EMBEDDED_LANGUAGE.id, EMBEDDED_DIALECT.id),
-                family.members.mapTo(mutableSetOf(), Language::getID),
+                setOf(EMBEDDED_LANGUAGE.displayName, EMBEDDED_DIALECT.displayName),
+                family.memberDisplayNames.toSet(),
             )
             assertEquals(
                 EMBEDDED_LANGUAGE.id,

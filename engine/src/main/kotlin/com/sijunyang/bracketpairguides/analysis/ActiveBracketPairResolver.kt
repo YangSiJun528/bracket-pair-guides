@@ -3,28 +3,9 @@ package com.sijunyang.bracketpairguides.analysis
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.fileTypes.FileType
+import com.sijunyang.bracketpairguides.analysis.api.ActivePairResult
+import com.sijunyang.bracketpairguides.analysis.api.BracketPair
 import com.sijunyang.bracketpairguides.analysis.pairing.IntellijBracketPairingEngine
-import org.jetbrains.annotations.ApiStatus
-
-/** Result of a bounded active-pair lookup. */
-@ApiStatus.Internal
-public sealed interface ActiveBracketPairResolution {
-    public data class Complete(public val pair: BracketPair?) : ActiveBracketPairResolution
-
-    /** The transition/deadline budget was exhausted, or no resolver is available. */
-    public data object Incomplete : ActiveBracketPairResolution
-}
-
-/** Fast-path recognition used while the full highlighting snapshot is absent or stale. */
-@ApiStatus.Internal
-public fun interface ActiveBracketPairResolver {
-    public fun findInnermost(editor: Editor, caretOffset: Int): ActiveBracketPairResolution
-
-    public companion object {
-        public val NONE: ActiveBracketPairResolver =
-            ActiveBracketPairResolver { _, _ -> ActiveBracketPairResolution.Incomplete }
-    }
-}
 
 private val systemMonotonicClock: () -> Long = System::nanoTime
 
@@ -37,14 +18,13 @@ private val systemMonotonicClock: () -> Long = System::nanoTime
  * The elapsed ceiling is best-effort for a single language-matcher callback,
  * which cannot be interrupted while it is running.
  */
-@ApiStatus.Internal
-public class EditorHighlighterActiveBracketPairResolver internal constructor(
+internal class EditorHighlighterActiveBracketPairResolver internal constructor(
     private val fileType: FileType,
     private val tokenBudget: Int = DEFAULT_TOKEN_BUDGET,
     private val isLanguageEnabled: (String) -> Boolean = { true },
     private val elapsedBudgetNanos: Long = DEFAULT_ELAPSED_BUDGET_NANOS,
     private val clock: () -> Long = systemMonotonicClock,
-) : ActiveBracketPairResolver {
+) {
     public constructor(
         fileType: FileType,
         isLanguageEnabled: (String) -> Boolean = { true },
@@ -56,13 +36,13 @@ public class EditorHighlighterActiveBracketPairResolver internal constructor(
         clock = systemMonotonicClock,
     )
 
-    override fun findInnermost(
+    public fun findInnermost(
         editor: Editor,
         caretOffset: Int,
-    ): ActiveBracketPairResolution {
+    ): ActivePairResult {
         val document = editor.document
         if (caretOffset <= 0 || caretOffset > document.textLength || document.textLength == 0) {
-            return ActiveBracketPairResolution.Complete(null)
+            return ActivePairResult.Complete(null)
         }
 
         val highlighter = editor.highlighter
@@ -79,7 +59,7 @@ public class EditorHighlighterActiveBracketPairResolver internal constructor(
             isLanguageEnabled = isLanguageEnabled,
         )
         var iterator = highlighter.createIterator((caretOffset - 1).coerceAtMost(text.lastIndex))
-        if (iterator.document !== document) return ActiveBracketPairResolution.Incomplete
+        if (iterator.document !== document) return ActivePairResult.Incomplete
 
         while (!iterator.atEnd() && !budget.exhausted) {
             val tokenStart = iterator.start
@@ -101,20 +81,20 @@ public class EditorHighlighterActiveBracketPairResolver internal constructor(
                 )
                 if (budget.exhausted) break
                 if (candidate.requiresEarlierStructuralContext) {
-                    return ActiveBracketPairResolution.Incomplete
+                    return ActivePairResult.Incomplete
                 }
                 val pair = candidate.pair
                 if (pair != null && caretOffset < pair.closeOffset + pair.closeTokenLength) {
-                    return ActiveBracketPairResolution.Complete(pair)
+                    return ActivePairResult.Complete(pair)
                 }
             }
 
             if (!retreat(iterator, budget)) break
         }
         return if (budget.exhausted) {
-            ActiveBracketPairResolution.Incomplete
+            ActivePairResult.Incomplete
         } else {
-            ActiveBracketPairResolution.Complete(null)
+            ActivePairResult.Complete(null)
         }
     }
 

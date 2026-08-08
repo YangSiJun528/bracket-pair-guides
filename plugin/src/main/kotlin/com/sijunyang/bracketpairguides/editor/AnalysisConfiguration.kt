@@ -1,6 +1,6 @@
 package com.sijunyang.bracketpairguides.editor
 
-import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
+import com.sijunyang.bracketpairguides.analysis.api.AnalysisCapabilities
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 
 /** Maps persisted options to the analysis work required by editor sessions. */

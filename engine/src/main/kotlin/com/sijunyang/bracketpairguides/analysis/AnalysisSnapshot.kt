@@ -2,80 +2,129 @@ package com.sijunyang.bracketpairguides.analysis
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.util.TextRange
+import com.sijunyang.bracketpairguides.analysis.api.AnalysisResult
+import com.sijunyang.bracketpairguides.analysis.api.AnalysisRevision
+import com.sijunyang.bracketpairguides.analysis.api.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.api.BracketPair
+import com.sijunyang.bracketpairguides.analysis.api.VisibleTokens
 import com.sijunyang.bracketpairguides.analysis.index.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.analysis.index.BracketTokenIndex
 import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.TestOnly
 
-@ApiStatus.Internal
-public data class AnalysisCapabilities(
-    public val tokens: Boolean,
-    public val activePair: Boolean,
-    public val guidePosition: Boolean,
-) {
-    public val pairs: Boolean
-        get() = tokens || activePair
-}
+/** Internal immutable result backed by the engine's compact query indexes. */
+internal class AnalysisSnapshot(
+    public override val revision: AnalysisRevision,
+    internal val pairs: List<BracketPair>,
+    internal val tokenIndex: BracketTokenIndex,
+    internal val activeIndex: ActiveBracketPairIndex,
+    internal val positionIndex: GuidePositionIndex?,
+) : AnalysisResult {
+    public override fun activePairAt(caretOffset: Int): BracketPair? =
+        pairs.getOrNull(activeIndex.activePairIndex(caretOffset))
 
-private fun AnalysisCapabilities.includes(required: AnalysisCapabilities): Boolean =
-    (!required.tokens || tokens) &&
-        (!required.activePair || activePair) &&
-        (!required.guidePosition || guidePosition)
+    public override fun guideFor(pair: BracketPair): BracketGuide? =
+        positionIndex?.guideForOrNull(pair)
 
-@ApiStatus.Internal
-public data class AnalysisStamp(
-    public val documentStamp: Long,
-    public val tabSize: Int,
-    public val highlighterIdentity: Int,
-    public val capabilities: AnalysisCapabilities,
-    public val disabledLanguageIds: Set<String> = emptySet(),
-) {
-    public fun satisfies(required: AnalysisStamp): Boolean =
-        documentStamp == required.documentStamp &&
-            (!required.capabilities.guidePosition || tabSize == required.tabSize) &&
-            highlighterIdentity == required.highlighterIdentity &&
-            disabledLanguageIds == required.disabledLanguageIds &&
-            capabilities.includes(required.capabilities)
+    public override fun visibleTokens(
+        range: TextRange,
+        focusOffset: Int,
+        limit: Int,
+    ): VisibleTokens {
+        require(limit > 0) { "Visible token limit must be positive" }
 
-    public companion object {
-        public fun current(
-            editor: Editor,
-            capabilities: AnalysisCapabilities,
-            disabledLanguageIds: Set<String> = emptySet(),
-        ): AnalysisStamp = AnalysisStamp(
-            documentStamp = editor.document.modificationStamp,
-            tabSize = editor.settings.getTabSize(editor.project).coerceAtLeast(1),
-            highlighterIdentity = System.identityHashCode(editor.highlighter),
-            capabilities = capabilities,
-            disabledLanguageIds = disabledLanguageIds,
+        val firstCandidate = tokenIndex.firstIndexInRange(range.startOffset)
+        val lastCandidate = tokenIndex.firstIndexAtOrAfter(range.endOffset)
+        val candidateCount = lastCandidate - firstCandidate
+        if (candidateCount <= limit) {
+            return VisibleTokenView(
+                tokenIndex = tokenIndex,
+                firstIndex = firstCandidate,
+                afterLastIndex = lastCandidate,
+                isCapped = false,
+                stableFocusStartOffset = range.startOffset,
+                stableFocusEndOffset = range.endOffset,
+            )
+        }
+
+        val focusIndex = tokenIndex.firstIndexAtOrAfter(focusOffset)
+            .coerceIn(firstCandidate, lastCandidate)
+        var firstSelected = (focusIndex - limit / 2).coerceAtLeast(firstCandidate)
+        var lastSelected = minOf(
+            firstSelected.toLong() + limit,
+            lastCandidate.toLong(),
+        ).toInt()
+        firstSelected = (lastSelected - limit).coerceAtLeast(firstCandidate)
+
+        val selectedFocusIndex = focusIndex.coerceIn(firstSelected, lastSelected - 1)
+        val tolerance = limit / 4
+        val stableFirstIndex = (selectedFocusIndex - tolerance)
+            .coerceAtLeast(firstSelected)
+        val stableAfterLastIndex = minOf(
+            selectedFocusIndex.toLong() + tolerance + 1L,
+            lastSelected.toLong(),
+        ).toInt()
+        return VisibleTokenView(
+            tokenIndex = tokenIndex,
+            firstIndex = firstSelected,
+            afterLastIndex = lastSelected,
+            isCapped = true,
+            stableFocusStartOffset = if (stableFirstIndex == firstCandidate) {
+                range.startOffset
+            } else {
+                tokenIndex.offsetAt(stableFirstIndex)
+            },
+            stableFocusEndOffset = if (stableAfterLastIndex == lastCandidate) {
+                range.endOffset
+            } else {
+                tokenIndex.offsetAt(stableAfterLastIndex)
+            },
         )
     }
 }
 
-@ApiStatus.Internal
-public data class AnalysisSnapshot(
-    public val stamp: AnalysisStamp,
-    public val pairs: List<BracketPair>,
-    public val tokenIndex: BracketTokenIndex,
-    public val activeIndex: ActiveBracketPairIndex,
-    public val positionIndex: GuidePositionIndex?,
-)
+private class VisibleTokenView(
+    private val tokenIndex: BracketTokenIndex,
+    private val firstIndex: Int,
+    private val afterLastIndex: Int,
+    public override val isCapped: Boolean,
+    public override val stableFocusStartOffset: Int,
+    public override val stableFocusEndOffset: Int,
+) : VisibleTokens {
+    public override val size: Int
+        get() = afterLastIndex - firstIndex
 
-@ApiStatus.Internal
-public object AnalysisSnapshotBuilder {
+    public override fun offsetAt(index: Int): Int =
+        tokenIndex.offsetAt(globalIndex(index))
+
+    public override fun lengthAt(index: Int): Int =
+        tokenIndex.lengthAt(globalIndex(index))
+
+    public override fun depthAt(index: Int): Int =
+        tokenIndex.depthAt(globalIndex(index))
+
+    private fun globalIndex(index: Int): Int {
+        if (index !in 0 until size) {
+            throw IndexOutOfBoundsException("Token index $index is outside 0 until $size")
+        }
+        return firstIndex + index
+    }
+}
+
+internal object AnalysisSnapshotBuilder {
     public fun build(
         editor: Editor,
         pairProvider: BracketPairProvider,
-        stamp: AnalysisStamp,
+        revision: AnalysisRevision,
         progress: ProgressIndicator,
     ): AnalysisSnapshot {
-        if (!stamp.capabilities.pairs) return empty(stamp)
+        if (!revision.capabilities.pairs) return empty(revision)
 
         val pairs = pairProvider.collect(progress)
-        if (pairs.isEmpty()) return empty(stamp)
+        if (pairs.isEmpty()) return empty(revision)
 
-        val activeIndex = if (stamp.capabilities.activePair) {
+        val activeIndex = if (revision.capabilities.activePair) {
             ActiveBracketPairIndex.build(pairs, progress::checkCanceled)
         } else {
             ActiveBracketPairIndex.build(emptyList())
@@ -83,8 +132,8 @@ public object AnalysisSnapshotBuilder {
         // Build the larger active index before retaining the token index. This
         // avoids overlapping its peak workspace with 16 bytes per pair of
         // stable token-index payload.
-        val tokenIndex = if (stamp.capabilities.tokens) {
-            if (stamp.capabilities.activePair) {
+        val tokenIndex = if (revision.capabilities.tokens) {
+            if (revision.capabilities.activePair) {
                 BracketTokenIndex.build(pairs, progress::checkCanceled)
             } else {
                 BracketTokenIndex.buildDetached(pairs, progress::checkCanceled)
@@ -92,7 +141,7 @@ public object AnalysisSnapshotBuilder {
         } else {
             BracketTokenIndex.build(emptyList())
         }
-        val guideLineRange = if (stamp.capabilities.guidePosition) {
+        val guideLineRange = if (revision.capabilities.guidePosition) {
             multilineGuideRange(
                 pairs,
                 editor.document.textLength,
@@ -103,11 +152,11 @@ public object AnalysisSnapshotBuilder {
             null
         }
         val positionIndex = if (guideLineRange != null) {
-            // Oversized guide spans intentionally return null here. The session
-            // then uses ActiveGuidePositionResolver's bounded on-demand scan.
+            // Oversized guide spans intentionally return null here. The plugin
+            // then uses its bounded on-demand provisional scan.
             GuidePositionIndex.from(
                 document = editor.document,
-                tabSize = stamp.tabSize,
+                tabSize = revision.tabSize,
                 progress = progress,
                 indexedLineRange = guideLineRange,
             )
@@ -115,8 +164,8 @@ public object AnalysisSnapshotBuilder {
             null
         }
         return AnalysisSnapshot(
-            stamp = stamp,
-            pairs = pairs.takeIf { stamp.capabilities.activePair }.orEmpty(),
+            revision = revision,
+            pairs = pairs.takeIf { revision.capabilities.activePair }.orEmpty(),
             tokenIndex = tokenIndex,
             activeIndex = activeIndex,
             positionIndex = positionIndex,
@@ -153,8 +202,8 @@ public object AnalysisSnapshotBuilder {
         return if (lastGuideLine < 0) null else firstGuideLine..lastGuideLine
     }
 
-    private fun empty(stamp: AnalysisStamp): AnalysisSnapshot = AnalysisSnapshot(
-        stamp = stamp,
+    private fun empty(revision: AnalysisRevision): AnalysisSnapshot = AnalysisSnapshot(
+        revision = revision,
         pairs = emptyList(),
         tokenIndex = BracketTokenIndex.build(emptyList()),
         activeIndex = ActiveBracketPairIndex.build(emptyList()),

@@ -2,7 +2,7 @@ package com.sijunyang.bracketpairguides.presentation
 
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.util.Key
-import com.sijunyang.bracketpairguides.analysis.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.api.BracketGuide
 import java.awt.Color
 
 internal data class GuideRenderOptions(

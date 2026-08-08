@@ -1,7 +1,7 @@
 package com.sijunyang.bracketpairguides.analysis
 
-import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.BracketPairAnalyzer
+import com.sijunyang.bracketpairguides.analysis.api.ActivePairResult
+import com.sijunyang.bracketpairguides.analysis.api.BracketPair
 import com.intellij.codeInsight.highlighting.BraceMatcher
 import com.intellij.codeInsight.highlighting.XmlAwareBraceMatcher
 import com.intellij.lang.BracePair
@@ -101,7 +101,7 @@ class BracketPairingParityTest : BasePlatformTestCase() {
         ) {
             assertTrue(analyze().isEmpty())
             assertEquals(
-                ActiveBracketPairResolution.Complete(null),
+                ActivePairResult.Complete(null),
                 resolve(source.indexOf('x') + 1),
             )
         }
@@ -180,7 +180,7 @@ class BracketPairingParityTest : BasePlatformTestCase() {
         withMatchers(SYMMETRIC_LANGUAGE to matcher) {
             assertEquals(2, analyze().size)
             assertEquals(
-                ActiveBracketPairResolution.Complete(null),
+                ActivePairResult.Complete(null),
                 resolve(source.indexOf('b') + 1),
             )
         }
@@ -214,7 +214,7 @@ class BracketPairingParityTest : BasePlatformTestCase() {
 
         withMatchers(SYMMETRIC_LANGUAGE to matcher) {
             assertSame(
-                ActiveBracketPairResolution.Incomplete,
+                ActivePairResult.Incomplete,
                 resolve(source.indexOf('a') + 1, tokenBudget = 4),
             )
         }
@@ -241,7 +241,7 @@ class BracketPairingParityTest : BasePlatformTestCase() {
         withMatchers(STRUCTURAL_LANGUAGE to matcher) {
             assertTrue(analyze().isEmpty())
             assertEquals(
-                ActiveBracketPairResolution.Complete(null),
+                ActivePairResult.Complete(null),
                 resolve(source.indexOf('x') + 1),
             )
         }
@@ -271,7 +271,7 @@ class BracketPairingParityTest : BasePlatformTestCase() {
             assertEquals(1, full.size)
             assertEquals(source.indexOf('{'), full.single().openOffset)
             assertSame(
-                ActiveBracketPairResolution.Incomplete,
+                ActivePairResult.Incomplete,
                 resolve(source.indexOf('x') + 1),
             )
         }
@@ -300,7 +300,7 @@ class BracketPairingParityTest : BasePlatformTestCase() {
             assertEquals(1, full.size)
             assertEquals(source.indexOf('('), full.single().openOffset)
             assertSame(
-                ActiveBracketPairResolution.Incomplete,
+                ActivePairResult.Incomplete,
                 resolve(source.indexOf('x') + 1),
             )
         }
@@ -410,7 +410,7 @@ class BracketPairingParityTest : BasePlatformTestCase() {
 
         withMatchers(STRUCTURAL_LANGUAGE to matcher) {
             assertSame(
-                ActiveBracketPairResolution.Incomplete,
+                ActivePairResult.Incomplete,
                 resolve(source.length, tokenBudget = 5),
             )
         }
@@ -444,8 +444,8 @@ class BracketPairingParityTest : BasePlatformTestCase() {
         caretOffset: Int,
         isLanguageEnabled: (String) -> Boolean = { true },
         tokenBudget: Int = DEFAULT_ACTIVE_TOKEN_BUDGET,
-    ): ActiveBracketPairResolution = ReadAction.compute<
-        ActiveBracketPairResolution,
+    ): ActivePairResult = ReadAction.compute<
+        ActivePairResult,
         RuntimeException,
     > {
         EditorHighlighterActiveBracketPairResolver(
@@ -457,13 +457,13 @@ class BracketPairingParityTest : BasePlatformTestCase() {
     }
 
     private fun requireActivePair(
-        resolution: ActiveBracketPairResolution,
+        resolution: ActivePairResult,
     ): BracketPair {
         assertTrue(
             "Expected a complete active resolution, got $resolution",
-            resolution is ActiveBracketPairResolution.Complete,
+            resolution is ActivePairResult.Complete,
         )
-        return checkNotNull((resolution as ActiveBracketPairResolution.Complete).pair)
+        return checkNotNull((resolution as ActivePairResult.Complete).pair)
     }
 
     private fun assertPairOffsets(expected: BracketPair, actual: BracketPair) {

@@ -1,13 +1,10 @@
 package com.sijunyang.bracketpairguides.analysis.index
 
-import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.hasWellFormedTokenRange
-import org.jetbrains.annotations.ApiStatus
+import com.sijunyang.bracketpairguides.analysis.api.BracketPair
 import org.jetbrains.annotations.TestOnly
 
 /** Compact, offset-sorted lookup for bracket tokens near the editor viewport. */
-@ApiStatus.Internal
-public class BracketTokenIndex private constructor(
+internal class BracketTokenIndex private constructor(
     private val pairs: List<BracketPair>?,
     private val detachedTokenLengths: LongArray?,
     private val detachedDepths: IntArray?,

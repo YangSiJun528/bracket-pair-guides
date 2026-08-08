@@ -1,13 +1,16 @@
 package com.sijunyang.bracketpairguides.analysis
 
+import com.sijunyang.bracketpairguides.analysis.api.AnalysisCapabilities
+import com.sijunyang.bracketpairguides.analysis.api.AnalysisRevision
+import com.intellij.openapi.fileTypes.PlainTextFileType
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class AnalysisStampTest {
+class AnalysisRevisionTest {
     @Test
     fun `tab size does not invalidate token-only analysis`() {
-        val completed = stamp(
+        val completed = revision(
             tabSize = 4,
             capabilities = AnalysisCapabilities(
                 tokens = true,
@@ -15,14 +18,17 @@ class AnalysisStampTest {
                 guidePosition = false,
             ),
         )
-        val required = completed.copy(tabSize = 8)
+        val required = revision(
+            tabSize = 8,
+            capabilities = completed.capabilities,
+        )
 
         assertTrue(completed.satisfies(required))
     }
 
     @Test
     fun `tab size still invalidates guide-position analysis`() {
-        val completed = stamp(
+        val completed = revision(
             tabSize = 4,
             capabilities = AnalysisCapabilities(
                 tokens = false,
@@ -30,18 +36,22 @@ class AnalysisStampTest {
                 guidePosition = true,
             ),
         )
-        val required = completed.copy(tabSize = 8)
+        val required = revision(
+            tabSize = 8,
+            capabilities = completed.capabilities,
+        )
 
         assertFalse(completed.satisfies(required))
     }
 
-    private fun stamp(
+    private fun revision(
         tabSize: Int,
         capabilities: AnalysisCapabilities,
-    ): AnalysisStamp = AnalysisStamp(
+    ): AnalysisRevision = AnalysisRevision(
         documentStamp = 7L,
         tabSize = tabSize,
         highlighterIdentity = 11,
+        fileType = PlainTextFileType.INSTANCE,
         capabilities = capabilities,
         disabledLanguageIds = setOf("test.matcher"),
     )

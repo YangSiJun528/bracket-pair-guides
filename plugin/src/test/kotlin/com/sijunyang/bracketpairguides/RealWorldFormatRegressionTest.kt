@@ -1,21 +1,24 @@
 package com.sijunyang.bracketpairguides
 
-import com.sijunyang.bracketpairguides.analysis.BracketPairAnalyzer
-import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
-import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshotBuilder
-import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
-import com.sijunyang.bracketpairguides.analysis.BracketPairProvider
-import com.sijunyang.bracketpairguides.presentation.BracketGuideRenderer
+import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.components.service
+import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.PlainTextFileType
+import com.intellij.openapi.progress.EmptyProgressIndicator
+import com.intellij.openapi.util.TextRange
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.sijunyang.bracketpairguides.analysis.api.AnalysisCapabilities
+import com.sijunyang.bracketpairguides.analysis.api.AnalysisResult
+import com.sijunyang.bracketpairguides.analysis.api.AnalyzeRequest
+import com.sijunyang.bracketpairguides.analysis.api.BracketEngine
+import com.sijunyang.bracketpairguides.analysis.api.VisibleTokens
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.sijunyang.bracketpairguides.editor.highlighting.GuideLineHighlightingPass
 import com.sijunyang.bracketpairguides.presentation.ActivePairDecoration
 import com.sijunyang.bracketpairguides.presentation.BracketColorPalette
+import com.sijunyang.bracketpairguides.presentation.BracketGuideRenderer
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
-import com.intellij.openapi.application.ReadAction
-import com.intellij.openapi.fileTypes.PlainTextFileType
-import com.intellij.openapi.progress.EmptyProgressIndicator
-import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
 class RealWorldFormatRegressionTest : BasePlatformTestCase() {
     override fun setUp() {
@@ -51,57 +54,46 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
             file.fileType === PlainTextFileType.INSTANCE,
         )
 
-        val first = inReadAction {
-            BracketPairAnalyzer(editor, file.fileType).collect(EmptyProgressIndicator())
-        }
-        val second = inReadAction {
-            BracketPairAnalyzer(editor, file.fileType).collect(EmptyProgressIndicator())
-        }
+        val engine = service<BracketEngine>()
+        val first = analyze(engine, file.fileType)
+        val second = analyze(engine, file.fileType)
+        val fullRange = TextRange(0, document.textLength)
+        val firstTokens = first.visibleTokens(fullRange, focusOffset = 0, limit = Int.MAX_VALUE)
+        val secondTokens = second.visibleTokens(fullRange, focusOffset = 0, limit = Int.MAX_VALUE)
+        val firstTokenValues = firstTokens.toValues()
+        val secondTokenValues = secondTokens.toValues()
+        val pairCount = firstTokens.size / TOKENS_PER_PAIR
 
-        assertEquals("$fileName analysis must be deterministic", first, second)
-        assertTrue(
-            "$fileName should contain at least $minimumPairCount pairs, but had ${first.size}",
-            first.size >= minimumPairCount,
+        assertEquals(
+            "$fileName analysis must be deterministic",
+            firstTokenValues,
+            secondTokenValues,
         )
-        first.forEachIndexed { index, pair ->
-            assertTrue("$fileName pair $index has an invalid opening offset", pair.openOffset >= 0)
-            assertTrue("$fileName pair $index has an empty opening token", pair.openTokenLength > 0)
+        assertEquals(
+            "$fileName must produce complete token pairs",
+            0,
+            firstTokens.size % TOKENS_PER_PAIR,
+        )
+        assertTrue(
+            "$fileName should contain at least $minimumPairCount pairs, but had $pairCount",
+            pairCount >= minimumPairCount,
+        )
+        firstTokenValues.forEachIndexed { index, token ->
+            assertTrue("$fileName token $index has an invalid offset", token.offset >= 0)
+            assertTrue("$fileName token $index is empty", token.length > 0)
             assertTrue(
-                "$fileName pair $index opening token exceeds the document",
-                pair.openOffset + pair.openTokenLength <= document.textLength,
+                "$fileName token $index exceeds the document",
+                token.offset.toLong() + token.length <= document.textLength,
             )
+            assertTrue("$fileName token $index has a negative depth", token.depth >= 0)
             assertTrue(
-                "$fileName pair $index closes before its opening token",
-                pair.closeOffset >= pair.openOffset + pair.openTokenLength,
-            )
-            assertTrue("$fileName pair $index has an empty closing token", pair.closeTokenLength > 0)
-            assertTrue(
-                "$fileName pair $index closing token exceeds the document",
-                pair.closeOffset + pair.closeTokenLength <= document.textLength,
-            )
-            assertTrue("$fileName pair $index has a negative depth", pair.depth >= 0)
-            assertTrue(
-                "$fileName pair $index has an impossible depth",
-                pair.depth < first.size,
-            )
-            assertEquals(
-                "$fileName pair $index has an incorrect opening line",
-                document.getLineNumber(pair.openOffset),
-                pair.openLine,
-            )
-            assertEquals(
-                "$fileName pair $index has an incorrect closing line",
-                document.getLineNumber(pair.closeOffset),
-                pair.closeLine,
-            )
-            assertTrue(
-                "$fileName pair $index closes on a line before it opens",
-                pair.openLine <= pair.closeLine,
+                "$fileName token $index has an impossible depth",
+                token.depth < pairCount,
             )
         }
 
         val pass = GuideLineHighlightingPass(project, editor, file.fileType)
-        editor.caretModel.moveToOffset(first.first().openOffset + 1)
+        editor.caretModel.moveToOffset(firstTokens.offsetAt(0) + 1)
         inReadAction {
             pass.doCollectInformation(EmptyProgressIndicator())
         }
@@ -112,8 +104,8 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
             BracketColorPalette.isLevelKeyForTest(it.colorKey)
         }
         assertTrue(
-            "$fileName must not create more than two token ranges per pair",
-            coloredTokenCount <= first.size * 2,
+            "$fileName must not create more ranges than analyzed tokens",
+            coloredTokenCount <= firstTokens.size,
         )
         assertEquals(
             "$fileName must activate exactly one custom guide renderer at the caret",
@@ -133,21 +125,6 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         PluginSettings.getInstance().replace(emphasized)
         session.updateOptions(emphasized)
 
-        val activeIndex = inReadAction {
-            AnalysisSnapshotBuilder.build(
-                editor = editor,
-                pairProvider = BracketPairProvider { first },
-                stamp = AnalysisStamp.current(
-                    editor,
-                    AnalysisCapabilities(
-                        tokens = false,
-                        activePair = true,
-                        guidePosition = false,
-                    ),
-                ),
-                progress = EmptyProgressIndicator(),
-            ).activeIndex
-        }
         val sampledOffsets = buildSet {
             val sections = 24
             repeat(sections + 1) { section ->
@@ -156,17 +133,17 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
                         .toInt(),
                 )
             }
-            first.indices
-                .step(maxOf(1, first.size / sections))
+            firstTokenValues.indices
+                .step(maxOf(1, firstTokenValues.size / sections))
                 .take(sections)
-                .forEach { pairIndex ->
-                    add(first[pairIndex].openOffset + 1)
+                .forEach { tokenIndex ->
+                    add((firstTokenValues[tokenIndex].offset + 1).coerceAtMost(document.textLength))
                 }
         }
         sampledOffsets.forEach { offset ->
             editor.caretModel.moveToOffset(offset)
             session.caretMoved()
-            val expected = first.getOrNull(activeIndex.activePairIndex(offset))
+            val expected = first.activePairAt(offset)
             val activeGuide = session.activeGuide
             assertEquals(
                 "$fileName chose the wrong active pair at offset $offset",
@@ -181,7 +158,41 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         }
     }
 
+    private fun analyze(engine: BracketEngine, fileType: FileType): AnalysisResult =
+        inReadAction {
+            engine.analyze(
+                AnalyzeRequest(
+                    editor = myFixture.editor,
+                    fileType = fileType,
+                    capabilities = AnalysisCapabilities(
+                        tokens = true,
+                        activePair = true,
+                        guidePosition = true,
+                    ),
+                ),
+                EmptyProgressIndicator(),
+            )
+        }
+
+    private fun VisibleTokens.toValues(): List<TokenValue> = List(size) { index ->
+        TokenValue(
+            offset = offsetAt(index),
+            length = lengthAt(index),
+            depth = depthAt(index),
+        )
+    }
+
     private fun <T> inReadAction(action: () -> T): T {
         return ReadAction.compute<T, RuntimeException>(action)
+    }
+
+    private data class TokenValue(
+        val offset: Int,
+        val length: Int,
+        val depth: Int,
+    )
+
+    private companion object {
+        const val TOKENS_PER_PAIR = 2
     }
 }

@@ -1,5 +1,6 @@
 package com.sijunyang.bracketpairguides.analysis
 
+import com.sijunyang.bracketpairguides.analysis.api.BracketPair
 import com.intellij.openapi.progress.ProcessCanceledException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail

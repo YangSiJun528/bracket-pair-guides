@@ -1,8 +1,6 @@
 package com.sijunyang.bracketpairguides.analysis.index
 
-import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.hasWellFormedTokenRange
-import org.jetbrains.annotations.ApiStatus
+import com.sijunyang.bracketpairguides.analysis.api.BracketPair
 
 /**
  * Maps a caret offset to the innermost bracket pair that strictly contains it.
@@ -11,8 +9,7 @@ import org.jetbrains.annotations.ApiStatus
  * allocating two event objects plus priority-queue wrappers for every pair.
  * Caret movement is a binary search over the resulting immutable segments.
  */
-@ApiStatus.Internal
-public class ActiveBracketPairIndex private constructor(
+internal class ActiveBracketPairIndex private constructor(
     private val segmentStarts: IntArray,
     private val segmentPairIndices: IntArray,
 ) {

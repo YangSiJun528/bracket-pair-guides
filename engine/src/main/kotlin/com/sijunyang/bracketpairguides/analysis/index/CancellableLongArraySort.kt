@@ -1,6 +1,5 @@
 package com.sijunyang.bracketpairguides.analysis.index
 
-import org.jetbrains.annotations.ApiStatus
 import java.util.Arrays
 
 /**
@@ -11,8 +10,7 @@ import java.util.Arrays
  * bounded chunks and then merged, checking cancellation both between chunks
  * and while copying long merge runs.
  */
-@ApiStatus.Internal
-public fun LongArray.sortCancellable(checkCanceled: () -> Unit = {}): Unit {
+internal fun LongArray.sortCancellable(checkCanceled: () -> Unit = {}): Unit {
     checkCanceled()
     if (size < 2) return
 

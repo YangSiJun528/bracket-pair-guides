@@ -1,16 +1,13 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
-import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.BracketPairAnalyzer
-import com.sijunyang.bracketpairguides.analysis.BracketPairProvider
-import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolution
-import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolver
-import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
-import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshotBuilder
-import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
-import com.sijunyang.bracketpairguides.analysis.BracketLanguageSupport
-import com.sijunyang.bracketpairguides.analysis.EditorHighlighterActiveBracketPairResolver
-import com.sijunyang.bracketpairguides.analysis.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.api.ActivePairRequest
+import com.sijunyang.bracketpairguides.analysis.api.ActivePairResult
+import com.sijunyang.bracketpairguides.analysis.api.AnalysisCapabilities
+import com.sijunyang.bracketpairguides.analysis.api.AnalyzeRequest
+import com.sijunyang.bracketpairguides.analysis.api.BracketEngine
+import com.sijunyang.bracketpairguides.analysis.api.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.api.BracketPair
+import com.sijunyang.bracketpairguides.analysis.api.FakeBracketEngine
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.sijunyang.bracketpairguides.editor.analysisCapabilities
 import com.sijunyang.bracketpairguides.presentation.BracketGuideRenderer
@@ -24,6 +21,7 @@ import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.impl.EditorColorsSchemeImpl
 import com.intellij.openapi.editor.ex.EditorEx
@@ -31,7 +29,10 @@ import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.testFramework.PlatformTestUtil
@@ -62,9 +63,19 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("()") + 1)
         val expectedPairCount = inReadAction {
-            BracketPairAnalyzer(editor, myFixture.file.fileType)
-                .collect(EmptyProgressIndicator())
-                .size
+            val analysis = service<BracketEngine>().analyze(
+                AnalyzeRequest(
+                    editor = editor,
+                    fileType = myFixture.file.fileType,
+                    capabilities = PluginSettings.getInstance().options.analysisCapabilities(),
+                ),
+                EmptyProgressIndicator(),
+            )
+            analysis.visibleTokens(
+                range = TextRange(0, editor.document.textLength),
+                focusOffset = editor.caretModel.primaryCaret.offset,
+                limit = 10_000,
+            ).size / 2
         }
 
         applyPass()
@@ -118,7 +129,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
         myFixture.editor.caretModel.moveToOffset(source.indexOf("content"))
 
-        applyPass(BracketPairProvider { listOf(pair) })
+        applyPass(TestPairProvider { listOf(pair) })
 
         assertEquals(3, ownedHighlighters().size)
         assertEquals(
@@ -128,44 +139,35 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
     }
 
     fun testGuidePositionIndexRetainsOnlyTheMultilinePairEnvelope() {
-        val pairSource = "{\n    value\n  }\n"
-        val source = pairSource + "outside\n".repeat(5_000)
-        myFixture.configureByText("BoundedGuidePositionIndex.txt", source)
+        val pairSource = "class Sample {\n    int value;\n  }\n"
+        val source = pairSource + "// outside\n".repeat(5_000)
+        myFixture.configureByText("BoundedGuidePositionIndex.java", source)
         val editor = myFixture.editor
-        val pair = BracketPair(
-            openOffset = 0,
-            openTokenLength = 1,
-            closeOffset = pairSource.indexOf('}'),
-            closeTokenLength = 1,
-            depth = 0,
-            openLine = 0,
-            closeLine = 2,
-        )
-
-        val snapshot = inReadAction {
-            AnalysisSnapshotBuilder.build(
-                editor = editor,
-                pairProvider = BracketPairProvider { listOf(pair) },
-                stamp = AnalysisStamp.current(
-                    editor,
-                    AnalysisCapabilities(
+        val analysis = inReadAction {
+            service<BracketEngine>().analyze(
+                AnalyzeRequest(
+                    editor = editor,
+                    fileType = myFixture.file.fileType,
+                    capabilities = AnalysisCapabilities(
                         tokens = true,
                         activePair = true,
                         guidePosition = true,
                     ),
                 ),
-                progress = EmptyProgressIndicator(),
+                EmptyProgressIndicator(),
             )
         }
-        val positionIndex = checkNotNull(snapshot.positionIndex)
+        val pair = checkNotNull(
+            analysis.activePairAt(source.indexOf("value")),
+        )
 
         assertEquals(
             BracketGuide(pair, guideColumn = 2, anchorLine = 2),
-            positionIndex.guideForOrNull(pair),
+            analysis.guideFor(pair),
         )
         assertEquals(
             null,
-            positionIndex.guideForOrNull(
+            analysis.guideFor(
                 pair.copy(openLine = 4_000, closeLine = 4_001),
             ),
         )
@@ -189,7 +191,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             PluginSettings.getInstance().options.copy(showActivePairBorder = true),
         )
 
-        applyPass(BracketPairProvider { listOf(pair) })
+        applyPass(TestPairProvider { listOf(pair) })
 
         assertNull(activeGuide())
         assertTrue(activePairHighlighters().isEmpty())
@@ -201,11 +203,16 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val editor = myFixture.editor
 
         val resolution = inReadAction {
-            EditorHighlighterActiveBracketPairResolver(myFixture.file.fileType)
-                .findInnermost(editor, source.indexOf("content") + 2)
+            service<BracketEngine>().resolveActivePair(
+                ActivePairRequest(
+                    editor = editor,
+                    fileType = myFixture.file.fileType,
+                    caretOffset = source.indexOf("content") + 2,
+                ),
+            )
         }
 
-        assertEquals(ActiveBracketPairResolution.Complete(null), resolution)
+        assertEquals(ActivePairResult.Complete(null), resolution)
     }
 
     fun testCaretMovementResolvesActivePairBeforeTheFirstFullSnapshot() {
@@ -216,16 +223,16 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
         var resolutions = 0
         var collections = 0
-        GuideLineHighlightingPass(
+        testPass(
             project = project,
             editor = myFixture.editor,
-            pairProvider = BracketPairProvider {
+            pairProvider = TestPairProvider {
                 collections++
                 listOf(pair)
             },
-            activePairResolver = ActiveBracketPairResolver { _, caretOffset ->
+            activePairResolver = TestActivePairResolver { _, caretOffset ->
                 resolutions++
-                ActiveBracketPairResolution.Complete(
+                ActivePairResult.Complete(
                     pair.takeIf {
                         caretOffset > it.openOffset &&
                             caretOffset < it.closeOffset + it.closeTokenLength
@@ -255,9 +262,9 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val innerOffset = source.indexOf("inner")
         editor.caretModel.moveToOffset(tailOffset)
         val resolvedOffsets = ArrayList<Int>()
-        val resolver = ActiveBracketPairResolver { _, caretOffset ->
+        val resolver = TestActivePairResolver { _, caretOffset ->
             resolvedOffsets += caretOffset
-            ActiveBracketPairResolution.Complete(
+            ActivePairResult.Complete(
                 when {
                     caretOffset > inner.openOffset &&
                         caretOffset < inner.closeOffset + inner.closeTokenLength -> inner
@@ -268,10 +275,10 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             )
         }
         applyPass(
-            GuideLineHighlightingPass(
+            testPass(
                 project = project,
                 editor = editor,
-                pairProvider = BracketPairProvider { listOf(outer, inner) },
+                pairProvider = TestPairProvider { listOf(outer, inner) },
                 activePairResolver = resolver,
             ),
         )
@@ -296,15 +303,15 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         editor.caretModel.moveToOffset(source.indexOf("content"))
         var resolvedPair: BracketPair? = pair
         var resolutions = 0
-        val resolver = ActiveBracketPairResolver { _, _ ->
+        val resolver = TestActivePairResolver { _, _ ->
             resolutions++
-            ActiveBracketPairResolution.Complete(resolvedPair)
+            ActivePairResult.Complete(resolvedPair)
         }
         applyPass(
-            GuideLineHighlightingPass(
+            testPass(
                 project = project,
                 editor = editor,
-                pairProvider = BracketPairProvider { listOf(pair) },
+                pairProvider = TestPairProvider { listOf(pair) },
                 activePairResolver = resolver,
             ),
         )
@@ -328,12 +335,12 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("content"))
         applyPass(
-            GuideLineHighlightingPass(
+            testPass(
                 project = project,
                 editor = editor,
-                pairProvider = BracketPairProvider { listOf(pair) },
-                activePairResolver = ActiveBracketPairResolver { _, _ ->
-                    ActiveBracketPairResolution.Incomplete
+                pairProvider = TestPairProvider { listOf(pair) },
+                activePairResolver = TestActivePairResolver { _, _ ->
+                    ActivePairResult.Incomplete
                 },
             ),
         )
@@ -360,20 +367,16 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
         PluginSettings.getInstance().replace(options)
         applyPass()
-        val acceptedStamp = AnalysisStamp.current(
-            editor,
-            options.analysisCapabilities(),
-            options.disabledLanguageIds,
-        )
+        val acceptedRevision = revisionFor(editor, options)
         val decorations = bracketColorHighlighters().toSet()
         assertTrue(decorations.isNotEmpty())
-        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, acceptedStamp))
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, acceptedRevision))
 
         WriteCommandAction.runWriteCommandAction(project) {
             editor.document.insertString(source.indexOf("value"), "x")
         }
 
-        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, acceptedStamp))
+        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, acceptedRevision))
         assertEquals(decorations, bracketColorHighlighters().toSet())
         assertTrue(decorations.all { it.isValid })
     }
@@ -400,7 +403,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             closeLine = 0,
         )
         var collections = 0
-        val provider = BracketPairProvider {
+        val provider = TestPairProvider {
             collections++
             listOf(outer, inner)
         }
@@ -454,7 +457,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("tail"))
-        applyPass(BracketPairProvider { listOf(outer, inner) })
+        applyPass(TestPairProvider { listOf(outer, inner) })
 
         assertEquals(outer, activeGuideState()?.guide?.pair)
         val secondary = editor.caretModel.addCaret(
@@ -476,7 +479,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             source.indexOf('{'), 1, source.indexOf('}'), 1, 2, 0, 0,
         )
         var collections = 0
-        val provider = BracketPairProvider {
+        val provider = TestPairProvider {
             collections++
             listOf(pair)
         }
@@ -641,16 +644,16 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         myFixture.configureByText("GuideOnlyOptions.java", source)
         var visibleRangeRequests = 0
         applyPass(
-            BracketPairProvider {
-                inReadAction {
-                    BracketPairAnalyzer(myFixture.editor, myFixture.file.fileType)
-                        .collect(EmptyProgressIndicator())
-                }
-            },
-        ) {
-            visibleRangeRequests++
-            TextRange(0, source.length)
-        }
+            GuideLineHighlightingPass(
+                project = project,
+                editor = myFixture.editor,
+                engine = service<BracketEngine>(),
+                visibleRangeProvider = {
+                    visibleRangeRequests++
+                    TextRange(0, source.length)
+                },
+            ),
+        )
         val tokenHighlighters = bracketColorHighlighters().toSet()
         val requestsAfterAnalysis = visibleRangeRequests
 
@@ -673,7 +676,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             val openOffset = index * 2
             BracketPair(openOffset, 1, openOffset + 1, 1, 0, 0, 0)
         }
-        applyPass(BracketPairProvider { pairs }) { TextRange(0, source.length) }
+        applyPass(TestPairProvider { pairs }) { TextRange(0, source.length) }
         assertTrue(session().tokenDecorations.isCapped)
 
         applyOptions(
@@ -694,7 +697,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
         )
         var collections = 0
-        val provider = BracketPairProvider {
+        val provider = TestPairProvider {
             collections++
             listOf(pair)
         }
@@ -731,21 +734,17 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("content"))
         var collections = 0
-        val provider = BracketPairProvider {
+        val provider = TestPairProvider {
             collections++
             listOf(pair)
         }
         val fullOptions = PluginSettings.getInstance().options
 
         applyPass(provider)
-        val fullStamp = AnalysisStamp.current(
-            editor,
-            fullOptions.analysisCapabilities(),
-            fullOptions.disabledLanguageIds,
-        )
+        val fullRevision = revisionFor(editor, fullOptions)
         val originalTokens = bracketColorHighlighters().toSet()
         assertEquals(1, collections)
-        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, fullStamp))
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, fullRevision))
         assertNotNull(activeGuide())
 
         val tokenOnlyOptions = fullOptions.copy(
@@ -754,14 +753,10 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             showActivePairBackground = false,
         )
         applyOptions(tokenOnlyOptions)
-        val tokenOnlyStamp = AnalysisStamp.current(
-            editor,
-            tokenOnlyOptions.analysisCapabilities(),
-            tokenOnlyOptions.disabledLanguageIds,
-        )
+        val tokenOnlyRevision = revisionFor(editor, tokenOnlyOptions)
 
-        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, fullStamp))
-        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, fullRevision))
+        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyRevision))
         assertEquals(originalTokens, bracketColorHighlighters().toSet())
         assertTrue(originalTokens.all { it.isValid })
         assertNull(activeGuide())
@@ -769,15 +764,15 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         applyPass(provider)
 
         assertEquals(2, collections)
-        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyRevision))
         assertEquals(originalTokens, bracketColorHighlighters().toSet())
 
         applyOptions(fullOptions)
-        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, fullStamp))
+        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, fullRevision))
         applyPass(provider)
 
         assertEquals(3, collections)
-        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, fullStamp))
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, fullRevision))
         assertEquals(pair, activeGuideState()?.guide?.pair)
     }
 
@@ -790,7 +785,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val pairs = sequentialPairs(pairCount)
         var collections = 0
         var visibleRange = TextRange(0, 256)
-        val provider = BracketPairProvider {
+        val provider = TestPairProvider {
             collections++
             pairs
         }
@@ -818,13 +813,9 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
 
         applyPass(provider) { visibleRange }
-        val tokenOnlyStamp = AnalysisStamp.current(
-            editor,
-            tokenOnlyOptions.analysisCapabilities(),
-            tokenOnlyOptions.disabledLanguageIds,
-        )
+        val tokenOnlyRevision = revisionFor(editor, tokenOnlyOptions)
         assertEquals(2, collections)
-        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyRevision))
 
         applyOptions(fullOptions)
         visibleRange = TextRange(0, 256)
@@ -844,7 +835,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(1)
         var collections = 0
-        val provider = BracketPairProvider {
+        val provider = TestPairProvider {
             collections++
             sequentialPairs(1_000)
         }
@@ -862,12 +853,8 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
         applyOptions(fullOptions)
 
-        val fullStamp = AnalysisStamp.current(
-            editor,
-            fullOptions.analysisCapabilities(),
-            fullOptions.disabledLanguageIds,
-        )
-        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, fullStamp))
+        val fullRevision = revisionFor(editor, fullOptions)
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, fullRevision))
 
         applyPass(provider)
 
@@ -888,7 +875,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
         PluginSettings.getInstance().replace(options)
         applyPass(
-            BracketPairProvider {
+            TestPairProvider {
                 collections++
                 listOf(pair)
             },
@@ -931,7 +918,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
         )
         var collections = 0
-        val provider = BracketPairProvider {
+        val provider = TestPairProvider {
             collections++
             listOf(pair)
         }
@@ -957,7 +944,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
         )
         var collections = 0
-        val provider = BracketPairProvider {
+        val provider = TestPairProvider {
             collections++
             listOf(pair)
         }
@@ -965,17 +952,13 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val enabled = PluginSettings.getInstance().options
 
         applyPass(provider)
-        val acceptedStamp = AnalysisStamp.current(
-            editor,
-            enabled.analysisCapabilities(),
-            enabled.disabledLanguageIds,
-        )
-        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, acceptedStamp))
+        val acceptedRevision = revisionFor(editor, enabled)
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, acceptedRevision))
         assertEquals(1, collections)
 
         applyOptions(enabled.copy(enabled = false))
 
-        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, acceptedStamp))
+        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, acceptedRevision))
         assertTrue(ownedHighlighters().isEmpty())
         applyPass(provider)
         assertEquals(1, collections)
@@ -994,33 +977,25 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
         )
         var collections = 0
-        val provider = BracketPairProvider {
+        val provider = TestPairProvider {
             collections++
             listOf(pair)
         }
         val editor = myFixture.editor
         val enabled = PluginSettings.getInstance().options
-        val latePass = GuideLineHighlightingPass(project, editor, provider)
+        val latePass = testPass(project, editor, provider)
         inReadAction {
             latePass.doCollectInformation(EmptyProgressIndicator())
         }
-        val fullStamp = AnalysisStamp.current(
-            editor,
-            enabled.analysisCapabilities(),
-            enabled.disabledLanguageIds,
-        )
+        val fullRevision = revisionFor(editor, enabled)
 
         val disabled = enabled.copy(enabled = false)
         applyOptions(disabled)
         latePass.doApplyInformationToEditor()
-        val disabledStamp = AnalysisStamp.current(
-            editor,
-            disabled.analysisCapabilities(),
-            disabled.disabledLanguageIds,
-        )
+        val disabledRevision = revisionFor(editor, disabled)
 
-        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, fullStamp))
-        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, disabledStamp))
+        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, fullRevision))
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, disabledRevision))
         assertTrue(ownedHighlighters().isEmpty())
 
         applyOptions(enabled)
@@ -1037,13 +1012,13 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
         )
         var collections = 0
-        val provider = BracketPairProvider {
+        val provider = TestPairProvider {
             collections++
             listOf(pair)
         }
         val editor = myFixture.editor
         val fullOptions = PluginSettings.getInstance().options
-        val latePass = GuideLineHighlightingPass(project, editor, provider)
+        val latePass = testPass(project, editor, provider)
         inReadAction {
             latePass.doCollectInformation(EmptyProgressIndicator())
         }
@@ -1054,21 +1029,17 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             showActivePairBackground = false,
         )
         applyOptions(tokenOnlyOptions)
-        val tokenOnlyStamp = AnalysisStamp.current(
-            editor,
-            tokenOnlyOptions.analysisCapabilities(),
-            tokenOnlyOptions.disabledLanguageIds,
-        )
+        val tokenOnlyRevision = revisionFor(editor, tokenOnlyOptions)
         latePass.doApplyInformationToEditor()
 
         assertEquals(1, collections)
         assertTrue(bracketColorHighlighters().isNotEmpty())
-        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+        assertFalse(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyRevision))
 
         applyPass(provider)
 
         assertEquals(2, collections)
-        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyRevision))
         assertTrue(bracketColorHighlighters().isNotEmpty())
     }
 
@@ -1081,12 +1052,12 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val pairs = sequentialPairs(pairCount)
         var collections = 0
         var visibleRange = TextRange(0, 256)
-        val provider = BracketPairProvider {
+        val provider = TestPairProvider {
             collections++
             pairs
         }
         val fullOptions = PluginSettings.getInstance().options
-        val lateFullPass = GuideLineHighlightingPass(
+        val lateFullPass = testPass(
             project = project,
             editor = editor,
             pairProvider = provider,
@@ -1103,22 +1074,18 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
         applyOptions(tokenOnlyOptions)
         applyPass(provider) { visibleRange }
-        val tokenOnlyStamp = AnalysisStamp.current(
-            editor,
-            tokenOnlyOptions.analysisCapabilities(),
-            tokenOnlyOptions.disabledLanguageIds,
-        )
+        val tokenOnlyRevision = revisionFor(editor, tokenOnlyOptions)
         assertEquals(2, collections)
-        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyRevision))
 
         lateFullPass.doApplyInformationToEditor()
 
-        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyRevision))
         visibleRange = TextRange(50_000, 50_256)
         session().visibleAreaChanged()
 
         assertEquals(2, collections)
-        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+        assertTrue(EditorGuideSession.hasAcceptedAnalysis(editor, tokenOnlyRevision))
         assertTrue(
             "A late full pass must not discard the compact viewport index",
             bracketColorHighlighters().any {
@@ -1139,16 +1106,16 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         var resolutions = 0
         PluginSettings.getInstance().replace(PluginOptions(enabled = false))
         applyPass(
-            GuideLineHighlightingPass(
+            testPass(
                 project = project,
                 editor = editor,
-                pairProvider = BracketPairProvider {
+                pairProvider = TestPairProvider {
                     collections++
                     listOf(pair)
                 },
-                activePairResolver = ActiveBracketPairResolver { _, _ ->
+                activePairResolver = TestActivePairResolver { _, _ ->
                     resolutions++
-                    ActiveBracketPairResolution.Complete(pair)
+                    ActivePairResult.Complete(pair)
                 },
             ),
         )
@@ -1170,8 +1137,11 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("call") + 2)
         val capabilityId = checkNotNull(
-            BracketLanguageSupport.installedFamilies()
-                .firstOrNull { family -> myFixture.file.language in family.members }
+            service<BracketEngine>().installedLanguages()
+                .firstOrNull { family ->
+                    family.id == myFixture.file.language.id ||
+                        myFixture.file.language.displayName in family.memberDisplayNames
+                }
                 ?.id,
         )
 
@@ -1218,7 +1188,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         }
         var collections = 0
         var visibleRange = TextRange(0, 256)
-        val provider = BracketPairProvider {
+        val provider = TestPairProvider {
             collections++
             pairs
         }
@@ -1261,7 +1231,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             )
         }
 
-        applyPass(BracketPairProvider { pairs }) {
+        applyPass(TestPairProvider { pairs }) {
             TextRange(50_000, source.length)
         }
 
@@ -1295,7 +1265,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         }
         var visibleRange = TextRange(20_000, 36_384)
 
-        applyPass(BracketPairProvider { pairs }) { visibleRange }
+        applyPass(TestPairProvider { pairs }) { visibleRange }
         val initialDecorations = bracketColorHighlighters()
         assertEquals(
             VisibleTokenDecorationManager.maximumDecorationCountForTest,
@@ -1338,7 +1308,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         }
 
         var viewportRequests = 0
-        applyPass(BracketPairProvider { pairs }) {
+        applyPass(TestPairProvider { pairs }) {
             viewportRequests++
             TextRange(0, source.length)
         }
@@ -1383,10 +1353,10 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         )
         var activePairWhenViewportWasRequested: BracketPair? = null
         var activeHighlightsWhenViewportWasRequested = 0
-        val pass = GuideLineHighlightingPass(
+        val pass = testPass(
             project = project,
             editor = editor,
-            pairProvider = BracketPairProvider { listOf(pair) },
+            pairProvider = TestPairProvider { listOf(pair) },
             visibleRangeProvider = {
                 activePairWhenViewportWasRequested = activeGuideState()?.guide?.pair
                 activeHighlightsWhenViewportWasRequested = activePairHighlighters().size
@@ -1410,7 +1380,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("content"))
         val collections = AtomicInteger()
-        val provider = BracketPairProvider {
+        val provider = TestPairProvider {
             collections.incrementAndGet()
             listOf(pair)
         }
@@ -1420,7 +1390,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             val collection = AppExecutorUtil.getAppExecutorService()
                 .submit<GuideLineHighlightingPass> {
                     inReadAction {
-                        GuideLineHighlightingPass(project, editor, provider).also { pass ->
+                        testPass(project, editor, provider).also { pass ->
                             pass.doCollectInformation(EmptyProgressIndicator())
                         }
                     }
@@ -1463,24 +1433,25 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val continueCollection = CountDownLatch(1)
         val capturedDisabledLanguageIds = AtomicReference<Set<String>>()
         val observedGlobalLanguageIds = AtomicReference<Set<String>>()
-        val pass = GuideLineHighlightingPass.forTest(
-            project = project,
-            editor = editor,
-            pairProviderFactory = { disabledLanguageIds ->
-                capturedDisabledLanguageIds.set(disabledLanguageIds)
-                BracketPairProvider {
-                    providerEntered.countDown()
-                    check(continueCollection.await(10, TimeUnit.SECONDS))
-                    observedGlobalLanguageIds.set(
-                        PluginSettings.getInstance().options.disabledLanguageIds,
-                    )
-                    if (disabledDuringCollection.single() in disabledLanguageIds) {
-                        emptyList()
-                    } else {
-                        listOf(pair)
-                    }
+        val engine = FakeBracketEngine(
+            pairProvider = { request, _ ->
+                capturedDisabledLanguageIds.set(request.disabledLanguageIds)
+                providerEntered.countDown()
+                check(continueCollection.await(10, TimeUnit.SECONDS))
+                observedGlobalLanguageIds.set(
+                    PluginSettings.getInstance().options.disabledLanguageIds,
+                )
+                if (disabledDuringCollection.single() in request.disabledLanguageIds) {
+                    emptyList()
+                } else {
+                    listOf(pair)
                 }
             },
+        )
+        val pass = GuideLineHighlightingPass(
+            project = project,
+            editor = editor,
+            engine = engine,
         )
         val collection = AppExecutorUtil.getAppExecutorService().submit<Unit> {
             inReadAction {
@@ -1532,13 +1503,13 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val staleCollection = AppExecutorUtil.getAppExecutorService()
             .submit<GuideLineHighlightingPass> {
                 inReadAction {
-                    GuideLineHighlightingPass(
+                    testPass(
                         project = project,
                         editor = editor,
-                        pairProvider = BracketPairProvider { listOf(pair) },
-                        activePairResolver = ActiveBracketPairResolver { _, _ ->
+                        pairProvider = TestPairProvider { listOf(pair) },
+                        activePairResolver = TestActivePairResolver { _, _ ->
                             staleResolverCalls.incrementAndGet()
-                            ActiveBracketPairResolution.Complete(pair)
+                            ActivePairResult.Complete(pair)
                         },
                     ).also { pass ->
                         pass.doCollectInformation(EmptyProgressIndicator())
@@ -1563,13 +1534,13 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
 
         var currentResolverCalls = 0
         applyPass(
-            GuideLineHighlightingPass(
+            testPass(
                 project = project,
                 editor = editor,
-                pairProvider = BracketPairProvider { listOf(pair) },
-                activePairResolver = ActiveBracketPairResolver { _, _ ->
+                pairProvider = TestPairProvider { listOf(pair) },
+                activePairResolver = TestActivePairResolver { _, _ ->
                     currentResolverCalls++
-                    ActiveBracketPairResolution.Complete(pair)
+                    ActivePairResult.Complete(pair)
                 },
             ),
         )
@@ -1578,6 +1549,53 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         }
 
         assertEquals(0, staleResolverCalls.get())
+        assertEquals(1, currentResolverCalls)
+    }
+
+    fun testStalePassFromAnotherFileTypeCannotReplaceCurrentDependencies() {
+        val source = "class FileTypeChange { Object content; }"
+        myFixture.configureByText("FileTypeChange.java", source)
+        val editor = myFixture.editor
+        val highlighter = editor.highlighter
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        editor.caretModel.moveToOffset(source.indexOf("content"))
+        EditorGuideSession.dispose(editor)
+        var staleResolverCalls = 0
+        var currentResolverCalls = 0
+        val stalePass = testPass(
+            project = project,
+            editor = editor,
+            pairProvider = TestPairProvider { listOf(pair) },
+            fileType = PlainTextFileType.INSTANCE,
+            activePairResolver = TestActivePairResolver { _, _ ->
+                staleResolverCalls++
+                ActivePairResult.Complete(pair)
+            },
+        )
+        inReadAction {
+            stalePass.doCollectInformation(EmptyProgressIndicator())
+        }
+        val currentPass = testPass(
+            project = project,
+            editor = editor,
+            pairProvider = TestPairProvider { listOf(pair) },
+            fileType = myFixture.file.fileType,
+            activePairResolver = TestActivePairResolver { _, _ ->
+                currentResolverCalls++
+                ActivePairResult.Complete(pair)
+            },
+        )
+        applyPass(currentPass)
+
+        stalePass.doApplyInformationToEditor()
+        assertSame(highlighter, editor.highlighter)
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.insertString(editor.document.textLength, " ")
+        }
+
+        assertEquals(0, staleResolverCalls)
         assertEquals(1, currentResolverCalls)
     }
 
@@ -1593,17 +1611,17 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         var currentVisibleRangeCalls = 0
         var staleResolverCalls = 0
         var currentResolverCalls = 0
-        val stalePass = GuideLineHighlightingPass(
+        val stalePass = testPass(
             project = project,
             editor = editor,
-            pairProvider = BracketPairProvider { listOf(pair) },
+            pairProvider = TestPairProvider { listOf(pair) },
             visibleRangeProvider = {
                 staleVisibleRangeCalls++
                 TextRange(0, it.document.textLength)
             },
-            activePairResolver = ActiveBracketPairResolver { _, _ ->
+            activePairResolver = TestActivePairResolver { _, _ ->
                 staleResolverCalls++
-                ActiveBracketPairResolution.Complete(pair)
+                ActivePairResult.Complete(pair)
             },
         )
         inReadAction {
@@ -1613,17 +1631,17 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         WriteCommandAction.runWriteCommandAction(project) {
             editor.document.insertString(editor.document.textLength, "z")
         }
-        val currentPass = GuideLineHighlightingPass(
+        val currentPass = testPass(
             project = project,
             editor = editor,
-            pairProvider = BracketPairProvider { listOf(pair) },
+            pairProvider = TestPairProvider { listOf(pair) },
             visibleRangeProvider = {
                 currentVisibleRangeCalls++
                 TextRange(0, it.document.textLength)
             },
-            activePairResolver = ActiveBracketPairResolver { _, _ ->
+            activePairResolver = TestActivePairResolver { _, _ ->
                 currentResolverCalls++
-                ActiveBracketPairResolution.Complete(pair)
+                ActivePairResult.Complete(pair)
             },
         )
         applyPass(currentPass)
@@ -1652,7 +1670,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
         )
         var collections = 0
-        val provider = BracketPairProvider {
+        val provider = TestPairProvider {
             collections++
             listOf(pair)
         }
@@ -1762,7 +1780,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         }
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(1)
-        applyPass(BracketPairProvider { pairs }) { TextRange(0, 256) }
+        applyPass(TestPairProvider { pairs }) { TextRange(0, 256) }
         val persistentGuide = checkNotNull(activeGuide())
 
         val elapsed = measureTimeMillis {
@@ -1779,23 +1797,55 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
     }
 
     private fun applyPass(
-        pairProvider: BracketPairProvider? = null,
+        pairProvider: TestPairProvider? = null,
         visibleRangeProvider: ((Editor) -> TextRange)? = null,
     ) {
         val pass = if (pairProvider == null) {
             GuideLineHighlightingPass(project, myFixture.editor)
-        } else if (visibleRangeProvider == null) {
-            GuideLineHighlightingPass(project, myFixture.editor, pairProvider)
         } else {
-            GuideLineHighlightingPass(
-                project,
-                myFixture.editor,
-                pairProvider,
-                visibleRangeProvider,
+            testPass(
+                project = project,
+                editor = myFixture.editor,
+                pairProvider = pairProvider,
+                visibleRangeProvider = visibleRangeProvider ?: Editor::calculateVisibleRange,
             )
         }
         applyPass(pass)
     }
+
+    private fun testPass(
+        project: Project,
+        editor: Editor,
+        pairProvider: TestPairProvider,
+        visibleRangeProvider: (Editor) -> TextRange = Editor::calculateVisibleRange,
+        activePairResolver: TestActivePairResolver =
+            TestActivePairResolver { _, _ -> ActivePairResult.Incomplete },
+        fileType: FileType = myFixture.file.fileType,
+    ): GuideLineHighlightingPass {
+        val engine = FakeBracketEngine(
+            pairProvider = { _, _ -> pairProvider.collect() },
+            activePairProvider = { request ->
+                activePairResolver.resolve(request.editor, request.caretOffset)
+            },
+        )
+        return GuideLineHighlightingPass(
+            project = project,
+            editor = editor,
+            engine = engine,
+            visibleRangeProvider = visibleRangeProvider,
+            fileType = fileType,
+        )
+    }
+
+    private fun revisionFor(
+        editor: Editor,
+        options: PluginOptions,
+    ) = AnalyzeRequest(
+        editor = editor,
+        fileType = myFixture.file.fileType,
+        capabilities = options.analysisCapabilities(),
+        disabledLanguageIds = options.disabledLanguageIds,
+    ).revision
 
     private fun applyPass(pass: GuideLineHighlightingPass) {
         inReadAction {
@@ -1854,4 +1904,12 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
     private fun <T> inReadAction(action: () -> T): T {
         return ReadAction.compute<T, RuntimeException>(action)
     }
+}
+
+private fun interface TestPairProvider {
+    fun collect(): List<BracketPair>
+}
+
+private fun interface TestActivePairResolver {
+    fun resolve(editor: Editor, caretOffset: Int): ActivePairResult
 }

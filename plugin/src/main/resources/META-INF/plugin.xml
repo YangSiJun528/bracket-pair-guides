@@ -19,6 +19,10 @@
         <applicationService
                 serviceImplementation="com.sijunyang.bracketpairguides.settings.PluginSettings"/>
 
+        <applicationService
+                serviceInterface="com.sijunyang.bracketpairguides.analysis.api.BracketEngine"
+                serviceImplementation="com.sijunyang.bracketpairguides.analysis.internal.BracketEngineImpl"/>
+
         <applicationConfigurable
                 parentId="editor"
                 instance="com.sijunyang.bracketpairguides.settings.ui.PluginConfigurable"

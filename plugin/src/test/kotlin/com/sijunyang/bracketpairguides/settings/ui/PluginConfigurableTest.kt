@@ -1,14 +1,12 @@
 package com.sijunyang.bracketpairguides.settings.ui
 
-import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolution
-import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolver
-import com.sijunyang.bracketpairguides.analysis.BraceLanguageFamily
+import com.sijunyang.bracketpairguides.analysis.api.BraceLanguageFamily
+import com.sijunyang.bracketpairguides.analysis.api.FakeBracketEngine
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.sijunyang.bracketpairguides.settings.StoredBracketColors
 import com.intellij.openapi.editor.EditorFactory
-import com.intellij.lang.Language
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.ui.ColorPanel
@@ -192,23 +190,17 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         val document = editorFactory.createDocument("{ value }")
         val firstEditor = editorFactory.createEditor(document, project)
         val secondEditor = editorFactory.createEditor(document, project)
-        var firstResolverCalls = 0
-        var secondResolverCalls = 0
+        val firstEngine = FakeBracketEngine()
+        val secondEngine = FakeBracketEngine()
         try {
             EditorGuideSession.install(
-                firstEditor,
-                resolver = ActiveBracketPairResolver { _, _ ->
-                    firstResolverCalls++
-                    ActiveBracketPairResolution.Complete(null)
-                },
+                editor = firstEditor,
+                engine = firstEngine,
                 visibleRangeProvider = { TextRange(0, document.textLength) },
             )
             EditorGuideSession.install(
-                secondEditor,
-                resolver = ActiveBracketPairResolver { _, _ ->
-                    secondResolverCalls++
-                    ActiveBracketPairResolution.Complete(null)
-                },
+                editor = secondEditor,
+                engine = secondEngine,
                 visibleRangeProvider = { TextRange(0, document.textLength) },
             )
 
@@ -217,7 +209,10 @@ class PluginConfigurableTest : BasePlatformTestCase() {
                 configurable.apply()
             }
 
-            assertEquals(1, firstResolverCalls + secondResolverCalls)
+            assertEquals(
+                1,
+                firstEngine.activePairCallCount + secondEngine.activePairCallCount,
+            )
         } finally {
             EditorGuideSession.dispose(firstEditor)
             EditorGuideSession.dispose(secondEditor)
@@ -279,29 +274,20 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         const val ALPHA_LANGUAGE_ID = "BRACKET_PAIR_GUIDES_ALPHA_TEST"
         const val BETA_LANGUAGE_ID = "BRACKET_PAIR_GUIDES_BETA_TEST"
 
-        val ALPHA_LANGUAGE = object : Language(ALPHA_LANGUAGE_ID) {
-            override fun getDisplayName(): String = "Alpha"
-        }
-        val BETA_LANGUAGE = object : Language(BETA_LANGUAGE_ID) {
-            override fun getDisplayName(): String = "Beta"
-        }
-        val BETA_DIALECT = object : Language("${BETA_LANGUAGE_ID}_DIALECT") {
-            override fun getDisplayName(): String = "Beta Dialect"
-        }
         val ALPHA_FAMILY = BraceLanguageFamily(
             id = ALPHA_LANGUAGE_ID,
-            owner = ALPHA_LANGUAGE,
-            members = listOf(ALPHA_LANGUAGE),
+            displayName = "Alpha",
+            memberDisplayNames = listOf("Alpha"),
         )
         val BETA_FAMILY = BraceLanguageFamily(
             id = BETA_LANGUAGE_ID,
-            owner = BETA_LANGUAGE,
-            members = listOf(BETA_LANGUAGE, BETA_DIALECT),
+            displayName = "Beta",
+            memberDisplayNames = listOf("Beta", "Beta Dialect"),
         )
-        val TEXT_FAMILY: BraceLanguageFamily
-            get() {
-                val text = checkNotNull(Language.findLanguageByID("TEXT"))
-                return BraceLanguageFamily("TEXT", text, listOf(text))
-            }
+        val TEXT_FAMILY = BraceLanguageFamily(
+            id = "TEXT",
+            displayName = "Plain text",
+            memberDisplayNames = listOf("Plain text"),
+        )
     }
 }

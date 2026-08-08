@@ -1,40 +1,40 @@
-public abstract interface class com/sijunyang/bracketpairguides/analysis/ActiveBracketPairResolution {
+public final class com/sijunyang/bracketpairguides/analysis/api/ActivePairRequest {
+	public fun <init> (Lcom/intellij/openapi/editor/Editor;Lcom/intellij/openapi/fileTypes/FileType;ILjava/util/Set;)V
+	public synthetic fun <init> (Lcom/intellij/openapi/editor/Editor;Lcom/intellij/openapi/fileTypes/FileType;ILjava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getCaretOffset ()I
+	public final fun getDisabledLanguageIds ()Ljava/util/Set;
+	public final fun getEditor ()Lcom/intellij/openapi/editor/Editor;
+	public final fun getFileType ()Lcom/intellij/openapi/fileTypes/FileType;
 }
 
-public final class com/sijunyang/bracketpairguides/analysis/ActiveBracketPairResolution$Complete : com/sijunyang/bracketpairguides/analysis/ActiveBracketPairResolution {
-	public fun <init> (Lcom/sijunyang/bracketpairguides/analysis/BracketPair;)V
-	public final fun component1 ()Lcom/sijunyang/bracketpairguides/analysis/BracketPair;
-	public final fun copy (Lcom/sijunyang/bracketpairguides/analysis/BracketPair;)Lcom/sijunyang/bracketpairguides/analysis/ActiveBracketPairResolution$Complete;
-	public static synthetic fun copy$default (Lcom/sijunyang/bracketpairguides/analysis/ActiveBracketPairResolution$Complete;Lcom/sijunyang/bracketpairguides/analysis/BracketPair;ILjava/lang/Object;)Lcom/sijunyang/bracketpairguides/analysis/ActiveBracketPairResolution$Complete;
+public abstract interface class com/sijunyang/bracketpairguides/analysis/api/ActivePairResult {
+}
+
+public final class com/sijunyang/bracketpairguides/analysis/api/ActivePairResult$Complete : com/sijunyang/bracketpairguides/analysis/api/ActivePairResult {
+	public fun <init> (Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;)V
+	public final fun component1 ()Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;
+	public final fun copy (Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;)Lcom/sijunyang/bracketpairguides/analysis/api/ActivePairResult$Complete;
+	public static synthetic fun copy$default (Lcom/sijunyang/bracketpairguides/analysis/api/ActivePairResult$Complete;Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;ILjava/lang/Object;)Lcom/sijunyang/bracketpairguides/analysis/api/ActivePairResult$Complete;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getPair ()Lcom/sijunyang/bracketpairguides/analysis/BracketPair;
+	public final fun getPair ()Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/sijunyang/bracketpairguides/analysis/ActiveBracketPairResolution$Incomplete : com/sijunyang/bracketpairguides/analysis/ActiveBracketPairResolution {
-	public static final field INSTANCE Lcom/sijunyang/bracketpairguides/analysis/ActiveBracketPairResolution$Incomplete;
+public final class com/sijunyang/bracketpairguides/analysis/api/ActivePairResult$Incomplete : com/sijunyang/bracketpairguides/analysis/api/ActivePairResult {
+	public static final field INSTANCE Lcom/sijunyang/bracketpairguides/analysis/api/ActivePairResult$Incomplete;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public abstract interface class com/sijunyang/bracketpairguides/analysis/ActiveBracketPairResolver {
-	public static final field Companion Lcom/sijunyang/bracketpairguides/analysis/ActiveBracketPairResolver$Companion;
-	public abstract fun findInnermost (Lcom/intellij/openapi/editor/Editor;I)Lcom/sijunyang/bracketpairguides/analysis/ActiveBracketPairResolution;
-}
-
-public final class com/sijunyang/bracketpairguides/analysis/ActiveBracketPairResolver$Companion {
-	public final fun getNONE ()Lcom/sijunyang/bracketpairguides/analysis/ActiveBracketPairResolver;
-}
-
-public final class com/sijunyang/bracketpairguides/analysis/AnalysisCapabilities {
+public final class com/sijunyang/bracketpairguides/analysis/api/AnalysisCapabilities {
 	public fun <init> (ZZZ)V
 	public final fun component1 ()Z
 	public final fun component2 ()Z
 	public final fun component3 ()Z
-	public final fun copy (ZZZ)Lcom/sijunyang/bracketpairguides/analysis/AnalysisCapabilities;
-	public static synthetic fun copy$default (Lcom/sijunyang/bracketpairguides/analysis/AnalysisCapabilities;ZZZILjava/lang/Object;)Lcom/sijunyang/bracketpairguides/analysis/AnalysisCapabilities;
+	public final fun copy (ZZZ)Lcom/sijunyang/bracketpairguides/analysis/api/AnalysisCapabilities;
+	public static synthetic fun copy$default (Lcom/sijunyang/bracketpairguides/analysis/api/AnalysisCapabilities;ZZZILjava/lang/Object;)Lcom/sijunyang/bracketpairguides/analysis/api/AnalysisCapabilities;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getActivePair ()Z
 	public final fun getGuidePosition ()Z
@@ -44,94 +44,67 @@ public final class com/sijunyang/bracketpairguides/analysis/AnalysisCapabilities
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/sijunyang/bracketpairguides/analysis/AnalysisSnapshot {
-	public fun <init> (Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp;Ljava/util/List;Lcom/sijunyang/bracketpairguides/analysis/index/BracketTokenIndex;Lcom/sijunyang/bracketpairguides/analysis/index/ActiveBracketPairIndex;Lcom/sijunyang/bracketpairguides/analysis/index/GuidePositionIndex;)V
-	public final fun component1 ()Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp;
-	public final fun component2 ()Ljava/util/List;
-	public final fun component3 ()Lcom/sijunyang/bracketpairguides/analysis/index/BracketTokenIndex;
-	public final fun component4 ()Lcom/sijunyang/bracketpairguides/analysis/index/ActiveBracketPairIndex;
-	public final fun component5 ()Lcom/sijunyang/bracketpairguides/analysis/index/GuidePositionIndex;
-	public final fun copy (Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp;Ljava/util/List;Lcom/sijunyang/bracketpairguides/analysis/index/BracketTokenIndex;Lcom/sijunyang/bracketpairguides/analysis/index/ActiveBracketPairIndex;Lcom/sijunyang/bracketpairguides/analysis/index/GuidePositionIndex;)Lcom/sijunyang/bracketpairguides/analysis/AnalysisSnapshot;
-	public static synthetic fun copy$default (Lcom/sijunyang/bracketpairguides/analysis/AnalysisSnapshot;Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp;Ljava/util/List;Lcom/sijunyang/bracketpairguides/analysis/index/BracketTokenIndex;Lcom/sijunyang/bracketpairguides/analysis/index/ActiveBracketPairIndex;Lcom/sijunyang/bracketpairguides/analysis/index/GuidePositionIndex;ILjava/lang/Object;)Lcom/sijunyang/bracketpairguides/analysis/AnalysisSnapshot;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getActiveIndex ()Lcom/sijunyang/bracketpairguides/analysis/index/ActiveBracketPairIndex;
-	public final fun getPairs ()Ljava/util/List;
-	public final fun getPositionIndex ()Lcom/sijunyang/bracketpairguides/analysis/index/GuidePositionIndex;
-	public final fun getStamp ()Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp;
-	public final fun getTokenIndex ()Lcom/sijunyang/bracketpairguides/analysis/index/BracketTokenIndex;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
+public abstract interface class com/sijunyang/bracketpairguides/analysis/api/AnalysisResult {
+	public abstract fun activePairAt (I)Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;
+	public abstract fun getRevision ()Lcom/sijunyang/bracketpairguides/analysis/api/AnalysisRevision;
+	public abstract fun guideFor (Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;)Lcom/sijunyang/bracketpairguides/analysis/api/BracketGuide;
+	public abstract fun visibleTokens (Lcom/intellij/openapi/util/TextRange;II)Lcom/sijunyang/bracketpairguides/analysis/api/VisibleTokens;
 }
 
-public final class com/sijunyang/bracketpairguides/analysis/AnalysisSnapshotBuilder {
-	public static final field INSTANCE Lcom/sijunyang/bracketpairguides/analysis/AnalysisSnapshotBuilder;
-	public final fun build (Lcom/intellij/openapi/editor/Editor;Lcom/sijunyang/bracketpairguides/analysis/BracketPairProvider;Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp;Lcom/intellij/openapi/progress/ProgressIndicator;)Lcom/sijunyang/bracketpairguides/analysis/AnalysisSnapshot;
+public final class com/sijunyang/bracketpairguides/analysis/api/AnalysisRevision {
+	public final fun getCapabilities ()Lcom/sijunyang/bracketpairguides/analysis/api/AnalysisCapabilities;
+	public final fun satisfies (Lcom/sijunyang/bracketpairguides/analysis/api/AnalysisRevision;)Z
+	public final fun satisfiesCurrent (Lcom/intellij/openapi/editor/Editor;Lcom/intellij/openapi/fileTypes/FileType;Lcom/sijunyang/bracketpairguides/analysis/api/AnalysisCapabilities;Ljava/util/Set;)Z
 }
 
-public final class com/sijunyang/bracketpairguides/analysis/AnalysisStamp {
-	public static final field Companion Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp$Companion;
-	public fun <init> (JIILcom/sijunyang/bracketpairguides/analysis/AnalysisCapabilities;Ljava/util/Set;)V
-	public synthetic fun <init> (JIILcom/sijunyang/bracketpairguides/analysis/AnalysisCapabilities;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()J
-	public final fun component2 ()I
-	public final fun component3 ()I
-	public final fun component4 ()Lcom/sijunyang/bracketpairguides/analysis/AnalysisCapabilities;
-	public final fun component5 ()Ljava/util/Set;
-	public final fun copy (JIILcom/sijunyang/bracketpairguides/analysis/AnalysisCapabilities;Ljava/util/Set;)Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp;
-	public static synthetic fun copy$default (Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp;JIILcom/sijunyang/bracketpairguides/analysis/AnalysisCapabilities;Ljava/util/Set;ILjava/lang/Object;)Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getCapabilities ()Lcom/sijunyang/bracketpairguides/analysis/AnalysisCapabilities;
+public final class com/sijunyang/bracketpairguides/analysis/api/AnalyzeRequest {
+	public fun <init> (Lcom/intellij/openapi/editor/Editor;Lcom/intellij/openapi/fileTypes/FileType;Lcom/sijunyang/bracketpairguides/analysis/api/AnalysisCapabilities;Ljava/util/Set;)V
+	public synthetic fun <init> (Lcom/intellij/openapi/editor/Editor;Lcom/intellij/openapi/fileTypes/FileType;Lcom/sijunyang/bracketpairguides/analysis/api/AnalysisCapabilities;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getCapabilities ()Lcom/sijunyang/bracketpairguides/analysis/api/AnalysisCapabilities;
 	public final fun getDisabledLanguageIds ()Ljava/util/Set;
-	public final fun getDocumentStamp ()J
-	public final fun getHighlighterIdentity ()I
-	public final fun getTabSize ()I
-	public fun hashCode ()I
-	public final fun satisfies (Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp;)Z
-	public fun toString ()Ljava/lang/String;
+	public final fun getEditor ()Lcom/intellij/openapi/editor/Editor;
+	public final fun getFileType ()Lcom/intellij/openapi/fileTypes/FileType;
+	public final fun getRevision ()Lcom/sijunyang/bracketpairguides/analysis/api/AnalysisRevision;
 }
 
-public final class com/sijunyang/bracketpairguides/analysis/AnalysisStamp$Companion {
-	public final fun current (Lcom/intellij/openapi/editor/Editor;Lcom/sijunyang/bracketpairguides/analysis/AnalysisCapabilities;Ljava/util/Set;)Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp;
-	public static synthetic fun current$default (Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp$Companion;Lcom/intellij/openapi/editor/Editor;Lcom/sijunyang/bracketpairguides/analysis/AnalysisCapabilities;Ljava/util/Set;ILjava/lang/Object;)Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp;
-}
-
-public final class com/sijunyang/bracketpairguides/analysis/BraceLanguageFamily {
-	public fun <init> (Ljava/lang/String;Lcom/intellij/lang/Language;Ljava/util/List;)V
+public final class com/sijunyang/bracketpairguides/analysis/api/BraceLanguageFamily {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V
 	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Lcom/intellij/lang/Language;
+	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/util/List;
-	public final fun copy (Ljava/lang/String;Lcom/intellij/lang/Language;Ljava/util/List;)Lcom/sijunyang/bracketpairguides/analysis/BraceLanguageFamily;
-	public static synthetic fun copy$default (Lcom/sijunyang/bracketpairguides/analysis/BraceLanguageFamily;Ljava/lang/String;Lcom/intellij/lang/Language;Ljava/util/List;ILjava/lang/Object;)Lcom/sijunyang/bracketpairguides/analysis/BraceLanguageFamily;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)Lcom/sijunyang/bracketpairguides/analysis/api/BraceLanguageFamily;
+	public static synthetic fun copy$default (Lcom/sijunyang/bracketpairguides/analysis/api/BraceLanguageFamily;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lcom/sijunyang/bracketpairguides/analysis/api/BraceLanguageFamily;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDisplayName ()Ljava/lang/String;
 	public final fun getId ()Ljava/lang/String;
-	public final fun getMembers ()Ljava/util/List;
-	public final fun getOwner ()Lcom/intellij/lang/Language;
+	public final fun getMemberDisplayNames ()Ljava/util/List;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/sijunyang/bracketpairguides/analysis/BracketGuide {
-	public fun <init> (Lcom/sijunyang/bracketpairguides/analysis/BracketPair;II)V
-	public synthetic fun <init> (Lcom/sijunyang/bracketpairguides/analysis/BracketPair;IIILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lcom/sijunyang/bracketpairguides/analysis/BracketPair;
+public abstract interface class com/sijunyang/bracketpairguides/analysis/api/BracketEngine {
+	public abstract fun analyze (Lcom/sijunyang/bracketpairguides/analysis/api/AnalyzeRequest;Lcom/intellij/openapi/progress/ProgressIndicator;)Lcom/sijunyang/bracketpairguides/analysis/api/AnalysisResult;
+	public abstract fun installedLanguages ()Ljava/util/List;
+	public abstract fun resolveActivePair (Lcom/sijunyang/bracketpairguides/analysis/api/ActivePairRequest;)Lcom/sijunyang/bracketpairguides/analysis/api/ActivePairResult;
+}
+
+public final class com/sijunyang/bracketpairguides/analysis/api/BracketGuide {
+	public fun <init> (Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;II)V
+	public synthetic fun <init> (Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;IIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;
 	public final fun component2 ()I
 	public final fun component3 ()I
-	public final fun copy (Lcom/sijunyang/bracketpairguides/analysis/BracketPair;II)Lcom/sijunyang/bracketpairguides/analysis/BracketGuide;
-	public static synthetic fun copy$default (Lcom/sijunyang/bracketpairguides/analysis/BracketGuide;Lcom/sijunyang/bracketpairguides/analysis/BracketPair;IIILjava/lang/Object;)Lcom/sijunyang/bracketpairguides/analysis/BracketGuide;
+	public final fun copy (Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;II)Lcom/sijunyang/bracketpairguides/analysis/api/BracketGuide;
+	public static synthetic fun copy$default (Lcom/sijunyang/bracketpairguides/analysis/api/BracketGuide;Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;IIILjava/lang/Object;)Lcom/sijunyang/bracketpairguides/analysis/api/BracketGuide;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAnchorLine ()I
 	public final fun getGuideColumn ()I
-	public final fun getPair ()Lcom/sijunyang/bracketpairguides/analysis/BracketPair;
+	public final fun getPair ()Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/sijunyang/bracketpairguides/analysis/BracketLanguageSupport {
-	public static final field INSTANCE Lcom/sijunyang/bracketpairguides/analysis/BracketLanguageSupport;
-	public final fun installedFamilies ()Ljava/util/List;
-}
-
-public final class com/sijunyang/bracketpairguides/analysis/BracketPair {
+public final class com/sijunyang/bracketpairguides/analysis/api/BracketPair {
 	public fun <init> (IIIIIII)V
 	public final fun component1 ()I
 	public final fun component2 ()I
@@ -140,8 +113,8 @@ public final class com/sijunyang/bracketpairguides/analysis/BracketPair {
 	public final fun component5 ()I
 	public final fun component6 ()I
 	public final fun component7 ()I
-	public final fun copy (IIIIIII)Lcom/sijunyang/bracketpairguides/analysis/BracketPair;
-	public static synthetic fun copy$default (Lcom/sijunyang/bracketpairguides/analysis/BracketPair;IIIIIIIILjava/lang/Object;)Lcom/sijunyang/bracketpairguides/analysis/BracketPair;
+	public final fun copy (IIIIIII)Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;
+	public static synthetic fun copy$default (Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;IIIIIIIILjava/lang/Object;)Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCloseLine ()I
 	public final fun getCloseOffset ()I
@@ -150,73 +123,19 @@ public final class com/sijunyang/bracketpairguides/analysis/BracketPair {
 	public final fun getOpenLine ()I
 	public final fun getOpenOffset ()I
 	public final fun getOpenTokenLength ()I
+	public final fun hasWellFormedTokenRange (I)Z
+	public static synthetic fun hasWellFormedTokenRange$default (Lcom/sijunyang/bracketpairguides/analysis/api/BracketPair;IILjava/lang/Object;)Z
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/sijunyang/bracketpairguides/analysis/BracketPairAnalyzer : com/sijunyang/bracketpairguides/analysis/BracketPairProvider {
-	public fun <init> (Lcom/intellij/openapi/editor/Editor;Lcom/intellij/openapi/fileTypes/FileType;Lkotlin/jvm/functions/Function1;)V
-	public synthetic fun <init> (Lcom/intellij/openapi/editor/Editor;Lcom/intellij/openapi/fileTypes/FileType;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun collect (Lcom/intellij/openapi/progress/ProgressIndicator;)Ljava/util/List;
-}
-
-public final class com/sijunyang/bracketpairguides/analysis/BracketPairKt {
-	public static final fun hasWellFormedTokenRange (Lcom/sijunyang/bracketpairguides/analysis/BracketPair;I)Z
-	public static synthetic fun hasWellFormedTokenRange$default (Lcom/sijunyang/bracketpairguides/analysis/BracketPair;IILjava/lang/Object;)Z
-}
-
-public abstract interface class com/sijunyang/bracketpairguides/analysis/BracketPairProvider {
-	public abstract fun collect (Lcom/intellij/openapi/progress/ProgressIndicator;)Ljava/util/List;
-}
-
-public final class com/sijunyang/bracketpairguides/analysis/EditorHighlighterActiveBracketPairResolver : com/sijunyang/bracketpairguides/analysis/ActiveBracketPairResolver {
-	public fun <init> (Lcom/intellij/openapi/fileTypes/FileType;Lkotlin/jvm/functions/Function1;)V
-	public synthetic fun <init> (Lcom/intellij/openapi/fileTypes/FileType;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun findInnermost (Lcom/intellij/openapi/editor/Editor;I)Lcom/sijunyang/bracketpairguides/analysis/ActiveBracketPairResolution;
-}
-
-public final class com/sijunyang/bracketpairguides/analysis/GuideIndentation {
-	public static final field INSTANCE Lcom/sijunyang/bracketpairguides/analysis/GuideIndentation;
-	public final fun afterSpace (I)I
-	public final fun afterTab (II)I
-}
-
-public final class com/sijunyang/bracketpairguides/analysis/index/ActiveBracketPairIndex {
-	public static final field Companion Lcom/sijunyang/bracketpairguides/analysis/index/ActiveBracketPairIndex$Companion;
-	public static final field NO_PAIR I
-	public synthetic fun <init> ([I[ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun activePairIndex (I)I
-}
-
-public final class com/sijunyang/bracketpairguides/analysis/index/ActiveBracketPairIndex$Companion {
-}
-
-public final class com/sijunyang/bracketpairguides/analysis/index/BracketTokenIndex {
-	public static final field Companion Lcom/sijunyang/bracketpairguides/analysis/index/BracketTokenIndex$Companion;
-	public synthetic fun <init> (Ljava/util/List;[J[I[JILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun depthAt (I)I
-	public final fun firstIndexAtOrAfter (I)I
-	public final fun firstIndexInRange (I)I
-	public final fun lengthAt (I)I
-	public final fun offsetAt (I)I
-}
-
-public final class com/sijunyang/bracketpairguides/analysis/index/BracketTokenIndex$Companion {
-}
-
-public final class com/sijunyang/bracketpairguides/analysis/index/CancellableLongArraySortKt {
-	public static final fun sortCancellable ([JLkotlin/jvm/functions/Function0;)V
-	public static synthetic fun sortCancellable$default ([JLkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
-}
-
-public final class com/sijunyang/bracketpairguides/analysis/index/GuidePositionIndex {
-	public static final field Companion Lcom/sijunyang/bracketpairguides/analysis/index/GuidePositionIndex$Companion;
-	public static final field NO_INDENT I
-	public synthetic fun <init> (III[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun guideForOrNull (Lcom/sijunyang/bracketpairguides/analysis/BracketPair;)Lcom/sijunyang/bracketpairguides/analysis/BracketGuide;
-}
-
-public final class com/sijunyang/bracketpairguides/analysis/index/GuidePositionIndex$Companion {
-	public final fun lineAfterOpenOrClose (II)I
+public abstract interface class com/sijunyang/bracketpairguides/analysis/api/VisibleTokens {
+	public abstract fun depthAt (I)I
+	public abstract fun getSize ()I
+	public abstract fun getStableFocusEndOffset ()I
+	public abstract fun getStableFocusStartOffset ()I
+	public abstract fun isCapped ()Z
+	public abstract fun lengthAt (I)I
+	public abstract fun offsetAt (I)I
 }
 

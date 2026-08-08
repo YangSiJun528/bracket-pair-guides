@@ -5,8 +5,8 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.ProgressIndicator
+import com.sijunyang.bracketpairguides.analysis.api.BracketPair
 import com.sijunyang.bracketpairguides.analysis.pairing.IntellijBracketPairingEngine
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -16,8 +16,7 @@ import org.jetbrains.annotations.TestOnly
  * raw characters nor falls back to the legacy file-type brace matcher. A
  * language without a registered matcher is therefore deliberately ignored.
  */
-@ApiStatus.Internal
-public class BracketPairAnalyzer(
+internal class BracketPairAnalyzer(
     private val editor: Editor,
     private val fileType: FileType,
     private val isLanguageEnabled: (String) -> Boolean = { true },
