@@ -36,11 +36,11 @@ and [approval criteria](https://plugins.jetbrains.com/docs/marketplace/jetbrains
 Run from a clean checkout of the exact commit to release:
 
 ```shell
-./gradlew clean check
-./gradlew buildPlugin
-./gradlew verifyPluginProjectConfiguration verifyPluginStructure
-./gradlew verifyPlugin
-./gradlew signPlugin verifyPluginSignature
+./gradlew :plugin:clean :plugin:check
+./gradlew :plugin:buildPlugin
+./gradlew :plugin:verifyPluginProjectConfiguration :plugin:verifyPluginStructure
+./gradlew :plugin:verifyPlugin
+./gradlew :plugin:signPlugin :plugin:verifyPluginSignature
 ```
 
 Confirm the generated descriptor contains the intended version, `since-build`,

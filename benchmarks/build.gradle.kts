@@ -18,7 +18,7 @@ sourceSets {
         kotlin.setSrcDirs(
             listOf(
                 "src/main/kotlin",
-                "../src/main/kotlin",
+                "../plugin/src/main/kotlin",
             ),
         )
         kotlin.include(
@@ -29,7 +29,7 @@ sourceSets {
 }
 
 dependencies {
-    // The root plugin uses the Kotlin runtime bundled with IntelliJ. This
+    // The plugin module uses the Kotlin runtime bundled with IntelliJ. This
     // standalone benchmark process needs its own runtime on the JMH classpath.
     implementation(kotlin("stdlib"))
 }

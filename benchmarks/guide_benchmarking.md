@@ -70,8 +70,8 @@ model the daemon read-action lifecycle or event-dispatch-thread contention.
 
 ## Add another implementation
 
-1. Add the candidate dependency to `benchmarks/build.gradle.kts`, not the root
-   plugin project.
+1. Add the candidate dependency to `benchmarks/build.gradle.kts`, not the
+   production `plugin` module.
 2. Add a benchmark method using the existing input state.
 3. Preserve identical setup, parameters, forks, and JVM options.
 4. Run the baseline and candidate in the same JMH invocation.

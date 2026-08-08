@@ -10,7 +10,7 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="verifyPlugin" />
+          <option value=":plugin:verifyPlugin" />
         </list>
       </option>
       <option name="vmOptions" value="" />

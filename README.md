@@ -57,10 +57,10 @@ for representative source examples.
 
 ## Install a local build
 
-1. Run `./gradlew buildPlugin`.
+1. Run `./gradlew :plugin:buildPlugin`.
 2. Open **Settings | Plugins** in the target IDE.
 3. Select **Install Plugin from Disk** from the gear menu.
-4. Choose the ZIP in `build/distributions/`.
+4. Choose the ZIP in `plugin/build/distributions/`.
 
 Open **Settings | Editor | Bracket Pair Guides** to configure the plugin. See
 [Configuration and conflict handling](docs/guide_configuration.md) for all
@@ -69,14 +69,14 @@ options, per-language controls, and coexistence guidance.
 ## Develop and verify
 
 ```shell
-./gradlew check
-./gradlew buildPlugin
-./gradlew verifyPlugin
-./gradlew runIde
+./gradlew :plugin:check
+./gradlew :plugin:buildPlugin
+./gradlew :plugin:verifyPlugin
+./gradlew :plugin:runIde
 ```
 
-`runIde` opens a sandboxed IntelliJ IDEA instance with the plugin installed.
-`verifyPlugin` resolves JetBrains' recommended cross-version matrix plus an
+`:plugin:runIde` opens a sandboxed IntelliJ IDEA instance with the plugin installed.
+`:plugin:verifyPlugin` resolves JetBrains' recommended cross-version matrix plus an
 explicit IntelliJ IDEA 2026.2 endpoint; the minimum published build remains
 pinned to 241 when the test fixture is upgraded.
 The regression suite covers Java, Kotlin, Kotlin script, JSON, contextual and
