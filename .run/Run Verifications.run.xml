@@ -10,6 +10,8 @@
       </option>
       <option name="taskNames">
         <list>
+          <option value=":plugin:verifyPluginProjectConfiguration" />
+          <option value=":plugin:verifyPluginStructure" />
           <option value=":plugin:verifyPlugin" />
         </list>
       </option>

@@ -138,7 +138,11 @@ jobs:
           cache-read-only: true
 
       - name: Run Plugin Verification
-        run: ./gradlew :plugin:verifyPlugin
+        run: >-
+          ./gradlew
+          :plugin:verifyPluginProjectConfiguration
+          :plugin:verifyPluginStructure
+          :plugin:verifyPlugin
 
       - name: Collect Plugin Verifier Report
         if: ${{ always() }}
