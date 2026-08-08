@@ -5,38 +5,41 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.sijunyang.bracketpairguides.analysis.index.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.analysis.index.BracketTokenIndex
 import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.TestOnly
 
-internal data class AnalysisCapabilities(
-    val tokens: Boolean,
-    val activePair: Boolean,
-    val guidePosition: Boolean,
+@ApiStatus.Internal
+public data class AnalysisCapabilities(
+    public val tokens: Boolean,
+    public val activePair: Boolean,
+    public val guidePosition: Boolean,
 ) {
-    val pairs: Boolean
+    public val pairs: Boolean
         get() = tokens || activePair
-
-    fun includes(required: AnalysisCapabilities): Boolean =
-        (!required.tokens || tokens) &&
-            (!required.activePair || activePair) &&
-            (!required.guidePosition || guidePosition)
-
 }
 
-internal data class AnalysisStamp(
-    val documentStamp: Long,
-    val tabSize: Int,
-    val highlighterIdentity: Int,
-    val capabilities: AnalysisCapabilities,
-    val disabledLanguageIds: Set<String> = emptySet(),
+private fun AnalysisCapabilities.includes(required: AnalysisCapabilities): Boolean =
+    (!required.tokens || tokens) &&
+        (!required.activePair || activePair) &&
+        (!required.guidePosition || guidePosition)
+
+@ApiStatus.Internal
+public data class AnalysisStamp(
+    public val documentStamp: Long,
+    public val tabSize: Int,
+    public val highlighterIdentity: Int,
+    public val capabilities: AnalysisCapabilities,
+    public val disabledLanguageIds: Set<String> = emptySet(),
 ) {
-    fun satisfies(required: AnalysisStamp): Boolean =
+    public fun satisfies(required: AnalysisStamp): Boolean =
         documentStamp == required.documentStamp &&
             (!required.capabilities.guidePosition || tabSize == required.tabSize) &&
             highlighterIdentity == required.highlighterIdentity &&
             disabledLanguageIds == required.disabledLanguageIds &&
             capabilities.includes(required.capabilities)
 
-    companion object {
-        fun current(
+    public companion object {
+        public fun current(
             editor: Editor,
             capabilities: AnalysisCapabilities,
             disabledLanguageIds: Set<String> = emptySet(),
@@ -50,16 +53,18 @@ internal data class AnalysisStamp(
     }
 }
 
-internal data class AnalysisSnapshot(
-    val stamp: AnalysisStamp,
-    val pairs: List<BracketPair>,
-    val tokenIndex: BracketTokenIndex,
-    val activeIndex: ActiveBracketPairIndex,
-    val positionIndex: GuidePositionIndex?,
+@ApiStatus.Internal
+public data class AnalysisSnapshot(
+    public val stamp: AnalysisStamp,
+    public val pairs: List<BracketPair>,
+    public val tokenIndex: BracketTokenIndex,
+    public val activeIndex: ActiveBracketPairIndex,
+    public val positionIndex: GuidePositionIndex?,
 )
 
-internal object AnalysisSnapshotBuilder {
-    fun build(
+@ApiStatus.Internal
+public object AnalysisSnapshotBuilder {
+    public fun build(
         editor: Editor,
         pairProvider: BracketPairProvider,
         stamp: AnalysisStamp,
@@ -118,7 +123,8 @@ internal object AnalysisSnapshotBuilder {
         )
     }
 
-    internal fun multilineGuideRange(
+    @TestOnly
+    public fun multilineGuideRange(
         pairs: List<BracketPair>,
         documentLength: Int,
         documentLineCount: Int,

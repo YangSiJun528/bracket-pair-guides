@@ -8,20 +8,25 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import org.jetbrains.annotations.ApiStatus
 
-internal class GuideLineHighlightingPassFactory :
+@ApiStatus.Internal
+public class GuideLineHighlightingPassFactory public constructor() :
     TextEditorHighlightingPassFactory,
     TextEditorHighlightingPassFactoryRegistrar,
     DumbAware {
 
-    override fun registerHighlightingPassFactory(
+    public override fun registerHighlightingPassFactory(
         registrar: TextEditorHighlightingPassRegistrar,
         project: Project,
-    ) {
+    ): Unit {
         registrar.registerTextEditorHighlightingPass(this, null, null, false, -1)
     }
 
-    override fun createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass {
+    public override fun createHighlightingPass(
+        file: PsiFile,
+        editor: Editor,
+    ): TextEditorHighlightingPass {
         return GuideLineHighlightingPass(file.project, editor, file.fileType)
     }
 }

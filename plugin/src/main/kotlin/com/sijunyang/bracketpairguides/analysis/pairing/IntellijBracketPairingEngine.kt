@@ -11,6 +11,7 @@ import com.intellij.openapi.fileTypes.PlainTextLanguage
 import com.intellij.openapi.fileTypes.UserFileType
 import com.intellij.psi.CustomHighlighterTokenType
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.annotations.ApiStatus
 import java.util.Locale
 
 /**
@@ -20,7 +21,8 @@ import java.util.Locale
  * Each [Session] owns independent stack state, while matcher resolution is cached
  * by this core so repeated bounded sessions do not repeat extension lookup.
  */
-internal class IntellijBracketPairingEngine(
+@ApiStatus.Internal
+public class IntellijBracketPairingEngine(
     private val document: Document,
     private val fileType: FileType,
     private val text: CharSequence,
@@ -28,12 +30,12 @@ internal class IntellijBracketPairingEngine(
 ) {
     private val matchers = HashMap<Language, ResolvedLanguageBraceMatcher?>()
 
-    enum class OpeningKind {
+    public enum class OpeningKind {
         DIRECTIONAL,
         SYMMETRIC_TOGGLE,
     }
 
-    fun openingKind(iterator: HighlighterIterator): OpeningKind? {
+    public fun openingKind(iterator: HighlighterIterator): OpeningKind? {
         val token = classify(iterator)?.takeIf { it.isLeft } ?: return null
         return if (token.isSymmetric && token.isRight) {
             OpeningKind.SYMMETRIC_TOGGLE
@@ -42,12 +44,12 @@ internal class IntellijBracketPairingEngine(
         }
     }
 
-    fun newSession(
+    public fun newSession(
         checkCanceled: () -> Unit = {},
         trackedOpenOffset: Int? = null,
     ): Session = Session(checkCanceled, trackedOpenOffset)
 
-    internal inner class Session(
+    public inner class Session(
         private val checkCanceled: () -> Unit,
         private val trackedOpenOffset: Int?,
     ) {
@@ -55,10 +57,10 @@ internal class IntellijBracketPairingEngine(
         private var trackedGroup: MatcherGroup? = null
 
         /** A structural close may depend on an opener before this bounded replay. */
-        var requiresEarlierStructuralContext: Boolean = false
+        public var requiresEarlierStructuralContext: Boolean = false
             private set
 
-        fun accept(iterator: HighlighterIterator): BracketPair? {
+        public fun accept(iterator: HighlighterIterator): BracketPair? {
             val token = classify(iterator) ?: return null
             val offset = iterator.start
             val tokenLength = iterator.end - iterator.start
@@ -82,7 +84,7 @@ internal class IntellijBracketPairingEngine(
             return close(token)?.toPair(offset, tokenLength, line)
         }
 
-        fun hasOpenAt(offset: Int): Boolean = collector.containsOpenAt(offset)
+        public fun hasOpenAt(offset: Int): Boolean = collector.containsOpenAt(offset)
 
         private fun open(
             token: ClassifiedToken,

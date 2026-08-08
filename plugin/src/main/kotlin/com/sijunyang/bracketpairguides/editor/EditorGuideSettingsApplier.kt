@@ -4,19 +4,21 @@ import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.project.ProjectManager
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.TestOnly
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
 /** Propagates applied plugin options to live editor sessions and the daemon. */
-internal object EditorGuideSettingsApplier {
+@ApiStatus.Internal
+public object EditorGuideSettingsApplier {
     private const val RESTART_REASON = "Bracket Pair Guides settings changed"
 
     private val restartMethods = object : ClassValue<Method>() {
         override fun computeValue(type: Class<*>): Method = resolveRestartMethod(type)
     }
 
-    fun applyChanges(previous: PluginOptions, applied: PluginOptions) {
+    public fun applyChanges(previous: PluginOptions, applied: PluginOptions): Unit {
         if (previous == applied) return
 
         val capabilitiesChanged = previous.analysisCapabilities() !=
@@ -61,7 +63,7 @@ internal object EditorGuideSettingsApplier {
     }
 
     @TestOnly
-    internal fun resolveRestartMethod(
+    public fun resolveRestartMethod(
         type: Class<*>,
         unsupportedModernOwner: Class<*> = DaemonCodeAnalyzer::class.java,
     ): Method {

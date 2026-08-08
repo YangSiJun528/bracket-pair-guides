@@ -4,22 +4,24 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.SerializablePersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
+import org.jetbrains.annotations.ApiStatus
 
 @State(
     name = "BracketPairGuides",
     storages = [Storage("bracket-pair-guides.xml")],
 )
-internal class PluginSettings : SerializablePersistentStateComponent<PluginOptions>(
+@ApiStatus.Internal
+public class PluginSettings : SerializablePersistentStateComponent<PluginOptions>(
     PluginOptions(),
 ) {
-    val options: PluginOptions
+    public val options: PluginOptions
         get() = state
 
-    override fun loadState(state: PluginOptions) {
+    public override fun loadState(state: PluginOptions) {
         super.loadState(state.normalized())
     }
 
-    fun replace(options: PluginOptions) {
+    public fun replace(options: PluginOptions) {
         val normalized = options.normalized()
         if (state != normalized) {
             updateState { normalized }
@@ -51,8 +53,8 @@ internal class PluginSettings : SerializablePersistentStateComponent<PluginOptio
         pairBackgroundColors = StoredBracketColors.normalizeColors(pairBackgroundColors),
     )
 
-    companion object {
-        fun getInstance(): PluginSettings {
+    public companion object {
+        public fun getInstance(): PluginSettings {
             return ApplicationManager.getApplication().getService(PluginSettings::class.java)
         }
     }

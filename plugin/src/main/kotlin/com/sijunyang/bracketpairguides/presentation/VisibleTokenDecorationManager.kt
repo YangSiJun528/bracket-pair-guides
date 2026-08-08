@@ -12,40 +12,51 @@ import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.TestOnly
 
-internal data class VisibleTokenDecorations(
-    val windowStartOffset: Int,
-    val windowEndOffset: Int,
-    val entries: List<VisibleTokenEntry>,
-    val stableFocusStartOffset: Int = windowStartOffset,
-    val stableFocusEndOffset: Int = windowEndOffset,
-    val isCapped: Boolean = false,
+@ApiStatus.Internal
+public data class VisibleTokenDecorations(
+    public val windowStartOffset: Int,
+    public val windowEndOffset: Int,
+    public val entries: List<VisibleTokenEntry>,
+    public val stableFocusStartOffset: Int = windowStartOffset,
+    public val stableFocusEndOffset: Int = windowEndOffset,
+    public val isCapped: Boolean = false,
 ) {
-    /** A capped token slice must follow scrolling even inside its padded window. */
-    fun canReuseFor(range: TextRange, focusOffset: Int): Boolean {
-        if (windowStartOffset > range.startOffset || windowEndOffset < range.endOffset) {
-            return false
-        }
-        return !isCapped ||
-            focusOffset in stableFocusStartOffset..stableFocusEndOffset
-    }
-
-    companion object {
-        val EMPTY = VisibleTokenDecorations(0, 0, emptyList())
+    public companion object {
+        public val EMPTY: VisibleTokenDecorations = VisibleTokenDecorations(0, 0, emptyList())
     }
 }
 
-internal data class VisibleTokenEntry(
-    val highlighter: RangeHighlighter,
-    val colorKey: TextAttributesKey,
-    val levelIndex: Int,
-    val attributes: TextAttributes,
+/** A capped token slice must follow scrolling even inside its padded window. */
+private fun VisibleTokenDecorations.canReuseFor(
+    range: TextRange,
+    focusOffset: Int,
+): Boolean {
+    if (windowStartOffset > range.startOffset || windowEndOffset < range.endOffset) {
+        return false
+    }
+    return !isCapped || focusOffset in stableFocusStartOffset..stableFocusEndOffset
+}
+
+@ApiStatus.Internal
+public data class VisibleTokenEntry(
+    public val highlighter: RangeHighlighter,
+    public val colorKey: TextAttributesKey,
+    public val levelIndex: Int,
+    public val attributes: TextAttributes,
 )
 
-internal const val MAX_VISIBLE_TOKEN_DECORATIONS = 2_048
+private const val MAX_VISIBLE_TOKEN_DECORATIONS = 2_048
 
-internal object VisibleTokenDecorationManager {
-    fun replace(
+@ApiStatus.Internal
+public object VisibleTokenDecorationManager {
+    @get:TestOnly
+    public val maximumDecorationCountForTest: Int
+        get() = MAX_VISIBLE_TOKEN_DECORATIONS
+
+    public fun replace(
         editor: Editor,
         previous: VisibleTokenDecorations?,
         tokenIndex: BracketTokenIndex,
@@ -80,7 +91,7 @@ internal object VisibleTokenDecorationManager {
         )
     }
 
-    fun replaceIfOutsideWindow(
+    public fun replaceIfOutsideWindow(
         editor: Editor,
         current: VisibleTokenDecorations,
         tokenIndex: BracketTokenIndex,
@@ -93,7 +104,7 @@ internal object VisibleTokenDecorationManager {
         return replace(editor, current, tokenIndex, visibleRange, options)
     }
 
-    fun updateAttributes(
+    public fun updateAttributes(
         editor: Editor,
         current: VisibleTokenDecorations,
         options: PluginOptions,
@@ -121,7 +132,7 @@ internal object VisibleTokenDecorationManager {
         return current.copy(entries = entries)
     }
 
-    fun dispose(decorations: VisibleTokenDecorations?) {
+    public fun dispose(decorations: VisibleTokenDecorations?): Unit {
         decorations ?: return
         disposeEntries(decorations.entries)
     }
@@ -206,7 +217,7 @@ internal object VisibleTokenDecorationManager {
         levelIndex: Int,
         palette: TokenPalette,
     ): VisibleTokenEntry {
-        val colorKey = BracketColorPalette.LEVEL_KEYS[levelIndex]
+        val colorKey = BracketColorPalette.levelKey(levelIndex)
         val attributes = palette.attributes[levelIndex]
         val previous = reusable.take(startOffset, endOffset)
         val highlighter = previous?.highlighter ?: addHighlighter(

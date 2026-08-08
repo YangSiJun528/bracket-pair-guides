@@ -2,16 +2,18 @@ package com.sijunyang.bracketpairguides.editor
 
 import java.util.Collections
 import java.util.IdentityHashMap
+import org.jetbrains.annotations.ApiStatus
 
 /** Coalesces equal-by-identity values into one fixed-delay callback. */
-internal class IdentityEventBatcher<T : Any>(
+@ApiStatus.Internal
+public class IdentityEventBatcher<T : Any>(
     private val schedule: (() -> Unit) -> Unit,
     private val consume: (T) -> Unit,
 ) {
     private val pending = Collections.newSetFromMap(IdentityHashMap<T, Boolean>())
     private var scheduled = false
 
-    fun request(value: T) {
+    public fun request(value: T): Unit {
         pending += value
         if (scheduled) return
 
@@ -24,11 +26,11 @@ internal class IdentityEventBatcher<T : Any>(
         }
     }
 
-    fun remove(value: T) {
+    public fun remove(value: T): Unit {
         pending -= value
     }
 
-    fun clear() {
+    public fun clear(): Unit {
         pending.clear()
     }
 

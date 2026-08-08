@@ -106,7 +106,7 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
 
         val session = checkNotNull(EditorGuideSession.get(editor))
         val coloredTokenCount = session.tokenDecorations.entries.count {
-            it.colorKey in BracketColorPalette.LEVEL_KEYS
+            BracketColorPalette.isLevelKeyForTest(it.colorKey)
         }
         assertTrue(
             "$fileName must not create more than two token ranges per pair",

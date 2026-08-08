@@ -21,13 +21,16 @@ import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.TestOnly
 
 /**
  * Collects an immutable snapshot in the platform highlighting lifecycle.
  * Platform-managed passes may be constructed off EDT and are collected off EDT,
  * then applied on EDT.
  */
-internal class GuideLineHighlightingPass(
+@ApiStatus.Internal
+public class GuideLineHighlightingPass private constructor(
     project: Project,
     private val editor: Editor,
     private val pairProviderFactory: (Set<String>) -> BracketPairProvider,
@@ -43,13 +46,15 @@ internal class GuideLineHighlightingPass(
         }
     }
 
-    constructor(project: Project, editor: Editor) : this(
+    @TestOnly
+    public constructor(project: Project, editor: Editor) : this(
         project,
         editor,
         editorFileType(editor),
     )
 
-    constructor(
+    @TestOnly
+    public constructor(
         project: Project,
         editor: Editor,
         pairProvider: BracketPairProvider,
@@ -63,7 +68,7 @@ internal class GuideLineHighlightingPass(
         activePairResolver = activePairResolver,
     )
 
-    constructor(project: Project, editor: Editor, fileType: FileType) : this(
+    public constructor(project: Project, editor: Editor, fileType: FileType) : this(
         project = project,
         editor = editor,
         pairProviderFactory = { disabledLanguageIds ->
@@ -77,7 +82,7 @@ internal class GuideLineHighlightingPass(
         ),
     )
 
-    override fun doCollectInformation(progress: ProgressIndicator) {
+    public override fun doCollectInformation(progress: ProgressIndicator): Unit {
         collected = null
         collectedStamp = null
         val options = PluginSettings.getInstance().options
@@ -93,7 +98,7 @@ internal class GuideLineHighlightingPass(
         collected = AnalysisSnapshotBuilder.build(editor, pairProvider, stamp, progress)
     }
 
-    override fun doApplyInformationToEditor() {
+    public override fun doApplyInformationToEditor(): Unit {
         val snapshot = collected
         val passStamp = collectedStamp
         collected = null
@@ -128,6 +133,23 @@ internal class GuideLineHighlightingPass(
             editor,
             activePairResolver,
             visibleRangeProvider,
+        )
+    }
+
+    public companion object {
+        @TestOnly
+        public fun forTest(
+            project: Project,
+            editor: Editor,
+            pairProviderFactory: (Set<String>) -> BracketPairProvider,
+            visibleRangeProvider: (Editor) -> TextRange = Editor::calculateVisibleRange,
+            activePairResolver: ActiveBracketPairResolver = ActiveBracketPairResolver.NONE,
+        ): GuideLineHighlightingPass = GuideLineHighlightingPass(
+            project = project,
+            editor = editor,
+            pairProviderFactory = pairProviderFactory,
+            visibleRangeProvider = visibleRangeProvider,
+            activePairResolver = activePairResolver,
         )
     }
 }

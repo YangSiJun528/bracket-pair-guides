@@ -9,10 +9,12 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.editor.markup.RangeHighlighter
+import org.jetbrains.annotations.ApiStatus
 
 /** Adds and updates the active-pair presentation owned by a source editor session. */
-internal object ActivePairDecoration {
-    fun addGuide(
+@ApiStatus.Internal
+public object ActivePairDecoration {
+    public fun addGuide(
         editor: Editor,
         guide: BracketGuide,
         settings: PluginOptions,
@@ -65,13 +67,13 @@ internal object ActivePairDecoration {
         }
     }
 
-    fun guideOf(highlighter: RangeHighlighter?): BracketGuide? =
+    public fun guideOf(highlighter: RangeHighlighter?): BracketGuide? =
         highlighter
             ?.takeIf(RangeHighlighter::isValid)
             ?.guidePaintState()
             ?.guide
 
-    fun addPairHighlights(
+    public fun addPairHighlights(
         editor: Editor,
         pair: BracketPair,
         settings: PluginOptions,

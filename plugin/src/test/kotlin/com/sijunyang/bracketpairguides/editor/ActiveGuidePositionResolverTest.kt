@@ -2,7 +2,6 @@ package com.sijunyang.bracketpairguides.editor
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
-import com.sijunyang.bracketpairguides.analysis.GuideIndentation
 import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.progress.EmptyProgressIndicator
@@ -124,7 +123,7 @@ class ActiveGuidePositionResolverTest : BasePlatformTestCase() {
             change = null,
         )
 
-        assertEquals(GuideIndentation.MAXIMUM_COLUMN, guide.guideColumn)
+        assertEquals(Int.MAX_VALUE - 1, guide.guideColumn)
         assertEquals(1, guide.anchorLine)
     }
 

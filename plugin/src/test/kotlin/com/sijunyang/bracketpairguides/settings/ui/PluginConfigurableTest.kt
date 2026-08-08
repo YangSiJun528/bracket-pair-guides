@@ -230,7 +230,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
         supportedLanguages: List<BraceLanguageFamily>,
         block: (PluginConfigurable, Component) -> Unit,
     ) {
-        val configurable = PluginConfigurable { supportedLanguages }
+        val configurable = PluginConfigurable.forTest { supportedLanguages }
         val component = configurable.createComponent()
         try {
             block(configurable, component)

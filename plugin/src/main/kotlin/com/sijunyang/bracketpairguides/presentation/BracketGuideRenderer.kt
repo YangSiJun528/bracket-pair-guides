@@ -14,6 +14,7 @@ import java.awt.Graphics2D
 import java.awt.Rectangle
 import java.awt.RenderingHints
 import java.awt.geom.Path2D
+import org.jetbrains.annotations.ApiStatus
 
 /**
  * Paints one complete bracket-pair guide for one range highlighter.
@@ -22,8 +23,13 @@ import java.awt.geom.Path2D
  * font changes use current visual positions. Graphics state is isolated from
  * the rest of the editor paint pipeline.
  */
-internal object BracketGuideRenderer : CustomHighlighterRenderer {
-    override fun paint(editor: Editor, highlighter: RangeHighlighter, graphics: Graphics) {
+@ApiStatus.Internal
+public object BracketGuideRenderer : CustomHighlighterRenderer {
+    public override fun paint(
+        editor: Editor,
+        highlighter: RangeHighlighter,
+        graphics: Graphics,
+    ): Unit {
         val state = highlighter.guidePaintState() ?: return
         val guide = state.guide
         val options = state.options

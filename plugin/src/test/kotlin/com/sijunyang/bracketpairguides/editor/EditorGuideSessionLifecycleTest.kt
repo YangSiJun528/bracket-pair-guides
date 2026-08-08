@@ -134,7 +134,7 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
                 visibleRangeProvider = { TextRange(0, document.textLength) },
             )
 
-            EditorGuideEventRouter.routeDocumentChange(
+            EditorGuideEventRouter.routeDocumentChangeForTest(
                 editors = listOf(firstEditor, secondEditor),
                 change = DocumentChange(offset = 2, mayAffectGuidePosition = true),
                 immediateEditor = secondEditor,

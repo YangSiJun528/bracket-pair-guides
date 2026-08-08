@@ -1,14 +1,16 @@
 package com.sijunyang.bracketpairguides.editor
 
 import com.intellij.openapi.editor.event.DocumentEvent
+import org.jetbrains.annotations.ApiStatus
 
 /** Immutable document-event data that remains safe if an EDT handoff is needed. */
-internal data class DocumentChange(
-    val offset: Int,
-    val mayAffectGuidePosition: Boolean,
+@ApiStatus.Internal
+public data class DocumentChange(
+    public val offset: Int,
+    public val mayAffectGuidePosition: Boolean,
 ) {
-    companion object {
-        fun from(event: DocumentEvent): DocumentChange {
+    public companion object {
+        public fun from(event: DocumentEvent): DocumentChange {
             return DocumentChange(
                 offset = event.offset,
                 mayAffectGuidePosition =

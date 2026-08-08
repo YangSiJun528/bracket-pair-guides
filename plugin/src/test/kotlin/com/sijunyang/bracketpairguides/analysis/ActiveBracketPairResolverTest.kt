@@ -141,17 +141,17 @@ class ActiveBracketPairResolverTest : BasePlatformTestCase() {
 
     private class DeadlineClock(
         private val deadlineNanos: Long,
-    ) : MonotonicClock {
+    ) : () -> Long {
         var reads: Int = 0
             private set
 
-        override fun nowNanos(): Long {
+        override fun invoke(): Long {
             return if (reads++ == 0) 0L else deadlineNanos
         }
     }
 
     private companion object {
         const val DEADLINE_NANOS = 4_000_000L
-        val FROZEN_CLOCK = MonotonicClock { 0L }
+        val FROZEN_CLOCK: () -> Long = { 0L }
     }
 }

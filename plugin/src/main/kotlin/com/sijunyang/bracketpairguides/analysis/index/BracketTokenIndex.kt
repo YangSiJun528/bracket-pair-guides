@@ -2,19 +2,23 @@ package com.sijunyang.bracketpairguides.analysis.index
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.hasWellFormedTokenRange
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.TestOnly
 
 /** Compact, offset-sorted lookup for bracket tokens near the editor viewport. */
-internal class BracketTokenIndex private constructor(
+@ApiStatus.Internal
+public class BracketTokenIndex private constructor(
     private val pairs: List<BracketPair>?,
     private val detachedTokenLengths: LongArray?,
     private val detachedDepths: IntArray?,
     private val encodedTokens: LongArray,
     private val maximumTokenLength: Int,
 ) {
-    val size: Int
+    @get:TestOnly
+    public val size: Int
         get() = encodedTokens.size
 
-    fun firstIndexInRange(startOffset: Int): Int {
+    public fun firstIndexInRange(startOffset: Int): Int {
         val firstPossibleStart = (startOffset.toLong() - maximumTokenLength)
             .coerceAtLeast(0)
             .toInt()
@@ -31,7 +35,7 @@ internal class BracketTokenIndex private constructor(
         return low
     }
 
-    fun firstIndexAtOrAfter(offset: Int): Int {
+    public fun firstIndexAtOrAfter(offset: Int): Int {
         var low = 0
         var high = encodedTokens.size
         while (low < high) {
@@ -45,7 +49,8 @@ internal class BracketTokenIndex private constructor(
         return low
     }
 
-    fun countIn(startOffset: Int, endOffset: Int): Int {
+    @TestOnly
+    public fun countIn(startOffset: Int, endOffset: Int): Int {
         var index = firstIndexInRange(startOffset)
         var count = 0
         while (index < encodedTokens.size) {
@@ -57,9 +62,9 @@ internal class BracketTokenIndex private constructor(
         return count
     }
 
-    fun offsetAt(index: Int): Int = (encodedTokens[index] ushr OFFSET_SHIFT).toInt()
+    public fun offsetAt(index: Int): Int = (encodedTokens[index] ushr OFFSET_SHIFT).toInt()
 
-    fun lengthAt(index: Int): Int {
+    public fun lengthAt(index: Int): Int {
         val tokenReference = tokenReferenceAt(index)
         val pairIndex = tokenReference ushr TOKEN_KIND_BITS
         val closing = tokenReference and CLOSING_TOKEN != 0
@@ -75,7 +80,7 @@ internal class BracketTokenIndex private constructor(
         }
     }
 
-    fun depthAt(index: Int): Int {
+    public fun depthAt(index: Int): Int {
         val pairIndex = tokenReferenceAt(index) ushr TOKEN_KIND_BITS
         return pairs?.get(pairIndex)?.depth
             ?: checkNotNull(detachedDepths)[pairIndex]
@@ -83,8 +88,8 @@ internal class BracketTokenIndex private constructor(
 
     private fun tokenReferenceAt(index: Int): Int = encodedTokens[index].toInt()
 
-    companion object {
-        fun build(
+    public companion object {
+        public fun build(
             pairs: List<BracketPair>,
             checkCanceled: () -> Unit = {},
         ): BracketTokenIndex = build(
@@ -94,7 +99,7 @@ internal class BracketTokenIndex private constructor(
         )
 
         /** Copies only token metadata so the source pair graph can be released. */
-        fun buildDetached(
+        public fun buildDetached(
             pairs: List<BracketPair>,
             checkCanceled: () -> Unit = {},
         ): BracketTokenIndex = build(

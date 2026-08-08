@@ -1,6 +1,5 @@
 package com.sijunyang.bracketpairguides.analysis.index
 
-import com.sijunyang.bracketpairguides.analysis.GuideIndentation
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -121,15 +120,15 @@ class GuidePositionIndexTest {
         assertEquals(16L, GuidePositionIndex.treePayloadBytes(1))
         assertEquals(32L, GuidePositionIndex.treePayloadBytes(2))
         assertEquals(
-            GuidePositionIndex.MAXIMUM_TREE_PAYLOAD_BYTES,
+            MAXIMUM_TREE_PAYLOAD_BYTES,
             GuidePositionIndex.treePayloadBytes(1_000_000),
         )
         assertEquals(
-            GuidePositionIndex.MAXIMUM_TREE_PAYLOAD_BYTES,
+            MAXIMUM_TREE_PAYLOAD_BYTES,
             GuidePositionIndex.treePayloadBytes(boundary),
         )
         assertEquals(
-            GuidePositionIndex.MAXIMUM_TREE_PAYLOAD_BYTES * 2,
+            MAXIMUM_TREE_PAYLOAD_BYTES * 2,
             GuidePositionIndex.treePayloadBytes(boundary + 1),
         )
         assertTrue(GuidePositionIndex.supportsLineCount(boundary))
@@ -148,7 +147,7 @@ class GuidePositionIndexTest {
 
         val guide = index.guideFor(pair(closeLine = 1))
 
-        assertEquals(GuideIndentation.MAXIMUM_COLUMN, guide.guideColumn)
+        assertEquals(Int.MAX_VALUE - 1, guide.guideColumn)
         assertEquals(1, guide.anchorLine)
     }
 
@@ -202,4 +201,8 @@ class GuidePositionIndexTest {
         openLine = 0,
         closeLine = closeLine,
     )
+
+    companion object {
+        private const val MAXIMUM_TREE_PAYLOAD_BYTES = 16L * 1024 * 1024
+    }
 }

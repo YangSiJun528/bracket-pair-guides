@@ -21,15 +21,19 @@ import com.intellij.ui.dsl.builder.selected
 import com.intellij.ui.layout.ComponentPredicate
 import com.intellij.ui.layout.and
 import com.intellij.ui.layout.or
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.TestOnly
 import java.awt.Color
 import java.util.Locale
 
 /** Standard platform controls bound directly to the persisted plugin options. */
-internal class PluginConfigurable(
-    private val supportedLanguagesProvider: () -> List<BraceLanguageFamily> =
-        BracketLanguageSupport::installedFamilies,
+@ApiStatus.Internal
+public class PluginConfigurable private constructor(
+    private val supportedLanguagesProvider: () -> List<BraceLanguageFamily>,
 ) : BoundConfigurable("Bracket Pair Guides") {
     private var appliedSnapshot = PluginOptions()
+
+    public constructor() : this(BracketLanguageSupport::installedFamilies)
 
     override fun createPanel(): DialogPanel {
         val settings = PluginSettings.getInstance()
@@ -389,7 +393,12 @@ internal class PluginConfigurable(
             }
     }
 
-    private companion object {
-        const val CUSTOM_FILE_TYPE_LANGUAGE_ID = "TEXT"
+    public companion object {
+        @TestOnly
+        public fun forTest(
+            supportedLanguagesProvider: () -> List<BraceLanguageFamily>,
+        ): PluginConfigurable = PluginConfigurable(supportedLanguagesProvider)
+
+        private const val CUSTOM_FILE_TYPE_LANGUAGE_ID = "TEXT"
     }
 }

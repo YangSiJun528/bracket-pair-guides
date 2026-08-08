@@ -21,9 +21,12 @@ import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.TestOnly
 
 /** EDT-owned state and presentation for one editor. */
-internal class EditorGuideSession private constructor(
+@ApiStatus.Internal
+public class EditorGuideSession private constructor(
     private val editor: Editor,
     private var activePairResolver: ActiveBracketPairResolver,
     private var visibleRangeProvider: (Editor) -> TextRange,
@@ -44,14 +47,26 @@ internal class EditorGuideSession private constructor(
     private var activeRange: RangeMarker? = null
     private var activeAnchor: RangeMarker? = null
 
-    internal var tokenDecorations: VisibleTokenDecorations = VisibleTokenDecorations.EMPTY
-        private set
-    internal var activeGuide: RangeHighlighter? = null
-        private set
-    internal var activePairHighlights: List<RangeHighlighter> = emptyList()
-        private set
+    private var tokenDecorationState: VisibleTokenDecorations = VisibleTokenDecorations.EMPTY
+    private var activeGuideState: RangeHighlighter? = null
+    private var activePairHighlightState: List<RangeHighlighter> = emptyList()
 
-    fun updateDependenciesIfCurrent(
+    public val hasCappedTokenDecorations: Boolean
+        get() = tokenDecorationState.isCapped
+
+    @get:TestOnly
+    public val tokenDecorations: VisibleTokenDecorations
+        get() = tokenDecorationState
+
+    @get:TestOnly
+    public val activeGuide: RangeHighlighter?
+        get() = activeGuideState
+
+    @get:TestOnly
+    public val activePairHighlights: List<RangeHighlighter>
+        get() = activePairHighlightState
+
+    public fun updateDependenciesIfCurrent(
         resolver: ActiveBracketPairResolver,
         rangeProvider: (Editor) -> TextRange,
         passStamp: AnalysisStamp,
@@ -64,7 +79,7 @@ internal class EditorGuideSession private constructor(
         return true
     }
 
-    fun accept(nextSnapshot: AnalysisSnapshot) {
+    public fun accept(nextSnapshot: AnalysisSnapshot): Unit {
         assertEdt()
         if (disposed || editor.isDisposed) return
         val required = currentStamp()
@@ -80,9 +95,9 @@ internal class EditorGuideSession private constructor(
                     !shouldReleasePairGraph(required, current.stamp.capabilities)
             }
             if (compactSnapshot != null) {
-                tokenDecorations = VisibleTokenDecorationManager.replace(
+                tokenDecorationState = VisibleTokenDecorationManager.replace(
                     editor,
-                    tokenDecorations,
+                    tokenDecorationState,
                     compactSnapshot.tokenIndex,
                     visibleRangeProvider(editor),
                     options,
@@ -100,9 +115,9 @@ internal class EditorGuideSession private constructor(
             positionIndex = nextSnapshot.positionIndex,
             change = null,
         )
-        tokenDecorations = VisibleTokenDecorationManager.replace(
+        tokenDecorationState = VisibleTokenDecorationManager.replace(
             editor,
-            tokenDecorations,
+            tokenDecorationState,
             nextSnapshot.tokenIndex,
             visibleRangeProvider(editor),
             options,
@@ -115,7 +130,7 @@ internal class EditorGuideSession private constructor(
         editor.contentComponent.repaint()
     }
 
-    fun caretMoved() {
+    public fun caretMoved(): Unit {
         assertEdt()
         if (disposed || editor.isDisposed) return
         if (!options.analysisCapabilities().activePair) return
@@ -136,17 +151,17 @@ internal class EditorGuideSession private constructor(
         editor.contentComponent.repaint()
     }
 
-    fun documentChanged(
+    public fun documentChanged(
         change: DocumentChange,
         resolveImmediately: Boolean = true,
-    ) {
+    ): Unit {
         assertEdt()
         if (disposed || editor.isDisposed) return
         discardStaleAnalysis()
         updateProvisional(change, resolveImmediately)
     }
 
-    fun visibleAreaChanged() {
+    public fun visibleAreaChanged(): Unit {
         assertEdt()
         if (disposed || editor.isDisposed) return
         if (discardPresentationFromReplacedHighlighter()) return
@@ -154,31 +169,31 @@ internal class EditorGuideSession private constructor(
         if (!hasCurrentTokenAnalysis(currentSnapshot)) return
         val nextDecorations = VisibleTokenDecorationManager.replaceIfOutsideWindow(
             editor,
-            tokenDecorations,
+            tokenDecorationState,
             currentSnapshot.tokenIndex,
             visibleRangeProvider(editor),
             options,
         ) ?: return
-        tokenDecorations = nextDecorations
+        tokenDecorationState = nextDecorations
         editor.contentComponent.repaint()
     }
 
-    fun updateOptions(nextOptions: PluginOptions) {
+    public fun updateOptions(nextOptions: PluginOptions): Unit {
         updateOptions(nextOptions, resolveImmediately = true)
     }
 
-    fun updateOptions(
+    public fun updateOptions(
         nextOptions: PluginOptions,
         resolveImmediately: Boolean = true,
-    ) {
+    ): Unit {
         updateOptions(nextOptions, resolveImmediately, refreshColors = false)
     }
 
-    fun updateOptions(
+    public fun updateOptions(
         nextOptions: PluginOptions,
         resolveImmediately: Boolean,
         refreshColors: Boolean,
-    ) {
+    ): Unit {
         assertEdt()
         if (disposed || editor.isDisposed) return
         val previousOptions = options
@@ -206,7 +221,7 @@ internal class EditorGuideSession private constructor(
         val releasePairGraph = currentAnalysis?.let { analysis ->
             shouldReleasePairGraph(required, analysis.stamp.capabilities)
         } == true
-        tokenDecorations = updateTokenPresentation(
+        tokenDecorationState = updateTokenPresentation(
             previousOptions,
             currentAnalysis,
             refreshColors,
@@ -253,13 +268,13 @@ internal class EditorGuideSession private constructor(
         return when {
             wasVisible && !isVisible -> VisibleTokenDecorationManager.updateAttributes(
                 editor,
-                tokenDecorations,
+                tokenDecorationState,
                 options,
             )
             !wasVisible && isVisible && currentAnalysis != null ->
                 VisibleTokenDecorationManager.replace(
                     editor,
-                    tokenDecorations,
+                    tokenDecorationState,
                     currentAnalysis.tokenIndex,
                     visibleRangeProvider(editor),
                     options,
@@ -268,27 +283,27 @@ internal class EditorGuideSession private constructor(
                 (refreshColors || previousOptions.levelBaseColors != options.levelBaseColors) ->
                 VisibleTokenDecorationManager.updateAttributes(
                     editor,
-                    tokenDecorations,
+                    tokenDecorationState,
                     options,
                 )
-            else -> tokenDecorations
+            else -> tokenDecorationState
         }
     }
 
-    fun dispose() {
+    public fun dispose(): Unit {
         assertEdt()
         if (disposed) return
         disposed = true
         clear()
     }
 
-    fun clear() {
+    private fun clear() {
         assertEdt()
         acceptedStamp = null
         snapshot = null
         clearActive(preserveGuide = false)
-        VisibleTokenDecorationManager.dispose(tokenDecorations)
-        tokenDecorations = VisibleTokenDecorations.EMPTY
+        VisibleTokenDecorationManager.dispose(tokenDecorationState)
+        tokenDecorationState = VisibleTokenDecorations.EMPTY
     }
 
     private fun updateProvisional(
@@ -296,7 +311,8 @@ internal class EditorGuideSession private constructor(
         resolveImmediately: Boolean = true,
     ) {
         if (!options.analysisCapabilities().activePair) {
-            val hadActivePresentation = activeGuide != null || activePairHighlights.isNotEmpty()
+            val hadActivePresentation =
+                activeGuideState != null || activePairHighlightState.isNotEmpty()
             clearActive(preserveGuide = false)
             if (hadActivePresentation) editor.contentComponent.repaint()
             return
@@ -377,8 +393,8 @@ internal class EditorGuideSession private constructor(
             (!options.showsGuide && !options.showsActivePair) ||
             !pair.hasWellFormedTokenRange(editor.document.textLength)
         ) {
-            activeGuide?.dispose()
-            activeGuide = null
+            activeGuideState?.dispose()
+            activeGuideState = null
             return
         }
 
@@ -400,15 +416,15 @@ internal class EditorGuideSession private constructor(
         }
         updateGuide(guide)
         updateAnchor(guide)
-        activePairHighlights = ActivePairDecoration.addPairHighlights(editor, pair, options)
+        activePairHighlightState = ActivePairDecoration.addPairHighlights(editor, pair, options)
     }
 
     private fun updateGuide(guide: BracketGuide?) {
-        activeGuide = if (guide == null) {
-            activeGuide?.dispose()
+        activeGuideState = if (guide == null) {
+            activeGuideState?.dispose()
             null
         } else {
-            ActivePairDecoration.addGuide(editor, guide, options, activeGuide)
+            ActivePairDecoration.addGuide(editor, guide, options, activeGuideState)
         }
     }
 
@@ -453,13 +469,13 @@ internal class EditorGuideSession private constructor(
         activeRange = null
         activeAnchor?.dispose()
         activeAnchor = null
-        for (highlighter in activePairHighlights) {
+        for (highlighter in activePairHighlightState) {
             if (highlighter.isValid) highlighter.dispose()
         }
-        activePairHighlights = emptyList()
+        activePairHighlightState = emptyList()
         if (!preserveGuide) {
-            activeGuide?.dispose()
-            activeGuide = null
+            activeGuideState?.dispose()
+            activeGuideState = null
         }
         activePairIndex = ActiveBracketPairIndex.NO_PAIR
         activePair = null
@@ -486,7 +502,7 @@ internal class EditorGuideSession private constructor(
     }
 
     private fun currentGuide(): BracketGuide? =
-        ActivePairDecoration.guideOf(activeGuide)
+        ActivePairDecoration.guideOf(activeGuideState)
 
     private fun discardPresentationFromReplacedHighlighter(): Boolean {
         if (activePairResolverHighlighterIdentity ==
@@ -562,10 +578,10 @@ internal class EditorGuideSession private constructor(
             closeTokenLength != other.closeTokenLength
     }
 
-    companion object {
+    public companion object {
         private val KEY = Key.create<EditorGuideSession>("bracket.pair.guides.editor.session")
 
-        fun install(
+        public fun install(
             editor: Editor,
             resolver: ActiveBracketPairResolver,
             visibleRangeProvider: (Editor) -> TextRange,
@@ -584,7 +600,8 @@ internal class EditorGuideSession private constructor(
             }
         }
 
-        fun detached(
+        @TestOnly
+        public fun detached(
             editor: Editor,
             options: PluginOptions,
             visibleRangeProvider: (Editor) -> TextRange,
@@ -600,12 +617,12 @@ internal class EditorGuideSession private constructor(
         }
 
         /** The only session query allowed from a background highlighting pass. */
-        fun hasAcceptedAnalysis(editor: Editor, required: AnalysisStamp): Boolean =
+        public fun hasAcceptedAnalysis(editor: Editor, required: AnalysisStamp): Boolean =
             editor.getUserData(KEY)?.acceptedStamp?.satisfies(required) == true
 
-        fun get(editor: Editor): EditorGuideSession? = editor.getUserData(KEY)
+        public fun get(editor: Editor): EditorGuideSession? = editor.getUserData(KEY)
 
-        fun dispose(editor: Editor) {
+        public fun dispose(editor: Editor): Unit {
             val application = ApplicationManager.getApplication()
             if (!application.isDisposed) assertEdt()
             val session = editor.getUserData(KEY)

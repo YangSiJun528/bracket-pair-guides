@@ -17,8 +17,8 @@ import com.sijunyang.bracketpairguides.presentation.BracketGuideRenderer
 import com.sijunyang.bracketpairguides.presentation.GuidePaintState
 import com.sijunyang.bracketpairguides.presentation.GuideRenderOptions
 import com.sijunyang.bracketpairguides.presentation.guidePaintState
-import com.sijunyang.bracketpairguides.presentation.MAX_VISIBLE_TOKEN_DECORATIONS
 import com.sijunyang.bracketpairguides.presentation.VisibleTokenEntry
+import com.sijunyang.bracketpairguides.presentation.VisibleTokenDecorationManager
 import com.sijunyang.bracketpairguides.presentation.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
@@ -72,7 +72,9 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         assertTrue(activePairHighlighters().isEmpty())
         assertEquals(
             expectedPairCount * 2,
-            first.count { it.textAttributesKey in BracketColorPalette.LEVEL_KEYS },
+            first.count {
+                BracketColorPalette.isLevelKeyForTest(it.textAttributesKey)
+            },
         )
 
         applyPass()
@@ -580,7 +582,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         options = options.copy(
             showActivePairBorder = true,
             showActivePairBackground = true,
-            pairBackgroundOpacityPercent = PluginOptions.DEFAULT_PAIR_BACKGROUND_OPACITY_PERCENT,
+            pairBackgroundOpacityPercent = PluginOptions().pairBackgroundOpacityPercent,
             useIndependentComponentColors = true,
             guideLineColors = options.guideLineColors.updated(2, 0x224466),
             pairBorderColors = options.pairBorderColors.updated(2, 0x335577),
@@ -894,7 +896,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val refreshedColor = Color(0x12, 0x6A, 0xD4)
         val refreshedScheme = EditorColorsSchemeImpl(originalScheme).apply {
             setAttributes(
-                BracketColorPalette.LEVEL_KEYS[0],
+                BracketColorPalette.levelKey(0),
                 TextAttributes().apply { foregroundColor = refreshedColor },
             )
         }
@@ -1260,7 +1262,9 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
 
         val decorations = bracketColorHighlighters()
         assertTrue(decorations.isNotEmpty())
-        assertTrue(decorations.size <= MAX_VISIBLE_TOKEN_DECORATIONS)
+        assertTrue(
+            decorations.size <= VisibleTokenDecorationManager.maximumDecorationCountForTest,
+        )
         assertTrue(
             "Decorations should follow the reported viewport instead of the off-screen caret",
             decorations.minOf { it.startOffset } > 50_000,
@@ -1288,7 +1292,10 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
 
         applyPass(BracketPairProvider { pairs }) { visibleRange }
         val initialDecorations = bracketColorHighlighters()
-        assertEquals(MAX_VISIBLE_TOKEN_DECORATIONS, initialDecorations.size)
+        assertEquals(
+            VisibleTokenDecorationManager.maximumDecorationCountForTest,
+            initialDecorations.size,
+        )
         val initialLastOffset = initialDecorations.maxOf { it.startOffset }
 
         // This viewport still fits in the first padded character window. The
@@ -1297,7 +1304,10 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         session().visibleAreaChanged()
 
         val scrolledDecorations = bracketColorHighlighters()
-        assertEquals(MAX_VISIBLE_TOKEN_DECORATIONS, scrolledDecorations.size)
+        assertEquals(
+            VisibleTokenDecorationManager.maximumDecorationCountForTest,
+            scrolledDecorations.size,
+        )
         assertTrue(
             "Capped decorations must be recentered within a cached character window",
             scrolledDecorations.minOf { it.startOffset } > initialLastOffset,
@@ -1328,7 +1338,10 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             TextRange(0, source.length)
         }
         val initialDecorations = bracketColorHighlighters()
-        assertEquals(MAX_VISIBLE_TOKEN_DECORATIONS, initialDecorations.size)
+        assertEquals(
+            VisibleTokenDecorationManager.maximumDecorationCountForTest,
+            initialDecorations.size,
+        )
         val initialLastOffset = initialDecorations.maxOf { it.startOffset }
         val initialViewportRequests = viewportRequests
 
@@ -1345,7 +1358,10 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
             },
             10_000,
         )
-        assertEquals(MAX_VISIBLE_TOKEN_DECORATIONS, bracketColorHighlighters().size)
+        assertEquals(
+            VisibleTokenDecorationManager.maximumDecorationCountForTest,
+            bracketColorHighlighters().size,
+        )
         assertEquals(initialViewportRequests + 1, viewportRequests)
     }
 
@@ -1442,7 +1458,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         val continueCollection = CountDownLatch(1)
         val capturedDisabledLanguageIds = AtomicReference<Set<String>>()
         val observedGlobalLanguageIds = AtomicReference<Set<String>>()
-        val pass = GuideLineHighlightingPass(
+        val pass = GuideLineHighlightingPass.forTest(
             project = project,
             editor = editor,
             pairProviderFactory = { disabledLanguageIds ->

@@ -1,24 +1,29 @@
 package com.sijunyang.bracketpairguides.analysis
 
+import org.jetbrains.annotations.ApiStatus
+
 /** Immutable bracket pair shared by analysis indexes and editor presentation. */
-internal data class BracketPair(
-    val openOffset: Int,
-    val openTokenLength: Int,
-    val closeOffset: Int,
-    val closeTokenLength: Int,
-    val depth: Int,
-    val openLine: Int,
-    val closeLine: Int,
+@ApiStatus.Internal
+public data class BracketPair(
+    public val openOffset: Int,
+    public val openTokenLength: Int,
+    public val closeOffset: Int,
+    public val closeTokenLength: Int,
+    public val depth: Int,
+    public val openLine: Int,
+    public val closeLine: Int,
 )
 
-internal data class BracketGuide(
-    val pair: BracketPair,
-    val guideColumn: Int,
-    val anchorLine: Int = pair.openLine,
+@ApiStatus.Internal
+public data class BracketGuide(
+    public val pair: BracketPair,
+    public val guideColumn: Int,
+    public val anchorLine: Int = pair.openLine,
 )
 
 /** Overflow-safe validation shared by indexes and every presentation boundary. */
-internal fun BracketPair.hasWellFormedTokenRange(
+@ApiStatus.Internal
+public fun BracketPair.hasWellFormedTokenRange(
     maximumEndOffset: Int = Int.MAX_VALUE,
 ): Boolean {
     if (maximumEndOffset < 0 || openOffset < 0 || closeOffset < 0 ||

@@ -19,10 +19,13 @@ import com.intellij.openapi.editor.event.VisibleAreaEvent
 import com.intellij.openapi.editor.event.VisibleAreaListener
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.util.Alarm
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.TestOnly
 
 /** Routes platform editor events to the state owned by each editor session. */
 @Service(Service.Level.APP)
-internal class EditorGuideEventRouter :
+@ApiStatus.Internal
+public class EditorGuideEventRouter public constructor() :
     CaretListener,
     DocumentListener,
     EditorFactoryListener,
@@ -49,22 +52,22 @@ internal class EditorGuideEventRouter :
             .subscribe(EditorColorsManager.TOPIC, this)
     }
 
-    override fun caretPositionChanged(event: CaretEvent) = onEdt(event.editor) {
+    public override fun caretPositionChanged(event: CaretEvent): Unit = onEdt(event.editor) {
         if (event.caret?.let { it !== event.editor.caretModel.primaryCaret } == true) {
             return@onEdt
         }
         primaryCaretChanged(event.editor)
     }
 
-    override fun caretAdded(event: CaretEvent) = caretPositionChanged(event)
+    public override fun caretAdded(event: CaretEvent): Unit = caretPositionChanged(event)
 
     // The removed caret is no longer primary when this callback runs, so the
     // post-removal primary selection must be refreshed without the event filter.
-    override fun caretRemoved(event: CaretEvent) = onEdt(event.editor) {
+    public override fun caretRemoved(event: CaretEvent): Unit = onEdt(event.editor) {
         primaryCaretChanged(event.editor)
     }
 
-    override fun documentChanged(event: DocumentEvent) {
+    public override fun documentChanged(event: DocumentEvent): Unit {
         val change = DocumentChange.from(event)
         val editors = EditorFactory.getInstance().getEditors(event.document).toList()
         onEdt {
@@ -79,18 +82,18 @@ internal class EditorGuideEventRouter :
         }
     }
 
-    override fun visibleAreaChanged(event: VisibleAreaEvent) = onEdt(event.editor) {
+    public override fun visibleAreaChanged(event: VisibleAreaEvent): Unit = onEdt(event.editor) {
         if (EditorGuideSession.get(event.editor) != null) {
             visibleRefreshBatcher.request(event.editor)
         }
     }
 
-    override fun editorReleased(event: EditorFactoryEvent) {
+    public override fun editorReleased(event: EditorFactoryEvent): Unit {
         visibleRefreshBatcher.remove(event.editor)
         EditorGuideSession.dispose(event.editor)
     }
 
-    override fun globalSchemeChange(scheme: EditorColorsScheme?) {
+    public override fun globalSchemeChange(scheme: EditorColorsScheme?): Unit {
         for (editor in EditorFactory.getInstance().allEditors) {
             onEdt(editor) {
                 EditorGuideSession.get(editor)?.updateOptions(
@@ -102,7 +105,7 @@ internal class EditorGuideEventRouter :
         }
     }
 
-    override fun dispose() {
+    public override fun dispose(): Unit {
         visibleRefreshBatcher.clear()
         for (editor in EditorFactory.getInstance().allEditors) {
             EditorGuideSession.dispose(editor)
@@ -112,7 +115,7 @@ internal class EditorGuideEventRouter :
     private fun primaryCaretChanged(editor: Editor) {
         val session = EditorGuideSession.get(editor) ?: return
         session.caretMoved()
-        if (session.tokenDecorations.isCapped) {
+        if (session.hasCappedTokenDecorations) {
             visibleRefreshBatcher.request(editor)
         }
     }
@@ -132,10 +135,10 @@ internal class EditorGuideEventRouter :
         }
     }
 
-    companion object {
+    public companion object {
         private const val VISIBLE_REFRESH_DELAY_MILLIS = 16
 
-        internal fun routeDocumentChange(
+        private fun routeDocumentChange(
             editors: List<Editor>,
             change: DocumentChange,
             immediateEditor: Editor?,
@@ -155,7 +158,16 @@ internal class EditorGuideEventRouter :
             }
         }
 
-        internal fun preferredImmediateEditor(editors: List<Editor>): Editor? =
+        @TestOnly
+        public fun routeDocumentChangeForTest(
+            editors: List<Editor>,
+            change: DocumentChange,
+            immediateEditor: Editor?,
+        ): Unit {
+            routeDocumentChange(editors, change, immediateEditor)
+        }
+
+        public fun preferredImmediateEditor(editors: List<Editor>): Editor? =
             editors.firstOrNull { editor -> editor.contentComponent.hasFocus() }
                 ?: editors.firstOrNull { editor ->
                     val project = editor.project
@@ -166,7 +178,7 @@ internal class EditorGuideEventRouter :
                 ?: editors.firstOrNull { editor -> editor.contentComponent.isShowing }
                 ?: editors.firstOrNull()
 
-        fun ensureInitialized() {
+        public fun ensureInitialized(): Unit {
             ApplicationManager.getApplication().getService(EditorGuideEventRouter::class.java)
         }
     }

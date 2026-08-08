@@ -5,19 +5,23 @@ import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.GuideIndentation
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.progress.ProgressIndicator
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.TestOnly
 
 /**
  * Precomputes indentation once for the multiline-pair query envelope and
  * answers minimum-indentation queries in O(log indexedLineCount). A naive
  * per-pair body scan becomes quadratic for deeply nested or long scopes.
  */
-internal class GuidePositionIndex private constructor(
+@ApiStatus.Internal
+public class GuidePositionIndex private constructor(
     private val baseLine: Int,
     private val lineCount: Int,
     private val treeSize: Int,
     private val minimumTree: LongArray,
 ) {
-    fun guideFor(pair: BracketPair): BracketGuide {
+    @TestOnly
+    public fun guideFor(pair: BracketPair): BracketGuide {
         guideForOrNull(pair)?.let { return it }
         if (lineCount == 0) return BracketGuide(pair, guideColumn = 0)
 
@@ -28,7 +32,7 @@ internal class GuidePositionIndex private constructor(
         return guideForRange(pair, firstLine, lastLine)
     }
 
-    fun guideForOrNull(pair: BracketPair): BracketGuide? {
+    public fun guideForOrNull(pair: BracketPair): BracketGuide? {
         if (lineCount == 0 || pair.openLine >= pair.closeLine) return null
 
         val firstCandidateLine = lineAfterOpenOrClose(pair.openLine, pair.closeLine)
@@ -80,10 +84,10 @@ internal class GuidePositionIndex private constructor(
         return minimum
     }
 
-    companion object {
-        internal const val NO_INDENT: Int = Int.MAX_VALUE
+    public companion object {
+        public const val NO_INDENT: Int = Int.MAX_VALUE
 
-        fun from(
+        public fun from(
             document: Document,
             tabSize: Int,
             progress: ProgressIndicator,
@@ -94,7 +98,7 @@ internal class GuidePositionIndex private constructor(
             indexedLineRange = 0 until document.lineCount,
         )
 
-        fun from(
+        public fun from(
             document: Document,
             tabSize: Int,
             progress: ProgressIndicator,
@@ -132,7 +136,8 @@ internal class GuidePositionIndex private constructor(
             }
         }
 
-        internal fun from(
+        @TestOnly
+        public fun from(
             text: CharSequence,
             lineStarts: IntArray,
             lineEnds: IntArray,
@@ -147,7 +152,8 @@ internal class GuidePositionIndex private constructor(
             checkCanceled = checkCanceled,
         )
 
-        internal fun from(
+        @TestOnly
+        public fun from(
             text: CharSequence,
             lineStarts: IntArray,
             lineEnds: IntArray,
@@ -226,10 +232,12 @@ internal class GuidePositionIndex private constructor(
          * use the existing bounded active-guide scan; its result can be
          * provisional, but it does not allocate in proportion to line count.
          */
-        internal fun supportsLineCount(lineCount: Int): Boolean = storageFor(lineCount) != null
+        @TestOnly
+        public fun supportsLineCount(lineCount: Int): Boolean = storageFor(lineCount) != null
 
         /** LongArray payload only; excludes the small JVM array header. */
-        internal fun treePayloadBytes(lineCount: Int): Long? = storagePlan(lineCount)?.payloadBytes
+        @TestOnly
+        public fun treePayloadBytes(lineCount: Int): Long? = storagePlan(lineCount)?.payloadBytes
 
         private fun storageFor(lineCount: Int): TreeStorage? = storagePlan(lineCount)
             ?.takeIf { it.payloadBytes <= MAXIMUM_TREE_PAYLOAD_BYTES }
@@ -280,7 +288,7 @@ internal class GuidePositionIndex private constructor(
             return NO_INDENT
         }
 
-        internal fun lineAfterOpenOrClose(openLine: Int, closeLine: Int): Int =
+        public fun lineAfterOpenOrClose(openLine: Int, closeLine: Int): Int =
             if (openLine < closeLine) openLine + 1 else closeLine
 
         private const val CANCELLATION_LINE_MASK = 0xFF
@@ -289,7 +297,7 @@ internal class GuidePositionIndex private constructor(
         private const val NO_INDENT_ENTRY = Long.MAX_VALUE
         private const val UINT_MASK = 0xFFFF_FFFFL
         private const val TREE_ENTRIES_PER_LEAF = 2L
-        internal const val MAXIMUM_TREE_PAYLOAD_BYTES = 16L * 1024 * 1024
+        private const val MAXIMUM_TREE_PAYLOAD_BYTES = 16L * 1024 * 1024
 
         private data class TreeStorage(
             val leafCount: Int,

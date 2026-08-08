@@ -4,31 +4,29 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.fileTypes.FileType
 import com.sijunyang.bracketpairguides.analysis.pairing.IntellijBracketPairingEngine
+import org.jetbrains.annotations.ApiStatus
 
 /** Result of a bounded active-pair lookup. */
-internal sealed interface ActiveBracketPairResolution {
-    data class Complete(val pair: BracketPair?) : ActiveBracketPairResolution
+@ApiStatus.Internal
+public sealed interface ActiveBracketPairResolution {
+    public data class Complete(public val pair: BracketPair?) : ActiveBracketPairResolution
 
     /** The transition/deadline budget was exhausted, or no resolver is available. */
-    data object Incomplete : ActiveBracketPairResolution
+    public data object Incomplete : ActiveBracketPairResolution
 }
 
 /** Fast-path recognition used while the full highlighting snapshot is absent or stale. */
-internal fun interface ActiveBracketPairResolver {
-    fun findInnermost(editor: Editor, caretOffset: Int): ActiveBracketPairResolution
+@ApiStatus.Internal
+public fun interface ActiveBracketPairResolver {
+    public fun findInnermost(editor: Editor, caretOffset: Int): ActiveBracketPairResolution
 
-    companion object {
-        val NONE = ActiveBracketPairResolver { _, _ -> ActiveBracketPairResolution.Incomplete }
+    public companion object {
+        public val NONE: ActiveBracketPairResolver =
+            ActiveBracketPairResolver { _, _ -> ActiveBracketPairResolution.Incomplete }
     }
 }
 
-internal fun interface MonotonicClock {
-    fun nowNanos(): Long
-}
-
-private object SystemMonotonicClock : MonotonicClock {
-    override fun nowNanos(): Long = System.nanoTime()
-}
+private val systemMonotonicClock: () -> Long = System::nanoTime
 
 /**
  * Searches backward for opening-token candidates, then runs the same forward
@@ -39,12 +37,13 @@ private object SystemMonotonicClock : MonotonicClock {
  * The elapsed ceiling is best-effort for a single language-matcher callback,
  * which cannot be interrupted while it is running.
  */
-internal class EditorHighlighterActiveBracketPairResolver(
+@ApiStatus.Internal
+public class EditorHighlighterActiveBracketPairResolver(
     private val fileType: FileType,
     private val tokenBudget: Int = DEFAULT_TOKEN_BUDGET,
     private val isLanguageEnabled: (String) -> Boolean = { true },
     private val elapsedBudgetNanos: Long = DEFAULT_ELAPSED_BUDGET_NANOS,
-    private val clock: MonotonicClock = SystemMonotonicClock,
+    private val clock: () -> Long = systemMonotonicClock,
 ) : ActiveBracketPairResolver {
     override fun findInnermost(
         editor: Editor,
@@ -197,11 +196,11 @@ internal class EditorHighlighterActiveBracketPairResolver(
     private class TraversalBudget(
         maximumTransitions: Int,
         maximumElapsedNanos: Long,
-        private val clock: MonotonicClock,
+        private val clock: () -> Long,
     ) {
         private var remaining = maximumTransitions.coerceAtLeast(1)
         private val elapsedLimitNanos = maximumElapsedNanos.coerceAtLeast(1L)
-        private val startedAtNanos = clock.nowNanos()
+        private val startedAtNanos = clock()
 
         val exhausted: Boolean
             get() = remaining == 0 || elapsedNanos() >= elapsedLimitNanos
@@ -212,12 +211,12 @@ internal class EditorHighlighterActiveBracketPairResolver(
             return true
         }
 
-        private fun elapsedNanos(): Long = clock.nowNanos() - startedAtNanos
+        private fun elapsedNanos(): Long = clock() - startedAtNanos
     }
 
     private object TraversalBudgetExceeded : RuntimeException(null, null, false, false)
 
-    companion object {
+    private companion object {
         private const val DEFAULT_TOKEN_BUDGET = 512
         private const val DEFAULT_ELAPSED_BUDGET_NANOS = 4_000_000L
     }

@@ -29,13 +29,18 @@ coordinates analysis with presentation. This keeps the recognition core usable
 by both the bounded immediate path and the background highlighting pass without
 introducing parallel implementations.
 
-The plugin exposes no Kotlin library API. Production declarations are
-`internal` or file-private, and Kotlin explicit API mode rejects accidental
-implicit-public declarations. IntelliJ-created services and extension classes
-remain JVM-accessible for platform reflection. Because Kotlin `internal` is a
-module boundary rather than package-private visibility, package dependency
-direction is a maintained architectural rule; a separate Gradle module should
-be added only when that boundary needs compiler enforcement.
+The plugin exposes no supported Kotlin library API. File-local implementation
+is `private`; contracts shared between source files are explicitly `public` and
+marked with JetBrains' `@ApiStatus.Internal`. Kotlin explicit API mode rejects
+an accidental public declaration that does not state its visibility and type.
+IntelliJ-created services and extension classes use the same marker while
+remaining public for descriptor and service reflection.
+
+`@ApiStatus.Internal` is an IDE and Plugin Verifier contract, not JVM access
+control. It warns external consumers but does not prevent bytecode calls.
+Kotlin has no package-private visibility, so package dependency direction
+remains an architectural rule; a separate Gradle module should be added only
+when that boundary needs compiler enforcement.
 
 ## Recognition boundary
 

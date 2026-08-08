@@ -2,6 +2,7 @@ package com.sijunyang.bracketpairguides.analysis.index
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.hasWellFormedTokenRange
+import org.jetbrains.annotations.ApiStatus
 
 /**
  * Maps a caret offset to the innermost bracket pair that strictly contains it.
@@ -10,11 +11,12 @@ import com.sijunyang.bracketpairguides.analysis.hasWellFormedTokenRange
  * allocating two event objects plus priority-queue wrappers for every pair.
  * Caret movement is a binary search over the resulting immutable segments.
  */
-internal class ActiveBracketPairIndex private constructor(
+@ApiStatus.Internal
+public class ActiveBracketPairIndex private constructor(
     private val segmentStarts: IntArray,
     private val segmentPairIndices: IntArray,
 ) {
-    internal fun activePairIndex(caretOffset: Int): Int {
+    public fun activePairIndex(caretOffset: Int): Int {
         if (caretOffset < 0 || segmentStarts.isEmpty()) return NO_PAIR
 
         var low = 0
@@ -32,8 +34,8 @@ internal class ActiveBracketPairIndex private constructor(
         return if (segment >= 0) segmentPairIndices[segment] else NO_PAIR
     }
 
-    companion object {
-        fun build(
+    public companion object {
+        public fun build(
             pairs: List<BracketPair>,
             checkCanceled: () -> Unit = {},
         ): ActiveBracketPairIndex {
@@ -129,7 +131,7 @@ internal class ActiveBracketPairIndex private constructor(
 
         private val EMPTY = ActiveBracketPairIndex(IntArray(0), IntArray(0))
 
-        internal const val NO_PAIR = -1
+        public const val NO_PAIR: Int = -1
         private const val EVENTS_PER_PAIR = 2
         private const val EVENT_KIND_BITS = 1
         private const val EVENT_KIND_MASK = 1

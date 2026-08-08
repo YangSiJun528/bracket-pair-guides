@@ -1,5 +1,7 @@
 package com.sijunyang.bracketpairguides.analysis.pairing
 
+import org.jetbrains.annotations.ApiStatus
+
 /**
  * One-pass pairing state for language brace matchers.
  *
@@ -12,21 +14,22 @@ package com.sijunyang.bracketpairguides.analysis.pairing
  * this streaming API cannot know whether it will match later. Bounded active
  * lookup may track one candidate offset; full analysis retains no offset map.
  */
-internal class BraceMatcherStack<T, G>(
+@ApiStatus.Internal
+public class BraceMatcherStack<T, G>(
     private val trackedOpenOffset: Int? = null,
 ) {
-    data class Open<T>(
-        val token: T,
-        val context: String?,
-        val strictContext: Boolean,
-        val structural: Boolean,
-        val offset: Int,
-        val tokenLength: Int,
-        val line: Int,
-        val depth: Int,
+    public data class Open<T>(
+        public val token: T,
+        public val context: String?,
+        public val strictContext: Boolean,
+        public val structural: Boolean,
+        public val offset: Int,
+        public val tokenLength: Int,
+        public val line: Int,
+        public val depth: Int,
     )
 
-    data class Match<T>(val open: Open<T>)
+    public data class Match<T>(public val open: Open<T>)
 
     private data class ContextKey<T>(val token: T, val context: String?)
 
@@ -47,7 +50,7 @@ internal class BraceMatcherStack<T, G>(
     private val states = HashMap<G, State<T>>()
     private var trackedOpenCount = 0
 
-    fun open(
+    public fun open(
         group: G,
         token: T,
         context: String?,
@@ -56,7 +59,7 @@ internal class BraceMatcherStack<T, G>(
         line: Int,
         strictContext: Boolean = false,
         structural: Boolean = false,
-    ) {
+    ): Unit {
         val state = states.getOrPut(group) { State() }
         val open = Open(
             token = token,
@@ -79,10 +82,10 @@ internal class BraceMatcherStack<T, G>(
         }
     }
 
-    fun containsOpenAt(offset: Int): Boolean =
+    public fun containsOpenAt(offset: Int): Boolean =
         offset == trackedOpenOffset && trackedOpenCount > 0
 
-    fun close(
+    public fun close(
         group: G,
         token: T,
         context: String?,
@@ -274,6 +277,6 @@ internal class BraceMatcherStack<T, G>(
     }
 
     private companion object {
-        const val CANCELLATION_MASK = 0xFF
+        private const val CANCELLATION_MASK = 0xFF
     }
 }

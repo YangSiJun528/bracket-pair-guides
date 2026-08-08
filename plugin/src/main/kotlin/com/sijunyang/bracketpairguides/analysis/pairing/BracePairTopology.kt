@@ -2,9 +2,11 @@ package com.sijunyang.bracketpairguides.analysis.pairing
 
 import com.intellij.lang.BracePair
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.annotations.ApiStatus
 
 /** Distinguishes a true symmetric toggle from a token with mixed brace roles. */
-internal class BracePairTopology(pairs: Array<BracePair>) {
+@ApiStatus.Internal
+public class BracePairTopology(pairs: Array<BracePair>) {
     private val closesByOpen = HashMap<IElementType, MutableSet<IElementType>>(pairs.size)
     private val opensByClose = HashMap<IElementType, MutableSet<IElementType>>(pairs.size)
     private val structuralClosesByOpen =
@@ -23,16 +25,16 @@ internal class BracePairTopology(pairs: Array<BracePair>) {
         }
     }
 
-    fun isStructuralOpen(type: IElementType): Boolean =
+    public fun isStructuralOpen(type: IElementType): Boolean =
         structuralClosesByOpen.containsKey(type)
 
-    fun isStructuralPair(left: IElementType, right: IElementType): Boolean =
+    public fun isStructuralPair(left: IElementType, right: IElementType): Boolean =
         structuralClosesByOpen[left]?.contains(right) == true
 
-    fun isStructuralClose(type: IElementType): Boolean =
+    public fun isStructuralClose(type: IElementType): Boolean =
         type in structuralCloses
 
-    fun isPureSymmetric(type: IElementType): Boolean {
+    public fun isPureSymmetric(type: IElementType): Boolean {
         val outgoing = closesByOpen[type] ?: return false
         val incoming = opensByClose[type] ?: return false
         return outgoing.size == 1 && type in outgoing &&

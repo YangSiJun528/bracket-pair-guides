@@ -20,8 +20,8 @@ base {
 
 kotlin {
     jvmToolchain(17)
-    // This plugin is not a library. Platform entry points stay Kotlin-internal
-    // while remaining JVM-accessible for descriptor and service reflection.
+    // This plugin is not a library. Cross-file contracts are explicitly public
+    // and marked ApiStatus.Internal; file-local implementation stays private.
     explicitApi()
     compilerOptions {
         // IntelliJ Platform 2024.1 bundles Kotlin stdlib 1.9.22.

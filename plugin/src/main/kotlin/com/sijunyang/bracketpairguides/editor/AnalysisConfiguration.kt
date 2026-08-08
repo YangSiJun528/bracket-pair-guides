@@ -2,9 +2,11 @@ package com.sijunyang.bracketpairguides.editor
 
 import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
 import com.sijunyang.bracketpairguides.settings.PluginOptions
+import org.jetbrains.annotations.ApiStatus
 
 /** Maps persisted options to the analysis work required by editor sessions. */
-internal fun PluginOptions.analysisCapabilities(): AnalysisCapabilities {
+@ApiStatus.Internal
+public fun PluginOptions.analysisCapabilities(): AnalysisCapabilities {
     val activePair = enabled && (showsGuide || showsActivePair)
     return AnalysisCapabilities(
         tokens = enabled && colorBracketTokens,

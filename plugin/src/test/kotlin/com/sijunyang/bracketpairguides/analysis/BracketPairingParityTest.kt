@@ -617,7 +617,7 @@ class BracketPairingParityTest : BasePlatformTestCase() {
         const val DEFAULT_GROUP = 7
         const val SHARED_GROUP = 41
         const val DEFAULT_ACTIVE_TOKEN_BUDGET = 512
-        val FROZEN_CLOCK = MonotonicClock { 0L }
+        val FROZEN_CLOCK: () -> Long = { 0L }
 
         val OTHER_LANGUAGE = object : Language("BRACKET_PAIRING_PARITY_OTHER") {}
         val OTHER = IElementType("PARITY_OTHER", OTHER_LANGUAGE)

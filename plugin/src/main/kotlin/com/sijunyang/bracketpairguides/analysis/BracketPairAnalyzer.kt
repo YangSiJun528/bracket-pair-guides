@@ -6,6 +6,8 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.ProgressIndicator
 import com.sijunyang.bracketpairguides.analysis.pairing.IntellijBracketPairingEngine
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.TestOnly
 
 /**
  * Pairs tokens recognized by each token language's `lang.braceMatcher`.
@@ -14,18 +16,21 @@ import com.sijunyang.bracketpairguides.analysis.pairing.IntellijBracketPairingEn
  * raw characters nor falls back to the legacy file-type brace matcher. A
  * language without a registered matcher is therefore deliberately ignored.
  */
-internal class BracketPairAnalyzer(
+@ApiStatus.Internal
+public class BracketPairAnalyzer(
     private val editor: Editor,
     private val fileType: FileType,
     private val isLanguageEnabled: (String) -> Boolean = { true },
 ) : BracketPairProvider {
-    constructor(editor: Editor) : this(
+    @TestOnly
+    public constructor(editor: Editor) : this(
         editor = editor,
         fileType = FileDocumentManager.getInstance().getFile(editor.document)?.fileType
             ?: PlainTextFileType.INSTANCE,
     )
 
-    constructor(
+    @TestOnly
+    public constructor(
         editor: Editor,
         isLanguageEnabled: (String) -> Boolean,
     ) : this(
@@ -66,6 +71,6 @@ internal class BracketPairAnalyzer(
     }
 
     private companion object {
-        const val CANCELLATION_MASK = 0xFF
+        private const val CANCELLATION_MASK = 0xFF
     }
 }
