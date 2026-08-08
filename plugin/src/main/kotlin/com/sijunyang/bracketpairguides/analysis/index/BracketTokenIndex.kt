@@ -1,6 +1,7 @@
 package com.sijunyang.bracketpairguides.analysis.index
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.hasWellFormedTokenRange
 
 /** Compact, offset-sorted lookup for bracket tokens near the editor viewport. */
 internal class BracketTokenIndex private constructor(

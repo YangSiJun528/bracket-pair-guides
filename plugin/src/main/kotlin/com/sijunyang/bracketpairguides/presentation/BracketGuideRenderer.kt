@@ -1,6 +1,6 @@
 package com.sijunyang.bracketpairguides.presentation
 
-import com.sijunyang.bracketpairguides.analysis.index.hasWellFormedTokenRange
+import com.sijunyang.bracketpairguides.analysis.hasWellFormedTokenRange
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.editor.VisualPosition
@@ -24,7 +24,7 @@ import java.awt.geom.Path2D
  */
 internal object BracketGuideRenderer : CustomHighlighterRenderer {
     override fun paint(editor: Editor, highlighter: RangeHighlighter, graphics: Graphics) {
-        val state = highlighter.getUserData(GUIDE_PAINT_STATE_KEY) ?: return
+        val state = highlighter.guidePaintState() ?: return
         val guide = state.guide
         val options = state.options
         if (!highlighter.isValid || editor.isDisposed) return

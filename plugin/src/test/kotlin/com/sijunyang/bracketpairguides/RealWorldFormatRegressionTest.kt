@@ -5,7 +5,7 @@ import com.sijunyang.bracketpairguides.analysis.index.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.presentation.BracketGuideRenderer
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.sijunyang.bracketpairguides.editor.highlighting.GuideLineHighlightingPass
-import com.sijunyang.bracketpairguides.presentation.GUIDE_PAINT_STATE_KEY
+import com.sijunyang.bracketpairguides.presentation.ActivePairDecoration
 import com.sijunyang.bracketpairguides.presentation.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
@@ -154,7 +154,7 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
             assertEquals(
                 "$fileName chose the wrong active pair at offset $offset",
                 expected,
-                activeGuide?.getUserData(GUIDE_PAINT_STATE_KEY)?.guide?.pair,
+                ActivePairDecoration.guideOf(activeGuide)?.pair,
             )
             assertEquals(
                 "$fileName must highlight two symbols exactly when a pair is active at $offset",

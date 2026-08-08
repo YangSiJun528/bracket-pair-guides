@@ -7,12 +7,10 @@ import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
 import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshot
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.index.ActiveBracketPairIndex
-import com.sijunyang.bracketpairguides.analysis.index.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.hasWellFormedTokenRange
 import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
-import com.sijunyang.bracketpairguides.analysis.index.hasWellFormedTokenRange
 import com.sijunyang.bracketpairguides.presentation.ActivePairDecoration
-import com.sijunyang.bracketpairguides.presentation.GUIDE_PAINT_STATE_KEY
-import com.sijunyang.bracketpairguides.presentation.GuidePaintState
 import com.sijunyang.bracketpairguides.presentation.VisibleTokenDecorationManager
 import com.sijunyang.bracketpairguides.presentation.VisibleTokenDecorations
 import com.sijunyang.bracketpairguides.settings.PluginOptions
@@ -339,7 +337,7 @@ internal class EditorGuideSession private constructor(
 
     /** Keeps inactive split editors coherent without multiplying the resolver budget. */
     private fun refreshAdjustedPair(pair: BracketPair) {
-        val previousGuide = paintState()?.guide
+        val previousGuide = currentGuide()
         val guide = when {
             !options.enabled || !options.showsGuide -> null
             pair.openLine == pair.closeLine -> BracketGuide(pair, guideColumn = 0)
@@ -357,7 +355,7 @@ internal class EditorGuideSession private constructor(
     }
 
     private fun refreshProvisionalPair(pair: BracketPair, change: DocumentChange?) {
-        val previousGuide = paintState()?.guide
+        val previousGuide = currentGuide()
         val currentAnchorLine = activeAnchorLine()
         val guide = createGuide(pair, null, previousGuide, currentAnchorLine, change)
         updateGuide(guide)
@@ -372,7 +370,7 @@ internal class EditorGuideSession private constructor(
         positionIndex: GuidePositionIndex?,
         change: DocumentChange?,
     ) {
-        val previousGuide = paintState()?.guide
+        val previousGuide = currentGuide()
         val currentAnchorLine = activeAnchorLine()
         clearActive(preserveGuide = true)
         if (pair == null || !options.enabled ||
@@ -487,8 +485,8 @@ internal class EditorGuideSession private constructor(
         )
     }
 
-    private fun paintState(): GuidePaintState? =
-        activeGuide?.takeIf(RangeHighlighter::isValid)?.getUserData(GUIDE_PAINT_STATE_KEY)
+    private fun currentGuide(): BracketGuide? =
+        ActivePairDecoration.guideOf(activeGuide)
 
     private fun discardPresentationFromReplacedHighlighter(): Boolean {
         if (activePairResolverHighlighterIdentity ==

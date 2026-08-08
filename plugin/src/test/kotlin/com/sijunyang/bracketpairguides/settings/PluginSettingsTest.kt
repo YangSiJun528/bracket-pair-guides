@@ -43,13 +43,13 @@ class PluginSettingsTest {
 
         settings.loadState(state)
 
-        assertEquals(PluginSettings.MAX_GUIDE_LINE_WIDTH, settings.state.guideLineWidth)
+        assertEquals(PluginOptions.MAX_GUIDE_LINE_WIDTH, settings.state.guideLineWidth)
         assertEquals(
-            PluginSettings.MIN_GUIDE_OPACITY_PERCENT,
+            PluginOptions.MIN_GUIDE_OPACITY_PERCENT,
             settings.state.guideOpacityPercent,
         )
         assertEquals(
-            PluginSettings.MAX_PAIR_BACKGROUND_OPACITY_PERCENT,
+            PluginOptions.MAX_PAIR_BACKGROUND_OPACITY_PERCENT,
             settings.state.pairBackgroundOpacityPercent,
         )
         assertEquals(StoredBracketColors.COLOR_COUNT, settings.state.levelBaseColors.size)

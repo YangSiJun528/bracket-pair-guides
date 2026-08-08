@@ -7,7 +7,7 @@ import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.index.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.analysis.index.BracketTokenIndex
 import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
-import com.sijunyang.bracketpairguides.presentation.GUIDE_PAINT_STATE_KEY
+import com.sijunyang.bracketpairguides.presentation.ActivePairDecoration
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
@@ -66,7 +66,7 @@ class GuidePositionFallbackTest : BasePlatformTestCase() {
             )
 
             val guide = checkNotNull(
-                session.activeGuide?.getUserData(GUIDE_PAINT_STATE_KEY)?.guide,
+                ActivePairDecoration.guideOf(session.activeGuide),
             )
             assertEquals(4, guide.guideColumn)
             assertEquals(pair.closeLine, guide.anchorLine)

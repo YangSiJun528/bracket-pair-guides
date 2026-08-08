@@ -17,17 +17,25 @@ APIs or dependency plumbing:
 
 | Package | Responsibility |
 |---|---|
-| `analysis`, `analysis.pairing`, `analysis.index` | Brace recognition, pairing rules, immutable snapshots, and lookup indexes |
-| `editor`, `editor.highlighting` | Editor events, session lifetime, immediate resolution, and IntelliJ highlighting passes |
+| `analysis`, `analysis.pairing`, `analysis.index` | Installed matcher capabilities, brace recognition, pairing rules, immutable snapshots, and lookup indexes |
+| `editor`, `editor.highlighting` | Editor events, session lifetime, settings propagation, immediate resolution, and IntelliJ highlighting passes |
 | `presentation` | Token and active-pair decorations, palette resolution, and guide painting |
 | `settings` | Immutable persisted options and stable stored-value normalization |
-| `settings.ui` | Platform Settings controls and propagation of applied values to live editors |
+| `settings.ui` | Platform Settings controls, binding, Apply, and Reset entry points |
 
 `analysis` does not depend on editor, presentation, or settings types. The
 editor layer translates persisted options into analysis capabilities and
 coordinates analysis with presentation. This keeps the recognition core usable
 by both the bounded immediate path and the background highlighting pass without
 introducing parallel implementations.
+
+The plugin exposes no Kotlin library API. Production declarations are
+`internal` or file-private, and Kotlin explicit API mode rejects accidental
+implicit-public declarations. IntelliJ-created services and extension classes
+remain JVM-accessible for platform reflection. Because Kotlin `internal` is a
+module boundary rather than package-private visibility, package dependency
+direction is a maintained architectural rule; a separate Gradle module should
+be added only when that boundary needs compiler enforcement.
 
 ## Recognition boundary
 

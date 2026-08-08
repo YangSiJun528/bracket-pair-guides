@@ -1,14 +1,10 @@
 package com.sijunyang.bracketpairguides.analysis.index
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.GuideIndentation
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.progress.ProgressIndicator
-
-internal data class BracketGuide(
-    val pair: BracketPair,
-    val guideColumn: Int,
-    val anchorLine: Int = pair.openLine,
-)
 
 /**
  * Precomputes indentation once for the multiline-pair query envelope and

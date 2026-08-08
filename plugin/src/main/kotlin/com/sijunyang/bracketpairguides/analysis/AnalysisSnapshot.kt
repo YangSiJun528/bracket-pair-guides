@@ -5,7 +5,6 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.sijunyang.bracketpairguides.analysis.index.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.analysis.index.BracketTokenIndex
 import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
-import com.sijunyang.bracketpairguides.analysis.index.hasWellFormedTokenRange
 
 internal data class AnalysisCapabilities(
     val tokens: Boolean,

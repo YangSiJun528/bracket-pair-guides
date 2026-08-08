@@ -9,14 +9,14 @@ import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
 import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshotBuilder
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.EditorHighlighterActiveBracketPairResolver
-import com.sijunyang.bracketpairguides.analysis.index.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.pairing.LanguageBraceMatchers
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.sijunyang.bracketpairguides.editor.analysisCapabilities
 import com.sijunyang.bracketpairguides.presentation.BracketGuideRenderer
-import com.sijunyang.bracketpairguides.presentation.GUIDE_PAINT_STATE_KEY
 import com.sijunyang.bracketpairguides.presentation.GuidePaintState
 import com.sijunyang.bracketpairguides.presentation.GuideRenderOptions
+import com.sijunyang.bracketpairguides.presentation.guidePaintState
 import com.sijunyang.bracketpairguides.presentation.MAX_VISIBLE_TOKEN_DECORATIONS
 import com.sijunyang.bracketpairguides.presentation.VisibleTokenEntry
 import com.sijunyang.bracketpairguides.presentation.BracketColorPalette
@@ -580,7 +580,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
         options = options.copy(
             showActivePairBorder = true,
             showActivePairBackground = true,
-            pairBackgroundOpacityPercent = PluginSettings.DEFAULT_PAIR_BACKGROUND_OPACITY_PERCENT,
+            pairBackgroundOpacityPercent = PluginOptions.DEFAULT_PAIR_BACKGROUND_OPACITY_PERCENT,
             useIndependentComponentColors = true,
             guideLineColors = options.guideLineColors.updated(2, 0x224466),
             pairBorderColors = options.pairBorderColors.updated(2, 0x335577),
@@ -1811,7 +1811,7 @@ class GuideLineHighlightingPassTest : BasePlatformTestCase() {
     }
 
     private fun activeGuideState(): GuidePaintState? =
-        activeGuide()?.getUserData(GUIDE_PAINT_STATE_KEY)
+        activeGuide()?.guidePaintState()
 
     private fun session(): EditorGuideSession =
         checkNotNull(EditorGuideSession.get(myFixture.editor))

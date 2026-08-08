@@ -1,10 +1,9 @@
 package com.sijunyang.bracketpairguides.presentation
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.index.BracketGuide
-import com.sijunyang.bracketpairguides.analysis.index.hasWellFormedTokenRange
+import com.sijunyang.bracketpairguides.analysis.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.hasWellFormedTokenRange
 import com.sijunyang.bracketpairguides.settings.PluginOptions
-import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.markup.HighlighterLayer
@@ -41,20 +40,19 @@ internal object ActivePairDecoration {
             }
         return highlighter.also {
             it.customRenderer = BracketGuideRenderer
-            it.putUserData(
-                GUIDE_PAINT_STATE_KEY,
+            it.putGuidePaintState(
                 GuidePaintState(
                     guide = guide,
                     options = GuideRenderOptions(
                         showVertical = settings.showVerticalGuide,
                         showHorizontal = settings.showHorizontalGuides,
                         lineWidth = settings.guideLineWidth.coerceIn(
-                            PluginSettings.MIN_GUIDE_LINE_WIDTH,
-                            PluginSettings.MAX_GUIDE_LINE_WIDTH,
+                            PluginOptions.MIN_GUIDE_LINE_WIDTH,
+                            PluginOptions.MAX_GUIDE_LINE_WIDTH,
                         ),
                         opacityPercent = settings.guideOpacityPercent.coerceIn(
-                            PluginSettings.MIN_GUIDE_OPACITY_PERCENT,
-                            PluginSettings.MAX_GUIDE_OPACITY_PERCENT,
+                            PluginOptions.MIN_GUIDE_OPACITY_PERCENT,
+                            PluginOptions.MAX_GUIDE_OPACITY_PERCENT,
                         ),
                     ),
                     color = BracketColorPalette.guideLineColor(
@@ -66,6 +64,12 @@ internal object ActivePairDecoration {
             )
         }
     }
+
+    fun guideOf(highlighter: RangeHighlighter?): BracketGuide? =
+        highlighter
+            ?.takeIf(RangeHighlighter::isValid)
+            ?.guidePaintState()
+            ?.guide
 
     fun addPairHighlights(
         editor: Editor,

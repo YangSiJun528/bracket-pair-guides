@@ -1,7 +1,8 @@
 package com.sijunyang.bracketpairguides.settings.ui
 
-import com.sijunyang.bracketpairguides.analysis.pairing.LanguageBraceMatchers
-import com.sijunyang.bracketpairguides.analysis.pairing.SupportedBraceLanguage
+import com.sijunyang.bracketpairguides.analysis.BracketLanguageSupport
+import com.sijunyang.bracketpairguides.analysis.BraceLanguageFamily
+import com.sijunyang.bracketpairguides.editor.EditorGuideSettingsApplier
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.sijunyang.bracketpairguides.settings.StoredBracketColors
@@ -21,11 +22,12 @@ import com.intellij.ui.layout.ComponentPredicate
 import com.intellij.ui.layout.and
 import com.intellij.ui.layout.or
 import java.awt.Color
+import java.util.Locale
 
 /** Standard platform controls bound directly to the persisted plugin options. */
 internal class PluginConfigurable(
-    private val supportedLanguagesProvider: () -> List<SupportedBraceLanguage> =
-        LanguageBraceMatchers::supportedLanguages,
+    private val supportedLanguagesProvider: () -> List<BraceLanguageFamily> =
+        BracketLanguageSupport::installedFamilies,
 ) : BoundConfigurable("Bracket Pair Guides") {
     private var appliedSnapshot = PluginOptions()
 
@@ -47,13 +49,20 @@ internal class PluginConfigurable(
 
             group("Languages") {
                 val supportedLanguages = supportedLanguagesProvider()
+                    .map(::languageSetting)
+                    .sortedWith(
+                        compareBy<LanguageSetting>(
+                            { language -> language.displayName.lowercase(Locale.ROOT) },
+                            LanguageSetting::id,
+                        ),
+                    )
                 if (supportedLanguages.isEmpty()) {
                     row {
                         comment("No installed language provides brace-matching support.")
                     }
                 } else {
                     val duplicateNames = supportedLanguages
-                        .groupingBy(SupportedBraceLanguage::displayName)
+                        .groupingBy(LanguageSetting::displayName)
                         .eachCount()
                     for (language in supportedLanguages) {
                         val label = if (duplicateNames.getValue(language.displayName) > 1) {
@@ -129,8 +138,8 @@ internal class PluginConfigurable(
                         row("Width (px):") {
                             boundSpinner(
                                 settings,
-                                PluginSettings.MIN_GUIDE_LINE_WIDTH..
-                                    PluginSettings.MAX_GUIDE_LINE_WIDTH,
+                                PluginOptions.MIN_GUIDE_LINE_WIDTH..
+                                    PluginOptions.MAX_GUIDE_LINE_WIDTH,
                                 "guideLineWidth",
                                 PluginOptions::guideLineWidth,
                             ) { options, value -> options.copy(guideLineWidth = value) }
@@ -138,8 +147,8 @@ internal class PluginConfigurable(
                         row("Opacity:") {
                             boundSpinner(
                                 settings,
-                                PluginSettings.MIN_GUIDE_OPACITY_PERCENT..
-                                    PluginSettings.MAX_GUIDE_OPACITY_PERCENT,
+                                PluginOptions.MIN_GUIDE_OPACITY_PERCENT..
+                                    PluginOptions.MAX_GUIDE_OPACITY_PERCENT,
                                 "guideOpacityPercent",
                                 PluginOptions::guideOpacityPercent,
                                 5,
@@ -179,8 +188,8 @@ internal class PluginConfigurable(
                     row("Opacity:") {
                         boundSpinner(
                             settings,
-                            PluginSettings.MIN_PAIR_BACKGROUND_OPACITY_PERCENT..
-                                PluginSettings.MAX_PAIR_BACKGROUND_OPACITY_PERCENT,
+                            PluginOptions.MIN_PAIR_BACKGROUND_OPACITY_PERCENT..
+                                PluginOptions.MAX_PAIR_BACKGROUND_OPACITY_PERCENT,
                             "pairBackgroundOpacityPercent",
                             PluginOptions::pairBackgroundOpacityPercent,
                         ) { options, value ->
@@ -246,7 +255,7 @@ internal class PluginConfigurable(
 
             onApply {
                 val applied = settings.options
-                SettingsApplyCoordinator.applyChanges(appliedSnapshot, applied)
+                EditorGuideSettingsApplier.applyChanges(appliedSnapshot, applied)
                 appliedSnapshot = applied
             }
             onReset {
@@ -315,7 +324,28 @@ internal class PluginConfigurable(
             .enabledIf(enabled)
     }
 
-    private fun languageDescription(language: SupportedBraceLanguage): String {
+    private fun languageSetting(family: BraceLanguageFamily): LanguageSetting {
+        val isCustomFileType = family.id == CUSTOM_FILE_TYPE_LANGUAGE_ID
+        return LanguageSetting(
+            id = family.id,
+            displayName = if (isCustomFileType) {
+                "Custom file types"
+            } else {
+                family.owner.displayName.ifBlank { family.id }
+            },
+            familyDisplayNames = family.members
+                .map { language -> language.displayName.ifBlank { language.id } }
+                .distinct()
+                .sortedWith(String.CASE_INSENSITIVE_ORDER),
+            constraintDescription = if (isCustomFileType) {
+                "Custom syntax-table bracket tokens only; raw plain text is not scanned"
+            } else {
+                null
+            },
+        )
+    }
+
+    private fun languageDescription(language: LanguageSetting): String {
         val family = language.familyDisplayNames.joinToString()
         return buildList {
             add("Matcher family ID: ${language.id}")
@@ -325,6 +355,13 @@ internal class PluginConfigurable(
             language.constraintDescription?.let(::add)
         }.joinToString(". ", postfix = ".")
     }
+
+    private data class LanguageSetting(
+        val id: String,
+        val displayName: String,
+        val familyDisplayNames: List<String>,
+        val constraintDescription: String?,
+    )
 
     private enum class ColorTarget(
         val displayName: String,
@@ -350,5 +387,9 @@ internal class PluginConfigurable(
                 BORDER -> options.copy(pairBorderColors = colors)
                 BACKGROUND -> options.copy(pairBackgroundColors = colors)
             }
+    }
+
+    private companion object {
+        const val CUSTOM_FILE_TYPE_LANGUAGE_ID = "TEXT"
     }
 }

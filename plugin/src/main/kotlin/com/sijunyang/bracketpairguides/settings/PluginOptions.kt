@@ -11,13 +11,13 @@ internal data class PluginOptions(
     @JvmField @field:Property val showVerticalGuide: Boolean = true,
     @JvmField @field:Property val showHorizontalGuides: Boolean = true,
     @JvmField @field:Property val guideLineWidth: Int =
-        PluginSettings.DEFAULT_GUIDE_LINE_WIDTH,
+        DEFAULT_GUIDE_LINE_WIDTH,
     @JvmField @field:Property val guideOpacityPercent: Int =
-        PluginSettings.DEFAULT_GUIDE_OPACITY_PERCENT,
+        DEFAULT_GUIDE_OPACITY_PERCENT,
     @JvmField @field:Property val showActivePairBorder: Boolean = false,
     @JvmField @field:Property val showActivePairBackground: Boolean = false,
     @JvmField @field:Property val pairBackgroundOpacityPercent: Int =
-        PluginSettings.DEFAULT_PAIR_BACKGROUND_OPACITY_PERCENT,
+        DEFAULT_PAIR_BACKGROUND_OPACITY_PERCENT,
     @JvmField @field:Property val useIndependentComponentColors: Boolean = false,
     @JvmField @field:Property val levelBaseColors: List<Int> =
         StoredBracketColors.automaticColors(),
@@ -37,4 +37,16 @@ internal data class PluginOptions(
 
     val showsGuide: Boolean
         get() = showActiveGuide && (showVerticalGuide || showHorizontalGuides)
+
+    companion object {
+        const val MIN_GUIDE_LINE_WIDTH = 1
+        const val MAX_GUIDE_LINE_WIDTH = 4
+        const val DEFAULT_GUIDE_LINE_WIDTH = 1
+        const val MIN_GUIDE_OPACITY_PERCENT = 10
+        const val MAX_GUIDE_OPACITY_PERCENT = 100
+        const val DEFAULT_GUIDE_OPACITY_PERCENT = 100
+        const val MIN_PAIR_BACKGROUND_OPACITY_PERCENT = 0
+        const val MAX_PAIR_BACKGROUND_OPACITY_PERCENT = 100
+        const val DEFAULT_PAIR_BACKGROUND_OPACITY_PERCENT = 22
+    }
 }

@@ -1,24 +1,46 @@
-package com.sijunyang.bracketpairguides.settings.ui
+package com.sijunyang.bracketpairguides.editor
 
+import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.project.ProjectManager
+import org.jetbrains.annotations.TestOnly
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
-/**
- * Bridges the daemon restart API across the supported 2024.1–2026.2 range.
- *
- * The reason overload was added after 2024.1, while the no-argument overload is
- * deprecated in current IDEs. Reflection keeps both calls out of the plugin's
- * static linkage and prefers the current API whenever it is available.
- */
-internal object DaemonRestartBridge {
+/** Propagates applied plugin options to live editor sessions and the daemon. */
+internal object EditorGuideSettingsApplier {
     private const val RESTART_REASON = "Bracket Pair Guides settings changed"
 
     private val restartMethods = object : ClassValue<Method>() {
         override fun computeValue(type: Class<*>): Method = resolveRestartMethod(type)
     }
 
-    fun restart(analyzer: DaemonCodeAnalyzer) {
+    fun applyChanges(previous: PluginOptions, applied: PluginOptions) {
+        if (previous == applied) return
+
+        val capabilitiesChanged = previous.analysisCapabilities() !=
+            applied.analysisCapabilities()
+        val languagesChanged = previous.disabledLanguageIds != applied.disabledLanguageIds
+        val sessionEditors = EditorFactory.getInstance().allEditors.filter { editor ->
+            !editor.isDisposed && EditorGuideSession.get(editor) != null
+        }
+        val immediateEditor = EditorGuideEventRouter.preferredImmediateEditor(sessionEditors)
+
+        for (editor in sessionEditors) {
+            EditorGuideSession.get(editor)?.updateOptions(
+                applied,
+                resolveImmediately = editor === immediateEditor,
+            )
+        }
+        if (capabilitiesChanged || languagesChanged) {
+            for (project in ProjectManager.getInstance().openProjects) {
+                restartDaemon(DaemonCodeAnalyzer.getInstance(project))
+            }
+        }
+    }
+
+    private fun restartDaemon(analyzer: DaemonCodeAnalyzer) {
         val restartMethod = restartMethods.get(analyzer.javaClass)
         try {
             if (restartMethod.parameterCount == 0) {
@@ -38,6 +60,7 @@ internal object DaemonRestartBridge {
         }
     }
 
+    @TestOnly
     internal fun resolveRestartMethod(
         type: Class<*>,
         unsupportedModernOwner: Class<*> = DaemonCodeAnalyzer::class.java,

@@ -34,16 +34,16 @@ internal class PluginSettings : SerializablePersistentStateComponent<PluginOptio
             .sorted()
             .toSet(),
         guideLineWidth = guideLineWidth.coerceIn(
-            MIN_GUIDE_LINE_WIDTH,
-            MAX_GUIDE_LINE_WIDTH,
+            PluginOptions.MIN_GUIDE_LINE_WIDTH,
+            PluginOptions.MAX_GUIDE_LINE_WIDTH,
         ),
         guideOpacityPercent = guideOpacityPercent.coerceIn(
-            MIN_GUIDE_OPACITY_PERCENT,
-            MAX_GUIDE_OPACITY_PERCENT,
+            PluginOptions.MIN_GUIDE_OPACITY_PERCENT,
+            PluginOptions.MAX_GUIDE_OPACITY_PERCENT,
         ),
         pairBackgroundOpacityPercent = pairBackgroundOpacityPercent.coerceIn(
-            MIN_PAIR_BACKGROUND_OPACITY_PERCENT,
-            MAX_PAIR_BACKGROUND_OPACITY_PERCENT,
+            PluginOptions.MIN_PAIR_BACKGROUND_OPACITY_PERCENT,
+            PluginOptions.MAX_PAIR_BACKGROUND_OPACITY_PERCENT,
         ),
         levelBaseColors = StoredBracketColors.normalizeColors(levelBaseColors),
         guideLineColors = StoredBracketColors.normalizeColors(guideLineColors),
@@ -52,16 +52,6 @@ internal class PluginSettings : SerializablePersistentStateComponent<PluginOptio
     )
 
     companion object {
-        const val MIN_GUIDE_LINE_WIDTH = 1
-        const val MAX_GUIDE_LINE_WIDTH = 4
-        const val DEFAULT_GUIDE_LINE_WIDTH = 1
-        const val MIN_GUIDE_OPACITY_PERCENT = 10
-        const val MAX_GUIDE_OPACITY_PERCENT = 100
-        const val DEFAULT_GUIDE_OPACITY_PERCENT = 100
-        const val MIN_PAIR_BACKGROUND_OPACITY_PERCENT = 0
-        const val MAX_PAIR_BACKGROUND_OPACITY_PERCENT = 100
-        const val DEFAULT_PAIR_BACKGROUND_OPACITY_PERCENT = 22
-
         fun getInstance(): PluginSettings {
             return ApplicationManager.getApplication().getService(PluginSettings::class.java)
         }

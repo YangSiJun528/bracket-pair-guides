@@ -1,5 +1,6 @@
-package com.sijunyang.bracketpairguides.analysis.pairing
+package com.sijunyang.bracketpairguides.analysis
 
+import com.sijunyang.bracketpairguides.analysis.pairing.LanguageBraceMatchers
 import com.intellij.lang.BracePair
 import com.intellij.lang.Language
 import com.intellij.lang.LanguageBraceMatching
@@ -8,15 +9,14 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IElementType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
-class LanguageBraceMatchersTest : BasePlatformTestCase() {
+class BracketLanguageSupportTest : BasePlatformTestCase() {
     fun testTextMatcherIsPresentedAsCustomFileTypeCapability() {
-        val family = LanguageBraceMatchers.supportedLanguages().single { language ->
+        val family = BracketLanguageSupport.installedFamilies().single { language ->
             language.id == "TEXT"
         }
 
-        assertEquals("Custom file types", family.displayName)
-        assertTrue(family.familyDisplayNames.contains("Plain text"))
-        assertTrue(family.constraintDescription.orEmpty().contains("raw plain text"))
+        assertEquals("TEXT", family.owner.id)
+        assertTrue(family.members.any { language -> language.displayName == "Plain text" })
     }
 
     fun testMatcherFamilyWithoutStandaloneFileTypeIsExposedToSettings() {
@@ -25,15 +25,15 @@ class LanguageBraceMatchersTest : BasePlatformTestCase() {
         LanguageBraceMatching.INSTANCE.addExplicitExtension(EMBEDDED_LANGUAGE, MATCHER)
 
         try {
-            val supported = LanguageBraceMatchers.supportedLanguages()
+            val supported = BracketLanguageSupport.installedFamilies()
             val family = supported.single { language ->
                 language.id == EMBEDDED_LANGUAGE.id
             }
 
-            assertEquals(EMBEDDED_LANGUAGE.displayName, family.displayName)
+            assertSame(EMBEDDED_LANGUAGE, family.owner)
             assertEquals(
-                setOf(EMBEDDED_LANGUAGE.displayName, EMBEDDED_DIALECT.displayName),
-                family.familyDisplayNames.toSet(),
+                setOf(EMBEDDED_LANGUAGE.id, EMBEDDED_DIALECT.id),
+                family.members.mapTo(mutableSetOf(), Language::getID),
             )
             assertEquals(
                 EMBEDDED_LANGUAGE.id,

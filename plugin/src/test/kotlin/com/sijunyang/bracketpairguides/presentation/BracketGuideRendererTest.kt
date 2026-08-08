@@ -1,7 +1,7 @@
 package com.sijunyang.bracketpairguides.presentation
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.index.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.EditorCustomElementRenderer
 import com.intellij.openapi.editor.Inlay
@@ -455,8 +455,7 @@ class BracketGuideRendererTest : BasePlatformTestCase() {
             HighlighterLayer.ADDITIONAL_SYNTAX,
             HighlighterTargetArea.EXACT_RANGE,
         ).also {
-            it.putUserData(
-                GUIDE_PAINT_STATE_KEY,
+            it.putGuidePaintState(
                 GuidePaintState(BracketGuide(pair, 0), DEFAULT_OPTIONS, Color.WHITE),
             )
         }
@@ -484,8 +483,7 @@ class BracketGuideRendererTest : BasePlatformTestCase() {
             HighlighterLayer.ADDITIONAL_SYNTAX,
             HighlighterTargetArea.EXACT_RANGE,
         ).also { highlighter ->
-            highlighter.putUserData(
-                GUIDE_PAINT_STATE_KEY,
+            highlighter.putGuidePaintState(
                 GuidePaintState(
                     BracketGuide(pair, guideColumn, anchorLine),
                     options,

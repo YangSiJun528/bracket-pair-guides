@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.analysis.index
+package com.sijunyang.bracketpairguides.analysis
 
 /** Overflow-safe visual-column arithmetic shared by indexed and provisional guides. */
 internal object GuideIndentation {

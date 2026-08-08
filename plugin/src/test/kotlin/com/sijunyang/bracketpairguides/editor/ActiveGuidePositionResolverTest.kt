@@ -1,8 +1,8 @@
 package com.sijunyang.bracketpairguides.editor
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.index.BracketGuide
-import com.sijunyang.bracketpairguides.analysis.index.GuideIndentation
+import com.sijunyang.bracketpairguides.analysis.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.GuideIndentation
 import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.progress.EmptyProgressIndicator

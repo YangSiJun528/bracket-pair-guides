@@ -1,7 +1,8 @@
 package com.sijunyang.bracketpairguides.presentation
 
 import com.intellij.openapi.util.Key
-import com.sijunyang.bracketpairguides.analysis.index.BracketGuide
+import com.intellij.openapi.editor.markup.RangeHighlighter
+import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import java.awt.Color
 
 internal data class GuideRenderOptions(
@@ -17,5 +18,12 @@ internal data class GuidePaintState(
     val color: Color,
 )
 
-internal val GUIDE_PAINT_STATE_KEY: Key<GuidePaintState> =
+private val GUIDE_PAINT_STATE_KEY: Key<GuidePaintState> =
     Key.create("bracket.pair.guides.paint.state")
+
+internal fun RangeHighlighter.guidePaintState(): GuidePaintState? =
+    getUserData(GUIDE_PAINT_STATE_KEY)
+
+internal fun RangeHighlighter.putGuidePaintState(state: GuidePaintState) {
+    putUserData(GUIDE_PAINT_STATE_KEY, state)
+}

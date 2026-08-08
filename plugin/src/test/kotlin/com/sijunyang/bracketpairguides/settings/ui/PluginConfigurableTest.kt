@@ -1,13 +1,14 @@
 package com.sijunyang.bracketpairguides.settings.ui
 
-import com.sijunyang.bracketpairguides.analysis.pairing.SupportedBraceLanguage
 import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolution
 import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolver
+import com.sijunyang.bracketpairguides.analysis.BraceLanguageFamily
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.sijunyang.bracketpairguides.settings.StoredBracketColors
 import com.intellij.openapi.editor.EditorFactory
+import com.intellij.lang.Language
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.ui.ColorPanel
@@ -92,18 +93,18 @@ class PluginConfigurableTest : BasePlatformTestCase() {
 
     fun testLanguageBindingsPreserveUnavailableDisabledIds() {
         val languages = listOf(
-            SupportedBraceLanguage("alpha", "Alpha", listOf("Alpha")),
-            SupportedBraceLanguage("beta", "Beta", listOf("Beta", "Beta Dialect")),
+            ALPHA_FAMILY,
+            BETA_FAMILY,
         )
         PluginSettings.getInstance().loadState(
             PluginOptions(
-                disabledLanguageIds = setOf(UNAVAILABLE_LANGUAGE_ID, "beta"),
+                disabledLanguageIds = setOf(UNAVAILABLE_LANGUAGE_ID, BETA_LANGUAGE_ID),
             ),
         )
 
         withConfigurable(languages) { configurable, component ->
-            val alpha = component.languageCheckBox("alpha")
-            val beta = component.languageCheckBox("beta")
+            val alpha = component.languageCheckBox(ALPHA_LANGUAGE_ID)
+            val beta = component.languageCheckBox(BETA_LANGUAGE_ID)
             assertTrue(alpha.isSelected)
             assertFalse(beta.isSelected)
             assertTrue(beta.toolTipText.contains("Beta Dialect"))
@@ -113,10 +114,20 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             configurable.apply()
 
             assertEquals(
-                setOf(UNAVAILABLE_LANGUAGE_ID, "alpha"),
+                setOf(UNAVAILABLE_LANGUAGE_ID, ALPHA_LANGUAGE_ID),
                 PluginSettings.getInstance().options.disabledLanguageIds,
             )
             assertFalse(configurable.isModified)
+        }
+    }
+
+    fun testCustomFileTypeLanguageUsesSettingsSpecificLabelAndConstraint() {
+        withConfigurable(listOf(TEXT_FAMILY)) {
+                _, component ->
+            val language = component.languageCheckBox("TEXT")
+
+            assertEquals("Custom file types", language.text)
+            assertTrue(language.toolTipText.contains("raw plain text"))
         }
     }
 
@@ -176,7 +187,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
     }
 
     fun testApplyingLanguageChangeRunsOneImmediateResolverAcrossEditors() {
-        val language = SupportedBraceLanguage("alpha", "Alpha", listOf("Alpha"))
+        val language = ALPHA_FAMILY
         val editorFactory = EditorFactory.getInstance()
         val document = editorFactory.createDocument("{ value }")
         val firstEditor = editorFactory.createEditor(document, project)
@@ -202,7 +213,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             )
 
             withConfigurable(listOf(language)) { configurable, component ->
-                component.languageCheckBox("alpha").doClick()
+                component.languageCheckBox(ALPHA_LANGUAGE_ID).doClick()
                 configurable.apply()
             }
 
@@ -216,7 +227,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
     }
 
     private inline fun withConfigurable(
-        supportedLanguages: List<SupportedBraceLanguage>,
+        supportedLanguages: List<BraceLanguageFamily>,
         block: (PluginConfigurable, Component) -> Unit,
     ) {
         val configurable = PluginConfigurable { supportedLanguages }
@@ -265,5 +276,32 @@ class PluginConfigurableTest : BasePlatformTestCase() {
 
     private companion object {
         const val UNAVAILABLE_LANGUAGE_ID = "BRACKET_PAIR_GUIDES_UNAVAILABLE_TEST"
+        const val ALPHA_LANGUAGE_ID = "BRACKET_PAIR_GUIDES_ALPHA_TEST"
+        const val BETA_LANGUAGE_ID = "BRACKET_PAIR_GUIDES_BETA_TEST"
+
+        val ALPHA_LANGUAGE = object : Language(ALPHA_LANGUAGE_ID) {
+            override fun getDisplayName(): String = "Alpha"
+        }
+        val BETA_LANGUAGE = object : Language(BETA_LANGUAGE_ID) {
+            override fun getDisplayName(): String = "Beta"
+        }
+        val BETA_DIALECT = object : Language("${BETA_LANGUAGE_ID}_DIALECT") {
+            override fun getDisplayName(): String = "Beta Dialect"
+        }
+        val ALPHA_FAMILY = BraceLanguageFamily(
+            id = ALPHA_LANGUAGE_ID,
+            owner = ALPHA_LANGUAGE,
+            members = listOf(ALPHA_LANGUAGE),
+        )
+        val BETA_FAMILY = BraceLanguageFamily(
+            id = BETA_LANGUAGE_ID,
+            owner = BETA_LANGUAGE,
+            members = listOf(BETA_LANGUAGE, BETA_DIALECT),
+        )
+        val TEXT_FAMILY: BraceLanguageFamily
+            get() {
+                val text = checkNotNull(Language.findLanguageByID("TEXT"))
+                return BraceLanguageFamily("TEXT", text, listOf(text))
+            }
     }
 }

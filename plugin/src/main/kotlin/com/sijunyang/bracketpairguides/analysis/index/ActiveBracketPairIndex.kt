@@ -1,6 +1,7 @@
 package com.sijunyang.bracketpairguides.analysis.index
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.hasWellFormedTokenRange
 
 /**
  * Maps a caret offset to the innermost bracket pair that strictly contains it.

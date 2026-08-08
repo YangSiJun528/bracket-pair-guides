@@ -1,19 +1,19 @@
-package com.sijunyang.bracketpairguides.settings.ui
+package com.sijunyang.bracketpairguides.editor
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class DaemonRestartBridgeTest {
+class EditorGuideSettingsApplierTest {
     @Test
     fun `uses legacy no-argument restart when reason overload is absent`() {
-        val method = DaemonRestartBridge.resolveRestartMethod(LegacyAnalyzer::class.java)
+        val method = EditorGuideSettingsApplier.resolveRestartMethod(LegacyAnalyzer::class.java)
 
         assertEquals(0, method.parameterCount)
     }
 
     @Test
     fun `prefers current reason overload when both forms exist`() {
-        val method = DaemonRestartBridge.resolveRestartMethod(CurrentAnalyzer::class.java)
+        val method = EditorGuideSettingsApplier.resolveRestartMethod(CurrentAnalyzer::class.java)
 
         assertEquals(1, method.parameterCount)
         assertEquals(Any::class.java, method.parameterTypes.single())
@@ -21,7 +21,7 @@ class DaemonRestartBridgeTest {
 
     @Test
     fun `falls back when legacy subclass inherits unsupported modern default`() {
-        val method = DaemonRestartBridge.resolveRestartMethod(
+        val method = EditorGuideSettingsApplier.resolveRestartMethod(
             LegacySubclass::class.java,
             unsupportedModernOwner = ModernApiBase::class.java,
         )
