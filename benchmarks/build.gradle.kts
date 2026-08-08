@@ -13,25 +13,14 @@ kotlin {
     }
 }
 
-sourceSets {
-    main {
-        kotlin.setSrcDirs(
-            listOf(
-                "src/main/kotlin",
-                "../plugin/src/main/kotlin",
-            ),
-        )
-        kotlin.include(
-            "com/sijunyang/bracketpairguides/benchmarks/**",
-            "com/sijunyang/bracketpairguides/analysis/index/CancellableLongArraySort.kt",
-        )
-    }
-}
-
 dependencies {
     // The plugin module uses the Kotlin runtime bundled with IntelliJ. This
     // standalone benchmark process needs its own runtime on the JMH classpath.
     implementation(kotlin("stdlib"))
+
+    // Use the compiled production class instead of registering the plugin's
+    // source directory as a second IntelliJ module source root.
+    jmhImplementation(project(":plugin"))
 }
 
 val smokeRun = providers.gradleProperty("benchmarkSmoke")

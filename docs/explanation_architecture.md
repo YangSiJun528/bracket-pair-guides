@@ -8,9 +8,9 @@ resolver and never starts a full synchronous document scan.
 ## Module and package boundaries
 
 The repository has two Gradle modules. `plugin` is the deployable IntelliJ
-plugin, while `benchmarks` compiles selected production primitives into an
-isolated JMH harness. The plugin remains one Gradle module because its internal
-parts share the same IntelliJ runtime and release lifecycle.
+plugin, while `benchmarks` runs selected compiled production primitives through
+an isolated JMH harness. The plugin remains one Gradle module because its
+internal parts share the same IntelliJ runtime and release lifecycle.
 
 Inside `plugin`, packages separate responsibilities without adding module-level
 APIs or dependency plumbing:

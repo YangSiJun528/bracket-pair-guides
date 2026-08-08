@@ -10,9 +10,11 @@ plugin.
 - An otherwise idle machine
 - The same JDK, heap settings, and power mode for every comparison
 
-The module compiles the production
-`CancellableLongArraySort.kt` source directly. Do not copy that implementation
-into the benchmark module because the copy can drift from the shipped code.
+The module depends on the compiled `plugin` project and invokes its production
+`CancellableLongArraySort.kt` implementation. It neither copies the
+implementation nor registers the plugin source directory as a benchmark source
+root, so the benchmark cannot drift from the shipped class or confuse IDE
+module ownership.
 
 ## Run a smoke benchmark
 
