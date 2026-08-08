@@ -1,8 +1,8 @@
 package com.sijunyang.bracketpairguides.presentation
 
 import com.sijunyang.bracketpairguides.analysis.index.BracketTokenIndex
-import com.sijunyang.bracketpairguides.settings.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.PluginOptions
+import com.sijunyang.bracketpairguides.settings.StoredBracketColors
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.ex.MarkupModelEx
@@ -339,7 +339,7 @@ internal object VisibleTokenDecorationManager {
     }
 
     private class TokenPalette(editor: Editor, options: PluginOptions) {
-        val attributes = Array(BracketColorPalette.COLOR_COUNT) { level ->
+        val attributes = Array(StoredBracketColors.COLOR_COUNT) { level ->
             BracketColorPalette.bracketTextAttributes(editor.colorsScheme, options, level)
         }
     }

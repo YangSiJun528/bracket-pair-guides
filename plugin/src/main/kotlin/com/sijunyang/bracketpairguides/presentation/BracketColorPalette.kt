@@ -1,5 +1,7 @@
-package com.sijunyang.bracketpairguides.settings
+package com.sijunyang.bracketpairguides.presentation
 
+import com.sijunyang.bracketpairguides.settings.PluginOptions
+import com.sijunyang.bracketpairguides.settings.StoredBracketColors
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.colors.TextAttributesKey
@@ -13,17 +15,15 @@ import java.awt.Color
  * and painting makes the palette rules deterministic and directly testable.
  */
 internal object BracketColorPalette {
-    const val COLOR_COUNT = 6
-    const val AUTOMATIC_COLOR = -1
+    val LEVEL_KEYS: Array<TextAttributesKey> =
+        Array(StoredBracketColors.COLOR_COUNT) { index ->
+            TextAttributesKey.createTextAttributesKey(
+                "BRACKET_PAIR_GUIDES_BRACKET_DEPTH_${index + 1}",
+                DefaultLanguageHighlighterColors.BRACES,
+            )
+        }
 
-    val LEVEL_KEYS: Array<TextAttributesKey> = Array(COLOR_COUNT) { index ->
-        TextAttributesKey.createTextAttributesKey(
-            "BRACKET_PAIR_GUIDES_BRACKET_DEPTH_${index + 1}",
-            DefaultLanguageHighlighterColors.BRACES,
-        )
-    }
-
-    fun levelIndex(depth: Int): Int = depth.mod(COLOR_COUNT)
+    fun levelIndex(depth: Int): Int = depth.mod(StoredBracketColors.COLOR_COUNT)
 
     fun baseColor(
         scheme: EditorColorsScheme,
@@ -31,7 +31,9 @@ internal object BracketColorPalette {
         depth: Int,
     ): Color {
         val index = levelIndex(depth)
-        return storedColor(settings.levelBaseColors.getOrNull(index))
+        return StoredBracketColors.storedColor(
+            settings.levelBaseColors.getOrNull(index),
+        )
             ?: scheme.getAttributes(LEVEL_KEYS[index]).foregroundColor
             ?: scheme.defaultForeground
     }
@@ -107,20 +109,6 @@ internal object BracketColorPalette {
         settings.showActivePairBackground &&
             settings.pairBackgroundOpacityPercent.coerceIn(0, 100) > 0
 
-    fun colorToStoredValue(color: Color): Int = color.rgb and 0x00FF_FFFF
-
-    fun storedColor(value: Int?): Color? {
-        if (value == null || value !in 0..0x00FF_FFFF) return null
-        return Color(value)
-    }
-
-    fun normalizeColors(colors: List<Int>): List<Int> {
-        return List(COLOR_COUNT) { index ->
-            colors.getOrNull(index)?.takeIf { it in 0..0x00FF_FFFF }
-                ?: AUTOMATIC_COLOR
-        }
-    }
-
     private fun componentColor(
         scheme: EditorColorsScheme,
         settings: PluginOptions,
@@ -129,7 +117,7 @@ internal object BracketColorPalette {
     ): Color {
         val index = levelIndex(depth)
         if (settings.useIndependentComponentColors) {
-            storedColor(overrides.getOrNull(index))?.let { return it }
+            StoredBracketColors.storedColor(overrides.getOrNull(index))?.let { return it }
         }
         return baseColor(scheme, settings, depth)
     }

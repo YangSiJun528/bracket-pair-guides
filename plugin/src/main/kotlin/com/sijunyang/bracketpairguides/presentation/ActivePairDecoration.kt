@@ -3,7 +3,6 @@ package com.sijunyang.bracketpairguides.presentation
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.index.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.index.hasWellFormedTokenRange
-import com.sijunyang.bracketpairguides.settings.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.openapi.editor.Editor

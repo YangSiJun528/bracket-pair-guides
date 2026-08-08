@@ -1,9 +1,12 @@
-package com.sijunyang.bracketpairguides.settings
+package com.sijunyang.bracketpairguides.settings.ui
 
 import com.sijunyang.bracketpairguides.analysis.pairing.SupportedBraceLanguage
 import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolution
 import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolver
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
+import com.sijunyang.bracketpairguides.settings.PluginOptions
+import com.sijunyang.bracketpairguides.settings.PluginSettings
+import com.sijunyang.bracketpairguides.settings.StoredBracketColors
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -37,7 +40,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             assertTrue("Pair background" in checkBoxes)
             assertTrue("Component overrides" in checkBoxes)
             assertEquals(
-                BracketColorPalette.COLOR_COUNT * 4,
+                StoredBracketColors.COLOR_COUNT * 4,
                 component.descendants().filterIsInstance<ColorPanel>().size,
             )
             assertEquals(
@@ -145,7 +148,7 @@ class PluginConfigurableTest : BasePlatformTestCase() {
             val applied = PluginSettings.getInstance().options
             assertEquals(0x654321, applied.levelBaseColors[0])
             assertEquals(
-                BracketColorPalette.AUTOMATIC_COLOR,
+                StoredBracketColors.AUTOMATIC_COLOR,
                 applied.guideLineColors[0],
             )
             assertEquals(0x102030, applied.pairBorderColors[0])
@@ -253,12 +256,12 @@ class PluginConfigurableTest : BasePlatformTestCase() {
     }
 
     private fun colorsWithFirst(color: Int): List<Int> =
-        List(BracketColorPalette.COLOR_COUNT) { index ->
-            if (index == 0) color else BracketColorPalette.AUTOMATIC_COLOR
+        List(StoredBracketColors.COLOR_COUNT) { index ->
+            if (index == 0) color else StoredBracketColors.AUTOMATIC_COLOR
         }
 
     private fun isAutomatic(color: Int): Boolean =
-        color == BracketColorPalette.AUTOMATIC_COLOR
+        color == StoredBracketColors.AUTOMATIC_COLOR
 
     private companion object {
         const val UNAVAILABLE_LANGUAGE_ID = "BRACKET_PAIR_GUIDES_UNAVAILABLE_TEST"

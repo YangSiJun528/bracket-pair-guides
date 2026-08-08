@@ -21,7 +21,7 @@
 
         <applicationConfigurable
                 parentId="editor"
-                instance="com.sijunyang.bracketpairguides.settings.PluginConfigurable"
+                instance="com.sijunyang.bracketpairguides.settings.ui.PluginConfigurable"
                 id="com.sijunyang.bracketpairguides.settings.PluginConfigurable"
                 displayName="Bracket Pair Guides"/>
 

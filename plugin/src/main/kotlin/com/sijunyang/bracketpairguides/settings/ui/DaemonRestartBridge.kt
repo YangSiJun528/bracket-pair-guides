@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.settings
+package com.sijunyang.bracketpairguides.settings.ui
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import java.lang.reflect.InvocationTargetException

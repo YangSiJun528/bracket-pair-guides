@@ -19,7 +19,7 @@ import com.sijunyang.bracketpairguides.presentation.GuidePaintState
 import com.sijunyang.bracketpairguides.presentation.GuideRenderOptions
 import com.sijunyang.bracketpairguides.presentation.MAX_VISIBLE_TOKEN_DECORATIONS
 import com.sijunyang.bracketpairguides.presentation.VisibleTokenEntry
-import com.sijunyang.bracketpairguides.settings.BracketColorPalette
+import com.sijunyang.bracketpairguides.presentation.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.openapi.application.ReadAction

@@ -1,5 +1,7 @@
-package com.sijunyang.bracketpairguides.settings
+package com.sijunyang.bracketpairguides.presentation
 
+import com.sijunyang.bracketpairguides.settings.PluginOptions
+import com.sijunyang.bracketpairguides.settings.StoredBracketColors
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import java.awt.Color
@@ -9,11 +11,11 @@ class BracketColorPaletteTest : BasePlatformTestCase() {
         myFixture.configureByText("Sample.java", "class Sample {}")
         val scheme = myFixture.editor.colorsScheme
         val state = PluginOptions()
-        val baseColors = (0 until BracketColorPalette.COLOR_COUNT).map { depth ->
+        val baseColors = (0 until StoredBracketColors.COLOR_COUNT).map { depth ->
             BracketColorPalette.baseColor(scheme, state, depth)
         }
 
-        assertEquals(BracketColorPalette.COLOR_COUNT, baseColors.toSet().size)
+        assertEquals(StoredBracketColors.COLOR_COUNT, baseColors.toSet().size)
         baseColors.forEachIndexed { depth, baseColor ->
             assertEquals(baseColor, BracketColorPalette.guideLineColor(scheme, state, depth))
             assertEquals(baseColor, BracketColorPalette.pairBorderColor(scheme, state, depth))

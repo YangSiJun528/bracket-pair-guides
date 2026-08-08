@@ -6,7 +6,7 @@ import com.sijunyang.bracketpairguides.presentation.BracketGuideRenderer
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.sijunyang.bracketpairguides.editor.highlighting.GuideLineHighlightingPass
 import com.sijunyang.bracketpairguides.presentation.GUIDE_PAINT_STATE_KEY
-import com.sijunyang.bracketpairguides.settings.BracketColorPalette
+import com.sijunyang.bracketpairguides.presentation.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.openapi.application.ReadAction

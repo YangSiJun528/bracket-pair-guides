@@ -1,14 +1,11 @@
-package com.sijunyang.bracketpairguides.settings
+package com.sijunyang.bracketpairguides.settings.ui
 
 import com.sijunyang.bracketpairguides.analysis.pairing.LanguageBraceMatchers
 import com.sijunyang.bracketpairguides.analysis.pairing.SupportedBraceLanguage
-import com.sijunyang.bracketpairguides.editor.EditorGuideEventRouter
-import com.sijunyang.bracketpairguides.editor.EditorGuideSession
-import com.sijunyang.bracketpairguides.editor.analysisCapabilities
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
-import com.intellij.openapi.editor.EditorFactory
+import com.sijunyang.bracketpairguides.settings.PluginOptions
+import com.sijunyang.bracketpairguides.settings.PluginSettings
+import com.sijunyang.bracketpairguides.settings.StoredBracketColors
 import com.intellij.openapi.options.BoundConfigurable
-import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.ColorPanel
 import com.intellij.ui.JBIntSpinner
@@ -214,7 +211,7 @@ internal class PluginConfigurable(
                         label(target.displayName)
                     }
                 }
-                for (level in 0 until BracketColorPalette.COLOR_COUNT) {
+                for (level in 0 until StoredBracketColors.COLOR_COUNT) {
                     row("${level + 1}:") {
                         for (target in ColorTarget.entries) {
                             val predicate = if (target == ColorTarget.BASE) {
@@ -249,7 +246,7 @@ internal class PluginConfigurable(
 
             onApply {
                 val applied = settings.options
-                applyOptions(appliedSnapshot, applied)
+                SettingsApplyCoordinator.applyChanges(appliedSnapshot, applied)
                 appliedSnapshot = applied
             }
             onReset {
@@ -290,14 +287,14 @@ internal class PluginConfigurable(
     ): Cell<ColorPanel> {
         val property = MutableProperty<Color?>(
             {
-                BracketColorPalette.storedColor(
+                StoredBracketColors.storedColor(
                     target.colors(settings.options).getOrNull(level),
                 )
             },
             { color ->
                 val options = settings.options
-                val storedValue = color?.let(BracketColorPalette::colorToStoredValue)
-                    ?: BracketColorPalette.AUTOMATIC_COLOR
+                val storedValue = color?.let(StoredBracketColors::colorToStoredValue)
+                    ?: StoredBracketColors.AUTOMATIC_COLOR
                 val colors = target.colors(options).mapIndexed { index, value ->
                     if (index == level) storedValue else value
                 }
@@ -316,29 +313,6 @@ internal class PluginConfigurable(
                 property,
             )
             .enabledIf(enabled)
-    }
-
-    private fun applyOptions(previous: PluginOptions, applied: PluginOptions) {
-        if (previous == applied) return
-        val capabilitiesChanged = previous.analysisCapabilities() !=
-            applied.analysisCapabilities()
-        val languagesChanged = previous.disabledLanguageIds != applied.disabledLanguageIds
-
-        val sessionEditors = EditorFactory.getInstance().allEditors.filter { editor ->
-            !editor.isDisposed && EditorGuideSession.get(editor) != null
-        }
-        val immediateEditor = EditorGuideEventRouter.preferredImmediateEditor(sessionEditors)
-        for (editor in sessionEditors) {
-            EditorGuideSession.get(editor)?.updateOptions(
-                applied,
-                resolveImmediately = editor === immediateEditor,
-            )
-        }
-        if (capabilitiesChanged || languagesChanged) {
-            for (project in ProjectManager.getInstance().openProjects) {
-                DaemonRestartBridge.restart(DaemonCodeAnalyzer.getInstance(project))
-            }
-        }
     }
 
     private fun languageDescription(language: SupportedBraceLanguage): String {

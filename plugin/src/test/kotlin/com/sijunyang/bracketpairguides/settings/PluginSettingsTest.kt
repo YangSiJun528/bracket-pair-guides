@@ -22,10 +22,10 @@ class PluginSettingsTest {
         assertFalse(state.showActivePairBorder)
         assertFalse(state.showActivePairBackground)
         assertFalse(state.useIndependentComponentColors)
-        assertTrue(state.levelBaseColors.all { it == BracketColorPalette.AUTOMATIC_COLOR })
-        assertTrue(state.guideLineColors.all { it == BracketColorPalette.AUTOMATIC_COLOR })
-        assertTrue(state.pairBorderColors.all { it == BracketColorPalette.AUTOMATIC_COLOR })
-        assertTrue(state.pairBackgroundColors.all { it == BracketColorPalette.AUTOMATIC_COLOR })
+        assertTrue(state.levelBaseColors.all { it == StoredBracketColors.AUTOMATIC_COLOR })
+        assertTrue(state.guideLineColors.all { it == StoredBracketColors.AUTOMATIC_COLOR })
+        assertTrue(state.pairBorderColors.all { it == StoredBracketColors.AUTOMATIC_COLOR })
+        assertTrue(state.pairBackgroundColors.all { it == StoredBracketColors.AUTOMATIC_COLOR })
         assertEquals(1, state.guideLineWidth)
         assertEquals(100, state.guideOpacityPercent)
         assertEquals(22, state.pairBackgroundOpacityPercent)
@@ -52,10 +52,10 @@ class PluginSettingsTest {
             PluginSettings.MAX_PAIR_BACKGROUND_OPACITY_PERCENT,
             settings.state.pairBackgroundOpacityPercent,
         )
-        assertEquals(BracketColorPalette.COLOR_COUNT, settings.state.levelBaseColors.size)
+        assertEquals(StoredBracketColors.COLOR_COUNT, settings.state.levelBaseColors.size)
         assertEquals(0x123456, settings.state.levelBaseColors[0])
-        assertEquals(BracketColorPalette.AUTOMATIC_COLOR, settings.state.levelBaseColors[1])
-        assertEquals(BracketColorPalette.AUTOMATIC_COLOR, settings.state.levelBaseColors[2])
+        assertEquals(StoredBracketColors.AUTOMATIC_COLOR, settings.state.levelBaseColors[1])
+        assertEquals(StoredBracketColors.AUTOMATIC_COLOR, settings.state.levelBaseColors[2])
     }
 
     @Test
@@ -95,10 +95,10 @@ class PluginSettingsTest {
             showActivePairBackground = true,
             pairBackgroundOpacityPercent = 45,
             useIndependentComponentColors = true,
-            levelBaseColors = List(BracketColorPalette.COLOR_COUNT) { 0x101010 + it },
-            guideLineColors = List(BracketColorPalette.COLOR_COUNT) { 0x202020 + it },
-            pairBorderColors = List(BracketColorPalette.COLOR_COUNT) { 0x303030 + it },
-            pairBackgroundColors = List(BracketColorPalette.COLOR_COUNT) { 0x404040 + it },
+            levelBaseColors = List(StoredBracketColors.COLOR_COUNT) { 0x101010 + it },
+            guideLineColors = List(StoredBracketColors.COLOR_COUNT) { 0x202020 + it },
+            pairBorderColors = List(StoredBracketColors.COLOR_COUNT) { 0x303030 + it },
+            pairBackgroundColors = List(StoredBracketColors.COLOR_COUNT) { 0x404040 + it },
         )
         val source = PluginSettings().apply { replace(expected) }
         val restored = PluginSettings()
@@ -137,7 +137,7 @@ class PluginSettingsTest {
         assertEquals(setOf("JavaScript", "Rust"), settings.options.disabledLanguageIds)
         assertEquals(3, settings.options.guideLineWidth)
         assertEquals(0x123456, settings.options.levelBaseColors[0])
-        assertEquals(BracketColorPalette.COLOR_COUNT, settings.options.levelBaseColors.size)
+        assertEquals(StoredBracketColors.COLOR_COUNT, settings.options.levelBaseColors.size)
     }
 
     @Test
