@@ -23,7 +23,7 @@ sourceSets {
         )
         kotlin.include(
             "com/sijunyang/bracketpairguides/benchmarks/**",
-            "com/sijunyang/bracketpairguides/renderer/CancellableLongArraySort.kt",
+            "com/sijunyang/bracketpairguides/analysis/index/CancellableLongArraySort.kt",
         )
     }
 }

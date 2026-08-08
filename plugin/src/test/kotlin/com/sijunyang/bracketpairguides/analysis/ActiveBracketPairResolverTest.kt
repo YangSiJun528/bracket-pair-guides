@@ -1,6 +1,6 @@
-package com.sijunyang.bracketpairguides.renderer
+package com.sijunyang.bracketpairguides.analysis
 
-import com.sijunyang.bracketpairguides.analyzer.LanguageBraceMatchers
+import com.sijunyang.bracketpairguides.analysis.pairing.LanguageBraceMatchers
 import com.intellij.ide.highlighter.custom.CustomFileHighlighter
 import com.intellij.ide.highlighter.custom.SyntaxTable
 import com.intellij.openapi.application.ReadAction

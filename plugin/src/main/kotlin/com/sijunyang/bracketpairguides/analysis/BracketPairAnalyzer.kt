@@ -1,20 +1,11 @@
-package com.sijunyang.bracketpairguides.analyzer
+package com.sijunyang.bracketpairguides.analysis
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.ProgressIndicator
-
-internal data class BracketPair(
-    val openOffset: Int,
-    val openTokenLength: Int,
-    val closeOffset: Int,
-    val closeTokenLength: Int,
-    val depth: Int,
-    val openLine: Int,
-    val closeLine: Int,
-)
+import com.sijunyang.bracketpairguides.analysis.pairing.IntellijBracketPairingEngine
 
 /**
  * Pairs tokens recognized by each token language's `lang.braceMatcher`.
@@ -53,7 +44,7 @@ internal class BracketPairAnalyzer(
         if (iterator.document !== document) return emptyList()
         val text = document.immutableCharSequence
         val checkCanceled = progress::checkCanceled
-        val pairing = BracketPairingCore(
+        val pairing = IntellijBracketPairingEngine(
             document = document,
             fileType = fileType,
             text = text,

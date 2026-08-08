@@ -1,8 +1,8 @@
 package com.sijunyang.bracketpairguides.settings
 
-import com.sijunyang.bracketpairguides.analyzer.SupportedBraceLanguage
-import com.sijunyang.bracketpairguides.renderer.ActiveBracketPairResolution
-import com.sijunyang.bracketpairguides.renderer.ActiveBracketPairResolver
+import com.sijunyang.bracketpairguides.analysis.pairing.SupportedBraceLanguage
+import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolution
+import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolver
 import com.sijunyang.bracketpairguides.renderer.EditorGuideSession
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.util.TextRange

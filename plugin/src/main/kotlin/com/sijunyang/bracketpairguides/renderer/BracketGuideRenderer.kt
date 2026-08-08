@@ -1,5 +1,6 @@
 package com.sijunyang.bracketpairguides.renderer
 
+import com.sijunyang.bracketpairguides.analysis.index.hasWellFormedTokenRange
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.editor.VisualPosition

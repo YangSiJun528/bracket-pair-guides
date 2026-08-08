@@ -1,6 +1,6 @@
-package com.sijunyang.bracketpairguides.renderer
+package com.sijunyang.bracketpairguides.analysis.index
 
-import com.sijunyang.bracketpairguides.analyzer.BracketPair
+import com.sijunyang.bracketpairguides.analysis.BracketPair
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

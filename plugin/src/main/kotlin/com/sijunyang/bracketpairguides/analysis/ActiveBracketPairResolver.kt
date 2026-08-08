@@ -1,10 +1,9 @@
-package com.sijunyang.bracketpairguides.renderer
+package com.sijunyang.bracketpairguides.analysis
 
-import com.sijunyang.bracketpairguides.analyzer.BracketPair
-import com.sijunyang.bracketpairguides.analyzer.BracketPairingCore
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.fileTypes.FileType
+import com.sijunyang.bracketpairguides.analysis.pairing.IntellijBracketPairingEngine
 
 /** Result of a bounded active-pair lookup. */
 internal sealed interface ActiveBracketPairResolution {
@@ -63,7 +62,7 @@ internal class EditorHighlighterActiveBracketPairResolver(
             maximumElapsedNanos = elapsedBudgetNanos,
             clock = clock,
         )
-        val pairing = BracketPairingCore(
+        val pairing = IntellijBracketPairingEngine(
             document = document,
             fileType = fileType,
             text = text,
@@ -87,7 +86,7 @@ internal class EditorHighlighterActiveBracketPairResolver(
                     pairing = pairing,
                     candidateOffset = tokenStart,
                     replayFromStart =
-                        openingKind == BracketPairingCore.OpeningKind.SYMMETRIC_TOGGLE,
+                        openingKind == IntellijBracketPairingEngine.OpeningKind.SYMMETRIC_TOGGLE,
                     budget = budget,
                 )
                 if (budget.exhausted) break
@@ -111,7 +110,7 @@ internal class EditorHighlighterActiveBracketPairResolver(
 
     private fun matchCandidate(
         editor: Editor,
-        pairing: BracketPairingCore,
+        pairing: IntellijBracketPairingEngine,
         candidateOffset: Int,
         replayFromStart: Boolean,
         budget: TraversalBudget,

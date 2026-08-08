@@ -1,7 +1,13 @@
 package com.sijunyang.bracketpairguides.renderer
 
-import com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer
-import com.sijunyang.bracketpairguides.analyzer.BracketPairProvider
+import com.sijunyang.bracketpairguides.analysis.BracketPairAnalyzer
+import com.sijunyang.bracketpairguides.analysis.BracketPairProvider
+import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolver
+import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
+import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshot
+import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshotBuilder
+import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
+import com.sijunyang.bracketpairguides.analysis.EditorHighlighterActiveBracketPairResolver
 import com.sijunyang.bracketpairguides.settings.PluginSettings
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
 import com.intellij.openapi.application.ApplicationManager

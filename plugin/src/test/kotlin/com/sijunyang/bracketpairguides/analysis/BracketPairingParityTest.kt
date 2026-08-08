@@ -1,7 +1,7 @@
-package com.sijunyang.bracketpairguides.renderer
+package com.sijunyang.bracketpairguides.analysis
 
-import com.sijunyang.bracketpairguides.analyzer.BracketPair
-import com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer
+import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.BracketPairAnalyzer
 import com.intellij.codeInsight.highlighting.BraceMatcher
 import com.intellij.codeInsight.highlighting.XmlAwareBraceMatcher
 import com.intellij.lang.BracePair

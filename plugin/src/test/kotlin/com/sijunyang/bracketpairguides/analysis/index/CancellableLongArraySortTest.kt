@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.renderer
+package com.sijunyang.bracketpairguides.analysis.index
 
 import com.intellij.openapi.progress.ProcessCanceledException
 import org.junit.Assert.assertArrayEquals

@@ -1,8 +1,8 @@
 package com.sijunyang.bracketpairguides.settings
 
-import com.sijunyang.bracketpairguides.analyzer.LanguageBraceMatchers
-import com.sijunyang.bracketpairguides.analyzer.SupportedBraceLanguage
-import com.sijunyang.bracketpairguides.renderer.AnalysisCapabilities
+import com.sijunyang.bracketpairguides.analysis.pairing.LanguageBraceMatchers
+import com.sijunyang.bracketpairguides.analysis.pairing.SupportedBraceLanguage
+import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
 import com.sijunyang.bracketpairguides.renderer.EditorGuideEventRouter
 import com.sijunyang.bracketpairguides.renderer.EditorGuideSession
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer

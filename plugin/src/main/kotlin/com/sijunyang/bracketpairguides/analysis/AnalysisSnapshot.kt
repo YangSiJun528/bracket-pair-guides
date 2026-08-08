@@ -1,10 +1,12 @@
-package com.sijunyang.bracketpairguides.renderer
+package com.sijunyang.bracketpairguides.analysis
 
-import com.sijunyang.bracketpairguides.analyzer.BracketPair
-import com.sijunyang.bracketpairguides.analyzer.BracketPairProvider
-import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressIndicator
+import com.sijunyang.bracketpairguides.analysis.index.ActiveBracketPairIndex
+import com.sijunyang.bracketpairguides.analysis.index.BracketTokenIndex
+import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
+import com.sijunyang.bracketpairguides.analysis.index.hasWellFormedTokenRange
+import com.sijunyang.bracketpairguides.settings.PluginOptions
 
 internal data class AnalysisCapabilities(
     val tokens: Boolean,

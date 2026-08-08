@@ -1,5 +1,6 @@
-package com.sijunyang.bracketpairguides.analyzer
+package com.sijunyang.bracketpairguides.analysis.pairing
 
+import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.intellij.codeInsight.highlighting.BraceMatcher
 import com.intellij.codeInsight.highlighting.XmlAwareBraceMatcher
 import com.intellij.lang.Language
@@ -19,7 +20,7 @@ import java.util.Locale
  * Each [Session] owns independent stack state, while matcher resolution is cached
  * by this core so repeated bounded sessions do not repeat extension lookup.
  */
-internal class BracketPairingCore(
+internal class IntellijBracketPairingEngine(
     private val document: Document,
     private val fileType: FileType,
     private val text: CharSequence,

@@ -1,8 +1,11 @@
 package com.sijunyang.bracketpairguides.renderer
 
-import com.sijunyang.bracketpairguides.analyzer.BracketPair
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
+import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.index.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.index.GuideIndentation
+import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
 
 /** Bounded indentation lookup used only while the authoritative snapshot is stale. */
 internal object ActiveGuidePositionResolver {

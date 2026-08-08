@@ -1,6 +1,7 @@
 package com.sijunyang.bracketpairguides.renderer
 
 import com.intellij.openapi.util.Key
+import com.sijunyang.bracketpairguides.analysis.index.BracketGuide
 import java.awt.Color
 
 internal data class GuideRenderOptions(

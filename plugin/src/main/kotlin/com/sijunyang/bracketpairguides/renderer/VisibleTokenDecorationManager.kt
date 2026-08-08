@@ -1,5 +1,6 @@
 package com.sijunyang.bracketpairguides.renderer
 
+import com.sijunyang.bracketpairguides.analysis.index.BracketTokenIndex
 import com.sijunyang.bracketpairguides.settings.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.intellij.openapi.editor.Editor

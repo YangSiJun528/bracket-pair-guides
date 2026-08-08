@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.analyzer
+package com.sijunyang.bracketpairguides.analysis.pairing
 
 /**
  * One-pass pairing state for language brace matchers.

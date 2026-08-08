@@ -1,6 +1,6 @@
 package com.sijunyang.bracketpairguides.benchmarks;
 
-import com.sijunyang.bracketpairguides.renderer.CancellableLongArraySortKt;
+import com.sijunyang.bracketpairguides.analysis.index.CancellableLongArraySortKt;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;

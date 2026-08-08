@@ -1,6 +1,6 @@
-package com.sijunyang.bracketpairguides.renderer
+package com.sijunyang.bracketpairguides.analysis.index
 
-import com.sijunyang.bracketpairguides.analyzer.BracketPair
+import com.sijunyang.bracketpairguides.analysis.BracketPair
 
 /** Overflow-safe validation shared by indexes and every presentation boundary. */
 internal fun BracketPair.hasWellFormedTokenRange(

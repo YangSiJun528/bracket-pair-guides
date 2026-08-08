@@ -1,6 +1,12 @@
 package com.sijunyang.bracketpairguides.renderer
 
-import com.sijunyang.bracketpairguides.analyzer.BracketPair
+import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
+import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshot
+import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
+import com.sijunyang.bracketpairguides.analysis.index.ActiveBracketPairIndex
+import com.sijunyang.bracketpairguides.analysis.index.BracketTokenIndex
+import com.sijunyang.bracketpairguides.analysis.index.GuidePositionIndex
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange

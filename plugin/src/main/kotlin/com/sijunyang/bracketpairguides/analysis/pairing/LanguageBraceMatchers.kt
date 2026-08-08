@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.analyzer
+package com.sijunyang.bracketpairguides.analysis.pairing
 
 import com.intellij.codeInsight.highlighting.BraceMatcher
 import com.intellij.codeInsight.highlighting.PairedBraceMatcherAdapter

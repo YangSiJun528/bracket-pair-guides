@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.analyzer
+package com.sijunyang.bracketpairguides.analysis
 
 import com.intellij.openapi.progress.ProgressIndicator
 

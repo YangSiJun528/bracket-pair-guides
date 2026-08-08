@@ -1,9 +1,16 @@
 package com.sijunyang.bracketpairguides.renderer
 
-import com.sijunyang.bracketpairguides.analyzer.BracketPair
-import com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer
-import com.sijunyang.bracketpairguides.analyzer.BracketPairProvider
-import com.sijunyang.bracketpairguides.analyzer.LanguageBraceMatchers
+import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.BracketPairAnalyzer
+import com.sijunyang.bracketpairguides.analysis.BracketPairProvider
+import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolution
+import com.sijunyang.bracketpairguides.analysis.ActiveBracketPairResolver
+import com.sijunyang.bracketpairguides.analysis.AnalysisCapabilities
+import com.sijunyang.bracketpairguides.analysis.AnalysisSnapshotBuilder
+import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
+import com.sijunyang.bracketpairguides.analysis.EditorHighlighterActiveBracketPairResolver
+import com.sijunyang.bracketpairguides.analysis.index.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.pairing.LanguageBraceMatchers
 import com.sijunyang.bracketpairguides.settings.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.PluginOptions
 import com.sijunyang.bracketpairguides.settings.PluginSettings

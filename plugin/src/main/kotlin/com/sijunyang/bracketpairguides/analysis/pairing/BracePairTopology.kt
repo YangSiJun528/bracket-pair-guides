@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.analyzer
+package com.sijunyang.bracketpairguides.analysis.pairing
 
 import com.intellij.lang.BracePair
 import com.intellij.psi.tree.IElementType

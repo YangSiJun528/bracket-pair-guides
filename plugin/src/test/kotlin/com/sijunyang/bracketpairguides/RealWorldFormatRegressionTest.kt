@@ -1,7 +1,7 @@
 package com.sijunyang.bracketpairguides
 
-import com.sijunyang.bracketpairguides.analyzer.BracketPairAnalyzer
-import com.sijunyang.bracketpairguides.renderer.ActiveBracketPairIndex
+import com.sijunyang.bracketpairguides.analysis.BracketPairAnalyzer
+import com.sijunyang.bracketpairguides.analysis.index.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.renderer.BracketGuideRenderer
 import com.sijunyang.bracketpairguides.renderer.EditorGuideSession
 import com.sijunyang.bracketpairguides.renderer.GUIDE_PAINT_STATE_KEY
