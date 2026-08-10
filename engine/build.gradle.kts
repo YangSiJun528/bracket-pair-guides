@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
@@ -13,6 +14,15 @@ kotlin {
     explicitApi()
     abiValidation {
         enabled.set(true)
+        filters {
+            excluded {
+                // Java visibility is required across internal feature packages.
+                // These implementation types are not a supported plugin API.
+                byNames.add(
+                    "com.sijunyang.bracketpairguides.analysis.pairing.core.**",
+                )
+            }
+        }
     }
     compilerOptions {
         // IntelliJ Platform 2024.1 bundles Kotlin stdlib 1.9.22.
@@ -21,27 +31,50 @@ kotlin {
     }
 }
 
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(17)
+}
+
 tasks.named("check") {
     dependsOn("checkLegacyAbi", "checkEngineApiPackages")
 }
 
 val checkEngineApiPackages by tasks.registering {
     group = "verification"
-    description = "Rejects public engine ABI outside the typed analysis.api boundary."
+    description = "Rejects public engine ABI outside the root analysis facade."
 
     val abiBaseline = layout.projectDirectory.file("api/engine.api")
     inputs.file(abiBaseline)
 
     doLast {
-        val allowedPrefix = "com/sijunyang/bracketpairguides/analysis/api/"
+        val facadePrefix = "com/sijunyang/bracketpairguides/analysis/"
+        val isFacadeType: (String) -> Boolean = { className ->
+            className.startsWith(facadePrefix) &&
+                '/' !in className.removePrefix(facadePrefix)
+        }
         val classDeclaration = Regex("^public .* class ([^ :]+)")
-        val unexpected = abiBaseline.asFile.readLines()
+        val abiLines = abiBaseline.asFile.readLines()
+        val unexpected = abiLines
             .mapNotNull { line -> classDeclaration.matchEntire(line)?.groupValues?.get(1) }
-            .filterNot { className -> className.startsWith(allowedPrefix) }
+            .filterNot(isFacadeType)
 
         check(unexpected.isEmpty()) {
-            "Public engine ABI must stay under analysis.api; found: " +
+            "Public engine ABI must stay directly in the analysis facade; found: " +
                 unexpected.joinToString()
+        }
+        val projectTypeReference = Regex(
+            "com/sijunyang/bracketpairguides/([A-Za-z0-9_$/]+)",
+        )
+        val leakedTypes = abiLines
+            .flatMap { line ->
+                projectTypeReference.findAll(line).map { match -> match.groupValues[1] }.toList()
+            }
+            .filterNot { typeName -> isFacadeType("com/sijunyang/bracketpairguides/$typeName") }
+            .distinct()
+
+        check(leakedTypes.isEmpty()) {
+            "Engine implementation types must not leak through the public analysis facade; " +
+                "found: ${leakedTypes.joinToString()}"
         }
     }
 }

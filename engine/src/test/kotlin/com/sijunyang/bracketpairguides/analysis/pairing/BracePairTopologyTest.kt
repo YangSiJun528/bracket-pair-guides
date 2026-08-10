@@ -3,6 +3,8 @@ package com.sijunyang.bracketpairguides.analysis.pairing
 import com.intellij.lang.BracePair
 import com.intellij.lang.Language
 import com.intellij.psi.tree.IElementType
+import com.sijunyang.bracketpairguides.analysis.pairing.core.BracketRole
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -32,6 +34,50 @@ class BracePairTopologyTest {
         )
 
         assertFalse(topology.isPureSymmetric(symmetric))
+    }
+
+    @Test
+    fun `an extra incoming edge also prevents symmetric toggle behavior`() {
+        val topology = BracePairTopology(
+            arrayOf(
+                BracePair(symmetric, symmetric, false),
+                BracePair(left, symmetric, false),
+            ),
+        )
+
+        assertFalse(topology.isPureSymmetric(symmetric))
+    }
+
+    @Test
+    fun `pure symmetric type toggles only when the matcher accepts the close role`() {
+        assertEquals(
+            BracketRole.TOGGLE,
+            bracketRole(
+                isLeft = true,
+                isRight = true,
+                isPureSymmetric = true,
+            ),
+        )
+        assertEquals(
+            BracketRole.OPEN,
+            bracketRole(
+                isLeft = true,
+                isRight = false,
+                isPureSymmetric = true,
+            ),
+        )
+    }
+
+    @Test
+    fun `mixed role token retains opening priority`() {
+        assertEquals(
+            BracketRole.OPEN,
+            bracketRole(
+                isLeft = true,
+                isRight = true,
+                isPureSymmetric = false,
+            ),
+        )
     }
 
     @Test
