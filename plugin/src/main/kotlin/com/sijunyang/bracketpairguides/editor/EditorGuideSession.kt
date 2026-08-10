@@ -2,6 +2,7 @@ package com.sijunyang.bracketpairguides.editor
 
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisLimit
+import com.sijunyang.bracketpairguides.analysis.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.BracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
@@ -29,11 +30,11 @@ internal class EditorGuideSession(
     /** EDT-owned recognition and presentation state. */
     private val trackedPair = TrackedBracketPair(editor)
 
-    private var tokenDecorationState: VisibleTokenDecorations = VisibleTokenDecorations.EMPTY
+    private val tokenDecorations = VisibleTokenDecorations(editor)
     private val activeMarkup = ActivePairMarkup(editor)
 
     val hasCappedTokenDecorations: Boolean
-        get() = tokenDecorationState.isCapped
+        get() = tokenDecorations.isCapped
 
     fun updateDependenciesIfCurrent(
         visibleRange: (Editor) -> TextRange,
@@ -56,7 +57,17 @@ internal class EditorGuideSession(
         return true
     }
 
-    fun accept(nextAnalysis: BracketSnapshot): Unit {
+    /** The only publication boundary for an authoritative analysis attempt. */
+    fun accept(outcome: AnalysisOutcome): Unit {
+        assertEdt()
+        when (outcome) {
+            is AnalysisOutcome.Complete -> acceptComplete(outcome.snapshot)
+            is AnalysisOutcome.Limited -> acceptLimited(outcome)
+            is AnalysisOutcome.Unavailable -> acceptUnavailable(outcome)
+        }
+    }
+
+    private fun acceptComplete(nextAnalysis: BracketSnapshot): Unit {
         assertEdt()
         if (disposed || editor.isDisposed) return
         val requiredCoverage = options.analysisCoverage()
@@ -71,8 +82,8 @@ internal class EditorGuideSession(
             return
         }
         if (!requiredCoverage.pairs) {
-            clear()
-            analysisState.accept(currentStamp())
+            clearPresentation()
+            analysisState.publishComplete(currentStamp())
             return
         }
         if (shouldReleasePairGraph(requiredCoverage, nextAnalysis.stamp.coverage)) {
@@ -89,8 +100,7 @@ internal class EditorGuideSession(
                     )
             }
             if (compactAnalysis != null) {
-                tokenDecorationState = tokenDecorationState.replace(
-                    editor,
+                tokenDecorations.replace(
                     compactAnalysis,
                     visibleRange(editor),
                     options,
@@ -100,38 +110,35 @@ internal class EditorGuideSession(
             }
         }
 
-        analysisState.snapshot = nextAnalysis
         val pair = nextAnalysis.activePairAt(caretOffset())
         replaceActive(
             pair = pair,
             indexedGuide = pair?.let(nextAnalysis::guideFor),
             allowGuideFallback = false,
         )
-        tokenDecorationState = tokenDecorationState.replace(
-            editor,
+        tokenDecorations.replace(
             nextAnalysis,
             visibleRange(editor),
             options,
         )
         if (shouldReleasePairGraph(
-                requiredCoverage,
-                nextAnalysis.stamp.coverage,
-            )
+            requiredCoverage,
+            nextAnalysis.stamp.coverage,
+        )
         ) {
-            analysisState.forgetCompletion()
+            analysisState.publishPending(nextAnalysis)
         } else {
-            analysisState.accept(nextAnalysis.stamp)
+            analysisState.publishComplete(nextAnalysis)
         }
         editor.contentComponent.repaint()
     }
 
     /** Publishes exact lower facets after the requested guide index crosses its cap. */
-    fun acceptLimited(
-        nextAnalysis: BracketSnapshot,
-        attemptedStamp: AnalysisStamp,
-    ): Unit {
+    private fun acceptLimited(outcome: AnalysisOutcome.Limited): Unit {
         assertEdt()
         if (disposed || editor.isDisposed) return
+        val nextAnalysis = outcome.snapshot
+        val attemptedStamp = outcome.stamp
         val requiredCoverage = options.analysisCoverage()
         val completedCoverage = requiredCoverage.copy(guidePosition = false)
         val currentFileType = editorFileType(editor)
@@ -154,30 +161,30 @@ internal class EditorGuideSession(
         }
         if (analysisState.hasCompleted(attemptedStamp)) return
 
-        analysisState.snapshot = nextAnalysis
         val pair = nextAnalysis.activePairAt(caretOffset())
         replaceActive(
             pair = pair,
             indexedGuide = null,
             allowGuideFallback = false,
         )
-        tokenDecorationState = tokenDecorationState.replace(
-            editor,
+        tokenDecorations.replace(
             nextAnalysis,
             visibleRange(editor),
             options,
         )
-        analysisState.acceptLimited(nextAnalysis.stamp, attemptedStamp)
+        analysisState.publishLimited(
+            snapshot = nextAnalysis,
+            attemptedStamp = attemptedStamp,
+        )
         editor.contentComponent.repaint()
     }
 
     /** Accepts a bounded analysis refusal without publishing a partial snapshot. */
-    fun acceptUnavailable(
-        stamp: AnalysisStamp,
-        limit: AnalysisLimit,
-    ): Unit {
+    private fun acceptUnavailable(outcome: AnalysisOutcome.Unavailable): Unit {
         assertEdt()
         if (disposed || editor.isDisposed) return
+        val stamp = outcome.stamp
+        val limit = outcome.limit
         val requiredCoverage = options.analysisCoverage()
         if (stamp.coverage != requiredCoverage || !stamp.matchesCurrent(
                 editor,
@@ -193,8 +200,8 @@ internal class EditorGuideSession(
         } else if (analysisState.hasCompleted(stamp)) {
             return
         }
-        clear()
-        analysisState.refuse(stamp, limit)
+        analysisState.publishUnavailable(stamp, limit)
+        clearPresentation()
         editor.contentComponent.repaint()
     }
 
@@ -231,13 +238,12 @@ internal class EditorGuideSession(
         if (discardPresentationFromReplacedHighlighter()) return
         val currentAnalysis = analysisState.snapshot ?: return
         if (!hasCurrentTokenAnalysis(currentAnalysis)) return
-        val nextDecorations = tokenDecorationState.replaceIfOutsideWindow(
-            editor,
+        val presentationChanged = tokenDecorations.replaceIfOutsideWindow(
             currentAnalysis,
             visibleRange(editor),
             options,
-        ) ?: return
-        tokenDecorationState = nextDecorations
+        )
+        if (!presentationChanged) return
         editor.contentComponent.repaint()
     }
 
@@ -253,8 +259,8 @@ internal class EditorGuideSession(
         options = nextOptions
         if (discardPresentationFromReplacedHighlighter()) return
         if (!nextOptions.analysisCoverage().pairs) {
-            clear()
-            analysisState.accept(currentStamp())
+            clearPresentation()
+            analysisState.publishComplete(currentStamp())
             editor.contentComponent.repaint()
             return
         }
@@ -276,7 +282,7 @@ internal class EditorGuideSession(
         val releasePairGraph = currentAnalysis?.let { candidate ->
             shouldReleasePairGraph(requiredCoverage, candidate.stamp.coverage)
         } == true
-        tokenDecorationState = updateTokenPresentation(
+        updateTokenPresentation(
             previousOptions,
             currentAnalysis,
             refreshColors,
@@ -309,7 +315,7 @@ internal class EditorGuideSession(
                 options.disabledLanguageIds,
             ) == true
         ) {
-            analysisState.accept(currentAnalysis.stamp)
+            analysisState.publishComplete(currentAnalysis)
         }
         editor.contentComponent.repaint()
     }
@@ -318,28 +324,20 @@ internal class EditorGuideSession(
         previousOptions: BracketGuidePreferences,
         currentAnalysis: BracketSnapshot?,
         refreshColors: Boolean,
-    ): VisibleTokenDecorations {
+    ): Unit {
         val wasVisible = previousOptions.enabled && previousOptions.colorBracketTokens
         val isVisible = options.enabled && options.colorBracketTokens
-        return when {
-            wasVisible && !isVisible -> tokenDecorationState.updateAttributes(
-                editor,
-                options,
-            )
+        when {
+            wasVisible && !isVisible -> tokenDecorations.updateAttributes(options)
             !wasVisible && isVisible && currentAnalysis != null ->
-                tokenDecorationState.replace(
-                    editor,
+                tokenDecorations.replace(
                     currentAnalysis,
                     visibleRange(editor),
                     options,
                 )
             isVisible &&
                 (refreshColors || previousOptions.levelBaseColors != options.levelBaseColors) ->
-                tokenDecorationState.updateAttributes(
-                    editor,
-                    options,
-                )
-            else -> tokenDecorationState
+                tokenDecorations.updateAttributes(options)
         }
     }
 
@@ -351,10 +349,7 @@ internal class EditorGuideSession(
     }
 
     /** Thread-safe acceptance query used by background highlighting passes. */
-    fun hasAcceptedAnalysis(
-        required: AnalysisStamp,
-        includeIdeSizeRefusal: Boolean = true,
-    ): Boolean = analysisState.covers(required, includeIdeSizeRefusal)
+    fun canSkipAnalysis(required: AnalysisStamp): Boolean = analysisState.canSkip(required)
 
     /** Avoids touching editor markup when the application is already shutting down. */
     fun forgetAcceptedAnalysis(): Unit {
@@ -364,9 +359,13 @@ internal class EditorGuideSession(
     private fun clear() {
         assertEdt()
         analysisState.clear()
+        clearPresentation()
+    }
+
+    private fun clearPresentation() {
+        assertEdt()
         clearActive(preserveGuide = false)
-        tokenDecorationState.dispose()
-        tokenDecorationState = VisibleTokenDecorations.EMPTY
+        tokenDecorations.dispose()
     }
 
     private fun updateProvisional() {

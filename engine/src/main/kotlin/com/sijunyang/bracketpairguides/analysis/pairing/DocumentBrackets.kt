@@ -5,7 +5,6 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.progress.ProgressIndicator
 import com.sijunyang.bracketpairguides.analysis.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable
-import com.sijunyang.bracketpairguides.analysis.pipeline.AnalysisBudget
 
 /**
  * Pairs tokens recognized by each token language's `lang.braceMatcher`.
@@ -20,14 +19,16 @@ internal class DocumentBrackets(
     private val languages: BraceLanguageCatalog,
     private val isLanguageEnabled: (String) -> Boolean,
 ) {
-    fun pairs(progress: ProgressIndicator): DocumentBracketState {
+    fun recognize(progress: ProgressIndicator): DocumentBracketRecognition {
         val document = editor.document
-        if (document.textLength == 0) return DocumentBracketState.Complete(PairTable.empty())
+        if (document.textLength == 0) {
+            return DocumentBracketRecognition.Complete(PairTable.empty())
+        }
 
-        val pairs = PairCollection(AnalysisBudget.pairCapacity)
+        val pairs = PairCollection(BracketRecognitionLimits.completedPairs)
         val iterator = editor.highlighter.createIterator(0)
         if (iterator.document !== document) {
-            return DocumentBracketState.Complete(PairTable.empty())
+            return DocumentBracketRecognition.Complete(PairTable.empty())
         }
         val text = document.immutableCharSequence
         val checkCanceled = progress::checkCanceled
@@ -40,7 +41,7 @@ internal class DocumentBrackets(
         ).newSession(
             checkCanceled = checkCanceled,
             pairSink = pairs,
-            maximumPendingOpens = AnalysisBudget.maximumPendingOpenCount,
+            maximumPendingOpens = BracketRecognitionLimits.pendingOpens,
         )
         var visitedTokens = 0
 
@@ -51,18 +52,20 @@ internal class DocumentBrackets(
                 }
 
                 if (!pairing.accept(iterator)) {
-                    return DocumentBracketState.Unavailable(
+                    return DocumentBracketRecognition.Unavailable(
                         AnalysisLimit.PENDING_OPEN_CAPACITY,
                     )
                 }
                 iterator.advance()
             }
         } catch (_: PairCapacityReached) {
-            return DocumentBracketState.Unavailable(AnalysisLimit.PAIR_CAPACITY)
+            return DocumentBracketRecognition.Unavailable(AnalysisLimit.PAIR_CAPACITY)
         }
 
         progress.checkCanceled()
-        return DocumentBracketState.Complete(checkNotNull(pairs.complete()))
+        return DocumentBracketRecognition.Complete(
+            checkNotNull(pairs.authoritativePairs()),
+        )
     }
 
     private companion object {
@@ -71,8 +74,8 @@ internal class DocumentBrackets(
 }
 
 /** Authoritative document-pair recognition state. */
-internal sealed interface DocumentBracketState {
-    class Complete(val pairs: PairTable) : DocumentBracketState
+internal sealed interface DocumentBracketRecognition {
+    class Complete(val pairs: PairTable) : DocumentBracketRecognition
 
-    class Unavailable(val limit: AnalysisLimit) : DocumentBracketState
+    class Unavailable(val limit: AnalysisLimit) : DocumentBracketRecognition
 }

@@ -10,6 +10,7 @@ import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.FakeBracketAnalysis
 import com.sijunyang.bracketpairguides.analysis.FakeBracketSnapshot
@@ -113,14 +114,16 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
                     visibleRange = { TextRange(0, document.textLength) },
                 )
                 session.accept(
-                    FakeBracketSnapshot(
-                        stamp = AnalysisInput(
-                            editor = editor,
-                            fileType = PlainTextFileType.INSTANCE,
-                            coverage = options.analysisCoverage(),
-                            disabledLanguageIds = emptySet(),
-                        ).stamp,
-                        activePair = { pair },
+                    AnalysisOutcome.Complete(
+                        FakeBracketSnapshot(
+                            stamp = AnalysisInput(
+                                editor = editor,
+                                fileType = PlainTextFileType.INSTANCE,
+                                coverage = options.analysisCoverage(),
+                                disabledLanguageIds = emptySet(),
+                            ).stamp,
+                            activePair = { pair },
+                        ),
                     ),
                 )
                 session

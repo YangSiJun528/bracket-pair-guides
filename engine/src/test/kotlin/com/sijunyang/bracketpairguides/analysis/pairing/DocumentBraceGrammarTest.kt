@@ -375,7 +375,7 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
             fileType = myFixture.file.fileType,
             languages = BraceLanguageCatalog(),
             isLanguageEnabled = isLanguageEnabled,
-        ).pairs(EmptyProgressIndicator()).completeTable().toBracketPairs()
+        ).recognize(EmptyProgressIndicator()).completeTable().toBracketPairs()
     }
 
     private fun withMatchers(

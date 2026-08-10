@@ -28,14 +28,10 @@ internal object EditorGuideSessions {
     }
 
     /** The only session query allowed from a background highlighting pass. */
-    fun hasAcceptedAnalysis(
+    fun canSkipAnalysis(
         editor: Editor,
         required: AnalysisStamp,
-        includeIdeSizeRefusal: Boolean = true,
-    ): Boolean = editor.getUserData(KEY)?.hasAcceptedAnalysis(
-        required,
-        includeIdeSizeRefusal,
-    ) == true
+    ): Boolean = editor.getUserData(KEY)?.canSkipAnalysis(required) == true
 
     fun get(editor: Editor): EditorGuideSession? = editor.getUserData(KEY)
 

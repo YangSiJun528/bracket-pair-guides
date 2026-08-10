@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 class DocumentBracketIndexesTest : BasePlatformTestCase() {
-    fun testAnalysisSharesIndexesAcrossSplitEditorsButKeepsViewStateSeparate() {
+    fun testSplitEditorsKeepSnapshotAndPairMemoizationSeparate() {
         val source = """
             class SplitView {
                 void run() {
@@ -46,14 +46,13 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
 
             val first = complete(inReadAction {
                 analysis.analyze(input(firstEditor, coverage), EmptyProgressIndicator())
-            }) as IndexedBracketSnapshot
+            })
             val second = complete(inReadAction {
                 analysis.analyze(input(secondEditor, coverage), EmptyProgressIndicator())
-            }) as IndexedBracketSnapshot
+            })
 
             assertNotSame(first, second)
             assertNotSame(first.stamp, second.stamp)
-            assertSame(first.indexes, second.indexes)
 
             val caretOffset = source.indexOf("call") + 1
             val firstPair = checkNotNull(first.activePairAt(caretOffset))
@@ -64,6 +63,31 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
         } finally {
             EditorFactory.getInstance().releaseEditor(secondEditor)
         }
+    }
+
+    fun testEquivalentIndexCandidatesShareTheCanonicalInstance() {
+        myFixture.configureByText("Equivalent.java", "class Equivalent { }")
+        val coverage = AnalysisCoverage(
+            tokens = true,
+            activePair = true,
+            guidePosition = false,
+        )
+        val input = input(myFixture.editor, coverage)
+        val layout = IndexLayout.forCoverage(coverage)
+        val firstPairs = pairTable(openLine = 0, closeLine = 0)
+        val equivalentPairs = pairTable(openLine = 0, closeLine = 0)
+        val firstIndexes = indexes(firstPairs)
+        val otherIndexes = indexes(equivalentPairs)
+        val indexesByDocument = DocumentBracketIndexes()
+
+        assertSame(
+            firstIndexes,
+            indexesByDocument.canonical(input, layout, firstPairs, firstIndexes),
+        )
+        assertSame(
+            firstIndexes,
+            indexesByDocument.canonical(input, layout, equivalentPairs, otherIndexes),
+        )
     }
 
     fun testPairHashCollisionCannotCanonicalizeDifferentGeometry() {

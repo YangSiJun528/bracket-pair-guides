@@ -1,7 +1,5 @@
 package com.sijunyang.bracketpairguides.analysis.pairing
 
-import com.sijunyang.bracketpairguides.analysis.AnalysisLimit
-import com.sijunyang.bracketpairguides.analysis.pipeline.PairCapacity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
@@ -20,8 +18,7 @@ class PairCollectionTest {
         }
 
         assertSame(PairCapacityReached, signal)
-        assertEquals(AnalysisLimit.PAIR_CAPACITY, pairs.limit)
-        assertNull(pairs.complete())
+        assertNull(pairs.authoritativePairs())
     }
 
     @Test
@@ -30,7 +27,7 @@ class PairCollectionTest {
         pairs.acceptPair(0)
         pairs.acceptPair(2)
 
-        assertEquals(2, pairs.complete()?.size())
+        assertEquals(2, pairs.authoritativePairs()?.size())
     }
 
     private fun PairCollection.acceptPair(openOffset: Int) {

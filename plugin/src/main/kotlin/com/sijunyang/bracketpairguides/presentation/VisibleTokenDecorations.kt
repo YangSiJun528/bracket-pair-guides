@@ -14,90 +14,32 @@ import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
 
-internal data class VisibleTokenDecorations(
-    val windowStartOffset: Int,
-    val windowEndOffset: Int,
-    val entries: List<VisibleTokenEntry>,
-    val stableFocusStartOffset: Int = windowStartOffset,
-    val stableFocusEndOffset: Int = windowEndOffset,
-    val isCapped: Boolean = false,
+/** EDT-owned token markup and the viewport window it represents. */
+internal class VisibleTokenDecorations(
+    private val editor: Editor,
 ) {
+    private var windowStartOffset = 0
+    private var windowEndOffset = 0
+    private var entries: List<VisibleTokenEntry> = emptyList()
+    private var stableFocusStartOffset = 0
+    private var stableFocusEndOffset = 0
+
+    var isCapped = false
+        private set
+
     fun replace(
-        editor: Editor,
         analysis: BracketSnapshot,
         reportedVisibleRange: TextRange,
         options: BracketGuidePreferences,
-    ): VisibleTokenDecorations = TokenDecorationChanges.replace(
-        editor,
-        this,
-        analysis,
-        reportedVisibleRange,
-        options,
-    )
-
-    fun replaceIfOutsideWindow(
-        editor: Editor,
-        analysis: BracketSnapshot,
-        reportedVisibleRange: TextRange,
-        options: BracketGuidePreferences,
-    ): VisibleTokenDecorations? = TokenDecorationChanges.replaceIfOutsideWindow(
-        editor,
-        this,
-        analysis,
-        reportedVisibleRange,
-        options,
-    )
-
-    fun updateAttributes(
-        editor: Editor,
-        options: BracketGuidePreferences,
-    ): VisibleTokenDecorations = TokenDecorationChanges.updateAttributes(editor, this, options)
-
-    fun dispose() = TokenDecorationChanges.dispose(this)
-
-    companion object {
-        val EMPTY: VisibleTokenDecorations = VisibleTokenDecorations(0, 0, emptyList())
-
-    }
-}
-
-/** A capped token slice must follow scrolling even inside its padded window. */
-private fun VisibleTokenDecorations.canReuseFor(
-    range: TextRange,
-    focusOffset: Int,
-): Boolean {
-    if (windowStartOffset > range.startOffset || windowEndOffset < range.endOffset) {
-        return false
-    }
-    return !isCapped || focusOffset in stableFocusStartOffset..stableFocusEndOffset
-}
-
-internal data class VisibleTokenEntry(
-    val highlighter: RangeHighlighter,
-    val colorKey: TextAttributesKey,
-    val levelIndex: Int,
-    val attributes: TextAttributes,
-)
-
-private const val MAX_VISIBLE_TOKEN_DECORATIONS = 2_048
-
-private object TokenDecorationChanges {
-    fun replace(
-        editor: Editor,
-        previous: VisibleTokenDecorations?,
-        analysis: BracketSnapshot,
-        reportedVisibleRange: TextRange,
-        options: BracketGuidePreferences,
-    ): VisibleTokenDecorations {
-        val visibleRange = normalizedVisibleRange(editor, reportedVisibleRange)
-        val window = desiredWindow(editor, visibleRange)
-        val reusable = PreviousTokenMarks(previous?.entries.orEmpty())
+    ) {
+        val visibleRange = normalizedVisibleRange(reportedVisibleRange)
+        val window = desiredWindow(visibleRange)
+        val reusable = PreviousTokenMarks(entries)
         val selection = if (options.enabled && options.colorBracketTokens) {
             createEntries(
-                editor,
                 analysis.visibleTokens(
                     range = window,
-                    focusOffset = decorationFocusOffset(editor, visibleRange),
+                    focusOffset = decorationFocusOffset(visibleRange),
                     limit = MAX_VISIBLE_TOKEN_DECORATIONS,
                 ),
                 window,
@@ -108,72 +50,71 @@ private object TokenDecorationChanges {
             EntrySelection.EMPTY
         }
         reusable.disposeRemaining()
-        return VisibleTokenDecorations(
-            windowStartOffset = window.startOffset,
-            windowEndOffset = window.endOffset,
-            entries = selection.entries,
-            stableFocusStartOffset = selection.stableFocusStartOffset
-                ?: window.startOffset,
-            stableFocusEndOffset = selection.stableFocusEndOffset
-                ?: window.endOffset,
-            isCapped = selection.isCapped,
-        )
+        windowStartOffset = window.startOffset
+        windowEndOffset = window.endOffset
+        entries = selection.entries
+        stableFocusStartOffset = selection.stableFocusStartOffset ?: window.startOffset
+        stableFocusEndOffset = selection.stableFocusEndOffset ?: window.endOffset
+        isCapped = selection.isCapped
     }
 
     fun replaceIfOutsideWindow(
-        editor: Editor,
-        current: VisibleTokenDecorations,
         analysis: BracketSnapshot,
         reportedVisibleRange: TextRange,
         options: BracketGuidePreferences,
-    ): VisibleTokenDecorations? {
-        val visibleRange = normalizedVisibleRange(editor, reportedVisibleRange)
-        val focusOffset = decorationFocusOffset(editor, visibleRange)
-        if (current.canReuseFor(visibleRange, focusOffset)) return null
-        return replace(editor, current, analysis, visibleRange, options)
+    ): Boolean {
+        val visibleRange = normalizedVisibleRange(reportedVisibleRange)
+        val focusOffset = decorationFocusOffset(visibleRange)
+        if (canReuseFor(visibleRange, focusOffset)) return false
+        replace(analysis, visibleRange, options)
+        return true
     }
 
-    fun updateAttributes(
-        editor: Editor,
-        current: VisibleTokenDecorations,
-        options: BracketGuidePreferences,
-    ): VisibleTokenDecorations {
+    fun updateAttributes(options: BracketGuidePreferences) {
         if (!options.enabled || !options.colorBracketTokens) {
-            disposeEntries(current.entries)
-            return current.copy(
-                entries = emptyList(),
-                stableFocusStartOffset = current.windowStartOffset,
-                stableFocusEndOffset = current.windowEndOffset,
-                isCapped = false,
-            )
+            disposeEntries(entries)
+            entries = emptyList()
+            stableFocusStartOffset = windowStartOffset
+            stableFocusEndOffset = windowEndOffset
+            isCapped = false
+            return
         }
 
-        val palette = TokenPalette(editor, options)
-        val entries = current.entries.map { entry ->
+        val palette = TokenPalette(options)
+        entries.forEach { entry ->
             val attributes = palette.attributes[entry.levelIndex]
             if (entry.highlighter.isValid && entry.attributes != attributes) {
-                applyPresentation(editor, entry.highlighter, entry.colorKey, attributes)
-                entry.copy(attributes = attributes)
-            } else {
-                entry
+                applyPresentation(entry.highlighter, entry.colorKey, attributes)
+                entry.attributes = attributes
             }
         }
-        return current.copy(entries = entries)
     }
 
-    fun dispose(decorations: VisibleTokenDecorations?): Unit {
-        decorations ?: return
-        disposeEntries(decorations.entries)
+    fun dispose() {
+        disposeEntries(entries)
+        windowStartOffset = 0
+        windowEndOffset = 0
+        entries = emptyList()
+        stableFocusStartOffset = 0
+        stableFocusEndOffset = 0
+        isCapped = false
+    }
+
+    /** A capped token slice must follow scrolling even inside its padded window. */
+    private fun canReuseFor(range: TextRange, focusOffset: Int): Boolean {
+        if (windowStartOffset > range.startOffset || windowEndOffset < range.endOffset) {
+            return false
+        }
+        return !isCapped || focusOffset in stableFocusStartOffset..stableFocusEndOffset
     }
 
     private fun createEntries(
-        editor: Editor,
         tokens: TokenWindow,
         window: TextRange,
         reusable: PreviousTokenMarks,
         options: BracketGuidePreferences,
     ): EntrySelection {
-        val palette = TokenPalette(editor, options)
+        val palette = TokenPalette(options)
         val entries = ArrayList<VisibleTokenEntry>(tokens.size)
         var index = 0
         while (index < tokens.size) {
@@ -182,7 +123,6 @@ private object TokenDecorationChanges {
             if (endOffset > window.startOffset && endOffset <= editor.document.textLength) {
                 val levelIndex = BracketColorPalette.levelIndex(tokens.depthAt(index))
                 entries += applyToken(
-                    editor,
                     reusable,
                     startOffset,
                     endOffset.toInt(),
@@ -201,7 +141,6 @@ private object TokenDecorationChanges {
     }
 
     private fun applyToken(
-        editor: Editor,
         reusable: PreviousTokenMarks,
         startOffset: Int,
         endOffset: Int,
@@ -212,7 +151,6 @@ private object TokenDecorationChanges {
         val attributes = palette.attributes[levelIndex]
         val previous = reusable.take(startOffset, endOffset)
         val highlighter = previous?.highlighter ?: addHighlighter(
-            editor,
             colorKey,
             startOffset,
             endOffset,
@@ -221,14 +159,13 @@ private object TokenDecorationChanges {
         if (previous != null &&
             (previous.colorKey !== colorKey || previous.attributes != attributes)
         ) {
-            applyPresentation(editor, highlighter, colorKey, attributes)
+            applyPresentation(highlighter, colorKey, attributes)
         }
         highlighter.customRenderer = null
         return VisibleTokenEntry(highlighter, colorKey, levelIndex, attributes)
     }
 
     private fun addHighlighter(
-        editor: Editor,
         colorKey: TextAttributesKey,
         startOffset: Int,
         endOffset: Int,
@@ -254,14 +191,13 @@ private object TokenDecorationChanges {
                 HighlighterLayer.ADDITIONAL_SYNTAX,
                 HighlighterTargetArea.EXACT_RANGE,
             ).also { highlighter ->
-                applyPresentation(editor, highlighter, colorKey, attributes)
+                applyPresentation(highlighter, colorKey, attributes)
             }
         }
     }
 
     @Suppress("UsePropertyAccessSyntax")
     private fun applyPresentation(
-        editor: Editor,
         highlighter: RangeHighlighter,
         colorKey: TextAttributesKey,
         attributes: TextAttributes,
@@ -279,7 +215,7 @@ private object TokenDecorationChanges {
         }
     }
 
-    private fun normalizedVisibleRange(editor: Editor, reported: TextRange): TextRange {
+    private fun normalizedVisibleRange(reported: TextRange): TextRange {
         val documentLength = editor.document.textLength
         val caretOffset = editor.caretModel.primaryCaret.offset.coerceIn(0, documentLength)
         var startOffset = reported.startOffset.coerceIn(0, documentLength)
@@ -311,7 +247,7 @@ private object TokenDecorationChanges {
         return TextRange(startOffset, endOffset)
     }
 
-    private fun decorationFocusOffset(editor: Editor, visible: TextRange): Int {
+    private fun decorationFocusOffset(visible: TextRange): Int {
         val caretOffset = editor.caretModel.primaryCaret.offset
             .coerceIn(0, editor.document.textLength)
         return if (caretOffset in visible.startOffset..visible.endOffset) {
@@ -321,7 +257,7 @@ private object TokenDecorationChanges {
         }
     }
 
-    private fun desiredWindow(editor: Editor, visible: TextRange): TextRange {
+    private fun desiredWindow(visible: TextRange): TextRange {
         val padding = maxOf(
             MIN_TOKEN_WINDOW_PADDING,
             minOf(visible.length, MAX_TOKEN_WINDOW_PADDING),
@@ -335,12 +271,20 @@ private object TokenDecorationChanges {
     }
 
     private fun disposeEntries(entries: List<VisibleTokenEntry>) {
-        for ((highlighter) in entries) {
+        for (entry in entries) {
+            val highlighter = entry.highlighter
             if (highlighter.isValid) highlighter.dispose()
         }
     }
 
-    private class TokenPalette(editor: Editor, options: BracketGuidePreferences) {
+    private class VisibleTokenEntry(
+        val highlighter: RangeHighlighter,
+        val colorKey: TextAttributesKey,
+        val levelIndex: Int,
+        var attributes: TextAttributes,
+    )
+
+    private inner class TokenPalette(options: BracketGuidePreferences) {
         val attributes = Array(StoredColorFormat.COLOR_COUNT) { level ->
             BracketColorPalette.bracketTextAttributes(editor.colorsScheme, options, level)
         }
@@ -405,7 +349,10 @@ private object TokenDecorationChanges {
         }
     }
 
-    private const val MIN_TOKEN_WINDOW_PADDING = 256
-    private const val MAX_TOKEN_WINDOW_PADDING = 4_096
-    private const val MAX_REPORTED_VISIBLE_CHARACTERS = 16_384
+    private companion object {
+        const val MAX_VISIBLE_TOKEN_DECORATIONS = 2_048
+        const val MIN_TOKEN_WINDOW_PADDING = 256
+        const val MAX_TOKEN_WINDOW_PADDING = 4_096
+        const val MAX_REPORTED_VISIBLE_CHARACTERS = 16_384
+    }
 }

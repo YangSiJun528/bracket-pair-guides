@@ -35,7 +35,7 @@ internal class BracketIndexes(
 /** Editor-specific snapshot view over immutable [BracketIndexes]. */
 internal class IndexedBracketSnapshot(
     override val stamp: AnalysisStamp,
-    internal val indexes: BracketIndexes,
+    private val indexes: BracketIndexes,
 ) : BracketSnapshot {
     /** One-entry memoization preserves allocation-free movement inside one active pair. */
     @Volatile

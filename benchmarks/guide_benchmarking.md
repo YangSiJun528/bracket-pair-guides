@@ -4,6 +4,10 @@ Use this module to compare an optimized implementation with a simpler JDK or
 library alternative without adding benchmark dependencies to the published
 plugin.
 
+Benchmark parameters are measurement inputs, not product limits. See the
+[performance and capacity reference](../docs/reference_performance_limits.md)
+for the current production boundaries and memory rationale.
+
 ## Prerequisites
 
 - JDK 17

@@ -36,7 +36,39 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 tasks.named("check") {
-    dependsOn("checkLegacyAbi", "checkEngineApiPackages")
+    dependsOn(
+        "checkLegacyAbi",
+        "checkEngineApiPackages",
+        "checkPairingCorePlatformNeutrality",
+    )
+}
+
+val pairingCoreSources = files(
+    fileTree("src/main/java") {
+        include("com/sijunyang/bracketpairguides/analysis/pairing/core/**/*.java")
+    },
+    fileTree("src/main/kotlin") {
+        include("com/sijunyang/bracketpairguides/analysis/pairing/core/**/*.kt")
+    },
+)
+
+val checkPairingCorePlatformNeutrality by tasks.registering {
+    group = "verification"
+    description = "Rejects IntelliJ Platform dependencies in the neutral pairing core."
+
+    inputs.files(pairingCoreSources)
+
+    doLast {
+        val platformReferences = inputs.files.files
+            .filter { source -> "com.intellij." in source.readText() }
+            .map { source -> source.path }
+            .sorted()
+
+        check(platformReferences.isEmpty()) {
+            "The pairing core must remain independent of the IntelliJ Platform; found: " +
+                platformReferences.joinToString()
+        }
+    }
 }
 
 val checkEngineApiPackages by tasks.registering {

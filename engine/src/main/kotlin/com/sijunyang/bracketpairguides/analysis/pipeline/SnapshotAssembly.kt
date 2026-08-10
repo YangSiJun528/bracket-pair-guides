@@ -12,7 +12,7 @@ import com.sijunyang.bracketpairguides.analysis.guide.GuideLineEnvelope
 import com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndex
 import com.sijunyang.bracketpairguides.analysis.guide.GuideIndexShape
 import com.sijunyang.bracketpairguides.analysis.pairing.DocumentBrackets
-import com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketState
+import com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketRecognition
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable
 import com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex
 
@@ -28,15 +28,15 @@ internal class SnapshotAssembly(
         BracketIndexes,
     ) -> BracketIndexes,
 ) {
-    fun snapshot(): AnalysisOutcome {
+    fun outcome(): AnalysisOutcome {
         val stamp = input.stamp
         var snapshotInput = input
         var layout = IndexLayout.forCoverage(stamp.coverage)
         if (!stamp.coverage.pairs) return complete(emptySnapshot(layout))
 
-        val pairs = when (val state = documentBrackets.pairs(progress)) {
-            is DocumentBracketState.Complete -> state.pairs
-            is DocumentBracketState.Unavailable -> return unavailable(state.limit)
+        val pairs = when (val recognition = documentBrackets.recognize(progress)) {
+            is DocumentBracketRecognition.Complete -> recognition.pairs
+            is DocumentBracketRecognition.Unavailable -> return unavailable(recognition.limit)
         }
         if (pairs.isEmpty) return complete(emptySnapshot(layout))
 

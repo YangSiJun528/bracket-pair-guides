@@ -33,8 +33,7 @@ internal class BracketGuideHighlightingPass(
     project: Project,
     private val editor: Editor,
     private val fileType: FileType,
-    private val sourceFile: VirtualFile? = FileDocumentManager.getInstance()
-        .getFile(editor.document),
+    private val sourceFile: VirtualFile?,
     private val analyze: (AnalysisInput, ProgressIndicator) -> AnalysisOutcome,
     private val visibleRange: (Editor) -> TextRange = Editor::calculateVisibleRange,
 ) : TextEditorHighlightingPass(project, editor.document, false) {
@@ -72,12 +71,7 @@ internal class BracketGuideHighlightingPass(
             )
             return
         }
-        if (EditorGuideSessions.hasAcceptedAnalysis(
-                editor,
-                input.stamp,
-                includeIdeSizeRefusal = false,
-            )
-        ) {
+        if (EditorGuideSessions.canSkipAnalysis(editor, input.stamp)) {
             return
         }
         collected = analyze(input, progress)
@@ -97,9 +91,11 @@ internal class BracketGuideHighlightingPass(
                 visibleRange = visibleRange,
                 passStamp = currentStamp,
             )
-            session.acceptUnavailable(
-                currentStamp,
-                AnalysisLimit.IDE_CODE_INSIGHT_FILE_SIZE,
+            session.accept(
+                AnalysisOutcome.Unavailable(
+                    currentStamp,
+                    AnalysisLimit.IDE_CODE_INSIGHT_FILE_SIZE,
+                ),
             )
             return
         }
@@ -124,18 +120,7 @@ internal class BracketGuideHighlightingPass(
                 passStamp = passStamp,
             )
         }
-        when (effectiveResult) {
-            is AnalysisOutcome.Complete -> session.accept(effectiveResult.snapshot)
-            is AnalysisOutcome.Limited -> session.acceptLimited(
-                effectiveResult.snapshot,
-                effectiveResult.stamp,
-            )
-            is AnalysisOutcome.Unavailable -> session.acceptUnavailable(
-                effectiveResult.stamp,
-                effectiveResult.limit,
-            )
-            null -> Unit
-        }
+        effectiveResult?.let(session::accept)
     }
 
     private fun currentInput(currentFileType: FileType = fileType): AnalysisInput {

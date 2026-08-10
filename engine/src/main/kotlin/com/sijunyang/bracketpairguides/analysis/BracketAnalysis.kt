@@ -38,7 +38,7 @@ public class BracketAnalysis {
                     checkCanceled = progress::checkCanceled,
                 )
             },
-        ).snapshot()
+        ).outcome()
     }
 
     /** Returns installed language families backed by the official matcher API. */

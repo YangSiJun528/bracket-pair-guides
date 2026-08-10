@@ -4,6 +4,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.FakeBracketSnapshot
 import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
@@ -53,7 +54,7 @@ class EditorGuideFallbackIntegrationTest : BasePlatformTestCase() {
             visibleRange = { TextRange(0, editor.document.textLength) },
         )
         try {
-            session.accept(result)
+            session.accept(AnalysisOutcome.Complete(result))
             val guideOptions = initialOptions.copy(showActiveGuide = true)
             BracketGuideSettings.getInstance().replace(guideOptions)
             session.updateOptions(guideOptions, refreshColors = false)

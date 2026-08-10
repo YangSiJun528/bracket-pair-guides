@@ -67,9 +67,9 @@
   and updates at most one guide and two active-symbol ranges. If no current
   snapshot exists, the editor waits for the background pass instead of running
   token recognition on the EDT.
-- Editor results and markup remain EDT-confined; background pass deduplication
-  reads only an immutable analysis stamp, and active presentation is applied before
-  viewport token decoration.
+- Editor markup remains EDT-confined; background pass deduplication reads one
+  atomically published immutable acceptance value, and active presentation is
+  applied before viewport token decoration.
 - The Settings page now uses platform `BoundConfigurable`, Kotlin UI DSL
   bindings, integer spinners, and standard color selectors instead of custom
   draft, table, splitter, and preview infrastructure.

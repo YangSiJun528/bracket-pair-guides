@@ -1,9 +1,7 @@
 package com.sijunyang.bracketpairguides.analysis.pairing
 
-import com.sijunyang.bracketpairguides.analysis.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairSink
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable
-import com.sijunyang.bracketpairguides.analysis.pipeline.PairCapacity
 
 /** A pair table that becomes unavailable instead of exposing a capped prefix. */
 internal class PairCollection(
@@ -11,9 +9,7 @@ internal class PairCollection(
 ) : PairSink {
     private val draft = PairTable.draft()
     private var pairCount = 0
-
-    var limit: AnalysisLimit? = null
-        private set
+    private var overflowed = false
 
     override fun accept(
         openOffset: Int,
@@ -24,9 +20,9 @@ internal class PairCollection(
         openLine: Int,
         closeLine: Int,
     ) {
-        if (limit != null) throw PairCapacityReached
-        if (pairCount == capacity.maximumPairCount) {
-            limit = AnalysisLimit.PAIR_CAPACITY
+        if (overflowed) throw PairCapacityReached
+        if (pairCount == capacity.maximum) {
+            overflowed = true
             throw PairCapacityReached
         }
         draft.accept(
@@ -42,7 +38,7 @@ internal class PairCollection(
     }
 
     /** Returns null after overflow so the accepted prefix can never be published. */
-    fun complete(): PairTable? = if (limit == null) draft.freeze() else null
+    fun authoritativePairs(): PairTable? = if (overflowed) null else draft.freeze()
 }
 
 /** Allocation-free control signal used only on the first over-capacity pair. */
