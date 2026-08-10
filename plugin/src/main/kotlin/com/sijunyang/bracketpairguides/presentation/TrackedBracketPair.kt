@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.editor
+package com.sijunyang.bracketpairguides.presentation
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.RangeMarker

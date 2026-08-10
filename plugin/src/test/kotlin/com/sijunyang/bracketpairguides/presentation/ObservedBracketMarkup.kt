@@ -3,7 +3,7 @@ package com.sijunyang.bracketpairguides.presentation
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.RangeHighlighter
-import com.sijunyang.bracketpairguides.settings.StoredColorFormat
+import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 
 /** Markup observable through the IntelliJ editor API after a plugin interaction. */
 internal data class ObservedBracketMarkup(

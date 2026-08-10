@@ -2,7 +2,6 @@ package com.sijunyang.bracketpairguides.editor.highlighting
 
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
@@ -16,11 +15,10 @@ import com.sijunyang.bracketpairguides.analysis.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
-import com.sijunyang.bracketpairguides.analysis.BracketAnalysis
-import com.sijunyang.bracketpairguides.editor.EditorGuideEvents
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
-import com.sijunyang.bracketpairguides.editor.analysisCoverage
+import com.sijunyang.bracketpairguides.editor.events.EditorGuideEvents
+import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 
 /**
@@ -45,19 +43,6 @@ internal class BracketGuideHighlightingPass(
             installSession()
         }
     }
-
-    constructor(
-        project: Project,
-        editor: Editor,
-        fileType: FileType,
-        sourceFile: VirtualFile?,
-    ) : this(
-        project = project,
-        editor = editor,
-        fileType = fileType,
-        sourceFile = sourceFile,
-        analyze = service<BracketAnalysis>()::analyze,
-    )
 
     override fun doCollectInformation(progress: ProgressIndicator): Unit {
         collected = null
@@ -175,6 +160,7 @@ internal class BracketGuideHighlightingPass(
         return EditorGuideSessions.install(
             editor = editor,
             visibleRange = visibleRange,
+            preferences = BracketGuideSettings.getInstance().options,
         )
     }
 }

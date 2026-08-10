@@ -1,26 +1,24 @@
-package com.sijunyang.bracketpairguides.analysis.pipeline
+package com.sijunyang.bracketpairguides.analysis.snapshot
 
-import com.intellij.openapi.progress.ProgressIndicator
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.AnalysisOutcome
-import com.sijunyang.bracketpairguides.analysis.BracketIndexes
 import com.sijunyang.bracketpairguides.analysis.BracketSnapshot
-import com.sijunyang.bracketpairguides.analysis.IndexedBracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex
+import com.sijunyang.bracketpairguides.analysis.guide.GuideIndexShape
 import com.sijunyang.bracketpairguides.analysis.guide.GuideLineEnvelope
 import com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndex
-import com.sijunyang.bracketpairguides.analysis.guide.GuideIndexShape
-import com.sijunyang.bracketpairguides.analysis.pairing.DocumentBrackets
-import com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketRecognition
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable
 import com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex
 
 /** The state and memory-order policy for assembling one [BracketSnapshot]. */
 internal class SnapshotAssembly(
     private val input: AnalysisInput,
-    private val documentBrackets: DocumentBrackets,
-    private val progress: ProgressIndicator,
+    private val recognize: () -> BracketRecognition,
+    private val checkCanceled: () -> Unit,
+    private val documentLength: Int,
+    private val documentLineCount: Int,
+    private val guidePositions: (IntRange) -> GuidePositionIndex?,
     private val canonicalIndexes: (
         AnalysisInput,
         IndexLayout,
@@ -34,9 +32,9 @@ internal class SnapshotAssembly(
         var layout = IndexLayout.forCoverage(stamp.coverage)
         if (!stamp.coverage.pairs) return complete(emptySnapshot(layout))
 
-        val pairs = when (val recognition = documentBrackets.recognize(progress)) {
-            is DocumentBracketRecognition.Complete -> recognition.pairs
-            is DocumentBracketRecognition.Unavailable -> return unavailable(recognition.limit)
+        val pairs = when (val recognition = recognize()) {
+            is BracketRecognition.Complete -> recognition.pairs
+            is BracketRecognition.Unavailable -> return unavailable(recognition.limit)
         }
         if (pairs.isEmpty) return complete(emptySnapshot(layout))
 
@@ -55,9 +53,9 @@ internal class SnapshotAssembly(
         }
 
         val activeIndex = if (layout.activePair) {
-            ActiveBracketPairIndex.build(pairs, progress::checkCanceled)
+            ActiveBracketPairIndex.build(pairs, checkCanceled)
         } else {
-            ActiveBracketPairIndex.build(PairTable.empty(), progress::checkCanceled)
+            ActiveBracketPairIndex.build(PairTable.empty(), checkCanceled)
         }
 
         // Active runs first so its larger temporary workspace is released before
@@ -65,26 +63,21 @@ internal class SnapshotAssembly(
         val tokenIndex = when (layout.tokenStorage) {
             TokenStorage.NONE -> BracketTokenIndex.build(
                 PairTable.empty(),
-                progress::checkCanceled,
+                checkCanceled,
             )
             TokenStorage.ATTACHED -> BracketTokenIndex.build(
                 pairs,
-                progress::checkCanceled,
+                checkCanceled,
             )
             TokenStorage.DETACHED -> BracketTokenIndex.buildDetached(
                 pairs,
-                progress::checkCanceled,
+                checkCanceled,
             )
         }
 
         val positionIndex = guideEnvelope?.let { envelope ->
             checkNotNull(
-                GuidePositionIndex.from(
-                    document = input.editor.document,
-                    tabSize = input.stamp.tabSize,
-                    progress = progress,
-                    indexedLineRange = envelope.lines,
-                ),
+                guidePositions(envelope.lines),
             ) { "A preflighted guide index must be allocatable" }
         }
         val indexes = BracketIndexes(
@@ -108,15 +101,13 @@ internal class SnapshotAssembly(
         }
     }
 
-    private fun guideEnvelope(pairs: PairTable): GuideLineEnvelope? {
-        val document = input.editor.document
-        return GuideLineEnvelope.from(
+    private fun guideEnvelope(pairs: PairTable): GuideLineEnvelope? =
+        GuideLineEnvelope.from(
             pairs = pairs,
-            documentLength = document.textLength,
-            documentLineCount = document.lineCount,
-            checkCanceled = progress::checkCanceled,
+            documentLength = documentLength,
+            documentLineCount = documentLineCount,
+            checkCanceled = checkCanceled,
         )
-    }
 
     private fun GuideLineEnvelope.lineCount(): Int =
         (lines.last.toLong() - lines.first + 1L).toInt()
@@ -131,8 +122,8 @@ internal class SnapshotAssembly(
         val pairs = PairTable.empty()
         val indexes = BracketIndexes(
             pairs = pairs,
-            tokens = BracketTokenIndex.build(pairs, progress::checkCanceled),
-            activePairs = ActiveBracketPairIndex.build(pairs, progress::checkCanceled),
+            tokens = BracketTokenIndex.build(pairs, checkCanceled),
+            activePairs = ActiveBracketPairIndex.build(pairs, checkCanceled),
             guidePositions = null,
         )
         return IndexedBracketSnapshot(
@@ -140,4 +131,11 @@ internal class SnapshotAssembly(
             indexes = canonicalIndexes(input, layout, pairs, indexes),
         )
     }
+}
+
+/** Result of the recognition seam consumed by snapshot policy. */
+internal sealed class BracketRecognition {
+    class Complete(val pairs: PairTable) : BracketRecognition()
+
+    class Unavailable(val limit: AnalysisLimit) : BracketRecognition()
 }

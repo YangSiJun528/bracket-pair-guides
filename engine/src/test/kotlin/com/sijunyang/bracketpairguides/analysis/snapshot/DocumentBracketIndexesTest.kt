@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.analysis
+package com.sijunyang.bracketpairguides.analysis.snapshot
 
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.command.WriteCommandAction
@@ -6,12 +6,17 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
+import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.AnalysisOutcome
+import com.sijunyang.bracketpairguides.analysis.BracketAnalysis
+import com.sijunyang.bracketpairguides.analysis.BracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndex
+import com.sijunyang.bracketpairguides.analysis.intellij.DocumentGuidePositions
+import com.sijunyang.bracketpairguides.analysis.intellij.IntellijBracketAnalysis
 import com.sijunyang.bracketpairguides.analysis.pairing.core.CancellationProbe
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable
-import com.sijunyang.bracketpairguides.analysis.pipeline.IndexLayout
-import com.sijunyang.bracketpairguides.analysis.pipeline.TokenStorage
 import com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
@@ -42,7 +47,7 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
                 activePair = true,
                 guidePosition = true,
             )
-            val analysis = BracketAnalysis()
+            val analysis: BracketAnalysis = IntellijBracketAnalysis()
 
             val first = complete(inReadAction {
                 analysis.analyze(input(firstEditor, coverage), EmptyProgressIndicator())
@@ -402,12 +407,11 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
     )
 
     private fun guidePositions(tabSize: Int): GuidePositionIndex = checkNotNull(
-        GuidePositionIndex.from(
+        DocumentGuidePositions(
             document = myFixture.editor.document,
             tabSize = tabSize,
-            progress = EmptyProgressIndicator(),
-            indexedLineRange = 0 until myFixture.editor.document.lineCount,
-        ),
+            checkCanceled = NO_CANCELLATION,
+        ).index(0 until myFixture.editor.document.lineCount),
     )
 
     private fun pairTable(openLine: Int, closeLine: Int): PairTable {

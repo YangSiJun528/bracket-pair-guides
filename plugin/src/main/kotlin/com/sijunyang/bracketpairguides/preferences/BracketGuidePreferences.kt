@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.settings
+package com.sijunyang.bracketpairguides.preferences
 
 import com.intellij.util.xmlb.annotations.Property
 

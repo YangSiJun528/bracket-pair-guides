@@ -1,17 +1,19 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.BracketAnalysis
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.FakeBracketAnalysis
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
-import com.sijunyang.bracketpairguides.editor.analysisCoverage
+import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
 import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
-import com.sijunyang.bracketpairguides.settings.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -34,10 +36,11 @@ internal abstract class BracketGuideHighlightingFixture : BasePlatformTestCase()
     ) {
         val pass = if (pairs == null) {
             BracketGuideHighlightingPass(
-                project,
-                myFixture.editor,
-                myFixture.file.fileType,
-                myFixture.file.virtualFile,
+                project = project,
+                editor = myFixture.editor,
+                fileType = myFixture.file.fileType,
+                sourceFile = myFixture.file.virtualFile,
+                analyze = service<BracketAnalysis>()::analyze,
             )
         } else {
             testPass(

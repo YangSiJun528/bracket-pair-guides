@@ -5,11 +5,10 @@ import com.sijunyang.bracketpairguides.analysis.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.BracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
-import com.sijunyang.bracketpairguides.analysis.BracketGuide
-import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.presentation.ActivePairMarkup
+import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.preferences.analysisCoverage
+import com.sijunyang.bracketpairguides.presentation.ActiveGuidePresentation
 import com.sijunyang.bracketpairguides.presentation.VisibleTokenDecorations
-import com.sijunyang.bracketpairguides.settings.BracketGuidePreferences
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -27,11 +26,8 @@ internal class EditorGuideSession(
     private var analysisHighlighter = editor.highlighter
     private val analysisState = EditorAnalysisState(editor)
 
-    /** EDT-owned recognition and presentation state. */
-    private val trackedPair = TrackedBracketPair(editor)
-
+    private val activePresentation = ActiveGuidePresentation(editor)
     private val tokenDecorations = VisibleTokenDecorations(editor)
-    private val activeMarkup = ActivePairMarkup(editor)
 
     val hasCappedTokenDecorations: Boolean
         get() = tokenDecorations.isCapped
@@ -111,10 +107,11 @@ internal class EditorGuideSession(
         }
 
         val pair = nextAnalysis.activePairAt(caretOffset())
-        replaceActive(
+        activePresentation.replace(
             pair = pair,
             indexedGuide = pair?.let(nextAnalysis::guideFor),
             allowGuideFallback = false,
+            preferences = options,
         )
         tokenDecorations.replace(
             nextAnalysis,
@@ -162,10 +159,11 @@ internal class EditorGuideSession(
         if (analysisState.hasCompleted(attemptedStamp)) return
 
         val pair = nextAnalysis.activePairAt(caretOffset())
-        replaceActive(
+        activePresentation.replace(
             pair = pair,
             indexedGuide = null,
             allowGuideFallback = false,
+            preferences = options,
         )
         tokenDecorations.replace(
             nextAnalysis,
@@ -216,11 +214,12 @@ internal class EditorGuideSession(
         }
 
         val pair = currentAnalysis.activePairAt(caretOffset())
-        if (pair == trackedPair.current) return
-        replaceActive(
+        if (pair == activePresentation.currentPair) return
+        activePresentation.replace(
             pair = pair,
             indexedGuide = pair?.let(currentAnalysis::guideFor),
             allowGuideFallback = allowsProvisionalGuide(currentAnalysis),
+            preferences = options,
         )
         editor.contentComponent.repaint()
     }
@@ -292,12 +291,13 @@ internal class EditorGuideSession(
             ?.takeIf { requiredCoverage.activePair && it.stamp.coverage.activePair }
         val pair = currentPairAnalysis
             ?.activePairAt(caretOffset())
-            ?: trackedPair.adjusted
-        replaceActive(
+            ?: activePresentation.adjustedPair
+        activePresentation.replace(
             pair = pair,
             indexedGuide = pair?.let { currentPairAnalysis?.guideFor(it) },
             allowGuideFallback = currentPairAnalysis == null ||
                 allowsProvisionalGuide(currentPairAnalysis),
+            preferences = options,
         )
         if (pair == null &&
             currentAnalysis == null &&
@@ -364,109 +364,21 @@ internal class EditorGuideSession(
 
     private fun clearPresentation() {
         assertEdt()
-        clearActive(preserveGuide = false)
+        activePresentation.clear(preserveGuide = false)
         tokenDecorations.dispose()
     }
 
     private fun updateProvisional() {
         if (!options.analysisCoverage().activePair) {
-            val hadActivePresentation = activeMarkup.isVisible
-            clearActive(preserveGuide = false)
+            val hadActivePresentation = activePresentation.isVisible
+            activePresentation.clear(preserveGuide = false)
             if (hadActivePresentation) editor.contentComponent.repaint()
             return
         }
         if (discardPresentationFromReplacedHighlighter()) return
-        val pair = trackedPair.adjusted
-        val caretOffset = caretOffset()
-        if (pair?.contains(caretOffset) != true) {
-            clearActive(preserveGuide = false)
-            editor.contentComponent.repaint()
-            return
-        }
-
-        refreshAdjustedPair(pair)
+        activePresentation.refreshProvisional(caretOffset(), options)
         editor.contentComponent.repaint()
     }
-
-    /** Keeps stale presentation coherent until the background highlighting pass completes. */
-    private fun refreshAdjustedPair(pair: BracketPair) {
-        val previousGuide = currentGuide()
-        val guide = when {
-            !options.enabled || !options.showsGuide -> null
-            pair.openLine == pair.closeLine -> BracketGuide(pair, guideColumn = 0)
-            previousGuide == null -> null
-            else -> previousGuide.copy(
-                pair = pair,
-                anchorLine = (trackedPair.anchorLine ?: previousGuide.anchorLine)
-                    .coerceIn(pair.openLine, pair.closeLine),
-            )
-        }
-        updateGuide(guide)
-        trackedPair.refresh(pair, guide)
-    }
-
-    private fun replaceActive(
-        pair: BracketPair?,
-        indexedGuide: BracketGuide?,
-        allowGuideFallback: Boolean,
-    ) {
-        val previousGuide = currentGuide()
-        val currentAnchorLine = trackedPair.anchorLine
-        clearActive(preserveGuide = true)
-        if (pair == null || !options.enabled ||
-            (!options.showsGuide && !options.showsActivePair) ||
-            !pair.hasWellFormedTokenRange(editor.document.textLength)
-        ) {
-            activeMarkup.clearGuide()
-            return
-        }
-
-        val guide = createGuide(
-            pair,
-            indexedGuide,
-            previousGuide,
-            currentAnchorLine,
-            allowGuideFallback,
-        )
-        trackedPair.track(pair, guide)
-        updateGuide(guide)
-        activeMarkup.showPair(pair, options)
-    }
-
-    private fun updateGuide(guide: BracketGuide?) {
-        activeMarkup.showGuide(guide, options)
-    }
-
-    private fun createGuide(
-        pair: BracketPair,
-        indexedGuide: BracketGuide?,
-        previousGuide: BracketGuide?,
-        currentAnchorLine: Int?,
-        allowGuideFallback: Boolean,
-    ): BracketGuide? {
-        if (!options.enabled || !options.showsGuide) return null
-        if (pair.openLine == pair.closeLine) return BracketGuide(pair, 0)
-        // A tracked pair can outlive its snapshot during edits and settings
-        // transitions. Keep that provisional presentation bounded until the
-        // background pass publishes an exact guide index.
-        return indexedGuide ?: if (allowGuideFallback) {
-            GuidePositionFallback.guideFor(
-                editor,
-                pair,
-                previousGuide,
-                currentAnchorLine,
-            )
-        } else {
-            null
-        }
-    }
-
-    private fun clearActive(preserveGuide: Boolean) {
-        trackedPair.clear()
-        activeMarkup.clear(preserveGuide)
-    }
-
-    private fun currentGuide(): BracketGuide? = activeMarkup.guide
 
     private fun discardPresentationFromReplacedHighlighter(): Boolean {
         if (analysisHighlighter === editor.highlighter) {
@@ -522,9 +434,6 @@ internal class EditorGuideSession(
     ): Boolean = analysisState.shouldReleasePairGraph(required, provided)
 
     private fun caretOffset(): Int = editor.caretModel.primaryCaret.offset
-
-    private fun BracketPair.contains(offset: Int): Boolean =
-        offset > openOffset && offset.toLong() < closeOffset.toLong() + closeTokenLength
 
     private companion object {
         private fun assertEdt() {

@@ -72,10 +72,12 @@ public final class com/sijunyang/bracketpairguides/analysis/BraceLanguageFamily 
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/sijunyang/bracketpairguides/analysis/BracketAnalysis {
-	public fun <init> ()V
-	public final fun analyze (Lcom/sijunyang/bracketpairguides/analysis/AnalysisInput;Lcom/intellij/openapi/progress/ProgressIndicator;)Lcom/sijunyang/bracketpairguides/analysis/AnalysisOutcome;
-	public final fun installedLanguages ()Ljava/util/List;
+public abstract interface class com/sijunyang/bracketpairguides/analysis/BraceLanguageInventory {
+	public abstract fun families ()Ljava/util/List;
+}
+
+public abstract interface class com/sijunyang/bracketpairguides/analysis/BracketAnalysis {
+	public abstract fun analyze (Lcom/sijunyang/bracketpairguides/analysis/AnalysisInput;Lcom/intellij/openapi/progress/ProgressIndicator;)Lcom/sijunyang/bracketpairguides/analysis/AnalysisOutcome;
 }
 
 public final class com/sijunyang/bracketpairguides/analysis/BracketGuide {

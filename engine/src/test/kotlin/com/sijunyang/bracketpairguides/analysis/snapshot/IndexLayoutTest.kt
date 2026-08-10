@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.analysis.pipeline
+package com.sijunyang.bracketpairguides.analysis.snapshot
 
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import org.junit.Assert.assertEquals

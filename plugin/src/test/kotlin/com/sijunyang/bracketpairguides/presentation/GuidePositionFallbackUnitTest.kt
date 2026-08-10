@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.editor
+package com.sijunyang.bracketpairguides.presentation
 
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.BracketPair

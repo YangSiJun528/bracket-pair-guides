@@ -1,11 +1,11 @@
 package com.sijunyang.bracketpairguides.settings.ui
 
-import com.sijunyang.bracketpairguides.analysis.BracketAnalysis
 import com.sijunyang.bracketpairguides.analysis.BraceLanguageFamily
-import com.sijunyang.bracketpairguides.editor.GuideSettingsChange
-import com.sijunyang.bracketpairguides.settings.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.analysis.BraceLanguageInventory
+import com.sijunyang.bracketpairguides.editor.events.GuideSettingsChange
+import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
-import com.sijunyang.bracketpairguides.settings.StoredColorFormat
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.components.service
 import com.intellij.openapi.ui.DialogPanel
@@ -31,7 +31,7 @@ internal class BracketGuideSettingsPage(
 ) : BoundConfigurable("Bracket Pair Guides") {
     private var appliedSnapshot = BracketGuidePreferences()
 
-    constructor() : this({ service<BracketAnalysis>().installedLanguages() })
+    constructor() : this(service<BraceLanguageInventory>()::families)
 
     override fun createPanel(): DialogPanel {
         val settings = BracketGuideSettings.getInstance()

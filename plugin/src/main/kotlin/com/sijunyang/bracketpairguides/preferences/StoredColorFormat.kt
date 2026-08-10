@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.settings
+package com.sijunyang.bracketpairguides.preferences
 
 import java.awt.Color
 

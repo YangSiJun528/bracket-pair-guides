@@ -1,7 +1,5 @@
 package com.sijunyang.bracketpairguides.analysis.guide
 
-import com.intellij.openapi.editor.Document
-import com.intellij.openapi.progress.ProgressIndicator
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 
@@ -42,7 +40,7 @@ internal class GuidePositionIndex private constructor(
     ): BracketGuide {
         val minimum = minimumEntry(firstLine, lastLine)
         val column = entryColumn(minimum)
-        return if (column == NO_INDENT) {
+        return if (column == GuideIndentation.BLANK_LINE_COLUMN) {
             BracketGuide(pair, guideColumn = 0, anchorLine = firstLine)
         } else {
             BracketGuide(pair, column, entryLine(minimum))
@@ -113,44 +111,27 @@ internal class GuidePositionIndex private constructor(
             if (relativeLine % LINES_PER_BLOCK == 0) 0 else 1
 
     companion object {
-        private const val NO_INDENT: Int = Int.MAX_VALUE
-
         internal fun from(
-            document: Document,
-            tabSize: Int,
-            progress: ProgressIndicator,
-            indexedLineRange: IntRange,
+            baseLine: Int,
+            lineCount: Int,
+            checkCanceled: () -> Unit,
+            indentationAt: (Int) -> Int,
         ): GuidePositionIndex? {
-            progress.checkCanceled()
-            val documentLineCount = document.lineCount
-            if (documentLineCount <= 0 ||
-                indexedLineRange.isEmpty() ||
-                indexedLineRange.last < 0 ||
-                indexedLineRange.first >= documentLineCount
+            checkCanceled()
+            if (baseLine < 0 ||
+                lineCount <= 0 ||
+                baseLine.toLong() + lineCount - 1L > Int.MAX_VALUE
             ) {
                 return null
             }
-            val baseLine = maxOf(indexedLineRange.first, 0)
-            val lastLine = minOf(indexedLineRange.last, documentLineCount - 1)
-            val lineCount = (lastLine.toLong() - baseLine + 1).toInt()
             val storage = GuideIndexShape.forLineCount(lineCount) ?: return null
-            val text = document.immutableCharSequence
-            val effectiveTabSize = tabSize.coerceAtLeast(1)
             return build(
                 baseLine = baseLine,
                 lineCount = lineCount,
-                checkCanceled = progress::checkCanceled,
+                checkCanceled = checkCanceled,
                 storage = storage,
-            ) { relativeLine ->
-                val line = baseLine + relativeLine
-                indentationColumn(
-                    text = text,
-                    start = document.getLineStartOffset(line),
-                    end = document.getLineEndOffset(line),
-                    tabSize = effectiveTabSize,
-                    checkCanceled = progress::checkCanceled,
-                )
-            }
+                indentationAt = indentationAt,
+            )
         }
 
         private inline fun build(
@@ -203,34 +184,12 @@ internal class GuidePositionIndex private constructor(
 
         private fun entryLine(entry: Long): Int = entry.toInt()
 
-        private fun indentationColumn(
-            text: CharSequence,
-            start: Int,
-            end: Int,
-            tabSize: Int,
-            checkCanceled: () -> Unit,
-        ): Int {
-            var column = 0
-            for (offset in start until end) {
-                if ((offset - start) and CANCELLATION_CHARACTER_MASK == 0) {
-                    checkCanceled()
-                }
-                when (text[offset]) {
-                    ' ' -> column = GuideIndentation.afterSpace(column)
-                    '\t' -> column = GuideIndentation.afterTab(column, tabSize)
-                    else -> return column
-                }
-            }
-            return NO_INDENT
-        }
-
         private fun lineAfterOpenOrClose(openLine: Int, closeLine: Int): Int =
             if (openLine < closeLine) openLine + 1 else closeLine
 
         private const val LINES_PER_BLOCK = GuideIndexShape.LINES_PER_BLOCK
         private const val CANCELLATION_LINE_MASK = 0xFF
         private const val CANCELLATION_TREE_MASK = 0xFFF
-        private const val CANCELLATION_CHARACTER_MASK = 0xFFF
         private const val NO_INDENT_ENTRY = Long.MAX_VALUE
         private const val UINT_MASK = 0xFFFF_FFFFL
     }

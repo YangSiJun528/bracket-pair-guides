@@ -2,6 +2,7 @@ package com.sijunyang.bracketpairguides.analysis.guide
 
 /** Overflow-safe visual-column arithmetic shared by indexed and provisional guides. */
 internal object GuideIndentation {
+    const val BLANK_LINE_COLUMN: Int = Int.MAX_VALUE
     private const val MAXIMUM_COLUMN: Int = Int.MAX_VALUE - 1
 
     fun afterSpace(column: Int): Int =

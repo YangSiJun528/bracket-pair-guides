@@ -17,7 +17,7 @@ import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPass
 import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
 import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
-import com.sijunyang.bracketpairguides.settings.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 
 class RealWorldFormatRegressionTest : BasePlatformTestCase() {
@@ -93,10 +93,11 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         }
 
         val pass = BracketGuideHighlightingPass(
-            project,
-            editor,
-            file.fileType,
-            file.virtualFile,
+            project = project,
+            editor = editor,
+            fileType = file.fileType,
+            sourceFile = file.virtualFile,
+            analyze = service<BracketAnalysis>()::analyze,
         )
         editor.caretModel.moveToOffset(firstTokens.offsetAt(0) + 1)
         inReadAction {

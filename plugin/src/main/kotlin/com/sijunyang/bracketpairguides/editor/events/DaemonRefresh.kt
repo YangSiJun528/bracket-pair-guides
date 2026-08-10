@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.editor
+package com.sijunyang.bracketpairguides.editor.events
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.project.ProjectManager

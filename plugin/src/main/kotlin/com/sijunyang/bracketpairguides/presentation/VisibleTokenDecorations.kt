@@ -2,8 +2,8 @@ package com.sijunyang.bracketpairguides.presentation
 
 import com.sijunyang.bracketpairguides.analysis.BracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.TokenWindow
-import com.sijunyang.bracketpairguides.settings.BracketGuidePreferences
-import com.sijunyang.bracketpairguides.settings.StoredColorFormat
+import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.ex.MarkupModelEx

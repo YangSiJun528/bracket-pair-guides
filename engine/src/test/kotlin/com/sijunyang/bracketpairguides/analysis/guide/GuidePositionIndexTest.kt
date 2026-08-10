@@ -4,6 +4,7 @@ import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.intellij.openapi.editor.impl.DocumentImpl
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
+import com.sijunyang.bracketpairguides.analysis.intellij.DocumentGuidePositions
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -11,6 +12,26 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class GuidePositionIndexTest {
+    @Test
+    fun `builds from primitive line indentation`() {
+        val indentation = intArrayOf(8, 2, 4)
+        var cancellationChecks = 0
+        val index = checkNotNull(
+            GuidePositionIndex.from(
+                baseLine = 4,
+                lineCount = indentation.size,
+                checkCanceled = { cancellationChecks++ },
+                indentationAt = indentation::get,
+            ),
+        )
+
+        val guide = index.guide(pair(closeLine = 6).copy(openLine = 3))
+
+        assertEquals(2, guide.guideColumn)
+        assertEquals(5, guide.anchorLine)
+        assertTrue(cancellationChecks > 0)
+    }
+
     @Test
     fun `uses the minimum body and closing indentation`() {
         val index = indexFor("if (ready) {\n        nested()\n  leastIndented()\n    }")
@@ -107,12 +128,11 @@ class GuidePositionIndexTest {
         val document = DocumentImpl("one\ntwo")
 
         assertNull(
-            GuidePositionIndex.from(
+            DocumentGuidePositions(
                 document = document,
                 tabSize = 4,
-                progress = ProgressIndicatorBase(),
-                indexedLineRange = 10..20,
-            ),
+                checkCanceled = {},
+            ).index(10..20),
         )
     }
 
@@ -128,12 +148,11 @@ class GuidePositionIndexTest {
             }
         }
 
-        GuidePositionIndex.from(
+        DocumentGuidePositions(
             document = DocumentImpl(text),
             tabSize = 4,
-            progress = progress,
-            indexedLineRange = 0..0,
-        )
+            checkCanceled = progress::checkCanceled,
+        ).index(0..0)
 
         assertTrue(cancellationChecks > 2)
     }
@@ -155,6 +174,14 @@ class GuidePositionIndexTest {
     @Test
     fun `storage planning is overflow safe for the maximum line count`() {
         assertNull(GuideIndexShape.forLineCount(Int.MAX_VALUE))
+        assertNull(
+            GuidePositionIndex.from(
+                baseLine = Int.MAX_VALUE,
+                lineCount = 2,
+                checkCanceled = {},
+                indentationAt = { 0 },
+            ),
+        )
     }
 
     @Test
@@ -182,12 +209,11 @@ class GuidePositionIndexTest {
     ): GuidePositionIndex {
         val document = DocumentImpl(text)
         return checkNotNull(
-            GuidePositionIndex.from(
+            DocumentGuidePositions(
                 document = document,
                 tabSize = tabSize,
-                progress = ProgressIndicatorBase(),
-                indexedLineRange = indexedLineRange ?: 0 until document.lineCount,
-            ),
+                checkCanceled = {},
+            ).index(indexedLineRange ?: 0 until document.lineCount),
         )
     }
 

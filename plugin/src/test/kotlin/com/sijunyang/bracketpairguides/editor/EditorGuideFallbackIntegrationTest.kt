@@ -7,9 +7,10 @@ import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.FakeBracketSnapshot
+import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
 import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
-import com.sijunyang.bracketpairguides.settings.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import org.junit.Assert.assertEquals
 
@@ -52,6 +53,7 @@ class EditorGuideFallbackIntegrationTest : BasePlatformTestCase() {
         val session = EditorGuideSessions.install(
             editor = editor,
             visibleRange = { TextRange(0, editor.document.textLength) },
+            preferences = initialOptions,
         )
         try {
             session.accept(AnalysisOutcome.Complete(result))

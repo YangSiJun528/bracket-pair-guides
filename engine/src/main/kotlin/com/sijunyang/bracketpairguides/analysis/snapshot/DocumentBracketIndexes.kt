@@ -1,10 +1,11 @@
-package com.sijunyang.bracketpairguides.analysis
+package com.sijunyang.bracketpairguides.analysis.snapshot
 
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.FileType
+import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
+import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.pairing.core.CancellationProbe
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable
-import com.sijunyang.bracketpairguides.analysis.pipeline.IndexLayout
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 import java.util.concurrent.locks.LockSupport

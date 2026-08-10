@@ -28,7 +28,12 @@
                 serviceImplementation="com.sijunyang.bracketpairguides.settings.BracketGuideSettings"/>
 
         <applicationService
-                serviceImplementation="com.sijunyang.bracketpairguides.analysis.BracketAnalysis"/>
+                serviceInterface="com.sijunyang.bracketpairguides.analysis.BracketAnalysis"
+                serviceImplementation="com.sijunyang.bracketpairguides.analysis.intellij.IntellijBracketAnalysis"/>
+
+        <applicationService
+                serviceInterface="com.sijunyang.bracketpairguides.analysis.BraceLanguageInventory"
+                serviceImplementation="com.sijunyang.bracketpairguides.analysis.intellij.IntellijBraceLanguageInventory"/>
 
         <applicationConfigurable
                 parentId="editor"

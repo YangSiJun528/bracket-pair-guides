@@ -1,7 +1,9 @@
-package com.sijunyang.bracketpairguides.editor
+package com.sijunyang.bracketpairguides.editor.events
 
 import com.intellij.openapi.editor.EditorFactory
-import com.sijunyang.bracketpairguides.settings.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
+import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 
 /** A committed preference transition and its effects on live editor sessions. */
 internal data class GuideSettingsChange(

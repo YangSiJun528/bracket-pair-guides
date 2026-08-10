@@ -1,9 +1,14 @@
-package com.sijunyang.bracketpairguides.analysis
+package com.sijunyang.bracketpairguides.analysis.snapshot
 
-import com.sijunyang.bracketpairguides.analysis.pairing.toPairTable
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
+import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.BracketSnapshot
+import com.sijunyang.bracketpairguides.analysis.TokenWindow
 import com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex
+import com.sijunyang.bracketpairguides.analysis.pairing.toPairTable
 import com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -11,7 +16,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 
-class BracketSnapshotTest : BasePlatformTestCase() {
+class IndexedBracketSnapshotTest : BasePlatformTestCase() {
     fun testActivePairQueryHidesIndexReferences() {
         val outer = pair(open = 0, close = 90, depth = 0)
         val inner = pair(open = 20, close = 40, depth = 1)

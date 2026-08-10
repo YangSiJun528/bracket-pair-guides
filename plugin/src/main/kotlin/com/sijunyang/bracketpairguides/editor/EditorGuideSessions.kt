@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
-import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
+import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 
 /** Editor-owned session registry and lifecycle boundary. */
 internal object EditorGuideSessions {
@@ -14,6 +14,7 @@ internal object EditorGuideSessions {
     fun install(
         editor: Editor,
         visibleRange: (Editor) -> TextRange,
+        preferences: BracketGuidePreferences,
     ): EditorGuideSession {
         assertEdt()
         val existing = editor.getUserData(KEY)
@@ -21,7 +22,7 @@ internal object EditorGuideSessions {
         return EditorGuideSession(
             editor,
             visibleRange,
-            BracketGuideSettings.getInstance().options,
+            preferences,
         ).also {
             editor.putUserData(KEY, it)
         }

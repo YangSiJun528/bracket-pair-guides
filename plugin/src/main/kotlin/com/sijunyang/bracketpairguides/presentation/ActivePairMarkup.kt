@@ -7,7 +7,7 @@ import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.settings.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 
 /** All active-pair markup owned by one editor session. */
 internal class ActivePairMarkup(private val editor: Editor) {

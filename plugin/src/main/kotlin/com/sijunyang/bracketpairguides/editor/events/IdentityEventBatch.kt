@@ -1,4 +1,4 @@
-package com.sijunyang.bracketpairguides.editor
+package com.sijunyang.bracketpairguides.editor.events
 
 import java.util.Collections
 import java.util.IdentityHashMap

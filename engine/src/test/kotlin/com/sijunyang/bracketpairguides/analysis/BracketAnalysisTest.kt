@@ -10,6 +10,7 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.sijunyang.bracketpairguides.analysis.intellij.IntellijBracketAnalysis
 
 class BracketAnalysisTest : BasePlatformTestCase() {
     fun testAnalyzePreservesStampAndAnswersOnlyPublicQueries() {
@@ -30,7 +31,7 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         )
 
         val outcome = inReadAction {
-            BracketAnalysis().analyze(request, EmptyProgressIndicator())
+            analysis().analyze(request, EmptyProgressIndicator())
         }
         val result = complete(outcome)
 
@@ -63,7 +64,7 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         val range = TextRange(0, source.length)
 
         val tokenOnly = complete(inReadAction {
-            BracketAnalysis().analyze(
+            analysis().analyze(
                 request(
                     AnalysisCoverage(
                         tokens = true,
@@ -78,7 +79,7 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         assertNull(tokenOnly.activePairAt(caretOffset))
 
         val activeOnly = complete(inReadAction {
-            BracketAnalysis().analyze(
+            analysis().analyze(
                 request(
                     AnalysisCoverage(
                         tokens = false,
@@ -93,7 +94,7 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         assertNotNull(activeOnly.activePairAt(caretOffset))
 
         val inactive = complete(inReadAction {
-            BracketAnalysis().analyze(
+            analysis().analyze(
                 request(
                     AnalysisCoverage(
                         tokens = false,
@@ -106,18 +107,6 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         })
         assertEquals(0, inactive.visibleTokens(range, caretOffset, 100).size)
         assertNull(inactive.activePairAt(caretOffset))
-    }
-
-    fun testInstalledLanguagesReturnsStableUiReadyDtos() {
-        val families = BracketAnalysis().installedLanguages()
-
-        assertTrue(families.isNotEmpty())
-        assertEquals(families.map { family -> family.id }.sorted(), families.map { it.id })
-        assertTrue(families.all { family -> family.id.isNotBlank() })
-        assertTrue(families.all { family -> family.displayName.isNotBlank() })
-        assertTrue(families.all { family -> family.memberDisplayNames.isNotEmpty() })
-        val textFamily = families.single { family -> family.id == "TEXT" }
-        assertTrue("Plain text" in textFamily.memberDisplayNames)
     }
 
     fun testUnavailableOutcomeRetainsTheAttemptStampWithoutAPartialSnapshot() {
@@ -225,7 +214,7 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         }
 
         val outcome = inReadAction {
-            BracketAnalysis().analyze(input, replacingProgress)
+            analysis().analyze(input, replacingProgress)
         }
 
         assertTrue(highlighterReplaced)
@@ -275,7 +264,7 @@ class BracketAnalysisTest : BasePlatformTestCase() {
 
         try {
             inReadAction {
-                BracketAnalysis().analyze(
+                analysis().analyze(
                     request(
                         AnalysisCoverage(
                             tokens = true,
@@ -427,8 +416,10 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         disabledLanguageIds = emptySet(),
     )
 
+    private fun analysis(): BracketAnalysis = IntellijBracketAnalysis()
+
     private fun analyzeCurrentTokens(): AnalysisOutcome = inReadAction {
-        BracketAnalysis().analyze(
+        analysis().analyze(
             request(
                 AnalysisCoverage(
                     tokens = true,

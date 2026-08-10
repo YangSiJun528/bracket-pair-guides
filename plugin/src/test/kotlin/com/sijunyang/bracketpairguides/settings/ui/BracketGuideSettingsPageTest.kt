@@ -2,10 +2,10 @@ package com.sijunyang.bracketpairguides.settings.ui
 
 import com.sijunyang.bracketpairguides.analysis.BraceLanguageFamily
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
+import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
-import com.sijunyang.bracketpairguides.settings.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
-import com.sijunyang.bracketpairguides.settings.StoredColorFormat
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -194,10 +194,12 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
             EditorGuideSessions.install(
                 editor = firstEditor,
                 visibleRange = { TextRange(0, document.textLength) },
+                preferences = BracketGuideSettings.getInstance().options,
             )
             EditorGuideSessions.install(
                 editor = secondEditor,
                 visibleRange = { TextRange(0, document.textLength) },
+                preferences = BracketGuideSettings.getInstance().options,
             )
 
             withConfigurable(listOf(language)) { configurable, component ->
