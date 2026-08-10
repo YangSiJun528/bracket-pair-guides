@@ -17,7 +17,7 @@ public data class BracketPair(
 ) {
     /** Overflow-safe validation for presentation and index boundaries. */
     public fun hasWellFormedTokenRange(
-        maximumEndOffset: Int = Int.MAX_VALUE,
+        maximumEndOffset: Int,
     ): Boolean {
         if (maximumEndOffset < 0 || openOffset < 0 || closeOffset < 0 ||
             openTokenLength <= 0 || closeTokenLength <= 0

@@ -1,14 +1,7 @@
 package com.sijunyang.bracketpairguides.editor
 
-import com.sijunyang.bracketpairguides.analysis.ActivePairKnowledge
-import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.FakeBracketAnalysis
-import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPass
-import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
-import com.sijunyang.bracketpairguides.settings.BracketGuidePreferences
-import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
@@ -16,8 +9,15 @@ import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.FakeBracketAnalysis
+import com.sijunyang.bracketpairguides.analysis.FakeBracketSnapshot
+import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPass
+import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
+import com.sijunyang.bracketpairguides.settings.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 
 class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
@@ -26,7 +26,7 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         BracketGuideSettings.getInstance().loadState(BracketGuidePreferences())
     }
 
-    fun testHighlighterReplacementRejectsTheSearchFromThePreviousSemantics() {
+    fun testHighlighterReplacementClearsPresentationFromPreviousSemantics() {
         val source = "class Sample { content }"
         myFixture.configureByText("Sample.java", source)
         val editor = myFixture.editor
@@ -42,14 +42,12 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         editor.caretModel.moveToOffset(source.indexOf("content"))
         val fakeAnalysis = FakeBracketAnalysis(
             pairs = { _, _ -> listOf(pair) },
-            activePair = { ActivePairKnowledge.Known(pair) },
         )
         val pass = BracketGuideHighlightingPass(
             project = project,
             editor = editor,
             fileType = myFixture.file.fileType,
             analyze = fakeAnalysis::analyze,
-            resolveActivePair = fakeAnalysis::resolveActivePair,
         )
         ReadAction.compute<Unit, RuntimeException> {
             pass.doCollectInformation(EmptyProgressIndicator())
@@ -65,85 +63,84 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         )
         session.visibleAreaChanged()
 
-        assertEquals(0, fakeAnalysis.activePairCallCount)
         assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
-
         editor.caretModel.moveToOffset(source.indexOf("content") + 1)
-        assertEquals(0, fakeAnalysis.activePairCallCount)
+        assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
     }
 
-    fun testDocumentChangesSkipImmediateResolutionWithoutActivePresentation() {
-        myFixture.configureByText("TokenOnly.txt", "{ value }")
+    fun testDocumentChangeWithoutSnapshotDoesNotCreateActivePresentation() {
+        myFixture.configureByText("NoSnapshot.txt", "{ value }")
         val editor = myFixture.editor
-        EditorGuideSessions.dispose(editor)
-        val fakeAnalysis = FakeBracketAnalysis()
-        val session = EditorGuideSessions.install(
-            editor = editor,
-            resolveActivePair = fakeAnalysis::resolveActivePair,
-            visibleRange = { currentEditor ->
-                TextRange(0, currentEditor.document.textLength)
-            },
+        BracketGuideSettings.getInstance().replace(
+            BracketGuidePreferences(showActivePairBorder = true),
         )
+        EditorGuideEvents.ensureInitialized()
+        EditorGuideSessions.dispose(editor)
+        EditorGuideSessions.install(
+            editor = editor,
+            visibleRange = { TextRange(0, editor.document.textLength) },
+        )
+
         try {
-            session.updateOptions(
-                BracketGuidePreferences(enabled = false),
-                resolveImmediately = true,
-                refreshColors = false,
-            )
-            session.documentChanged(
-                DocumentChange(offset = 2, mayAffectGuidePosition = true),
-                resolveImmediately = true,
-            )
+            WriteCommandAction.runWriteCommandAction(project) {
+                editor.document.insertString(2, "x")
+            }
+            editor.caretModel.moveToOffset(4)
 
-            session.updateOptions(
-                BracketGuidePreferences(
-                    colorBracketTokens = true,
-                    showActiveGuide = false,
-                    showActivePairBorder = false,
-                    showActivePairBackground = false,
-                ),
-                resolveImmediately = true,
-                refreshColors = false,
-            )
-            session.documentChanged(
-                DocumentChange(offset = 3, mayAffectGuidePosition = true),
-                resolveImmediately = true,
-            )
-
-            assertEquals(0, fakeAnalysis.activePairCallCount)
-            assertTrue(editor.observedBracketMarkup().guideMarks.isEmpty())
-            assertTrue(editor.observedBracketMarkup().activePairMarks.isEmpty())
+            assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
         } finally {
             EditorGuideSessions.dispose(editor)
         }
     }
 
-    fun testSplitDocumentRunsOnlyOneImmediateSearch() {
+    fun testSplitDocumentKeepsAdjustedPresentationInBothEditors() {
         val document = EditorFactory.getInstance().createDocument("{ value }")
         val firstEditor = EditorFactory.getInstance().createEditor(document, project)
         val secondEditor = EditorFactory.getInstance().createEditor(document, project)
-        val firstAnalysis = FakeBracketAnalysis()
-        val secondAnalysis = FakeBracketAnalysis()
+        val options = BracketGuidePreferences(showActivePairBorder = true)
+        BracketGuideSettings.getInstance().replace(options)
+        EditorGuideEvents.ensureInitialized()
+        val pair = BracketPair(0, 1, 8, 1, 0, 0, 0)
         try {
-            EditorGuideSessions.install(
-                editor = firstEditor,
-                resolveActivePair = firstAnalysis::resolveActivePair,
-                visibleRange = { TextRange(0, document.textLength) },
-            )
-            EditorGuideSessions.install(
-                editor = secondEditor,
-                resolveActivePair = secondAnalysis::resolveActivePair,
-                visibleRange = { TextRange(0, document.textLength) },
+            val sessions = listOf(firstEditor, secondEditor).map { editor ->
+                editor.caretModel.moveToOffset(3)
+                val session = EditorGuideSessions.install(
+                    editor = editor,
+                    visibleRange = { TextRange(0, document.textLength) },
+                )
+                session.accept(
+                    FakeBracketSnapshot(
+                        stamp = AnalysisInput(
+                            editor = editor,
+                            fileType = PlainTextFileType.INSTANCE,
+                            coverage = options.analysisCoverage(),
+                            disabledLanguageIds = emptySet(),
+                        ).stamp,
+                        activePair = { pair },
+                    ),
+                )
+                session
+            }
+            assertEquals(
+                listOf(2, 2),
+                listOf(firstEditor, secondEditor).map {
+                    it.observedBracketMarkup().activePairMarks.size
+                },
             )
 
-            DocumentChangeRoute.deliver(
-                editors = listOf(firstEditor, secondEditor),
-                change = DocumentChange(offset = 2, mayAffectGuidePosition = true),
-                foregroundEditor = secondEditor,
-            )
+            WriteCommandAction.runWriteCommandAction(project) {
+                document.insertString(0, "x")
+            }
 
-            assertEquals(0, firstAnalysis.activePairCallCount)
-            assertEquals(1, secondAnalysis.activePairCallCount)
+            assertEquals(2, sessions.size)
+            for (editor in listOf(firstEditor, secondEditor)) {
+                assertEquals(
+                    listOf(1, 9),
+                    editor.observedBracketMarkup().activePairMarks
+                        .map { it.startOffset }
+                        .sorted(),
+                )
+            }
         } finally {
             EditorGuideSessions.dispose(firstEditor)
             EditorGuideSessions.dispose(secondEditor)
@@ -152,86 +149,34 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         }
     }
 
-    fun testSecondaryCaretMovementDoesNotRepeatPrimaryResolution() {
-        myFixture.configureByText("MultipleCarets.txt", "{ first second }")
+    fun testLanguageChangeClearsPresentationUntilANewSnapshotArrives() {
+        val source = "{ value }"
+        myFixture.configureByText("LanguageChange.txt", source)
         val editor = myFixture.editor
-        editor.caretModel.moveToOffset(3)
-        val fakeAnalysis = FakeBracketAnalysis()
-        EditorGuideEvents.ensureInitialized()
-        EditorGuideSessions.dispose(editor)
-        EditorGuideSessions.install(
+        val options = BracketGuidePreferences(showActivePairBorder = true)
+        BracketGuideSettings.getInstance().replace(options)
+        editor.caretModel.moveToOffset(source.indexOf("value"))
+        val pair = BracketPair(0, 1, source.lastIndex, 1, 0, 0, 0)
+        val fakeAnalysis = FakeBracketAnalysis(pairs = { _, _ -> listOf(pair) })
+        val pass = BracketGuideHighlightingPass(
+            project = project,
             editor = editor,
-            resolveActivePair = fakeAnalysis::resolveActivePair,
-            visibleRange = { TextRange(0, editor.document.textLength) },
+            fileType = myFixture.file.fileType,
+            analyze = fakeAnalysis::analyze,
         )
-        try {
-            val addedCaret = checkNotNull(
-                editor.caretModel.addCaret(editor.offsetToVisualPosition(9)),
-            )
-            assertSame(addedCaret, editor.caretModel.primaryCaret)
-            val secondaryCaret = editor.caretModel.allCarets.single {
-                it !== editor.caretModel.primaryCaret
-            }
-            val callsAfterPrimarySelection = fakeAnalysis.activePairCallCount
-
-            secondaryCaret.moveToOffset(6)
-
-            assertEquals(callsAfterPrimarySelection, fakeAnalysis.activePairCallCount)
-            editor.caretModel.primaryCaret.moveToOffset(10)
-            assertEquals(callsAfterPrimarySelection + 1, fakeAnalysis.activePairCallCount)
-        } finally {
-            EditorGuideSessions.dispose(editor)
+        ReadAction.compute<Unit, RuntimeException> {
+            pass.doCollectInformation(EmptyProgressIndicator())
         }
-    }
+        pass.doApplyInformationToEditor()
+        val session = checkNotNull(EditorGuideSessions.get(editor))
+        assertTrue(editor.observedBracketMarkup().allMarks.isNotEmpty())
 
-    fun testBackgroundOptionRefreshSkipsImmediateResolution() {
-        myFixture.configureByText("OptionRefresh.txt", "{ value }")
-        val editor = myFixture.editor
-        val fakeAnalysis = FakeBracketAnalysis()
-        EditorGuideSessions.dispose(editor)
-        val session = EditorGuideSessions.install(
-            editor = editor,
-            resolveActivePair = fakeAnalysis::resolveActivePair,
-            visibleRange = { TextRange(0, editor.document.textLength) },
+        session.updateOptions(
+            options.copy(disabledLanguageIds = setOf("changed.language")),
+            refreshColors = false,
         )
-        try {
-            session.updateOptions(
-                BracketGuidePreferences(disabledLanguageIds = setOf("first")),
-                resolveImmediately = false,
-                refreshColors = false,
-            )
-            assertEquals(0, fakeAnalysis.activePairCallCount)
+        editor.caretModel.moveToOffset(source.indexOf("value") + 1)
 
-            session.updateOptions(
-                BracketGuidePreferences(disabledLanguageIds = setOf("second")),
-                resolveImmediately = true,
-                refreshColors = false,
-            )
-            assertEquals(1, fakeAnalysis.activePairCallCount)
-        } finally {
-            EditorGuideSessions.dispose(editor)
-        }
-    }
-
-    fun testThemeRefreshDoesNotRunImmediateResolution() {
-        myFixture.configureByText("ThemeRefresh.txt", "{ value }")
-        val editor = myFixture.editor
-        val fakeAnalysis = FakeBracketAnalysis()
-        EditorGuideSessions.dispose(editor)
-        EditorGuideSessions.install(
-            editor = editor,
-            resolveActivePair = fakeAnalysis::resolveActivePair,
-            visibleRange = { TextRange(0, editor.document.textLength) },
-        )
-        try {
-            EditorGuideEvents.ensureInitialized()
-            ApplicationManager.getApplication()
-                .getService(EditorGuideEvents::class.java)
-                .globalSchemeChange(null)
-
-            assertEquals(0, fakeAnalysis.activePairCallCount)
-        } finally {
-            EditorGuideSessions.dispose(editor)
-        }
+        assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
     }
 }

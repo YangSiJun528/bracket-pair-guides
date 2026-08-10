@@ -62,25 +62,6 @@ internal class TrackedBracketPair(private val editor: Editor) {
         current = null
     }
 
-    fun withDepthHint(candidate: BracketPair, previous: BracketPair?): BracketPair {
-        if (previous == null) return candidate
-        val depth = when {
-            candidate.openOffset == previous.openOffset &&
-                candidate.closeOffset == previous.closeOffset -> previous.depth
-            candidate.openOffset > previous.openOffset &&
-                candidate.closeOffset < previous.closeOffset -> previous.depth + 1
-            else -> previous.depth
-        }
-        return candidate.copy(depth = depth)
-    }
-
-    fun hasDifferentRange(candidate: BracketPair, previous: BracketPair?): Boolean =
-        previous == null ||
-            candidate.openOffset != previous.openOffset ||
-            candidate.openTokenLength != previous.openTokenLength ||
-            candidate.closeOffset != previous.closeOffset ||
-            candidate.closeTokenLength != previous.closeTokenLength
-
     private fun moveAnchorTo(guide: BracketGuide?) {
         val line = guide?.anchorLine?.coerceIn(0, editor.document.lineCount - 1)
         if (line == null) {

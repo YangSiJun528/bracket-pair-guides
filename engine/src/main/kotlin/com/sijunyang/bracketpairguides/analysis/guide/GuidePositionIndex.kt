@@ -7,14 +7,16 @@ import com.sijunyang.bracketpairguides.analysis.BracketPair
 
 /**
  * Precomputes indentation once for the multiline-pair query envelope and
- * answers minimum-indentation queries in O(log indexedLineCount). A naive
- * per-pair body scan becomes quadratic for deeply nested or long scopes.
+ * answers exact minimum-indentation queries by scanning at most two partial
+ * 256-line blocks plus an O(log blockCount) minimum-tree query. A naive per-pair
+ * body scan becomes quadratic for deeply nested or long scopes.
  */
 internal class GuidePositionIndex private constructor(
     private val baseLine: Int,
     private val lineCount: Int,
-    private val treeSize: Int,
-    private val minimumTree: LongArray,
+    private val indentationByLine: IntArray,
+    private val blockTreeBase: Int,
+    private val blockMinimumTree: LongArray,
 ) {
     fun guideForOrNull(pair: BracketPair): BracketGuide? {
         if (lineCount == 0 || pair.openLine >= pair.closeLine) return null
@@ -54,19 +56,61 @@ internal class GuidePositionIndex private constructor(
         val boundedFirstLine = maxOf(firstLine, baseLine)
         val boundedLastLine = minOf(lastLine, lastIndexedLine)
         if (boundedFirstLine > boundedLastLine) return NO_INDENT_ENTRY
-        var left = boundedFirstLine - baseLine + treeSize
-        var right = boundedLastLine - baseLine + treeSize
+
+        val firstRelativeLine = boundedFirstLine - baseLine
+        val afterLastRelativeLine = boundedLastLine - baseLine + 1
+        val firstFullBlock = firstBlockAtOrAfter(firstRelativeLine)
+        val afterLastFullBlock = afterLastRelativeLine / LINES_PER_BLOCK
+        val firstFullBlockLine = firstFullBlock * LINES_PER_BLOCK
+        val afterLastFullBlockLine = afterLastFullBlock * LINES_PER_BLOCK
         var minimum = NO_INDENT_ENTRY
 
+        val afterLeftEdge = minOf(afterLastRelativeLine, firstFullBlockLine)
+        minimum = minOf(
+            minimum,
+            minimumLineEntry(firstRelativeLine, afterLeftEdge),
+        )
+        if (firstFullBlock < afterLastFullBlock) {
+            minimum = minOf(
+                minimum,
+                minimumBlockEntry(firstFullBlock, afterLastFullBlock),
+            )
+        }
+        val firstRightEdge = maxOf(afterLeftEdge, afterLastFullBlockLine)
+        minimum = minOf(
+            minimum,
+            minimumLineEntry(firstRightEdge, afterLastRelativeLine),
+        )
+        return minimum
+    }
+
+    private fun minimumLineEntry(firstLine: Int, afterLastLine: Int): Long {
+        var minimum = NO_INDENT_ENTRY
+        for (line in firstLine until afterLastLine) {
+            minimum = minOf(
+                minimum,
+                entry(indentationByLine[line], baseLine + line),
+            )
+        }
+        return minimum
+    }
+
+    private fun minimumBlockEntry(firstBlock: Int, afterLastBlock: Int): Long {
+        var left = firstBlock + blockTreeBase
+        var right = afterLastBlock - 1 + blockTreeBase
+        var minimum = NO_INDENT_ENTRY
         while (left <= right) {
-            if (left and 1 == 1) minimum = minOf(minimum, minimumTree[left++])
-            if (right and 1 == 0) minimum = minOf(minimum, minimumTree[right--])
+            if (left and 1 == 1) minimum = minOf(minimum, blockMinimumTree[left++])
+            if (right and 1 == 0) minimum = minOf(minimum, blockMinimumTree[right--])
             left /= 2
             right /= 2
         }
-
         return minimum
     }
+
+    private fun firstBlockAtOrAfter(relativeLine: Int): Int =
+        relativeLine / LINES_PER_BLOCK +
+            if (relativeLine % LINES_PER_BLOCK == 0) 0 else 1
 
     companion object {
         private const val NO_INDENT: Int = Int.MAX_VALUE
@@ -89,7 +133,7 @@ internal class GuidePositionIndex private constructor(
             val baseLine = maxOf(indexedLineRange.first, 0)
             val lastLine = minOf(indexedLineRange.last, documentLineCount - 1)
             val lineCount = (lastLine.toLong() - baseLine + 1).toInt()
-            val storage = GuideTreeShape.forLineCount(lineCount) ?: return null
+            val storage = GuideIndexShape.forLineCount(lineCount) ?: return null
             val text = document.immutableCharSequence
             val effectiveTabSize = tabSize.coerceAtLeast(1)
             return build(
@@ -113,26 +157,43 @@ internal class GuidePositionIndex private constructor(
             baseLine: Int,
             lineCount: Int,
             checkCanceled: () -> Unit,
-            storage: GuideTreeShape,
+            storage: GuideIndexShape,
             indentationAt: (Int) -> Int,
         ): GuidePositionIndex {
-            val treeSize = storage.leafCount
-            val tree = LongArray(storage.entryCount) { NO_INDENT_ENTRY }
+            val indentationByLine = IntArray(storage.indentationEntryCount)
+            val blockMinimumTree = LongArray(storage.blockTreeEntryCount) {
+                NO_INDENT_ENTRY
+            }
 
             for (line in 0 until lineCount) {
                 if (line and CANCELLATION_LINE_MASK == 0) checkCanceled()
-                tree[treeSize + line] = entry(
-                    indentationAt(line),
-                    baseLine + line,
+                val indentation = indentationAt(line)
+                indentationByLine[line] = indentation
+                val blockLeaf = storage.blockLeafCount + line / LINES_PER_BLOCK
+                blockMinimumTree[blockLeaf] = minOf(
+                    blockMinimumTree[blockLeaf],
+                    entry(
+                        indentation,
+                        baseLine + line,
+                    ),
                 )
             }
-            for (node in treeSize - 1 downTo 1) {
+            for (node in storage.blockLeafCount - 1 downTo 1) {
                 if (node and CANCELLATION_TREE_MASK == 0) checkCanceled()
-                tree[node] = minOf(tree[node * 2], tree[node * 2 + 1])
+                blockMinimumTree[node] = minOf(
+                    blockMinimumTree[node * 2],
+                    blockMinimumTree[node * 2 + 1],
+                )
             }
             checkCanceled()
 
-            return GuidePositionIndex(baseLine, lineCount, treeSize, tree)
+            return GuidePositionIndex(
+                baseLine = baseLine,
+                lineCount = lineCount,
+                indentationByLine = indentationByLine,
+                blockTreeBase = storage.blockLeafCount,
+                blockMinimumTree = blockMinimumTree,
+            )
         }
 
         private fun entry(column: Int, line: Int): Long =
@@ -166,6 +227,7 @@ internal class GuidePositionIndex private constructor(
         private fun lineAfterOpenOrClose(openLine: Int, closeLine: Int): Int =
             if (openLine < closeLine) openLine + 1 else closeLine
 
+        private const val LINES_PER_BLOCK = GuideIndexShape.LINES_PER_BLOCK
         private const val CANCELLATION_LINE_MASK = 0xFF
         private const val CANCELLATION_TREE_MASK = 0xFFF
         private const val CANCELLATION_CHARACTER_MASK = 0xFFF

@@ -30,3 +30,8 @@ internal fun PairTable.toBracketPairs(): List<BracketPair> = List(size()) { inde
         closeLine = closeLineAt(index),
     )
 }
+
+internal fun DocumentBracketState.completeTable(): PairTable = when (this) {
+    is DocumentBracketState.Complete -> pairs
+    is DocumentBracketState.Unavailable -> error("Expected complete pairs, got $limit")
+}

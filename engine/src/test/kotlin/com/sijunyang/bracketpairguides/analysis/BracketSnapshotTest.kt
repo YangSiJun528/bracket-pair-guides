@@ -72,11 +72,14 @@ class BracketSnapshotTest : BasePlatformTestCase() {
                     activePair = true,
                     guidePosition = false,
                 ),
+                disabledLanguageIds = emptySet(),
             ).stamp,
-            pairs = pairTable,
-            tokenIndex = BracketTokenIndex.build(pairTable),
-            activeIndex = ActiveBracketPairIndex.build(pairTable),
-            positionIndex = null,
+            indexes = BracketIndexes(
+                pairs = pairTable,
+                tokens = BracketTokenIndex.build(pairTable, NO_CANCELLATION),
+                activePairs = ActiveBracketPairIndex.build(pairTable, NO_CANCELLATION),
+                guidePositions = null,
+            ),
         )
     }
 
@@ -98,4 +101,8 @@ class BracketSnapshotTest : BasePlatformTestCase() {
 
     private fun TokenWindow.depths(): List<Int> =
         List(size, ::depthAt)
+
+    private companion object {
+        val NO_CANCELLATION: () -> Unit = {}
+    }
 }

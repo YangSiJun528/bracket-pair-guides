@@ -4,51 +4,33 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.TextRange
 import java.util.concurrent.atomic.AtomicInteger
 
-/** Test-only analysis fixture with independently replaceable service operations. */
+/** Test-only analysis fixture backed by supplied bracket pairs. */
 internal class FakeBracketAnalysis(
     private val pairs: (AnalysisInput, ProgressIndicator) -> List<BracketPair> =
         { _, _ -> emptyList() },
-    private val activePair: (CaretContext) -> ActivePairKnowledge =
-        { ActivePairKnowledge.Known(null) },
-    private val guide: (AnalysisInput, BracketPair) -> BracketGuide? =
-        { _, _ -> null },
-    private val languages: () -> List<BraceLanguageFamily> = { emptyList() },
-    private val snapshot: ((AnalysisInput, ProgressIndicator) -> BracketSnapshot)? = null,
 ) {
     private val analyzeCounter = AtomicInteger()
-    private val activePairCounter = AtomicInteger()
 
     internal val analyzeCallCount: Int
         get() = analyzeCounter.get()
 
-    internal val activePairCallCount: Int
-        get() = activePairCounter.get()
-
     fun analyze(
         input: AnalysisInput,
         progress: ProgressIndicator,
-    ): BracketSnapshot {
+    ): AnalysisOutcome {
         analyzeCounter.incrementAndGet()
-        snapshot?.let { suppliedSnapshot -> return suppliedSnapshot(input, progress) }
-
         val pairs = if (input.coverage.pairs) {
             pairs(input, progress)
         } else {
             emptyList()
         }
-        return FakeBracketSnapshot.fromPairs(
-            stamp = input.stamp,
-            pairs = pairs,
-            guide = { pair -> guide(input, pair) },
+        return AnalysisOutcome.Complete(
+            FakeBracketSnapshot.fromPairs(
+                stamp = input.stamp,
+                pairs = pairs,
+            ),
         )
     }
-
-    fun resolveActivePair(context: CaretContext): ActivePairKnowledge {
-        activePairCounter.incrementAndGet()
-        return activePair(context)
-    }
-
-    fun installedLanguages(): List<BraceLanguageFamily> = languages()
 }
 
 /** Lambda-backed result for tests that need to control one query independently. */
@@ -195,7 +177,7 @@ internal class FakeTokenWindow private constructor(
 
 private fun tokensFrom(pairs: List<BracketPair>): List<FakeBracketToken> = buildList {
     for (pair in pairs) {
-        if (!pair.hasWellFormedTokenRange()) continue
+        if (!pair.hasWellFormedTokenRange(Int.MAX_VALUE)) continue
         add(FakeBracketToken(pair.openOffset, pair.openTokenLength, pair.depth))
         add(FakeBracketToken(pair.closeOffset, pair.closeTokenLength, pair.depth))
     }
@@ -208,7 +190,7 @@ private fun innermostPairAt(
     var winner: BracketPair? = null
     var winnerIndex = Int.MAX_VALUE
     for ((index, pair) in pairs.withIndex()) {
-        if (!pair.hasWellFormedTokenRange() ||
+        if (!pair.hasWellFormedTokenRange(Int.MAX_VALUE) ||
             caretOffset <= pair.openOffset ||
             caretOffset >= pair.closeOffset.toLong() + pair.closeTokenLength
         ) {

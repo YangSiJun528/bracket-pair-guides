@@ -3,7 +3,6 @@ package com.sijunyang.bracketpairguides.editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
-import com.sijunyang.bracketpairguides.analysis.ActivePairKnowledge
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.FakeBracketSnapshot
@@ -14,12 +13,12 @@ import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import org.junit.Assert.assertEquals
 
 class EditorGuideFallbackIntegrationTest : BasePlatformTestCase() {
-    fun testResultWithoutIndexedGuideUsesTheBoundedGuideFallback() {
+    fun testGuideSettingUsesBoundedProvisionalPositionUntilBackgroundAnalysis() {
         val body = List(300) { index ->
             if (index == 260) "value" else "        value"
         }.joinToString("\n")
         val source = "{\n$body\n    }"
-        myFixture.configureByText("OversizedGuideFallback.txt", source)
+        myFixture.configureByText("ProvisionalGuideFallback.txt", source)
         val editor = myFixture.editor
         val pair = BracketPair(
             openOffset = source.indexOf('{'),
@@ -31,26 +30,33 @@ class EditorGuideFallbackIntegrationTest : BasePlatformTestCase() {
             closeLine = 301,
         )
         editor.caretModel.moveToOffset(source.indexOf("value"))
-        val options = BracketGuidePreferences(colorBracketTokens = false)
+        val initialOptions = BracketGuidePreferences(
+            colorBracketTokens = false,
+            showActiveGuide = false,
+            showActivePairBorder = true,
+        )
         val stamp = AnalysisInput(
             editor = editor,
             fileType = myFixture.file.fileType,
-            coverage = options.analysisCoverage(),
+            coverage = initialOptions.analysisCoverage(),
+            disabledLanguageIds = emptySet(),
         ).stamp
         val result = FakeBracketSnapshot(
             stamp = stamp,
             activePair = { pair },
             guide = { null },
         )
-        BracketGuideSettings.getInstance().replace(options)
+        BracketGuideSettings.getInstance().replace(initialOptions)
         EditorGuideSessions.dispose(editor)
         val session = EditorGuideSessions.install(
             editor = editor,
-            resolveActivePair = { ActivePairKnowledge.Unknown },
             visibleRange = { TextRange(0, editor.document.textLength) },
         )
         try {
             session.accept(result)
+            val guideOptions = initialOptions.copy(showActiveGuide = true)
+            BracketGuideSettings.getInstance().replace(guideOptions)
+            session.updateOptions(guideOptions, refreshColors = false)
 
             val guide = checkNotNull(
                 editor.observedBracketMarkup().guideMarks.singleOrNull()

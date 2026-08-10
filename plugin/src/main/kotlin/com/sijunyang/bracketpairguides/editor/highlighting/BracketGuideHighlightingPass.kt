@@ -10,9 +10,7 @@ import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.sijunyang.bracketpairguides.analysis.CaretContext
-import com.sijunyang.bracketpairguides.analysis.ActivePairKnowledge
-import com.sijunyang.bracketpairguides.analysis.BracketSnapshot
+import com.sijunyang.bracketpairguides.analysis.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.BracketAnalysis
@@ -32,11 +30,10 @@ internal class BracketGuideHighlightingPass(
     project: Project,
     private val editor: Editor,
     private val fileType: FileType,
-    private val analyze: (AnalysisInput, ProgressIndicator) -> BracketSnapshot,
-    private val resolveActivePair: (CaretContext) -> ActivePairKnowledge,
+    private val analyze: (AnalysisInput, ProgressIndicator) -> AnalysisOutcome,
     private val visibleRange: (Editor) -> TextRange = Editor::calculateVisibleRange,
 ) : TextEditorHighlightingPass(project, editor.document, false) {
-    private var collected: BracketSnapshot? = null
+    private var collected: AnalysisOutcome? = null
     private var collectedStamp: AnalysisStamp? = null
 
     init {
@@ -50,7 +47,6 @@ internal class BracketGuideHighlightingPass(
         editor = editor,
         fileType = fileType,
         analyze = service<BracketAnalysis>()::analyze,
-        resolveActivePair = service<BracketAnalysis>()::resolveActivePair,
     )
 
     override fun doCollectInformation(progress: ProgressIndicator): Unit {
@@ -67,16 +63,27 @@ internal class BracketGuideHighlightingPass(
         val passStamp = collectedStamp
         collected = null
         collectedStamp = null
-        if (editor.isDisposed || passStamp?.let(::isCurrent) == false) return
+        if (editor.isDisposed || passStamp?.let { stamp ->
+                when (result) {
+                    is AnalysisOutcome.Unavailable -> isExactCurrent(stamp)
+                    else -> isCurrent(stamp)
+                }
+            } == false
+        ) {
+            return
+        }
         val session = installSession() ?: return
         if (passStamp != null) {
             session.updateDependenciesIfCurrent(
-                resolveActivePair = resolveActivePair,
                 visibleRange = visibleRange,
                 passStamp = passStamp,
             )
         }
-        if (result != null) session.accept(result)
+        when (result) {
+            is AnalysisOutcome.Complete -> session.accept(result.snapshot)
+            is AnalysisOutcome.Unavailable -> session.acceptUnavailable(result.stamp)
+            null -> Unit
+        }
     }
 
     private fun currentInput(): AnalysisInput {
@@ -99,12 +106,23 @@ internal class BracketGuideHighlightingPass(
         )
     }
 
+    private fun isExactCurrent(passStamp: AnalysisStamp): Boolean {
+        val options = BracketGuideSettings.getInstance().options
+        val requiredCoverage = options.analysisCoverage()
+        return passStamp.coverage == requiredCoverage &&
+            passStamp.matchesCurrent(
+                editor,
+                editorFileType(editor),
+                requiredCoverage,
+                options.disabledLanguageIds,
+            )
+    }
+
     private fun installSession(): EditorGuideSession? {
         if (editor.isDisposed) return null
         EditorGuideEvents.ensureInitialized()
         return EditorGuideSessions.install(
             editor = editor,
-            resolveActivePair = resolveActivePair,
             visibleRange = visibleRange,
         )
     }

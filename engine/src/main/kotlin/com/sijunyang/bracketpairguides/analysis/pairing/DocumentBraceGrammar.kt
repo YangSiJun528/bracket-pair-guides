@@ -1,6 +1,5 @@
 package com.sijunyang.bracketpairguides.analysis.pairing
 
-import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.intellij.codeInsight.highlighting.BraceMatcher
 import com.intellij.codeInsight.highlighting.XmlAwareBraceMatcher
 import com.intellij.lang.Language
@@ -19,11 +18,11 @@ import com.sijunyang.bracketpairguides.analysis.pairing.core.StructuralRole
 import java.util.Locale
 
 /**
- * Shared token-stream pairing semantics for full analysis and bounded active lookup.
+ * Token-stream pairing semantics for one full document analysis.
  *
  * Brace-language definitions and the language-family gate are evaluated for every token.
- * Each [Session] owns independent stack state, while matcher resolution is cached
- * by this core so repeated bounded sessions do not repeat extension lookup.
+ * Each [Session] owns independent stack state, while language definitions are cached
+ * by this grammar so one full scan resolves each language extension only once.
  */
 internal class DocumentBraceGrammar(
     private val document: Document,
@@ -34,76 +33,42 @@ internal class DocumentBraceGrammar(
 ) {
     private val definitions = HashMap<Language, BraceLanguageDefinition?>()
 
-    enum class OpeningKind {
-        DIRECTIONAL,
-        SYMMETRIC_TOGGLE,
-    }
-
-    fun openingKind(iterator: HighlighterIterator): OpeningKind? {
-        val token = classify(iterator) ?: return null
-        return if (token.role == BracketRole.TOGGLE) {
-            OpeningKind.SYMMETRIC_TOGGLE
-        } else if (token.role == BracketRole.OPEN) {
-            OpeningKind.DIRECTIONAL
-        } else {
-            null
-        }
-    }
-
     fun newSession(
         checkCanceled: () -> Unit,
-        trackedOpenOffset: Int? = null,
-        pairSink: PairSink? = null,
-    ): Session = Session(checkCanceled, trackedOpenOffset, pairSink)
+        pairSink: PairSink,
+        maximumPendingOpens: Int,
+    ): Session = Session(checkCanceled, pairSink, maximumPendingOpens)
 
     inner class Session(
         checkCanceled: () -> Unit,
-        trackedOpenOffset: Int?,
-        private val pairSink: PairSink?,
+        pairSink: PairSink,
+        maximumPendingOpens: Int,
     ) {
-        private var emittedPair: BracketPair? = null
         private val pairing = PairingMachine<IElementType, BraceGroup> { group ->
             group.definition
         }.newSession(
             PairSink { openOffset, openLength, closeOffset, closeLength, depth, openLine, closeLine ->
-                val target = pairSink
-                if (target != null) {
-                    target.accept(
-                        openOffset,
-                        openLength,
-                        closeOffset,
-                        closeLength,
-                        depth,
-                        openLine,
-                        closeLine,
-                    )
-                } else {
-                    emittedPair = BracketPair(
-                        openOffset = openOffset,
-                        openTokenLength = openLength,
-                        closeOffset = closeOffset,
-                        closeTokenLength = closeLength,
-                        depth = depth,
-                        openLine = openLine,
-                        closeLine = closeLine,
-                    )
-                }
+                pairSink.accept(
+                    openOffset,
+                    openLength,
+                    closeOffset,
+                    closeLength,
+                    depth,
+                    openLine,
+                    closeLine,
+                )
             },
             CancellationProbe(checkCanceled),
-            trackedOpenOffset,
+            maximumPendingOpens,
         )
 
-        /** A structural close may depend on an opener before this bounded replay. */
-        val requiresEarlierStructuralContext: Boolean
-            get() = pairing.requiresEarlierStructuralContext()
-
-        fun accept(iterator: HighlighterIterator): BracketPair? {
-            val token = classify(iterator) ?: return null
-            emittedPair = null
+        /** Returns false before an opener would cross the pending-open capacity. */
+        fun accept(iterator: HighlighterIterator): Boolean {
+            val token = classify(iterator) ?: return true
             val offset = iterator.start
             val tokenLength = iterator.end - iterator.start
             val line = document.getLineNumber(offset)
-            pairing.accept(
+            return pairing.accept(
                 token.group,
                 token.type,
                 token.context.value,
@@ -114,10 +79,7 @@ internal class DocumentBraceGrammar(
                 tokenLength,
                 line,
             )
-            return emittedPair
         }
-
-        fun hasOpenAt(offset: Int): Boolean = pairing.hasOpenAt(offset)
     }
 
     private fun classify(iterator: HighlighterIterator): ClassifiedToken? {

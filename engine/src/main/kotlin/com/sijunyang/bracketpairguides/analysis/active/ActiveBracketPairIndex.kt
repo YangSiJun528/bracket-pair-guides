@@ -35,7 +35,7 @@ internal class ActiveBracketPairIndex private constructor(
     companion object {
         internal fun build(
             pairs: PairTable,
-            checkCanceled: () -> Unit = {},
+            checkCanceled: () -> Unit,
         ): ActiveBracketPairIndex {
             if (pairs.isEmpty) return EMPTY
             require(pairs.size() <= Int.MAX_VALUE / EVENTS_PER_PAIR)

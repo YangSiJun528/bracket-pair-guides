@@ -39,7 +39,7 @@ public class PairingMachineBenchmark {
         PairingMachine<Token, Group>.Session session = machine.newSession(
                 output,
                 () -> { },
-                null
+                pairCount
         );
         for (int index = 0; index < tokens.length; index++) {
             session.accept(

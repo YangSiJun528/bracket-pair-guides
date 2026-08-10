@@ -1,13 +1,14 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
-import com.sijunyang.bracketpairguides.analysis.CaretContext
-import com.sijunyang.bracketpairguides.analysis.ActivePairKnowledge
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.AnalysisLimit
+import com.sijunyang.bracketpairguides.analysis.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.BracketAnalysis
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.FakeBracketAnalysis
+import com.sijunyang.bracketpairguides.analysis.requireSnapshot
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.editor.analysisCoverage
@@ -65,9 +66,10 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
                     editor = editor,
                     fileType = myFixture.file.fileType,
                     coverage = BracketGuideSettings.getInstance().options.analysisCoverage(),
+                    disabledLanguageIds = emptySet(),
                 ),
                 EmptyProgressIndicator(),
-            )
+            ).requireSnapshot()
             analysis.visibleTokens(
                 range = TextRange(0, editor.document.textLength),
                 focusOffset = editor.caretModel.primaryCaret.offset,
@@ -148,9 +150,10 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
                         activePair = true,
                         guidePosition = true,
                     ),
+                    disabledLanguageIds = emptySet(),
                 ),
                 EmptyProgressIndicator(),
-            )
+            ).requireSnapshot()
         }
         val pair = checkNotNull(
             analysis.activePairAt(source.indexOf("value")),
@@ -192,31 +195,12 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
         assertTrue(activePairHighlighters().isEmpty())
     }
 
-    fun testStaleSnapshotSearchDoesNotUseALegacyFileTypeContract() {
-        val source = "<root>content</root>"
-        myFixture.configureByText("Unsupported.xml", source)
-        val editor = myFixture.editor
-
-        val resolution = inReadAction {
-            service<BracketAnalysis>().resolveActivePair(
-                CaretContext(
-                    editor = editor,
-                    fileType = myFixture.file.fileType,
-                    caretOffset = source.indexOf("content") + 2,
-                ),
-            )
-        }
-
-        assertEquals(ActivePairKnowledge.Known(null), resolution)
-    }
-
-    fun testCaretMovementResolvesActivePairBeforeTheFirstFullSnapshot() {
+    fun testCaretMovementWaitsForTheFirstFullSnapshot() {
         val source = "x { content } y"
-        myFixture.configureByText("InitialFastPath.txt", source)
+        myFixture.configureByText("InitialSnapshot.txt", source)
         val pair = BracketPair(
             source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
         )
-        var resolutions = 0
         var collections = 0
         testPass(
             project = project,
@@ -225,25 +209,16 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
                 collections++
                 listOf(pair)
             },
-            activePairSearch = { _, caretOffset ->
-                resolutions++
-                ActivePairKnowledge.Known(
-                    pair.takeIf {
-                        caretOffset > it.openOffset &&
-                            caretOffset < it.closeOffset + it.closeTokenLength
-                    },
-                )
-            },
         )
 
         myFixture.editor.caretModel.moveToOffset(source.indexOf("content"))
 
         assertEquals(0, collections)
-        assertEquals(1, resolutions)
-        assertEquals(pair, activeGuideState()?.guide?.pair)
+        assertNull(activeGuide())
+        assertTrue(activePairHighlighters().isEmpty())
     }
 
-    fun testStaleCaretMovementRevalidatesAnInwardScopeChange() {
+    fun testStaleCaretMovementKeepsAdjustedPairUntilTheNextSnapshot() {
         val source = "x { outer (inner) tail } y"
         myFixture.configureByText("StaleCaret.txt", source)
         val outer = BracketPair(
@@ -256,25 +231,11 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
         val tailOffset = source.indexOf("tail")
         val innerOffset = source.indexOf("inner")
         editor.caretModel.moveToOffset(tailOffset)
-        val resolvedOffsets = ArrayList<Int>()
-        val activePairSearch: (Editor, Int) -> ActivePairKnowledge = { _, caretOffset ->
-            resolvedOffsets += caretOffset
-            ActivePairKnowledge.Known(
-                when {
-                    caretOffset > inner.openOffset &&
-                        caretOffset < inner.closeOffset + inner.closeTokenLength -> inner
-                    caretOffset > outer.openOffset &&
-                        caretOffset < outer.closeOffset + outer.closeTokenLength -> outer
-                    else -> null
-                },
-            )
-        }
         applyPass(
             testPass(
                 project = project,
                 editor = editor,
                 pairs = { listOf(outer, inner) },
-                activePairSearch = activePairSearch,
             ),
         )
         assertEquals(outer, activeGuideState()?.guide?.pair)
@@ -284,11 +245,13 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
         }
         editor.caretModel.moveToOffset(innerOffset)
 
-        assertEquals(listOf(tailOffset, innerOffset), resolvedOffsets)
+        assertEquals(outer, activeGuideState()?.guide?.pair)
+
+        applyPass(testPass(project, editor, pairs = { listOf(outer, inner) }))
         assertEquals(inner, activeGuideState()?.guide?.pair)
     }
 
-    fun testEveryDocumentEditRevalidatesTheCurrentPair() {
+    fun testDocumentEditDoesNotInventAReplacementBeforeTheNextSnapshot() {
         val source = "x { content } y"
         myFixture.configureByText("ContextChange.txt", source)
         val pair = BracketPair(
@@ -296,34 +259,25 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
         )
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("content"))
-        var resolvedPair: BracketPair? = pair
-        var resolutions = 0
-        val activePairSearch: (Editor, Int) -> ActivePairKnowledge = { _, _ ->
-            resolutions++
-            ActivePairKnowledge.Known(resolvedPair)
-        }
         applyPass(
             testPass(
                 project = project,
                 editor = editor,
                 pairs = { listOf(pair) },
-                activePairSearch = activePairSearch,
             ),
         )
         assertEquals(pair, activeGuideState()?.guide?.pair)
 
-        resolvedPair = null
         WriteCommandAction.runWriteCommandAction(project) {
             editor.document.insertString(source.indexOf("content") + 1, "x")
         }
 
-        assertEquals(1, resolutions)
-        assertNull(activeGuide())
+        assertEquals(pair.closeOffset + 1, activeGuideState()?.guide?.pair?.closeOffset)
     }
 
-    fun testIncompleteDocumentRevalidationKeepsTheAdjustedPair() {
+    fun testDocumentChangeKeepsTheAdjustedPairWhileSnapshotIsStale() {
         val source = "x { content } y"
-        myFixture.configureByText("IncompleteFastPath.txt", source)
+        myFixture.configureByText("StaleSnapshot.txt", source)
         val pair = BracketPair(
             source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
         )
@@ -334,9 +288,6 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
                 project = project,
                 editor = editor,
                 pairs = { listOf(pair) },
-                activePairSearch = { _, _ ->
-                    ActivePairKnowledge.Unknown
-                },
             ),
         )
 
@@ -374,6 +325,137 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
         assertFalse(EditorGuideSessions.hasAcceptedAnalysis(editor, acceptedStamp))
         assertEquals(decorations, bracketColorHighlighters().toSet())
         assertTrue(decorations.all { it.isValid })
+    }
+
+    fun testUnavailableAnalysisSuppressesTheSameRequestUntilItsInputChanges() {
+        myFixture.configureByText("Dense.java", "class Dense { value }")
+        val editor = myFixture.editor
+        val fullOptions = BracketGuideSettings.getInstance().options
+        var analysisCount = 0
+        val pass = BracketGuideHighlightingPass(
+            project = project,
+            editor = editor,
+            fileType = myFixture.file.fileType,
+            analyze = { input, _ ->
+                analysisCount++
+                AnalysisOutcome.Unavailable(input.stamp, AnalysisLimit.WORKING_MEMORY)
+            },
+        )
+
+        applyPass(pass)
+
+        assertEquals(1, analysisCount)
+        assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
+        assertTrue(
+            EditorGuideSessions.hasAcceptedAnalysis(
+                editor,
+                stampFor(editor, BracketGuideSettings.getInstance().options),
+            ),
+        )
+
+        applyPass(pass)
+
+        assertEquals(1, analysisCount)
+        assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
+
+        val tokenOnlyOptions = fullOptions.copy(
+            showActiveGuide = false,
+            showActivePairBorder = false,
+            showActivePairBackground = false,
+        )
+        applyOptions(tokenOnlyOptions)
+        assertFalse(
+            EditorGuideSessions.hasAcceptedAnalysis(
+                editor,
+                stampFor(editor, tokenOnlyOptions),
+            ),
+        )
+        applyPass(pass)
+
+        assertEquals(2, analysisCount)
+        assertTrue(
+            EditorGuideSessions.hasAcceptedAnalysis(
+                editor,
+                stampFor(editor, tokenOnlyOptions),
+            ),
+        )
+
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.insertString(editor.document.textLength, " ")
+        }
+        applyPass(pass)
+
+        assertEquals(3, analysisCount)
+    }
+
+    fun testLateRicherUnavailableCannotClearACompletedLowerCoverage() {
+        val source = "class Dense { value }"
+        myFixture.configureByText("DenseCoverage.java", source)
+        val editor = myFixture.editor
+        val fullOptions = BracketGuideSettings.getInstance().options
+        val fullStamp = stampFor(editor, fullOptions)
+        val lateUnavailable = BracketGuideHighlightingPass(
+            project = project,
+            editor = editor,
+            fileType = myFixture.file.fileType,
+            analyze = { input, _ ->
+                AnalysisOutcome.Unavailable(input.stamp, AnalysisLimit.WORKING_MEMORY)
+            },
+        )
+        inReadAction {
+            lateUnavailable.doCollectInformation(EmptyProgressIndicator())
+        }
+
+        val tokenOnlyOptions = fullOptions.copy(
+            showActiveGuide = false,
+            showActivePairBorder = false,
+            showActivePairBackground = false,
+        )
+        applyOptions(tokenOnlyOptions)
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        applyPass(pairs = { listOf(pair) })
+        val tokenOnlyStamp = stampFor(editor, tokenOnlyOptions)
+        val completedMarks = editor.observedBracketMarkup().allMarks.toSet()
+
+        assertTrue(EditorGuideSessions.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+        assertTrue(completedMarks.isNotEmpty())
+
+        lateUnavailable.doApplyInformationToEditor()
+        session().acceptUnavailable(fullStamp)
+
+        assertTrue(EditorGuideSessions.hasAcceptedAnalysis(editor, tokenOnlyStamp))
+        assertEquals(completedMarks, editor.observedBracketMarkup().allMarks.toSet())
+    }
+
+    fun testLateUnavailableCannotDowngradeACompletedEquivalentAnalysis() {
+        val source = "class Stable { value }"
+        myFixture.configureByText("StableOutcome.java", source)
+        val editor = myFixture.editor
+        val options = BracketGuideSettings.getInstance().options
+        val lateUnavailable = BracketGuideHighlightingPass(
+            project = project,
+            editor = editor,
+            fileType = myFixture.file.fileType,
+            analyze = { input, _ ->
+                AnalysisOutcome.Unavailable(input.stamp, AnalysisLimit.WORKING_MEMORY)
+            },
+        )
+        inReadAction {
+            lateUnavailable.doCollectInformation(EmptyProgressIndicator())
+        }
+
+        val pair = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        applyPass(pairs = { listOf(pair) })
+        val completedMarks = editor.observedBracketMarkup().allMarks.toSet()
+
+        lateUnavailable.doApplyInformationToEditor()
+
+        assertTrue(EditorGuideSessions.hasAcceptedAnalysis(editor, stampFor(editor, options)))
+        assertEquals(completedMarks, editor.observedBracketMarkup().allMarks.toSet())
     }
 
     fun testCaretMovementReplacesOnlyActivePresentationUsingCachedRecognition() {
@@ -626,7 +708,6 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
                 editor = myFixture.editor,
                 fileType = myFixture.file.fileType,
                 analyze = service<BracketAnalysis>()::analyze,
-                resolveActivePair = service<BracketAnalysis>()::resolveActivePair,
                 visibleRange = {
                     visibleRangeRequests++
                     TextRange(0, source.length)
@@ -641,7 +722,6 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
                 guideLineWidth = 3,
                 guideOpacityPercent = 60,
             ),
-            resolveImmediately = true,
             refreshColors = false,
         )
 
@@ -871,7 +951,6 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
             editor.setColorsScheme(refreshedScheme)
             session().updateOptions(
                 options,
-                resolveImmediately = false,
                 refreshColors = true,
             )
 
@@ -910,7 +989,6 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
         BracketGuideSettings.getInstance().replace(enabled)
         session().updateOptions(
             enabled,
-            resolveImmediately = true,
             refreshColors = false,
         )
         applyPass(pairs)
@@ -1075,16 +1153,15 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
         )
     }
 
-    fun testReenablingActivePresentationUsesTheFastSearchImmediately() {
+    fun testReenablingActivePresentationWaitsForTheNextSnapshot() {
         val source = "x { content } y"
-        myFixture.configureByText("ReenabledFastPath.txt", source)
+        myFixture.configureByText("ReenabledSnapshot.txt", source)
         val pair = BracketPair(
             source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
         )
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("content"))
         var collections = 0
-        var resolutions = 0
         BracketGuideSettings.getInstance().replace(BracketGuidePreferences(enabled = false))
         applyPass(
             testPass(
@@ -1093,10 +1170,6 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
                 pairs = {
                     collections++
                     listOf(pair)
-                },
-                activePairSearch = { _, _ ->
-                    resolutions++
-                    ActivePairKnowledge.Known(pair)
                 },
             ),
         )
@@ -1107,16 +1180,17 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
         BracketGuideSettings.getInstance().replace(enabled)
         session().updateOptions(
             enabled,
-            resolveImmediately = true,
             refreshColors = false,
         )
 
         assertEquals(0, collections)
-        assertEquals(1, resolutions)
+        assertNull(activeGuide())
+
+        applyPass(testPass(project, editor, pairs = { listOf(pair) }))
         assertEquals(pair, activeGuideState()?.guide?.pair)
     }
 
-    fun testLanguageSelectionInvalidatesTheSnapshotAndUsesTheSameFastPathGate() {
+    fun testLanguageSelectionInvalidatesPresentationUntilTheNextSnapshot() {
         val source = "class Sample { void run() { call(); } }"
         myFixture.configureByText("LanguageSelection.java", source)
         val editor = myFixture.editor
@@ -1147,7 +1221,7 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
         val enabled = disabled.copy(disabledLanguageIds = emptySet())
         applyOptions(enabled)
         assertTrue(bracketColorHighlighters().isEmpty())
-        assertNotNull("Fast path should restore the active guide immediately", activeGuide())
+        assertNull(activeGuide())
 
         applyPass()
         assertTrue(bracketColorHighlighters().isNotEmpty())
@@ -1426,7 +1500,6 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
             editor = editor,
             fileType = myFixture.file.fileType,
             analyze = fakeAnalysis::analyze,
-            resolveActivePair = fakeAnalysis::resolveActivePair,
         )
         val collection = AppExecutorUtil.getAppExecutorService().submit<Unit> {
             inReadAction {
@@ -1474,7 +1547,6 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
         editor.caretModel.moveToOffset(source.indexOf("content"))
         EditorGuideSessions.dispose(editor)
         assertNull(EditorGuideSessions.get(editor))
-        val staleSearchCalls = AtomicInteger()
         val staleCollection = AppExecutorUtil.getAppExecutorService()
             .submit<BracketGuideHighlightingPass> {
                 inReadAction {
@@ -1482,10 +1554,6 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
                         project = project,
                         editor = editor,
                         pairs = { listOf(pair) },
-                        activePairSearch = { _, _ ->
-                            staleSearchCalls.incrementAndGet()
-                            ActivePairKnowledge.Known(pair)
-                        },
                     ).also { pass ->
                         pass.doCollectInformation(EmptyProgressIndicator())
                     }
@@ -1505,26 +1573,6 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
         stalePass.doApplyInformationToEditor()
 
         assertNull(EditorGuideSessions.get(editor))
-        assertEquals(0, staleSearchCalls.get())
-
-        var currentSearchCalls = 0
-        applyPass(
-            testPass(
-                project = project,
-                editor = editor,
-                pairs = { listOf(pair) },
-                activePairSearch = { _, _ ->
-                    currentSearchCalls++
-                    ActivePairKnowledge.Known(pair)
-                },
-            ),
-        )
-        WriteCommandAction.runWriteCommandAction(project) {
-            editor.document.insertString(editor.document.textLength, "z")
-        }
-
-        assertEquals(0, staleSearchCalls.get())
-        assertEquals(1, currentSearchCalls)
     }
 
     fun testStalePassFromAnotherFileTypeCannotReplaceCurrentDependencies() {
@@ -1537,17 +1585,11 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
         )
         editor.caretModel.moveToOffset(source.indexOf("content"))
         EditorGuideSessions.dispose(editor)
-        var staleSearchCalls = 0
-        var currentSearchCalls = 0
         val stalePass = testPass(
             project = project,
             editor = editor,
             pairs = { listOf(pair) },
             fileType = PlainTextFileType.INSTANCE,
-            activePairSearch = { _, _ ->
-                staleSearchCalls++
-                ActivePairKnowledge.Known(pair)
-            },
         )
         inReadAction {
             stalePass.doCollectInformation(EmptyProgressIndicator())
@@ -1557,21 +1599,17 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
             editor = editor,
             pairs = { listOf(pair) },
             fileType = myFixture.file.fileType,
-            activePairSearch = { _, _ ->
-                currentSearchCalls++
-                ActivePairKnowledge.Known(pair)
-            },
         )
         applyPass(currentPass)
 
         stalePass.doApplyInformationToEditor()
         assertSame(highlighter, editor.highlighter)
+        assertEquals(pair, activeGuideState()?.guide?.pair)
         WriteCommandAction.runWriteCommandAction(project) {
             editor.document.insertString(editor.document.textLength, " ")
         }
 
-        assertEquals(0, staleSearchCalls)
-        assertEquals(1, currentSearchCalls)
+        assertEquals(pair, activeGuideState()?.guide?.pair)
     }
 
     fun testRejectedStalePassDoesNotReplaceCurrentSessionDependencies() {
@@ -1584,8 +1622,6 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
         editor.caretModel.moveToOffset(source.indexOf("content"))
         var staleVisibleRangeCalls = 0
         var currentVisibleRangeCalls = 0
-        var staleSearchCalls = 0
-        var currentSearchCalls = 0
         val stalePass = testPass(
             project = project,
             editor = editor,
@@ -1593,10 +1629,6 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
             visibleRange = {
                 staleVisibleRangeCalls++
                 TextRange(0, it.document.textLength)
-            },
-            activePairSearch = { _, _ ->
-                staleSearchCalls++
-                ActivePairKnowledge.Known(pair)
             },
         )
         inReadAction {
@@ -1614,18 +1646,12 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
                 currentVisibleRangeCalls++
                 TextRange(0, it.document.textLength)
             },
-            activePairSearch = { _, _ ->
-                currentSearchCalls++
-                ActivePairKnowledge.Known(pair)
-            },
         )
         applyPass(currentPass)
 
         stalePass.doApplyInformationToEditor()
         staleVisibleRangeCalls = 0
         currentVisibleRangeCalls = 0
-        staleSearchCalls = 0
-        currentSearchCalls = 0
 
         session().visibleAreaChanged()
         WriteCommandAction.runWriteCommandAction(project) {
@@ -1634,8 +1660,6 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
 
         assertEquals(0, staleVisibleRangeCalls)
         assertEquals(1, currentVisibleRangeCalls)
-        assertEquals(0, staleSearchCalls)
-        assertEquals(1, currentSearchCalls)
     }
 
     fun testDocumentEditAdjustsTheActiveGuideBeforeFullRecognitionCompletes() {
@@ -1666,7 +1690,7 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
         )
     }
 
-    fun testDocumentEditRecalculatesVerticalGuideColumnImmediately() {
+    fun testDocumentEditKeepsAdjustedGuideUntilBackgroundAnalysisRecalculatesColumn() {
         val source = """
             class Sample {
               void run() {
@@ -1674,7 +1698,7 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
               }
             }
         """.trimIndent()
-        myFixture.configureByText("ImmediateColumn.java", source)
+        myFixture.configureByText("DeferredColumn.java", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("call"))
         applyPass()
@@ -1688,19 +1712,28 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
             editor.document.insertString(closeLineStart, "  ")
         }
 
-        val guide = checkNotNull(
+        val adjustedGuide = checkNotNull(
             activeGuideState()?.guide,
         )
-        assertEquals(4, guide.guideColumn)
+        assertEquals(2, adjustedGuide.guideColumn)
         assertEquals(
             editor.document.text.indexOf('}', closeLineStart),
-            guide.pair.closeOffset,
+            adjustedGuide.pair.closeOffset,
+        )
+
+        applyPass()
+
+        val recognizedGuide = checkNotNull(activeGuideState()?.guide)
+        assertEquals(4, recognizedGuide.guideColumn)
+        assertEquals(
+            editor.document.text.indexOf('}', closeLineStart),
+            recognizedGuide.pair.closeOffset,
         )
     }
 
-    fun testNewMultilineLayoutGetsAnImmediateGuideColumnWithoutAFullPass() {
+    fun testNewMultilineLayoutWaitsForBackgroundAnalysisBeforePublishingItsGuideColumn() {
         val source = "class Sample { void run() { call(); } }"
-        myFixture.configureByText("ImmediateMultiline.java", source)
+        myFixture.configureByText("DeferredMultiline.java", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("call"))
         applyPass()
@@ -1715,20 +1748,28 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
             )
         }
 
-        val guide = checkNotNull(
+        val adjustedGuide = checkNotNull(
             activeGuideState()?.guide,
         )
-        assertEquals(2, guide.guideColumn)
-        assertEquals(0, guide.pair.openLine)
-        assertEquals(2, guide.pair.closeLine)
+        assertEquals(0, adjustedGuide.guideColumn)
+        assertEquals(0, adjustedGuide.pair.openLine)
+        assertEquals(2, adjustedGuide.pair.closeLine)
+
+        applyPass()
+
+        val recognizedGuide = checkNotNull(activeGuideState()?.guide)
+        assertEquals(2, recognizedGuide.guideColumn)
+        assertEquals(0, recognizedGuide.pair.openLine)
+        assertEquals(2, recognizedGuide.pair.closeLine)
     }
 
-    fun testBracketEditResolvesTheNewInnermostPairBeforeAFullPass() {
+    fun testBracketEditWaitsForBackgroundAnalysisBeforePublishingANewInnermostPair() {
         val source = "class Sample { void run() { call(); } }"
-        myFixture.configureByText("ImmediatePair.java", source)
+        myFixture.configureByText("DeferredPair.java", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("call") + 2)
         applyPass()
+        val previousPair = checkNotNull(activeGuideState()?.guide?.pair)
         val start = source.indexOf("call")
         val end = source.indexOf(';', start) + 1
 
@@ -1737,12 +1778,18 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
             editor.document.insertString(start, "(")
         }
 
-        val pair = checkNotNull(
+        val adjustedPair = checkNotNull(
             activeGuideState()?.guide?.pair,
         )
-        assertEquals(start, pair.openOffset)
-        assertEquals(end + 1, pair.closeOffset)
-        assertEquals(2, pair.depth)
+        assertEquals(previousPair.openOffset, adjustedPair.openOffset)
+        assertTrue(adjustedPair.openOffset != start)
+
+        applyPass()
+
+        val recognizedPair = checkNotNull(activeGuideState()?.guide?.pair)
+        assertEquals(start, recognizedPair.openOffset)
+        assertEquals(end + 1, recognizedPair.closeOffset)
+        assertEquals(2, recognizedPair.depth)
     }
 
     fun testRapidPairSwitchesReuseOneGuideHighlighter() {
@@ -1797,21 +1844,15 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
         editor: Editor,
         pairs: () -> List<BracketPair>,
         visibleRange: (Editor) -> TextRange = Editor::calculateVisibleRange,
-        activePairSearch: (Editor, Int) -> ActivePairKnowledge =
-            { _, _ -> ActivePairKnowledge.Unknown },
         fileType: FileType = myFixture.file.fileType,
     ): BracketGuideHighlightingPass {
         val fakeAnalysis = FakeBracketAnalysis(
             pairs = { _, _ -> pairs() },
-            activePair = { context ->
-                activePairSearch(context.editor, context.caretOffset)
-            },
         )
         return BracketGuideHighlightingPass(
             project = project,
             editor = editor,
             analyze = fakeAnalysis::analyze,
-            resolveActivePair = fakeAnalysis::resolveActivePair,
             visibleRange = visibleRange,
             fileType = fileType,
         )
@@ -1866,7 +1907,6 @@ class BracketGuideHighlightingPassTest : BasePlatformTestCase() {
         BracketGuideSettings.getInstance().replace(options)
         session().updateOptions(
             options,
-            resolveImmediately = true,
             refreshColors = false,
         )
     }

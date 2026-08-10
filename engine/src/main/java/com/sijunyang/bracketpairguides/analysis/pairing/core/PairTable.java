@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 /** Immutable primitive table containing recognized bracket-pair geometry. */
 public final class PairTable {
+    private static final int CANCELLATION_MASK = 0xFF;
     private static final PairTable EMPTY = new PairTable(
             new int[0],
             new int[0],
@@ -12,7 +13,8 @@ public final class PairTable {
             new int[0],
             new int[0],
             new int[0],
-            0
+            0,
+            1
     );
 
     private final int[] openOffsets;
@@ -23,6 +25,7 @@ public final class PairTable {
     private final int[] openLines;
     private final int[] closeLines;
     private final int size;
+    private final int contentHash;
 
     private PairTable(
             int[] openOffsets,
@@ -32,7 +35,8 @@ public final class PairTable {
             int[] depths,
             int[] openLines,
             int[] closeLines,
-            int size
+            int size,
+            int contentHash
     ) {
         this.openOffsets = openOffsets;
         this.openTokenLengths = openTokenLengths;
@@ -42,6 +46,7 @@ public final class PairTable {
         this.openLines = openLines;
         this.closeLines = closeLines;
         this.size = size;
+        this.contentHash = contentHash;
     }
 
     public static PairTable empty() {
@@ -58,6 +63,42 @@ public final class PairTable {
 
     public boolean isEmpty() {
         return size == 0;
+    }
+
+    /**
+     * Returns whether both tables contain exactly the same pair geometry.
+     * Backing-array identity and unused capacity are intentionally ignored.
+     */
+    public boolean hasSameContent(PairTable other, CancellationProbe cancellation) {
+        if (cancellation == null) {
+            throw new NullPointerException("cancellation");
+        }
+        if (this == other) {
+            return true;
+        }
+        if (other == null || size != other.size || contentHash != other.contentHash) {
+            return false;
+        }
+        for (int index = 0; index < size; index++) {
+            if ((index & CANCELLATION_MASK) == 0) {
+                cancellation.check();
+            }
+            if (openOffsets[index] != other.openOffsets[index] ||
+                    openTokenLengths[index] != other.openTokenLengths[index] ||
+                    closeOffsets[index] != other.closeOffsets[index] ||
+                    closeTokenLengths[index] != other.closeTokenLengths[index] ||
+                    depths[index] != other.depths[index] ||
+                    openLines[index] != other.openLines[index] ||
+                    closeLines[index] != other.closeLines[index]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Fast rejection key; callers must still use exact content comparison. */
+    public int contentHash() {
+        return contentHash;
     }
 
     public int openOffsetAt(int index) {
@@ -129,6 +170,7 @@ public final class PairTable {
         private int[] openLines = new int[INITIAL_CAPACITY];
         private int[] closeLines = new int[INITIAL_CAPACITY];
         private int size;
+        private int contentHash = 1;
         private boolean frozen;
 
         @Override
@@ -150,6 +192,13 @@ public final class PairTable {
             depths[size] = depth;
             openLines[size] = openLine;
             closeLines[size] = closeLine;
+            contentHash = 31 * contentHash + openOffset;
+            contentHash = 31 * contentHash + openTokenLength;
+            contentHash = 31 * contentHash + closeOffset;
+            contentHash = 31 * contentHash + closeTokenLength;
+            contentHash = 31 * contentHash + depth;
+            contentHash = 31 * contentHash + openLine;
+            contentHash = 31 * contentHash + closeLine;
             size++;
         }
 
@@ -168,7 +217,8 @@ public final class PairTable {
                     depths,
                     openLines,
                     closeLines,
-                    size
+                    size,
+                    contentHash
             );
             release();
             return table;

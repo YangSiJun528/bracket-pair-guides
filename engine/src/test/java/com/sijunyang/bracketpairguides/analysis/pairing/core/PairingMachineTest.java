@@ -251,7 +251,7 @@ public class PairingMachineTest {
         PairingMachine<Character, String>.Session session = machine.newSession(
                 output,
                 NO_CANCELLATION,
-                null
+                Integer.MAX_VALUE
         );
 
         accept(session, "main", '(', BracketRole.OPEN, 0, 1, 0);
@@ -274,7 +274,7 @@ public class PairingMachineTest {
         PairingMachine<String, String>.Session session = machine.newSession(
                 output,
                 NO_CANCELLATION,
-                null
+                Integer.MAX_VALUE
         );
         session.accept(
                 "xml", "start", "section", true,
@@ -307,7 +307,7 @@ public class PairingMachineTest {
                 new PairingMachine<String, String>(ignored -> tagRules).newSession(
                         output,
                         NO_CANCELLATION,
-                        null
+                        Integer.MAX_VALUE
                 );
 
         session.accept(
@@ -366,49 +366,31 @@ public class PairingMachineTest {
     }
 
     @Test
-    public void trackedOffsetRemainsLiveUntilEveryGroupRemovesIt() {
+    public void pendingOpenCapacityRejectsTheNextOpenerBeforeAllocation() {
         RecordedPairs output = new RecordedPairs();
         PairingMachine<Character, String> machine = new PairingMachine<>(ignored -> CHAR_RULES);
         PairingMachine<Character, String>.Session session = machine.newSession(
                 output,
                 NO_CANCELLATION,
-                7
+                2
         );
 
-        accept(session, "round", '(', BracketRole.OPEN, 7, 1, 0);
-        accept(session, "square", '[', BracketRole.OPEN, 7, 1, 0);
-        assertTrue(session.hasOpenAt(7));
-        accept(session, "round", ')', BracketRole.CLOSE, 8, 1, 0);
-        assertTrue(session.hasOpenAt(7));
-        accept(session, "square", ']', BracketRole.CLOSE, 9, 1, 0);
-        assertFalse(session.hasOpenAt(7));
-    }
-
-    @Test
-    public void trackedCandidateReportsMissingEarlierStructuralContext() {
-        RecordedPairs output = new RecordedPairs();
-        PairingMachine<Character, String> machine = new PairingMachine<>(ignored -> CHAR_RULES);
-        PairingMachine<Character, String>.Session session = machine.newSession(
-                output,
-                NO_CANCELLATION,
-                7
+        assertTrue(session.accept(
+                "main", '(', null, false,
+                BracketRole.OPEN, StructuralRole.NONE, 0, 1, 0
+        ));
+        assertTrue(session.accept(
+                "main", '[', null, false,
+                BracketRole.OPEN, StructuralRole.NONE, 1, 1, 0
+        ));
+        assertFalse(session.accept(
+                "main", '{', null, false,
+                BracketRole.OPEN, StructuralRole.NONE, 2, 1, 0
+        ));
+        assertTrue(
+                "No completed-prefix result should escape after capacity exhaustion",
+                output.pairs.isEmpty()
         );
-
-        accept(session, "main", '(', BracketRole.OPEN, 7, 1, 0);
-        accept(
-                session,
-                "main",
-                '}',
-                BracketRole.CLOSE,
-                StructuralRole.CLOSE,
-                8,
-                1,
-                0
-        );
-
-        assertTrue(session.requiresEarlierStructuralContext());
-        assertTrue(session.hasOpenAt(7));
-        assertTrue(output.pairs.isEmpty());
     }
 
     @Test
@@ -428,7 +410,7 @@ public class PairingMachineTest {
         PairingMachine<String, String>.Session session = machine.newSession(
                 output,
                 cancellation,
-                null
+                Integer.MAX_VALUE
         );
         session.accept(
                 "xml", "start", "root", true,
@@ -474,7 +456,7 @@ public class PairingMachineTest {
             PairingRules<Character> rules
     ) {
         PairingMachine<Character, String> machine = new PairingMachine<>(ignored -> rules);
-        return machine.newSession(output, NO_CANCELLATION, null);
+        return machine.newSession(output, NO_CANCELLATION, Integer.MAX_VALUE);
     }
 
     private static void accept(

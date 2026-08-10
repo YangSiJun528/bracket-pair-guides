@@ -12,13 +12,31 @@ internal class EditorAnalysisState(
     private val editor: Editor,
 ) {
     @Volatile
-    var acceptedStamp: AnalysisStamp? = null
+    private var acceptedStamp: AnalysisStamp? = null
+
+    @Volatile
+    private var unavailableStamp: AnalysisStamp? = null
 
     var snapshot: BracketSnapshot? = null
 
     fun clear() {
-        acceptedStamp = null
+        forgetAcceptance()
         snapshot = null
+    }
+
+    fun accept(stamp: AnalysisStamp) {
+        acceptedStamp = stamp
+        unavailableStamp = null
+    }
+
+    fun refuse(stamp: AnalysisStamp) {
+        acceptedStamp = null
+        unavailableStamp = stamp
+    }
+
+    fun forgetAcceptance() {
+        acceptedStamp = null
+        unavailableStamp = null
     }
 
     fun discardStale(
@@ -43,6 +61,18 @@ internal class EditorAnalysisState(
             ) == false
         ) {
             acceptedStamp = null
+        }
+        if (unavailableStamp?.let { stamp ->
+                stamp.coverage != requiredCoverage ||
+                    !stamp.matchesCurrent(
+                        editor,
+                        fileType,
+                        requiredCoverage,
+                        disabledLanguageIds,
+                    )
+            } == true
+        ) {
+            unavailableStamp = null
         }
     }
 
@@ -87,7 +117,14 @@ internal class EditorAnalysisState(
         !required.activePair &&
         provided.activePair
 
-    fun covers(required: AnalysisStamp): Boolean = acceptedStamp?.covers(required) == true
+    fun covers(required: AnalysisStamp): Boolean =
+        acceptedStamp?.covers(required) == true ||
+            unavailableStamp?.let { refused ->
+                refused.coverage == required.coverage && refused.covers(required)
+            } == true
+
+    fun hasCompleted(required: AnalysisStamp): Boolean =
+        acceptedStamp?.covers(required) == true
 
     private companion object {
         private val TOKEN_COVERAGE = AnalysisCoverage(

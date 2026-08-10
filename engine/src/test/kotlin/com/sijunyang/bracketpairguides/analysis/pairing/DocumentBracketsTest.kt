@@ -166,6 +166,7 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         val pairs = ReadAction.compute<List<BracketPair>, RuntimeException> {
             documentBrackets(customFileType)
                 .pairs(EmptyProgressIndicator())
+                .completeTable()
                 .toBracketPairs()
         }
 
@@ -198,7 +199,7 @@ class DocumentBracketsTest : BasePlatformTestCase() {
             documentBrackets(
                 fileType = customFileType,
                 isLanguageEnabled = { capabilityId -> capabilityId != "TEXT" },
-            ).pairs(EmptyProgressIndicator()).toBracketPairs()
+            ).pairs(EmptyProgressIndicator()).completeTable().toBracketPairs()
         }
 
         assertTrue(pairs.isEmpty())
@@ -216,7 +217,7 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         val pairs = ReadAction.compute<List<BracketPair>, RuntimeException> {
             documentBrackets(
                 isLanguageEnabled = { id -> id != capabilityId },
-            ).pairs(EmptyProgressIndicator()).toBracketPairs()
+            ).pairs(EmptyProgressIndicator()).completeTable().toBracketPairs()
         }
 
         assertTrue(pairs.isEmpty())
@@ -261,7 +262,7 @@ class DocumentBracketsTest : BasePlatformTestCase() {
 
     private fun analyze(indicator: ProgressIndicator): List<BracketPair> {
         return ReadAction.compute<List<BracketPair>, RuntimeException> {
-            documentBrackets().pairs(indicator).toBracketPairs()
+            documentBrackets().pairs(indicator).completeTable().toBracketPairs()
         }
     }
 

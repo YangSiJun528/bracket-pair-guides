@@ -1,7 +1,5 @@
 package com.sijunyang.bracketpairguides.analysis.pairing
 
-import com.sijunyang.bracketpairguides.analysis.active.CaretBracketSearch
-import com.sijunyang.bracketpairguides.analysis.ActivePairKnowledge
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.intellij.codeInsight.highlighting.BraceMatcher
 import com.intellij.codeInsight.highlighting.XmlAwareBraceMatcher
@@ -23,8 +21,8 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IElementType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
-class BracketPairingParityTest : BasePlatformTestCase() {
-    fun testDualInterfaceContextualMatcherHasFullAndActiveParity() {
+class DocumentBraceGrammarTest : BasePlatformTestCase() {
+    fun testDualInterfaceMatcherHonorsContextualCallbacks() {
         val source = "a < b > T<x>"
         configure(source) { character ->
             when (character) {
@@ -53,16 +51,14 @@ class BracketPairingParityTest : BasePlatformTestCase() {
 
         withMatchers(CONTEXT_LANGUAGE to matcher) {
             val full = analyze()
-            val active = resolve(source.indexOf('x') + 1)
 
             assertEquals(1, full.size)
-            assertPairOffsets(full.single(), requireActivePair(active))
             assertEquals(source.lastIndexOf('<'), full.single().openOffset)
             assertEquals(source.lastIndexOf('>'), full.single().closeOffset)
         }
     }
 
-    fun testStrictCaseInsensitiveTagContextHasFullAndActiveParity() {
+    fun testStrictTagContextIsCaseInsensitiveWhenTheMatcherSaysSo() {
         val source = "<A x >b y >a"
         configure(source) { character ->
             when (character) {
@@ -75,11 +71,10 @@ class BracketPairingParityTest : BasePlatformTestCase() {
 
         withMatchers(STRICT_TAG_LANGUAGE to matcher) {
             val full = analyze()
-            val active = requireActivePair(resolve(source.indexOf('x') + 1))
 
             assertEquals(1, full.size)
+            assertEquals(source.indexOf('<'), full.single().openOffset)
             assertEquals(source.lastIndexOf('>'), full.single().closeOffset)
-            assertPairOffsets(full.single(), active)
         }
     }
 
@@ -101,14 +96,10 @@ class BracketPairingParityTest : BasePlatformTestCase() {
             LAYER_B_LANGUAGE to rightMatcher,
         ) {
             assertTrue(analyze().isEmpty())
-            assertEquals(
-                ActivePairKnowledge.Known(null),
-                resolve(source.indexOf('x') + 1),
-            )
         }
     }
 
-    fun testLayeredLanguageGateChangesBothFullAndActiveToTheOuterPair() {
+    fun testLayeredLanguageGateLeavesTheEnabledOuterPair() {
         val source = "{[x]}"
         configure(source) { character ->
             when (character) {
@@ -132,26 +123,22 @@ class BracketPairingParityTest : BasePlatformTestCase() {
             LAYER_A_LANGUAGE to matcherA,
             LAYER_B_LANGUAGE to matcherB,
         ) {
-            val caretOffset = source.indexOf('x') + 1
             val enabledFull = analyze()
-            val enabledActive = requireActivePair(resolve(caretOffset))
 
             assertEquals(2, enabledFull.size)
-            assertPairOffsets(enabledFull.single { it.openOffset == 1 }, enabledActive)
+            assertTrue(enabledFull.any { it.openOffset == 1 })
 
             val disableLayerB = { capabilityId: String ->
                 capabilityId != LAYER_B_LANGUAGE.id
             }
             val disabledFull = analyze(disableLayerB)
-            val disabledActive = requireActivePair(resolve(caretOffset, disableLayerB))
 
             assertEquals(1, disabledFull.size)
             assertEquals(0, disabledFull.single().openOffset)
-            assertPairOffsets(disabledFull.single(), disabledActive)
         }
     }
 
-    fun testPureSymmetricPairHasFullAndActiveParity() {
+    fun testPureSymmetricPairClosesBeforeOpeningAgain() {
         val source = "|x|"
         configure(source) { character ->
             if (character == '|') SYMMETRIC else OTHER
@@ -162,14 +149,14 @@ class BracketPairingParityTest : BasePlatformTestCase() {
 
         withMatchers(SYMMETRIC_LANGUAGE to matcher) {
             val full = analyze()
-            val active = resolve(source.indexOf('x') + 1)
 
             assertEquals(1, full.size)
-            assertPairOffsets(full.single(), requireActivePair(active))
+            assertEquals(0, full.single().openOffset)
+            assertEquals(2, full.single().closeOffset)
         }
     }
 
-    fun testSymmetricCloseBeforeCaretIsNotReusedAsAnOpener() {
+    fun testSymmetricCloseIsNotReusedAsAnOpener() {
         val source = "|a| b |c|"
         configure(source) { character ->
             if (character == '|') SYMMETRIC else OTHER
@@ -179,10 +166,9 @@ class BracketPairingParityTest : BasePlatformTestCase() {
         )
 
         withMatchers(SYMMETRIC_LANGUAGE to matcher) {
-            assertEquals(2, analyze().size)
             assertEquals(
-                ActivePairKnowledge.Known(null),
-                resolve(source.indexOf('b') + 1),
+                listOf(0, 6),
+                analyze().map(BracketPair::openOffset),
             )
         }
     }
@@ -197,31 +183,13 @@ class BracketPairingParityTest : BasePlatformTestCase() {
         )
 
         withMatchers(SYMMETRIC_LANGUAGE to matcher) {
-            val full = analyze().single { pair -> pair.openOffset == source.lastIndexOf('|', 7) }
-            val active = requireActivePair(resolve(source.indexOf('c') + 1))
+            val second = analyze().single { pair -> pair.openOffset == 6 }
 
-            assertPairOffsets(full, active)
+            assertEquals(8, second.closeOffset)
         }
     }
 
-    fun testSymmetricOrientationReplayReturnsIncompleteWhenBudgetRunsOut() {
-        val source = "x".repeat(520) + "|a|"
-        configure(source) { character ->
-            if (character == '|') SYMMETRIC else OTHER
-        }
-        val matcher = BraceGrammarFixture(
-            arrayOf(BracePair(SYMMETRIC, SYMMETRIC, false)),
-        )
-
-        withMatchers(SYMMETRIC_LANGUAGE to matcher) {
-            assertSame(
-                ActivePairKnowledge.Unknown,
-                resolve(source.indexOf('a') + 1),
-            )
-        }
-    }
-
-    fun testStructuralBoundaryBlocksTheSameMalformedPairInBothPaths() {
+    fun testStructuralBoundaryBlocksAMalformedRegularPair() {
         val source = "({x)"
         configure(source) { character ->
             when (character) {
@@ -241,14 +209,10 @@ class BracketPairingParityTest : BasePlatformTestCase() {
 
         withMatchers(STRUCTURAL_LANGUAGE to matcher) {
             assertTrue(analyze().isEmpty())
-            assertEquals(
-                ActivePairKnowledge.Known(null),
-                resolve(source.indexOf('x') + 1),
-            )
         }
     }
 
-    fun testEarlierStructuralContextMakesTheBoundedResultIncomplete() {
+    fun testStructuralCloseRecoversPastARegularOpen() {
         val source = "{(x})"
         configure(source) { character ->
             when (character) {
@@ -271,14 +235,11 @@ class BracketPairingParityTest : BasePlatformTestCase() {
 
             assertEquals(1, full.size)
             assertEquals(source.indexOf('{'), full.single().openOffset)
-            assertSame(
-                ActivePairKnowledge.Unknown,
-                resolve(source.indexOf('x') + 1),
-            )
+            assertEquals(source.indexOf('}'), full.single().closeOffset)
         }
     }
 
-    fun testUnmatchedStructuralCloserMakesTheBoundedResultIncomplete() {
+    fun testUnmatchedStructuralCloserDoesNotConsumeARegularOpen() {
         val source = "(x})"
         configure(source) { character ->
             when (character) {
@@ -300,14 +261,11 @@ class BracketPairingParityTest : BasePlatformTestCase() {
 
             assertEquals(1, full.size)
             assertEquals(source.indexOf('('), full.single().openOffset)
-            assertSame(
-                ActivePairKnowledge.Unknown,
-                resolve(source.indexOf('x') + 1),
-            )
+            assertEquals(source.indexOf(')'), full.single().closeOffset)
         }
     }
 
-    fun testForeignStructuralCloserDoesNotInvalidateTheTrackedLanguage() {
+    fun testForeignStructuralCloserDoesNotInvalidateAnotherLanguage() {
         val source = "(x})"
         configure(source) { character ->
             when (character) {
@@ -331,13 +289,13 @@ class BracketPairingParityTest : BasePlatformTestCase() {
             LAYER_B_LANGUAGE to foreignStructuralMatcher,
         ) {
             val full = analyze().single()
-            val active = requireActivePair(resolve(source.indexOf('x') + 1))
 
-            assertPairOffsets(full, active)
+            assertEquals(source.indexOf('('), full.openOffset)
+            assertEquals(source.indexOf(')'), full.closeOffset)
         }
     }
 
-    fun testWellFormedStructuralNestingRemainsImmediate() {
+    fun testWellFormedStructuralNestingRemainsPaired() {
         val source = "{(x)}"
         configure(source) { character ->
             when (character) {
@@ -356,16 +314,17 @@ class BracketPairingParityTest : BasePlatformTestCase() {
         )
 
         withMatchers(STRUCTURAL_LANGUAGE to matcher) {
-            val full = analyze().single { pair ->
+            val full = analyze()
+            val regular = full.single { pair ->
                 pair.openOffset == source.indexOf('(')
             }
-            val active = requireActivePair(resolve(source.indexOf('x') + 1))
 
-            assertPairOffsets(full, active)
+            assertEquals(2, full.size)
+            assertEquals(source.indexOf(')'), regular.closeOffset)
         }
     }
 
-    fun testSharedCloserRecoveryHasFullAndActiveParity() {
+    fun testSharedCloserRecoversTheCompatibleOpen() {
         val source = "bcqx"
         configure(source) { character ->
             when (character) {
@@ -387,33 +346,10 @@ class BracketPairingParityTest : BasePlatformTestCase() {
 
         withMatchers(SHARED_LANGUAGE to matcher) {
             val full = analyze()
-            val active = resolve(source.indexOf('x'))
 
             assertEquals(1, full.size)
-            assertPairOffsets(full.single(), requireActivePair(active))
             assertEquals(source.indexOf('b'), full.single().openOffset)
             assertEquals(source.indexOf('x'), full.single().closeOffset)
-        }
-    }
-
-    fun testTransitionBudgetIsSharedAcrossCandidateForwardAttempts() {
-        val source = "(".repeat(300) + "x"
-        configure(source) { character ->
-            when (character) {
-                '(' -> STRUCTURAL_REGULAR_LEFT
-                ')' -> STRUCTURAL_REGULAR_RIGHT
-                else -> OTHER
-            }
-        }
-        val matcher = BraceGrammarFixture(
-            arrayOf(BracePair(STRUCTURAL_REGULAR_LEFT, STRUCTURAL_REGULAR_RIGHT, false)),
-        )
-
-        withMatchers(STRUCTURAL_LANGUAGE to matcher) {
-            assertSame(
-                ActivePairKnowledge.Unknown,
-                resolve(source.length),
-            )
         }
     }
 
@@ -421,7 +357,7 @@ class BracketPairingParityTest : BasePlatformTestCase() {
         source: String,
         tokenFor: (Char) -> IElementType,
     ) {
-        myFixture.configureByText("PairingParity.txt", source)
+        myFixture.configureByText("DocumentBraceGrammar.txt", source)
         val editor = myFixture.editor as EditorEx
         editor.setHighlighter(
             LexerEditorHighlighter(
@@ -439,38 +375,7 @@ class BracketPairingParityTest : BasePlatformTestCase() {
             fileType = myFixture.file.fileType,
             languages = BraceLanguageCatalog(),
             isLanguageEnabled = isLanguageEnabled,
-        ).pairs(EmptyProgressIndicator()).toBracketPairs()
-    }
-
-    private fun resolve(
-        caretOffset: Int,
-        isLanguageEnabled: (String) -> Boolean = { true },
-    ): ActivePairKnowledge = ReadAction.compute<
-        ActivePairKnowledge,
-        RuntimeException,
-    > {
-        CaretBracketSearch(
-            fileType = myFixture.file.fileType,
-            languages = BraceLanguageCatalog(),
-            isLanguageEnabled = isLanguageEnabled,
-        ).findInnermost(myFixture.editor, caretOffset)
-    }
-
-    private fun requireActivePair(
-        resolution: ActivePairKnowledge,
-    ): BracketPair {
-        assertTrue(
-            "Expected a complete active resolution, got $resolution",
-            resolution is ActivePairKnowledge.Known,
-        )
-        return checkNotNull((resolution as ActivePairKnowledge.Known).pair)
-    }
-
-    private fun assertPairOffsets(expected: BracketPair, actual: BracketPair) {
-        assertEquals(expected.openOffset, actual.openOffset)
-        assertEquals(expected.openTokenLength, actual.openTokenLength)
-        assertEquals(expected.closeOffset, actual.closeOffset)
-        assertEquals(expected.closeTokenLength, actual.closeTokenLength)
+        ).pairs(EmptyProgressIndicator()).completeTable().toBracketPairs()
     }
 
     private fun withMatchers(

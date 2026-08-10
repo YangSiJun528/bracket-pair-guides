@@ -3,7 +3,9 @@ package com.sijunyang.bracketpairguides.analysis.pairing
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.progress.ProgressIndicator
+import com.sijunyang.bracketpairguides.analysis.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable
+import com.sijunyang.bracketpairguides.analysis.pipeline.AnalysisBudget
 
 /**
  * Pairs tokens recognized by each token language's `lang.braceMatcher`.
@@ -18,13 +20,15 @@ internal class DocumentBrackets(
     private val languages: BraceLanguageCatalog,
     private val isLanguageEnabled: (String) -> Boolean,
 ) {
-    fun pairs(progress: ProgressIndicator): PairTable {
+    fun pairs(progress: ProgressIndicator): DocumentBracketState {
         val document = editor.document
-        if (document.textLength == 0) return PairTable.empty()
+        if (document.textLength == 0) return DocumentBracketState.Complete(PairTable.empty())
 
-        val result = PairTable.draft()
+        val pairs = PairCollection(AnalysisBudget.pairCapacity)
         val iterator = editor.highlighter.createIterator(0)
-        if (iterator.document !== document) return PairTable.empty()
+        if (iterator.document !== document) {
+            return DocumentBracketState.Complete(PairTable.empty())
+        }
         val text = document.immutableCharSequence
         val checkCanceled = progress::checkCanceled
         val pairing = DocumentBraceGrammar(
@@ -35,24 +39,40 @@ internal class DocumentBrackets(
             isLanguageEnabled = isLanguageEnabled,
         ).newSession(
             checkCanceled = checkCanceled,
-            pairSink = result,
+            pairSink = pairs,
+            maximumPendingOpens = AnalysisBudget.maximumPendingOpenCount,
         )
         var visitedTokens = 0
 
-        while (!iterator.atEnd()) {
-            if (visitedTokens++ and CANCELLATION_MASK == 0) {
-                progress.checkCanceled()
-            }
+        try {
+            while (!iterator.atEnd()) {
+                if (visitedTokens++ and CANCELLATION_MASK == 0) {
+                    progress.checkCanceled()
+                }
 
-            pairing.accept(iterator)
-            iterator.advance()
+                if (!pairing.accept(iterator)) {
+                    return DocumentBracketState.Unavailable(
+                        AnalysisLimit.PENDING_OPEN_CAPACITY,
+                    )
+                }
+                iterator.advance()
+            }
+        } catch (_: PairCapacityReached) {
+            return DocumentBracketState.Unavailable(AnalysisLimit.PAIR_CAPACITY)
         }
 
         progress.checkCanceled()
-        return result.freeze()
+        return DocumentBracketState.Complete(checkNotNull(pairs.complete()))
     }
 
     private companion object {
         private const val CANCELLATION_MASK = 0xFF
     }
+}
+
+/** Authoritative document-pair recognition state. */
+internal sealed interface DocumentBracketState {
+    class Complete(val pairs: PairTable) : DocumentBracketState
+
+    class Unavailable(val limit: AnalysisLimit) : DocumentBracketState
 }

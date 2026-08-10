@@ -29,10 +29,12 @@ class BracketAnalysisTest : BasePlatformTestCase() {
             ),
         )
 
-        val result = inReadAction {
+        val outcome = inReadAction {
             BracketAnalysis().analyze(request, EmptyProgressIndicator())
         }
+        val result = complete(outcome)
 
+        assertSame(request.stamp, outcome.stamp)
         assertSame(request.stamp, result.stamp)
         val tokens = result.visibleTokens(
             range = TextRange(0, source.length),
@@ -54,45 +56,13 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         assertEquals(activePair.closeLine, guide.anchorLine)
     }
 
-    fun testResolveActivePairMapsTheBoundedSearchKnowledge() {
-        val source = "class Sample { }"
-        myFixture.configureByText("Active.java", source)
-        val analysis = BracketAnalysis()
-        inReadAction {
-            analysis.analyze(
-                request(
-                    AnalysisCoverage(
-                        tokens = false,
-                        activePair = true,
-                        guidePosition = false,
-                    ),
-                ),
-                EmptyProgressIndicator(),
-            )
-        }
-        val activeRequest = CaretContext(
-            editor = myFixture.editor,
-            fileType = myFixture.file.fileType,
-            caretOffset = source.indexOf('{') + 1,
-        )
-
-        val resolution = inReadAction {
-            analysis.resolveActivePair(activeRequest)
-        }
-
-        val pair = (resolution as? ActivePairKnowledge.Known)?.pair
-        assertNotNull("A tiny warmed token stream must fit the bounded lookup", pair)
-        assertEquals(source.indexOf('{'), pair?.openOffset)
-        assertEquals(source.indexOf('}'), pair?.closeOffset)
-    }
-
     fun testCoverageBuildsOnlyRequestedArtifacts() {
         val source = "class Planned { void run() { call(); } }"
         myFixture.configureByText("Planned.java", source)
         val caretOffset = source.indexOf("call") + 2
         val range = TextRange(0, source.length)
 
-        val tokenOnly = inReadAction {
+        val tokenOnly = complete(inReadAction {
             BracketAnalysis().analyze(
                 request(
                     AnalysisCoverage(
@@ -103,11 +73,11 @@ class BracketAnalysisTest : BasePlatformTestCase() {
                 ),
                 EmptyProgressIndicator(),
             )
-        }
+        })
         assertTrue(tokenOnly.visibleTokens(range, caretOffset, 100).size > 0)
         assertNull(tokenOnly.activePairAt(caretOffset))
 
-        val activeOnly = inReadAction {
+        val activeOnly = complete(inReadAction {
             BracketAnalysis().analyze(
                 request(
                     AnalysisCoverage(
@@ -118,11 +88,11 @@ class BracketAnalysisTest : BasePlatformTestCase() {
                 ),
                 EmptyProgressIndicator(),
             )
-        }
+        })
         assertEquals(0, activeOnly.visibleTokens(range, caretOffset, 100).size)
         assertNotNull(activeOnly.activePairAt(caretOffset))
 
-        val inactive = inReadAction {
+        val inactive = complete(inReadAction {
             BracketAnalysis().analyze(
                 request(
                     AnalysisCoverage(
@@ -133,41 +103,9 @@ class BracketAnalysisTest : BasePlatformTestCase() {
                 ),
                 EmptyProgressIndicator(),
             )
-        }
+        })
         assertEquals(0, inactive.visibleTokens(range, caretOffset, 100).size)
         assertNull(inactive.activePairAt(caretOffset))
-    }
-
-    fun testResolveActivePairPreservesAuthoritativeMissAndBudgetExhaustion() {
-        myFixture.configureByText("NoPair.java", "class NoPair { }")
-        val analysis = BracketAnalysis()
-        val authoritativeMiss = inReadAction {
-            analysis.resolveActivePair(
-                CaretContext(
-                    editor = myFixture.editor,
-                    fileType = myFixture.file.fileType,
-                    caretOffset = 0,
-                ),
-            )
-        }
-        assertEquals(ActivePairKnowledge.Known(null), authoritativeMiss)
-
-        val deepSource = buildString {
-            append("class Budget { void run() { int value = 0;")
-            repeat(600) { append("value++;") }
-            append("int target = value; } }")
-        }
-        myFixture.configureByText("Budget.java", deepSource)
-        val exhausted = inReadAction {
-            analysis.resolveActivePair(
-                CaretContext(
-                    editor = myFixture.editor,
-                    fileType = myFixture.file.fileType,
-                    caretOffset = deepSource.indexOf("target") + 2,
-                ),
-            )
-        }
-        assertSame(ActivePairKnowledge.Unknown, exhausted)
     }
 
     fun testInstalledLanguagesReturnsStableUiReadyDtos() {
@@ -180,6 +118,29 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         assertTrue(families.all { family -> family.memberDisplayNames.isNotEmpty() })
         val textFamily = families.single { family -> family.id == "TEXT" }
         assertTrue("Plain text" in textFamily.memberDisplayNames)
+    }
+
+    fun testUnavailableOutcomeRetainsTheAttemptStampWithoutAPartialSnapshot() {
+        myFixture.configureByText("Unavailable.java", "class Unavailable { }")
+        val request = request(
+            AnalysisCoverage(
+                tokens = true,
+                activePair = true,
+                guidePosition = false,
+            ),
+        )
+
+        val outcome: AnalysisOutcome = AnalysisOutcome.Unavailable(
+            request.stamp,
+            AnalysisLimit.WORKING_MEMORY,
+        )
+
+        assertSame(request.stamp, outcome.stamp)
+        assertEquals(
+            AnalysisLimit.WORKING_MEMORY,
+            (outcome as AnalysisOutcome.Unavailable).limit,
+        )
+        assertFalse(outcome is AnalysisOutcome.Complete)
     }
 
     fun testLanguageFamilyDefensivelyCopiesMemberNames() {
@@ -223,7 +184,7 @@ class BracketAnalysisTest : BasePlatformTestCase() {
     fun testRequestsDefensivelyCopyDisabledLanguageIds() {
         myFixture.configureByText("Copy.java", "class Copy { }")
         val disabled = mutableSetOf("JAVA")
-        val analyzeRequest = AnalysisInput(
+        val analysisInput = AnalysisInput(
             editor = myFixture.editor,
             fileType = myFixture.file.fileType,
             coverage = AnalysisCoverage(
@@ -233,18 +194,10 @@ class BracketAnalysisTest : BasePlatformTestCase() {
             ),
             disabledLanguageIds = disabled,
         )
-        val activeRequest = CaretContext(
-            editor = myFixture.editor,
-            fileType = myFixture.file.fileType,
-            caretOffset = 1,
-            disabledLanguageIds = disabled,
-        )
-
         disabled.clear()
         disabled += "KOTLIN"
 
-        assertEquals(setOf("JAVA"), analyzeRequest.disabledLanguageIds)
-        assertEquals(setOf("JAVA"), activeRequest.disabledLanguageIds)
+        assertEquals(setOf("JAVA"), analysisInput.disabledLanguageIds)
     }
 
     fun testStampChecksDocumentCoverageAndLanguageSelection() {
@@ -360,7 +313,13 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         editor = myFixture.editor,
         fileType = myFixture.file.fileType,
         coverage = coverage,
+        disabledLanguageIds = emptySet(),
     )
+
+    private fun complete(outcome: AnalysisOutcome): BracketSnapshot {
+        assertTrue("Expected complete analysis, got ${outcome.javaClass.simpleName}", outcome is AnalysisOutcome.Complete)
+        return (outcome as AnalysisOutcome.Complete).snapshot
+    }
 
     private fun <T> inReadAction(action: () -> T): T =
         ReadAction.compute<T, RuntimeException>(action)

@@ -1,7 +1,5 @@
 package com.sijunyang.bracketpairguides.editor
 
-import com.sijunyang.bracketpairguides.analysis.CaretContext
-import com.sijunyang.bracketpairguides.analysis.ActivePairKnowledge
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.BracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
@@ -20,7 +18,6 @@ import com.intellij.openapi.util.TextRange
 /** EDT-owned state and presentation for one editor. */
 internal class EditorGuideSession(
     private val editor: Editor,
-    private var resolveActivePair: (CaretContext) -> ActivePairKnowledge,
     private var visibleRange: (Editor) -> TextRange,
     private var options: BracketGuidePreferences,
 ) {
@@ -38,7 +35,6 @@ internal class EditorGuideSession(
         get() = tokenDecorationState.isCapped
 
     fun updateDependenciesIfCurrent(
-        resolveActivePair: (CaretContext) -> ActivePairKnowledge,
         visibleRange: (Editor) -> TextRange,
         passStamp: AnalysisStamp,
     ): Boolean {
@@ -54,7 +50,6 @@ internal class EditorGuideSession(
         ) {
             return false
         }
-        this.resolveActivePair = resolveActivePair
         analysisHighlighter = editor.highlighter
         this.visibleRange = visibleRange
         return true
@@ -76,7 +71,7 @@ internal class EditorGuideSession(
         }
         if (!requiredCoverage.pairs) {
             clear()
-            analysisState.acceptedStamp = currentStamp()
+            analysisState.accept(currentStamp())
             return
         }
         if (shouldReleasePairGraph(requiredCoverage, nextAnalysis.stamp.coverage)) {
@@ -109,7 +104,6 @@ internal class EditorGuideSession(
         replaceActive(
             pair = pair,
             indexedGuide = pair?.let(nextAnalysis::guideFor),
-            change = null,
         )
         tokenDecorationState = tokenDecorationState.replace(
             editor,
@@ -122,10 +116,30 @@ internal class EditorGuideSession(
                 nextAnalysis.stamp.coverage,
             )
         ) {
-            analysisState.acceptedStamp = null
+            analysisState.forgetAcceptance()
         } else {
-            analysisState.acceptedStamp = nextAnalysis.stamp
+            analysisState.accept(nextAnalysis.stamp)
         }
+        editor.contentComponent.repaint()
+    }
+
+    /** Accepts a bounded analysis refusal without publishing a partial snapshot. */
+    fun acceptUnavailable(stamp: AnalysisStamp): Unit {
+        assertEdt()
+        if (disposed || editor.isDisposed) return
+        val requiredCoverage = options.analysisCoverage()
+        if (stamp.coverage != requiredCoverage || !stamp.matchesCurrent(
+                editor,
+                editorFileType(editor),
+                requiredCoverage,
+                options.disabledLanguageIds,
+            )
+        ) {
+            return
+        }
+        if (analysisState.hasCompleted(stamp)) return
+        clear()
+        analysisState.refuse(stamp)
         editor.contentComponent.repaint()
     }
 
@@ -135,7 +149,7 @@ internal class EditorGuideSession(
         if (!options.analysisCoverage().activePair) return
         val currentAnalysis = analysisState.snapshot
         if (currentAnalysis == null || !isCurrent(currentAnalysis)) {
-            updateProvisional(null)
+            updateProvisional()
             return
         }
 
@@ -144,19 +158,15 @@ internal class EditorGuideSession(
         replaceActive(
             pair = pair,
             indexedGuide = pair?.let(currentAnalysis::guideFor),
-            change = null,
         )
         editor.contentComponent.repaint()
     }
 
-    fun documentChanged(
-        change: DocumentChange,
-        resolveImmediately: Boolean,
-    ): Unit {
+    fun documentChanged(): Unit {
         assertEdt()
         if (disposed || editor.isDisposed) return
         discardStaleAnalysis()
-        updateProvisional(change, resolveImmediately)
+        updateProvisional()
     }
 
     fun visibleAreaChanged(): Unit {
@@ -177,7 +187,6 @@ internal class EditorGuideSession(
 
     fun updateOptions(
         nextOptions: BracketGuidePreferences,
-        resolveImmediately: Boolean,
         refreshColors: Boolean,
     ): Unit {
         assertEdt()
@@ -189,13 +198,13 @@ internal class EditorGuideSession(
         if (discardPresentationFromReplacedHighlighter()) return
         if (!nextOptions.analysisCoverage().pairs) {
             clear()
-            analysisState.acceptedStamp = currentStamp()
+            analysisState.accept(currentStamp())
             editor.contentComponent.repaint()
             return
         }
         if (languagesChanged) {
             clear()
-            updateProvisional(null, resolveImmediately)
+            updateProvisional()
             return
         }
         val requiredCoverage = options.analysisCoverage()
@@ -224,19 +233,18 @@ internal class EditorGuideSession(
         replaceActive(
             pair = pair,
             indexedGuide = pair?.let { currentAnalysis?.guideFor(it) },
-            change = null,
         )
         if (pair == null &&
             currentAnalysis == null &&
             options.analysisCoverage().activePair
         ) {
-            updateProvisional(null, resolveImmediately)
+            updateProvisional()
             return
         }
         if (releasePairGraph) {
-            analysisState.acceptedStamp = null
+            analysisState.forgetAcceptance()
         } else if (currentAnalysis != null) {
-            analysisState.acceptedStamp = currentAnalysis.stamp
+            analysisState.accept(currentAnalysis.stamp)
         }
         editor.contentComponent.repaint()
     }
@@ -282,7 +290,7 @@ internal class EditorGuideSession(
 
     /** Avoids touching editor markup when the application is already shutting down. */
     fun forgetAcceptedAnalysis(): Unit {
-        analysisState.acceptedStamp = null
+        analysisState.forgetAcceptance()
     }
 
     private fun clear() {
@@ -293,10 +301,7 @@ internal class EditorGuideSession(
         tokenDecorationState = VisibleTokenDecorations.EMPTY
     }
 
-    private fun updateProvisional(
-        change: DocumentChange?,
-        resolveImmediately: Boolean = true,
-    ) {
+    private fun updateProvisional() {
         if (!options.analysisCoverage().activePair) {
             val hadActivePresentation = activeMarkup.isVisible
             clearActive(preserveGuide = false)
@@ -304,47 +309,19 @@ internal class EditorGuideSession(
             return
         }
         if (discardPresentationFromReplacedHighlighter()) return
-        val adjustedPair = trackedPair.adjusted
+        val pair = trackedPair.adjusted
         val caretOffset = caretOffset()
-        val resolution = if (resolveImmediately) {
-            resolveActivePair(
-                CaretContext(
-                    editor = editor,
-                    fileType = editorFileType(editor),
-                    caretOffset = caretOffset,
-                    disabledLanguageIds = options.disabledLanguageIds,
-                ),
-            )
-        } else {
-            ActivePairKnowledge.Unknown
-        }
-        val pair = when (resolution) {
-            is ActivePairKnowledge.Known -> resolution.pair?.let { pair ->
-                trackedPair.withDepthHint(pair, adjustedPair)
-            }
-            ActivePairKnowledge.Unknown -> adjustedPair
-        }
         if (pair?.contains(caretOffset) != true) {
             clearActive(preserveGuide = false)
             editor.contentComponent.repaint()
             return
         }
 
-        if (trackedPair.hasDifferentRange(pair, adjustedPair)) {
-            replaceActive(
-                pair = pair,
-                indexedGuide = null,
-                change = change,
-            )
-        } else if (resolveImmediately) {
-            refreshProvisionalPair(pair, change)
-        } else {
-            refreshAdjustedPair(pair)
-        }
+        refreshAdjustedPair(pair)
         editor.contentComponent.repaint()
     }
 
-    /** Keeps inactive split editors coherent without multiplying the immediate-search budget. */
+    /** Keeps stale presentation coherent until the background highlighting pass completes. */
     private fun refreshAdjustedPair(pair: BracketPair) {
         val previousGuide = currentGuide()
         val guide = when {
@@ -361,18 +338,9 @@ internal class EditorGuideSession(
         trackedPair.refresh(pair, guide)
     }
 
-    private fun refreshProvisionalPair(pair: BracketPair, change: DocumentChange?) {
-        val previousGuide = currentGuide()
-        val currentAnchorLine = trackedPair.anchorLine
-        val guide = createGuide(pair, null, previousGuide, currentAnchorLine, change)
-        updateGuide(guide)
-        trackedPair.refresh(pair, guide)
-    }
-
     private fun replaceActive(
         pair: BracketPair?,
         indexedGuide: BracketGuide?,
-        change: DocumentChange?,
     ) {
         val previousGuide = currentGuide()
         val currentAnchorLine = trackedPair.anchorLine
@@ -390,7 +358,6 @@ internal class EditorGuideSession(
             indexedGuide,
             previousGuide,
             currentAnchorLine,
-            change,
         )
         trackedPair.track(pair, guide)
         updateGuide(guide)
@@ -406,18 +373,17 @@ internal class EditorGuideSession(
         indexedGuide: BracketGuide?,
         previousGuide: BracketGuide?,
         currentAnchorLine: Int?,
-        change: DocumentChange?,
     ): BracketGuide? {
         if (!options.enabled || !options.showsGuide) return null
         if (pair.openLine == pair.closeLine) return BracketGuide(pair, 0)
-        // A full snapshot can intentionally omit the proportional-size index
-        // for an oversized document; keep that path bounded on the EDT.
+        // A tracked pair can outlive its snapshot during edits and settings
+        // transitions. Keep that provisional presentation bounded until the
+        // background pass publishes an exact guide index.
         return indexedGuide ?: GuidePositionFallback.guideFor(
             editor,
             pair,
             previousGuide,
             currentAnchorLine,
-            change,
         )
     }
 

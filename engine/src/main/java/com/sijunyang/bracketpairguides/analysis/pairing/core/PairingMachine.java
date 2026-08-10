@@ -32,37 +32,42 @@ public final class PairingMachine<T, G> {
     public Session newSession(
             PairSink sink,
             CancellationProbe cancellation,
-            Integer trackedOpenOffset
+            int maximumPendingOpens
     ) {
+        if (maximumPendingOpens <= 0) {
+            throw new IllegalArgumentException("Pending-open capacity must be positive");
+        }
         return new Session(
                 Objects.requireNonNull(sink, "sink"),
                 Objects.requireNonNull(cancellation, "cancellation"),
-                trackedOpenOffset
+                maximumPendingOpens
         );
     }
 
     public final class Session {
         private final PairSink sink;
         private final CancellationProbe cancellation;
-        private final Integer trackedOpenOffset;
+        private final int maximumPendingOpens;
         private final Map<G, GroupState<T>> states = new HashMap<>();
         private final Map<G, PairingRules<T>> rulesByGroup = new HashMap<>();
-        private int trackedOpenCount;
-        private G trackedGroup;
-        private boolean requiresEarlierStructuralContext;
+        private int pendingOpenCount;
 
         private Session(
                 PairSink sink,
                 CancellationProbe cancellation,
-                Integer trackedOpenOffset
+                int maximumPendingOpens
         ) {
             this.sink = sink;
             this.cancellation = cancellation;
-            this.trackedOpenOffset = trackedOpenOffset;
+            this.maximumPendingOpens = maximumPendingOpens;
         }
 
-        /** Accepts one token already classified by the host-language adapter. */
-        public void accept(
+        /**
+         * Accepts one token already classified by the host-language adapter.
+         *
+         * @return false before an opener would cross the pending-open capacity
+         */
+        public boolean accept(
                 G group,
                 T token,
                 String context,
@@ -78,10 +83,10 @@ public final class PairingMachine<T, G> {
             Objects.requireNonNull(role, "role");
             Objects.requireNonNull(structuralRole, "structuralRole");
             if (tokenLength <= 0) {
-                return;
+                return true;
             }
 
-            switch (role) {
+            return switch (role) {
                 case OPEN -> open(
                         group,
                         token,
@@ -103,6 +108,7 @@ public final class PairingMachine<T, G> {
                     if (match != null) {
                         emit(match, offset, tokenLength, line);
                     }
+                    yield true;
                 }
                 case TOGGLE -> {
                     OpenToken<T> match = close(
@@ -114,9 +120,9 @@ public final class PairingMachine<T, G> {
                     );
                     if (match != null) {
                         emit(match, offset, tokenLength, line);
-                        return;
+                        yield true;
                     }
-                    open(
+                    yield open(
                             group,
                             token,
                             context,
@@ -127,20 +133,10 @@ public final class PairingMachine<T, G> {
                             line
                     );
                 }
-            }
+            };
         }
 
-        public boolean hasOpenAt(int offset) {
-            return trackedOpenOffset != null &&
-                    trackedOpenOffset == offset &&
-                    trackedOpenCount > 0;
-        }
-
-        public boolean requiresEarlierStructuralContext() {
-            return requiresEarlierStructuralContext;
-        }
-
-        private void open(
+        private boolean open(
                 G group,
                 T token,
                 String context,
@@ -150,6 +146,9 @@ public final class PairingMachine<T, G> {
                 int tokenLength,
                 int line
         ) {
+            if (pendingOpenCount == maximumPendingOpens) {
+                return false;
+            }
             GroupState<T> state = states.computeIfAbsent(
                     group,
                     ignored -> new GroupState<>(rulesFor(group))
@@ -165,10 +164,7 @@ public final class PairingMachine<T, G> {
                     state.stack.size()
             );
             state.stack.addLast(open);
-            if (trackedOpenOffset != null && trackedOpenOffset == offset) {
-                trackedOpenCount++;
-                trackedGroup = group;
-            }
+            pendingOpenCount++;
             increment(state.allCounts, open);
             if (structural) {
                 state.structuralOpenCount++;
@@ -176,6 +172,7 @@ public final class PairingMachine<T, G> {
             } else {
                 increment(state.regularScopes.getLast(), open);
             }
+            return true;
         }
 
         private OpenToken<T> close(
@@ -187,9 +184,6 @@ public final class PairingMachine<T, G> {
         ) {
             GroupState<T> state = states.get(group);
             if (state == null) {
-                if (Objects.equals(trackedGroup, group) && canCloseStructural) {
-                    requiresEarlierStructuralContext = true;
-                }
                 return null;
             }
             PairingRules<T> rules = state.rules;
@@ -243,21 +237,7 @@ public final class PairingMachine<T, G> {
                 );
             }
 
-            markMissingStructuralContext(group, token, canCloseStructural, match, rules);
             return match;
-        }
-
-        private void markMissingStructuralContext(
-                G group,
-                T closeToken,
-                boolean structuralClose,
-                OpenToken<T> match,
-                PairingRules<T> rules
-        ) {
-            if (Objects.equals(trackedGroup, group) && structuralClose &&
-                    (match == null || !rules.isStructuralPair(match.token, closeToken))) {
-                requiresEarlierStructuralContext = true;
-            }
         }
 
         private PairingRules<T> rulesFor(G group) {
@@ -352,9 +332,7 @@ public final class PairingMachine<T, G> {
 
         private OpenToken<T> removeLast(GroupState<T> state) {
             OpenToken<T> open = state.stack.removeLast();
-            if (trackedOpenOffset != null && trackedOpenOffset == open.offset) {
-                trackedOpenCount--;
-            }
+            pendingOpenCount--;
             decrement(state.allCounts, open);
             if (open.structural) {
                 state.structuralOpenCount--;

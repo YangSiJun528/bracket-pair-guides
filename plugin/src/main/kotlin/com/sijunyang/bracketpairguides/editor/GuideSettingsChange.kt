@@ -21,11 +21,9 @@ internal data class GuideSettingsChange(
         val sessionEditors = EditorFactory.getInstance().allEditors.filter { editor ->
             !editor.isDisposed && EditorGuideSessions.get(editor) != null
         }
-        val immediateEditor = EditorGuideEvents.foregroundAmong(sessionEditors)
         for (editor in sessionEditors) {
             EditorGuideSessions.get(editor)?.updateOptions(
                 current,
-                resolveImmediately = editor === immediateEditor,
                 refreshColors = false,
             )
         }

@@ -2,7 +2,6 @@ package com.sijunyang.bracketpairguides.analysis.guide
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.intellij.openapi.editor.impl.DocumentImpl
-import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import org.junit.Assert.assertEquals
@@ -38,6 +37,50 @@ class GuidePositionIndexTest {
     }
 
     @Test
+    fun `blocked query returns the earliest exact minimum across edges and tree`() {
+        val lines = MutableList(701) { "        value" }
+        lines[0] = "{"
+        lines[100] = "  left edge"
+        lines[300] = " middle block"
+        lines[600] = " right edge"
+        lines[700] = "        }"
+        val index = indexFor(lines.joinToString("\n"))
+
+        val guide = index.guide(pair(closeLine = 700))
+
+        assertEquals(1, guide.guideColumn)
+        assertEquals(300, guide.anchorLine)
+    }
+
+    @Test
+    fun `blocked queries match linear minima around every block edge`() {
+        val indentations = IntArray(1_025) { line -> (line * 17) % 13 }
+        val index = indexFor(
+            indentations.joinToString("\n") { indentation ->
+                " ".repeat(indentation) + "value"
+            },
+        )
+        val edges = listOf(1, 2, 254, 255, 256, 257, 510, 511, 512, 513, 767, 768, 1_024)
+
+        for (firstLine in edges) {
+            for (lastLine in edges) {
+                if (lastLine < firstLine) continue
+                val expectedColumn = (firstLine..lastLine)
+                    .minOf(indentations::get)
+                val expectedLine = (firstLine..lastLine)
+                    .first { line -> indentations[line] == expectedColumn }
+
+                val guide = index.guide(
+                    pair(closeLine = lastLine).copy(openLine = firstLine - 1),
+                )
+
+                assertEquals(expectedColumn, guide.guideColumn)
+                assertEquals(expectedLine, guide.anchorLine)
+            }
+        }
+    }
+
+    @Test
     fun `restricted index retains absolute anchor lines`() {
         val index = indexFor(
             "ignored\n{\n    nested\n  }\nignored",
@@ -67,7 +110,7 @@ class GuidePositionIndexTest {
             GuidePositionIndex.from(
                 document = document,
                 tabSize = 4,
-                progress = EmptyProgressIndicator(),
+                progress = ProgressIndicatorBase(),
                 indexedLineRange = 10..20,
             ),
         )
@@ -96,18 +139,30 @@ class GuidePositionIndexTest {
     }
 
     @Test
-    fun `tree shape enforces the power of two memory boundary`() {
-        val boundary = 1_048_576
+    fun `blocked shape enforces the combined array memory boundary`() {
+        val formerBoundary = 1_048_576
+        val exactBoundary = 4_128_768
 
-        assertNotNull(GuideTreeShape.forLineCount(1))
-        assertNotNull(GuideTreeShape.forLineCount(1_000_000))
-        assertNotNull(GuideTreeShape.forLineCount(boundary))
-        assertNull(GuideTreeShape.forLineCount(boundary + 1))
+        assertNotNull(GuideIndexShape.forLineCount(1))
+        assertNotNull(GuideIndexShape.forLineCount(1_000_000))
+        assertNotNull(GuideIndexShape.forLineCount(formerBoundary))
+        assertNotNull(GuideIndexShape.forLineCount(formerBoundary + 1))
+        assertNotNull(GuideIndexShape.forLineCount(4_000_000))
+
+        val boundaryShape = checkNotNull(GuideIndexShape.forLineCount(exactBoundary))
+        assertEquals(exactBoundary, boundaryShape.indentationEntryCount)
+        assertEquals(16_384, boundaryShape.blockLeafCount)
+        assertEquals(32_768, boundaryShape.blockTreeEntryCount)
+        assertEquals(
+            GuideIndexShape.MAXIMUM_INDEX_PAYLOAD_BYTES,
+            boundaryShape.payloadBytes,
+        )
+        assertNull(GuideIndexShape.forLineCount(exactBoundary + 1))
     }
 
     @Test
     fun `storage planning is overflow safe for the maximum line count`() {
-        assertNull(GuideTreeShape.forLineCount(Int.MAX_VALUE))
+        assertNull(GuideIndexShape.forLineCount(Int.MAX_VALUE))
     }
 
     @Test
@@ -138,7 +193,7 @@ class GuidePositionIndexTest {
             GuidePositionIndex.from(
                 document = document,
                 tabSize = tabSize,
-                progress = EmptyProgressIndicator(),
+                progress = ProgressIndicatorBase(),
                 indexedLineRange = indexedLineRange ?: 0 until document.lineCount,
             ),
         )

@@ -17,7 +17,6 @@ import com.intellij.openapi.editor.event.EditorFactoryEvent
 import com.intellij.openapi.editor.event.EditorFactoryListener
 import com.intellij.openapi.editor.event.VisibleAreaEvent
 import com.intellij.openapi.editor.event.VisibleAreaListener
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.util.Alarm
 
 /** Routes platform editor events to the state owned by each editor session. */
@@ -65,17 +64,13 @@ internal class EditorGuideEvents :
     }
 
     override fun documentChanged(event: DocumentEvent): Unit {
-        val change = DocumentChange.from(event)
         val editors = EditorFactory.getInstance().getEditors(event.document).toList()
         onEdt {
-            val sessionEditors = editors.filter { editor ->
-                !editor.isDisposed && EditorGuideSessions.get(editor) != null
+            for (editor in editors) {
+                if (!editor.isDisposed) {
+                    EditorGuideSessions.get(editor)?.documentChanged()
+                }
             }
-            DocumentChangeRoute.deliver(
-                editors = sessionEditors,
-                change = change,
-                foregroundEditor = foregroundAmong(sessionEditors),
-            )
         }
     }
 
@@ -95,7 +90,6 @@ internal class EditorGuideEvents :
             onEdt(editor) {
                 EditorGuideSessions.get(editor)?.updateOptions(
                     BracketGuideSettings.getInstance().options,
-                    resolveImmediately = false,
                     refreshColors = true,
                 )
             }
@@ -134,17 +128,6 @@ internal class EditorGuideEvents :
 
     companion object {
         private const val VISIBLE_REFRESH_DELAY_MILLIS = 16
-
-        fun foregroundAmong(editors: List<Editor>): Editor? =
-            editors.firstOrNull { editor -> editor.contentComponent.hasFocus() }
-                ?: editors.firstOrNull { editor ->
-                    val project = editor.project
-                    project != null &&
-                        !project.isDisposed &&
-                        FileEditorManager.getInstance(project).selectedTextEditor === editor
-                }
-                ?: editors.firstOrNull { editor -> editor.contentComponent.isShowing }
-                ?: editors.firstOrNull()
 
         fun ensureInitialized(): Unit {
             ApplicationManager.getApplication().getService(EditorGuideEvents::class.java)

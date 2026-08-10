@@ -1,8 +1,8 @@
 package com.sijunyang.bracketpairguides.settings.ui
 
 import com.sijunyang.bracketpairguides.analysis.BraceLanguageFamily
-import com.sijunyang.bracketpairguides.analysis.FakeBracketAnalysis
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
+import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
 import com.sijunyang.bracketpairguides.settings.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.sijunyang.bracketpairguides.settings.StoredColorFormat
@@ -184,23 +184,19 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
         }
     }
 
-    fun testApplyingLanguageChangeRunsOneImmediateSearchAcrossEditors() {
+    fun testApplyingLanguageChangeDoesNotSynthesizeEditorPresentation() {
         val language = ALPHA_FAMILY
         val editorFactory = EditorFactory.getInstance()
         val document = editorFactory.createDocument("{ value }")
         val firstEditor = editorFactory.createEditor(document, project)
         val secondEditor = editorFactory.createEditor(document, project)
-        val firstAnalysis = FakeBracketAnalysis()
-        val secondAnalysis = FakeBracketAnalysis()
         try {
             EditorGuideSessions.install(
                 editor = firstEditor,
-                resolveActivePair = firstAnalysis::resolveActivePair,
                 visibleRange = { TextRange(0, document.textLength) },
             )
             EditorGuideSessions.install(
                 editor = secondEditor,
-                resolveActivePair = secondAnalysis::resolveActivePair,
                 visibleRange = { TextRange(0, document.textLength) },
             )
 
@@ -209,10 +205,8 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
                 configurable.apply()
             }
 
-            assertEquals(
-                1,
-                firstAnalysis.activePairCallCount + secondAnalysis.activePairCallCount,
-            )
+            assertTrue(firstEditor.observedBracketMarkup().allMarks.isEmpty())
+            assertTrue(secondEditor.observedBracketMarkup().allMarks.isEmpty())
         } finally {
             EditorGuideSessions.dispose(firstEditor)
             EditorGuideSessions.dispose(secondEditor)

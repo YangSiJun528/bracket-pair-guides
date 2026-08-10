@@ -43,10 +43,6 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
             pair = newPair,
             previous = BracketGuide(oldPair, guideColumn = 8, anchorLine = 2),
             currentAnchorLine = 2,
-            change = DocumentChange(
-                offset = innerClose,
-                mayAffectGuidePosition = false,
-            ),
         )
 
         assertEquals(2, guide.guideColumn)
@@ -63,7 +59,6 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
             pair = pairFor(source, closeLine = 3),
             previous = null,
             currentAnchorLine = null,
-            change = null,
         )
 
         assertEquals(4, guide.guideColumn)
@@ -82,7 +77,6 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
             pair = pairFor(source, closeLine = 301),
             previous = null,
             currentAnchorLine = null,
-            change = null,
         )
 
         assertEquals(4, guide.guideColumn)
@@ -101,14 +95,13 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
             pair = malformed,
             previous = null,
             currentAnchorLine = null,
-            change = null,
         )
 
         assertEquals(0, guide.guideColumn)
         assertEquals(2, guide.anchorLine)
     }
 
-    fun testIndentationColumnSaturatesBeforeOverflowOnImmediatePath() {
+    fun testIndentationColumnSaturatesBeforeOverflowOnBoundedFallback() {
         val source = "{\n\t\tvalue}"
         myFixture.configureByText("OverflowedIndent.txt", source)
         myFixture.editor.settings.setTabSize(Int.MAX_VALUE)
@@ -118,7 +111,6 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
             pair = pairFor(source, closeLine = 1),
             previous = null,
             currentAnchorLine = null,
-            change = null,
         )
 
         assertEquals(Int.MAX_VALUE - 1, guide.guideColumn)
@@ -160,23 +152,22 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
                     closeLine = closeLine,
                 )
                 val exact = exactGuide(lines, pair, tabSize)
-                val immediate = GuidePositionFallback.guideFor(
+                val fallback = GuidePositionFallback.guideFor(
                     editor = editor,
                     pair = pair,
                     previous = null,
                     currentAnchorLine = null,
-                    change = null,
                 )
 
                 assertEquals(
                     "sample=$sample range=$range lines=$openLine..$closeLine column",
                     exact.guideColumn,
-                    immediate.guideColumn,
+                    fallback.guideColumn,
                 )
                 assertEquals(
                     "sample=$sample range=$range lines=$openLine..$closeLine anchor",
                     exact.anchorLine,
-                    immediate.anchorLine,
+                    fallback.anchorLine,
                 )
             }
         }

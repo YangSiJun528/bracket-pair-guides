@@ -24,10 +24,11 @@ class FakeBracketAnalysisTest : BasePlatformTestCase() {
                 activePair = true,
                 guidePosition = false,
             ),
+            disabledLanguageIds = emptySet(),
         )
         val result = FakeBracketAnalysis(
             pairs = { _, _ -> listOf(wider, narrower) },
-        ).analyze(input, EmptyProgressIndicator())
+        ).analyze(input, EmptyProgressIndicator()).requireSnapshot()
 
         assertSame(narrower, result.activePairAt(5))
     }

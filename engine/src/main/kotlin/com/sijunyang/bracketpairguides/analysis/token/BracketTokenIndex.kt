@@ -10,7 +10,46 @@ internal class BracketTokenIndex private constructor(
     private val detachedDepths: IntArray?,
     private val encodedTokens: LongArray,
     private val maximumTokenLength: Int,
+    checkCanceled: () -> Unit,
 ) {
+    private val semanticHash: Int = calculateSemanticHash(checkCanceled)
+
+    /** Exact equality of every value observable through the token-index query API. */
+    internal fun hasSameContent(
+        other: BracketTokenIndex,
+        checkCanceled: () -> Unit,
+    ): Boolean {
+        checkCanceled()
+        if (this === other) return true
+        if (maximumTokenLength != other.maximumTokenLength ||
+            encodedTokens.size != other.encodedTokens.size ||
+            semanticHash != other.semanticHash
+        ) {
+            return false
+        }
+        for (index in encodedTokens.indices) {
+            if (index and CANCELLATION_MASK == 0) checkCanceled()
+            if (offsetAt(index) != other.offsetAt(index) ||
+                lengthAt(index) != other.lengthAt(index) ||
+                depthAt(index) != other.depthAt(index)
+            ) {
+                return false
+            }
+        }
+        return true
+    }
+
+    private fun calculateSemanticHash(checkCanceled: () -> Unit): Int {
+        var hash = 31 + maximumTokenLength
+        for (index in encodedTokens.indices) {
+            if (index and CANCELLATION_MASK == 0) checkCanceled()
+            hash = 31 * hash + offsetAt(index)
+            hash = 31 * hash + lengthAt(index)
+            hash = 31 * hash + depthAt(index)
+        }
+        return hash
+    }
+
     fun firstIndexInRange(startOffset: Int): Int {
         val firstPossibleStart = (startOffset.toLong() - maximumTokenLength)
             .coerceAtLeast(0)
@@ -75,7 +114,7 @@ internal class BracketTokenIndex private constructor(
     companion object {
         internal fun build(
             pairs: PairTable,
-            checkCanceled: () -> Unit = {},
+            checkCanceled: () -> Unit,
         ): BracketTokenIndex = build(
             pairs = pairs,
             checkCanceled = checkCanceled,
@@ -84,7 +123,7 @@ internal class BracketTokenIndex private constructor(
 
         internal fun buildDetached(
             pairs: PairTable,
-            checkCanceled: () -> Unit = {},
+            checkCanceled: () -> Unit,
         ): BracketTokenIndex = build(
             pairs = pairs,
             checkCanceled = checkCanceled,
@@ -139,6 +178,7 @@ internal class BracketTokenIndex private constructor(
                 detachedDepths = detachedMetadata?.depths,
                 encodedTokens = sorted,
                 maximumTokenLength = maximumLength,
+                checkCanceled = checkCanceled,
             )
         }
 
@@ -188,6 +228,7 @@ internal class BracketTokenIndex private constructor(
             detachedDepths = null,
             encodedTokens = LongArray(0),
             maximumTokenLength = 0,
+            checkCanceled = {},
         )
         private const val TOKENS_PER_PAIR = 2
         private const val TOKEN_KIND_BITS = 1

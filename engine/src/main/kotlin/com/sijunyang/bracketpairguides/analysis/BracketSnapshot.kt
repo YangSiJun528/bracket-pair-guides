@@ -24,13 +24,18 @@ public interface BracketSnapshot {
     ): TokenWindow
 }
 
-/** Compact indexed implementation of [BracketSnapshot]. */
+/** Immutable, editor-independent payload shared by equivalent snapshot views. */
+internal class BracketIndexes(
+    internal val pairs: PairTable,
+    internal val tokens: BracketTokenIndex,
+    internal val activePairs: ActiveBracketPairIndex,
+    internal val guidePositions: GuidePositionIndex?,
+)
+
+/** Editor-specific snapshot view over immutable [BracketIndexes]. */
 internal class IndexedBracketSnapshot(
     override val stamp: AnalysisStamp,
-    private val pairs: PairTable,
-    private val tokenIndex: BracketTokenIndex,
-    private val activeIndex: ActiveBracketPairIndex,
-    private val positionIndex: GuidePositionIndex?,
+    internal val indexes: BracketIndexes,
 ) : BracketSnapshot {
     /** One-entry memoization preserves allocation-free movement inside one active pair. */
     @Volatile
@@ -38,19 +43,19 @@ internal class IndexedBracketSnapshot(
 
     /** Returns the innermost pair containing [caretOffset], in O(log pairCount). */
     override fun activePairAt(caretOffset: Int): BracketPair? {
-        val pairIndex = activeIndex.activePairIndex(caretOffset)
+        val pairIndex = indexes.activePairs.activePairIndex(caretOffset)
         if (pairIndex < 0) return null
         cachedActivePair?.takeIf { cached -> cached.index == pairIndex }?.let { cached ->
             return cached.pair
         }
-        return pairs.bracketPairAt(pairIndex).also { pair ->
+        return indexes.pairs.bracketPairAt(pairIndex).also { pair ->
             cachedActivePair = IndexedPair(pairIndex, pair)
         }
     }
 
     /** Returns an indexed guide, or null when that index was intentionally omitted. */
     override fun guideFor(pair: BracketPair): BracketGuide? =
-        positionIndex?.guideForOrNull(pair)
+        indexes.guidePositions?.guideForOrNull(pair)
 
     /** Returns a capped, allocation-light token window near [range]. */
     override fun visibleTokens(
@@ -60,6 +65,7 @@ internal class IndexedBracketSnapshot(
     ): TokenWindow {
         require(limit > 0) { "Visible token limit must be positive" }
 
+        val tokenIndex = indexes.tokens
         val firstCandidate = tokenIndex.firstIndexInRange(range.startOffset)
         val lastCandidate = tokenIndex.firstIndexAtOrAfter(range.endOffset)
         val candidateCount = lastCandidate - firstCandidate

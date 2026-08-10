@@ -3,6 +3,8 @@ package com.sijunyang.bracketpairguides.analysis.token
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.pairing.toPairTable
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.random.Random
@@ -15,7 +17,7 @@ class BracketTokenIndexTest {
             pair(open = 10, close = 20, depth = 1),
             pair(open = 30, close = 40, depth = 1),
         )
-        val index = BracketTokenIndex.build(pairs.toPairTable())
+        val index = BracketTokenIndex.build(pairs.toPairTable(), NO_CANCELLATION)
 
         assertEquals(6, index.tokenCount)
         assertEquals(listOf(0, 10, 20, 30, 40, 100), index.values(BracketTokenIndex::offsetAt))
@@ -36,7 +38,10 @@ class BracketTokenIndexTest {
             openLine = 0,
             closeLine = 0,
         )
-        val index = BracketTokenIndex.build(listOf(pair).toPairTable())
+        val index = BracketTokenIndex.build(
+            listOf(pair).toPairTable(),
+            NO_CANCELLATION,
+        )
 
         assertEquals(0, index.firstIndexInRange(8))
     }
@@ -54,7 +59,10 @@ class BracketTokenIndexTest {
             closeLine = 0,
         )
 
-        val index = BracketTokenIndex.build(listOf(valid, invalid).toPairTable())
+        val index = BracketTokenIndex.build(
+            listOf(valid, invalid).toPairTable(),
+            NO_CANCELLATION,
+        )
 
         assertEquals(2, index.tokenCount)
         assertEquals(index.firstIndexAtOrAfter(11), index.firstIndexInRange(9))
@@ -70,7 +78,7 @@ class BracketTokenIndexTest {
         )
 
         val pairTable = pairs.toPairTable()
-        val index = BracketTokenIndex.buildDetached(pairTable)
+        val index = BracketTokenIndex.buildDetached(pairTable, NO_CANCELLATION)
 
         assertEquals(6, index.tokenCount)
         assertEquals(listOf(0, 4, 4, 4, 9, 9), index.values(BracketTokenIndex::offsetAt))
@@ -79,6 +87,50 @@ class BracketTokenIndexTest {
             listOf(Int.MIN_VALUE, Int.MIN_VALUE, Int.MAX_VALUE, -1, Int.MAX_VALUE, -1),
             index.values(BracketTokenIndex::depthAt),
         )
+    }
+
+    @Test
+    fun `content equality compares the complete observable token sequence`() {
+        val first = BracketTokenIndex.buildDetached(
+            listOf(
+                pair(open = 0, close = 10, depth = 0),
+                pair(open = 2, close = 8, depth = 0),
+            ).toPairTable(),
+            NO_CANCELLATION,
+        )
+        val sameTokensWithDifferentPairs = BracketTokenIndex.buildDetached(
+            listOf(
+                pair(open = 0, close = 8, depth = 0),
+                pair(open = 2, close = 10, depth = 0),
+            ).toPairTable(),
+            NO_CANCELLATION,
+        )
+        val differentDepth = BracketTokenIndex.buildDetached(
+            listOf(
+                pair(open = 0, close = 10, depth = 1),
+                pair(open = 2, close = 8, depth = 0),
+            ).toPairTable(),
+            NO_CANCELLATION,
+        )
+
+        assertTrue(first.hasSameContent(sameTokensWithDifferentPairs, NO_CANCELLATION))
+        assertFalse(first.hasSameContent(differentDepth, NO_CANCELLATION))
+    }
+
+    @Test
+    fun `content equality checks cancellation during a large exact comparison`() {
+        val pairs = List(300) { index ->
+            pair(open = index * 2, close = index * 2 + 1, depth = index)
+        }.toPairTable()
+        val first = BracketTokenIndex.buildDetached(pairs, NO_CANCELLATION)
+        val second = BracketTokenIndex.buildDetached(pairs, NO_CANCELLATION)
+        var checks = 0
+
+        assertThrows(TestCancellation::class.java) {
+            first.hasSameContent(second) {
+                if (++checks == 3) throw TestCancellation()
+            }
+        }
     }
 
     @Test
@@ -150,7 +202,10 @@ class BracketTokenIndexTest {
                     ExpectedToken::tokenKind,
                 ),
             )
-            val index = BracketTokenIndex.build(pairs.toPairTable())
+            val index = BracketTokenIndex.build(
+                pairs.toPairTable(),
+                NO_CANCELLATION,
+            )
 
             assertEquals("sample=$sample", expected.size, index.tokenCount)
             expected.forEachIndexed { tokenIndex, token ->
@@ -230,9 +285,12 @@ class BracketTokenIndexTest {
         val tokenKind: Int,
     )
 
+    private class TestCancellation : RuntimeException()
+
     private companion object {
         const val RELATIVE_OFFSET_LIMIT = 1_000
         const val OPEN_TOKEN = 0
         const val CLOSE_TOKEN = 1
+        val NO_CANCELLATION: () -> Unit = {}
     }
 }

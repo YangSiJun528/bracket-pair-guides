@@ -12,6 +12,7 @@ import com.sijunyang.bracketpairguides.analysis.BracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.BracketAnalysis
 import com.sijunyang.bracketpairguides.analysis.TokenWindow
+import com.sijunyang.bracketpairguides.analysis.requireSnapshot
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPass
 import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
@@ -122,7 +123,6 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         BracketGuideSettings.getInstance().replace(emphasized)
         session.updateOptions(
             emphasized,
-            resolveImmediately = true,
             refreshColors = false,
         )
 
@@ -170,9 +170,10 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
                         activePair = true,
                         guidePosition = true,
                     ),
+                    disabledLanguageIds = emptySet(),
                 ),
                 EmptyProgressIndicator(),
-            )
+            ).requireSnapshot()
         }
 
     private fun TokenWindow.toValues(): List<TokenValue> = List(size) { index ->
