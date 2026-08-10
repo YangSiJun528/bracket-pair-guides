@@ -37,9 +37,25 @@
   fallbacks, and raw-character fallbacks are intentionally absent.
 - Context-sensitive `BraceMatcher` implementations registered through the
   language extension are preserved instead of being reduced to static pairs.
-- Recognition and decoration are separated by the `BracketAnalysis`
-  Application Service with immutable analysis inputs, caret contexts, snapshots,
-  and bounded active-pair knowledge.
+- Recognition and decoration are separated by the IntelliJ-bound
+  `BracketAnalysis` adapter with immutable analysis inputs, stamps, and
+  snapshots. The host-specific facade is intentional; token highlighters,
+  matcher registrations, tab settings, and cancellation stay outside the
+  platform-neutral pairing core.
+- Analysis now returns `AnalysisOutcome.Complete` or
+  `AnalysisOutcome.Unavailable`. An unavailable result carries the attempted
+  stamp and the `PAIR_CAPACITY`, `PENDING_OPEN_CAPACITY`, or `WORKING_MEMORY`
+  reason, but never a partial snapshot; accepting that exact request stamp
+  prevents a retry loop until an input dependency changes.
+- Full recognition is capped at 200,000 completed pairs and 200,000 unmatched
+  open tokens. Index layouts are preflighted against a 48 MiB estimated live
+  primitive working set before downstream proportional index arrays are
+  allocated.
+- Equivalent analyses of split editors share an immutable `BracketIndexes`
+  payload only after active/full pair geometry or the complete token-only query
+  sequence agrees. Token-only payloads retain no source pair table. Each
+  `IndexedBracketSnapshot` keeps its own stamp and active-pair memo, and weak,
+  revision-scoped canonical entries do not retain documents or editors.
 - Project-owned analysis, editor, presentation, and settings types now use
   domain concepts instead of actor-style `Engine`, `Builder`, `Resolver`,
   `Manager`, `Factory`, and `Renderer` names; snapshot assembly, settings
@@ -50,7 +66,9 @@
   product inputs and results, actual editor markup, production policy objects,
   or fixtures located under test sources.
 - Structural results are cached so caret movement uses an interval-index lookup
-  and updates at most one guide and two active-symbol ranges.
+  and updates at most one guide and two active-symbol ranges. If no current
+  snapshot exists, the editor waits for the background pass instead of running
+  token recognition on the EDT.
 - Editor results and markup remain EDT-confined; background pass deduplication
   reads only an immutable analysis stamp, and active presentation is applied before
   viewport token decoration.
@@ -81,19 +99,20 @@
 - Large token and active-pair index sorts now check cancellation between bounded
   sort and merge work instead of holding a stale background pass to one sort.
 - The redundant final recognized-pair object sort was removed because both
-  downstream indexes sort input-independent primitive endpoints. At one million
-  pairs this removes about six million comparisons, twelve million reference
-  writes, and roughly 3.8 MiB of compressed-reference merge storage.
+  downstream indexes sort input-independent primitive endpoints. At the current
+  pair cap this removes about 1.2 million comparisons, 2.4 million reference
+  writes, and roughly 0.8 MiB of compressed-reference merge storage.
 - Multiline-result probes check cancellation every 256 pairs.
 - Guide-position indexing now scans and retains only the multiline-pair query
-  envelope, caps that segment-tree span at 16 MiB, and uses the bounded
-  guide-position fallback above 1,048,576 indexed lines. A two-indexed-line envelope in a
-  million-line document now needs two line reads and 32 bytes of tree payload
-  instead of a full-document scan and 16 MiB tree.
+  envelope. Its exact blocked index stores per-line indentation plus a tree of
+  256-line block minima, supports up to 4,128,768 indexed lines within a 16 MiB
+  payload, and rejects larger requested coverage as `WORKING_MEMORY`. A
+  two-indexed-line envelope needs two line reads and 24 bytes of primitive
+  payload instead of a full-document scan.
 - Fully populated active-pair segment arrays are retained directly, avoiding a
-  16 MiB transient copy and four million copied integers at one million pairs.
+  roughly 3.1 MiB transient copy at the current pair cap.
 - Building the active index before retaining the token index lowers the common
-  live-array peak by about 12.4 MiB at one million valid pairs.
+  live-array peak by about 2.5 MiB at the current pair cap.
 - Invalidated primitive pair/index snapshots are released immediately after
   edits while RangeMarker-backed decoration stays visible, preventing stale
   proportional storage from overlapping replacement analysis.
@@ -104,15 +123,14 @@
   switching from full active analysis keeps visible token markup while
   rebuilding this compact snapshot in the background.
 - Detached token metadata is copied after endpoint sorting, avoiding about
-  11.4 MiB of live-array overlap with the sort workspace at one million pairs.
+  2.3 MiB of live-array overlap with the sort workspace at the current pair cap.
 - Capped token-decoration slices recenter while scrolling inside a cached
   viewport instead of remaining fixed at the previous focus.
 - The `TEXT` matcher family is labeled **Custom file types** and explains that
   raw plain text is not scanned.
 - Guide-only and active-pair-only setting changes reuse the current token
   window; palette and theme changes update its attributes in place.
-- Theme-only refreshes update existing presentation without running bounded
-  caret search across every open editor.
+- Theme-only refreshes update existing presentation without bracket analysis.
 - Plugin verification now pins build 241, covers the recommended compatibility
   matrix plus IntelliJ IDEA 2026.2, and fails on additional invalid API/dependency states.
 
@@ -120,46 +138,37 @@
 
 - Guide opacity now remains uniform where horizontal and vertical segments
   overlap.
-- The active pair is revalidated immediately before the first full analysis,
-  after edits, and when the caret moves between nested scopes in a stale file.
-- Provisional guide-column lookup now recomputes rematched pairs and caps EDT
-  indentation work at 256 lines and 32,768 characters.
-- Stale-snapshot active-pair lookup now caps search-controlled iterator work
-  at 512 transitions and uses a best-effort 4 ms deadline before deferring to
-  background analysis.
-- Full and immediate recognition now share contextual, layered-language,
-  symmetric, shared-closer, language-gate, and structural pairing semantics.
+- Active-pair presentation now changes only from an authoritative indexed
+  snapshot. A stale RangeMarker-adjusted pair may remain visually coherent, but
+  it is not treated as a newly recognized pair while background analysis runs.
+- Contextual, layered-language, symmetric, shared-closer, language-gate, and
+  structural pairing semantics are covered at the full-document grammar
+  boundary after removal of the synchronous caret-recognition path.
 - Matcher families without a standalone file type now appear in Languages, so
   embedded and injected language support can be disabled explicitly.
-- Re-enabling active presentation now resolves the current pair immediately
-  even when the cached snapshot was collected with active analysis disabled.
+- Re-enabling active presentation requests active-index coverage and waits for
+  its background result when the cached snapshot omitted that facet; it never
+  invokes synchronous bracket recognition.
 - A rejected stale highlighting pass can no longer replace the current
   session's analysis or visible-range functions.
 - Malformed-input recovery now honors official structural-brace priority and
   prevents regular pairs from crossing a structural scope boundary.
-- Ambiguous malformed fast-path matches remain provisional when proving them
-  would require structural context before the bounded scan.
 - Malformed pair ranges are rejected consistently by indexes, active
   presentation, and painting before offset arithmetic or highlighter creation.
 - Extreme tab sizes and pair line numbers no longer overflow guide columns
   or line-selection arithmetic.
 - Replacing an editor highlighter now removes presentation from the previous
-  language semantics without invoking its stale caret search.
+  language semantics and waits for analysis under the replacement highlighter.
 - Background recognition now evaluates language gates from the same immutable
   disabled-language set recorded in its analysis stamp.
-- Immediate guide positioning now uses the same earliest-line tie break as the
-  complete index, including all-whitespace ranges.
-- Split editors no longer each spend the bounded immediate search budget for
-  one document edit; only the focused or selected view resolves immediately.
-- Applying settings likewise resolves at most one focused, selected, or showing
-  editor immediately instead of multiplying the bounded budget across all open
-  editors.
+- Exact guide positioning uses the same earliest-line tie break for block-tree
+  and partial-block queries, including all-whitespace ranges.
 - Secondary-caret movement no longer repeats primary-caret resolution or dense
   token-window requests.
 - Token-only and pair-only analysis no longer invalidates on tab-size changes;
   tab width remains a dependency only when guide positioning is requested.
-- Editors with active guides and pair emphasis disabled skip immediate
-  active-pair resolution entirely.
+- Editors with active guides and pair emphasis disabled omit active-pair index
+  coverage entirely.
 - Publishing a stable or prerelease draft now triggers the release workflow
   through GitHub's `published` event.
 - Draft releases now target the exact commit that completed CI instead of a

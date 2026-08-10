@@ -6,9 +6,10 @@
 
 이번 재구성의 핵심은 `-er`, `-or` 접미사를 기계적으로 제거하는 것이 아니다. 객체가 보유한 상태, 지키는 불변식, 변경을 요청하는 주체를 먼저 확인한 뒤 그 객체가 **무엇인지**를 이름으로 드러내는 것이다. 그 결과 다음 방향을 확정했다.
 
-- `engine`의 공개 경계는 동사형 요청과 포괄적인 engine/result 이름 대신 분석 입력, 분석 범위, 분석 시점, snapshot이라는 도메인 개념으로 표현한다.
-- 전체 인식, caret 주변 제한 검색, 언어별 괄호 규칙, index 조립은 서로 다른 변경 근원으로 분리한다.
+- `engine`의 공개 경계는 동사형 요청과 포괄적인 engine/result 이름 대신 분석 입력, 분석 범위, 분석 시점, outcome, snapshot이라는 도메인 개념으로 표현한다.
+- 전체 인식, 언어별 괄호 규칙, index 조립, 분석 허용 한도는 서로 다른 변경 근원으로 분리한다. caret event를 위한 별도 인식 객체는 두지 않는다.
 - snapshot builder와 pipeline처럼 같은 생성 책임을 나눠 가진 요소는 하나의 조립 경계로 합친다.
+- split editor는 editor별 snapshot 상태를 유지하면서 동등한 불변 index payload만 공유한다.
 - `plugin`의 설정 변경, daemon 갱신, editor event, session 분석 상태, markup 상태는 서로 다른 변경 근원에 따라 분리한다.
 - visible token decoration은 이를 조작하는 별도 manager 대신 자신의 highlighter 생명주기를 소유하는 aggregate가 된다.
 - IntelliJ, JMH, 컴파일러, upstream fixture의 고정 이름은 프로젝트 명명 규칙의 위반으로 계산하지 않는다.
@@ -58,7 +59,7 @@
 
 - 설정 값의 차이를 해석하고 editor session에 전파하는 변경 근원과, IntelliJ 버전별 daemon restart reflection을 다루는 변경 근원을 분리한다.
 - editor session 안에서도 분석 stamp/snapshot의 생명주기와 active pair markup의 생명주기를 분리한다.
-- 언어 목록 discovery, 문서 전체 괄호 인식, caret 주변 제한 검색을 별도 개념으로 둔다.
+- 언어 목록 discovery, 문서 전체 괄호 인식, 결과 조립, index payload canonicalization을 별도 개념으로 둔다.
 - snapshot 생성의 한 변경 근원을 `AnalysisSnapshotBuilder`와 `AnalysisPipeline` 두 타입에 나누지 않는다.
 
 ### TDD와 안전한 구조 변경
@@ -82,7 +83,7 @@ markup, cancellation, stamp 행위를 우선했다.
 
 따라서 package와 공개 경계는 IntelliJ 구현 수단보다 bracket analysis라는 사용법을 먼저 드러내게 한다.
 
-- `engine`은 bracket 분석, pair knowledge, snapshot과 index 규칙을 소유한다.
+- `engine`은 bracket 분석 outcome, snapshot과 index 규칙을 소유한다.
 - `plugin`은 IntelliJ highlighting pass, editor event, settings, markup이라는 전달·표현 상세를 소유한다.
 - `benchmarks`는 배포 코드가 아니라 선택한 성능 구현을 검증하는 별도 관찰 경계다.
 - IntelliJ 서비스 등록과 extension point는 가장 바깥 adapter에 남긴다.
@@ -95,15 +96,23 @@ markup, cancellation, stamp 행위를 우선했다.
 plugin의 session, settings, markup 타입을 알지 않는다. plugin은 root
 `analysis` facade의 공개 타입만 소비한다. platform-neutral pairing state는
 IntelliJ token 분류 adapter와 분리된 상태를 유지한다. 테스트 대역은 상속으로
-concrete service를 흉내 내지 않고, 필요한 함수 또는 명시적 결과 경계를 주입한다.
+concrete service를 흉내 내지 않고, 필요한 함수 또는 명시적 `AnalysisOutcome`
+경계를 주입한다.
+
+`BracketAnalysis` 자체는 의도적으로 IntelliJ-bound adapter다. 입력 token의 의미는
+실제 `Editor` highlighter, 동적 `LanguageBraceMatching` 등록, `FileType`, tab 설정,
+document stamp와 `ProgressIndicator` cancellation에 의존한다. 이를 별도 neutral
+DTO와 port로 한 번 더 추상화하면 host 의미를 복제할 뿐이다. 안정적인 정책
+경계는 이미 `analysis.pairing.core`에 있고, facade는 그 정책을 IntelliJ 사용
+사례에 연결하는 바깥 adapter로 남긴다.
 
 ## Spring Initializr에서 참고한 점
 
 [Spring Initializr 공식 저장소](https://github.com/spring-io/initializr)는 core generator, Spring 전용 convention, test infrastructure, metadata, web delivery를 별도 모듈로 구분한다. 특히 다음 세 개념을 참고했다.
 
-- [`ProjectDescription`](https://github.com/spring-io/initializr/blob/main/initializr-generator/src/main/java/io/spring/initializr/generator/project/ProjectDescription.java)은 생성할 프로젝트의 입력 상태를 하나의 도메인 계약으로 표현한다. `AnalysisInput`, `CaretContext`, `AnalysisCoverage`도 같은 이유로 호출 인자 묶음이 아니라 의미 있는 입력 개념이 된다.
-- [`ProjectGenerationContext`](https://github.com/spring-io/initializr/blob/main/initializr-generator/src/main/java/io/spring/initializr/generator/project/ProjectGenerationContext.java)는 프로젝트 생성에 필요한 구성과 기반을 담는 context라는 정체를 이름으로 드러낸다. `CaretContext`도 검색을 수행하는 행위자 이름 대신 검색을 규정하는 현재 editor 상태를 표현한다.
-- [`Build`](https://github.com/spring-io/initializr/blob/main/initializr-generator/src/main/java/io/spring/initializr/generator/buildsystem/Build.java)는 properties, dependencies, BOM, repositories를 소유하는 aggregate다. `VisibleTokenDecorations`, `BracketSnapshot`, `PairTable.Draft`도 관련 상태와 불변식을 소유하는 방향으로 설계한다.
+- [`ProjectDescription`](https://github.com/spring-io/initializr/blob/main/initializr-generator/src/main/java/io/spring/initializr/generator/project/ProjectDescription.java)은 생성할 프로젝트의 입력 상태를 하나의 도메인 계약으로 표현한다. `AnalysisInput`과 `AnalysisCoverage`도 같은 이유로 호출 인자 묶음이 아니라 의미 있는 입력 개념이 된다.
+- [`ProjectGenerationContext`](https://github.com/spring-io/initializr/blob/main/initializr-generator/src/main/java/io/spring/initializr/generator/project/ProjectGenerationContext.java)는 framework와 use case가 만나는 context를 명시적으로 둔다. 이 저장소도 IntelliJ 의미를 숨긴 가짜 port 대신 `BracketAnalysis`를 명시적인 host adapter로 둔다.
+- [`Build`](https://github.com/spring-io/initializr/blob/main/initializr-generator/src/main/java/io/spring/initializr/generator/buildsystem/Build.java)는 properties, dependencies, BOM, repositories를 소유하는 aggregate다. `VisibleTokenDecorations`, `BracketIndexes`, `PairTable.Draft`도 관련 상태와 불변식을 소유하는 방향으로 설계한다.
 
 모듈 경계에서도 `initializr-generator`의 핵심 생성 정책, `initializr-generator-spring`의 선택적 convention, `initializr-generator-test`의 테스트 기반, `initializr-web`의 전달 경계를 분리한 점을 참고했다. 이는 이 저장소의 engine, plugin, benchmarks 분리를 유지하는 근거다.
 
@@ -133,21 +142,23 @@ concrete service를 흉내 내지 않고, 필요한 함수 또는 명시적 결�
 |---|---|---|
 | `BracketEngine` | `BracketAnalysis` | plugin이 사용하는 bracket 분석 use case 경계 |
 | `AnalyzeRequest` | `AnalysisInput` | 한 번의 분석을 규정하는 editor, file type, coverage, language 선택 |
-| `ActivePairRequest` | `CaretContext` | 현재 caret에서 제한 검색을 규정하는 문맥 |
-| `ActivePairResult.Complete` | `ActivePairKnowledge.Known` | pair 존재 여부까지 확정된 지식 |
-| `ActivePairResult.Incomplete` | `ActivePairKnowledge.Unknown` | 예산 때문에 아직 확정할 수 없는 지식 |
-| `AnalysisResult` + `AnalysisSnapshot` | `BracketSnapshot` + `IndexedBracketSnapshot` | 공개 query 계약과 compact index 구현을 분리한 불변 분석 결과 |
+| `ActivePairRequest`, `CaretContext` | 삭제 | caret event는 현재 snapshot의 `activePairAt`만 질의하며 별도 인식 입력이 없음 |
+| `ActivePairResult`, `ActivePairKnowledge` | 삭제 | EDT 제한 검색과 미확정 pair 결과가 제품에서 사라짐 |
+| `AnalysisResult` + `AnalysisSnapshot` | `AnalysisOutcome` + `BracketSnapshot` | 요청 facet 전체가 있는 snapshot과 한도 때문에 없는 결과를 명시적으로 구분 |
+| editor별 snapshot index 배열 | `BracketIndexes` + `DocumentBracketIndexes` | 동등한 split-editor 결과의 immutable payload와 weak canonical form |
 | `VisibleTokens` + `VisibleTokenView` | `TokenWindow` | viewport 주변의 제한된 token 관측 창 |
 | `AnalysisCapabilities` | `AnalysisCoverage` | snapshot이 답할 수 있어야 하는 질의 범위 |
 | `AnalysisRevision` | `AnalysisStamp` | 분석 입력의 동일성과 freshness를 판정하는 값 |
 | `BracketPairAnalyzer` | `DocumentBrackets` | 한 document에서 인식된 bracket pair 집합을 만드는 경계 |
-| `EditorHighlighterActiveBracketPairResolver` | `CaretBracketSearch` | transition·시간 예산을 공유하는 caret 주변 검색 |
+| `EditorHighlighterActiveBracketPairResolver`, `CaretBracketSearch` | 삭제 | matcher 호출은 background document 분석 한 경로에만 둠 |
 | `IntellijBracketPairingEngine` | `DocumentBraceGrammar` | IntelliJ token과 matcher를 core pairing role로 해석하는 문서 문법 |
 | `BracketLanguageSupport`, `LanguageBraceMatchers` | `BraceLanguageCatalog` | 설치된 brace language family discovery와 definition lookup |
 | `ResolvedLanguageBraceMatcher` | `BraceLanguageDefinition` | capability ID, matcher, topology, pairing rules의 결합 |
 | `AnalysisPlan` | `IndexLayout` | coverage가 요구하는 index 배치 |
 | `TokenIndexMode` | `TokenStorage` | token metadata가 없음·결합·분리 중 어떤 저장 형태인지 나타내는 값 |
 | `AnalysisSnapshotBuilder`, `AnalysisPipeline` | `SnapshotAssembly` | pair 인식부터 index 생성까지 한 snapshot 조립 책임 |
+| 테스트에서 주입하던 pair·search 예산 | `AnalysisBudget`, `AnalysisLimit` | pair, pending opener, working-memory의 제품 허용 정책과 거부 이유 |
+| `GuideTreeShape` | `GuideIndexShape` | 256-line block 기반 exact guide payload의 크기와 16 MiB 불변식 |
 | builder 내부의 multiline range | `GuideLineEnvelope` | guide index가 실제로 읽어야 하는 line 범위 |
 | `PairTable.Builder` | `PairTable.Draft` | freeze 전 단일 사용 mutable pair table 상태 |
 | `PairTable.builder()` / `build()` | `PairTable.draft()` / `freeze()` | 초안 생성과 소유권 이전을 드러내는 동작 |
@@ -159,7 +170,7 @@ concrete service를 흉내 내지 않고, 필요한 함수 또는 명시적 결�
 | 변경 전 | 변경 후 | 새 객체가 나타내는 것 |
 |---|---|---|
 | `IdeCompatibilityNotice` | `UnsupportedIdeWarning` | 지원하지 않는 IDE에서 한 번만 나타나는 경고; 입력도 `Unsupported`로 제한 |
-| `ActiveGuidePositionResolver` | `GuidePositionFallback` | authoritative index가 없을 때 사용하는 제한된 guide 위치 정책 |
+| `ActiveGuidePositionResolver` | `GuidePositionFallback` | exact background 결과를 기다리는 tracked pair의 제한된 임시 guide 위치 정책 |
 | `EditorGuideEventRouter` | `EditorGuideEvents` | IntelliJ editor event와 session 생명주기의 application 경계 |
 | `IdentityEventBatcher` | `IdentityEventBatch` | 객체 identity별 pending event와 예약 상태 |
 | `EditorGuideSettingsApplier` | `GuideSettingsChange` + `DaemonRefresh` | 설정 차이·session 전파와 daemon API 호환 책임의 분리 |
@@ -184,8 +195,8 @@ concrete service를 흉내 내지 않고, 필요한 함수 또는 명시적 결�
 `ActivePairMarkup`, `VisibleTokenDecorations`의 협력을 조정한다. 전역 registry는
 `EditorGuideSessions`가 소유한다. `BracketGuideDrawing`은 별도 user-data 상태를
 읽는 singleton이 아니라 guide, appearance, color를 함께 가진
-`CustomHighlighterRenderer` 인스턴스가 된다. `DocumentChange`,
-`BracketColorPalette`, `IdeCompatibility`는 현재 이름이 값이나 상태의 정체를
+`CustomHighlighterRenderer` 인스턴스가 된다. `BracketColorPalette`,
+`IdeCompatibility`는 현재 이름이 값이나 상태의 정체를
 나타내므로 유지한다.
 
 ## 책임을 합치고 나눈 이유
@@ -198,9 +209,32 @@ concrete service를 흉내 내지 않고, 필요한 함수 또는 명시적 결�
 
 설정 화면에서 설치 언어 목록을 구성하는 이유와 token stream에서 matcher를 적용하는 이유는 다르다. `BraceLanguageCatalog`는 discovery와 definition lookup을 맡고, `DocumentBraceGrammar`는 현재 문서 token의 role과 context를 해석한다. `DocumentBrackets`는 그 문법을 사용해 완전한 pair 집합을 만든다.
 
-### 완료된 결과와 미확정 상태는 null 하나로 표현하지 않는다
+### 완료된 분석과 허용되지 않은 분석은 null 하나로 표현하지 않는다
 
-caret 제한 검색은 “pair가 없음이 확정됨”과 “예산이 끝나 아직 모름”을 구분해야 한다. `ActivePairKnowledge.Known(pair?)`와 `Unknown`은 이 도메인 차이를 타입으로 유지한다. provisional markup을 유지할지 제거할지는 이 차이에 의존한다.
+`AnalysisOutcome.Complete`는 요청한 facet 전체를 가진 `BracketSnapshot`을 담는다.
+`AnalysisOutcome.Unavailable`은 시도한 `AnalysisStamp`와 `PAIR_CAPACITY`,
+`PENDING_OPEN_CAPACITY`, `WORKING_MEMORY` 중 한 이유만 담고 snapshot은 담지 않는다.
+따라서 200,000 pair 또는 pending opener 한도와 48 MiB working-set 한도를 넘긴
+prefix가 완전한 결과처럼 소비될 수 없다. plugin은 unavailable stamp를 받아 같은
+exact coverage 입력의 무한 재시도만 막고 구조 데이터를 게시하지 않는다.
+Complete의 richer coverage가 lower 요청을 충족할 수 있는 것과 달리 Unavailable은
+coverage lattice를 대체하지 않는다. late richer refusal은 lower complete를 지우지
+않고, late equivalent refusal도 이미 완료된 equivalent 결과를 덮지 않는다.
+
+### 공유 payload와 editor 상태는 수명이 다르다
+
+`BracketIndexes`는 pair table과 token, active-pair, guide-position index를 묶는
+editor-independent 불변 값이다. `IndexedBracketSnapshot`은 editor별
+`AnalysisStamp`와 active-pair memo를 가진 view다. `DocumentBracketIndexes`는 같은
+document revision과 정확히 같은 layout·coverage·file type·language 선택 조건에서
+공유하며 guide index가 실제로 있으면 tab size도 같아야 한다. highlighter identity
+자체는 공유 key로 신뢰하지 않고 결과 내용으로 동등성을 증명한다.
+active/full 결과는 pair hash 뒤 일곱 primitive column까지, token-only 결과는
+원본 `PairTable`을 보유하지 않고 offset·length·depth 전체 sequence와 최대 token
+길이까지 같을 때만 payload를 canonicalize한다.
+document map과 entry가 weak ownership을 사용하므로 공유 최적화가 editor 수명을
+연장하지 않는다. 이 분리는 큰 배열의 중복 보유와 caret memo의 교차 오염을
+동시에 피한다.
 
 ### 설정 전이와 daemon API 호환은 다른 액터가 바꾼다
 
@@ -219,7 +253,6 @@ visible token highlighter와 active pair highlighter는 생성, 재사용, attri
 - `PairingMachine`: 실제 상태 기계이며 단순 행위자 접미사 이름이 아니다.
 - `PairTable`: primitive pair geometry의 불변 표다.
 - `EditorGuideSession`: editor 한 개에 묶인 생명주기 aggregate다.
-- `DocumentChange`: document event에서 정규화한 변경 값이다.
 
 ### 외부 IntelliJ 계약
 
@@ -253,13 +286,16 @@ visible token highlighter와 active pair highlighter는 생성, 재사용, attri
 공개 engine facade 이름이 변경되므로 `engine/api/engine.api`의 변화는 의도적이다. 최종 baseline에는 root `analysis` package의 다음 공개 경계만 포함되어야 한다.
 
 - `BracketAnalysis`
-- `AnalysisInput`, `CaretContext`
-- `ActivePairKnowledge`
+- `AnalysisInput`, `AnalysisOutcome`, `AnalysisLimit`
 - `BracketSnapshot`, `TokenWindow`
 - `AnalysisCoverage`, `AnalysisStamp`
 - presentation DTO인 `BracketPair`, `BracketGuide`, `BraceLanguageFamily`
 
-engine 구현 타입은 공개 facade에 누출하지 않는다. `checkEngineApiPackages`의 root-package 및 leaked-type 검사를 유지한다. `plugin/api/plugin.api`는 계속 비어 있어야 한다.
+engine 구현 타입은 공개 facade에 누출하지 않는다. 이 타입들은 module 간 제품
+계약이라 JVM `public`이지만 `@ApiStatus.Internal`이며 외부 plugin API가 아니다.
+`AnalysisOutcome` 생성자 역시 plugin test 전용 hook이 아니라 module 경계를
+통과하는 합법적인 제품 결과 생성 경계다. `checkEngineApiPackages`의 root-package
+및 leaked-type 검사를 유지한다. `plugin/api/plugin.api`는 계속 비어 있어야 한다.
 
 `plugin.xml`에서는 다음 구현 클래스 참조가 최종 이름과 일치해야 한다.
 
@@ -273,18 +309,26 @@ engine 구현 타입은 공개 facade에 누출하지 않는다. `checkEngineApi
 
 ## 행위와 성능 계약
 
-이 작업은 구조 변경이며 다음 외부 행위를 바꾸지 않는다.
+현재 객체 경계는 다음 제품 행위와 성능 불변식을 지킨다.
 
 - language별 공식 matcher만 사용하고 legacy file-type 또는 raw-character fallback을 추가하지 않는다.
-- complete full scan과 제한 caret 검색은 contextual, layered, symmetric, shared-closer, structural 규칙에서 같은 결과를 낸다.
-- caret 검색은 기존 transition 수와 best-effort 시간 예산을 유지한다.
+- contextual, layered, symmetric, shared-closer, language-gate, structural 규칙은 background document 분석 한 경로에만 존재한다.
+- caret·document event는 matcher나 token iterator를 호출하지 않는다. current snapshot은 index로 질의하고, snapshot이 없으면 새 구조 인식을 background pass까지 기다린다.
+- 200,000 pair, 200,000 pending opener, 48 MiB estimated live primitive working-set 중 하나를 넘으면 `AnalysisOutcome.Unavailable`이며 partial snapshot은 없다.
+- guide index는 별도 16 MiB 안에서 최대 4,128,768줄을 exact하게 표현하고 더 큰 요청은 `WORKING_MEMORY`로 거부한다.
+- 동등한 split-editor 결과는 `BracketIndexes`를 공유하지만 editor별 stamp, active-pair memo, markup은 공유하지 않는다.
 - token decoration cap, viewport window, stable focus envelope, highlighter 재사용 규칙을 유지한다.
 - cancellation 확인 주기와 index의 primitive storage·peak-memory 생성 순서를 유지한다.
 - stale pass가 현재 session dependency나 snapshot을 덮어쓰지 못하게 한다.
 
-`PairTable.Builder`가 `PairTable.Draft`로 바뀌면 core test와 `PairingMachineBenchmark`도 함께 변경한다. `CancellableLongArraySort.kt` 파일명은 Java benchmark가 생성 JVM facade `CancellableLongArraySortKt`를 직접 참조하므로, 별도 근거 없이 변경하지 않는다.
+`PairTable.Draft`는 production core, core test와 `PairingMachineBenchmark`가 같은
+freeze 경계를 사용한다. `CancellableLongArraySort.kt` 파일명은 Java benchmark가
+생성 JVM facade `CancellableLongArraySortKt`를 직접 참조하므로, 별도 근거 없이
+변경하지 않는다.
 
-JMH는 절대 성능 합격선을 제공하지 않는다. 기존 입력 크기, distribution, cancellation 지연을 유지한 동일 조건 비교와 `jmhJar` 컴파일을 통해 구조 변경이 benchmark 경계를 깨뜨리지 않았는지 확인한다.
+JMH는 절대 성능 합격선을 제공하지 않는다. 기존 입력 크기, distribution,
+cancellation 지연을 유지한 동일 조건 비교와 `compileJmhJava`를 통해 구조 변경이
+benchmark 소스 경계를 깨뜨리지 않았는지 확인한다.
 
 ## TDD 검증 계획
 
@@ -297,40 +341,45 @@ JMH는 절대 성능 합격선을 제공하지 않는다. 기존 입력 크기, 
    불변식은 전용 테스트로 추가했다.
 4. 전체 회귀 테스트와 ABI baseline 및 package guard를 검증했다.
 5. plugin structure와 configuration 정적 계약을 검증했다.
-6. benchmark harness를 패키징하고 smoke run으로 실행 경계를 확인했다.
+6. benchmark source가 실제 engine 구현을 대상으로 컴파일되는지 확인했다.
 
 핵심 characterization 범위는 다음과 같다.
 
-- engine facade의 stamp 보존, coverage별 index 생성, defensive copy, cancellation 전파
-- full/caret parity의 contextual, layered, symmetric, structural, budget 행위
-- active/token/guide index의 strict boundary, overflow, cancellation, random-model parity
+- engine facade의 stamp 보존, complete/unavailable outcome, coverage별 index 생성, defensive copy, cancellation 전파
+- document grammar의 contextual, layered, symmetric, shared-closer, language-gate, structural recovery 행위
+- pair·pending-open·working-memory 한도와 capped prefix 비게시
+- active/token/guide index의 strict boundary, 4,128,768줄 exact guide 경계, overflow, cancellation, random-model parity
+- split editor의 index payload 공유, editor별 memo 분리, active/full hash collision 시 전체 pair-column 비교와 token-only observable sequence 비교
 - session의 stale result 거부, highlighter 교체, split editor, secondary caret, 설정·theme 전이
 - visible token cap과 재중심화, active markup 재사용·폐기
 - guide drawing의 soft wrap, viewport clip, opacity, invalid range 안전성
 - unsupported IDE warning의 내용과 한 번만 표시되는 성질
 
-다음 명령으로 최종 상태를 검증했다.
+다음 명령을 최종 검증 경계로 사용한다.
 
 ```shell
-./gradlew :engine:test :plugin:test
-./gradlew :engine:check :plugin:check
-./gradlew :benchmarks:jmhJar
-./gradlew :benchmarks:jmh -PbenchmarkSmoke=true
+./gradlew :engine:check :plugin:check :benchmarks:compileJmhJava
 ./gradlew :plugin:verifyPluginProjectConfiguration :plugin:verifyPluginStructure
 ```
 
 ### 구현 결과
 
-- engine 공개 경계는 `BracketAnalysis`, `AnalysisInput`, `CaretContext`,
-  `AnalysisCoverage`, `AnalysisStamp`, `ActivePairKnowledge`, `BracketSnapshot`,
+- engine 공개 경계는 `BracketAnalysis`, `AnalysisInput`, `AnalysisOutcome`,
+  `AnalysisLimit`, `AnalysisCoverage`, `AnalysisStamp`, `BracketSnapshot`,
   `TokenWindow`로 교체했다. `AnalysisStamp`는 identity hash 정수 대신 실제
   highlighter 참조를 캡처해 `===`로 동일성을 판정한다.
 - `BraceLanguageCatalog`가 언어 family와 definition을 함께 소유하고,
-  `DocumentBraceGrammar`, `DocumentBrackets`, `CaretBracketSearch`가 문법 해석,
-  전체 인식, 제한 검색을 각각 소유한다.
+  `DocumentBraceGrammar`와 `DocumentBrackets`가 문법 해석과 전체 인식을
+  소유한다. synchronous caret 인식 API와 구현은 제거했다.
 - builder와 pipeline은 `SnapshotAssembly`로 합쳤고 guide line 범위는
   `GuideLineEnvelope`로 분리했다. `PairTable.Draft.freeze()`가 mutable 초안의
   단일 사용과 배열 소유권 이전을 명시한다.
+- `AnalysisBudget`은 200,000 pair, 200,000 pending opener, 48 MiB working-set
+  정책을 소유한다. `GuideIndexShape`는 별도 16 MiB exact blocked index의
+  최대 4,128,768줄 경계를 소유한다.
+- `BracketIndexes`와 `DocumentBracketIndexes`는 split editor의 동등한 불변
+  payload를 weak ownership으로 공유하고, `IndexedBracketSnapshot`은 editor별
+  stamp와 active-pair memo를 유지한다.
 - plugin에서는 `GuideSettingsChange`와 `DaemonRefresh`, `EditorAnalysisState`,
   `TrackedBracketPair`, `ActivePairMarkup`, `VisibleTokenDecorations`,
   `EditorGuideSessions`로 상태와 생명주기를 이동했다. `BracketGuideDrawing`은
@@ -346,22 +395,23 @@ JMH는 절대 성능 합격선을 제공하지 않는다. 기존 입력 크기, 
   fixture의 `-er`, `-or` 타입 선언은 0개다. upstream test data, generated
   source, 외부 IntelliJ/JMH 계약은 제외했다.
 - production의 테스트 전용 생성자, 상태 getter, fixture 변환, clock·budget
-  제어를 제거했다. 실제 메모리·호환성 정책은 `GuideTreeShape`,
-  `DocumentChangeRoute`, `DaemonRestartContract`가 소유하며 production 경로도
-  이 객체들을 직접 사용한다.
+  제어를 제거했다. 실제 메모리·호환성 정책은 `AnalysisBudget`,
+  `GuideIndexShape`, `DaemonRestartContract`가 소유하며 production 경로도 이
+  객체들을 직접 사용한다. document change 전달은 별도 test route 없이 실제
+  `EditorGuideEvents` 통합 경계에서 모든 해당 session에 적용된다.
 
-### 테스트 결과
+### 검증 경계
 
-- `:engine:test`: 106개 성공, 실패·오류 0개. 구현 seam 자체만 검증하던
-  테스트 2개는 노출과 함께 삭제했다.
-- `:plugin:test`: 102개 성공, 실패·오류 0개. 실제 daemon restart 계약
-  테스트를 추가했다.
-- `:engine:check`, `:plugin:check`: 성공. 갱신한 ABI baseline, root-package
-  guard, 빈 `plugin.api` 계약을 포함한다.
-- `:benchmarks:jmhJar`: 성공. `-PbenchmarkSmoke=true` 실행도 38개 benchmark
-  parameter 조합을 완료했다. smoke 수치는 성능 판단 근거로 사용하지 않는다.
-- `:plugin:verifyPluginProjectConfiguration`, `:plugin:verifyPluginStructure`: 성공.
-- `git diff --check`: 성공.
+- 현재 통합 검증 `:engine:check :plugin:check :benchmarks:compileJmhJava`는
+  성공했다. engine 114개와 plugin 102개 테스트가 실패·오류·skip 없이 통과했다.
+- `:engine:check`는 outcome, capacity, exact guide index, split payload 공유,
+  ABI baseline과 root-package guard를 함께 검증한다.
+- `:plugin:check`는 complete/unavailable 수용, stale 결과 거부, background-wait,
+  markup과 빈 `plugin.api` 계약을 검증한다.
+- `:benchmarks:compileJmhJava`는 JMH source가 실제 engine 구현을 계속 소비하는지
+  확인한다. 성능 측정과 smoke 실행은 이번 검증 결과로 주장하지 않는다.
+- plugin structure/configuration 검사와 `git diff --check`를 최종 정적 검증에
+  포함한다. 위 테스트 개수는 현재 검증 기록이지 장기 API 계약은 아니다.
 
 ## 의도적 유예 항목
 
@@ -371,7 +421,7 @@ JMH는 절대 성능 합격선을 제공하지 않는다. 기존 입력 크기, 
 - `FakeBracketAnalysis`의 active-pair 선택과 token-window 선택 로직은 여전히
   test fixture 안에 일부 존재한다. active-pair tie-break 전용 비교는 있지만
   production과 fake token-window를 직접 비교하는 parity test는 없다. 따라서
-  production의 단일 진실 공급원으로 취급하지 않으며 engine parity 및 snapshot
+  production의 단일 진실 공급원으로 취급하지 않으며 engine snapshot
   테스트를 authoritative 검증으로 유지한다.
 - `BracketGuidePreferences`의 flat XML 필드는 기존 설정 파일과 property 이름을
   보존하기 위해 유지했다. persistence DTO와 더 세분화된 runtime appearance 값의

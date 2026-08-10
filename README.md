@@ -12,8 +12,12 @@ innermost pair containing the caret.
 - One standard Settings page for languages, colors, guide geometry, and active-pair styling.
 - Language-aware matching through each token language's
   `com.intellij.lang.braceMatcher`.
-- Immediate, bounded active-pair refresh after caret or edit changes; complete
-  document recognition remains in a cancellable background highlighting pass.
+- Cancellable background recognition with indexed caret queries; stale or absent
+  snapshots never start bracket recognition on the event dispatch thread.
+- Authoritative all-or-unavailable analysis capped at 200,000 pairs, 200,000
+  pending openers, and a 48 MiB estimated live primitive working set.
+- Exact guide indexing for spans through 4,128,768 lines within a separate
+  16 MiB payload; larger requested spans do not produce partial snapshots.
 
 ## IDE and language support
 
@@ -74,10 +78,10 @@ options, per-language controls, and coexistence guidance.
 
 The module `check` tasks run the engine's Kotlin and platform-neutral Java tests
 and verify the committed ABI baselines in `engine/api/` and `plugin/api/`. The
-engine baseline contains only the `analysis.BracketAnalysis` entry point and
-its input/snapshot boundary, and a package check rejects public Kotlin ABI
-elsewhere. Only after reviewing an intentional boundary change, update the
-baselines with:
+engine baseline contains only the root `analysis` facade: the `BracketAnalysis`
+entry point, its input/outcome/snapshot boundary, and related domain values. A
+package check rejects public Kotlin ABI elsewhere. Only after reviewing an
+intentional boundary change, update the baselines with:
 
 ```shell
 ./gradlew :engine:updateLegacyAbi :plugin:updateLegacyAbi
@@ -90,10 +94,15 @@ pinned to 241 when the test fixture is upgraded.
 The `engine` module groups platform-neutral pairing state and primitive pair
 storage under `analysis.pairing.core`, adapts IntelliJ matchers, compiles
 requested coverage into an index layout, assembles snapshots, and exposes one
-IntelliJ Application Service. Editor integration, settings, and
-deployable plugin tasks live in `plugin`. The isolated `benchmarks` module runs
-JMH against compiled engine implementations. The repository root coordinates
-the Gradle build and shared release metadata.
+IntelliJ-bound Application Service as the intentional adapter between editor
+token semantics and the platform-neutral pairing core. Analysis publishes a
+complete snapshot or an unavailable result carrying the accepted input stamp;
+it never publishes a capped prefix. Equivalent split-editor results share an
+immutable `BracketIndexes` payload, while each editor keeps its own snapshot
+stamp, active-pair memo, and presentation state. Editor integration, settings,
+and deployable plugin tasks live in `plugin`. The isolated `benchmarks` module
+runs JMH against compiled engine implementations. The repository root
+coordinates the Gradle build and shared release metadata.
 The regression suite covers Java, Kotlin, Kotlin script, JSON, contextual and
 custom-file-type matchers, unsupported legacy-only file types, and large inputs.
 Performance experiments live in the isolated `benchmarks` module; see
