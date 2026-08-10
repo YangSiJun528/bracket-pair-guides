@@ -1,6 +1,6 @@
 package com.sijunyang.bracketpairguides.benchmarks;
 
-import com.sijunyang.bracketpairguides.analysis.index.CancellableLongArraySortKt;
+import com.sijunyang.bracketpairguides.analysis.sorting.CancellableLongArraySortKt;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import kotlin.Unit;
@@ -38,7 +38,7 @@ public class LongArraySortBenchmark {
 
   @Setup(Level.Trial)
   public void createBaseline() {
-    baseline = BenchmarkLongArrays.create(size, distribution);
+    baseline = LongArraySamples.create(size, distribution);
   }
 
   /** Copying is setup work and is excluded from the measured sort invocation. */

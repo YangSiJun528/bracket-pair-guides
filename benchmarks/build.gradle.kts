@@ -18,8 +18,8 @@ dependencies {
     // standalone benchmark process needs its own runtime on the JMH classpath.
     implementation(kotlin("stdlib"))
 
-    // Benchmark the compiled owner directly without registering a second
-    // source root or depending on the deployable plugin project.
+    // Benchmark the compiled analysis owner directly without depending on the
+    // deployable plugin project.
     jmhImplementation(project(":engine"))
 }
 

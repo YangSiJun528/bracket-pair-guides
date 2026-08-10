@@ -2,10 +2,10 @@ package com.sijunyang.bracketpairguides.benchmarks;
 
 import java.util.SplittableRandom;
 
-final class BenchmarkLongArrays {
+final class LongArraySamples {
   private static final long REFERENCE_MASK = 0xFFFF_FFFFL;
 
-  private BenchmarkLongArrays() {}
+  private LongArraySamples() {}
 
   static long[] create(int size, String distribution) {
     switch (distribution) {

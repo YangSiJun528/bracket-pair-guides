@@ -10,14 +10,15 @@ plugin.
 - An otherwise idle machine
 - The same JDK, heap settings, and power mode for every comparison
 
-The module depends on the compiled `engine` project and invokes its production
-`CancellableLongArraySort.kt` implementation. It neither copies the
-implementation nor registers the engine source directory as a benchmark source
-root, so the benchmark cannot drift from the shipped class or confuse IDE
-module ownership. This is an intentional privileged implementation probe: the
-sort remains Kotlin `internal` and is absent from the supported engine ABI, but
-the Java JMH harness can call its JVM method from the benchmark-only module.
-`:benchmarks:jmhJar` in CI detects changes that break this narrow probe.
+The module depends on the compiled `engine` project. It invokes the production
+`PairingMachine` and `CancellableLongArraySort.kt` implementations. It neither
+copies the implementations nor registers the engine source directory as a
+benchmark source root, so a benchmark cannot drift from the shipped class or
+confuse IDE module ownership. This is an intentional privileged implementation
+probe: the sort remains Kotlin `internal` and is absent from the supported
+engine ABI, but the Java JMH harness can call its JVM method from the
+benchmark-only module. `:benchmarks:jmhJar` in CI detects changes that break
+this narrow probe.
 
 ## Run a smoke benchmark
 
@@ -35,8 +36,9 @@ Smoke results are not suitable for making implementation decisions.
 ./gradlew :benchmarks:jmh
 ```
 
-The complete run compares:
+The complete run covers:
 
+- platform-neutral nested-token pairing and primitive `PairTable` construction;
 - JDK `Arrays.sort(long[])` with the production cancellable sort;
 - realistic encoded pair events, random input, and ordered inputs;
 - 32,768 through 2,000,000 endpoints, with two endpoints per bracket pair;
@@ -57,6 +59,8 @@ Pass a regular expression matching the benchmark class:
 ./gradlew :benchmarks:jmh \
   -PbenchmarkInclude='.*LongArraySortCancellationBenchmark'
 ```
+
+Use `.*PairingMachineBenchmark` to isolate the pairing state machine.
 
 ## Interpret the results
 

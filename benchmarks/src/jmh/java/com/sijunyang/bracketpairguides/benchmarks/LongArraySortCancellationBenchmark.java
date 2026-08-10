@@ -1,6 +1,6 @@
 package com.sijunyang.bracketpairguides.benchmarks;
 
-import com.sijunyang.bracketpairguides.analysis.index.CancellableLongArraySortKt;
+import com.sijunyang.bracketpairguides.analysis.sorting.CancellableLongArraySortKt;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -46,7 +46,7 @@ public class LongArraySortCancellationBenchmark {
 
   @Setup(Level.Trial)
   public void createState() {
-    baseline = BenchmarkLongArrays.create(size, "pair-events");
+    baseline = LongArraySamples.create(size, "pair-events");
     cancellationRequested = new AtomicBoolean();
     cancellationExecutor = Executors.newSingleThreadExecutor(runnable -> {
       Thread thread = new Thread(runnable, "sort-benchmark-canceller");
