@@ -37,11 +37,20 @@
   fallbacks, and raw-character fallbacks are intentionally absent.
 - Context-sensitive `BraceMatcher` implementations registered through the
   language extension are preserved instead of being reduced to static pairs.
-- Recognition and decoration are separated by the IntelliJ-bound
-  `BracketAnalysis` adapter with immutable analysis inputs, stamps, and
-  snapshots. The host-specific facade is intentional; token highlighters,
-  matcher registrations, tab settings, and cancellation stay outside the
+- Recognition and decoration are separated by the root `BracketAnalysis`
+  contract and the `analysis.intellij` composition. `BraceLanguageInventory`
+  provides Settings with its own service boundary. Token highlighters, matcher
+  registrations, tab settings, and cancellation stay outside the
   platform-neutral pairing core.
+- Engine and plugin production packages now form an enforced one-way DAG from
+  IntelliJ entry points toward analysis contracts, snapshot and recognition
+  policy, and primitive leaves. The `checkArchitecture` Gradle task rejects
+  unknown packages, forbidden project imports, undeclared module edges, and
+  dependency cycles.
+- Preferences, persisted settings, editor events, sessions, and presentation
+  now have separate package ownership. `ActiveGuidePresentation` owns the
+  tracked active pair, its markup, and bounded provisional guide behavior for
+  one editor session.
 - Analysis now returns `AnalysisOutcome.Complete`, `Limited`, or `Unavailable`.
   Pair and pending-open exhaustion publish no capped prefix. Guide exhaustion
   publishes exact token and active-pair facets without an approximate guide;

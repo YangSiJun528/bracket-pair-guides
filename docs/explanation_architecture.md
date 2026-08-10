@@ -1,9 +1,9 @@
 # Architecture
 
-Bracket Pair Guides separates background bracket recognition from editor
-decoration. Structural knowledge is produced only by an IntelliJ highlighting
-pass; editor events consume an immutable accepted result and never run a brace
-matcher synchronously.
+Bracket Pair Guides uses a one-way dependency graph from IntelliJ entry points
+toward stable analysis contracts and small policy objects. Structural knowledge
+is produced only by an IntelliJ highlighting pass; editor events consume an
+immutable accepted result and never run a brace matcher synchronously.
 
 This document explains the current design. Exact capacity values, memory
 layouts, and complexity formulas belong to the
@@ -12,35 +12,79 @@ layouts, and complexity formulas belong to the
 ## Architecture at a glance
 
 ```mermaid
-flowchart LR
-    subgraph EDT["Event dispatch thread"]
-        A["Document or analysis-coverage change"] --> B["Invalidate session state / restart daemon"]
-        G["Apply current outcome"] --> H["EditorGuideSession"]
-        I["Caret, viewport, theme, or appearance event"] --> H
-        H --> J["ActivePairMarkup and VisibleTokenDecorations"]
+flowchart TB
+    subgraph Plugin["plugin"]
+        PE["Entry adapters<br/>editor.highlighting · settings.ui"]
+        EV["editor.events"]
+        ED["editor sessions"]
+        PR["presentation"]
+        ST["settings"]
+        PF["preferences"]
     end
 
-    subgraph BGT["Background highlighting read action"]
-        C["BracketGuideHighlightingPass"] --> D["BracketAnalysis"]
-        D --> E["DocumentBrackets and PairingMachine"]
-        E --> F["SnapshotAssembly returns AnalysisOutcome"]
+    subgraph Engine["engine"]
+        IJ["analysis.intellij<br/>composition"]
+        SN["analysis.snapshot"]
+        PA["analysis.pairing · analysis.guide"]
+        IX["analysis.active · analysis.token"]
+        API["analysis contracts"]
+        CORE["pairing.core · sorting"]
     end
 
-    B --> C
-    F --> G
+    PE --> EV
+    PE --> ED
+    PE --> ST
+    EV --> ED
+    EV --> ST
+    ED --> PR
+    ED --> PF
+    PR --> PF
+    ST --> PF
+    PF --> API
+
+    IJ --> SN
+    IJ --> PA
+    SN --> PA
+    SN --> IX
+    PA --> API
+    PA --> CORE
+    IX --> CORE
 ```
 
-The runtime path is one-way. Each row names the module, thread, and state owner
-at that step:
+Arrows show the representative dependency direction, not every permitted
+import. This is a directed acyclic graph (DAG), not a strict tree. Shared stable
+nodes such as analysis contracts, preferences, and the primitive core
+legitimately have multiple incoming edges; no edge points back toward a caller.
+The executable edge list in
+`buildSrc/src/main/kotlin/architecture/ProjectArchitecture.kt` is authoritative.
+
+The package groups have these responsibilities:
+
+| Package group | Responsibility | Stable dependencies |
+|---|---|---|
+| `analysis` | Module-crossing inputs, outcomes, snapshots, and service contracts | None of the project's implementation packages |
+| `analysis.intellij` | IntelliJ composition and host adapters | Contracts, recognition, snapshot policy, guide policy |
+| `analysis.snapshot` | Coverage layout, outcome policy, immutable indexes, canonical sharing | Contracts and the feature indexes it assembles |
+| `analysis.pairing`, `analysis.guide` | Token recognition and guide-position policy | Contracts and primitive pairing data |
+| `analysis.active`, `analysis.token` | Query indexes | Primitive pairing and sorting |
+| `analysis.pairing.core`, `analysis.sorting` | Platform-neutral primitive mechanisms | No project packages |
+| `preferences`, `settings` | Immutable choices and their persisted IntelliJ state | Contracts or preferences, never editor presentation |
+| `presentation` | Per-editor markers, markup, drawing, and token decoration | Contracts and preferences |
+| `editor` | Analysis acceptance and one editor session's orchestration | Contracts, preferences, and presentation |
+| `editor.events` | IntelliJ event and committed-settings propagation | Editor sessions, settings, and preferences |
+| `editor.highlighting`, `settings.ui` | Host entry points | The inward application boundaries required by each entry point |
+
+The runtime path follows the same direction. Each row names the module, thread,
+and state owner at that step:
 
 | Stage | Thread | Module and owner | State or output |
 |---|---|---|---|
-| Structural or coverage change | EDT/platform daemon | `plugin`: `EditorGuideEvents` or `GuideSettingsChange` | Invalidate per-editor analysis and schedule background work |
-| Collect | Background highlighting read action | `plugin`: `BracketGuideHighlightingPass` | One `AnalysisInput`, attempted stamp, and cancellable collection |
-| Recognize | Same background action | `engine`: `BracketAnalysis` → `DocumentBrackets.recognize()` → `PairingMachine` | Local matcher groups and pairing state become a primitive pair table |
-| Assemble | Same background action | `engine`: `SnapshotAssembly.outcome()` | One immutable `Complete`, `Limited`, or `Unavailable` outcome |
+| Structural or coverage change | EDT/platform daemon | `plugin/editor.events`: `EditorGuideEvents` or `GuideSettingsChange` | Invalidate per-editor analysis and schedule background work |
+| Collect | Background highlighting read action | `plugin/editor.highlighting`: `BracketGuideHighlightingPass` | One `AnalysisInput`, attempted stamp, and cancellable analysis call |
+| Recognize | Same background action | `engine/analysis.intellij`: `IntellijBracketAnalysis` → `DocumentBrackets` → `PairingMachine` | Local matcher groups and pairing state become a primitive pair table |
+| Assemble | Same background action | `engine/analysis.snapshot`: `SnapshotAssembly.outcome()` | One immutable `Complete`, `Limited`, or `Unavailable` outcome |
 | Publish | EDT | `plugin`: `EditorGuideSession.accept(AnalysisOutcome)` | `EditorAnalysisState` publishes one volatile immutable `AnalysisAcceptance` containing snapshot, completion, and refusal |
-| Present and paint | EDT/paint callback | `plugin`: `TrackedBracketPair`, `ActivePairMarkup`, `VisibleTokenDecorations` | Per-editor markers and plugin-owned highlighters; paint owns no structural state |
+| Present and paint | EDT/paint callback | `plugin/presentation`: `ActiveGuidePresentation`, `VisibleTokenDecorations` | Per-editor markers and plugin-owned highlighters; paint owns no structural state |
 
 Caret, viewport, theme, and appearance events take the short path through the
 existing editor session. With no current snapshot, they may adjust already
@@ -54,10 +98,10 @@ analysis and immutable results, plugin owns editor lifetime and presentation,
 and benchmarks own no production code. The engine artifact is composed into the
 plugin's single JAR, so this build boundary adds no runtime classloader boundary.
 
-`BracketAnalysis` is synchronous. It uses the pass-provided
-`ProgressIndicator` and creates no executor or coroutine scope. Third-party
-matcher callbacks are confined to this cancellable background path and are
-never invoked by an EDT event.
+The `BracketAnalysis` call is synchronous. The concrete IntelliJ composition
+uses the pass-provided `ProgressIndicator` and creates no executor or coroutine
+scope. Third-party matcher callbacks are confined to this cancellable
+background path and are never invoked by an EDT event.
 
 Sharing stops at immutable analysis payloads. Each split editor retains its own
 caret memo, range markers, viewport, and markup; shared indexes retain no
@@ -66,17 +110,28 @@ document or editor lifetime.
 
 ## Engine boundary
 
-`BracketAnalysis` is the only operational plugin-to-engine entry point. It is
-registered as a concrete IntelliJ Application Service and exposes two uses:
+The root `analysis` package contains the contracts that cross the module
+boundary. Its two application-service interfaces have separate reasons to
+change:
 
-- analyze an `AnalysisInput` with a `ProgressIndicator`;
-- list installed brace-matcher language families for Settings.
+- `BracketAnalysis` analyzes one `AnalysisInput` and returns an
+  `AnalysisOutcome`;
+- `BraceLanguageInventory` lists the installed brace-matcher language families
+  used by Settings.
 
-The facade deliberately remains IntelliJ-bound. `AnalysisInput` carries the
-actual `Editor` and `FileType`, because token roles depend on the editor
-highlighter, installed `LanguageBraceMatching` extensions, document revision,
-file type, and tab settings. Neutral copies of those host concepts would form a
-second, potentially inconsistent token model.
+`plugin.xml` binds those interfaces to `IntellijBracketAnalysis` and
+`IntellijBraceLanguageInventory` in `analysis.intellij`. The plugin therefore
+depends on contracts, while the IntelliJ-specific composition owns concrete
+recognition, snapshot assembly, canonical index storage, guide-position access,
+and cancellation wiring. The highlighting factory resolves `BracketAnalysis`
+and passes the analysis function into each pass; the pass does not locate its
+own service.
+
+The contracts deliberately retain the IntelliJ concepts required by the use
+case. `AnalysisInput` carries the actual `Editor` and `FileType`, because token
+roles depend on the editor highlighter, installed `LanguageBraceMatching`
+extensions, document revision, file type, and tab settings. Neutral copies of
+those host concepts would form a second, potentially inconsistent token model.
 
 The policy core is neutral instead. Java code under
 `analysis.pairing.core` uses only the Java standard library. A
@@ -85,8 +140,8 @@ cancellation, and an output sink. It owns group-isolated stacks, malformed
 recovery, nesting depth, and completed-pair ordering. It reads no editor,
 document, clock, executor, service, or global state.
 
-`DocumentBrackets` is the adapter between those boundaries. It reads the
-editor's token stream and resolves only the token language's
+`DocumentBrackets` is the recognition boundary inside `analysis.pairing`. It
+reads the editor's token stream and resolves only the token language's
 `com.intellij.lang.braceMatcher` registration. A `PairedBraceMatcher` is
 wrapped with the platform adapter; a matcher that already implements
 `BraceMatcher` keeps its contextual behavior. The adapter emits explicit open,
@@ -135,6 +190,14 @@ guide facets needed by that layout. Assembly order minimizes overlap between
 temporary and retained primitive arrays; details belong to the
 [performance and capacity reference](reference_performance_limits.md).
 
+`SnapshotAssembly` receives recognition, cancellation, guide creation, and
+canonicalization as values. It decides outcome and index policy without
+locating IntelliJ services or retaining a `ProgressIndicator`.
+`DocumentGuidePositions` in `analysis.intellij` translates `Document` access
+and cancellation into the line data consumed by `GuidePositionIndex`. This
+split keeps host I/O in the composition layer and deterministic guide queries
+in the policy layer.
+
 The active-pair index resolves crossing intervals deterministically and returns
 the innermost containing pair. Malformed recovery honors each platform
 `BracePair.isStructural` flag: structural pairs may recover past unmatched
@@ -164,11 +227,19 @@ coverage, language selection, file type, document revision, and highlighter
 semantics. An admission refusal still reaches the apply phase so stale
 plugin-owned markup can be cleared.
 
-`EditorGuideEvents` routes primary-caret, document, viewport, editor-lifetime,
-and color-scheme events to the owning session. It never performs token
-iteration. A document change releases stale proportional analysis structures;
-existing `RangeMarker` presentation may remain coherent only for the previously
-known pair while replacement analysis is pending.
+`EditorGuideEvents` in `editor.events` routes primary-caret, document, viewport,
+editor-lifetime, and color-scheme events to the owning session. It never
+performs token iteration. A document change releases stale proportional
+analysis structures; existing `RangeMarker` presentation may remain coherent
+only for the previously known pair while replacement analysis is pending.
+
+`EditorGuideSession` owns analysis acceptance, requested coverage, lifecycle,
+and viewport orchestration. It delegates the active pair's range markers,
+guide markup, and bounded provisional behavior to one
+`ActiveGuidePresentation`. That aggregate contains `TrackedBracketPair` and
+`ActivePairMarkup`, so those objects cannot drift into different lifecycles.
+`VisibleTokenDecorations` remains separate because viewport token coloring has
+a different state and invalidation cadence.
 
 When exact guide coverage is pending for an already tracked multiline pair,
 `GuidePositionFallback` may inspect a bounded amount of leading whitespace to
@@ -185,31 +256,40 @@ the current graphics clip, and performs no PSI work or read action.
 The plugin retains and disposes only its own highlighters. It never removes all
 editor highlighters or deletes markup by a shared layer number.
 
-`BracketGuideSettingsPage` uses the platform `BoundConfigurable` lifecycle.
+`BracketGuideSettingsPage` uses the platform `BoundConfigurable` lifecycle and
+depends on `BraceLanguageInventory`, not on the concrete matcher catalog.
 Persisted language choices are disabled matcher-family IDs rather than a static
 allowlist, so an installed language plugin can add a supported family without a
 Bracket Pair Guides release. A dialect inheriting its base matcher's capability
 shares the same family ID.
 
-`GuideSettingsChange` applies committed preferences to live sessions. It asks
-the IntelliJ daemon for background reanalysis only when coverage or language
-selection changes. Appearance-only changes update existing presentation and do
-not invoke recognition.
+`GuideSettingsChange` in `editor.events` applies committed preferences to live
+sessions. It asks the IntelliJ daemon for background reanalysis only when
+coverage or language selection changes. Appearance-only changes update existing
+presentation and do not invoke recognition. Immutable preference values live in
+`preferences`; IntelliJ persistence lives in `settings`, preventing the editor
+and presentation packages from depending on the storage service.
 
 ## ABI boundary
 
 Both Kotlin modules use explicit API mode. Implementation contracts stay
-`private` or `internal`. The root `analysis` facade consumed across the module
-boundary is public only for JVM linkage and is annotated
-`@ApiStatus.Internal`; it is not a supported consumer API.
+`private` or `internal`. The root `analysis` contracts consumed across the
+module boundary are public only for JVM linkage and are annotated
+`@ApiStatus.Internal`; they are not a supported consumer API.
 
 Committed ABI dumps are verified during each module's `check` task. The engine
-package guard rejects public Kotlin ABI outside the root facade and rejects
-implementation types leaking through that facade. The deployable plugin's ABI
-dump remains empty. A separate engine check rejects `com.intellij` references
-from `analysis.pairing.core`, making the neutral-core rule executable rather
-than documentary. See [Contributing](../CONTRIBUTING.md#abi-changes) before
-updating a baseline.
+package guard rejects public Kotlin ABI outside the root contracts and rejects
+implementation types leaking through them. The deployable plugin's ABI dump
+remains empty. A separate engine check rejects `com.intellij` references from
+`analysis.pairing.core`, making the neutral-core rule executable rather than
+documentary.
+
+The root `checkArchitecture` task also verifies exact Gradle module edges,
+registered production packages, permitted project imports, and absence of
+module or package cycles. Root and subproject `check` tasks depend on it, so the
+DAG is a build invariant rather than a diagram convention. See
+[Contributing](../CONTRIBUTING.md#change-an-architecture-boundary) before
+changing an edge or ABI baseline.
 
 ## Known limitations
 
@@ -250,3 +330,16 @@ or the source of current limits.
 - [Services](https://plugins.jetbrains.com/docs/intellij/plugin-services.html)
 - [Disposer and plugin unload](https://plugins.jetbrains.com/docs/intellij/disposers.html)
 - [Color scheme management](https://plugins.jetbrains.com/docs/intellij/color-scheme-management.html)
+
+## Design references
+
+The refactoring criteria were reviewed against the following lectures from
+Inflearn's *클린 코더스: 실전 객체 지향 프로그래밍과 TDD 마스터 클래스*,
+taught by **즐거운 학습**. These lectures informed the dependency and
+test-boundary decisions; they are not a certification of this implementation.
+
+- [Architecture](https://www.inflearn.com/courses/lecture?courseId=336905&unitId=279449): expose use cases and defer framework detail.
+- [Single Responsibility Principle](https://www.inflearn.com/courses/lecture?courseId=336905&unitId=279452): define responsibility by source of change and keep package dependencies one-way.
+- [Dependency Inversion Principle](https://www.inflearn.com/courses/lecture?courseId=336905&unitId=279456): direct source dependencies toward policy and stable contracts.
+- [TDD 1](https://www.inflearn.com/courses/lecture?courseId=336905&unitId=279445): use tests as low-level design feedback and refactor after behavior is green.
+- [Split Phase](https://www.inflearn.com/courses/lecture?courseId=336905&unitId=279465): separate host I/O from deterministic policy through explicit intermediate values.

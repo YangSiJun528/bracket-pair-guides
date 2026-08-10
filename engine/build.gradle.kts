@@ -39,6 +39,7 @@ tasks.named("check") {
     dependsOn(
         "checkLegacyAbi",
         "checkEngineApiPackages",
+        "checkEnginePolicyPlatformNeutrality",
         "checkPairingCorePlatformNeutrality",
     )
 }
@@ -71,9 +72,40 @@ val checkPairingCorePlatformNeutrality by tasks.registering {
     }
 }
 
+val platformNeutralPolicySources = files(
+    pairingCoreSources,
+    fileTree("src/main/kotlin") {
+        include(
+            "com/sijunyang/bracketpairguides/analysis/active/**/*.kt",
+            "com/sijunyang/bracketpairguides/analysis/guide/**/*.kt",
+            "com/sijunyang/bracketpairguides/analysis/sorting/**/*.kt",
+            "com/sijunyang/bracketpairguides/analysis/token/**/*.kt",
+        )
+    },
+)
+
+tasks.register("checkEnginePolicyPlatformNeutrality") {
+    group = "verification"
+    description = "Rejects IntelliJ Platform dependencies in neutral analysis policies."
+
+    inputs.files(platformNeutralPolicySources)
+
+    doLast {
+        val platformReferences = inputs.files.files
+            .filter { source -> "com.intellij." in source.readText() }
+            .map { source -> source.path }
+            .sorted()
+
+        check(platformReferences.isEmpty()) {
+            "Neutral analysis policies must remain independent of the IntelliJ Platform; " +
+                "found: ${platformReferences.joinToString()}"
+        }
+    }
+}
+
 val checkEngineApiPackages by tasks.registering {
     group = "verification"
-    description = "Rejects public engine ABI outside the root analysis facade."
+    description = "Rejects public engine ABI outside the root analysis contracts."
 
     val abiBaseline = layout.projectDirectory.file("api/engine.api")
     inputs.file(abiBaseline)
@@ -84,14 +116,14 @@ val checkEngineApiPackages by tasks.registering {
             className.startsWith(facadePrefix) &&
                 '/' !in className.removePrefix(facadePrefix)
         }
-        val classDeclaration = Regex("^public .* class ([^ :]+)")
+        val typeDeclaration = Regex("^public .* (?:class|interface) ([^ :]+)")
         val abiLines = abiBaseline.asFile.readLines()
         val unexpected = abiLines
-            .mapNotNull { line -> classDeclaration.matchEntire(line)?.groupValues?.get(1) }
+            .mapNotNull { line -> typeDeclaration.matchEntire(line)?.groupValues?.get(1) }
             .filterNot(isFacadeType)
 
         check(unexpected.isEmpty()) {
-            "Public engine ABI must stay directly in the analysis facade; found: " +
+            "Public engine ABI must stay directly in the analysis contracts; found: " +
                 unexpected.joinToString()
         }
         val projectTypeReference = Regex(
@@ -105,7 +137,7 @@ val checkEngineApiPackages by tasks.registering {
             .distinct()
 
         check(leakedTypes.isEmpty()) {
-            "Engine implementation types must not leak through the public analysis facade; " +
+            "Engine implementation types must not leak through public analysis contracts; " +
                 "found: ${leakedTypes.joinToString()}"
         }
     }

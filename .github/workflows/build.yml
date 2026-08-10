@@ -68,7 +68,12 @@ jobs:
           cache-read-only: true
 
       - name: Run Tests
-        run: ./gradlew :engine:check :plugin:check :benchmarks:jmhJar
+        run: >-
+          ./gradlew
+          buildSrc:test
+          :engine:check
+          :plugin:check
+          :benchmarks:jmhJar
 
       - name: Collect Failed Test Reports
         if: ${{ failure() }}
@@ -76,6 +81,7 @@ jobs:
         with:
           name: tests-result
           path: |
+            ${{ github.workspace }}/buildSrc/build/reports/tests
             ${{ github.workspace }}/engine/build/reports/tests
             ${{ github.workspace }}/plugin/build/reports/tests
 
