@@ -92,7 +92,12 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
             )
         }
 
-        val pass = BracketGuideHighlightingPass(project, editor, file.fileType)
+        val pass = BracketGuideHighlightingPass(
+            project,
+            editor,
+            file.fileType,
+            file.virtualFile,
+        )
         editor.caretModel.moveToOffset(firstTokens.offsetAt(0) + 1)
         inReadAction {
             pass.doCollectInformation(EmptyProgressIndicator())

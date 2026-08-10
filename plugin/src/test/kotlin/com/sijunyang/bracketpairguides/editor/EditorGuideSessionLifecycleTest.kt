@@ -47,7 +47,11 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
             project = project,
             editor = editor,
             fileType = myFixture.file.fileType,
+            sourceFile = myFixture.file.virtualFile,
             analyze = fakeAnalysis::analyze,
+            visibleRange = { current ->
+                TextRange(0, current.document.textLength)
+            },
         )
         ReadAction.compute<Unit, RuntimeException> {
             pass.doCollectInformation(EmptyProgressIndicator())
@@ -162,7 +166,11 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
             project = project,
             editor = editor,
             fileType = myFixture.file.fileType,
+            sourceFile = myFixture.file.virtualFile,
             analyze = fakeAnalysis::analyze,
+            visibleRange = { current ->
+                TextRange(0, current.document.textLength)
+            },
         )
         ReadAction.compute<Unit, RuntimeException> {
             pass.doCollectInformation(EmptyProgressIndicator())

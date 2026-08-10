@@ -22,6 +22,7 @@ internal class SnapshotAssembly(
     private val documentBrackets: DocumentBrackets,
     private val progress: ProgressIndicator,
     private val canonicalIndexes: (
+        AnalysisInput,
         IndexLayout,
         PairTable,
         BracketIndexes,
@@ -29,7 +30,8 @@ internal class SnapshotAssembly(
 ) {
     fun snapshot(): AnalysisOutcome {
         val stamp = input.stamp
-        val layout = IndexLayout.forCoverage(stamp.coverage)
+        var snapshotInput = input
+        var layout = IndexLayout.forCoverage(stamp.coverage)
         if (!stamp.coverage.pairs) return complete(emptySnapshot(layout))
 
         val pairs = when (val state = documentBrackets.pairs(progress)) {
@@ -38,20 +40,19 @@ internal class SnapshotAssembly(
         }
         if (pairs.isEmpty) return complete(emptySnapshot(layout))
 
-        val guideEnvelope = if (layout.guidePosition) {
+        var guideEnvelope = if (layout.guidePosition) {
             guideEnvelope(pairs)
         } else {
             null
         }
-        val guideShape = guideEnvelope?.let { envelope ->
-            GuideIndexShape.forLineCount(envelope.lineCount())
-                ?: return unavailable(AnalysisLimit.WORKING_MEMORY)
+        val omittedGuide = guideEnvelope?.let { envelope ->
+            GuideIndexShape.forLineCount(envelope.lineCount()) == null
+        } == true
+        if (omittedGuide) {
+            snapshotInput = input.withCoverage(input.coverage.withoutGuidePosition())
+            layout = IndexLayout.forCoverage(snapshotInput.coverage)
+            guideEnvelope = null
         }
-        AnalysisBudget.limitAt(
-            pairCount = pairs.size(),
-            layout = layout,
-            guidePayloadBytes = guideShape?.payloadBytes ?: 0L,
-        )?.let { limit -> return unavailable(limit) }
 
         val activeIndex = if (layout.activePair) {
             ActiveBracketPairIndex.build(pairs, progress::checkCanceled)
@@ -92,12 +93,19 @@ internal class SnapshotAssembly(
             activePairs = activeIndex,
             guidePositions = positionIndex,
         )
-        return complete(
-            IndexedBracketSnapshot(
-                stamp = stamp,
-                indexes = canonicalIndexes(layout, pairs, indexes),
-            ),
+        val snapshot = IndexedBracketSnapshot(
+            stamp = snapshotInput.stamp,
+            indexes = canonicalIndexes(snapshotInput, layout, pairs, indexes),
         )
+        return if (omittedGuide) {
+            AnalysisOutcome.Limited(
+                stamp = stamp,
+                snapshot = snapshot,
+                limit = AnalysisLimit.GUIDE_CAPACITY,
+            )
+        } else {
+            complete(snapshot)
+        }
     }
 
     private fun guideEnvelope(pairs: PairTable): GuideLineEnvelope? {
@@ -129,7 +137,7 @@ internal class SnapshotAssembly(
         )
         return IndexedBracketSnapshot(
             stamp = input.stamp,
-            indexes = canonicalIndexes(layout, pairs, indexes),
+            indexes = canonicalIndexes(input, layout, pairs, indexes),
         )
     }
 }

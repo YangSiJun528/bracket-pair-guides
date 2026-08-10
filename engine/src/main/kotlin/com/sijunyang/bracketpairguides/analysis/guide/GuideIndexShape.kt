@@ -5,13 +5,12 @@ internal class GuideIndexShape private constructor(
     val indentationEntryCount: Int,
     val blockLeafCount: Int,
     val blockTreeEntryCount: Int,
-    val payloadBytes: Long,
 ) {
     companion object {
         /**
          * Plans one indentation integer per line and a power-of-two minimum
-         * tree whose leaves summarize 256-line blocks. The combined primitive
-         * array payload never crosses 16 MiB.
+         * tree whose leaves summarize 256-line blocks. The combined retained
+         * primitive-array payload never crosses 4 MiB.
          */
         fun forLineCount(lineCount: Int): GuideIndexShape? {
             if (lineCount < 0) return null
@@ -39,12 +38,11 @@ internal class GuideIndexShape private constructor(
                 indentationEntryCount = lineCount,
                 blockLeafCount = blockLeafCount.toInt(),
                 blockTreeEntryCount = blockTreeEntryCount.toInt(),
-                payloadBytes = payloadBytes,
             )
         }
 
         internal const val LINES_PER_BLOCK: Int = 256
         private const val TREE_ENTRIES_PER_LEAF = 2L
-        internal const val MAXIMUM_INDEX_PAYLOAD_BYTES: Long = 16L * 1024 * 1024
+        private const val MAXIMUM_INDEX_PAYLOAD_BYTES: Long = 4L * 1024 * 1024
     }
 }

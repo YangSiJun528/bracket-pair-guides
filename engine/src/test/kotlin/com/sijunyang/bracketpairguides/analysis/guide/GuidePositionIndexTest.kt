@@ -140,23 +140,15 @@ class GuidePositionIndexTest {
 
     @Test
     fun `blocked shape enforces the combined array memory boundary`() {
-        val formerBoundary = 1_048_576
-        val exactBoundary = 4_128_768
+        val exactBoundary = 1_032_192
 
         assertNotNull(GuideIndexShape.forLineCount(1))
         assertNotNull(GuideIndexShape.forLineCount(1_000_000))
-        assertNotNull(GuideIndexShape.forLineCount(formerBoundary))
-        assertNotNull(GuideIndexShape.forLineCount(formerBoundary + 1))
-        assertNotNull(GuideIndexShape.forLineCount(4_000_000))
 
         val boundaryShape = checkNotNull(GuideIndexShape.forLineCount(exactBoundary))
         assertEquals(exactBoundary, boundaryShape.indentationEntryCount)
-        assertEquals(16_384, boundaryShape.blockLeafCount)
-        assertEquals(32_768, boundaryShape.blockTreeEntryCount)
-        assertEquals(
-            GuideIndexShape.MAXIMUM_INDEX_PAYLOAD_BYTES,
-            boundaryShape.payloadBytes,
-        )
+        assertEquals(4_096, boundaryShape.blockLeafCount)
+        assertEquals(8_192, boundaryShape.blockTreeEntryCount)
         assertNull(GuideIndexShape.forLineCount(exactBoundary + 1))
     }
 

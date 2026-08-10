@@ -25,6 +25,11 @@ internal class BracketGuideHighlighting :
         file: PsiFile,
         editor: Editor,
     ): TextEditorHighlightingPass {
-        return BracketGuideHighlightingPass(file.project, editor, file.fileType)
+        return BracketGuideHighlightingPass(
+            project = file.project,
+            editor = editor,
+            fileType = file.fileType,
+            sourceFile = file.virtualFile,
+        )
     }
 }

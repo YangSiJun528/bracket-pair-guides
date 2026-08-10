@@ -24,9 +24,10 @@ public final class com/sijunyang/bracketpairguides/analysis/AnalysisInput {
 }
 
 public final class com/sijunyang/bracketpairguides/analysis/AnalysisLimit : java/lang/Enum {
+	public static final field GUIDE_CAPACITY Lcom/sijunyang/bracketpairguides/analysis/AnalysisLimit;
+	public static final field IDE_CODE_INSIGHT_FILE_SIZE Lcom/sijunyang/bracketpairguides/analysis/AnalysisLimit;
 	public static final field PAIR_CAPACITY Lcom/sijunyang/bracketpairguides/analysis/AnalysisLimit;
 	public static final field PENDING_OPEN_CAPACITY Lcom/sijunyang/bracketpairguides/analysis/AnalysisLimit;
-	public static final field WORKING_MEMORY Lcom/sijunyang/bracketpairguides/analysis/AnalysisLimit;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lcom/sijunyang/bracketpairguides/analysis/AnalysisLimit;
 	public static fun values ()[Lcom/sijunyang/bracketpairguides/analysis/AnalysisLimit;
@@ -38,6 +39,13 @@ public abstract interface class com/sijunyang/bracketpairguides/analysis/Analysi
 
 public final class com/sijunyang/bracketpairguides/analysis/AnalysisOutcome$Complete : com/sijunyang/bracketpairguides/analysis/AnalysisOutcome {
 	public fun <init> (Lcom/sijunyang/bracketpairguides/analysis/BracketSnapshot;)V
+	public final fun getSnapshot ()Lcom/sijunyang/bracketpairguides/analysis/BracketSnapshot;
+	public fun getStamp ()Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp;
+}
+
+public final class com/sijunyang/bracketpairguides/analysis/AnalysisOutcome$Limited : com/sijunyang/bracketpairguides/analysis/AnalysisOutcome {
+	public fun <init> (Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp;Lcom/sijunyang/bracketpairguides/analysis/BracketSnapshot;Lcom/sijunyang/bracketpairguides/analysis/AnalysisLimit;)V
+	public final fun getLimit ()Lcom/sijunyang/bracketpairguides/analysis/AnalysisLimit;
 	public final fun getSnapshot ()Lcom/sijunyang/bracketpairguides/analysis/BracketSnapshot;
 	public fun getStamp ()Lcom/sijunyang/bracketpairguides/analysis/AnalysisStamp;
 }

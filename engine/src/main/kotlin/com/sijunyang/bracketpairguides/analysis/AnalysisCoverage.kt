@@ -22,4 +22,7 @@ public data class AnalysisCoverage(
         (!required.tokens || tokens) &&
             (!required.activePair || activePair) &&
             (!required.guidePosition || guidePosition)
+
+    internal fun withoutGuidePosition(): AnalysisCoverage =
+        if (guidePosition) copy(guidePosition = false) else this
 }

@@ -13,7 +13,7 @@ import org.openjdk.jmh.annotations.State;
 
 @State(Scope.Thread)
 public class PairingMachineBenchmark {
-    @Param({"32768", "200000"})
+    @Param({"32768", "100000", "200000"})
     public int pairCount;
 
     private Token[] tokens;

@@ -4,6 +4,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileTypes.FileType
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.BracketSnapshot
 
@@ -15,7 +16,7 @@ internal class EditorAnalysisState(
     private var acceptedStamp: AnalysisStamp? = null
 
     @Volatile
-    private var unavailableStamp: AnalysisStamp? = null
+    private var refusal: AnalysisRefusal? = null
 
     var snapshot: BracketSnapshot? = null
 
@@ -26,17 +27,35 @@ internal class EditorAnalysisState(
 
     fun accept(stamp: AnalysisStamp) {
         acceptedStamp = stamp
-        unavailableStamp = null
+        if (refusal?.stamp?.let(stamp::covers) == true) {
+            refusal = null
+        }
     }
 
-    fun refuse(stamp: AnalysisStamp) {
+    fun acceptLimited(
+        completedStamp: AnalysisStamp,
+        attemptedStamp: AnalysisStamp,
+    ) {
+        acceptedStamp = completedStamp
+        refusal = AnalysisRefusal(
+            stamp = attemptedStamp,
+            limit = AnalysisLimit.GUIDE_CAPACITY,
+            completedStamp = completedStamp,
+        )
+    }
+
+    fun refuse(stamp: AnalysisStamp, limit: AnalysisLimit) {
         acceptedStamp = null
-        unavailableStamp = stamp
+        refusal = AnalysisRefusal(stamp, limit)
+    }
+
+    fun forgetCompletion() {
+        acceptedStamp = null
     }
 
     fun forgetAcceptance() {
         acceptedStamp = null
-        unavailableStamp = null
+        refusal = null
     }
 
     fun discardStale(
@@ -62,17 +81,16 @@ internal class EditorAnalysisState(
         ) {
             acceptedStamp = null
         }
-        if (unavailableStamp?.let { stamp ->
-                stamp.coverage != requiredCoverage ||
-                    !stamp.matchesCurrent(
-                        editor,
-                        fileType,
-                        requiredCoverage,
-                        disabledLanguageIds,
-                    )
+        if (refusal?.stamp?.let { stamp ->
+                !stamp.matchesCurrent(
+                    editor,
+                    fileType,
+                    stamp.coverage,
+                    disabledLanguageIds,
+                )
             } == true
         ) {
-            unavailableStamp = null
+            refusal = null
         }
     }
 
@@ -87,15 +105,14 @@ internal class EditorAnalysisState(
         disabledLanguageIds = disabledLanguageIds,
     ).stamp
 
-    fun isCurrent(
+    fun hasCurrentActivePair(
         candidate: BracketSnapshot,
         fileType: FileType,
-        coverage: AnalysisCoverage,
         disabledLanguageIds: Set<String>,
     ): Boolean = candidate.stamp.matchesCurrent(
         editor,
         fileType,
-        coverage,
+        ACTIVE_PAIR_COVERAGE,
         disabledLanguageIds,
     )
 
@@ -117,20 +134,53 @@ internal class EditorAnalysisState(
         !required.activePair &&
         provided.activePair
 
-    fun covers(required: AnalysisStamp): Boolean =
-        acceptedStamp?.covers(required) == true ||
-            unavailableStamp?.let { refused ->
-                refused.coverage == required.coverage && refused.covers(required)
-            } == true
+    fun covers(
+        required: AnalysisStamp,
+        includeIdeSizeRefusal: Boolean = true,
+    ): Boolean {
+        val completed = acceptedStamp
+        if (completed?.covers(required) == true) return true
+        val rejected = refusal ?: return false
+        if (rejected.limit == AnalysisLimit.IDE_CODE_INSIGHT_FILE_SIZE &&
+            !includeIdeSizeRefusal
+        ) {
+            return false
+        }
+        if (rejected.stamp.coverage != required.coverage ||
+            !rejected.stamp.covers(required)
+        ) {
+            return false
+        }
+        val requiredCompletion = rejected.completedStamp ?: return true
+        return completed?.covers(requiredCompletion) == true
+    }
 
     fun hasCompleted(required: AnalysisStamp): Boolean =
         acceptedStamp?.covers(required) == true
 
+    fun hasRefused(required: AnalysisStamp, limit: AnalysisLimit): Boolean =
+        refusal?.let { rejected ->
+            rejected.limit == limit &&
+                rejected.stamp.coverage == required.coverage &&
+                rejected.stamp.covers(required)
+        } == true
+
     private companion object {
+        private val ACTIVE_PAIR_COVERAGE = AnalysisCoverage(
+            tokens = false,
+            activePair = true,
+            guidePosition = false,
+        )
         private val TOKEN_COVERAGE = AnalysisCoverage(
             tokens = true,
             activePair = false,
             guidePosition = false,
         )
     }
+
+    private data class AnalysisRefusal(
+        val stamp: AnalysisStamp,
+        val limit: AnalysisLimit,
+        val completedStamp: AnalysisStamp? = null,
+    )
 }

@@ -10,7 +10,10 @@ import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.SingleRootFileViewProvider
 import com.sijunyang.bracketpairguides.analysis.AnalysisOutcome
+import com.sijunyang.bracketpairguides.analysis.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.BracketAnalysis
@@ -30,6 +33,8 @@ internal class BracketGuideHighlightingPass(
     project: Project,
     private val editor: Editor,
     private val fileType: FileType,
+    private val sourceFile: VirtualFile? = FileDocumentManager.getInstance()
+        .getFile(editor.document),
     private val analyze: (AnalysisInput, ProgressIndicator) -> AnalysisOutcome,
     private val visibleRange: (Editor) -> TextRange = Editor::calculateVisibleRange,
 ) : TextEditorHighlightingPass(project, editor.document, false) {
@@ -42,10 +47,16 @@ internal class BracketGuideHighlightingPass(
         }
     }
 
-    constructor(project: Project, editor: Editor, fileType: FileType) : this(
+    constructor(
+        project: Project,
+        editor: Editor,
+        fileType: FileType,
+        sourceFile: VirtualFile?,
+    ) : this(
         project = project,
         editor = editor,
         fileType = fileType,
+        sourceFile = sourceFile,
         analyze = service<BracketAnalysis>()::analyze,
     )
 
@@ -54,7 +65,21 @@ internal class BracketGuideHighlightingPass(
         collectedStamp = null
         val input = currentInput()
         collectedStamp = input.stamp
-        if (EditorGuideSessions.hasAcceptedAnalysis(editor, input.stamp)) return
+        if (sourceIsTooLarge()) {
+            collected = AnalysisOutcome.Unavailable(
+                input.stamp,
+                AnalysisLimit.IDE_CODE_INSIGHT_FILE_SIZE,
+            )
+            return
+        }
+        if (EditorGuideSessions.hasAcceptedAnalysis(
+                editor,
+                input.stamp,
+                includeIdeSizeRefusal = false,
+            )
+        ) {
+            return
+        }
         collected = analyze(input, progress)
     }
 
@@ -63,9 +88,29 @@ internal class BracketGuideHighlightingPass(
         val passStamp = collectedStamp
         collected = null
         collectedStamp = null
+        val ideCodeInsightLimitApplies = sourceIsTooLarge()
+        if (ideCodeInsightLimitApplies) {
+            if (editor.isDisposed) return
+            val currentStamp = currentInput(editorFileType(editor)).stamp
+            val session = installSession() ?: return
+            session.updateDependenciesIfCurrent(
+                visibleRange = visibleRange,
+                passStamp = currentStamp,
+            )
+            session.acceptUnavailable(
+                currentStamp,
+                AnalysisLimit.IDE_CODE_INSIGHT_FILE_SIZE,
+            )
+            return
+        }
+        val collectedIdeSizeRefusal = result is AnalysisOutcome.Unavailable &&
+            result.limit == AnalysisLimit.IDE_CODE_INSIGHT_FILE_SIZE
+        val effectiveResult = result.takeUnless { collectedIdeSizeRefusal }
         if (editor.isDisposed || passStamp?.let { stamp ->
-                when (result) {
-                    is AnalysisOutcome.Unavailable -> isExactCurrent(stamp)
+                when {
+                    collectedIdeSizeRefusal -> isExactCurrent(stamp)
+                    effectiveResult is AnalysisOutcome.Limited ||
+                        effectiveResult is AnalysisOutcome.Unavailable -> isExactCurrent(stamp)
                     else -> isCurrent(stamp)
                 }
             } == false
@@ -79,18 +124,25 @@ internal class BracketGuideHighlightingPass(
                 passStamp = passStamp,
             )
         }
-        when (result) {
-            is AnalysisOutcome.Complete -> session.accept(result.snapshot)
-            is AnalysisOutcome.Unavailable -> session.acceptUnavailable(result.stamp)
+        when (effectiveResult) {
+            is AnalysisOutcome.Complete -> session.accept(effectiveResult.snapshot)
+            is AnalysisOutcome.Limited -> session.acceptLimited(
+                effectiveResult.snapshot,
+                effectiveResult.stamp,
+            )
+            is AnalysisOutcome.Unavailable -> session.acceptUnavailable(
+                effectiveResult.stamp,
+                effectiveResult.limit,
+            )
             null -> Unit
         }
     }
 
-    private fun currentInput(): AnalysisInput {
+    private fun currentInput(currentFileType: FileType = fileType): AnalysisInput {
         val options = BracketGuideSettings.getInstance().options
         return AnalysisInput(
             editor = editor,
-            fileType = fileType,
+            fileType = currentFileType,
             coverage = options.analysisCoverage(),
             disabledLanguageIds = options.disabledLanguageIds,
         )
@@ -117,6 +169,20 @@ internal class BracketGuideHighlightingPass(
                 options.disabledLanguageIds,
             )
     }
+
+    private fun sourceIsTooLarge(): Boolean =
+        sourceFile?.let { file ->
+            if (FileDocumentManager.getInstance().isDocumentUnsaved(editor.document)) {
+                // IntelliJ's document-commit path uses textLength for current
+                // in-memory content; saved content keeps VirtualFile byte size.
+                SingleRootFileViewProvider.isTooLargeForIntelligence(
+                    file,
+                    editor.document.textLength.toLong(),
+                )
+            } else {
+                SingleRootFileViewProvider.isTooLargeForIntelligence(file)
+            }
+        } == true
 
     private fun installSession(): EditorGuideSession? {
         if (editor.isDisposed) return null

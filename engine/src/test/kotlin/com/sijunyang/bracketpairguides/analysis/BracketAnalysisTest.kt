@@ -132,15 +132,126 @@ class BracketAnalysisTest : BasePlatformTestCase() {
 
         val outcome: AnalysisOutcome = AnalysisOutcome.Unavailable(
             request.stamp,
-            AnalysisLimit.WORKING_MEMORY,
+            AnalysisLimit.PAIR_CAPACITY,
         )
 
         assertSame(request.stamp, outcome.stamp)
         assertEquals(
-            AnalysisLimit.WORKING_MEMORY,
+            AnalysisLimit.PAIR_CAPACITY,
             (outcome as AnalysisOutcome.Unavailable).limit,
         )
         assertFalse(outcome is AnalysisOutcome.Complete)
+    }
+
+    fun testProductPairCapacityAcceptsTheBoundaryAndRejectsTheNextPair() {
+        val exactSource = buildString(200_020) {
+            append("class Dense {")
+            repeat(99_999) { append("{}") }
+            append('}')
+        }
+        myFixture.configureByText("ExactPairCapacity.java", exactSource)
+
+        val exact = analyzeCurrentTokens()
+
+        assertTrue(exact is AnalysisOutcome.Complete)
+
+        val overflowSource = buildString(200_022) {
+            append("class Dense {")
+            repeat(100_000) { append("{}") }
+            append('}')
+        }
+        myFixture.configureByText("ExceededPairCapacity.java", overflowSource)
+
+        val overflow = analyzeCurrentTokens()
+
+        assertTrue(overflow is AnalysisOutcome.Unavailable)
+        assertEquals(
+            AnalysisLimit.PAIR_CAPACITY,
+            (overflow as AnalysisOutcome.Unavailable).limit,
+        )
+    }
+
+    fun testProductPendingOpenCapacityAcceptsTheBoundaryAndRejectsTheNextOpen() {
+        myFixture.configureByText(
+            "ExactPendingCapacity.java",
+            "class Pending " + "{".repeat(50_000),
+        )
+
+        val exact = analyzeCurrentTokens()
+
+        assertTrue(exact is AnalysisOutcome.Complete)
+
+        myFixture.configureByText(
+            "ExceededPendingCapacity.java",
+            "class Pending " + "{".repeat(50_001),
+        )
+
+        val overflow = analyzeCurrentTokens()
+
+        assertTrue(overflow is AnalysisOutcome.Unavailable)
+        assertEquals(
+            AnalysisLimit.PENDING_OPEN_CAPACITY,
+            (overflow as AnalysisOutcome.Unavailable).limit,
+        )
+    }
+
+    fun testGuideCapacityKeepsExactPairAndTokenIndexesWithoutPublishingAGuide() {
+        val guideLineCount = 1_032_193
+        val source = buildString(guideLineCount + 20) {
+            append("class Huge {\n")
+            repeat(guideLineCount - 1) { append('\n') }
+            append('}')
+        }
+        myFixture.configureByText("Huge.java", source)
+        val input = request(
+            AnalysisCoverage(
+                tokens = true,
+                activePair = true,
+                guidePosition = true,
+            ),
+        )
+        val replacementHighlighter = EditorHighlighterFactory.getInstance()
+            .createEditorHighlighter(project, PlainTextFileType.INSTANCE)
+        var highlighterReplaced = false
+        val progressDelegate = EmptyProgressIndicator()
+        val replacingProgress = object : ProgressIndicator by progressDelegate {
+            override fun checkCanceled() {
+                if (!highlighterReplaced) {
+                    highlighterReplaced = true
+                    (myFixture.editor as EditorEx).setHighlighter(replacementHighlighter)
+                }
+                progressDelegate.checkCanceled()
+            }
+        }
+
+        val outcome = inReadAction {
+            BracketAnalysis().analyze(input, replacingProgress)
+        }
+
+        assertTrue(highlighterReplaced)
+        assertTrue(outcome is AnalysisOutcome.Limited)
+        val limited = outcome as AnalysisOutcome.Limited
+        assertSame(input.stamp, limited.stamp)
+        assertEquals(AnalysisLimit.GUIDE_CAPACITY, limited.limit)
+        assertEquals(
+            input.coverage.copy(guidePosition = false),
+            limited.snapshot.stamp.coverage,
+        )
+        assertTrue(input.stamp.covers(limited.snapshot.stamp))
+        assertFalse(
+            request(input.coverage.copy(guidePosition = false)).stamp
+                .covers(limited.snapshot.stamp),
+        )
+        val pair = checkNotNull(limited.snapshot.activePairAt(source.indexOf('\n') + 1))
+        assertNull(limited.snapshot.guideFor(pair))
+        assertEquals(
+            2,
+            limited.snapshot.visibleTokens(
+                TextRange(0, source.length),
+                pair.openOffset,
+                10,
+            ).size,
+        )
     }
 
     fun testLanguageFamilyDefensivelyCopiesMemberNames() {
@@ -315,6 +426,19 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         coverage = coverage,
         disabledLanguageIds = emptySet(),
     )
+
+    private fun analyzeCurrentTokens(): AnalysisOutcome = inReadAction {
+        BracketAnalysis().analyze(
+            request(
+                AnalysisCoverage(
+                    tokens = true,
+                    activePair = false,
+                    guidePosition = false,
+                ),
+            ),
+            EmptyProgressIndicator(),
+        )
+    }
 
     private fun complete(outcome: AnalysisOutcome): BracketSnapshot {
         assertTrue("Expected complete analysis, got ${outcome.javaClass.simpleName}", outcome is AnalysisOutcome.Complete)

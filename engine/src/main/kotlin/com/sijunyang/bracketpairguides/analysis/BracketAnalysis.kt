@@ -29,9 +29,9 @@ public class BracketAnalysis {
             input = input,
             documentBrackets = documentBrackets,
             progress = progress,
-            canonicalIndexes = { layout, pairs, indexes ->
+            canonicalIndexes = { snapshotInput, layout, pairs, indexes ->
                 documentIndexes.canonical(
-                    input = input,
+                    input = snapshotInput,
                     layout = layout,
                     pairs = pairs,
                     candidate = indexes,

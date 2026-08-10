@@ -1,6 +1,7 @@
 package com.sijunyang.bracketpairguides.editor
 
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
+import com.sijunyang.bracketpairguides.analysis.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.BracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
@@ -104,6 +105,7 @@ internal class EditorGuideSession(
         replaceActive(
             pair = pair,
             indexedGuide = pair?.let(nextAnalysis::guideFor),
+            allowGuideFallback = false,
         )
         tokenDecorationState = tokenDecorationState.replace(
             editor,
@@ -116,15 +118,64 @@ internal class EditorGuideSession(
                 nextAnalysis.stamp.coverage,
             )
         ) {
-            analysisState.forgetAcceptance()
+            analysisState.forgetCompletion()
         } else {
             analysisState.accept(nextAnalysis.stamp)
         }
         editor.contentComponent.repaint()
     }
 
+    /** Publishes exact lower facets after the requested guide index crosses its cap. */
+    fun acceptLimited(
+        nextAnalysis: BracketSnapshot,
+        attemptedStamp: AnalysisStamp,
+    ): Unit {
+        assertEdt()
+        if (disposed || editor.isDisposed) return
+        val requiredCoverage = options.analysisCoverage()
+        val completedCoverage = requiredCoverage.copy(guidePosition = false)
+        val currentFileType = editorFileType(editor)
+        if (attemptedStamp.coverage != requiredCoverage ||
+            !attemptedStamp.matchesCurrent(
+                editor,
+                currentFileType,
+                requiredCoverage,
+                options.disabledLanguageIds,
+            ) ||
+            nextAnalysis.stamp.coverage != completedCoverage ||
+            !nextAnalysis.stamp.matchesCurrent(
+                editor,
+                currentFileType,
+                nextAnalysis.stamp.coverage,
+                options.disabledLanguageIds,
+            )
+        ) {
+            return
+        }
+        if (analysisState.hasCompleted(attemptedStamp)) return
+
+        analysisState.snapshot = nextAnalysis
+        val pair = nextAnalysis.activePairAt(caretOffset())
+        replaceActive(
+            pair = pair,
+            indexedGuide = null,
+            allowGuideFallback = false,
+        )
+        tokenDecorationState = tokenDecorationState.replace(
+            editor,
+            nextAnalysis,
+            visibleRange(editor),
+            options,
+        )
+        analysisState.acceptLimited(nextAnalysis.stamp, attemptedStamp)
+        editor.contentComponent.repaint()
+    }
+
     /** Accepts a bounded analysis refusal without publishing a partial snapshot. */
-    fun acceptUnavailable(stamp: AnalysisStamp): Unit {
+    fun acceptUnavailable(
+        stamp: AnalysisStamp,
+        limit: AnalysisLimit,
+    ): Unit {
         assertEdt()
         if (disposed || editor.isDisposed) return
         val requiredCoverage = options.analysisCoverage()
@@ -137,9 +188,13 @@ internal class EditorGuideSession(
         ) {
             return
         }
-        if (analysisState.hasCompleted(stamp)) return
+        if (limit == AnalysisLimit.IDE_CODE_INSIGHT_FILE_SIZE) {
+            if (analysisState.hasRefused(stamp, limit)) return
+        } else if (analysisState.hasCompleted(stamp)) {
+            return
+        }
         clear()
-        analysisState.refuse(stamp)
+        analysisState.refuse(stamp, limit)
         editor.contentComponent.repaint()
     }
 
@@ -148,7 +203,7 @@ internal class EditorGuideSession(
         if (disposed || editor.isDisposed) return
         if (!options.analysisCoverage().activePair) return
         val currentAnalysis = analysisState.snapshot
-        if (currentAnalysis == null || !isCurrent(currentAnalysis)) {
+        if (currentAnalysis == null || !hasCurrentActivePair(currentAnalysis)) {
             updateProvisional()
             return
         }
@@ -158,6 +213,7 @@ internal class EditorGuideSession(
         replaceActive(
             pair = pair,
             indexedGuide = pair?.let(currentAnalysis::guideFor),
+            allowGuideFallback = allowsProvisionalGuide(currentAnalysis),
         )
         editor.contentComponent.repaint()
     }
@@ -213,7 +269,7 @@ internal class EditorGuideSession(
             candidate.stamp.matchesCurrent(
                 editor,
                 currentFileType,
-                requiredCoverage,
+                candidate.stamp.coverage,
                 options.disabledLanguageIds,
             )
         }
@@ -226,13 +282,16 @@ internal class EditorGuideSession(
             refreshColors,
         )
 
-        val pair = currentAnalysis
-            ?.takeIf { requiredCoverage.activePair }
+        val currentPairAnalysis = currentAnalysis
+            ?.takeIf { requiredCoverage.activePair && it.stamp.coverage.activePair }
+        val pair = currentPairAnalysis
             ?.activePairAt(caretOffset())
             ?: trackedPair.adjusted
         replaceActive(
             pair = pair,
-            indexedGuide = pair?.let { currentAnalysis?.guideFor(it) },
+            indexedGuide = pair?.let { currentPairAnalysis?.guideFor(it) },
+            allowGuideFallback = currentPairAnalysis == null ||
+                allowsProvisionalGuide(currentPairAnalysis),
         )
         if (pair == null &&
             currentAnalysis == null &&
@@ -242,8 +301,14 @@ internal class EditorGuideSession(
             return
         }
         if (releasePairGraph) {
-            analysisState.forgetAcceptance()
-        } else if (currentAnalysis != null) {
+            analysisState.forgetCompletion()
+        } else if (currentAnalysis?.stamp?.matchesCurrent(
+                editor,
+                currentFileType,
+                requiredCoverage,
+                options.disabledLanguageIds,
+            ) == true
+        ) {
             analysisState.accept(currentAnalysis.stamp)
         }
         editor.contentComponent.repaint()
@@ -286,7 +351,10 @@ internal class EditorGuideSession(
     }
 
     /** Thread-safe acceptance query used by background highlighting passes. */
-    fun hasAcceptedAnalysis(required: AnalysisStamp): Boolean = analysisState.covers(required)
+    fun hasAcceptedAnalysis(
+        required: AnalysisStamp,
+        includeIdeSizeRefusal: Boolean = true,
+    ): Boolean = analysisState.covers(required, includeIdeSizeRefusal)
 
     /** Avoids touching editor markup when the application is already shutting down. */
     fun forgetAcceptedAnalysis(): Unit {
@@ -341,6 +409,7 @@ internal class EditorGuideSession(
     private fun replaceActive(
         pair: BracketPair?,
         indexedGuide: BracketGuide?,
+        allowGuideFallback: Boolean,
     ) {
         val previousGuide = currentGuide()
         val currentAnchorLine = trackedPair.anchorLine
@@ -358,6 +427,7 @@ internal class EditorGuideSession(
             indexedGuide,
             previousGuide,
             currentAnchorLine,
+            allowGuideFallback,
         )
         trackedPair.track(pair, guide)
         updateGuide(guide)
@@ -373,18 +443,23 @@ internal class EditorGuideSession(
         indexedGuide: BracketGuide?,
         previousGuide: BracketGuide?,
         currentAnchorLine: Int?,
+        allowGuideFallback: Boolean,
     ): BracketGuide? {
         if (!options.enabled || !options.showsGuide) return null
         if (pair.openLine == pair.closeLine) return BracketGuide(pair, 0)
         // A tracked pair can outlive its snapshot during edits and settings
         // transitions. Keep that provisional presentation bounded until the
         // background pass publishes an exact guide index.
-        return indexedGuide ?: GuidePositionFallback.guideFor(
-            editor,
-            pair,
-            previousGuide,
-            currentAnchorLine,
-        )
+        return indexedGuide ?: if (allowGuideFallback) {
+            GuidePositionFallback.guideFor(
+                editor,
+                pair,
+                previousGuide,
+                currentAnchorLine,
+            )
+        } else {
+            null
+        }
     }
 
     private fun clearActive(preserveGuide: Boolean) {
@@ -418,11 +493,10 @@ internal class EditorGuideSession(
         options.disabledLanguageIds,
     )
 
-    private fun isCurrent(candidate: BracketSnapshot): Boolean =
-        analysisState.isCurrent(
+    private fun hasCurrentActivePair(candidate: BracketSnapshot): Boolean =
+        analysisState.hasCurrentActivePair(
             candidate,
             editorFileType(editor),
-            options.analysisCoverage(),
             options.disabledLanguageIds,
         )
 
@@ -432,6 +506,14 @@ internal class EditorGuideSession(
             candidate,
             editorFileType(editor),
             options.disabledLanguageIds,
+        )
+    }
+
+    private fun allowsProvisionalGuide(candidate: BracketSnapshot): Boolean {
+        if (candidate.stamp.coverage.guidePosition) return false
+        return !analysisState.hasRefused(
+            currentStamp(),
+            AnalysisLimit.GUIDE_CAPACITY,
         )
     }
 
