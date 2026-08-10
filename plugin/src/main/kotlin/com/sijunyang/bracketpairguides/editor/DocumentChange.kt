@@ -4,11 +4,11 @@ import com.intellij.openapi.editor.event.DocumentEvent
 
 /** Immutable document-event data that remains safe if an EDT handoff is needed. */
 internal data class DocumentChange(
-    public val offset: Int,
-    public val mayAffectGuidePosition: Boolean,
+    val offset: Int,
+    val mayAffectGuidePosition: Boolean,
 ) {
-    public companion object {
-        public fun from(event: DocumentEvent): DocumentChange {
+    companion object {
+        fun from(event: DocumentEvent): DocumentChange {
             return DocumentChange(
                 offset = event.offset,
                 mayAffectGuidePosition =

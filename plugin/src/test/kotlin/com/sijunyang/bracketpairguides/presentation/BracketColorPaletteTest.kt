@@ -1,7 +1,7 @@
 package com.sijunyang.bracketpairguides.presentation
 
-import com.sijunyang.bracketpairguides.settings.PluginOptions
-import com.sijunyang.bracketpairguides.settings.StoredBracketColors
+import com.sijunyang.bracketpairguides.settings.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.settings.StoredColorFormat
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import java.awt.Color
@@ -10,12 +10,12 @@ class BracketColorPaletteTest : BasePlatformTestCase() {
     fun testBaseColorDrivesEveryComponentByDefaultAndDiffersByLevel() {
         myFixture.configureByText("Sample.java", "class Sample {}")
         val scheme = myFixture.editor.colorsScheme
-        val state = PluginOptions()
-        val baseColors = (0 until StoredBracketColors.COLOR_COUNT).map { depth ->
+        val state = BracketGuidePreferences()
+        val baseColors = (0 until StoredColorFormat.COLOR_COUNT).map { depth ->
             BracketColorPalette.baseColor(scheme, state, depth)
         }
 
-        assertEquals(StoredBracketColors.COLOR_COUNT, baseColors.toSet().size)
+        assertEquals(StoredColorFormat.COLOR_COUNT, baseColors.toSet().size)
         baseColors.forEachIndexed { depth, baseColor ->
             assertEquals(baseColor, BracketColorPalette.guideLineColor(scheme, state, depth))
             assertEquals(baseColor, BracketColorPalette.pairBorderColor(scheme, state, depth))
@@ -36,12 +36,12 @@ class BracketColorPaletteTest : BasePlatformTestCase() {
     fun testAdvancedColorsOverrideEachComponentIndependently() {
         myFixture.configureByText("Sample.java", "class Sample {}")
         val scheme = myFixture.editor.colorsScheme
-        val state = PluginOptions(
+        val state = BracketGuidePreferences(
             useIndependentComponentColors = true,
-            levelBaseColors = PluginOptions().levelBaseColors.updated(2, 0x102030),
-            guideLineColors = PluginOptions().guideLineColors.updated(2, 0x203040),
-            pairBorderColors = PluginOptions().pairBorderColors.updated(2, 0x304050),
-            pairBackgroundColors = PluginOptions().pairBackgroundColors.updated(2, 0x405060),
+            levelBaseColors = BracketGuidePreferences().levelBaseColors.updated(2, 0x102030),
+            guideLineColors = BracketGuidePreferences().guideLineColors.updated(2, 0x203040),
+            pairBorderColors = BracketGuidePreferences().pairBorderColors.updated(2, 0x304050),
+            pairBackgroundColors = BracketGuidePreferences().pairBackgroundColors.updated(2, 0x405060),
         )
 
         assertEquals(Color(0x102030), BracketColorPalette.baseColor(scheme, state, 2))
@@ -56,7 +56,7 @@ class BracketColorPaletteTest : BasePlatformTestCase() {
     fun testPairAttributesUseBoxBorderAndNamedBackgroundComponent() {
         myFixture.configureByText("Sample.java", "class Sample {}")
         val scheme = myFixture.editor.colorsScheme
-        val state = PluginOptions(
+        val state = BracketGuidePreferences(
             showActivePairBorder = true,
             showActivePairBackground = true,
         )
@@ -76,7 +76,7 @@ class BracketColorPaletteTest : BasePlatformTestCase() {
     fun testZeroPercentBackgroundDoesNotCoverOtherEditorHighlights() {
         myFixture.configureByText("Sample.java", "class Sample {}")
         val scheme = myFixture.editor.colorsScheme
-        val state = PluginOptions(
+        val state = BracketGuidePreferences(
             showActivePairBorder = true,
             showActivePairBackground = true,
             pairBackgroundOpacityPercent = 0,

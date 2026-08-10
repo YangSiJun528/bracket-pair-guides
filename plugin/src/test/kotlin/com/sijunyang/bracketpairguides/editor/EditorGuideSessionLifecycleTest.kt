@@ -1,11 +1,12 @@
 package com.sijunyang.bracketpairguides.editor
 
-import com.sijunyang.bracketpairguides.analysis.api.ActivePairResult
-import com.sijunyang.bracketpairguides.analysis.api.BracketPair
-import com.sijunyang.bracketpairguides.analysis.api.FakeBracketEngine
-import com.sijunyang.bracketpairguides.editor.highlighting.GuideLineHighlightingPass
-import com.sijunyang.bracketpairguides.settings.PluginOptions
-import com.sijunyang.bracketpairguides.settings.PluginSettings
+import com.sijunyang.bracketpairguides.analysis.ActivePairKnowledge
+import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.FakeBracketAnalysis
+import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPass
+import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
+import com.sijunyang.bracketpairguides.settings.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.EditorFactory
@@ -16,17 +17,16 @@ import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
+import org.junit.Assert.assertTrue
 
 class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
     override fun setUp() {
         super.setUp()
-        PluginSettings.getInstance().loadState(PluginOptions())
+        BracketGuideSettings.getInstance().loadState(BracketGuidePreferences())
     }
 
-    fun testHighlighterReplacementRejectsTheResolverFromThePreviousSemantics() {
+    fun testHighlighterReplacementRejectsTheSearchFromThePreviousSemantics() {
         val source = "class Sample { content }"
         myFixture.configureByText("Sample.java", source)
         val editor = myFixture.editor
@@ -40,22 +40,24 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
             closeLine = 0,
         )
         editor.caretModel.moveToOffset(source.indexOf("content"))
-        val engine = FakeBracketEngine(
-            pairProvider = { _, _ -> listOf(pair) },
-            activePairProvider = { ActivePairResult.Complete(pair) },
+        val fakeAnalysis = FakeBracketAnalysis(
+            pairs = { _, _ -> listOf(pair) },
+            activePair = { ActivePairKnowledge.Known(pair) },
         )
-        val pass = GuideLineHighlightingPass(
+        val pass = BracketGuideHighlightingPass(
             project = project,
             editor = editor,
-            engine = engine,
+            fileType = myFixture.file.fileType,
+            analyze = fakeAnalysis::analyze,
+            resolveActivePair = fakeAnalysis::resolveActivePair,
         )
         ReadAction.compute<Unit, RuntimeException> {
             pass.doCollectInformation(EmptyProgressIndicator())
         }
         pass.doApplyInformationToEditor()
-        val session = checkNotNull(EditorGuideSession.get(editor))
-        assertNotNull(session.activeGuide)
-        assertEquals(2, session.tokenDecorations.entries.size)
+        val session = checkNotNull(EditorGuideSessions.get(editor))
+        assertEquals(1, editor.observedBracketMarkup().guideMarks.size)
+        assertEquals(2, editor.observedBracketMarkup().tokenMarks.size)
 
         (editor as EditorEx).setHighlighter(
             EditorHighlighterFactory.getInstance()
@@ -63,77 +65,88 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         )
         session.visibleAreaChanged()
 
-        assertEquals(0, engine.activePairCallCount)
-        assertNull(session.activeGuide)
-        assertEquals(0, session.tokenDecorations.entries.size)
+        assertEquals(0, fakeAnalysis.activePairCallCount)
+        assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
 
         editor.caretModel.moveToOffset(source.indexOf("content") + 1)
-        assertEquals(0, engine.activePairCallCount)
+        assertEquals(0, fakeAnalysis.activePairCallCount)
     }
 
     fun testDocumentChangesSkipImmediateResolutionWithoutActivePresentation() {
         myFixture.configureByText("TokenOnly.txt", "{ value }")
         val editor = myFixture.editor
-        EditorGuideSession.dispose(editor)
-        val engine = FakeBracketEngine()
-        val session = EditorGuideSession.install(
+        EditorGuideSessions.dispose(editor)
+        val fakeAnalysis = FakeBracketAnalysis()
+        val session = EditorGuideSessions.install(
             editor = editor,
-            engine = engine,
-            visibleRangeProvider = { currentEditor ->
+            resolveActivePair = fakeAnalysis::resolveActivePair,
+            visibleRange = { currentEditor ->
                 TextRange(0, currentEditor.document.textLength)
             },
         )
         try {
-            session.updateOptions(PluginOptions(enabled = false))
-            session.documentChanged(DocumentChange(offset = 2, mayAffectGuidePosition = true))
+            session.updateOptions(
+                BracketGuidePreferences(enabled = false),
+                resolveImmediately = true,
+                refreshColors = false,
+            )
+            session.documentChanged(
+                DocumentChange(offset = 2, mayAffectGuidePosition = true),
+                resolveImmediately = true,
+            )
 
             session.updateOptions(
-                PluginOptions(
+                BracketGuidePreferences(
                     colorBracketTokens = true,
                     showActiveGuide = false,
                     showActivePairBorder = false,
                     showActivePairBackground = false,
                 ),
+                resolveImmediately = true,
+                refreshColors = false,
             )
-            session.documentChanged(DocumentChange(offset = 3, mayAffectGuidePosition = true))
+            session.documentChanged(
+                DocumentChange(offset = 3, mayAffectGuidePosition = true),
+                resolveImmediately = true,
+            )
 
-            assertEquals(0, engine.activePairCallCount)
-            assertNull(session.activeGuide)
-            assertEquals(0, session.activePairHighlights.size)
+            assertEquals(0, fakeAnalysis.activePairCallCount)
+            assertTrue(editor.observedBracketMarkup().guideMarks.isEmpty())
+            assertTrue(editor.observedBracketMarkup().activePairMarks.isEmpty())
         } finally {
-            EditorGuideSession.dispose(editor)
+            EditorGuideSessions.dispose(editor)
         }
     }
 
-    fun testSplitDocumentRunsOnlyOneImmediateResolver() {
+    fun testSplitDocumentRunsOnlyOneImmediateSearch() {
         val document = EditorFactory.getInstance().createDocument("{ value }")
         val firstEditor = EditorFactory.getInstance().createEditor(document, project)
         val secondEditor = EditorFactory.getInstance().createEditor(document, project)
-        val firstEngine = FakeBracketEngine()
-        val secondEngine = FakeBracketEngine()
+        val firstAnalysis = FakeBracketAnalysis()
+        val secondAnalysis = FakeBracketAnalysis()
         try {
-            EditorGuideSession.install(
+            EditorGuideSessions.install(
                 editor = firstEditor,
-                engine = firstEngine,
-                visibleRangeProvider = { TextRange(0, document.textLength) },
+                resolveActivePair = firstAnalysis::resolveActivePair,
+                visibleRange = { TextRange(0, document.textLength) },
             )
-            EditorGuideSession.install(
+            EditorGuideSessions.install(
                 editor = secondEditor,
-                engine = secondEngine,
-                visibleRangeProvider = { TextRange(0, document.textLength) },
+                resolveActivePair = secondAnalysis::resolveActivePair,
+                visibleRange = { TextRange(0, document.textLength) },
             )
 
-            EditorGuideEventRouter.routeDocumentChangeForTest(
+            DocumentChangeRoute.deliver(
                 editors = listOf(firstEditor, secondEditor),
                 change = DocumentChange(offset = 2, mayAffectGuidePosition = true),
-                immediateEditor = secondEditor,
+                foregroundEditor = secondEditor,
             )
 
-            assertEquals(0, firstEngine.activePairCallCount)
-            assertEquals(1, secondEngine.activePairCallCount)
+            assertEquals(0, firstAnalysis.activePairCallCount)
+            assertEquals(1, secondAnalysis.activePairCallCount)
         } finally {
-            EditorGuideSession.dispose(firstEditor)
-            EditorGuideSession.dispose(secondEditor)
+            EditorGuideSessions.dispose(firstEditor)
+            EditorGuideSessions.dispose(secondEditor)
             EditorFactory.getInstance().releaseEditor(firstEditor)
             EditorFactory.getInstance().releaseEditor(secondEditor)
         }
@@ -143,13 +156,13 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         myFixture.configureByText("MultipleCarets.txt", "{ first second }")
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(3)
-        val engine = FakeBracketEngine()
-        EditorGuideEventRouter.ensureInitialized()
-        EditorGuideSession.dispose(editor)
-        EditorGuideSession.install(
+        val fakeAnalysis = FakeBracketAnalysis()
+        EditorGuideEvents.ensureInitialized()
+        EditorGuideSessions.dispose(editor)
+        EditorGuideSessions.install(
             editor = editor,
-            engine = engine,
-            visibleRangeProvider = { TextRange(0, editor.document.textLength) },
+            resolveActivePair = fakeAnalysis::resolveActivePair,
+            visibleRange = { TextRange(0, editor.document.textLength) },
         )
         try {
             val addedCaret = checkNotNull(
@@ -159,64 +172,66 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
             val secondaryCaret = editor.caretModel.allCarets.single {
                 it !== editor.caretModel.primaryCaret
             }
-            val callsAfterPrimarySelection = engine.activePairCallCount
+            val callsAfterPrimarySelection = fakeAnalysis.activePairCallCount
 
             secondaryCaret.moveToOffset(6)
 
-            assertEquals(callsAfterPrimarySelection, engine.activePairCallCount)
+            assertEquals(callsAfterPrimarySelection, fakeAnalysis.activePairCallCount)
             editor.caretModel.primaryCaret.moveToOffset(10)
-            assertEquals(callsAfterPrimarySelection + 1, engine.activePairCallCount)
+            assertEquals(callsAfterPrimarySelection + 1, fakeAnalysis.activePairCallCount)
         } finally {
-            EditorGuideSession.dispose(editor)
+            EditorGuideSessions.dispose(editor)
         }
     }
 
     fun testBackgroundOptionRefreshSkipsImmediateResolution() {
         myFixture.configureByText("OptionRefresh.txt", "{ value }")
         val editor = myFixture.editor
-        val engine = FakeBracketEngine()
-        EditorGuideSession.dispose(editor)
-        val session = EditorGuideSession.install(
+        val fakeAnalysis = FakeBracketAnalysis()
+        EditorGuideSessions.dispose(editor)
+        val session = EditorGuideSessions.install(
             editor = editor,
-            engine = engine,
-            visibleRangeProvider = { TextRange(0, editor.document.textLength) },
+            resolveActivePair = fakeAnalysis::resolveActivePair,
+            visibleRange = { TextRange(0, editor.document.textLength) },
         )
         try {
             session.updateOptions(
-                PluginOptions(disabledLanguageIds = setOf("first")),
+                BracketGuidePreferences(disabledLanguageIds = setOf("first")),
                 resolveImmediately = false,
+                refreshColors = false,
             )
-            assertEquals(0, engine.activePairCallCount)
+            assertEquals(0, fakeAnalysis.activePairCallCount)
 
             session.updateOptions(
-                PluginOptions(disabledLanguageIds = setOf("second")),
+                BracketGuidePreferences(disabledLanguageIds = setOf("second")),
                 resolveImmediately = true,
+                refreshColors = false,
             )
-            assertEquals(1, engine.activePairCallCount)
+            assertEquals(1, fakeAnalysis.activePairCallCount)
         } finally {
-            EditorGuideSession.dispose(editor)
+            EditorGuideSessions.dispose(editor)
         }
     }
 
     fun testThemeRefreshDoesNotRunImmediateResolution() {
         myFixture.configureByText("ThemeRefresh.txt", "{ value }")
         val editor = myFixture.editor
-        val engine = FakeBracketEngine()
-        EditorGuideSession.dispose(editor)
-        EditorGuideSession.install(
+        val fakeAnalysis = FakeBracketAnalysis()
+        EditorGuideSessions.dispose(editor)
+        EditorGuideSessions.install(
             editor = editor,
-            engine = engine,
-            visibleRangeProvider = { TextRange(0, editor.document.textLength) },
+            resolveActivePair = fakeAnalysis::resolveActivePair,
+            visibleRange = { TextRange(0, editor.document.textLength) },
         )
         try {
-            EditorGuideEventRouter.ensureInitialized()
+            EditorGuideEvents.ensureInitialized()
             ApplicationManager.getApplication()
-                .getService(EditorGuideEventRouter::class.java)
+                .getService(EditorGuideEvents::class.java)
                 .globalSchemeChange(null)
 
-            assertEquals(0, engine.activePairCallCount)
+            assertEquals(0, fakeAnalysis.activePairCallCount)
         } finally {
-            EditorGuideSession.dispose(editor)
+            EditorGuideSessions.dispose(editor)
         }
     }
 }

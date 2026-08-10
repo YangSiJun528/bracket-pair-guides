@@ -7,23 +7,22 @@ import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import com.sijunyang.bracketpairguides.analysis.api.AnalysisCapabilities
-import com.sijunyang.bracketpairguides.analysis.api.AnalysisResult
-import com.sijunyang.bracketpairguides.analysis.api.AnalyzeRequest
-import com.sijunyang.bracketpairguides.analysis.api.BracketEngine
-import com.sijunyang.bracketpairguides.analysis.api.VisibleTokens
-import com.sijunyang.bracketpairguides.editor.EditorGuideSession
-import com.sijunyang.bracketpairguides.editor.highlighting.GuideLineHighlightingPass
-import com.sijunyang.bracketpairguides.presentation.ActivePairDecoration
-import com.sijunyang.bracketpairguides.presentation.BracketColorPalette
-import com.sijunyang.bracketpairguides.presentation.BracketGuideRenderer
-import com.sijunyang.bracketpairguides.settings.PluginOptions
-import com.sijunyang.bracketpairguides.settings.PluginSettings
+import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
+import com.sijunyang.bracketpairguides.analysis.BracketSnapshot
+import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.BracketAnalysis
+import com.sijunyang.bracketpairguides.analysis.TokenWindow
+import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
+import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPass
+import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
+import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
+import com.sijunyang.bracketpairguides.settings.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 
 class RealWorldFormatRegressionTest : BasePlatformTestCase() {
     override fun setUp() {
         super.setUp()
-        PluginSettings.getInstance().loadState(PluginOptions())
+        BracketGuideSettings.getInstance().loadState(BracketGuidePreferences())
     }
 
     fun testJavaSource() {
@@ -54,9 +53,9 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
             file.fileType === PlainTextFileType.INSTANCE,
         )
 
-        val engine = service<BracketEngine>()
-        val first = analyze(engine, file.fileType)
-        val second = analyze(engine, file.fileType)
+        val analysis = service<BracketAnalysis>()
+        val first = analyze(analysis, file.fileType)
+        val second = analyze(analysis, file.fileType)
         val fullRange = TextRange(0, document.textLength)
         val firstTokens = first.visibleTokens(fullRange, focusOffset = 0, limit = Int.MAX_VALUE)
         val secondTokens = second.visibleTokens(fullRange, focusOffset = 0, limit = Int.MAX_VALUE)
@@ -92,17 +91,15 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
             )
         }
 
-        val pass = GuideLineHighlightingPass(project, editor, file.fileType)
+        val pass = BracketGuideHighlightingPass(project, editor, file.fileType)
         editor.caretModel.moveToOffset(firstTokens.offsetAt(0) + 1)
         inReadAction {
             pass.doCollectInformation(EmptyProgressIndicator())
         }
         pass.doApplyInformationToEditor()
 
-        val session = checkNotNull(EditorGuideSession.get(editor))
-        val coloredTokenCount = session.tokenDecorations.entries.count {
-            BracketColorPalette.isLevelKeyForTest(it.colorKey)
-        }
+        val session = checkNotNull(EditorGuideSessions.get(editor))
+        val coloredTokenCount = editor.observedBracketMarkup().tokenMarks.size
         assertTrue(
             "$fileName must not create more ranges than analyzed tokens",
             coloredTokenCount <= firstTokens.size,
@@ -110,20 +107,24 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         assertEquals(
             "$fileName must activate exactly one custom guide renderer at the caret",
             1,
-            if (session.activeGuide?.customRenderer === BracketGuideRenderer) 1 else 0,
+            editor.observedBracketMarkup().guideMarks.size,
         )
         assertEquals(
             "$fileName must leave optional active-pair symbol emphasis disabled",
             0,
-            session.activePairHighlights.size,
+            editor.observedBracketMarkup().activePairMarks.size,
         )
 
-        val emphasized = PluginSettings.getInstance().options.copy(
+        val emphasized = BracketGuideSettings.getInstance().options.copy(
             showActivePairBorder = true,
             showActivePairBackground = true,
         )
-        PluginSettings.getInstance().replace(emphasized)
-        session.updateOptions(emphasized)
+        BracketGuideSettings.getInstance().replace(emphasized)
+        session.updateOptions(
+            emphasized,
+            resolveImmediately = true,
+            refreshColors = false,
+        )
 
         val sampledOffsets = buildSet {
             val sections = 24
@@ -144,27 +145,27 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
             editor.caretModel.moveToOffset(offset)
             session.caretMoved()
             val expected = first.activePairAt(offset)
-            val activeGuide = session.activeGuide
+            val activeGuide = editor.observedBracketMarkup().guideMarks.singleOrNull()
             assertEquals(
                 "$fileName chose the wrong active pair at offset $offset",
                 expected,
-                ActivePairDecoration.guideOf(activeGuide)?.pair,
+                (activeGuide?.customRenderer as? BracketGuideDrawing)?.guide?.pair,
             )
             assertEquals(
                 "$fileName must highlight two symbols exactly when a pair is active at $offset",
                 if (expected == null) 0 else 2,
-                session.activePairHighlights.size,
+                editor.observedBracketMarkup().activePairMarks.size,
             )
         }
     }
 
-    private fun analyze(engine: BracketEngine, fileType: FileType): AnalysisResult =
+    private fun analyze(analysis: BracketAnalysis, fileType: FileType): BracketSnapshot =
         inReadAction {
-            engine.analyze(
-                AnalyzeRequest(
+            analysis.analyze(
+                AnalysisInput(
                     editor = myFixture.editor,
                     fileType = fileType,
-                    capabilities = AnalysisCapabilities(
+                    coverage = AnalysisCoverage(
                         tokens = true,
                         activePair = true,
                         guidePosition = true,
@@ -174,7 +175,7 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
             )
         }
 
-    private fun VisibleTokens.toValues(): List<TokenValue> = List(size) { index ->
+    private fun TokenWindow.toValues(): List<TokenValue> = List(size) { index ->
         TokenValue(
             offset = offsetAt(index),
             length = lengthAt(index),

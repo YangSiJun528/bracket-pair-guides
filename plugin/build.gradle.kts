@@ -81,7 +81,13 @@ dependencies {
     intellijPlatform {
         // Compile against the analysis boundary and merge it into the classic
         // single-JAR plugin distribution rather than Plugin Model v2 modules.
-        pluginComposedModule(implementation(project(":engine")))
+        pluginComposedModule(
+            implementation(project(":engine")) {
+                // Compose only the engine code artifact; IntelliJ dependencies
+                // are supplied by the host platform.
+                isTransitive = false
+            },
+        )
 
         intellijIdeaCommunity("2024.1.7")
 

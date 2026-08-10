@@ -13,19 +13,26 @@
     <depends>com.intellij.modules.lang</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity
+                implementation="com.sijunyang.bracketpairguides.compatibility.IdeCompatibilityStartupActivity"/>
+
+        <notificationGroup
+                id="Bracket Pair Guides errors"
+                displayType="STICKY_BALLOON"
+                isLogByDefault="true"/>
+
         <highlightingPassFactory
-                implementation="com.sijunyang.bracketpairguides.editor.highlighting.GuideLineHighlightingPassFactory"/>
+                implementation="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlighting"/>
 
         <applicationService
-                serviceImplementation="com.sijunyang.bracketpairguides.settings.PluginSettings"/>
+                serviceImplementation="com.sijunyang.bracketpairguides.settings.BracketGuideSettings"/>
 
         <applicationService
-                serviceInterface="com.sijunyang.bracketpairguides.analysis.api.BracketEngine"
-                serviceImplementation="com.sijunyang.bracketpairguides.analysis.internal.BracketEngineImpl"/>
+                serviceImplementation="com.sijunyang.bracketpairguides.analysis.BracketAnalysis"/>
 
         <applicationConfigurable
                 parentId="editor"
-                instance="com.sijunyang.bracketpairguides.settings.ui.PluginConfigurable"
+                instance="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPage"
                 id="com.sijunyang.bracketpairguides.settings.PluginConfigurable"
                 displayName="Bracket Pair Guides"/>
 

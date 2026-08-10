@@ -1,14 +1,13 @@
 package com.sijunyang.bracketpairguides.presentation
 
-import com.sijunyang.bracketpairguides.settings.PluginOptions
-import com.sijunyang.bracketpairguides.settings.StoredBracketColors
+import com.sijunyang.bracketpairguides.settings.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.settings.StoredColorFormat
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.TextAttributes
 import java.awt.Color
-import org.jetbrains.annotations.TestOnly
 
 /**
  * Resolves every visual component from one level color unless the user enables
@@ -17,36 +16,33 @@ import org.jetbrains.annotations.TestOnly
  */
 internal object BracketColorPalette {
     private val levelKeys: Array<TextAttributesKey> =
-        Array(StoredBracketColors.COLOR_COUNT) { index ->
+        Array(StoredColorFormat.COLOR_COUNT) { index ->
             TextAttributesKey.createTextAttributesKey(
                 "BRACKET_PAIR_GUIDES_BRACKET_DEPTH_${index + 1}",
                 DefaultLanguageHighlighterColors.BRACES,
             )
         }
 
-    public fun levelIndex(depth: Int): Int = depth.mod(StoredBracketColors.COLOR_COUNT)
+    fun levelIndex(depth: Int): Int = depth.mod(StoredColorFormat.COLOR_COUNT)
 
-    public fun levelKey(levelIndex: Int): TextAttributesKey = levelKeys[levelIndex]
+    fun levelKey(levelIndex: Int): TextAttributesKey = levelKeys[levelIndex]
 
-    @TestOnly
-    public fun isLevelKeyForTest(key: TextAttributesKey?): Boolean = key in levelKeys
-
-    public fun baseColor(
+    fun baseColor(
         scheme: EditorColorsScheme,
-        settings: PluginOptions,
+        settings: BracketGuidePreferences,
         depth: Int,
     ): Color {
         val index = levelIndex(depth)
-        return StoredBracketColors.storedColor(
+        return StoredColorFormat.storedColor(
             settings.levelBaseColors.getOrNull(index),
         )
             ?: scheme.getAttributes(levelKeys[index]).foregroundColor
             ?: scheme.defaultForeground
     }
 
-    public fun guideLineColor(
+    fun guideLineColor(
         scheme: EditorColorsScheme,
-        settings: PluginOptions,
+        settings: BracketGuidePreferences,
         depth: Int,
     ): Color = componentColor(
         scheme = scheme,
@@ -55,9 +51,9 @@ internal object BracketColorPalette {
         overrides = settings.guideLineColors,
     )
 
-    public fun pairBorderColor(
+    fun pairBorderColor(
         scheme: EditorColorsScheme,
-        settings: PluginOptions,
+        settings: BracketGuidePreferences,
         depth: Int,
     ): Color = componentColor(
         scheme = scheme,
@@ -66,9 +62,9 @@ internal object BracketColorPalette {
         overrides = settings.pairBorderColors,
     )
 
-    public fun pairBackgroundSourceColor(
+    fun pairBackgroundSourceColor(
         scheme: EditorColorsScheme,
-        settings: PluginOptions,
+        settings: BracketGuidePreferences,
         depth: Int,
     ): Color = componentColor(
         scheme = scheme,
@@ -77,9 +73,9 @@ internal object BracketColorPalette {
         overrides = settings.pairBackgroundColors,
     )
 
-    public fun pairBackgroundColor(
+    fun pairBackgroundColor(
         scheme: EditorColorsScheme,
-        settings: PluginOptions,
+        settings: BracketGuidePreferences,
         depth: Int,
     ): Color {
         return blend(
@@ -89,17 +85,17 @@ internal object BracketColorPalette {
         )
     }
 
-    public fun bracketTextAttributes(
+    fun bracketTextAttributes(
         scheme: EditorColorsScheme,
-        settings: PluginOptions,
+        settings: BracketGuidePreferences,
         depth: Int,
     ): TextAttributes = TextAttributes().also {
         it.foregroundColor = baseColor(scheme, settings, depth)
     }
 
-    public fun activePairTextAttributes(
+    fun activePairTextAttributes(
         scheme: EditorColorsScheme,
-        settings: PluginOptions,
+        settings: BracketGuidePreferences,
         depth: Int,
     ): TextAttributes = TextAttributes().also { attributes ->
         if (hasVisiblePairBackground(settings)) {
@@ -111,19 +107,19 @@ internal object BracketColorPalette {
         }
     }
 
-    public fun hasVisiblePairBackground(settings: PluginOptions): Boolean =
+    fun hasVisiblePairBackground(settings: BracketGuidePreferences): Boolean =
         settings.showActivePairBackground &&
             settings.pairBackgroundOpacityPercent.coerceIn(0, 100) > 0
 
     private fun componentColor(
         scheme: EditorColorsScheme,
-        settings: PluginOptions,
+        settings: BracketGuidePreferences,
         depth: Int,
         overrides: List<Int>,
     ): Color {
         val index = levelIndex(depth)
         if (settings.useIndependentComponentColors) {
-            StoredBracketColors.storedColor(overrides.getOrNull(index))?.let { return it }
+            StoredColorFormat.storedColor(overrides.getOrNull(index))?.let { return it }
         }
         return baseColor(scheme, settings, depth)
     }
