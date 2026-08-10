@@ -27,6 +27,9 @@ are not all verifier- or runtime-tested.
 
 Language recognition is a separate capability check. A token language works
 when its installed language plugin registers `com.intellij.lang.braceMatcher`.
+If the IDE itself does not provide that extension point, the plugin reports one
+**Unsupported IDE** error at startup instead of silently presenting an empty
+language capability.
 
 | Audit status | Languages and limits |
 |---|---|
@@ -69,11 +72,12 @@ options, per-language controls, and coexistence guidance.
 ./gradlew :plugin:runIde
 ```
 
-The module `check` tasks verify the committed ABI baselines in `engine/api/`
-and `plugin/api/`. The engine baseline contains only the typed
-`analysis.api.BracketEngine` request/result contract, and a package check rejects
-public ABI elsewhere. Only after reviewing an intentional boundary change,
-update the baselines with:
+The module `check` tasks run the engine's Kotlin and platform-neutral Java tests
+and verify the committed ABI baselines in `engine/api/` and `plugin/api/`. The
+engine baseline contains only the `analysis.BracketAnalysis` entry point and
+its input/snapshot boundary, and a package check rejects public Kotlin ABI
+elsewhere. Only after reviewing an intentional boundary change, update the
+baselines with:
 
 ```shell
 ./gradlew :engine:updateLegacyAbi :plugin:updateLegacyAbi
@@ -83,17 +87,24 @@ update the baselines with:
 `:plugin:verifyPlugin` resolves JetBrains' recommended cross-version matrix plus an
 explicit IntelliJ IDEA 2026.2 endpoint; the minimum published build remains
 pinned to 241 when the test fixture is upgraded.
-The `engine` module exposes one IntelliJ Application Service interface and keeps
-recognition, pairing, sort, and index implementations internal. Editor
-integration, settings, and deployable plugin tasks live in `plugin`. The
-repository root coordinates the Gradle build and shared release metadata.
+The `engine` module groups platform-neutral pairing state and primitive pair
+storage under `analysis.pairing.core`, adapts IntelliJ matchers, compiles
+requested coverage into an index layout, assembles snapshots, and exposes one
+IntelliJ Application Service. Editor integration, settings, and
+deployable plugin tasks live in `plugin`. The isolated `benchmarks` module runs
+JMH against compiled engine implementations. The repository root coordinates
+the Gradle build and shared release metadata.
 The regression suite covers Java, Kotlin, Kotlin script, JSON, contextual and
 custom-file-type matchers, unsupported legacy-only file types, and large inputs.
 Performance experiments live in the isolated `benchmarks` module; see
 [Run the performance benchmarks](benchmarks/guide_benchmarking.md).
 
 For implementation details, see
-[Architecture and performance](docs/explanation_architecture.md).
+[Architecture and performance](docs/explanation_architecture.md) and the
+[object design review](docs/explanation_object_design.md). The
+[production and test boundary review](docs/explanation_test_boundaries.md)
+records why test-only production hooks were removed and what each test is
+allowed to observe.
 Before the first public release, follow the
 [release checklist](docs/how_to_release.md); JetBrains requires the initial
 Marketplace publication to be uploaded manually before Gradle-based updates.
