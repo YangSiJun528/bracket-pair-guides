@@ -14,10 +14,12 @@ innermost pair containing the caret.
   `com.intellij.lang.braceMatcher`.
 - Cancellable background recognition with indexed caret queries; stale or absent
   snapshots never start bracket recognition on the event dispatch thread.
-- Authoritative all-or-unavailable analysis capped at 200,000 pairs, 200,000
-  pending openers, and a 48 MiB estimated live primitive working set.
-- Exact guide indexing for spans through 4,128,768 lines within a separate
-  16 MiB payload; larger requested spans do not produce partial snapshots.
+- The host IDE's code-insight file-size policy is honored before recognition;
+  adversarial input is additionally capped at 100,000 completed pairs and
+  50,000 pending openers without publishing a capped pair prefix.
+- Exact guide indexing for spans through 1,032,192 lines within a 4 MiB retained
+  payload. A larger guide is hidden while exact token and active-pair indexes
+  remain available.
 
 ## IDE and language support
 
@@ -96,8 +98,9 @@ storage under `analysis.pairing.core`, adapts IntelliJ matchers, compiles
 requested coverage into an index layout, assembles snapshots, and exposes one
 IntelliJ-bound Application Service as the intentional adapter between editor
 token semantics and the platform-neutral pairing core. Analysis publishes a
-complete snapshot or an unavailable result carrying the accepted input stamp;
-it never publishes a capped prefix. Equivalent split-editor results share an
+complete snapshot, an exact lower-facet snapshot when only guide capacity is
+crossed, or an unavailable result carrying the attempted input stamp; it never
+publishes a capped pair prefix. Equivalent split-editor results share an
 immutable `BracketIndexes` payload, while each editor keeps its own snapshot
 stamp, active-pair memo, and presentation state. Editor integration, settings,
 and deployable plugin tasks live in `plugin`. The isolated `benchmarks` module

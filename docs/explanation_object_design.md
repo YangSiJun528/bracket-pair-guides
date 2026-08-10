@@ -144,7 +144,7 @@ DTO와 port로 한 번 더 추상화하면 host 의미를 복제할 뿐이다. �
 | `AnalyzeRequest` | `AnalysisInput` | 한 번의 분석을 규정하는 editor, file type, coverage, language 선택 |
 | `ActivePairRequest`, `CaretContext` | 삭제 | caret event는 현재 snapshot의 `activePairAt`만 질의하며 별도 인식 입력이 없음 |
 | `ActivePairResult`, `ActivePairKnowledge` | 삭제 | EDT 제한 검색과 미확정 pair 결과가 제품에서 사라짐 |
-| `AnalysisResult` + `AnalysisSnapshot` | `AnalysisOutcome` + `BracketSnapshot` | 요청 facet 전체가 있는 snapshot과 한도 때문에 없는 결과를 명시적으로 구분 |
+| `AnalysisResult` + `AnalysisSnapshot` | `AnalysisOutcome` + `BracketSnapshot` | 요청 facet 전체, guide만 빠진 exact lower snapshot, 구조 결과가 전혀 없는 상태를 구분 |
 | editor별 snapshot index 배열 | `BracketIndexes` + `DocumentBracketIndexes` | 동등한 split-editor 결과의 immutable payload와 weak canonical form |
 | `VisibleTokens` + `VisibleTokenView` | `TokenWindow` | viewport 주변의 제한된 token 관측 창 |
 | `AnalysisCapabilities` | `AnalysisCoverage` | snapshot이 답할 수 있어야 하는 질의 범위 |
@@ -157,8 +157,8 @@ DTO와 port로 한 번 더 추상화하면 host 의미를 복제할 뿐이다. �
 | `AnalysisPlan` | `IndexLayout` | coverage가 요구하는 index 배치 |
 | `TokenIndexMode` | `TokenStorage` | token metadata가 없음·결합·분리 중 어떤 저장 형태인지 나타내는 값 |
 | `AnalysisSnapshotBuilder`, `AnalysisPipeline` | `SnapshotAssembly` | pair 인식부터 index 생성까지 한 snapshot 조립 책임 |
-| 테스트에서 주입하던 pair·search 예산 | `AnalysisBudget`, `AnalysisLimit` | pair, pending opener, working-memory의 제품 허용 정책과 거부 이유 |
-| `GuideTreeShape` | `GuideIndexShape` | 256-line block 기반 exact guide payload의 크기와 16 MiB 불변식 |
+| 테스트에서 주입하던 pair·search 예산 | `AnalysisBudget`, `AnalysisLimit` | pair·pending opener의 제품 허용 정책과 facet별 거부 이유 |
+| `GuideTreeShape` | `GuideIndexShape` | 256-line block 기반 exact guide payload의 크기와 4 MiB 불변식 |
 | builder 내부의 multiline range | `GuideLineEnvelope` | guide index가 실제로 읽어야 하는 line 범위 |
 | `PairTable.Builder` | `PairTable.Draft` | freeze 전 단일 사용 mutable pair table 상태 |
 | `PairTable.builder()` / `build()` | `PairTable.draft()` / `freeze()` | 초안 생성과 소유권 이전을 드러내는 동작 |
@@ -212,11 +212,12 @@ DTO와 port로 한 번 더 추상화하면 host 의미를 복제할 뿐이다. �
 ### 완료된 분석과 허용되지 않은 분석은 null 하나로 표현하지 않는다
 
 `AnalysisOutcome.Complete`는 요청한 facet 전체를 가진 `BracketSnapshot`을 담는다.
-`AnalysisOutcome.Unavailable`은 시도한 `AnalysisStamp`와 `PAIR_CAPACITY`,
-`PENDING_OPEN_CAPACITY`, `WORKING_MEMORY` 중 한 이유만 담고 snapshot은 담지 않는다.
-따라서 200,000 pair 또는 pending opener 한도와 48 MiB working-set 한도를 넘긴
-prefix가 완전한 결과처럼 소비될 수 없다. plugin은 unavailable stamp를 받아 같은
-exact coverage 입력의 무한 재시도만 막고 구조 데이터를 게시하지 않는다.
+`AnalysisOutcome.Limited`는 guide capacity만 넘었을 때 시도한 stamp와 guide가 빠진
+exact lower-coverage snapshot을 함께 담는다. `Unavailable`은 시도한 stamp와
+`IDE_CODE_INSIGHT_FILE_SIZE`, `PAIR_CAPACITY`, `PENDING_OPEN_CAPACITY` 중 한 이유만
+담고 snapshot은 담지 않는다. 따라서 pair 또는 pending opener 한도를 넘긴 prefix가
+완전한 결과처럼 소비될 수 없다. plugin은 exact attempted stamp를 받아 같은 입력의
+무한 재시도를 막고, Limited에서는 token과 active pair만 게시한다.
 Complete의 richer coverage가 lower 요청을 충족할 수 있는 것과 달리 Unavailable은
 coverage lattice를 대체하지 않는다. late richer refusal은 lower complete를 지우지
 않고, late equivalent refusal도 이미 완료된 equivalent 결과를 덮지 않는다.
@@ -314,8 +315,8 @@ engine 구현 타입은 공개 facade에 누출하지 않는다. 이 타입들�
 - language별 공식 matcher만 사용하고 legacy file-type 또는 raw-character fallback을 추가하지 않는다.
 - contextual, layered, symmetric, shared-closer, language-gate, structural 규칙은 background document 분석 한 경로에만 존재한다.
 - caret·document event는 matcher나 token iterator를 호출하지 않는다. current snapshot은 index로 질의하고, snapshot이 없으면 새 구조 인식을 background pass까지 기다린다.
-- 200,000 pair, 200,000 pending opener, 48 MiB estimated live primitive working-set 중 하나를 넘으면 `AnalysisOutcome.Unavailable`이며 partial snapshot은 없다.
-- guide index는 별도 16 MiB 안에서 최대 4,128,768줄을 exact하게 표현하고 더 큰 요청은 `WORKING_MEMORY`로 거부한다.
+- IDE code-insight file-size 정책을 먼저 따르고 100,000 pair 또는 50,000 pending opener를 넘으면 `AnalysisOutcome.Unavailable`이며 capped prefix는 없다.
+- guide index는 별도 4 MiB 안에서 최대 1,032,192줄을 exact하게 표현한다. 더 큰 요청은 `Limited(GUIDE_CAPACITY)`로 token·active pair를 보존하고 guide만 숨긴다.
 - 동등한 split-editor 결과는 `BracketIndexes`를 공유하지만 editor별 stamp, active-pair memo, markup은 공유하지 않는다.
 - token decoration cap, viewport window, stable focus envelope, highlighter 재사용 규칙을 유지한다.
 - cancellation 확인 주기와 index의 primitive storage·peak-memory 생성 순서를 유지한다.
@@ -345,10 +346,10 @@ benchmark 소스 경계를 깨뜨리지 않았는지 확인한다.
 
 핵심 characterization 범위는 다음과 같다.
 
-- engine facade의 stamp 보존, complete/unavailable outcome, coverage별 index 생성, defensive copy, cancellation 전파
+- engine facade의 stamp 보존, complete/limited/unavailable outcome, coverage별 index 생성, defensive copy, cancellation 전파
 - document grammar의 contextual, layered, symmetric, shared-closer, language-gate, structural recovery 행위
-- pair·pending-open·working-memory 한도와 capped prefix 비게시
-- active/token/guide index의 strict boundary, 4,128,768줄 exact guide 경계, overflow, cancellation, random-model parity
+- pair·pending-open 한도와 capped prefix 비게시, IDE large-file 판정 시 engine 미호출
+- active/token/guide index의 strict boundary, 1,032,192줄 exact guide 경계, overflow, cancellation, random-model parity
 - split editor의 index payload 공유, editor별 memo 분리, active/full hash collision 시 전체 pair-column 비교와 token-only observable sequence 비교
 - session의 stale result 거부, highlighter 교체, split editor, secondary caret, 설정·theme 전이
 - visible token cap과 재중심화, active markup 재사용·폐기
@@ -374,9 +375,9 @@ benchmark 소스 경계를 깨뜨리지 않았는지 확인한다.
 - builder와 pipeline은 `SnapshotAssembly`로 합쳤고 guide line 범위는
   `GuideLineEnvelope`로 분리했다. `PairTable.Draft.freeze()`가 mutable 초안의
   단일 사용과 배열 소유권 이전을 명시한다.
-- `AnalysisBudget`은 200,000 pair, 200,000 pending opener, 48 MiB working-set
-  정책을 소유한다. `GuideIndexShape`는 별도 16 MiB exact blocked index의
-  최대 4,128,768줄 경계를 소유한다.
+- `AnalysisBudget`은 100,000 pair와 50,000 pending opener 정책을 소유한다.
+  `GuideIndexShape`는 별도 4 MiB exact blocked index의 최대 1,032,192줄 경계를
+  소유한다. 발동하지 않고 pending 객체도 누락하던 48 MiB 추정치는 제거했다.
 - `BracketIndexes`와 `DocumentBracketIndexes`는 split editor의 동등한 불변
   payload를 weak ownership으로 공유하고, `IndexedBracketSnapshot`은 editor별
   stamp와 active-pair memo를 유지한다.
@@ -403,11 +404,12 @@ benchmark 소스 경계를 깨뜨리지 않았는지 확인한다.
 ### 검증 경계
 
 - 현재 통합 검증 `:engine:check :plugin:check :benchmarks:compileJmhJava`는
-  성공했다. engine 114개와 plugin 102개 테스트가 실패·오류·skip 없이 통과했다.
+  성공했다. engine 116개와 plugin 108개 테스트가 실패·오류·skip 없이 통과했다.
 - `:engine:check`는 outcome, capacity, exact guide index, split payload 공유,
-  ABI baseline과 root-package guard를 함께 검증한다.
-- `:plugin:check`는 complete/unavailable 수용, stale 결과 거부, background-wait,
-  markup과 빈 `plugin.api` 계약을 검증한다.
+  실제 100,000/100,001 pair 및 50,000/50,001 pending-open 경계, ABI baseline과
+  root-package guard를 함께 검증한다.
+- `:plugin:check`는 complete/limited/unavailable 수용, IDE large-file gate, stale 결과
+  거부, background-wait, markup과 빈 `plugin.api` 계약을 검증한다.
 - `:benchmarks:compileJmhJava`는 JMH source가 실제 engine 구현을 계속 소비하는지
   확인한다. 성능 측정과 smoke 실행은 이번 검증 결과로 주장하지 않는다.
 - plugin structure/configuration 검사와 `git diff --check`를 최종 정적 검증에

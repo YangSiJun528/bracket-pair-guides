@@ -83,21 +83,24 @@ point:
 - `installedLanguages()` returns UI-ready matcher-family DTOs.
 
 `AnalysisOutcome.Complete` contains a `BracketSnapshot` whose requested facets
-are all authoritative. `AnalysisOutcome.Unavailable` contains the attempted
-`AnalysisStamp` and one `AnalysisLimit`, but no snapshot. The plugin accepts that
-stamp without publishing structural data, so the same unchanged, exact-coverage
-request does not enter a background retry loop. Unlike a complete richer
-snapshot, an unavailable richer request never satisfies or clears a lower
-request. A late richer refusal is rejected by the exact-coverage check, and a
-late equivalent refusal cannot replace an already completed equivalent result.
-A document, highlighter, exact coverage, tab-size, file type, or
-language-selection change makes a later attempt eligible again.
+are all authoritative. `Limited` contains the attempted `AnalysisStamp` and an
+exact snapshot with the rejected facet removed. The only such case is
+`GUIDE_CAPACITY`: token coloring and active-pair lookup remain exact, while the
+guide is hidden. `Unavailable` contains the attempted stamp and a limit but no
+snapshot. Pair and pending-open failures therefore never expose a capped prefix.
+
+The plugin remembers the exact attempted stamp for both limited and unavailable
+results, so an unchanged request does not enter a background retry loop. A
+richer refusal never substitutes for a lower request, and a late refusal cannot
+replace an already completed equivalent result. A document, highlighter, exact
+coverage, tab size, file type, or language-selection change makes a later
+attempt eligible again.
 
 `BracketSnapshot` exposes queries for the active pair, exact guide, and a capped
 primitive visible-token view. It never exposes `SnapshotAssembly`,
 `DocumentBrackets`, or the active, guide-position, and token indexes. Plugin
 collaborators receive a bound analysis function, so tests can supply explicit
-complete or unavailable outcomes without subclassing `BracketAnalysis`. Engine
+complete, limited, or unavailable outcomes without subclassing `BracketAnalysis`. Engine
 tests cover the concrete entry point and internal snapshot assembly.
 
 The facade intentionally remains IntelliJ-bound: `AnalysisInput` contains the
@@ -151,7 +154,14 @@ types. Only platform `UserFileType` tokens take this narrow mapping; other
 `BracketGuideHighlighting` registers a `TextEditorHighlightingPass`.
 The pass collects immutable results under the platform's background read and
 cancellation lifecycle, then updates editor markup on the event dispatch
-thread. `BracketAnalysis` is synchronous and uses the pass-provided
+thread. Before deduplication or recognition, it applies
+`SingleRootFileViewProvider.isTooLargeForIntelligence` to the source file. This
+uses the IDE-managed `idea.max.intellisense.filesize` policy instead
+of a second threshold. Saved content uses `VirtualFile.length`; unsaved content
+uses the current `Document.textLength`, matching the platform document-commit
+path, so a paste or deletion does not wait for the saved length to change. A
+rejected pass still reaches the EDT apply path so old plugin markup is cleared.
+`BracketAnalysis` is synchronous and uses the pass-provided
 `ProgressIndicator`; it does not create an executor or coroutine scope. Session
 results, range markers, and highlighters are EDT-confined;
 background pass deduplication reads only a separately published immutable
@@ -187,15 +197,60 @@ arrives, it may scan only leading whitespace for at most 256 lines and 32,768
 characters to keep that provisional drawing usable. The background index still
 replaces it with the authoritative guide.
 
-`AnalysisBudget` defines three admission boundaries. `PairCollection` aborts on
-the 200,001st completed pair before a capped prefix can escape. `PairingMachine`
-rejects the 200,001st unmatched opener before allocating its stack node. After
-recognition, `SnapshotAssembly` estimates the largest concurrently live
-primitive payload for the selected `IndexLayout`, including pair-table spare
-capacity, active/token sort workspaces, retained indexes, and guide payload. A
-layout above 48 MiB is unavailable before its downstream proportional index
-arrays are allocated. The pair table already exists at this preflight. The byte
-arithmetic saturates on overflow, so an unrepresentable estimate fails closed.
+`AnalysisBudget` defines two recognition-state boundaries. `PairCollection`
+aborts on the 100,001st completed pair before a capped prefix can escape.
+`PairingMachine` rejects the 50,001st unmatched opener before allocating its
+stack node. `GuideIndexShape` independently preflights the exact retained guide
+arrays.
+
+The former 48 MiB arithmetic estimate was removed rather than retuned. It never
+fired for an otherwise permitted layout and omitted pending opener objects,
+contexts, geometric array replacement, and collector-specific humongous-region
+rounding. A number with those omissions is not a heap limit. The product now
+uses observable allocation drivers—host file size, completed pairs, pending
+opens, and exact guide-array shape—without claiming to cap allocations made
+inside third-party matchers.
+
+### Why these boundaries are realistic
+
+JetBrains defaults code insight to 2,500 KiB and content loading to 20,000 KiB.
+The plugin follows the code-insight predicate directly; it does not assume that
+a custom highlighting pass is automatically skipped. Rainbow Brackets Lite is
+more conservative for its PSI-based token highlighting and defaults to skipping
+files above 1,000 lines. That line rule is useful evidence but is not copied as
+a memory unit: this plugin retains primitive indexes, displays only a bounded
+token viewport, and separately handles a one-line minified input. The current
+Marketplace changelog raises Rainbow Brackets' user-facing threshold to 5,000
+lines and states that its indent guides follow the same threshold.
+
+The platform's own `IndentGuideCalculator` also uses one integer per document
+line, but that array is an intermediate of the highlighting pass. This plugin's
+guide index remains queryable from an editor snapshot, so it needs an explicit
+retained-payload boundary; the 4 MiB shape is not inferred from the platform's
+transient allocation.
+
+| Boundary | Smallest adversarial input | Practical interpretation |
+|---|---:|---|
+| IDE code insight | 2,500 KiB by default | Ordinary large source stops before plugin recognition; the user-configured IDE value remains authoritative |
+| 100,000 completed pairs | 200,000 one-character brace tokens, about 195 KiB | A minified or generated file can reach this below the IDE size limit, so the independent count is necessary |
+| 50,000 pending opens | 50,000 one-character openers, about 49 KiB | This is pathological nesting; the lower count bounds the object-backed stack and strict-context maps |
+| 4 MiB exact guide payload | 1,032,192 indexed lines | Reachable near 1 MiB only with almost empty LF lines; at 40 bytes per line the source is about 39 MiB and normally fails the IDE gate first |
+
+The replaced 200,000-pair boundary was not merely theoretical. A one-line
+adversarial input needs only 400,000 one-character brace tokens, about 391 KiB.
+Extrapolating the bracket density of the repository's Java and Kotlin sources
+puts the same count around 11–14 MB and roughly 320,000–380,000 lines. It is
+unlikely in hand-written code but plausible in minified or generated source,
+which is why byte size and structural counts remain independent gates.
+
+The 100,000-pair boundary also stops `PairTable` before its next geometric
+growth; on common 1 MiB G1 regions its seven columns remain below the 512 KiB
+humongous-object threshold. The 50,000 pending-open boundary was checked against
+ordinary, structural, and unique strict-context object graphs. In local probes
+on the supported JetBrains Runtime, 200,000 unique strict-context opens retained
+roughly 38–46 MiB before the rest of the analysis, while 50,000 retained roughly
+10–12 MiB. These are product backstops, not promises that a third-party matcher
+cannot allocate more.
 
 ## Caret activation and caching
 
@@ -252,7 +307,7 @@ arrays without sharing their caret memo or extending editor lifetime.
 Let `T` be token count, `L` document line count, `G` the line span from the
 earliest multiline-pair body line to the latest closing line, `W` the leading
 whitespace characters scanned in that span, and `P` recognized pair count,
-where product analysis requires `P <= 200,000`. Brace definitions per language
+where product analysis requires `P <= 100,000`. Brace definitions per language
 are bounded by the registered matcher.
 
 | Event | Work |
@@ -285,7 +340,7 @@ cancellable 16,384-entry chunks and merge passes, with checks at most every
 4,096 merge/copy operations. `DocumentBrackets` stores recognized geometry in seven
 parallel `IntArray` equivalents rather than a `List<BracketPair>` object graph,
 and it does not additionally sort pair records: both downstream indexes are
-input-order independent. The 200,000-pair admission limit bounds these retained
+input-order independent. The 100,000-pair admission limit bounds these retained
 arrays before downstream layouts are considered.
 The larger active index is built before the token index. This avoids retaining
 16 bytes per pair of completed token payload during the active build.
@@ -328,13 +383,12 @@ boundary blocks and combines the intervening blocks in
 `O(log(G / 256))`. A two-line envelope therefore reads two lines and needs 24
 bytes of primitive payload.
 
-`GuideIndexShape` enforces a separate maximum of 16 MiB for guide payload, and
-the admitted bytes also participate in the 48 MiB total analysis preflight. The
-blocked layout fits an exact span of up to 4,128,768 lines in those 16 MiB. If
-requested guide coverage is larger, the
-whole outcome is `Unavailable(WORKING_MEMORY)`; the engine neither publishes a
-snapshot without the requested guide facet nor substitutes an approximate EDT
-scan. `GuidePositionIndex` construction reads line offsets directly from
+`GuideIndexShape` enforces a 4 MiB maximum retained guide payload. The blocked
+layout fits an exact span of up to 1,032,192 lines. If requested guide coverage
+is larger, the outcome is `Limited(GUIDE_CAPACITY)`: the engine publishes exact
+token and active-pair indexes with lower coverage, and the plugin hides the
+guide. It never substitutes the bounded provisional EDT scan as an authoritative
+result. `GuidePositionIndex` construction reads line offsets directly from
 `Document`, avoiding two additional `IntArray` copies.
 
 Primitive pair storage validates ranges through
@@ -390,17 +444,16 @@ palette or theme changes update existing token attributes in place.
   editor event on the EDT.
 - In malformed input, an unmatched structural opener can conservatively suppress
   a regular pair that would become matchable only if that opener never closes.
-- Requested guide spans above 4,128,768 lines exceed the exact 16 MiB guide
-  payload and make that analysis unavailable. A larger document with a smaller
-  multiline-pair envelope can still be indexed exactly.
-- Analysis is unavailable above 200,000 completed pairs, 200,000 unmatched
-  openers, or the 48 MiB estimated live primitive working set. The plugin shows
-  no capped or facet-incomplete snapshot for that stamp.
+- Requested guide spans above 1,032,192 lines exceed the exact 4 MiB retained
+  payload. The guide is hidden, but exact token and active-pair features remain;
+  a larger document with a smaller multiline-pair envelope is indexed exactly.
+- Analysis is unavailable above 100,000 completed pairs or 50,000 unmatched
+  openers. No accepted pair prefix escapes either boundary.
 - Split-editor canonicalization shares retained immutable payload only after an
   attempt has proved equivalent content; it is not a global single-flight for
-  token recognition or transient index construction. The 48 MiB limit applies
-  per attempt. This avoids assuming that different editor highlighters have the
-  same semantics before their results are compared.
+  token recognition or transient index construction. This avoids assuming that
+  different editor highlighters have the same semantics before their results are
+  compared.
 - Languages without `com.intellij.lang.braceMatcher` are not analyzed.
 - A legacy `com.intellij.braceMatcher` registration by itself is intentionally
   insufficient.
@@ -410,5 +463,12 @@ palette or theme changes update existing token attributes in place.
 - [Syntax and error highlighting](https://plugins.jetbrains.com/docs/intellij/syntax-highlighting-and-error-highlighting.html)
 - [Color scheme management](https://plugins.jetbrains.com/docs/intellij/color-scheme-management.html)
 - [Brace matching](https://plugins.jetbrains.com/docs/intellij/additional-minor-features.html)
+- [JetBrains file-size limits](https://www.jetbrains.com/help/clion/configuring-file-size-limit.html)
+- [JetBrains PSI performance](https://plugins.jetbrains.com/docs/intellij/psi-performance.html)
+- [JetBrains large-file predicate](https://github.com/JetBrains/intellij-community/blob/4fa6dbe6b2d453005ea4d0ac22b25e00f3c2a420/platform/core-impl/src/com/intellij/psi/SingleRootFileViewProvider.java#L167-L183)
+- [JetBrains document-commit current-content check](https://github.com/JetBrains/intellij-community/blob/4fa6dbe6b2d453005ea4d0ac22b25e00f3c2a420/platform/ide-core-impl/src/com/intellij/psi/impl/DocumentCommitThread.kt#L236-L242)
+- [JetBrains indent-guide calculation](https://github.com/JetBrains/intellij-community/blob/4fa6dbe6b2d453005ea4d0ac22b25e00f3c2a420/platform/lang-impl/src/com/intellij/codeInsight/daemon/impl/indentGuide/IndentGuideCalculator.java#L36-L107)
+- [Rainbow Brackets large-file policy](https://github.com/izhangzhihao/intellij-rainbow-brackets/blob/c7bdbda6ce7baa7720eba436d528335b73a61e5a/src/main/kotlin/com/github/izhangzhihao/rainbow/brackets/lite/settings/RainbowSettings.kt#L23-L26)
+- [Rainbow Brackets current release notes](https://plugins.jetbrains.com/plugin/10080-rainbow-brackets/)
 - [Services](https://plugins.jetbrains.com/docs/intellij/plugin-services.html)
 - [Disposer and plugin unload](https://plugins.jetbrains.com/docs/intellij/disposers.html)

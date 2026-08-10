@@ -42,15 +42,13 @@
   snapshots. The host-specific facade is intentional; token highlighters,
   matcher registrations, tab settings, and cancellation stay outside the
   platform-neutral pairing core.
-- Analysis now returns `AnalysisOutcome.Complete` or
-  `AnalysisOutcome.Unavailable`. An unavailable result carries the attempted
-  stamp and the `PAIR_CAPACITY`, `PENDING_OPEN_CAPACITY`, or `WORKING_MEMORY`
-  reason, but never a partial snapshot; accepting that exact request stamp
-  prevents a retry loop until an input dependency changes.
-- Full recognition is capped at 200,000 completed pairs and 200,000 unmatched
-  open tokens. Index layouts are preflighted against a 48 MiB estimated live
-  primitive working set before downstream proportional index arrays are
-  allocated.
+- Analysis now returns `AnalysisOutcome.Complete`, `Limited`, or `Unavailable`.
+  Pair and pending-open exhaustion publish no capped prefix. Guide exhaustion
+  publishes exact token and active-pair facets without an approximate guide;
+  each refusal remembers the exact attempted stamp to prevent a retry loop.
+- The highlighting pass now honors IntelliJ's IDE-managed code-insight
+  file-size policy before invoking bracket recognition. Independent adversarial
+  bounds are 100,000 completed pairs and 50,000 unmatched open tokens.
 - Equivalent analyses of split editors share an immutable `BracketIndexes`
   payload only after active/full pair geometry or the complete token-only query
   sequence agrees. Token-only payloads retain no source pair table. Each
@@ -100,19 +98,19 @@
   sort and merge work instead of holding a stale background pass to one sort.
 - The redundant final recognized-pair object sort was removed because both
   downstream indexes sort input-independent primitive endpoints. At the current
-  pair cap this removes about 1.2 million comparisons, 2.4 million reference
-  writes, and roughly 0.8 MiB of compressed-reference merge storage.
+  pair cap this removes about 600,000 comparisons, 1.2 million reference
+  writes, and roughly 0.4 MiB of compressed-reference merge storage.
 - Multiline-result probes check cancellation every 256 pairs.
 - Guide-position indexing now scans and retains only the multiline-pair query
   envelope. Its exact blocked index stores per-line indentation plus a tree of
-  256-line block minima, supports up to 4,128,768 indexed lines within a 16 MiB
-  payload, and rejects larger requested coverage as `WORKING_MEMORY`. A
+  256-line block minima, supports up to 1,032,192 indexed lines within a 4 MiB
+  retained payload, and omits only the guide facet above that boundary. A
   two-indexed-line envelope needs two line reads and 24 bytes of primitive
   payload instead of a full-document scan.
 - Fully populated active-pair segment arrays are retained directly, avoiding a
-  roughly 3.1 MiB transient copy at the current pair cap.
+  roughly 1.5 MiB transient copy at the current pair cap.
 - Building the active index before retaining the token index lowers the common
-  live-array peak by about 2.5 MiB at the current pair cap.
+  live-array peak by about 1.5 MiB at the current pair cap.
 - Invalidated primitive pair/index snapshots are released immediately after
   edits while RangeMarker-backed decoration stays visible, preventing stale
   proportional storage from overlapping replacement analysis.
@@ -123,7 +121,7 @@
   switching from full active analysis keeps visible token markup while
   rebuilding this compact snapshot in the background.
 - Detached token metadata is copied after endpoint sorting, avoiding about
-  2.3 MiB of live-array overlap with the sort workspace at the current pair cap.
+  1.1 MiB of live-array overlap with the sort workspace at the current pair cap.
 - Capped token-decoration slices recenter while scrolling inside a cached
   viewport instead of remaining fixed at the previous focus.
 - The `TEXT` matcher family is labeled **Custom file types** and explains that

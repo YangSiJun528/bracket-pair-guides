@@ -72,8 +72,8 @@ analysis outcome, editor markup, 설정 적용처럼 제품이 제공하는 행�
 production 객체에 별도 생성·조회 기능을 추가하면 제품 요구와 무관한 변경
 근원이 그 객체에 들어온다.
 
-반대로 `AnalysisBudget`의 200,000 pair·200,000 pending opener·48 MiB working-set
-제한, `GuideIndexShape`의 16 MiB 안에서 최대 4,128,768줄인 exact index 제한,
+반대로 `AnalysisBudget`의 100,000 pair·50,000 pending opener 제한,
+`GuideIndexShape`의 4 MiB 안에서 최대 1,032,192줄인 exact index 제한,
 `DaemonRestartContract`의 버전별 method 선택은 실제 제품의 메모리·호환성
 정책이다. 이들은 테스트를 위해 만든 훅이 아니라 production 경로가 직접
 사용하는 협력 객체다.
@@ -134,7 +134,7 @@ test scope로만 소비한다. production generator 타입에 테스트 편의 �
 | `GuideLineEnvelope.from(List)` | test fixture 변환 | 제거; production과 테스트 모두 `PairTable` 사용 |
 | `GuidePositionIndex` text factory 2개 | 플랫폼 경계 우회 | 제거; 실제 `Document`로 테스트 |
 | `GuidePositionIndex.guideFor` | nullable 계약 우회 | 제거; 실제 `guideForOrNull` 계약 사용 |
-| tree 지원 여부·payload getter | 실제 메모리 정책 | `GuideIndexShape`로 분리하고 production exact index와 4,128,768줄/16 MiB preflight가 직접 사용 |
+| tree 지원 여부·payload getter | 실제 메모리 정책 | `GuideIndexShape`로 분리하고 production exact index와 1,032,192줄/4 MiB preflight가 직접 사용 |
 | `CaretBracketSearch` budget·clock 주입 | 제품에 없는 synchronous 인식 seam | 주입뿐 아니라 `CaretBracketSearch`, `CaretContext`, `ActivePairKnowledge` 전체 제거 |
 | `DocumentBraceGrammar`의 미사용 language·cancellation 기본값 | 암묵적 test 편의 가능성 | 제거; 모든 production 호출자가 실제 정책을 명시 |
 | `AnalysisStamp` raw-state 생성·상태 필드 | 객체 불변식 우회 | 실제 `Editor`, `FileType`, coverage를 캡처하고 나머지는 private화 |
@@ -157,7 +157,7 @@ pass를 기다린다. 따라서 해당 clock·budget 테스트도 제품 사용�
 삭제했다. contextual, layered, symmetric, shared-closer, language-gate, structural
 recovery 회귀는 `DocumentBrackets`와 문서 문법의 제품 경계 테스트로 보존했다.
 
-`AnalysisOutcome.Complete`와 `Unavailable`의 생성자는 root `analysis` facade의
+`AnalysisOutcome.Complete`, `Limited`, `Unavailable`의 생성자는 root `analysis` facade의
 합법적인 제품 결과 경계다. engine이 실제 결과를 생성하고 plugin이 같은 sealed
 계약을 소비하며, plugin test fake도 별도 `@TestOnly` factory 없이 그 제품 값을
 구성한다. JVM `public`은 module 간 계약을 위한 것이고 `@ApiStatus.Internal`이므로
@@ -165,9 +165,19 @@ recovery 회귀는 `DocumentBrackets`와 문서 문법의 제품 경계 테스�
 
 Unavailable 수용 테스트는 refusal을 Complete와 같은 coverage 대체 관계로 취급하지
 않는다. 동일 request만 dedupe하며, 늦은 richer refusal이 완료된 lower 결과를,
-늦은 equivalent refusal이 완료된 equivalent 결과를 지우지 않는지를 실제 pass와
-markup으로 검증한다. 이 경쟁 조건은 private refusal 상태 getter를 노출하지 않고도
-제품 경계에서 관찰할 수 있다.
+늦은 equivalent Unavailable·Limited가 완료된 equivalent 결과를 지우지 않는지를 실제
+pass와 markup으로 검증한다. 이 경쟁 조건은 private refusal 상태 getter를 노출하지
+않고도 제품 경계에서 관찰할 수 있다.
+
+Guide capacity 테스트는 별도 production getter를 열지 않는다. 실제
+`AnalysisOutcome.Limited`를 pass에 적용해 exact token·active-pair markup은 남고 guide
+markup은 생성되지 않는지, 같은 attempted stamp가 재분석되지 않는지를 관찰한다.
+Guide 설정을 껐다 켜도 exact refusal이 provisional guide를 되살리지 않는지와, lower
+facet을 압축 해제한 뒤에는 refusal만으로 해당 facet까지 완료됐다고 주장하지 않는
+전이도 함께 검증한다.
+플랫폼 대용량 파일 테스트도 임계값 주입 훅 대신 `VirtualFile`, 현재
+`Document` 길이와 `SingleRootFileViewProvider`의 production 판정을 사용한다.
+저장된 길이와 현재 문서 길이가 다른 unsaved paste·shrink도 이 경계에서 검증한다.
 
 Java pairing core의 public JVM 가시성은 유지했다. Kotlin production package와
 JMH가 실제 동일 구현을 사용하므로 테스트 때문에 넓어진 surface가 아니다.
@@ -221,11 +231,13 @@ production의 test flag는 사용하지 않는다.
 ## 검증 경계
 
 - 현재 통합 검증 `:engine:check :plugin:check :benchmarks:compileJmhJava`는
-  성공했다. engine 114개와 plugin 102개 테스트가 실패·오류·skip 없이 통과했다.
+  성공했다. engine 116개와 plugin 108개 테스트가 실패·오류·skip 없이 통과했다.
 - `:engine:check`는 outcome, capacity, exact guide index, split payload 공유,
-  ABI baseline과 root-package guard를 함께 검증한다.
-- `:plugin:check`는 실제 highlighting pass, background-wait, complete/unavailable
-  수용, markup, daemon restart 계약을 검증한다.
+  실제 100,000/100,001 pair 및 50,000/50,001 pending-open 경계, ABI baseline과
+  root-package guard를 함께 검증한다.
+- `:plugin:check`는 실제 highlighting pass, background-wait,
+  complete/limited/unavailable 수용, IDE large-file gate, markup, daemon restart 계약을
+  검증한다.
 - `:benchmarks:compileJmhJava`는 JMH source가 실제 engine 구현을 계속 소비하는지
   확인한다. 이번 검증 결과에는 smoke 실행을 포함하지 않는다.
 - production의 `TestOnly`, `VisibleForTesting`, `*ForTest`, test-only 명명 검색과
