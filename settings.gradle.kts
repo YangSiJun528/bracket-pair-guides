@@ -2,7 +2,7 @@ import org.jetbrains.intellij.platform.gradle.extensions.intellijPlatform
 
 rootProject.name = "bracket-pair-guides"
 
-include("engine", "plugin", "benchmarks")
+include("plugin", "benchmarks")
 
 pluginManagement {
     plugins {

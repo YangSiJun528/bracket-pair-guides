@@ -1,10 +1,10 @@
 package com.sijunyang.bracketpairguides.editor
 
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
-import com.sijunyang.bracketpairguides.analysis.AnalysisLimit
-import com.sijunyang.bracketpairguides.analysis.AnalysisOutcome
-import com.sijunyang.bracketpairguides.analysis.BracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
+import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisLimit
+import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
+import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 import com.sijunyang.bracketpairguides.presentation.ActiveGuidePresentation

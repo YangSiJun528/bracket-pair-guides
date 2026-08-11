@@ -4,9 +4,9 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
-import com.sijunyang.bracketpairguides.analysis.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.FakeBracketSnapshot
+import com.sijunyang.bracketpairguides.analysis.bracketSnapshot
+import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
@@ -37,17 +37,13 @@ class EditorGuideFallbackIntegrationTest : BasePlatformTestCase() {
             showActiveGuide = false,
             showActivePairBorder = true,
         )
-        val stamp = AnalysisInput(
+        val input = AnalysisInput(
             editor = editor,
             fileType = myFixture.file.fileType,
             coverage = initialOptions.analysisCoverage(),
             disabledLanguageIds = emptySet(),
-        ).stamp
-        val result = FakeBracketSnapshot(
-            stamp = stamp,
-            activePair = { pair },
-            guide = { null },
         )
+        val result = input.bracketSnapshot(listOf(pair))
         BracketGuideSettings.getInstance().replace(initialOptions)
         EditorGuideSessions.dispose(editor)
         val session = EditorGuideSessions.install(

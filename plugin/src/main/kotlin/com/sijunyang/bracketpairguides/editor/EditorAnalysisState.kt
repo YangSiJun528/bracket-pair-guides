@@ -4,9 +4,9 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileTypes.FileType
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
-import com.sijunyang.bracketpairguides.analysis.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
-import com.sijunyang.bracketpairguides.analysis.BracketSnapshot
+import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisLimit
+import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
 
 /** Atomic analysis acceptance owned by one editor session. */
 internal class EditorAnalysisState(

@@ -1,13 +1,11 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
-import com.sijunyang.bracketpairguides.analysis.BracketAnalysis
 import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.BraceLanguageInventory
+import com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalog
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.presentation.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
-import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.colors.impl.EditorColorsSchemeImpl
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.markup.TextAttributes
@@ -296,7 +294,7 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("call") + 2)
         val capabilityId = checkNotNull(
-            service<BraceLanguageInventory>().families()
+            BraceLanguageCatalog().installedFamilies()
                 .firstOrNull { family ->
                     family.id == myFixture.file.language.id ||
                         myFixture.file.language.displayName in family.memberDisplayNames

@@ -1,345 +1,238 @@
 # Architecture
 
-Bracket Pair Guides uses a one-way dependency graph from IntelliJ entry points
-toward stable analysis contracts and small policy objects. Structural knowledge
-is produced only by an IntelliJ highlighting pass; editor events consume an
-immutable accepted result and never run a brace matcher synchronously.
+Bracket Pair Guides ships one production artifact from the `plugin` Gradle
+module. Inside it, IntelliJ entry packages depend on analysis and presentation
+policy through a one-way package graph. The `benchmarks` module is a JMH harness
+that consumes compiled production classes but contributes no shipped code.
 
-This document explains the current design. Exact capacity values, memory
-layouts, and complexity formulas belong to the
-[performance and capacity reference](reference_performance_limits.md).
+Structural knowledge is produced only by an IntelliJ highlighting pass. Editor
+events consume an immutable accepted result and never run a brace matcher on the
+event dispatch thread (EDT).
+
+This document explains the current design. Exact capacity values and memory
+layouts belong to the
+[performance and capacity reference](reference_performance_limits.md). Naming,
+responsibility, and test-boundary decisions are explained in the
+[design report](explanation_design.md).
 
 ## Architecture at a glance
 
 ```mermaid
 flowchart TB
-    subgraph Plugin["plugin"]
-        PE["Entry adapters<br/>editor.highlighting · settings.ui"]
-        EV["editor.events"]
-        ED["editor sessions"]
-        PR["presentation"]
-        ST["settings"]
-        PF["preferences"]
-    end
+    ENTRY["IntelliJ entry points<br/>highlighting · settings UI · compatibility"]
+    LIFE["Editor lifecycle<br/>events · sessions"]
+    VIEW["Presentation<br/>markers · drawing · viewport tokens"]
+    STATE["Preferences and persisted settings"]
+    HOST["IntelliJ analysis composition<br/>BracketAnalysis"]
+    RESULT["Snapshot policy<br/>outcomes · immutable queries"]
+    RECOG["Recognition and guide policy"]
+    INDEX["Active-pair and token indexes"]
+    CORE["Neutral primitive policy<br/>pairing core · sorting"]
 
-    subgraph Engine["engine"]
-        IJ["analysis.intellij<br/>composition"]
-        SN["analysis.snapshot"]
-        PA["analysis.pairing · analysis.guide"]
-        IX["analysis.active · analysis.token"]
-        API["analysis contracts"]
-        CORE["pairing.core · sorting"]
-    end
-
-    PE --> EV
-    PE --> ED
-    PE --> ST
-    EV --> ED
-    EV --> ST
-    ED --> PR
-    ED --> PF
-    PR --> PF
-    ST --> PF
-    PF --> API
-
-    IJ --> SN
-    IJ --> PA
-    SN --> PA
-    SN --> IX
-    PA --> API
-    PA --> CORE
-    IX --> CORE
+    ENTRY --> LIFE
+    ENTRY --> STATE
+    ENTRY --> HOST
+    LIFE --> VIEW
+    LIFE --> STATE
+    HOST --> RESULT
+    HOST --> RECOG
+    RESULT --> RECOG
+    RESULT --> INDEX
+    RECOG --> CORE
+    INDEX --> CORE
 ```
 
-Arrows show the representative dependency direction, not every permitted
-import. This is a directed acyclic graph (DAG), not a strict tree. Shared stable
-nodes such as analysis contracts, preferences, and the primitive core
-legitimately have multiple incoming edges; no edge points back toward a caller.
-The executable edge list in
-`buildSrc/src/main/kotlin/architecture/ProjectArchitecture.kt` is authoritative.
+The diagram shows responsibility and representative direction, not the complete
+permission table. Several callers may depend on the same stable value or
+primitive policy; no package may depend back on a caller. The executable and
+authoritative rules are in
+[`ArchitectureTest.java`](../plugin/src/test/java/com/sijunyang/bracketpairguides/architecture/ArchitectureTest.java).
 
-The package groups have these responsibilities:
+The main package groups own these reasons to change:
 
-| Package group | Responsibility | Stable dependencies |
-|---|---|---|
-| `analysis` | Module-crossing inputs, outcomes, snapshots, and service contracts | None of the project's implementation packages |
-| `analysis.intellij` | IntelliJ composition and host adapters | Contracts, recognition, snapshot policy, guide policy |
-| `analysis.snapshot` | Coverage layout, outcome policy, immutable indexes, canonical sharing | Contracts and the feature indexes it assembles |
-| `analysis.pairing`, `analysis.guide` | Token recognition and guide-position policy | Contracts and primitive pairing data |
-| `analysis.active`, `analysis.token` | Query indexes | Primitive pairing and sorting |
-| `analysis.pairing.core`, `analysis.sorting` | Platform-neutral primitive mechanisms | No project packages |
-| `preferences`, `settings` | Immutable choices and their persisted IntelliJ state | Contracts or preferences, never editor presentation |
-| `presentation` | Per-editor markers, markup, drawing, and token decoration | Contracts and preferences |
-| `editor` | Analysis acceptance and one editor session's orchestration | Contracts, preferences, and presentation |
-| `editor.events` | IntelliJ event and committed-settings propagation | Editor sessions, settings, and preferences |
-| `editor.highlighting`, `settings.ui` | Host entry points | The inward application boundaries required by each entry point |
+| Package group | Responsibility |
+|---|---|
+| `analysis` | Internal analysis input, coverage, stamp, and bracket values |
+| `analysis.intellij` | IntelliJ service composition and document-backed guide input |
+| `analysis.snapshot` | Outcome policy, immutable snapshot queries, layout, and result sharing |
+| `analysis.pairing`, `analysis.guide` | Token recognition and exact guide-position policy |
+| `analysis.active`, `analysis.token` | Query indexes |
+| `analysis.pairing.core`, `analysis.sorting` | Platform-neutral primitive mechanisms |
+| `preferences`, `settings` | Immutable choices and IntelliJ persistence |
+| `presentation` | Per-editor markers, drawing, and viewport decoration |
+| `editor`, `editor.events` | One editor's state and IntelliJ event propagation |
+| `editor.highlighting`, `settings.ui`, `compatibility` | Host entry points |
 
-The runtime path follows the same direction. Each row names the module, thread,
-and state owner at that step:
+## Runtime path
 
-| Stage | Thread | Module and owner | State or output |
+| Stage | Thread | Owner | Output |
 |---|---|---|---|
-| Structural or coverage change | EDT/platform daemon | `plugin/editor.events`: `EditorGuideEvents` or `GuideSettingsChange` | Invalidate per-editor analysis and schedule background work |
-| Collect | Background highlighting read action | `plugin/editor.highlighting`: `BracketGuideHighlightingPass` | One `AnalysisInput`, attempted stamp, and cancellable analysis call |
-| Recognize | Same background action | `engine/analysis.intellij`: `IntellijBracketAnalysis` → `DocumentBrackets` → `PairingMachine` | Local matcher groups and pairing state become a primitive pair table |
-| Assemble | Same background action | `engine/analysis.snapshot`: `SnapshotAssembly.outcome()` | One immutable `Complete`, `Limited`, or `Unavailable` outcome |
-| Publish | EDT | `plugin`: `EditorGuideSession.accept(AnalysisOutcome)` | `EditorAnalysisState` publishes one volatile immutable `AnalysisAcceptance` containing snapshot, completion, and refusal |
-| Present and paint | EDT/paint callback | `plugin/presentation`: `ActiveGuidePresentation`, `VisibleTokenDecorations` | Per-editor markers and plugin-owned highlighters; paint owns no structural state |
+| Invalidate | EDT or platform daemon | `EditorGuideEvents`, `GuideSettingsChange` | Release stale acceptance and request background work |
+| Collect | Highlighting read action | `BracketGuideHighlightingPass` | `AnalysisInput` and one cancellable analysis call |
+| Recognize | Same background action | `BracketAnalysis`, `DocumentBrackets`, `PairingMachine` | Primitive pair table or a capacity refusal |
+| Assemble | Same background action | `SnapshotAssembly` | `Complete`, `Limited`, or `Unavailable` |
+| Publish | EDT | `EditorGuideSession`, `EditorAnalysisState` | One immutable acceptance per editor |
+| Present | EDT and paint callback | `ActiveGuidePresentation`, `VisibleTokenDecorations` | Plugin-owned markers and highlighters |
 
 Caret, viewport, theme, and appearance events take the short path through the
-existing editor session. With no current snapshot, they may adjust already
-tracked range markers, but they cannot discover a new pair. A background pass
-uses `EditorGuideSessions.canSkipAnalysis` only to avoid repeating an already
-published attempt; it does not mutate EDT-owned state.
+existing editor session. Without a current snapshot they may adjust markers for
+an already known pair, but they cannot discover a new pair. Third-party matcher
+callbacks occur only in the cancellable background collection stage.
 
-The Gradle dependency direction is `plugin -> engine`; `benchmarks` also
-depends on the compiled engine artifact for isolated JMH probes. Engine owns
-analysis and immutable results, plugin owns editor lifetime and presentation,
-and benchmarks own no production code. The engine artifact is composed into the
-plugin's single JAR, so this build boundary adds no runtime classloader boundary.
+## IntelliJ composition boundary
 
-The `BracketAnalysis` call is synchronous. The concrete IntelliJ composition
-uses the pass-provided `ProgressIndicator` and creates no executor or coroutine
-scope. Third-party matcher callbacks are confined to this cancellable
-background path and are never invoked by an EDT event.
+`BracketAnalysis` is a final application-level light service. It composes the
+installed-language catalog, document recognition, guide input, snapshot
+assembly, cancellation, and revision-scoped index sharing. There is no service
+interface or XML service descriptor: the repository has one implementation and
+no external replacement point. `BracketGuidePassRegistration` resolves the
+singleton service while creating each pass and supplies its `analyze` function
+to that pass.
 
-Sharing stops at immutable analysis payloads. Each split editor retains its own
-caret memo, range markers, viewport, and markup; shared indexes retain no
-editor. Weak document generations prevent the canonical store from extending a
-document or editor lifetime.
+The service is intentionally IntelliJ-bound. `AnalysisInput` carries the actual
+`Editor` and `FileType` because token meaning depends on the editor highlighter,
+installed language extensions, document revision, file type, disabled language
+families, and tab settings. Creating a platform-neutral copy of that model would
+duplicate host semantics without another consumer.
 
-## Engine boundary
+Neutrality starts where it is useful. The Java classes in
+`analysis.pairing.core` receive normalized token roles, matching rules,
+cancellation, and an output sink. They know nothing about editors, services, or
+IntelliJ. Active-pair, guide, token-index, and sorting policy are also protected
+from IntelliJ dependencies by ArchUnit.
 
-The root `analysis` package contains the contracts that cross the module
-boundary. Its two application-service interfaces have separate reasons to
-change:
+`BraceLanguageCatalog` is not a service. Recognition asks it for the definition
+of a token language; Settings asks for its installed-family projection. These
+are two queries over the same platform registry, not two independently managed
+applications. A matcher that implements `BraceMatcher` keeps its contextual
+behavior; a `PairedBraceMatcher` is adapted using the platform adapter.
 
-- `BracketAnalysis` analyzes one `AnalysisInput` and returns an
-  `AnalysisOutcome`;
-- `BraceLanguageInventory` lists the installed brace-matcher language families
-  used by Settings.
+There is no raw-character fallback, legacy file-type-only fallback, or
+product-specific backend. If the IDE lacks `com.intellij.lang.braceMatcher`,
+the compatibility startup boundary emits one **Unsupported IDE** notification.
 
-`plugin.xml` binds those interfaces to `IntellijBracketAnalysis` and
-`IntellijBraceLanguageInventory` in `analysis.intellij`. The plugin therefore
-depends on contracts, while the IntelliJ-specific composition owns concrete
-recognition, snapshot assembly, canonical index storage, guide-position access,
-and cancellation wiring. The highlighting factory resolves `BracketAnalysis`
-and passes the analysis function into each pass; the pass does not locate its
-own service.
+## Outcome and snapshot boundary
 
-The contracts deliberately retain the IntelliJ concepts required by the use
-case. `AnalysisInput` carries the actual `Editor` and `FileType`, because token
-roles depend on the editor highlighter, installed `LanguageBraceMatching`
-extensions, document revision, file type, and tab settings. Neutral copies of
-those host concepts would form a second, potentially inconsistent token model.
-
-The policy core is neutral instead. Java code under
-`analysis.pairing.core` uses only the Java standard library. A
-`PairingMachine` receives normalized token roles, deterministic matching rules,
-cancellation, and an output sink. It owns group-isolated stacks, malformed
-recovery, nesting depth, and completed-pair ordering. It reads no editor,
-document, clock, executor, service, or global state.
-
-`DocumentBrackets` is the recognition boundary inside `analysis.pairing`. It
-reads the editor's token stream and resolves only the token language's
-`com.intellij.lang.braceMatcher` registration. A `PairedBraceMatcher` is
-wrapped with the platform adapter; a matcher that already implements
-`BraceMatcher` keeps its contextual behavior. The adapter emits explicit open,
-close, toggle, strict-context, and structural roles for the neutral machine.
-
-There is no raw-character fallback, legacy file-type-only matcher fallback, or
-product-specific backend. Layered languages remain isolated, while comment and
-string behavior follows the host lexer and matcher.
-
-IDE compatibility is a separate startup boundary.
-`IdeCompatibilityStartupActivity` checks that the required language brace
-matching extension point exists, and `UnsupportedIdeWarning` owns the
-application-wide once-only **Unsupported IDE** notification. It does not create
-an alternate recognition path.
-
-## Outcome boundary
-
-Every analysis attempt returns one of three authoritative states:
+Every attempted analysis has one authoritative outcome:
 
 | Outcome | Meaning | Published data |
 |---|---|---|
 | `Complete` | Every requested facet is exact | A `BracketSnapshot` |
-| `Limited` | One optional facet exceeded its independent capacity | An exact lower-coverage snapshot plus the attempted stamp and limit |
-| `Unavailable` | Authoritative recognition could not complete | The attempted stamp and limit; no snapshot or capped prefix |
+| `Limited` | Only the optional guide facet exceeded capacity | An exact lower-coverage snapshot and the attempted stamp |
+| `Unavailable` | Recognition could not finish authoritatively | The attempted stamp and refusal reason; no capped prefix |
 
-Only guide capacity can produce `Limited`: token and active-pair indexes stay
-exact while the guide is omitted. File-size, completed-pair, and pending-open
-admission failures produce `Unavailable`.
+`AnalysisOutcome`, `AnalysisLimit`, `BracketSnapshot`, and `TokenWindow` live
+together in `analysis.snapshot` because they change with result policy and query
+shape. They are concrete internal types, not interfaces with one implementation.
+The snapshot exposes active-pair, guide, and visible-token queries while hiding
+assembly and index layout.
 
-`AnalysisStamp` records the facts that make a result current: document
-identity and revision, highlighter-dependent semantics, file type, requested
-coverage, disabled matcher families, and guide-relevant tab settings. A stale
-pass is rejected as a unit. Completed stamps and engine-capacity refusals
-prevent an unchanged request from entering a background retry loop. The IDE
-file-size predicate is rechecked on every pass because the saved or in-memory
-length can change independently of the analysis stamp.
-
-`BracketSnapshot` exposes queries for the active pair, guide, and visible token
-window. It does not expose assembly objects or concrete index implementations.
+`AnalysisStamp` records the facts that make a result current. It includes the
+document revision, highlighter identity, file type, requested coverage,
+disabled language families, and guide-relevant tab settings. Apply rejects a
+stale result as a unit. A completed stamp or a structural refusal prevents an
+unchanged background retry loop; the host file-size predicate is rechecked
+because saved or in-memory length can change independently.
 
 ## Index assembly and sharing
 
-`AnalysisCoverage` is compiled into one internal index layout before
-recognition. `SnapshotAssembly` then builds only the active-pair, token, and
-guide facets needed by that layout. Assembly order minimizes overlap between
-temporary and retained primitive arrays; details belong to the
-[performance and capacity reference](reference_performance_limits.md).
+`AnalysisCoverage` becomes one `IndexLayout` before recognition.
+`SnapshotAssembly` builds only the active-pair, token, and guide facets required
+by that layout. It decides outcome and index policy without locating a service
+or retaining a `ProgressIndicator`.
 
-`SnapshotAssembly` receives recognition, cancellation, guide creation, and
-canonicalization as values. It decides outcome and index policy without
-locating IntelliJ services or retaining a `ProgressIndicator`.
-`DocumentGuidePositions` in `analysis.intellij` translates `Document` access
-and cancellation into the line data consumed by `GuidePositionIndex`. This
-split keeps host I/O in the composition layer and deterministic guide queries
-in the policy layer.
+`DocumentGuidePositions` translates IntelliJ `Document` access into the line
+data consumed by deterministic guide policy. The active-pair index returns the
+innermost containing pair and resolves malformed crossing intervals
+deterministically. Structural pairs may recover past unmatched regular openers;
+regular pairs cannot cross a structural scope boundary.
 
-The active-pair index resolves crossing intervals deterministically and returns
-the innermost containing pair. Malformed recovery honors each platform
-`BracePair.isStructural` flag: structural pairs may recover past unmatched
-regular openers, while regular pairs cannot cross a structural scope boundary.
+`DocumentBracketIndexes` may canonicalize equivalent immutable payloads for the
+same document revision and analysis identity. Hashes are prefilters only;
+observable primitive content is compared before sharing. Weak references avoid
+extending document or editor lifetime. Each split editor still owns its stamp,
+active-pair memo, range markers, viewport, and markup.
 
-`DocumentBracketIndexes` canonicalizes equivalent immutable payloads for the
-same document revision and analysis identity. Content hashes are only
-prefilters; equality compares the complete observable primitive content.
-Token-only payloads do not retain the source pair table. Canonical entries use
-weak document, file-type, pair-table, and index references, and a new document
-revision replaces the previous generation.
+This is result sharing, not single-flight recognition. Separate editor
+highlighters are not assumed equivalent before their results are compared.
 
-This is result sharing, not global single-flight recognition. Two split editors
-may independently collect results because their highlighters cannot be assumed
-equivalent before comparison.
+## Editor and presentation boundary
 
-## Editor integration
+`BracketGuideHighlightingPass` checks IntelliJ's code-insight file-size policy,
+collects in the daemon background lifecycle, and applies on the EDT. An
+admission refusal still reaches apply so stale plugin markup can be cleared.
 
-`BracketGuideHighlighting` registers one `TextEditorHighlightingPass`.
-Collection happens in the daemon's background read action and application
-happens on the EDT. Before recognition, the pass delegates large-file admission
-to IntelliJ's code-insight predicate. Unsaved content is checked using the
-current document length; saved content uses the virtual file length.
-
-The apply phase accepts a result only if its stamp still matches current
-coverage, language selection, file type, document revision, and highlighter
-semantics. An admission refusal still reaches the apply phase so stale
-plugin-owned markup can be cleared.
-
-`EditorGuideEvents` in `editor.events` routes primary-caret, document, viewport,
-editor-lifetime, and color-scheme events to the owning session. It never
-performs token iteration. A document change releases stale proportional
-analysis structures; existing `RangeMarker` presentation may remain coherent
-only for the previously known pair while replacement analysis is pending.
-
-`EditorGuideSession` owns analysis acceptance, requested coverage, lifecycle,
-and viewport orchestration. It delegates the active pair's range markers,
-guide markup, and bounded provisional behavior to one
-`ActiveGuidePresentation`. That aggregate contains `TrackedBracketPair` and
-`ActivePairMarkup`, so those objects cannot drift into different lifecycles.
-`VisibleTokenDecorations` remains separate because viewport token coloring has
-a different state and invalidation cadence.
+`EditorGuideSession` owns requested coverage, accepted analysis, lifecycle, and
+viewport orchestration for one editor. `ActiveGuidePresentation` owns the
+tracked pair, its range markers, its markup, and bounded provisional guide
+behavior. `VisibleTokenDecorations` is separate because viewport coloring has a
+different state and invalidation cadence.
 
 When exact guide coverage is pending for an already tracked multiline pair,
-`GuidePositionFallback` may inspect a bounded amount of leading whitespace to
-keep the provisional drawing usable. It does not recognize brackets, and an
-authoritative background guide always replaces it. The exact bound is recorded
-in the [performance and capacity reference](reference_performance_limits.md).
+`GuidePositionFallback` may scan a bounded amount of leading whitespace. It
+does not recognize brackets, and authoritative background output replaces it.
+The exact bound is defined in the
+[performance reference](reference_performance_limits.md).
 
-## Rendering and settings
+`BracketGuideDrawing` computes geometry with public editor APIs at paint time
+and paints only inside the graphics clip. The plugin disposes only its own
+highlighters; it never clears unrelated editor markup.
 
-`BracketGuideDrawing` owns one guide's geometry and appearance. It resolves
-visual coordinates with public editor APIs at paint time, paints only within
-the current graphics clip, and performs no PSI work or read action.
+Persisted options live in `settings`; immutable choices live in `preferences`.
+`GuideSettingsChange` requests reanalysis only for coverage or language changes.
+Appearance-only changes update current presentation without recognition.
 
-The plugin retains and disposes only its own highlighters. It never removes all
-editor highlighters or deletes markup by a shared layer number.
+## Build-time boundaries
 
-`BracketGuideSettingsPage` uses the platform `BoundConfigurable` lifecycle and
-depends on `BraceLanguageInventory`, not on the concrete matcher catalog.
-Persisted language choices are disabled matcher-family IDs rather than a static
-allowlist, so an installed language plugin can add a supported family without a
-Bracket Pair Guides release. A dialect inheriting its base matcher's capability
-shares the same family ID.
+`plugin` uses Kotlin explicit API mode and keeps Kotlin implementation
+declarations `private` or `internal`. The committed ABI baseline contains the
+Java pairing core because Java has no module-wide `internal` visibility and the
+core is shared by sibling packages and JMH. This is implementation bytecode,
+not a supported external plugin API; any addition still requires review.
 
-`GuideSettingsChange` in `editor.events` applies committed preferences to live
-sessions. It asks the IntelliJ daemon for background reanalysis only when
-coverage or language selection changes. Appearance-only changes update existing
-presentation and do not invoke recognition. Immutable preference values live in
-`preferences`; IntelliJ persistence lives in `settings`, preventing the editor
-and presentation packages from depending on the storage service.
+ArchUnit 1.5.0 runs under JUnit 4 as part of `:plugin:check`. It analyzes compiled
+Kotlin and Java production bytecode and enforces:
 
-## ABI boundary
+- the declared package dependency direction;
+- absence of cycles between production package slices;
+- absence of IntelliJ dependencies in the designated neutral policy packages;
+- absence of analysis-type dependencies from editor event adapters;
+- absence of event calls to methods that return analysis types.
 
-Both Kotlin modules use explicit API mode. Implementation contracts stay
-`private` or `internal`. The root `analysis` contracts consumed across the
-module boundary are public only for JVM linkage and are annotated
-`@ApiStatus.Internal`; they are not a supported consumer API.
-
-Committed ABI dumps are verified during each module's `check` task. The engine
-package guard rejects public Kotlin ABI outside the root contracts and rejects
-implementation types leaking through them. The deployable plugin's ABI dump
-remains empty. A separate engine check rejects `com.intellij` references from
-`analysis.pairing.core`, making the neutral-core rule executable rather than
-documentary.
-
-The root `checkArchitecture` task also verifies exact Gradle module edges,
-registered production packages, permitted project imports, and absence of
-module or package cycles. Root and subproject `check` tasks depend on it, so the
-DAG is a build invariant rather than a diagram convention. See
-[Contributing](../CONTRIBUTING.md#change-an-architecture-boundary) before
-changing an edge or ABI baseline.
+This replaces the former custom source scanner. Package rules belong in the
+test, where they run with behavior tests and inspect the bytecode that ships.
+See [Contributing](../CONTRIBUTING.md#change-an-architecture-boundary) before
+changing a boundary.
 
 ## Known limitations
 
-- An edit that may alter later nesting requires a new full token recognition.
+- A structural edit that may alter later nesting requires full token recognition.
 - Only the primary caret selects an active pair.
-- Complete active-scope background shading is intentionally not provided.
+- Complete active-scope background shading is intentionally absent.
 - Folded endpoints are not painted.
-- The host pass does not traverse separate injected documents on its own.
+- The highlighting pass does not traverse separate injected documents on its own.
 - An executing third-party matcher callback cannot be forcibly interrupted.
-- In malformed input, an unmatched structural opener may conservatively hide a
-  regular pair that would be valid only if that opener never closes.
-- Split-editor result sharing starts after independently collected results are
-  proved equivalent; transient analysis work is not shared.
-- Languages without `com.intellij.lang.braceMatcher` are not analyzed, and a
-  legacy `com.intellij.braceMatcher` registration alone is insufficient.
-- Capacity boundaries may omit guides or make an analysis unavailable. Current
-  values and exact fallback behavior are defined only in the
-  [performance and capacity reference](reference_performance_limits.md).
+- Split-editor payload sharing begins only after independently collected results
+  are proved equivalent.
+- Languages without `com.intellij.lang.braceMatcher` are not analyzed.
+- Capacity boundaries may omit guides or make an analysis unavailable; the
+  [performance reference](reference_performance_limits.md) is authoritative.
 
-## Related documentation
+## Design sources
 
-- [Performance and capacity reference](reference_performance_limits.md)
-- [IDE and language support reference](reference_language_support.md)
-- [Configuration and conflict handling](guide_configuration.md)
-- [Run the performance benchmarks](../benchmarks/guide_benchmarking.md)
-- [Contributing](../CONTRIBUTING.md)
+The package and test-boundary review used the following lectures from 즐거운
+학습's Inflearn course *클린 코더스: 실전 객체 지향 프로그래밍과 TDD 마스터
+클래스*. They informed the review criteria; they do not certify the result.
 
-The historical
-[object-design](explanation_object_design.md) and
-[test-boundary](explanation_test_boundaries.md) reports record completed
-refactoring work. They are evidence for past decisions, not current onboarding
-or the source of current limits.
+- [OOP](https://www.inflearn.com/courses/lecture?courseId=336905&unitId=279438)
+- [TDD 1](https://www.inflearn.com/courses/lecture?courseId=336905&unitId=279445)
+- [Architecture](https://www.inflearn.com/courses/lecture?courseId=336905&unitId=279449)
+- [Architecture UseCase](https://www.inflearn.com/courses/lecture?courseId=336905&unitId=279450)
+- [Single Responsibility Principle](https://www.inflearn.com/courses/lecture?courseId=336905&unitId=279452)
+- [Dependency Inversion Principle](https://www.inflearn.com/courses/lecture?courseId=336905&unitId=279456)
 
-## Platform references
+Platform references:
 
-- [Syntax and error highlighting](https://plugins.jetbrains.com/docs/intellij/syntax-highlighting-and-error-highlighting.html)
-- [Brace matching](https://plugins.jetbrains.com/docs/intellij/additional-minor-features.html)
-- [Services](https://plugins.jetbrains.com/docs/intellij/plugin-services.html)
-- [Disposer and plugin unload](https://plugins.jetbrains.com/docs/intellij/disposers.html)
-- [Color scheme management](https://plugins.jetbrains.com/docs/intellij/color-scheme-management.html)
-
-## Design references
-
-The refactoring criteria were reviewed against the following lectures from
-Inflearn's *클린 코더스: 실전 객체 지향 프로그래밍과 TDD 마스터 클래스*,
-taught by **즐거운 학습**. These lectures informed the dependency and
-test-boundary decisions; they are not a certification of this implementation.
-
-- [Architecture](https://www.inflearn.com/courses/lecture?courseId=336905&unitId=279449): expose use cases and defer framework detail.
-- [Single Responsibility Principle](https://www.inflearn.com/courses/lecture?courseId=336905&unitId=279452): define responsibility by source of change and keep package dependencies one-way.
-- [Dependency Inversion Principle](https://www.inflearn.com/courses/lecture?courseId=336905&unitId=279456): direct source dependencies toward policy and stable contracts.
-- [TDD 1](https://www.inflearn.com/courses/lecture?courseId=336905&unitId=279445): use tests as low-level design feedback and refactor after behavior is green.
-- [Split Phase](https://www.inflearn.com/courses/lecture?courseId=336905&unitId=279465): separate host I/O from deterministic policy through explicit intermediate values.
+- [JetBrains services](https://plugins.jetbrains.com/docs/intellij/plugin-services.html)
+- [JetBrains brace matching](https://plugins.jetbrains.com/docs/intellij/additional-minor-features.html)
+- [ArchUnit user guide](https://www.archunit.org/userguide/html/000_Index.html)

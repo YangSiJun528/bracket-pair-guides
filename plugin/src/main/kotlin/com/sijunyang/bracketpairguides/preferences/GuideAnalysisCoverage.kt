@@ -11,3 +11,10 @@ internal fun BracketGuidePreferences.analysisCoverage(): AnalysisCoverage {
         guidePosition = activePair && showsGuide,
     )
 }
+
+/** Whether this preference state requires a different analysis result than [other]. */
+internal fun BracketGuidePreferences.hasDifferentAnalysisFrom(
+    other: BracketGuidePreferences,
+): Boolean =
+    analysisCoverage() != other.analysisCoverage() ||
+        disabledLanguageIds != other.disabledLanguageIds

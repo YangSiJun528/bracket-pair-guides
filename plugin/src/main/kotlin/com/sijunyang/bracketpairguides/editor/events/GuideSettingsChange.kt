@@ -3,7 +3,7 @@ package com.sijunyang.bracketpairguides.editor.events
 import com.intellij.openapi.editor.EditorFactory
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
-import com.sijunyang.bracketpairguides.preferences.analysisCoverage
+import com.sijunyang.bracketpairguides.preferences.hasDifferentAnalysisFrom
 
 /** A committed preference transition and its effects on live editor sessions. */
 internal data class GuideSettingsChange(
@@ -14,8 +14,7 @@ internal data class GuideSettingsChange(
         get() = previous == current
 
     val requiresAnalysisRefresh: Boolean
-        get() = previous.analysisCoverage() != current.analysisCoverage() ||
-            previous.disabledLanguageIds != current.disabledLanguageIds
+        get() = current.hasDifferentAnalysisFrom(previous)
 
     fun apply() {
         if (isEmpty) return

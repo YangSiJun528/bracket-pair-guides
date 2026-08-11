@@ -1,7 +1,7 @@
 package com.sijunyang.bracketpairguides.presentation
 
-import com.sijunyang.bracketpairguides.analysis.BracketSnapshot
-import com.sijunyang.bracketpairguides.analysis.TokenWindow
+import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
+import com.sijunyang.bracketpairguides.analysis.snapshot.TokenWindow
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 import com.intellij.openapi.editor.Editor

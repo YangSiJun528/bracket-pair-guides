@@ -1,112 +1,104 @@
 # Contributing
 
-Use this guide to choose the correct module and run the same verification
-boundaries enforced by the repository.
+Use this guide to choose a source area and run the repository's verification
+boundaries.
 
 ## Prerequisites
 
 - Run Gradle with JDK 21, matching CI.
-- Use the committed `./gradlew` wrapper rather than a system Gradle install.
+- Use the committed `./gradlew` wrapper.
 - Allow the Foojay resolver to provision the configured compiler toolchain when
   it is not installed locally.
 
-Production bytecode targets Java 17. Kotlin source is restricted to language
-and API version 1.9 because the minimum supported IntelliJ Platform bundles
-Kotlin 1.9. Changing the Gradle runtime, JVM toolchain, Kotlin language version,
-or minimum IDE build is a compatibility change and must be reviewed together.
+Production bytecode targets Java 17. Kotlin source uses language and API version
+1.9 because the minimum supported IntelliJ Platform bundles Kotlin 1.9.
+Changing the Gradle runtime, JVM toolchain, Kotlin version, or minimum IDE build
+is one compatibility change and must be reviewed together.
 
-## Choose a module
+## Choose a source area
 
-| Change | Module | Primary verification |
+The repository has one deployable production module. Package boundaries inside
+`plugin` preserve separate reasons to change without creating artifacts that
+have no independent consumer.
+
+| Change | Source area | Primary verification |
 |---|---|---|
-| Analysis contracts, IntelliJ composition, matcher adaptation, snapshots, indexes | `engine` | `./gradlew :engine:check` |
-| Highlighting passes, editor sessions, presentation, settings, plugin metadata | `plugin` | `./gradlew :plugin:check` |
-| Pairing or sorting performance experiment | `benchmarks` | `./gradlew :benchmarks:jmhJar` |
-| Dependency boundary, build coordination, or CI | Repository root | `./gradlew check` and all affected module checks |
+| Recognition, snapshot, indexes, or analysis values | `plugin/src/main/.../analysis` | `./gradlew :plugin:check` |
+| Editor lifetime, highlighting, presentation, settings, or compatibility | Other `plugin/src/main` packages | `./gradlew :plugin:check` |
+| Pairing or sorting measurement | `benchmarks/src/jmh` | `./gradlew :benchmarks:jmhJar` |
+| Build coordination or CI | Repository root | `./gradlew :plugin:check :benchmarks:jmhJar` |
 
-Keep one recognition implementation in `engine`. The `plugin` module should
-translate editor events and settings into engine inputs and presentation, not
-reimplement bracket semantics.
+Keep one implementation of bracket semantics in production source. Editor and
+settings code should consume analysis outcomes and queries instead of
+reimplementing recognition or index behavior.
 
 ## Change an architecture boundary
 
-The repository models production dependencies as a DAG. It is not a strict
-tree: several callers may depend on a shared stable contract or primitive leaf,
-but a leaf must not depend back on one of those callers. The current rationale
-and simplified graph are in [Architecture](docs/explanation_architecture.md).
+The production package graph is a directed acyclic graph. Multiple packages may
+depend on the same stable value or primitive policy, but a dependency must not
+point back toward its caller.
 
 To move a responsibility or add a production package:
 
-1. Identify the use case and its source of change. Prefer an existing owner
-   whose responsibility matches; do not add an interface or package only to
-   make the graph look deeper.
-2. Direct project imports toward contracts, immutable values, or lower policy
-   layers. IntelliJ entry points may compose inward objects; policy packages
-   must not locate services or import an outward entry package.
-3. If the package or edge is new, update its `UseCasePackage` and
-   `allowedDependencies` in
-   `buildSrc/src/main/kotlin/architecture/ProjectArchitecture.kt`. For a new
-   Gradle module, also update `moduleDependencies`. Add the narrow edge the use
-   case requires; do not permit a reverse edge to silence a failure.
-4. Keep project imports explicit. The architecture check rejects project
-   wildcard imports, unknown production packages, and production `typealias`
-   declarations because they can hide an edge from the source-level graph.
-5. Run the architecture check and then the affected behavior and ABI checks:
+1. Identify the use case and the actor or policy that can require the change.
+2. Prefer an existing package with that responsibility. Do not add an interface,
+   package, or Gradle module only to make the diagram deeper.
+3. Direct imports toward values and lower-level policy. IntelliJ entry points may
+   compose analysis objects; neutral policy packages must not locate services or
+   import outward editor packages.
+4. Update the executable rule in
+   [`ArchitectureTest.java`](plugin/src/test/java/com/sijunyang/bracketpairguides/architecture/ArchitectureTest.java)
+   only when the new direction is intentional. Add the narrow dependency the use
+   case requires; do not permit a reverse edge merely to silence a failure.
+5. Run the architecture tests and then the affected behavior tests.
 
 ```shell
-./gradlew checkArchitecture
-./gradlew buildSrc:test
-./gradlew :engine:check :plugin:check :benchmarks:jmhJar
+./gradlew :plugin:test \
+  --tests 'com.sijunyang.bracketpairguides.architecture.ArchitectureTest'
+./gradlew :plugin:check :benchmarks:jmhJar
 ```
 
-`checkArchitecture` verifies the exact Gradle module edges, declared package
-permissions, actual project imports, and module/package acyclicity. Root and
-subproject `check` tasks depend on it. Treat a failure as a design review point;
-change the dependency map only when the new direction is intentional and can be
-explained in the architecture document.
-
-`buildSrc:test` protects the source scanner and cycle diagnostics used by that
-task. It is a separate build and therefore is not implied by the root `check`
-task.
+ArchUnit imports compiled Kotlin and Java production classes. Its layered rule
+checks the permitted package direction, its slice rule rejects cycles, and its
+neutral-policy rule rejects IntelliJ dependencies in the packages named by that
+rule. A separate dependency rule keeps editor event adapters unaware of analysis
+types. A method-call rule also checks return descriptors, which ArchUnit's class
+dependency set does not model for every Kotlin call shape. The test is the
+authoritative edge definition; documentation deliberately does not copy the
+complete edge list.
 
 ## Run tests
 
-The repository uses JUnit 4.13.2. IntelliJ-bound tests also use the IntelliJ
-Platform test framework and bundled Java/Kotlin test plugins configured by each
-module.
+The project uses JUnit 4.13.2. IntelliJ-bound tests also use the IntelliJ
+Platform test framework and bundled Java and Kotlin test plugins.
 
-Run both production test suites and compile the benchmark harness:
+Run the production suite and compile the benchmark harness:
 
 ```shell
-./gradlew :engine:check :plugin:check :benchmarks:jmhJar
+./gradlew :plugin:check :benchmarks:jmhJar
 ```
 
-Run only the module affected by a small change:
+Run only the production suite:
 
 ```shell
-./gradlew :engine:check
 ./gradlew :plugin:check
 ```
 
-Run one test class or method with Gradle's test filter:
+Run one test class or method:
 
 ```shell
-./gradlew :engine:test \
-  --tests '<fully-qualified-engine-test>'
+./gradlew :plugin:test \
+  --tests '<fully-qualified-test>'
 
 ./gradlew :plugin:test \
-  --tests '<fully-qualified-plugin-test>'
-
-./gradlew :plugin:test \
-  --tests '<fully-qualified-plugin-test>.<method-name>'
+  --tests '<fully-qualified-test>.<method-name>'
 ```
 
-Engine tests cover facade outcomes, matcher adaptation, platform-neutral
-pairing, and indexes. Plugin tests cover highlighting-pass lifecycle, outcome
-publication, settings transitions, visible-token viewport behavior, background
-lifecycle, provisional guides, rendering, and persistence. Share fixtures from
-test source sets; do not add production getters, defaults, or annotations only
-to expose implementation state to tests.
+Test observable behavior through product inputs and outcomes. Reuse production
+snapshot and policy objects from the same module when their internal visibility
+is sufficient. Keep scenario setup and call recording under `plugin/src/test`.
+Do not add a production getter, convenience overload, fake hierarchy, or
+`@TestOnly` declaration solely to expose implementation state.
 
 ## Run the plugin
 
@@ -122,37 +114,29 @@ Start a sandboxed IntelliJ IDEA with the plugin installed:
 ./gradlew :plugin:runIde
 ```
 
-The sandbox uses the target configured by the IntelliJ Platform Gradle plugin.
-Use it for behavior that unit and fixture tests cannot establish, including
+Use the sandbox for behavior that tests cannot establish reliably, including
 painting, theme changes, scrolling, split editors, and large-file interaction.
 
-## ABI changes
+## Review ABI changes
 
-Each module's `check` task verifies its committed Kotlin ABI baseline. The
-engine also verifies that public Kotlin declarations stay in the root
-`analysis` facade and that the platform-neutral Java pairing core has no
-IntelliJ dependency.
+The plugin is not a library. Kotlin explicit API mode keeps cross-file
+implementation explicit, while product types should remain `private` or
+`internal`. `:plugin:check` verifies the committed ABI baseline.
 
-Run only the two engine boundary guards with:
-
-```shell
-./gradlew \
-  :engine:checkEngineApiPackages \
-  :engine:checkPairingCorePlatformNeutrality
-```
-
-Do not update an ABI baseline merely to make a failing build green. First check
-whether the declaration can remain `private` or `internal`. For an intentional
-module-boundary change, review the source and ABI diff, then run:
+Do not update the baseline merely to make a failing build green. First decide
+whether the declaration can remain non-public. For an intentional public JVM
+surface change, review the source and ABI diff, then run:
 
 ```shell
-./gradlew :engine:updateLegacyAbi :plugin:updateLegacyAbi
-./gradlew :engine:check :plugin:check
+./gradlew :plugin:updateLegacyAbi
+./gradlew :plugin:check
 ```
 
-`@ApiStatus.Internal` documents that the public JVM bridge is not a supported
-consumer API; it does not provide JVM access control. The deployable `plugin`
-module should continue to expose no Kotlin library API.
+The baseline intentionally contains the Java pairing core. Java has no
+module-wide `internal` visibility, so sibling production packages and the JMH
+harness require those declarations to be JVM-public. They are implementation,
+not a supported external plugin API. Kotlin product declarations should not be
+added to the baseline without a concrete consumer and an explicit review.
 
 ## Verify IntelliJ compatibility
 
@@ -172,35 +156,30 @@ Run the full Plugin Verifier matrix for compatibility-sensitive changes:
 ./gradlew :plugin:verifyPlugin
 ```
 
-The full task downloads the configured IDE matrix and is slower than module
-tests. It checks binary compatibility and disallowed IntelliJ API usage; it
-does not replace behavior tests or Qodana.
+The full task downloads the configured IDE matrix. It checks binary
+compatibility and disallowed IntelliJ API usage; it does not replace behavior
+tests, ArchUnit, or Qodana.
 
-## Lint and static analysis
+## Check lint and static analysis
 
-Qodana is the repository's only lint and static-analysis gate. The GitHub
-Actions **Inspect Code** job runs the JVM Community linter and the
-`qodana.recommended` inspection profile configured in `qodana.yml`. Its
-`failThreshold` is zero, so a reported problem fails the gate unless the
-inspection profile or exclusion is intentionally changed.
+Qodana is the repository's lint and static-analysis gate. The GitHub Actions
+**Inspect Code** job runs the JVM Community linter and the
+`qodana.recommended` profile from `qodana.yml`. Its `failThreshold` is zero.
 
-Qodana is a separate CI boundary, not a dependency of `:engine:check` or
-`:plugin:check`. A green local Gradle build therefore does not imply a green
-inspection job. Review Qodana findings on the pull request and reproduce them
-with the corresponding IntelliJ inspection when possible.
+Qodana is separate from Gradle `check`. A green local build does not imply a
+green inspection job. Review Qodana findings on the pull request and reproduce
+them with the corresponding IntelliJ inspection when possible.
 
 There is no repository-wide auto-format gate. Use the IDE formatter for touched
-code and avoid unrelated formatting changes. Do not assume that formatting
-alone resolves a Qodana inspection; Qodana also checks semantic and structural
-problems.
+code and avoid unrelated formatting changes.
 
 ## Before requesting review
 
-1. Run `./gradlew buildSrc:test :engine:check :plugin:check :benchmarks:jmhJar`.
-2. Run `./gradlew :plugin:buildPlugin` when the deployable plugin changed.
+1. Run `./gradlew :plugin:check :benchmarks:jmhJar`.
+2. Run `./gradlew :plugin:buildPlugin` when production code or resources changed.
 3. Run the relevant Plugin Verifier tasks for platform or descriptor changes.
-4. Confirm intentional ABI changes are reflected in reviewed baselines.
-5. Confirm the CI **Inspect Code** Qodana job passes.
+4. Review any intentional ABI change.
+5. Confirm the CI **Inspect Code** job passes.
 
-For release-specific signing and publication steps, use the
+For signing and publication, follow the
 [release procedure](docs/how_to_release.md).

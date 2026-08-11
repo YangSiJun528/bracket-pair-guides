@@ -37,16 +37,17 @@
   fallbacks, and raw-character fallbacks are intentionally absent.
 - Context-sensitive `BraceMatcher` implementations registered through the
   language extension are preserved instead of being reduced to static pairs.
-- Recognition and decoration are separated by the root `BracketAnalysis`
-  contract and the `analysis.intellij` composition. `BraceLanguageInventory`
-  provides Settings with its own service boundary. Token highlighters, matcher
-  registrations, tab settings, and cancellation stay outside the
-  platform-neutral pairing core.
-- Engine and plugin production packages now form an enforced one-way DAG from
-  IntelliJ entry points toward analysis contracts, snapshot and recognition
-  policy, and primitive leaves. The `checkArchitecture` Gradle task rejects
-  unknown packages, forbidden project imports, undeclared module edges, and
-  dependency cycles.
+- Production code now lives in one `plugin` Gradle module. The former `engine`
+  module, module-composition wiring, and cross-module public facade were removed;
+  `benchmarks` remains a measurement-only consumer of compiled plugin classes.
+- `analysis.intellij.BracketAnalysis` is a final application light service
+  instead of an interface/implementation pair and XML service descriptor.
+  Settings reads the installed-family projection from `BraceLanguageCatalog`
+  instead of maintaining a separate language-inventory service.
+- Production packages form an enforced one-way DAG from IntelliJ entry points
+  toward snapshot and recognition policy and primitive leaves. ArchUnit 1.5.0
+  checks the declared layers, package-slice cycles, and IntelliJ neutrality as
+  part of the plugin test suite; the custom `buildSrc` source scanner was removed.
 - Preferences, persisted settings, editor events, sessions, and presentation
   now have separate package ownership. `ActiveGuidePresentation` owns the
   tracked active pair, its markup, and bounded provisional guide behavior for
@@ -61,13 +62,13 @@
 - Equivalent analyses of split editors share an immutable `BracketIndexes`
   payload only after active/full pair geometry or the complete token-only query
   sequence agrees. Token-only payloads retain no source pair table. Each
-  `IndexedBracketSnapshot` keeps its own stamp and active-pair memo, and weak,
+  `BracketSnapshot` keeps its own stamp and active-pair memo, and weak,
   revision-scoped canonical entries do not retain documents or editors.
 - Project-owned analysis, editor, presentation, and settings types now use
   domain concepts instead of actor-style `Engine`, `Builder`, `Resolver`,
   `Manager`, `Factory`, and `Renderer` names; snapshot assembly, settings
-  transition, daemon refresh, analysis state, and markup lifecycles have
-  explicit owners.
+  transition, daemon refresh, analysis state, pass registration, visual-column
+  arithmetic, and markup lifecycles have explicit owners.
 - Production code no longer exposes `@TestOnly` constructors, state getters,
   fixture conversions, policy controls, or convenience overloads. Tests use
   product inputs and results, actual editor markup, production policy objects,
@@ -82,21 +83,20 @@
 - The Settings page now uses platform `BoundConfigurable`, Kotlin UI DSL
   bindings, integer spinners, and standard color selectors instead of custom
   draft, table, splitter, and preview infrastructure.
-- Platform-neutral pairing state and primitive pair storage now live in the
-  engine's `analysis.pairing.core` package. The engine also adapts IntelliJ
-  matchers and builds indexes, and is composed into the existing single-JAR
-  plugin distribution.
+- Platform-neutral pairing state and primitive pair storage live in
+  `analysis.pairing.core`. IntelliJ matcher adaptation and snapshot assembly
+  remain separate package responsibilities inside the single plugin artifact.
 - Analysis coverage is compiled into an index layout before recognition and one
   snapshot assembly builds active/token/guide artifacts; options are not checked
   in the token loop.
 - Pairing tokens now use typed `OPEN`, `CLOSE`, and `TOGGLE` roles instead of a
-  transient bitmask, and engine internals are grouped by analysis feature.
-- Committed Kotlin ABI baselines now contain only the root `analysis` facade.
-  Module checks fail on unreviewed ABI
-  changes and reject public Kotlin engine classes outside that package.
+  transient bitmask, and analysis internals are grouped by responsibility.
+- Analysis inputs, outcomes, snapshots, and token windows are internal product
+  types in their owning packages. The ABI baseline contains only the intentional
+  public Java pairing-core bytecode required across packages and by JMH; checks
+  fail on any unreviewed addition.
 - Document-bracket recognition, snapshot assembly, pairing, sort, and index
-  implementations are hidden behind snapshot queries instead of being exposed
-  to the plugin module.
+  implementations stay behind concrete internal snapshot queries.
 - Token coloring now follows oversized reported viewports even when the caret is
   off-screen and caps synchronous EDT decorations at 2,048 ranges.
 - Dense token-window refreshes now coalesce by editor on a fixed 16 ms delay;

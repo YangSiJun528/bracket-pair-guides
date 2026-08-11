@@ -1,7 +1,7 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
-import com.sijunyang.bracketpairguides.analysis.BracketAnalysis
 import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.presentation.BracketColorPalette

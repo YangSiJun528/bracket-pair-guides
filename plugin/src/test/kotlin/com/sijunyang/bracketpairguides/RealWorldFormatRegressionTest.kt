@@ -8,11 +8,11 @@ import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
-import com.sijunyang.bracketpairguides.analysis.BracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
-import com.sijunyang.bracketpairguides.analysis.BracketAnalysis
-import com.sijunyang.bracketpairguides.analysis.TokenWindow
 import com.sijunyang.bracketpairguides.analysis.requireSnapshot
+import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
+import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
+import com.sijunyang.bracketpairguides.analysis.snapshot.TokenWindow
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPass
 import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing

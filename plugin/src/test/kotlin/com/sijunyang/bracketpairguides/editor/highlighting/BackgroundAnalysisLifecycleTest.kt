@@ -1,12 +1,15 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
+import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.FakeBracketAnalysis
+import com.sijunyang.bracketpairguides.analysis.bracketSnapshot
+import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.concurrency.AppExecutorUtil
@@ -110,27 +113,26 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
         val continueCollection = CountDownLatch(1)
         val capturedDisabledLanguageIds = AtomicReference<Set<String>>()
         val observedGlobalLanguageIds = AtomicReference<Set<String>>()
-        val fakeAnalysis = FakeBracketAnalysis(
-            pairs = { input, _ ->
-                capturedDisabledLanguageIds.set(input.disabledLanguageIds)
-                providerEntered.countDown()
-                check(continueCollection.await(10, TimeUnit.SECONDS))
-                observedGlobalLanguageIds.set(
-                    BracketGuideSettings.getInstance().options.disabledLanguageIds,
-                )
-                if (disabledDuringCollection.single() in input.disabledLanguageIds) {
-                    emptyList()
-                } else {
-                    listOf(pair)
-                }
-            },
-        )
+        val analysis: (AnalysisInput, ProgressIndicator) -> AnalysisOutcome = { input, _ ->
+            capturedDisabledLanguageIds.set(input.disabledLanguageIds)
+            providerEntered.countDown()
+            check(continueCollection.await(10, TimeUnit.SECONDS))
+            observedGlobalLanguageIds.set(
+                BracketGuideSettings.getInstance().options.disabledLanguageIds,
+            )
+            val pairs = if (disabledDuringCollection.single() in input.disabledLanguageIds) {
+                emptyList()
+            } else {
+                listOf(pair)
+            }
+            AnalysisOutcome.Complete(input.bracketSnapshot(pairs))
+        }
         val pass = BracketGuideHighlightingPass(
             project = project,
             editor = editor,
             fileType = myFixture.file.fileType,
             sourceFile = myFixture.file.virtualFile,
-            analyze = fakeAnalysis::analyze,
+            analyze = analysis,
         )
         val collection = AppExecutorUtil.getAppExecutorService().submit<Unit> {
             inReadAction {

@@ -29,12 +29,12 @@ IDEs are load-compatible but are not all runtime-tested.
 
 Language support is capability-based, not a hard-coded allowlist. An installed
 token language is supported when its plugin registers
-`com.intellij.lang.braceMatcher`. If the IDE itself does not provide that
-extension point, Bracket Pair Guides reports one **Unsupported IDE** error at
-startup rather than silently showing an empty language list.
+`com.intellij.lang.braceMatcher`. If the IDE does not provide that extension
+point, Bracket Pair Guides reports one **Unsupported IDE** error at startup
+instead of silently showing an empty language list.
 
 See the [IDE and language support reference](docs/reference_language_support.md)
-for the audited compatibility matrix and
+for the audited compatibility matrix and the
 [language showcase](docs/example_language_showcase.md) for representative
 source examples.
 
@@ -51,33 +51,31 @@ options and coexistence guidance.
 
 ## Develop
 
-Run the normal repository verification with:
+The repository has one production Gradle module, `plugin`. The `benchmarks`
+module is a measurement harness and contributes no production code.
+
+Run the normal verification with:
 
 ```shell
-./gradlew :engine:check :plugin:check :benchmarks:jmhJar
+./gradlew :plugin:check :benchmarks:jmhJar
 ```
 
-Qodana is the repository's only lint and static-analysis gate. It runs as the
-separate **Inspect Code** CI job using `qodana.yml`; it is not part of the Gradle
-`check` tasks. The repository does not add a second Spotless, ktlint, detekt, or
-Checkstyle gate.
+`plugin:check` includes the behavior tests, ABI check, and ArchUnit package
+rules. Qodana is the separate lint and static-analysis gate in CI; the
+repository does not add a second Spotless, ktlint, detekt, or Checkstyle gate.
 
-See [Contributing](CONTRIBUTING.md) for module selection, individual tests,
-`runIde`, ABI review, Plugin Verifier, and the complete pre-review workflow.
+See [Contributing](CONTRIBUTING.md) for individual tests, `runIde`, architecture
+changes, Plugin Verifier, and the complete pre-review workflow.
 
 ## Documentation
 
 - [Current architecture](docs/explanation_architecture.md)
+- [Current design and refactoring report](docs/explanation_design.md)
 - [Performance and capacity reference](docs/reference_performance_limits.md)
 - [IDE and language support reference](docs/reference_language_support.md)
 - [Run the performance benchmarks](benchmarks/guide_benchmarking.md)
 - [Release procedure](docs/how_to_release.md)
-
-The [object-design](docs/explanation_object_design.md) and
-[test-boundary](docs/explanation_test_boundaries.md) documents are historical
-implementation reports. They preserve the names, decisions, and verification
-results of completed refactoring work; use the current architecture and
-references above for onboarding.
+- [Historical implementation reports](docs/history/README.md)
 
 ## License
 

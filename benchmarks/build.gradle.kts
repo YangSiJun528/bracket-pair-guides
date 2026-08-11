@@ -18,9 +18,9 @@ dependencies {
     // standalone benchmark process needs its own runtime on the JMH classpath.
     implementation(kotlin("stdlib"))
 
-    // Benchmark the compiled analysis owner directly without depending on the
-    // deployable plugin project.
-    jmhImplementation(project(":engine"))
+    // Benchmark the compiled analysis implementation without duplicating it in
+    // a separate production module.
+    jmhImplementation(project(":plugin"))
 }
 
 val smokeRun = providers.gradleProperty("benchmarkSmoke")

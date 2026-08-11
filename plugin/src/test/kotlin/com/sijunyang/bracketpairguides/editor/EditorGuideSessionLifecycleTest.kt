@@ -10,10 +10,9 @@ import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
-import com.sijunyang.bracketpairguides.analysis.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.FakeBracketAnalysis
-import com.sijunyang.bracketpairguides.analysis.FakeBracketSnapshot
+import com.sijunyang.bracketpairguides.analysis.bracketSnapshot
+import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.editor.events.EditorGuideEvents
 import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPass
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
@@ -43,15 +42,14 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
             closeLine = 0,
         )
         editor.caretModel.moveToOffset(source.indexOf("content"))
-        val fakeAnalysis = FakeBracketAnalysis(
-            pairs = { _, _ -> listOf(pair) },
-        )
         val pass = BracketGuideHighlightingPass(
             project = project,
             editor = editor,
             fileType = myFixture.file.fileType,
             sourceFile = myFixture.file.virtualFile,
-            analyze = fakeAnalysis::analyze,
+            analyze = { input, _ ->
+                AnalysisOutcome.Complete(input.bracketSnapshot(listOf(pair)))
+            },
             visibleRange = { current ->
                 TextRange(0, current.document.textLength)
             },
@@ -117,17 +115,15 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
                     visibleRange = { TextRange(0, document.textLength) },
                     preferences = options,
                 )
+                val input = AnalysisInput(
+                    editor = editor,
+                    fileType = PlainTextFileType.INSTANCE,
+                    coverage = options.analysisCoverage(),
+                    disabledLanguageIds = emptySet(),
+                )
                 session.accept(
                     AnalysisOutcome.Complete(
-                        FakeBracketSnapshot(
-                            stamp = AnalysisInput(
-                                editor = editor,
-                                fileType = PlainTextFileType.INSTANCE,
-                                coverage = options.analysisCoverage(),
-                                disabledLanguageIds = emptySet(),
-                            ).stamp,
-                            activePair = { pair },
-                        ),
+                        input.bracketSnapshot(listOf(pair)),
                     ),
                 )
                 session
@@ -168,13 +164,14 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         BracketGuideSettings.getInstance().replace(options)
         editor.caretModel.moveToOffset(source.indexOf("value"))
         val pair = BracketPair(0, 1, source.lastIndex, 1, 0, 0, 0)
-        val fakeAnalysis = FakeBracketAnalysis(pairs = { _, _ -> listOf(pair) })
         val pass = BracketGuideHighlightingPass(
             project = project,
             editor = editor,
             fileType = myFixture.file.fileType,
             sourceFile = myFixture.file.virtualFile,
-            analyze = fakeAnalysis::analyze,
+            analyze = { input, _ ->
+                AnalysisOutcome.Complete(input.bracketSnapshot(listOf(pair)))
+            },
             visibleRange = { current ->
                 TextRange(0, current.document.textLength)
             },

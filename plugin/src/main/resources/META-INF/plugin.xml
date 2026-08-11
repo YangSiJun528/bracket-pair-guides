@@ -22,18 +22,10 @@
                 isLogByDefault="true"/>
 
         <highlightingPassFactory
-                implementation="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlighting"/>
+                implementation="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuidePassRegistration"/>
 
         <applicationService
                 serviceImplementation="com.sijunyang.bracketpairguides.settings.BracketGuideSettings"/>
-
-        <applicationService
-                serviceInterface="com.sijunyang.bracketpairguides.analysis.BracketAnalysis"
-                serviceImplementation="com.sijunyang.bracketpairguides.analysis.intellij.IntellijBracketAnalysis"/>
-
-        <applicationService
-                serviceInterface="com.sijunyang.bracketpairguides.analysis.BraceLanguageInventory"
-                serviceImplementation="com.sijunyang.bracketpairguides.analysis.intellij.IntellijBraceLanguageInventory"/>
 
         <applicationConfigurable
                 parentId="editor"

@@ -1,6 +1,6 @@
+import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
-import org.jetbrains.intellij.platform.gradle.tasks.ComposedJarTask
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
@@ -22,8 +22,7 @@ base {
 @OptIn(ExperimentalAbiValidation::class)
 kotlin {
     jvmToolchain(17)
-    // This plugin is not a library. Cross-file implementation stays internal;
-    // the engine module owns the explicitly public build-time bridge.
+    // This plugin is not a library. Cross-file implementation stays internal.
     explicitApi()
     abiValidation {
         enabled.set(true)
@@ -71,24 +70,15 @@ intellijPlatform {
     }
 }
 
-tasks.named<ComposedJarTask>("composedJar") {
-    archiveBaseName.set(rootProject.name)
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(17)
 }
 
 dependencies {
     testImplementation("junit:junit:4.13.2")
+    testImplementation("com.tngtech.archunit:archunit-junit4:1.5.0")
 
     intellijPlatform {
-        // Compile against the analysis boundary and merge it into the classic
-        // single-JAR plugin distribution rather than Plugin Model v2 modules.
-        pluginComposedModule(
-            implementation(project(":engine")) {
-                // Compose only the engine code artifact; IntelliJ dependencies
-                // are supplied by the host platform.
-                isTransitive = false
-            },
-        )
-
         intellijIdeaCommunity("2024.1.7")
 
         // Required only by language-aware lexer integration tests.

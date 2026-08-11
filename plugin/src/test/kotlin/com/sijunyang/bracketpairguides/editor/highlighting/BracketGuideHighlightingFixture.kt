@@ -1,9 +1,10 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
-import com.sijunyang.bracketpairguides.analysis.BracketAnalysis
 import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.FakeBracketAnalysis
+import com.sijunyang.bracketpairguides.analysis.bracketSnapshot
+import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
+import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
@@ -60,13 +61,17 @@ internal abstract class BracketGuideHighlightingFixture : BasePlatformTestCase()
         visibleRange: (Editor) -> TextRange = Editor::calculateVisibleRange,
         fileType: FileType = myFixture.file.fileType,
     ): BracketGuideHighlightingPass {
-        val fakeAnalysis = FakeBracketAnalysis(
-            pairs = { _, _ -> pairs() },
-        )
         return BracketGuideHighlightingPass(
             project = project,
             editor = editor,
-            analyze = fakeAnalysis::analyze,
+            analyze = { input, _ ->
+                val recognizedPairs = if (input.coverage.pairs) {
+                    pairs()
+                } else {
+                    emptyList()
+                }
+                AnalysisOutcome.Complete(input.bracketSnapshot(recognizedPairs))
+            },
             visibleRange = visibleRange,
             fileType = fileType,
             sourceFile = FileDocumentManager.getInstance().getFile(editor.document),

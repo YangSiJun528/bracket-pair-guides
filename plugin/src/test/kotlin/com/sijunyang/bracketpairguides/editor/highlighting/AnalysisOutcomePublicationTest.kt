@@ -1,11 +1,10 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
-import com.sijunyang.bracketpairguides.analysis.AnalysisLimit
-import com.sijunyang.bracketpairguides.analysis.AnalysisOutcome
-import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.FakeBracketSnapshot
+import com.sijunyang.bracketpairguides.analysis.bracketSnapshot
+import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisLimit
+import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
@@ -102,7 +101,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
             analyze = { input, _ ->
                 analysisCount++
                 AnalysisOutcome.Complete(
-                    FakeBracketSnapshot.fromPairs(input.stamp, listOf(pair)),
+                    input.bracketSnapshot(listOf(pair)),
                 )
             },
         )
@@ -131,7 +130,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
             analyze = { input, _ ->
                 analysisCount++
                 AnalysisOutcome.Complete(
-                    FakeBracketSnapshot.fromPairs(input.stamp, listOf(pair)),
+                    input.bracketSnapshot(listOf(pair)),
                 )
             },
         )
@@ -197,7 +196,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
             AnalysisOutcome = { input, _ ->
                 analysisCount++
                 AnalysisOutcome.Complete(
-                    FakeBracketSnapshot.fromPairs(input.stamp, listOf(pair)),
+                    input.bracketSnapshot(listOf(pair)),
                 )
             }
 
@@ -269,10 +268,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
                 )
                 AnalysisOutcome.Limited(
                     stamp = input.stamp,
-                    snapshot = FakeBracketSnapshot.fromPairs(
-                        completedInput.stamp,
-                        listOf(pair),
-                    ),
+                    snapshot = completedInput.bracketSnapshot(listOf(pair)),
                     limit = AnalysisLimit.GUIDE_CAPACITY,
                 )
             },
@@ -287,12 +283,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
             sourceFile = myFixture.file.virtualFile,
             analyze = { input, _ ->
                 AnalysisOutcome.Complete(
-                    FakeBracketSnapshot.fromPairs(
-                        input.stamp,
-                        listOf(pair),
-                    ) { currentPair ->
-                        BracketGuide(currentPair, guideColumn = 2, anchorLine = 1)
-                    },
+                    input.bracketSnapshot(listOf(pair)),
                 )
             },
         )
@@ -348,10 +339,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
                 )
                 AnalysisOutcome.Limited(
                     stamp = input.stamp,
-                    snapshot = FakeBracketSnapshot.fromPairs(
-                        completedInput.stamp,
-                        listOf(pair),
-                    ),
+                    snapshot = completedInput.bracketSnapshot(listOf(pair)),
                     limit = AnalysisLimit.GUIDE_CAPACITY,
                 )
             },
@@ -406,15 +394,12 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
                     )
                     AnalysisOutcome.Limited(
                         stamp = input.stamp,
-                        snapshot = FakeBracketSnapshot.fromPairs(
-                            completedInput.stamp,
-                            listOf(pair),
-                        ),
+                        snapshot = completedInput.bracketSnapshot(listOf(pair)),
                         limit = AnalysisLimit.GUIDE_CAPACITY,
                     )
                 } else {
                     AnalysisOutcome.Complete(
-                        FakeBracketSnapshot.fromPairs(input.stamp, listOf(pair)),
+                        input.bracketSnapshot(listOf(pair)),
                     )
                 }
             },

@@ -36,8 +36,8 @@ and [approval criteria](https://plugins.jetbrains.com/docs/marketplace/jetbrains
 Run from a clean checkout of the exact commit to release:
 
 ```shell
-./gradlew :engine:clean :plugin:clean :benchmarks:clean \
-  :engine:check :plugin:check :benchmarks:jmhJar
+./gradlew :plugin:clean :benchmarks:clean \
+  :plugin:check :benchmarks:jmhJar
 ./gradlew :plugin:buildPlugin
 ./gradlew :plugin:verifyPluginProjectConfiguration :plugin:verifyPluginStructure
 ./gradlew :plugin:verifyPlugin
