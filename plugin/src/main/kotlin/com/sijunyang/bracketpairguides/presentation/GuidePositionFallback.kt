@@ -7,6 +7,46 @@ import com.sijunyang.bracketpairguides.analysis.BracketPair
 
 /** Bounded provisional position used while an exact guide snapshot is pending. */
 internal object GuidePositionFallback {
+    /**
+     * Returns exact post-edit geometry within the synchronous budget. The old
+     * guide is reusable only when the edit is wholly outside the old pair;
+     * notably, equal-length whitespace/tab replacement inside the pair must be
+     * scanned again. A null result means callers must remove the stale guide.
+     */
+    fun guideAfterChange(
+        editor: Editor,
+        pair: BracketPair,
+        previousPair: BracketPair,
+        previous: BracketGuide?,
+        currentAnchorLine: Int?,
+        change: DocumentChange,
+    ): BracketGuide? {
+        val document = editor.document
+        if (pair.openLine == pair.closeLine) {
+            return BracketGuide(
+                pair = pair,
+                guideColumn = 0,
+                anchorLine = pair.openLine.coerceIn(0, document.lineCount - 1),
+            )
+        }
+
+        val firstLine = lineAfterOpenOrClose(pair.openLine, pair.closeLine)
+            .coerceIn(0, document.lineCount - 1)
+        val lastLine = pair.closeLine.coerceIn(firstLine, document.lineCount - 1)
+        if (previous != null && change.isOutside(previousPair)) {
+            return previous.withPair(pair, currentAnchorLine, firstLine, lastLine)
+        }
+
+        val tabSize = editor.settings.getTabSize(editor.project).coerceAtLeast(1)
+        return scanExact(
+            editor = editor,
+            pair = pair,
+            firstLine = firstLine,
+            lastLine = lastLine,
+            tabSize = tabSize,
+        )
+    }
+
     fun guideFor(
         editor: Editor,
         pair: BracketPair,
@@ -123,6 +163,38 @@ internal object GuidePositionFallback {
             anchorLine
         }
         return result(pair, minimum, resolvedAnchorLine)
+    }
+
+    /** Forward order makes the first minimum anchor exact, or refuses on budget. */
+    private fun scanExact(
+        editor: Editor,
+        pair: BracketPair,
+        firstLine: Int,
+        lastLine: Int,
+        tabSize: Int,
+    ): BracketGuide? {
+        val document = editor.document
+        val text = document.immutableCharSequence
+        val budget = ScanBudget()
+        var minimum = NO_INDENT
+        var anchorLine = firstLine
+
+        for (line in firstLine..lastLine) {
+            val indentation = indentationColumn(
+                document = document,
+                text = text,
+                line = line,
+                tabSize = tabSize,
+                budget = budget,
+            )
+            if (indentation == UNRESOLVED) return null
+            if (indentation != NO_INDENT && indentation < minimum) {
+                minimum = indentation
+                anchorLine = line
+                if (minimum == 0) break
+            }
+        }
+        return result(pair, minimum, anchorLine)
     }
 
     private fun result(

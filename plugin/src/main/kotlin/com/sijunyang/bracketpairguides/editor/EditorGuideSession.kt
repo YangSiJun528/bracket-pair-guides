@@ -8,6 +8,7 @@ import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 import com.sijunyang.bracketpairguides.presentation.ActiveGuidePresentation
+import com.sijunyang.bracketpairguides.presentation.DocumentChange
 import com.sijunyang.bracketpairguides.presentation.VisibleTokenDecorations
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
@@ -224,11 +225,16 @@ internal class EditorGuideSession(
         editor.contentComponent.repaint()
     }
 
-    fun documentChanged(): Unit {
+    /**
+     * Synchronously repairs or removes the currently visible pair geometry.
+     * This method must finish before the originating DocumentListener callback;
+     * never make the active-pair refresh dependent on a later analysis pass.
+     */
+    fun documentChanged(change: DocumentChange): Unit {
         assertEdt()
         if (disposed || editor.isDisposed) return
         discardStaleAnalysis()
-        updateProvisional()
+        updateProvisional(change)
     }
 
     fun visibleAreaChanged(): Unit {
@@ -368,7 +374,7 @@ internal class EditorGuideSession(
         tokenDecorations.dispose()
     }
 
-    private fun updateProvisional() {
+    private fun updateProvisional(change: DocumentChange? = null) {
         if (!options.analysisCoverage().activePair) {
             val hadActivePresentation = activePresentation.isVisible
             activePresentation.clear(preserveGuide = false)
@@ -376,7 +382,15 @@ internal class EditorGuideSession(
             return
         }
         if (discardPresentationFromReplacedHighlighter()) return
-        activePresentation.refreshProvisional(caretOffset(), options)
+        if (change == null) {
+            activePresentation.refreshProvisional(caretOffset(), options)
+        } else {
+            activePresentation.refreshAfterDocumentChange(
+                change = change,
+                caretOffset = caretOffset(),
+                preferences = options,
+            )
+        }
         editor.contentComponent.repaint()
     }
 

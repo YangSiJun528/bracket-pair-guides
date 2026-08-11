@@ -3,7 +3,7 @@ package com.sijunyang.bracketpairguides.analysis.guide
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable
 
 /** The document-line envelope needed by all valid multiline bracket guides. */
-internal data class GuideLineEnvelope private constructor(val lines: IntRange) {
+internal class GuideLineEnvelope private constructor(val lines: IntRange) {
     companion object {
         internal fun from(
             pairs: PairTable,

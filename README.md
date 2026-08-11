@@ -15,7 +15,9 @@ innermost pair containing the caret.
 - Language-aware matching through each token language's
   `com.intellij.lang.braceMatcher`.
 - Cancellable background recognition and indexed caret queries; editor events
-  never start bracket recognition on the event dispatch thread.
+  never start bracket recognition on the event dispatch thread. Every document
+  insertion, replacement, or deletion synchronously refreshes the currently
+  tracked pair's geometry or removes that stale presentation.
 - IntelliJ's code-insight file-size policy plus independent structural and
   retained-index capacity guards. A failed analysis never publishes a capped
   pair prefix.
@@ -60,8 +62,8 @@ Run the normal verification with:
 ./gradlew :plugin:check :benchmarks:jmhJar
 ```
 
-`plugin:check` includes the behavior tests, ABI check, and ArchUnit package
-rules. Qodana is the separate lint and static-analysis gate in CI; the
+`plugin:check` includes the behavior tests and ArchUnit package rules. Qodana is
+the separate lint and static-analysis gate in CI; the
 repository does not add a second Spotless, ktlint, detekt, or Checkstyle gate.
 
 See [Contributing](CONTRIBUTING.md) for individual tests, `runIde`, architecture

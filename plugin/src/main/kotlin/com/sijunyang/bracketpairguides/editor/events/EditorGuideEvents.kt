@@ -1,6 +1,7 @@
 package com.sijunyang.bracketpairguides.editor.events
 
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
+import com.sijunyang.bracketpairguides.presentation.DocumentChange
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -64,12 +65,28 @@ internal class EditorGuideEvents :
         primaryCaretChanged(event.editor)
     }
 
+    /**
+     * HARD EDT CONTRACT: every visible tracked pair must be refreshed or removed
+     * before a normal platform document callback returns. Never batch, debounce,
+     * or enqueue the EDT path. Background analysis may discover a new pair later,
+     * but it must never be needed to repair geometry that this edit made stale.
+     * A defensive off-EDT handoff remains asynchronous because blocking a host
+     * write path with invokeAndWait can deadlock the IDE.
+     */
     override fun documentChanged(event: DocumentEvent): Unit {
+        val change = DocumentChange(
+            offset = event.offset,
+            oldLength = event.oldLength,
+            newLength = event.newLength,
+        )
         val editors = EditorFactory.getInstance().getEditors(event.document).toList()
+        // Valid document writes for the supported platform run on EDT. onEdt
+        // therefore executes ordinary typing synchronously. Its off-EDT branch
+        // must stay asynchronous: invokeAndWait can deadlock a host write path.
         onEdt {
             for (editor in editors) {
                 if (!editor.isDisposed) {
-                    EditorGuideSessions.get(editor)?.documentChanged()
+                    EditorGuideSessions.get(editor)?.documentChanged(change)
                 }
             }
         }

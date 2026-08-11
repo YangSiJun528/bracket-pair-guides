@@ -51,8 +51,8 @@
   scanner was removed.
 - Preferences, persisted settings, editor events, sessions, and presentation
   now have separate package ownership. `ActiveGuidePresentation` owns the
-  tracked active pair, its markup, and bounded provisional guide behavior for
-  one editor session.
+  tracked active pair, its markup, and revision-consistent synchronous guide
+  geometry for one editor session.
 - Analysis now returns `AnalysisOutcome.Complete`, `Limited`, or `Unavailable`.
   Pair and pending-open exhaustion publish no capped prefix. Guide exhaustion
   publishes exact token and active-pair facets without an approximate guide;
@@ -79,7 +79,8 @@
 - Structural results are cached so caret movement uses an interval-index lookup
   and updates at most one guide and two active-symbol ranges. If no current
   snapshot exists, the editor waits for the background pass instead of running
-  token recognition on the EDT.
+  token recognition on the EDT; an already tracked pair still refreshes or
+  clears its current geometry synchronously on every document edit.
 - Editor markup remains EDT-confined; background pass deduplication reads one
   atomically published immutable acceptance value, and active presentation is
   applied before viewport token decoration.
@@ -95,9 +96,9 @@
 - Pairing tokens now use typed `OPEN`, `CLOSE`, and `TOGGLE` roles instead of a
   transient bitmask, and analysis internals are grouped by responsibility.
 - Analysis inputs, outcomes, snapshots, and token windows are internal product
-  types in their owning packages. The ABI baseline contains only the intentional
-  public Java pairing-core bytecode required across packages and by JMH; checks
-  fail on any unreviewed addition.
+  types in their owning packages. The plugin no longer maintains a library-style
+  ABI baseline; Java pairing-core bytecode remains public only for package and
+  JMH implementation access.
 - Document-bracket recognition, snapshot assembly, pairing, sort, and index
   implementations stay behind concrete internal snapshot queries.
 - Token coloring now follows oversized reported viewports even when the caret is
@@ -124,8 +125,9 @@
 - Building the active index before retaining the token index lowers the common
   live-array peak by about 1.5 MiB at the current pair cap.
 - Invalidated primitive pair/index snapshots are released immediately after
-  edits while RangeMarker-backed decoration stays visible, preventing stale
-  proportional storage from overlapping replacement analysis.
+  edits. RangeMarker-backed endpoints and bounded guide geometry are then
+  synchronously updated for the current revision, or the stale guide is removed,
+  preventing stale proportional storage from overlapping replacement analysis.
 - Disabling every pair feature now releases the complete per-editor snapshot
   instead of retaining proportional indexes for invisible presentation.
 - Token-only snapshots now detach compact primitive token metadata from the
@@ -146,10 +148,14 @@
 
 ### Fixed
 
+- Every insertion, replacement, and deletion now updates each surviving tracked
+  active pair in the same EDT document-event turn. RangeMarker-adjusted
+  endpoints are never painted with guide geometry from an older document
+  revision; the guide is removed when bounded exact recomputation cannot finish.
 - Guide opacity now remains uniform where horizontal and vertical segments
   overlap.
-- Active-pair presentation now changes only from an authoritative indexed
-  snapshot. A stale RangeMarker-adjusted pair may remain visually coherent, but
+- New active-pair identity still changes only from an authoritative indexed
+  snapshot. The already tracked pair is synchronously adjusted or removed, but
   it is not treated as a newly recognized pair while background analysis runs.
 - Contextual, layered-language, symmetric, shared-closer, language-gate, and
   structural pairing semantics are covered at the full-document grammar

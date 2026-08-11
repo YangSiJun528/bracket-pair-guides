@@ -47,7 +47,7 @@ TDD 마스터 클래스*를 다음 기준으로 적용했다.
 | `BracketAnalysis` interface와 `IntellijBracketAnalysis` 구현 | final light service `analysis.intellij.BracketAnalysis` | 구현과 대체 소비자가 하나뿐인 interface 제거 |
 | `BraceLanguageInventory` service와 구현 | `BraceLanguageCatalog.installedFamilies()` projection | 같은 플랫폼 registry의 별도 service lifecycle 제거 |
 | XML의 분석 service descriptor | `@Service(Service.Level.APP)` light service | override나 외부 plugin 소비가 없는 final service에 플랫폼 기본 방식 사용 |
-| 모듈 경계를 위한 public root `analysis` facade | 책임 패키지의 `internal` Kotlin 타입 | 제품 facade의 공개 JVM surface 제거; Java pairing core만 패키지 간 협업을 위해 baseline에 유지 |
+| 모듈 경계를 위한 public root `analysis` facade | 책임 패키지의 `internal` Kotlin 타입 | 제품 facade의 공개 JVM surface 제거; Java pairing core만 실제 package/JMH 소비를 위해 JVM-public으로 유지 |
 | `BracketSnapshot`·`TokenWindow` interface와 단일 indexed 구현 | `analysis.snapshot`의 concrete internal 객체 | 결과 query와 상태를 소유한 객체를 직접 표현 |
 | snapshot 계층의 중복 recognition bridge | `DocumentBracketRecognition` 한 종류 | 인식 단계의 완료/거부 상태만 남기고 전달용 복제 제거 |
 | production 알고리즘을 다시 구현한 fake snapshot/window 계층 | `BracketSnapshotFixture`가 실제 snapshot 조립 사용 | 테스트와 제품 알고리즘의 이중 진실 공급원 제거 |
@@ -73,7 +73,7 @@ Gradle 모듈 수를 줄인 이유는 “모놀리스가 항상 낫다”가 아
 | `BracketSnapshot` | 한 stamp의 immutable query view와 active-pair memo | 결과 조회 계약 |
 | `EditorAnalysisState` | 한 editor가 받아들인 snapshot·완료·거부의 원자적 상태 | 결과 수락과 retry 정책 |
 | `EditorGuideSession` | 한 editor의 분석·viewport·presentation 수명 | editor lifecycle |
-| `ActiveGuidePresentation` | 추적 pair, range marker, guide와 강조 markup | active-pair 표시 수명 |
+| `ActiveGuidePresentation` | 추적 pair, range marker, guide와 강조 markup 및 문서 revision별 즉시 geometry | active-pair 표시 수명 |
 | `VisibleTokenDecorations` | viewport 범위의 bounded token markup | viewport 표시 정책 |
 | `BracketGuidePreferences` | 사용자가 선택한 immutable 제품 옵션 | 제품 설정 의미 |
 | `BracketGuideSettings` | IntelliJ persistent state | 저장 형식과 migration |
@@ -137,7 +137,7 @@ ArchUnit은 behavior test의 대체물이 아니다. 아래 다섯 구조 속성
 - editor event adapter가 analysis 타입을 반환하는 method를 호출하지 않는가.
 
 정확한 edge 목록은 문서에 복사하지 않는다.
-[`ArchitectureTest.java`](../plugin/src/test/java/com/sijunyang/bracketpairguides/architecture/ArchitectureTest.java)가
+[`ArchitectureTest.kt`](../plugin/src/test/kotlin/com/sijunyang/bracketpairguides/architecture/ArchitectureTest.kt)가
 유일한 실행 규칙이다.
 
 ## Spring Initializr에서 참고한 범위
@@ -173,8 +173,8 @@ ArchUnit은 bytecode 의존성을 확인하지만 이름의 정확성, 한 클�
 보호 장치를 함께 사용한다.
 
 - 행위 테스트: outcome, recognition, index, editor lifecycle과 presentation
-- Kotlin explicit API와 검토된 ABI baseline: Java pairing core 밖의
-  의도하지 않은 public surface
+- source visibility와 code review: 실제 소비자가 없는 Kotlin 구현은
+  `private` 또는 `internal` 유지
 - Qodana: IntelliJ와 JVM 정적 분석
 - code review: 이름, 책임, YAGNI, thread ownership
 - ArchUnit: package 방향, cycle, neutral policy의 platform 의존성
@@ -191,7 +191,7 @@ ArchUnit은 bytecode 의존성을 확인하지만 이름의 정확성, 한 클�
 ./gradlew :plugin:check :benchmarks:jmhJar
 ```
 
-`plugin:check`는 behavior test, ArchUnit, ABI 검증을 포함한다. Plugin descriptor,
+`plugin:check`는 behavior test와 ArchUnit 검증을 포함한다. Plugin descriptor,
 IDE 호환성, Qodana는 각각 [기여 가이드](../CONTRIBUTING.md)에 기록된 별도
 경계다. 이 문서는 시점에 따라 달라지는 테스트 개수를 설계 근거로 고정하지
 않는다.

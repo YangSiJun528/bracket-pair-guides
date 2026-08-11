@@ -48,7 +48,7 @@ To move a responsibility or add a production package:
    compose analysis objects; neutral policy packages must not locate services or
    import outward editor packages.
 4. Update the executable rule in
-   [`ArchitectureTest.java`](plugin/src/test/java/com/sijunyang/bracketpairguides/architecture/ArchitectureTest.java)
+   [`ArchitectureTest.kt`](plugin/src/test/kotlin/com/sijunyang/bracketpairguides/architecture/ArchitectureTest.kt)
    only when a responsibility moves between the four zones. An internal package
    dependency that remains inward and cycle-free does not need a new allow-list
    entry.
@@ -110,6 +110,12 @@ order, numeric bounds, object identity, and exception type or message. Avoid
 soft assertions and unrestricted recursive comparison; both can hide the first
 broken invariant or couple a test to implementation fields.
 
+Document-edit presentation tests must assert immediately after the write action,
+before another daemon or highlighting pass runs. Cover insertion, replacement,
+deletion, and equal-length space/tab replacement. A surviving tracked pair must
+already have current endpoints and guide geometry; if bounded exact geometry is
+unavailable, the guide must already be absent.
+
 ## Run the plugin
 
 Build the distributable ZIP:
@@ -127,26 +133,13 @@ Start a sandboxed IntelliJ IDEA with the plugin installed:
 Use the sandbox for behavior that tests cannot establish reliably, including
 painting, theme changes, scrolling, split editors, and large-file interaction.
 
-## Review ABI changes
+## Review implementation visibility
 
-The plugin is not a library. Kotlin explicit API mode keeps cross-file
-implementation explicit, while product types should remain `private` or
-`internal`. `:plugin:check` verifies the committed ABI baseline.
-
-Do not update the baseline merely to make a failing build green. First decide
-whether the declaration can remain non-public. For an intentional public JVM
-surface change, review the source and ABI diff, then run:
-
-```shell
-./gradlew :plugin:updateLegacyAbi
-./gradlew :plugin:check
-```
-
-The baseline intentionally contains the Java pairing core. Java has no
-module-wide `internal` visibility, so sibling production packages and the JMH
-harness require those declarations to be JVM-public. They are implementation,
-not a supported external plugin API. Kotlin product declarations should not be
-added to the baseline without a concrete consumer and an explicit review.
+The plugin is not a library and does not maintain a supported public API or ABI
+baseline. Keep Kotlin implementation `private` or `internal` unless a concrete
+runtime consumer requires wider visibility. The Java pairing core remains
+JVM-public because sibling packages and the separate JMH module compile against
+it; this is implementation access, not a compatibility promise.
 
 ## Verify IntelliJ compatibility
 
@@ -188,8 +181,7 @@ code and avoid unrelated formatting changes.
 1. Run `./gradlew :plugin:check :benchmarks:jmhJar`.
 2. Run `./gradlew :plugin:buildPlugin` when production code or resources changed.
 3. Run the relevant Plugin Verifier tasks for platform or descriptor changes.
-4. Review any intentional ABI change.
-5. Confirm the CI **Inspect Code** job passes.
+4. Confirm the CI **Inspect Code** job passes.
 
 For signing and publication, follow the
 [release procedure](docs/how_to_release.md).

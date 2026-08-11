@@ -35,7 +35,7 @@ flowchart TB
 These are deliberately broad zones. Packages inside one zone may cooperate as
 their implementation evolves, but dependencies between zones point inward and
 package cycles remain forbidden. The executable and authoritative rules are in
-[`ArchitectureTest.java`](../plugin/src/test/java/com/sijunyang/bracketpairguides/architecture/ArchitectureTest.java).
+[`ArchitectureTest.kt`](../plugin/src/test/kotlin/com/sijunyang/bracketpairguides/architecture/ArchitectureTest.kt).
 
 The zones own these reasons to change:
 
@@ -50,7 +50,7 @@ The zones own these reasons to change:
 
 | Stage | Thread | Owner | Output |
 |---|---|---|---|
-| Invalidate | EDT or platform daemon | `EditorGuideEvents`, `GuideSettingsChange` | Release stale acceptance and request background work |
+| Invalidate | EDT or platform daemon | `EditorGuideEvents`, `GuideSettingsChange` | Release stale acceptance, synchronously refresh or remove tracked-pair geometry, and request background work |
 | Collect | Highlighting read action | `BracketGuideHighlightingPass` | `AnalysisInput` and one cancellable analysis call |
 | Recognize | Same background action | `BracketAnalysis`, `DocumentBrackets`, `PairingMachine` | Primitive pair table or a capacity refusal |
 | Assemble | Same background action | `SnapshotAssembly` | `Complete`, `Limited`, or `Unavailable` |
@@ -58,9 +58,11 @@ The zones own these reasons to change:
 | Present | EDT and paint callback | `ActiveGuidePresentation`, `VisibleTokenDecorations` | Plugin-owned markers and highlighters |
 
 Caret, viewport, theme, and appearance events take the short path through the
-existing editor session. Without a current snapshot they may adjust markers for
-an already known pair, but they cannot discover a new pair. Third-party matcher
-callbacks occur only in the cancellable background collection stage.
+existing editor session. Every insertion, replacement, or deletion updates the
+already tracked pair's endpoints and guide geometry in the same EDT event turn,
+or removes presentation that cannot be made current within the bounded scan.
+These events cannot discover a new pair. Third-party matcher callbacks occur
+only in the cancellable background collection stage.
 
 ## IntelliJ composition boundary
 
@@ -147,14 +149,18 @@ admission refusal still reaches apply so stale plugin markup can be cleared.
 
 `EditorGuideSession` owns requested coverage, accepted analysis, lifecycle, and
 viewport orchestration for one editor. `ActiveGuidePresentation` owns the
-tracked pair, its range markers, its markup, and bounded provisional guide
-behavior. `VisibleTokenDecorations` is separate because viewport coloring has a
-different state and invalidation cadence.
+tracked pair, its range markers, its markup, and the invariant that endpoints
+and guide geometry describe the same document revision. `VisibleTokenDecorations`
+is separate because viewport coloring has a different state and invalidation
+cadence.
 
-When exact guide coverage is pending for an already tracked multiline pair,
-`GuidePositionFallback` may scan a bounded amount of leading whitespace. It
-does not recognize brackets, and authoritative background output replaces it.
-The exact bound is defined in the
+On every document edit, `GuidePositionFallback` may scan bounded indentation
+prefixes for the surviving tracked pair. It publishes exact current
+geometry within that bound; otherwise the stale guide is removed immediately.
+Equal pair offsets do not permit reuse because an equal-length space/tab
+replacement can change the visual column. The fallback does not recognize
+brackets, and authoritative background output replaces it. The exact bound is
+defined in the
 [performance reference](reference_performance_limits.md).
 
 `BracketGuideDrawing` computes geometry with public editor APIs at paint time
@@ -167,11 +173,10 @@ Appearance-only changes update current presentation without recognition.
 
 ## Build-time boundaries
 
-`plugin` uses Kotlin explicit API mode and keeps Kotlin implementation
-declarations `private` or `internal`. The committed ABI baseline contains the
-Java pairing core because Java has no module-wide `internal` visibility and the
-core is shared by sibling packages and JMH. This is implementation bytecode,
-not a supported external plugin API; any addition still requires review.
+The plugin has no supported external API or committed ABI baseline. Kotlin
+implementation remains `private` or `internal` by source-level design. The Java
+pairing core is JVM-public because sibling packages and JMH compile against it;
+that visibility is implementation access, not a compatibility promise.
 
 ArchUnit 1.5.0 runs under JUnit 4 as part of `:plugin:check`. It analyzes compiled
 Kotlin and Java production bytecode and enforces:
@@ -189,7 +194,9 @@ changing a boundary.
 
 ## Known limitations
 
-- A structural edit that may alter later nesting requires full token recognition.
+- A structural edit that may alter later nesting requires full token recognition
+  to discover a different pair; the currently tracked pair is still adjusted or
+  removed synchronously.
 - Only the primary caret selects an active pair.
 - Complete active-scope background shading is intentionally absent.
 - Folded endpoints are not painted.

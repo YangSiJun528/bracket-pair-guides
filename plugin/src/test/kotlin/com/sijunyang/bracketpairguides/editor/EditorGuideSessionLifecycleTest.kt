@@ -2,6 +2,7 @@ package com.sijunyang.bracketpairguides.editor
 
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
@@ -17,6 +18,7 @@ import com.sijunyang.bracketpairguides.editor.events.EditorGuideEvents
 import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPass
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.analysisCoverage
+import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
 import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import org.assertj.core.api.Assertions.assertThat
@@ -153,6 +155,72 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         }
     }
 
+    fun testSplitDocumentRecalculatesEachViewsGuideGeometryImmediately() {
+        val source = "{\n \tvalue\n \t}"
+        val document = EditorFactory.getInstance().createDocument(source)
+        val firstEditor = EditorFactory.getInstance().createEditor(document, project)
+        val secondEditor = EditorFactory.getInstance().createEditor(document, project)
+        val options = BracketGuidePreferences()
+        firstEditor.settings.setTabSize(2)
+        secondEditor.settings.setTabSize(4)
+        BracketGuideSettings.getInstance().replace(options)
+        EditorGuideEvents.ensureInitialized()
+        val pair = BracketPair(
+            openOffset = source.indexOf('{'),
+            openTokenLength = 1,
+            closeOffset = source.lastIndexOf('}'),
+            closeTokenLength = 1,
+            depth = 0,
+            openLine = 0,
+            closeLine = 2,
+        )
+        try {
+            for (editor in listOf(firstEditor, secondEditor)) {
+                editor.caretModel.moveToOffset(source.indexOf("value"))
+                val session = EditorGuideSessions.install(
+                    editor = editor,
+                    visibleRange = { TextRange(0, document.textLength) },
+                    preferences = options,
+                )
+                val input = AnalysisInput(
+                    editor = editor,
+                    fileType = PlainTextFileType.INSTANCE,
+                    coverage = options.analysisCoverage(),
+                    disabledLanguageIds = emptySet(),
+                )
+                session.accept(
+                    AnalysisOutcome.Complete(
+                        input.bracketSnapshot(listOf(pair)),
+                    ),
+                )
+            }
+            assertThat(firstEditor.guideColumn()).isEqualTo(2)
+            assertThat(secondEditor.guideColumn()).isEqualTo(4)
+            val firstGuide = firstEditor.observedBracketMarkup().guideMarks.single()
+            val secondGuide = secondEditor.observedBracketMarkup().guideMarks.single()
+
+            WriteCommandAction.runWriteCommandAction(project) {
+                document.replaceString(
+                    source.indexOf(" \tvalue"),
+                    source.lastIndexOf('}'),
+                    "\t value\n\t ",
+                )
+            }
+
+            assertThat(firstEditor.guideColumn()).isEqualTo(3)
+            assertThat(secondEditor.guideColumn()).isEqualTo(5)
+            assertThat(firstEditor.observedBracketMarkup().guideMarks)
+                .containsExactly(firstGuide)
+            assertThat(secondEditor.observedBracketMarkup().guideMarks)
+                .containsExactly(secondGuide)
+        } finally {
+            EditorGuideSessions.dispose(firstEditor)
+            EditorGuideSessions.dispose(secondEditor)
+            EditorFactory.getInstance().releaseEditor(firstEditor)
+            EditorFactory.getInstance().releaseEditor(secondEditor)
+        }
+    }
+
     fun testLanguageChangeClearsPresentationUntilANewSnapshotArrives() {
         val source = "{ value }"
         myFixture.configureByText("LanguageChange.txt", source)
@@ -188,4 +256,8 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
 
         assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
     }
+
+    private fun Editor.guideColumn(): Int =
+        (observedBracketMarkup().guideMarks.single().customRenderer as BracketGuideDrawing)
+            .guide.guideColumn
 }

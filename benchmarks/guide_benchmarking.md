@@ -20,11 +20,10 @@ copies those implementations nor registers production source directories as
 benchmark roots, so a benchmark cannot drift from the shipped classes or
 confuse IDE module ownership.
 
-This is an intentional privileged implementation probe. The sort remains
-Kotlin `internal` and is absent from the plugin ABI, but the Java JMH harness can
-call its JVM method from the benchmark-only module. This JVM visibility is not a
-supported product API. `:benchmarks:jmhJar` in CI detects changes that break the
-probe.
+This is an intentional privileged implementation probe. The sort remains Kotlin
+`internal`, but the Java JMH harness can call its JVM method from the
+benchmark-only module. This JVM visibility is not a supported product API.
+`:benchmarks:jmhJar` in CI detects changes that break the probe.
 
 ## Run a smoke benchmark
 

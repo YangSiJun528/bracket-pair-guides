@@ -76,6 +76,51 @@ internal class ActiveGuidePresentation(
         trackedPair.refresh(pair, guide)
     }
 
+    /**
+     * HARD SYNCHRONOUS CONTRACT: an applied edit must never leave this markup
+     * combining an adjusted pair with the previous guide geometry. Recompute a
+     * bounded exact guide now, or remove the guide now. Do not defer either
+     * outcome to background analysis and do not invoke a BraceMatcher here.
+     */
+    fun refreshAfterDocumentChange(
+        change: DocumentChange,
+        caretOffset: Int,
+        preferences: BracketGuidePreferences,
+    ) {
+        val previousPair = trackedPair.current
+        if (previousPair == null || change.altersToken(previousPair)) {
+            clear(preserveGuide = false)
+            return
+        }
+
+        val pair = trackedPair.adjusted
+        if (pair?.contains(caretOffset) != true ||
+            !pair.hasWellFormedTokenRange(editor.document.textLength)
+        ) {
+            clear(preserveGuide = false)
+            return
+        }
+
+        val previousGuide = currentGuide()
+        val guide = when {
+            !preferences.enabled || !preferences.showsGuide -> null
+            pair.openLine == pair.closeLine -> BracketGuide(pair, guideColumn = 0)
+            else -> GuidePositionFallback.guideAfterChange(
+                editor = editor,
+                pair = pair,
+                previousPair = previousPair,
+                previous = previousGuide,
+                currentAnchorLine = trackedPair.anchorLine,
+                change = change,
+            )
+        }
+        // A null exact result deliberately clears stale guide pixels while the
+        // already-adjusted pair tokens may remain visible.
+        markup.showGuide(guide, preferences)
+        markup.showPair(pair, preferences)
+        trackedPair.refresh(pair, guide)
+    }
+
     fun clear(preserveGuide: Boolean) {
         trackedPair.clear()
         markup.clear(preserveGuide)
