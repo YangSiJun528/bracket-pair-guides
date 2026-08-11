@@ -11,9 +11,8 @@ import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.within
 import java.awt.Color
 import java.awt.image.BufferedImage
 import kotlin.math.roundToInt
@@ -58,12 +57,11 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
             val shiftedX = editor.visualPositionToXY(
                 VisualPosition(firstVisualLine, guideColumn),
             ).x
-            assertTrue(
+            assertThat(shiftedX).describedAs(
                 "Test inlay must shift the raw visual position: " +
                     "expected=$expectedX, shifted=$shiftedX, bounds=${inlay.bounds}, " +
                     "visualPosition=${inlay.visualPosition}",
-                shiftedX > expectedX,
-            )
+            ).isGreaterThan(expectedX)
 
             val image = paint(
                 pair = BracketPair(
@@ -80,15 +78,15 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
             )
             val bodyY = editor.visualLineToY(anchorVisualLine) + editor.lineHeight / 2
 
-            assertTrue(
+            assertThat(
+                image.hasInkNear(expectedX, bodyY),
+            ).describedAs(
                 "Expected the guide at the text indentation before the inline hint: " +
                     "expected=$expectedX, shifted=$shiftedX",
-                image.hasInkNear(expectedX, bodyY),
-            )
-            assertFalse(
-                "Guide must not use the inlay-shifted coordinate",
+            ).isTrue()
+            assertThat(
                 image.hasInkNear(shiftedX, bodyY),
-            )
+            ).describedAs("Guide must not use the inlay-shifted coordinate").isFalse()
         } finally {
             inlay.dispose()
         }
@@ -98,13 +96,13 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         val source = "call(argumentOne, argumentTwo, argumentThree, argumentFour)"
         myFixture.configureByText("Sample.java", source)
         val editor = myFixture.editor
-        assertTrue(EditorTestUtil.configureSoftWraps(editor, 12))
+        assertThat(EditorTestUtil.configureSoftWraps(editor, 12)).isTrue()
 
         val openOffset = source.indexOf('(')
         val closeOffset = source.lastIndexOf(')')
         val openVisualLine = editor.offsetToVisualPosition(openOffset).line
         val closeVisualLine = editor.offsetToVisualPosition(closeOffset).line
-        assertTrue(closeVisualLine - openVisualLine >= 2)
+        assertThat(closeVisualLine - openVisualLine).isGreaterThanOrEqualTo(2)
 
         val image = paint(
             BracketPair(
@@ -121,10 +119,9 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         for (visualLine in openVisualLine..closeVisualLine) {
             val bottomY = editor.visualPositionToXY(VisualPosition(visualLine, 0)).y +
                 editor.lineHeight - 1
-            assertTrue(
-                "Expected a horizontal guide on visual line $visualLine",
-                image.hasInkNear(bottomY),
-            )
+            assertThat(image.hasInkNear(bottomY))
+                .describedAs("Expected a horizontal guide on visual line $visualLine")
+                .isTrue()
         }
     }
 
@@ -142,10 +139,8 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
             )
             requireNotNull(region).isExpanded = false
         }
-        assertTrue(
-            editor.offsetToVisualPosition(0).line ==
-                editor.offsetToVisualPosition(closeOffset).line,
-        )
+        assertThat(editor.offsetToVisualPosition(closeOffset).line)
+            .isEqualTo(editor.offsetToVisualPosition(0).line)
 
         val image = paint(
             BracketPair(
@@ -159,7 +154,7 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
             ),
         )
 
-        assertFalse(image.hasAnyInk())
+        assertThat(image.hasAnyInk()).isFalse()
     }
 
     fun testCanDisableHorizontalGuidesForASingleLogicalLine() {
@@ -185,7 +180,7 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
             ),
         )
 
-        assertFalse(image.hasAnyInk())
+        assertThat(image.hasAnyInk()).isFalse()
     }
 
     fun testAppliesConfiguredGuideOpacity() {
@@ -209,7 +204,7 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
             ),
         )
 
-        assertTrue(image.maximumAlpha() in 1..200)
+        assertThat(image.maximumAlpha()).isBetween(1, 200)
     }
 
     fun testUsesConfiguredGuideColor() {
@@ -235,7 +230,7 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
             color = color,
         )
 
-        assertTrue(image.containsOpaque(color))
+        assertThat(image.containsOpaque(color)).isTrue()
     }
 
     fun testAppliesOpacityOnlyOnceAtHorizontalVerticalJoints() {
@@ -275,13 +270,12 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         val bodyY = editor.visualLineToY(anchorVisualLine) + editor.lineHeight / 2
         val bodyAlpha = image.alphaAt(guideX, bodyY)
 
-        assertTrue(
-            "Expected a half-transparent guide, alpha=$bodyAlpha",
-            bodyAlpha in 100..150,
-        )
-        assertEquals(bodyAlpha, image.alphaAt(guideX, openBottomY + 1))
-        assertEquals(bodyAlpha, image.alphaAt(guideX, closeBottomY))
-        assertEquals(bodyAlpha, image.maximumAlpha())
+        assertThat(bodyAlpha)
+            .describedAs("Expected a half-transparent guide, alpha=$bodyAlpha")
+            .isBetween(100, 150)
+        assertThat(image.alphaAt(guideX, openBottomY + 1)).isEqualTo(bodyAlpha)
+        assertThat(image.alphaAt(guideX, closeBottomY)).isEqualTo(bodyAlpha)
+        assertThat(image.maximumAlpha()).isEqualTo(bodyAlpha)
     }
 
     fun testThickGuideSegmentsRemainCenteredOnTheirAxes() {
@@ -329,25 +323,29 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
                 val deviceOpenBottomY = openBottomY * scale
                 val searchRadius = (lineWidth * scale).roundToInt() + 3
 
-                assertEquals(
-                    "Vertical width $lineWidth at ${scale}x must stay centered",
-                    deviceGuideX,
+                assertThat(
                     image.alphaWeightedCenterX(
                         y = deviceBodyY,
                         centerX = deviceGuideX.roundToInt(),
                         radius = searchRadius,
                     ),
-                    CENTER_TOLERANCE_IN_DEVICE_PIXELS,
+                ).describedAs(
+                    "Vertical width $lineWidth at ${scale}x must stay centered",
+                ).isCloseTo(
+                    deviceGuideX,
+                    within(CENTER_TOLERANCE_IN_DEVICE_PIXELS),
                 )
-                assertEquals(
-                    "Horizontal width $lineWidth at ${scale}x must stay centered",
-                    deviceOpenBottomY,
+                assertThat(
                     image.alphaWeightedCenterY(
                         x = deviceHorizontalX,
                         centerY = deviceOpenBottomY.roundToInt(),
                         radius = searchRadius,
                     ),
-                    CENTER_TOLERANCE_IN_DEVICE_PIXELS,
+                ).describedAs(
+                    "Horizontal width $lineWidth at ${scale}x must stay centered",
+                ).isCloseTo(
+                    deviceOpenBottomY,
+                    within(CENTER_TOLERANCE_IN_DEVICE_PIXELS),
                 )
             }
         }
@@ -357,12 +355,12 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         val source = "call(" + "abcdefghij,".repeat(5_000) + "last)"
         myFixture.configureByText("Generated.java", source)
         val editor = myFixture.editor
-        assertTrue(EditorTestUtil.configureSoftWraps(editor, 12))
+        assertThat(EditorTestUtil.configureSoftWraps(editor, 12)).isTrue()
 
         val openOffset = source.indexOf('(')
         val closeOffset = source.lastIndexOf(')')
         val closeVisualLine = editor.offsetToVisualPosition(closeOffset).line
-        assertTrue(closeVisualLine > 2_000)
+        assertThat(closeVisualLine).isGreaterThan(2_000)
         val pair = BracketPair(
             openOffset = openOffset,
             openTokenLength = 1,
@@ -388,8 +386,10 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
             highlighter.dispose()
         }
 
-        assertTrue("Clipped soft-wrap paint took ${elapsed}ms", elapsed < 2_000)
-        assertTrue(image.hasAnyInk())
+        assertThat(elapsed)
+            .describedAs("Clipped soft-wrap paint took ${elapsed}ms")
+            .isLessThan(2_000)
+        assertThat(image.hasAnyInk()).isTrue()
     }
 
     fun testStaleStoredLineNumbersCannotCrashPaintAfterDocumentShrink() {
@@ -410,7 +410,7 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         WriteCommandAction.runWriteCommandAction(project) {
             editor.document.deleteString(1, pair.closeOffset)
         }
-        assertTrue(editor.document.lineCount == 1)
+        assertThat(editor.document.lineCount).isEqualTo(1)
 
         val image = BufferedImage(1_000, 1_000, BufferedImage.TYPE_INT_ARGB)
         val graphics = image.createGraphics()
@@ -442,7 +442,7 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
 
         for (pair in invalidPairs) {
             val image = paintStoredGuide(pair)
-            assertFalse("Invalid token bounds must not paint: $pair", image.hasAnyInk())
+            assertThat(image.hasAnyInk()).describedAs("Invalid token bounds must not paint: $pair").isFalse()
         }
     }
 
@@ -619,7 +619,9 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
             weightedPosition += (x + 0.5) * alpha
             totalAlpha += alpha
         }
-        assertTrue("Expected vertical guide ink near x=$centerX", totalAlpha > 0)
+        assertThat(totalAlpha)
+            .describedAs("Expected vertical guide ink near x=$centerX")
+            .isGreaterThan(0)
         return weightedPosition / totalAlpha
     }
 
@@ -637,7 +639,9 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
             weightedPosition += (y + 0.5) * alpha
             totalAlpha += alpha
         }
-        assertTrue("Expected horizontal guide ink near y=$centerY", totalAlpha > 0)
+        assertThat(totalAlpha)
+            .describedAs("Expected horizontal guide ink near y=$centerY")
+            .isGreaterThan(0)
         return weightedPosition / totalAlpha
     }
 }

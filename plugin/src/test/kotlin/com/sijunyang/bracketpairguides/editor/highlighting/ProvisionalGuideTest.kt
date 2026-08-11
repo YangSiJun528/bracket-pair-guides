@@ -3,8 +3,7 @@ package com.sijunyang.bracketpairguides.editor.highlighting
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.util.TextRange
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 import kotlin.system.measureTimeMillis
 
 internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
@@ -28,12 +27,9 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
             editor.document.insertString(source.indexOf("content"), "fast ")
         }
 
-        assertEquals(1, collections)
-        assertSame(guideHighlighter, activeGuide())
-        assertEquals(
-            pair.closeOffset + "fast ".length,
-            activeGuideState()?.guide?.pair?.closeOffset,
-        )
+        assertThat(collections).isEqualTo(1)
+        assertThat(activeGuide()).isSameAs(guideHighlighter)
+        assertThat(activeGuideState()?.guide?.pair?.closeOffset).isEqualTo(pair.closeOffset + "fast ".length)
     }
 
     fun testDocumentEditKeepsAdjustedGuideUntilBackgroundAnalysisRecalculatesColumn() {
@@ -49,10 +45,7 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
         editor.caretModel.moveToOffset(source.indexOf("call"))
         applyPass()
 
-        assertEquals(
-            2,
-            activeGuideState()?.guide?.guideColumn,
-        )
+        assertThat(activeGuideState()?.guide?.guideColumn).isEqualTo(2)
         val closeLineStart = source.indexOf("  }\n}")
         WriteCommandAction.runWriteCommandAction(project) {
             editor.document.insertString(closeLineStart, "  ")
@@ -61,20 +54,14 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
         val adjustedGuide = checkNotNull(
             activeGuideState()?.guide,
         )
-        assertEquals(2, adjustedGuide.guideColumn)
-        assertEquals(
-            editor.document.text.indexOf('}', closeLineStart),
-            adjustedGuide.pair.closeOffset,
-        )
+        assertThat(adjustedGuide.guideColumn).isEqualTo(2)
+        assertThat(adjustedGuide.pair.closeOffset).isEqualTo(editor.document.text.indexOf('}', closeLineStart))
 
         applyPass()
 
         val recognizedGuide = checkNotNull(activeGuideState()?.guide)
-        assertEquals(4, recognizedGuide.guideColumn)
-        assertEquals(
-            editor.document.text.indexOf('}', closeLineStart),
-            recognizedGuide.pair.closeOffset,
-        )
+        assertThat(recognizedGuide.guideColumn).isEqualTo(4)
+        assertThat(recognizedGuide.pair.closeOffset).isEqualTo(editor.document.text.indexOf('}', closeLineStart))
     }
 
     fun testNewMultilineLayoutWaitsForBackgroundAnalysisBeforePublishingItsGuideColumn() {
@@ -97,16 +84,16 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
         val adjustedGuide = checkNotNull(
             activeGuideState()?.guide,
         )
-        assertEquals(0, adjustedGuide.guideColumn)
-        assertEquals(0, adjustedGuide.pair.openLine)
-        assertEquals(2, adjustedGuide.pair.closeLine)
+        assertThat(adjustedGuide.guideColumn).isEqualTo(0)
+        assertThat(adjustedGuide.pair.openLine).isEqualTo(0)
+        assertThat(adjustedGuide.pair.closeLine).isEqualTo(2)
 
         applyPass()
 
         val recognizedGuide = checkNotNull(activeGuideState()?.guide)
-        assertEquals(2, recognizedGuide.guideColumn)
-        assertEquals(0, recognizedGuide.pair.openLine)
-        assertEquals(2, recognizedGuide.pair.closeLine)
+        assertThat(recognizedGuide.guideColumn).isEqualTo(2)
+        assertThat(recognizedGuide.pair.openLine).isEqualTo(0)
+        assertThat(recognizedGuide.pair.closeLine).isEqualTo(2)
     }
 
     fun testBracketEditWaitsForBackgroundAnalysisBeforePublishingANewInnermostPair() {
@@ -127,15 +114,15 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
         val adjustedPair = checkNotNull(
             activeGuideState()?.guide?.pair,
         )
-        assertEquals(previousPair.openOffset, adjustedPair.openOffset)
-        assertTrue(adjustedPair.openOffset != start)
+        assertThat(adjustedPair.openOffset).isEqualTo(previousPair.openOffset)
+        assertThat(adjustedPair.openOffset).isNotEqualTo(start)
 
         applyPass()
 
         val recognizedPair = checkNotNull(activeGuideState()?.guide?.pair)
-        assertEquals(start, recognizedPair.openOffset)
-        assertEquals(end + 1, recognizedPair.closeOffset)
-        assertEquals(2, recognizedPair.depth)
+        assertThat(recognizedPair.openOffset).isEqualTo(start)
+        assertThat(recognizedPair.closeOffset).isEqualTo(end + 1)
+        assertThat(recognizedPair.depth).isEqualTo(2)
     }
 
     fun testRapidPairSwitchesReuseOneGuideHighlighter() {
@@ -159,8 +146,10 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
             }
         }
 
-        assertSame(persistentGuide, activeGuide())
-        assertEquals(1, guideHighlighters().size)
-        assertTrue("2k active-pair switches took ${elapsed}ms", elapsed < 2_000)
+        assertThat(activeGuide()).isSameAs(persistentGuide)
+        assertThat(guideHighlighters()).hasSize(1)
+        assertThat(elapsed)
+            .describedAs("2k active-pair switches took ${elapsed}ms")
+            .isLessThan(2_000)
     }
 }

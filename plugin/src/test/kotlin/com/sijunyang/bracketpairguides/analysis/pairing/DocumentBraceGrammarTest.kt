@@ -20,6 +20,7 @@ import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IElementType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import org.assertj.core.api.Assertions.assertThat
 
 class DocumentBraceGrammarTest : BasePlatformTestCase() {
     fun testDualInterfaceMatcherHonorsContextualCallbacks() {
@@ -52,9 +53,9 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
         withMatchers(CONTEXT_LANGUAGE to matcher) {
             val full = analyze()
 
-            assertEquals(1, full.size)
-            assertEquals(source.lastIndexOf('<'), full.single().openOffset)
-            assertEquals(source.lastIndexOf('>'), full.single().closeOffset)
+            assertThat(full).hasSize(1)
+            assertThat(full.single().openOffset).isEqualTo(source.lastIndexOf('<'))
+            assertThat(full.single().closeOffset).isEqualTo(source.lastIndexOf('>'))
         }
     }
 
@@ -72,9 +73,9 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
         withMatchers(STRICT_TAG_LANGUAGE to matcher) {
             val full = analyze()
 
-            assertEquals(1, full.size)
-            assertEquals(source.indexOf('<'), full.single().openOffset)
-            assertEquals(source.lastIndexOf('>'), full.single().closeOffset)
+            assertThat(full).hasSize(1)
+            assertThat(full.single().openOffset).isEqualTo(source.indexOf('<'))
+            assertThat(full.single().closeOffset).isEqualTo(source.lastIndexOf('>'))
         }
     }
 
@@ -95,7 +96,7 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
             LAYER_A_LANGUAGE to leftMatcher,
             LAYER_B_LANGUAGE to rightMatcher,
         ) {
-            assertTrue(analyze().isEmpty())
+            assertThat(analyze()).isEmpty()
         }
     }
 
@@ -125,16 +126,18 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
         ) {
             val enabledFull = analyze()
 
-            assertEquals(2, enabledFull.size)
-            assertTrue(enabledFull.any { it.openOffset == 1 })
+            assertThat(enabledFull).hasSize(2)
+            assertThat(enabledFull).anySatisfy { pair ->
+                assertThat(pair.openOffset).isEqualTo(1)
+            }
 
             val disableLayerB = { capabilityId: String ->
                 capabilityId != LAYER_B_LANGUAGE.id
             }
             val disabledFull = analyze(disableLayerB)
 
-            assertEquals(1, disabledFull.size)
-            assertEquals(0, disabledFull.single().openOffset)
+            assertThat(disabledFull).hasSize(1)
+            assertThat(disabledFull.single().openOffset).isZero()
         }
     }
 
@@ -150,9 +153,9 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
         withMatchers(SYMMETRIC_LANGUAGE to matcher) {
             val full = analyze()
 
-            assertEquals(1, full.size)
-            assertEquals(0, full.single().openOffset)
-            assertEquals(2, full.single().closeOffset)
+            assertThat(full).hasSize(1)
+            assertThat(full.single().openOffset).isZero()
+            assertThat(full.single().closeOffset).isEqualTo(2)
         }
     }
 
@@ -166,10 +169,9 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
         )
 
         withMatchers(SYMMETRIC_LANGUAGE to matcher) {
-            assertEquals(
-                listOf(0, 6),
+            assertThat(
                 analyze().map(BracketPair::openOffset),
-            )
+            ).containsExactly(0, 6)
         }
     }
 
@@ -185,7 +187,7 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
         withMatchers(SYMMETRIC_LANGUAGE to matcher) {
             val second = analyze().single { pair -> pair.openOffset == 6 }
 
-            assertEquals(8, second.closeOffset)
+            assertThat(second.closeOffset).isEqualTo(8)
         }
     }
 
@@ -208,7 +210,7 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
         )
 
         withMatchers(STRUCTURAL_LANGUAGE to matcher) {
-            assertTrue(analyze().isEmpty())
+            assertThat(analyze()).isEmpty()
         }
     }
 
@@ -233,9 +235,9 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
         withMatchers(STRUCTURAL_LANGUAGE to matcher) {
             val full = analyze()
 
-            assertEquals(1, full.size)
-            assertEquals(source.indexOf('{'), full.single().openOffset)
-            assertEquals(source.indexOf('}'), full.single().closeOffset)
+            assertThat(full).hasSize(1)
+            assertThat(full.single().openOffset).isEqualTo(source.indexOf('{'))
+            assertThat(full.single().closeOffset).isEqualTo(source.indexOf('}'))
         }
     }
 
@@ -259,9 +261,9 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
         withMatchers(STRUCTURAL_LANGUAGE to matcher) {
             val full = analyze()
 
-            assertEquals(1, full.size)
-            assertEquals(source.indexOf('('), full.single().openOffset)
-            assertEquals(source.indexOf(')'), full.single().closeOffset)
+            assertThat(full).hasSize(1)
+            assertThat(full.single().openOffset).isEqualTo(source.indexOf('('))
+            assertThat(full.single().closeOffset).isEqualTo(source.indexOf(')'))
         }
     }
 
@@ -290,8 +292,8 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
         ) {
             val full = analyze().single()
 
-            assertEquals(source.indexOf('('), full.openOffset)
-            assertEquals(source.indexOf(')'), full.closeOffset)
+            assertThat(full.openOffset).isEqualTo(source.indexOf('('))
+            assertThat(full.closeOffset).isEqualTo(source.indexOf(')'))
         }
     }
 
@@ -319,8 +321,8 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
                 pair.openOffset == source.indexOf('(')
             }
 
-            assertEquals(2, full.size)
-            assertEquals(source.indexOf(')'), regular.closeOffset)
+            assertThat(full).hasSize(2)
+            assertThat(regular.closeOffset).isEqualTo(source.indexOf(')'))
         }
     }
 
@@ -347,9 +349,9 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
         withMatchers(SHARED_LANGUAGE to matcher) {
             val full = analyze()
 
-            assertEquals(1, full.size)
-            assertEquals(source.indexOf('b'), full.single().openOffset)
-            assertEquals(source.indexOf('x'), full.single().closeOffset)
+            assertThat(full).hasSize(1)
+            assertThat(full.single().openOffset).isEqualTo(source.indexOf('b'))
+            assertThat(full.single().closeOffset).isEqualTo(source.indexOf('x'))
         }
     }
 

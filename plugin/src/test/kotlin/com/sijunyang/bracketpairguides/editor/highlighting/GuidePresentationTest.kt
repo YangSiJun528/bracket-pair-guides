@@ -10,8 +10,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.util.TextRange
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 import java.awt.Color
 
 internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
@@ -46,38 +45,38 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
 
         applyPass(pairs)
         val innerGuide = checkNotNull(activeGuide())
-        assertEquals(0, innerGuide.startOffset)
-        assertEquals(editor.document.textLength, innerGuide.endOffset)
+        assertThat(innerGuide.startOffset).isEqualTo(0)
+        assertThat(innerGuide.endOffset).isEqualTo(editor.document.textLength)
         val innerPairHighlights = activePairHighlighters().toSet()
-        assertTrue(innerPairHighlights.isEmpty())
+        assertThat(innerPairHighlights).isEmpty()
         val originalBrackets = bracketColorHighlighters().toSet()
-        assertEquals(1, collections)
-        assertEquals(inner, activeGuideState()?.guide?.pair)
-        assertEquals(4, bracketColorHighlighters().size)
+        assertThat(collections).isEqualTo(1)
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(inner)
+        assertThat(bracketColorHighlighters()).hasSize(4)
 
         editor.caretModel.moveToOffset(source.indexOf("inner") + 1)
-        assertEquals(1, collections)
-        assertEquals(innerGuide, activeGuide())
-        assertEquals(innerPairHighlights, activePairHighlighters().toSet())
+        assertThat(collections).isEqualTo(1)
+        assertThat(activeGuide()).isEqualTo(innerGuide)
+        assertThat(activePairHighlighters().toSet()).isEqualTo(innerPairHighlights)
 
         editor.caretModel.moveToOffset(source.indexOf("tail"))
-        assertEquals(1, collections)
-        assertTrue(innerGuide.isValid)
-        assertTrue(innerPairHighlights.all { !it.isValid })
+        assertThat(collections).isEqualTo(1)
+        assertThat(innerGuide.isValid).isTrue()
+        assertThat(innerPairHighlights).allMatch { !it.isValid }
         val outerGuide = checkNotNull(activeGuide())
-        assertSame(innerGuide, outerGuide)
-        assertEquals(outer, activeGuideState()?.guide?.pair)
-        assertEquals(1, guideHighlighters().size)
-        assertEquals(originalBrackets, bracketColorHighlighters().toSet())
-        assertEquals(4, bracketColorHighlighters().size)
+        assertThat(outerGuide).isSameAs(innerGuide)
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(outer)
+        assertThat(guideHighlighters()).hasSize(1)
+        assertThat(bracketColorHighlighters().toSet()).isEqualTo(originalBrackets)
+        assertThat(bracketColorHighlighters()).hasSize(4)
 
         editor.caretModel.moveToOffset(0)
-        assertEquals(1, collections)
-        assertFalse(outerGuide.isValid)
-        assertNull(activeGuide())
-        assertTrue(activePairHighlighters().isEmpty())
-        assertTrue(guideHighlighters().isEmpty())
-        assertEquals(originalBrackets, bracketColorHighlighters().toSet())
+        assertThat(collections).isEqualTo(1)
+        assertThat(outerGuide.isValid).isFalse()
+        assertThat(activeGuide()).isNull()
+        assertThat(activePairHighlighters()).isEmpty()
+        assertThat(guideHighlighters()).isEmpty()
+        assertThat(bracketColorHighlighters().toSet()).isEqualTo(originalBrackets)
     }
 
     fun testOnlyTheCurrentPrimaryCaretControlsTheActivePair() {
@@ -93,17 +92,17 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
         editor.caretModel.moveToOffset(source.indexOf("tail"))
         applyPass({ listOf(outer, inner) })
 
-        assertEquals(outer, activeGuideState()?.guide?.pair)
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(outer)
         val secondary = editor.caretModel.addCaret(
             editor.offsetToVisualPosition(source.indexOf("inner")),
         )
-        assertNotNull(secondary)
-        assertEquals(source.indexOf("inner"), editor.caretModel.primaryCaret.offset)
-        assertEquals(inner, activeGuideState()?.guide?.pair)
+        assertThat(secondary).isNotNull()
+        assertThat(editor.caretModel.primaryCaret.offset).isEqualTo(source.indexOf("inner"))
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(inner)
 
         editor.caretModel.removeCaret(checkNotNull(secondary))
-        assertEquals(source.indexOf("tail"), editor.caretModel.primaryCaret.offset)
-        assertEquals(outer, activeGuideState()?.guide?.pair)
+        assertThat(editor.caretModel.primaryCaret.offset).isEqualTo(source.indexOf("tail"))
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(outer)
     }
 
     fun testFeatureTogglesResolvePresentationOverlapWithoutReanalysis() {
@@ -126,63 +125,63 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
         applyPass(pairs)
 
         val activePair = activePairHighlighters()
-        assertEquals(2, activePair.size)
-        assertTrue(activePair.all { it.layer == HighlighterLayer.ELEMENT_UNDER_CARET })
-        assertTrue(activePair.all { it.textAttributesKey == null })
-        assertEquals(
+        assertThat(activePair).hasSize(2)
+        assertThat(activePair).allMatch { it.layer == HighlighterLayer.ELEMENT_UNDER_CARET }
+        assertThat(activePair).allMatch { it.textAttributesKey == null }
+        assertThat(
+            activePair.map { it.startOffset to it.endOffset }.toSet(),
+        ).isEqualTo(
             setOf(
                 pair.openOffset to pair.openOffset + pair.openTokenLength,
                 pair.closeOffset to pair.closeOffset + pair.closeTokenLength,
             ),
-            activePair.map { it.startOffset to it.endOffset }.toSet(),
         )
         val activeAttributes = checkNotNull(
             activePair.first().getTextAttributes(myFixture.editor.colorsScheme),
         )
-        assertNull(activeAttributes.foregroundColor)
-        assertEquals(
+        assertThat(activeAttributes.foregroundColor).isNull()
+        assertThat(
+            activeAttributes.backgroundColor,
+        ).isEqualTo(
             BracketColorPalette.pairBackgroundColor(
                 myFixture.editor.colorsScheme,
                 options,
                 pair.depth,
             ),
-            activeAttributes.backgroundColor,
         )
-        assertEquals(
+        assertThat(
+            activeAttributes.effectColor,
+        ).isEqualTo(
             BracketColorPalette.baseColor(
                 myFixture.editor.colorsScheme,
                 options,
                 pair.depth,
             ),
-            activeAttributes.effectColor,
         )
-        assertEquals(EffectType.BOXED, activeAttributes.effectType)
+        assertThat(activeAttributes.effectType).isEqualTo(EffectType.BOXED)
 
         options = options.copy(levelBaseColors = options.levelBaseColors.updated(2, 0x123456))
         applyOptions(options)
-        assertTrue(
-            bracketColorHighlighters().all {
-                it.getTextAttributes(myFixture.editor.colorsScheme)?.foregroundColor ==
-                    Color(0x123456)
-            },
-        )
-        assertEquals(
-            Color(0x123456),
+        assertThat(bracketColorHighlighters()).allMatch {
+            it.getTextAttributes(myFixture.editor.colorsScheme)?.foregroundColor ==
+                Color(0x123456)
+        }
+        assertThat(
             activePairHighlighters().first()
                 .getTextAttributes(myFixture.editor.colorsScheme)
                 ?.effectColor,
-        )
-        assertEquals(1, collections)
+        ).isEqualTo(Color(0x123456))
+        assertThat(collections).isEqualTo(1)
 
         options = options.copy(colorBracketTokens = false)
         applyOptions(options)
-        assertTrue(bracketColorHighlighters().isEmpty())
-        assertNotNull(activeGuide())
+        assertThat(bracketColorHighlighters()).isEmpty()
+        assertThat(activeGuide()).isNotNull()
 
         options = options.copy(showActiveGuide = false)
         applyOptions(options)
-        assertNull(activeGuide())
-        assertEquals(2, activePairHighlighters().size)
+        assertThat(activeGuide()).isNull()
+        assertThat(activePairHighlighters()).hasSize(2)
 
         options = options.copy(
             showActiveGuide = true,
@@ -190,29 +189,27 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
             showActivePairBackground = false,
         )
         applyOptions(options)
-        assertNotNull(activeGuide())
-        assertTrue(activePairHighlighters().isEmpty())
+        assertThat(activeGuide()).isNotNull()
+        assertThat(activePairHighlighters()).isEmpty()
 
         options = options.copy(
             showActivePairBackground = true,
             pairBackgroundOpacityPercent = 0,
         )
         applyOptions(options)
-        assertTrue(activePairHighlighters().isEmpty())
+        assertThat(activePairHighlighters()).isEmpty()
 
         options = options.copy(showActivePairBorder = true)
         applyOptions(options)
         val borderOnlyHighlights = activePairHighlighters()
-        assertEquals(2, borderOnlyHighlights.size)
-        assertTrue(
-            borderOnlyHighlights.all {
-                val attributes = it.getTextAttributes(myFixture.editor.colorsScheme)
-                    ?: return@all false
+        assertThat(borderOnlyHighlights).hasSize(2)
+        assertThat(borderOnlyHighlights).allMatch { highlighter ->
+            highlighter.getTextAttributes(myFixture.editor.colorsScheme)?.let { attributes ->
                 attributes.backgroundColor == null &&
                     attributes.effectColor != null &&
                     attributes.effectType != null
-            },
-        )
+            } == true
+        }
 
         options = options.copy(
             showActivePairBorder = true,
@@ -233,26 +230,27 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
                 myFixture.editor.colorsScheme,
             ),
         )
-        assertEquals(Color(0x335577), advancedAttributes.effectColor)
-        assertEquals(
+        assertThat(advancedAttributes.effectColor).isEqualTo(Color(0x335577))
+        assertThat(
+            advancedAttributes.backgroundColor,
+        ).isEqualTo(
             BracketColorPalette.pairBackgroundColor(
                 myFixture.editor.colorsScheme,
                 options,
                 pair.depth,
             ),
-            advancedAttributes.backgroundColor,
         )
         options = options.copy(showHorizontalGuides = false)
         applyOptions(options)
-        assertNull(activeGuide())
-        assertEquals(2, activePairHighlighters().size)
+        assertThat(activeGuide()).isNull()
+        assertThat(activePairHighlighters()).hasSize(2)
 
         options = options.copy(enabled = false)
         applyOptions(options)
-        assertNull(activeGuide())
-        assertTrue(bracketColorHighlighters().isEmpty())
-        assertTrue(activePairHighlighters().isEmpty())
-        assertEquals(1, collections)
+        assertThat(activeGuide()).isNull()
+        assertThat(bracketColorHighlighters()).isEmpty()
+        assertThat(activePairHighlighters()).isEmpty()
+        assertThat(collections).isEqualTo(1)
     }
 
     fun testGuideOnlyOptionsDoNotRebuildTheTokenWindow() {
@@ -283,8 +281,8 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
             refreshColors = false,
         )
 
-        assertEquals(requestsAfterAnalysis, visibleRangeRequests)
-        assertEquals(tokenHighlighters, bracketColorHighlighters().toSet())
+        assertThat(visibleRangeRequests).isEqualTo(requestsAfterAnalysis)
+        assertThat(bracketColorHighlighters().toSet()).isEqualTo(tokenHighlighters)
     }
 
     fun testDisablingACappedTokenWindowRemovesDecorations() {
@@ -296,13 +294,13 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
             BracketPair(openOffset, 1, openOffset + 1, 1, 0, 0, 0)
         }
         applyPass({ pairs }) { TextRange(0, source.length) }
-        assertTrue(bracketColorHighlighters().size < pairs.size * 2)
+        assertThat(bracketColorHighlighters().size).isLessThan(pairs.size * 2)
 
         applyOptions(
             BracketGuideSettings.getInstance().options.copy(colorBracketTokens = false),
         )
 
-        assertTrue(bracketColorHighlighters().isEmpty())
+        assertThat(bracketColorHighlighters()).isEmpty()
     }
 
     fun testReenablingBracketColorsRestoresTheCachedTokenIndex() {
@@ -321,23 +319,22 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
         val originalRanges = bracketColorHighlighters().map { highlighter ->
             highlighter.startOffset to highlighter.endOffset
         }.toSet()
-        assertTrue(originalRanges.isNotEmpty())
+        assertThat(originalRanges).isNotEmpty()
 
         val disabled = BracketGuideSettings.getInstance().options.copy(
             colorBracketTokens = false,
         )
         applyOptions(disabled)
-        assertTrue(bracketColorHighlighters().isEmpty())
+        assertThat(bracketColorHighlighters()).isEmpty()
 
         applyOptions(disabled.copy(colorBracketTokens = true))
 
-        assertEquals(
-            originalRanges,
+        assertThat(
             bracketColorHighlighters().map { highlighter ->
                 highlighter.startOffset to highlighter.endOffset
             }.toSet(),
-        )
-        assertEquals(1, collections)
+        ).isEqualTo(originalRanges)
+        assertThat(collections).isEqualTo(1)
     }
 
     fun testActiveToTokenOnlyRebuildsCompactAnalysisBeforeRestoringActivePresentation() {
@@ -358,9 +355,9 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
         applyPass(pairs)
         val fullStamp = stampFor(editor, fullOptions)
         val originalTokens = bracketColorHighlighters().toSet()
-        assertEquals(1, collections)
-        assertTrue(EditorGuideSessions.canSkipAnalysis(editor, fullStamp))
-        assertNotNull(activeGuide())
+        assertThat(collections).isEqualTo(1)
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, fullStamp)).isTrue()
+        assertThat(activeGuide()).isNotNull()
 
         val tokenOnlyOptions = fullOptions.copy(
             showActiveGuide = false,
@@ -370,25 +367,25 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
         applyOptions(tokenOnlyOptions)
         val tokenOnlyStamp = stampFor(editor, tokenOnlyOptions)
 
-        assertFalse(EditorGuideSessions.canSkipAnalysis(editor, fullStamp))
-        assertFalse(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp))
-        assertEquals(originalTokens, bracketColorHighlighters().toSet())
-        assertTrue(originalTokens.all { it.isValid })
-        assertNull(activeGuide())
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, fullStamp)).isFalse()
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp)).isFalse()
+        assertThat(bracketColorHighlighters().toSet()).isEqualTo(originalTokens)
+        assertThat(originalTokens).allMatch { it.isValid }
+        assertThat(activeGuide()).isNull()
 
         applyPass(pairs)
 
-        assertEquals(2, collections)
-        assertTrue(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp))
-        assertEquals(originalTokens, bracketColorHighlighters().toSet())
+        assertThat(collections).isEqualTo(2)
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp)).isTrue()
+        assertThat(bracketColorHighlighters().toSet()).isEqualTo(originalTokens)
 
         applyOptions(fullOptions)
-        assertFalse(EditorGuideSessions.canSkipAnalysis(editor, fullStamp))
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, fullStamp)).isFalse()
         applyPass(pairs)
 
-        assertEquals(3, collections)
-        assertTrue(EditorGuideSessions.canSkipAnalysis(editor, fullStamp))
-        assertEquals(pair, activeGuideState()?.guide?.pair)
+        assertThat(collections).isEqualTo(3)
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, fullStamp)).isTrue()
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(pair)
     }
 
     fun testTokenViewportKeepsFollowingCapabilityTransitionsBeforeBackgroundPasses() {
@@ -407,7 +404,7 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
         val fullOptions = BracketGuideSettings.getInstance().options
 
         applyPass(pairs) { visibleRange }
-        assertEquals(1, collections)
+        assertThat(collections).isEqualTo(1)
 
         val tokenOnlyOptions = fullOptions.copy(
             showActiveGuide = false,
@@ -419,30 +416,30 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
         visibleRange = TextRange(50_000, 50_256)
         session().visibleAreaChanged()
 
-        assertEquals(1, collections)
-        assertTrue(
-            "The unaccepted full snapshot should cover scrolling until compaction finishes",
-            bracketColorHighlighters().any {
+        assertThat(collections).isEqualTo(1)
+        assertThat(bracketColorHighlighters())
+            .describedAs(
+                "The unaccepted full snapshot should cover scrolling until compaction finishes",
+            )
+            .anyMatch {
                 it.startOffset in visibleRange.startOffset until visibleRange.endOffset
-            },
-        )
+            }
 
         applyPass(pairs) { visibleRange }
         val tokenOnlyStamp = stampFor(editor, tokenOnlyOptions)
-        assertEquals(2, collections)
-        assertTrue(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp))
+        assertThat(collections).isEqualTo(2)
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp)).isTrue()
 
         applyOptions(fullOptions)
         visibleRange = TextRange(0, 256)
         session().visibleAreaChanged()
 
-        assertEquals(2, collections)
-        assertTrue(
-            "The compact token index should remain usable while full analysis is pending",
-            bracketColorHighlighters().any {
+        assertThat(collections).isEqualTo(2)
+        assertThat(bracketColorHighlighters())
+            .describedAs("The compact token index should remain usable while full analysis is pending")
+            .anyMatch {
                 it.startOffset in visibleRange.startOffset until visibleRange.endOffset
-            },
-        )
+            }
     }
 
     fun testReversingTokenOnlyTransitionBeforeCompactionReusesFullSnapshot() {
@@ -457,7 +454,7 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
         val fullOptions = BracketGuideSettings.getInstance().options
 
         applyPass(pairs)
-        assertEquals(1, collections)
+        assertThat(collections).isEqualTo(1)
 
         applyOptions(
             fullOptions.copy(
@@ -469,10 +466,10 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
         applyOptions(fullOptions)
 
         val fullStamp = stampFor(editor, fullOptions)
-        assertTrue(EditorGuideSessions.canSkipAnalysis(editor, fullStamp))
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, fullStamp)).isTrue()
 
         applyPass(pairs)
 
-        assertEquals(1, collections)
+        assertThat(collections).isEqualTo(1)
     }
 }

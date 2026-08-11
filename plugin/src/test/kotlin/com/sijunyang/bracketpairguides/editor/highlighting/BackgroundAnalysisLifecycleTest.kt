@@ -13,7 +13,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.concurrency.AppExecutorUtil
-import org.junit.Assert.assertEquals
+import org.assertj.core.api.Assertions.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -46,9 +46,9 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
 
         applyPass(pass)
 
-        assertEquals(pair, activePairWhenViewportWasRequested)
-        assertEquals(2, activeHighlightsWhenViewportWasRequested)
-        assertEquals(pair, activeGuideState()?.guide?.pair)
+        assertThat(activePairWhenViewportWasRequested).isEqualTo(pair)
+        assertThat(activeHighlightsWhenViewportWasRequested).isEqualTo(2)
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(pair)
     }
 
     fun testBackgroundPassConstructionAndDedupDoNotReadPresentationState() {
@@ -65,7 +65,7 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
             listOf(pair)
         }
         EditorGuideSessions.dispose(editor)
-        assertNull(EditorGuideSessions.get(editor))
+        assertThat(EditorGuideSessions.get(editor)).isNull()
         fun collectInBackground(): BracketGuideHighlightingPass {
             val collection = AppExecutorUtil.getAppExecutorService()
                 .submit<BracketGuideHighlightingPass> {
@@ -84,19 +84,19 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
         }
 
         val initialPass = collectInBackground()
-        assertNull(EditorGuideSessions.get(editor))
-        assertEquals(1, collections.get())
+        assertThat(EditorGuideSessions.get(editor)).isNull()
+        assertThat(collections.get()).isEqualTo(1)
         initialPass.doApplyInformationToEditor()
         val acceptedSession = session()
-        assertEquals(pair, activeGuideState()?.guide?.pair)
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(pair)
 
         val deduplicatedPass = collectInBackground()
 
-        assertSame(acceptedSession, session())
-        assertEquals(1, collections.get())
+        assertThat(session()).isSameAs(acceptedSession)
+        assertThat(collections.get()).isEqualTo(1)
         deduplicatedPass.doApplyInformationToEditor()
-        assertSame(acceptedSession, session())
-        assertEquals(pair, activeGuideState()?.guide?.pair)
+        assertThat(session()).isSameAs(acceptedSession)
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(pair)
     }
 
     fun testBackgroundAnalysisUsesStampedLanguageSelectionAcrossAbaChange() {
@@ -160,9 +160,9 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
 
             pass.doApplyInformationToEditor()
 
-            assertEquals(initialOptions.disabledLanguageIds, capturedDisabledLanguageIds.get())
-            assertEquals(disabledDuringCollection, observedGlobalLanguageIds.get())
-            assertEquals(pair, activeGuideState()?.guide?.pair)
+            assertThat(capturedDisabledLanguageIds.get()).isEqualTo(initialOptions.disabledLanguageIds)
+            assertThat(observedGlobalLanguageIds.get()).isEqualTo(disabledDuringCollection)
+            assertThat(activeGuideState()?.guide?.pair).isEqualTo(pair)
         } finally {
             continueCollection.countDown()
             BracketGuideSettings.getInstance().replace(initialOptions)
@@ -179,7 +179,7 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
         )
         editor.caretModel.moveToOffset(source.indexOf("content"))
         EditorGuideSessions.dispose(editor)
-        assertNull(EditorGuideSessions.get(editor))
+        assertThat(EditorGuideSessions.get(editor)).isNull()
         val staleCollection = AppExecutorUtil.getAppExecutorService()
             .submit<BracketGuideHighlightingPass> {
                 inReadAction {
@@ -198,14 +198,14 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
             10_000,
         )
         val stalePass = staleCollection.get()
-        assertNull(EditorGuideSessions.get(editor))
+        assertThat(EditorGuideSessions.get(editor)).isNull()
 
         WriteCommandAction.runWriteCommandAction(project) {
             editor.document.insertString(editor.document.textLength, "z")
         }
         stalePass.doApplyInformationToEditor()
 
-        assertNull(EditorGuideSessions.get(editor))
+        assertThat(EditorGuideSessions.get(editor)).isNull()
     }
 
     fun testStalePassFromAnotherFileTypeCannotReplaceCurrentDependencies() {
@@ -236,13 +236,13 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
         applyPass(currentPass)
 
         stalePass.doApplyInformationToEditor()
-        assertSame(highlighter, editor.highlighter)
-        assertEquals(pair, activeGuideState()?.guide?.pair)
+        assertThat(editor.highlighter).isSameAs(highlighter)
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(pair)
         WriteCommandAction.runWriteCommandAction(project) {
             editor.document.insertString(editor.document.textLength, " ")
         }
 
-        assertEquals(pair, activeGuideState()?.guide?.pair)
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(pair)
     }
 
     fun testRejectedStalePassDoesNotReplaceCurrentSessionDependencies() {
@@ -291,7 +291,7 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
             editor.document.insertString(editor.document.textLength, "z")
         }
 
-        assertEquals(0, staleVisibleRangeCalls)
-        assertEquals(1, currentVisibleRangeCalls)
+        assertThat(staleVisibleRangeCalls).isEqualTo(0)
+        assertThat(currentVisibleRangeCalls).isEqualTo(1)
     }
 }

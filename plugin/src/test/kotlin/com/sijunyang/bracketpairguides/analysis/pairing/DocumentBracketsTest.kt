@@ -25,6 +25,8 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IElementType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import kotlin.system.measureTimeMillis
 
 class DocumentBracketsTest : BasePlatformTestCase() {
@@ -44,20 +46,18 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         val pairs = analyze(EmptyProgressIndicator())
         val stringBraceOffset = source.indexOf("\"}\"") + 1
 
-        assertTrue(pairs.isNotEmpty())
-        assertFalse(
-            "A brace token inside a string must be excluded by the Java lexer",
+        assertThat(pairs).isNotEmpty()
+        assertThat(
             pairs.any { it.openOffset == stringBraceOffset || it.closeOffset == stringBraceOffset },
-        )
-        assertTrue(
-            "The outer class braces should be paired",
+        ).describedAs("brace token inside a string is excluded by the Java lexer").isFalse()
+        assertThat(
             pairs.any {
                 source[it.openOffset] == '{' &&
                     source[it.closeOffset] == '}' &&
                     it.openLine == 0 &&
                     it.closeLine == 7
             },
-        )
+        ).describedAs("outer class braces are paired").isTrue()
     }
 
     fun testLongJavaFileHasDeterministicLinearScaleResults() {
@@ -71,18 +71,17 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         }
         val second = analyze(EmptyProgressIndicator())
 
-        assertEquals(methodCount * PAIRS_PER_GENERATED_METHOD + 1, first.size)
-        assertEquals(first, second)
-        assertTrue(
-            "Analyzing ${source.length} Java characters took ${firstElapsedMillis}ms",
-            firstElapsedMillis < LARGE_ANALYSIS_LIMIT_MILLIS,
-        )
-        assertTrue(
+        assertThat(first).hasSize(methodCount * PAIRS_PER_GENERATED_METHOD + 1)
+        assertThat(second).containsExactlyElementsOf(first)
+        assertThat(firstElapsedMillis)
+            .describedAs("analysis time for %s Java characters", source.length)
+            .isLessThan(LARGE_ANALYSIS_LIMIT_MILLIS)
+        assertThat(
             first.any { pair ->
                 pair.openOffset == source.indexOf('{') &&
                     pair.closeOffset == source.lastIndex
             },
-        )
+        ).isTrue()
     }
 
     fun testMalformedDeepJavaInputIgnoresUnrelatedClosersAndRecoversPairs() {
@@ -92,16 +91,18 @@ class DocumentBracketsTest : BasePlatformTestCase() {
 
         val pairs = analyze(EmptyProgressIndicator())
 
-        assertEquals(depth, pairs.size)
+        assertThat(pairs).hasSize(depth)
         val pairsByOpenOffset = pairs.associateBy(BracketPair::openOffset)
-        assertEquals(depth, pairsByOpenOffset.size)
+        assertThat(pairsByOpenOffset).hasSize(depth)
         repeat(depth) { openOffset ->
             val pair = checkNotNull(pairsByOpenOffset[openOffset])
-            assertEquals(openOffset, pair.depth)
-            assertEquals(source.lastIndex - openOffset, pair.closeOffset)
+            assertThat(pair.depth).describedAs("depth at open offset %s", openOffset)
+                .isEqualTo(openOffset)
+            assertThat(pair.closeOffset).describedAs("close offset for opener %s", openOffset)
+                .isEqualTo(source.lastIndex - openOffset)
         }
-        assertTrue(pairs.all { pair -> source[pair.openOffset] == '(' })
-        assertTrue(pairs.all { pair -> source[pair.closeOffset] == ')' })
+        assertThat(pairs).allMatch { pair -> source[pair.openOffset] == '(' }
+        assertThat(pairs).allMatch { pair -> source[pair.closeOffset] == ')' }
     }
 
     fun testMalformedRegularPairDoesNotCrossAJavaStructuralPair() {
@@ -110,9 +111,9 @@ class DocumentBracketsTest : BasePlatformTestCase() {
 
         val pairs = analyze(EmptyProgressIndicator())
 
-        assertEquals(1, pairs.size)
-        assertEquals(source.indexOf('{'), pairs.single().openOffset)
-        assertEquals(source.indexOf('}'), pairs.single().closeOffset)
+        assertThat(pairs).hasSize(1)
+        assertThat(pairs.single().openOffset).isEqualTo(source.indexOf('{'))
+        assertThat(pairs.single().closeOffset).isEqualTo(source.indexOf('}'))
     }
 
     fun testLongAnalysisHonorsCancellationDuringTokenTraversal() {
@@ -127,24 +128,22 @@ class DocumentBracketsTest : BasePlatformTestCase() {
             }
         }
 
-        try {
+        assertThatThrownBy {
             analyze(indicator)
-            fail("Expected token traversal to be canceled")
-        } catch (_: ProcessCanceledException) {
-            assertEquals(3, cancellationChecks)
-        }
+        }.isInstanceOf(ProcessCanceledException::class.java)
+        assertThat(cancellationChecks).isEqualTo(3)
     }
 
     fun testLegacyFileTypeMatcherIsNotARecognitionFallback() {
         myFixture.configureByText("Unsupported.xml", "<root><child/></root>")
 
-        assertTrue(analyze(EmptyProgressIndicator()).isEmpty())
+        assertThat(analyze(EmptyProgressIndicator())).isEmpty()
     }
 
     fun testRawCharactersWithoutALanguageMatcherAreUnsupported() {
         myFixture.configureByText("Unsupported.txt", "{[(content)]}")
 
-        assertTrue(analyze(EmptyProgressIndicator()).isEmpty())
+        assertThat(analyze(EmptyProgressIndicator())).isEmpty()
     }
 
     fun testUsesOfficialCustomFileTypeBracketTokens() {
@@ -170,16 +169,15 @@ class DocumentBracketsTest : BasePlatformTestCase() {
                 .toBracketPairs()
         }
 
-        assertEquals(3, pairs.size)
-        assertEquals(
-            listOf(
-                Triple('{', '}', 0),
-                Triple('[', ']', 1),
-                Triple('(', ')', 2),
-            ),
+        assertThat(pairs).hasSize(3)
+        assertThat(
             pairs.sortedBy(BracketPair::openOffset).map { pair ->
                 Triple(source[pair.openOffset], source[pair.closeOffset], pair.depth)
             },
+        ).containsExactly(
+                Triple('{', '}', 0),
+                Triple('[', ']', 1),
+                Triple('(', ')', 2),
         )
     }
 
@@ -202,7 +200,7 @@ class DocumentBracketsTest : BasePlatformTestCase() {
             ).recognize(EmptyProgressIndicator()).completeTable().toBracketPairs()
         }
 
-        assertTrue(pairs.isEmpty())
+        assertThat(pairs).isEmpty()
     }
 
     fun testDisabledMatcherFamilyIsExcludedFromFullAnalysis() {
@@ -220,16 +218,15 @@ class DocumentBracketsTest : BasePlatformTestCase() {
             ).recognize(EmptyProgressIndicator()).completeTable().toBracketPairs()
         }
 
-        assertTrue(pairs.isEmpty())
+        assertThat(pairs).isEmpty()
     }
 
     fun testInheritedMatcherUsesTheHighestSharedBaseLanguageAsCapabilityOwner() {
         LanguageBraceMatching.INSTANCE.addExplicitExtension(DYNAMIC_LANGUAGE, ANGLE_PAIRS)
         try {
-            assertEquals(
-                DYNAMIC_LANGUAGE.id,
+            assertThat(
                 BraceLanguageCatalog().definitionFor(DYNAMIC_DIALECT_LANGUAGE)?.capabilityId,
-            )
+            ).isEqualTo(DYNAMIC_LANGUAGE.id)
         } finally {
             LanguageBraceMatching.INSTANCE.removeExplicitExtension(DYNAMIC_LANGUAGE, ANGLE_PAIRS)
         }
@@ -248,13 +245,13 @@ class DocumentBracketsTest : BasePlatformTestCase() {
             val pairs = analyze(EmptyProgressIndicator())
             val supportedOpen = source.lastIndexOf('<')
 
-            assertEquals(1, pairs.size)
-            assertEquals(supportedOpen, pairs.single().openOffset)
-            assertEquals(source.lastIndexOf('>'), pairs.single().closeOffset)
-            assertFalse(
-                "Static pair metadata must not turn comparison operators into braces",
+            assertThat(pairs).hasSize(1)
+            assertThat(pairs.single().openOffset).isEqualTo(supportedOpen)
+            assertThat(pairs.single().closeOffset).isEqualTo(source.lastIndexOf('>'))
+            assertThat(
                 pairs.any { it.openOffset == source.indexOf('<') },
-            )
+            ).describedAs("static pair metadata does not recognize comparison operators")
+                .isFalse()
         } finally {
             LanguageBraceMatching.INSTANCE.removeExplicitExtension(DYNAMIC_LANGUAGE, matcher)
         }

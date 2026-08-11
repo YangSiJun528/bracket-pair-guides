@@ -12,7 +12,7 @@ import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
 import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
-import org.junit.Assert.assertEquals
+import org.assertj.core.api.Assertions.assertThat
 
 class EditorGuideFallbackIntegrationTest : BasePlatformTestCase() {
     fun testGuideSettingUsesBoundedProvisionalPositionUntilBackgroundAnalysis() {
@@ -63,8 +63,8 @@ class EditorGuideFallbackIntegrationTest : BasePlatformTestCase() {
                     ?.let { it as? BracketGuideDrawing }
                     ?.guide,
             )
-            assertEquals(4, guide.guideColumn)
-            assertEquals(pair.closeLine, guide.anchorLine)
+            assertThat(guide.guideColumn).isEqualTo(4)
+            assertThat(guide.anchorLine).isEqualTo(pair.closeLine)
         } finally {
             EditorGuideSessions.dispose(editor)
         }

@@ -1,9 +1,7 @@
 package com.sijunyang.bracketpairguides.analysis.snapshot
 
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class IndexLayoutTest {
@@ -11,8 +9,8 @@ class IndexLayoutTest {
     fun `token metadata detaches when active pairs are not retained`() {
         val plan = IndexLayout.forCoverage(coverage(tokens = true))
 
-        assertFalse(plan.activePair)
-        assertEquals(TokenStorage.DETACHED, plan.tokenStorage)
+        assertThat(plan.activePair).isFalse()
+        assertThat(plan.tokenStorage).isEqualTo(TokenStorage.DETACHED)
     }
 
     @Test
@@ -21,15 +19,15 @@ class IndexLayoutTest {
             coverage(tokens = true, activePair = true),
         )
 
-        assertTrue(plan.activePair)
-        assertEquals(TokenStorage.ATTACHED, plan.tokenStorage)
+        assertThat(plan.activePair).isTrue()
+        assertThat(plan.tokenStorage).isEqualTo(TokenStorage.ATTACHED)
     }
 
     @Test
     fun `disabled token presentation omits its index`() {
         val plan = IndexLayout.forCoverage(coverage(activePair = true))
 
-        assertEquals(TokenStorage.NONE, plan.tokenStorage)
+        assertThat(plan.tokenStorage).isEqualTo(TokenStorage.NONE)
     }
 
     private fun coverage(

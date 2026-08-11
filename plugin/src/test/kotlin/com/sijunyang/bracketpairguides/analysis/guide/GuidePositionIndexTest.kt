@@ -5,10 +5,7 @@ import com.intellij.openapi.editor.impl.DocumentImpl
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.sijunyang.bracketpairguides.analysis.intellij.DocumentGuidePositions
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class GuidePositionIndexTest {
@@ -27,9 +24,9 @@ class GuidePositionIndexTest {
 
         val guide = index.guide(pair(closeLine = 6).copy(openLine = 3))
 
-        assertEquals(2, guide.guideColumn)
-        assertEquals(5, guide.anchorLine)
-        assertTrue(cancellationChecks > 0)
+        assertThat(guide.guideColumn).isEqualTo(2)
+        assertThat(guide.anchorLine).isEqualTo(5)
+        assertThat(cancellationChecks).isPositive()
     }
 
     @Test
@@ -38,23 +35,23 @@ class GuidePositionIndexTest {
         val pair = BracketPair(11, 1, 56, 1, 0, 0, 3)
 
         val guide = index.guide(pair)
-        assertEquals(2, guide.guideColumn)
-        assertEquals(2, guide.anchorLine)
+        assertThat(guide.guideColumn).isEqualTo(2)
+        assertThat(guide.anchorLine).isEqualTo(2)
     }
 
     @Test
     fun `expands tabs using the editor tab size`() {
         val index = indexFor("{\n\tvalue\n    other\n}", tabSize = 4)
 
-        assertEquals(0, index.guide(pair(closeLine = 3)).guideColumn)
-        assertEquals(4, index.guide(pair(closeLine = 2)).guideColumn)
+        assertThat(index.guide(pair(closeLine = 3)).guideColumn).isZero()
+        assertThat(index.guide(pair(closeLine = 2)).guideColumn).isEqualTo(4)
     }
 
     @Test
     fun `ignores blank lines in minimum queries`() {
         val index = indexFor("{\n\n      value\n  }")
 
-        assertEquals(2, index.guide(pair(closeLine = 3)).guideColumn)
+        assertThat(index.guide(pair(closeLine = 3)).guideColumn).isEqualTo(2)
     }
 
     @Test
@@ -69,8 +66,8 @@ class GuidePositionIndexTest {
 
         val guide = index.guide(pair(closeLine = 700))
 
-        assertEquals(1, guide.guideColumn)
-        assertEquals(300, guide.anchorLine)
+        assertThat(guide.guideColumn).isEqualTo(1)
+        assertThat(guide.anchorLine).isEqualTo(300)
     }
 
     @Test
@@ -95,8 +92,12 @@ class GuidePositionIndexTest {
                     pair(closeLine = lastLine).copy(openLine = firstLine - 1),
                 )
 
-                assertEquals(expectedColumn, guide.guideColumn)
-                assertEquals(expectedLine, guide.anchorLine)
+                assertThat(guide.guideColumn)
+                    .describedAs("guide column for lines %s..%s", firstLine, lastLine)
+                    .isEqualTo(expectedColumn)
+                assertThat(guide.anchorLine)
+                    .describedAs("anchor line for lines %s..%s", firstLine, lastLine)
+                    .isEqualTo(expectedLine)
             }
         }
     }
@@ -110,30 +111,28 @@ class GuidePositionIndexTest {
 
         val guide = index.guide(pair(closeLine = 3).copy(openLine = 1))
 
-        assertEquals(2, guide.guideColumn)
-        assertEquals(3, guide.anchorLine)
+        assertThat(guide.guideColumn).isEqualTo(2)
+        assertThat(guide.anchorLine).isEqualTo(3)
 
-        assertEquals(
-            null,
+        assertThat(
             index.guideForOrNull(pair(closeLine = 2).copy(openLine = 0)),
-        )
-        assertEquals(
-            null,
+        ).isNull()
+        assertThat(
             index.guideForOrNull(pair(closeLine = 11).copy(openLine = 10)),
-        )
+        ).isNull()
     }
 
     @Test
     fun `restricted index omits a disjoint range`() {
         val document = DocumentImpl("one\ntwo")
 
-        assertNull(
+        assertThat(
             DocumentGuidePositions(
                 document = document,
                 tabSize = 4,
                 checkCanceled = {},
             ).index(10..20),
-        )
+        ).isNull()
     }
 
     @Test
@@ -154,34 +153,34 @@ class GuidePositionIndexTest {
             checkCanceled = progress::checkCanceled,
         ).index(0..0)
 
-        assertTrue(cancellationChecks > 2)
+        assertThat(cancellationChecks).isGreaterThan(2)
     }
 
     @Test
     fun `blocked shape enforces the combined array memory boundary`() {
         val exactBoundary = 1_032_192
 
-        assertNotNull(GuideIndexShape.forLineCount(1))
-        assertNotNull(GuideIndexShape.forLineCount(1_000_000))
+        assertThat(GuideIndexShape.forLineCount(1)).isNotNull()
+        assertThat(GuideIndexShape.forLineCount(1_000_000)).isNotNull()
 
         val boundaryShape = checkNotNull(GuideIndexShape.forLineCount(exactBoundary))
-        assertEquals(exactBoundary, boundaryShape.indentationEntryCount)
-        assertEquals(4_096, boundaryShape.blockLeafCount)
-        assertEquals(8_192, boundaryShape.blockTreeEntryCount)
-        assertNull(GuideIndexShape.forLineCount(exactBoundary + 1))
+        assertThat(boundaryShape.indentationEntryCount).isEqualTo(exactBoundary)
+        assertThat(boundaryShape.blockLeafCount).isEqualTo(4_096)
+        assertThat(boundaryShape.blockTreeEntryCount).isEqualTo(8_192)
+        assertThat(GuideIndexShape.forLineCount(exactBoundary + 1)).isNull()
     }
 
     @Test
     fun `storage planning is overflow safe for the maximum line count`() {
-        assertNull(GuideIndexShape.forLineCount(Int.MAX_VALUE))
-        assertNull(
+        assertThat(GuideIndexShape.forLineCount(Int.MAX_VALUE)).isNull()
+        assertThat(
             GuidePositionIndex.from(
                 baseLine = Int.MAX_VALUE,
                 lineCount = 2,
                 checkCanceled = {},
                 indentationAt = { 0 },
             ),
-        )
+        ).isNull()
     }
 
     @Test
@@ -190,8 +189,8 @@ class GuidePositionIndexTest {
 
         val guide = index.guide(pair(closeLine = 1))
 
-        assertEquals(Int.MAX_VALUE - 1, guide.guideColumn)
-        assertEquals(1, guide.anchorLine)
+        assertThat(guide.guideColumn).isEqualTo(Int.MAX_VALUE - 1)
+        assertThat(guide.anchorLine).isEqualTo(1)
     }
 
     @Test
@@ -199,7 +198,7 @@ class GuidePositionIndexTest {
         val index = indexFor("  first\n    last")
         val malformed = pair(closeLine = Int.MAX_VALUE).copy(openLine = Int.MAX_VALUE)
 
-        assertNull(index.guideForOrNull(malformed))
+        assertThat(index.guideForOrNull(malformed)).isNull()
     }
 
     private fun indexFor(

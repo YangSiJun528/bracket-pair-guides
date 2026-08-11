@@ -1,6 +1,7 @@
 package com.sijunyang.bracketpairguides.analysis
 
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import org.assertj.core.api.Assertions.assertThat
 
 class AnalysisInputTest : BasePlatformTestCase() {
     fun testDefensivelyCopiesDisabledLanguageIds() {
@@ -20,6 +21,6 @@ class AnalysisInputTest : BasePlatformTestCase() {
         disabled.clear()
         disabled += "KOTLIN"
 
-        assertEquals(setOf("JAVA"), input.disabledLanguageIds)
+        assertThat(input.disabledLanguageIds).containsExactly("JAVA")
     }
 }

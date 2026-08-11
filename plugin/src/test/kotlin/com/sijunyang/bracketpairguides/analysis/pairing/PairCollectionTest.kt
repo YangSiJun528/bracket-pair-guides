@@ -1,9 +1,7 @@
 package com.sijunyang.bracketpairguides.analysis.pairing
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertSame
-import org.junit.Assert.assertThrows
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.catchThrowable
 import org.junit.Test
 
 class PairCollectionTest {
@@ -13,12 +11,12 @@ class PairCollectionTest {
         pairs.acceptPair(0)
         pairs.acceptPair(2)
 
-        val signal = assertThrows(PairCapacityReached::class.java) {
+        val signal = catchThrowable {
             pairs.acceptPair(4)
         }
 
-        assertSame(PairCapacityReached, signal)
-        assertNull(pairs.authoritativePairs())
+        assertThat(signal).isSameAs(PairCapacityReached)
+        assertThat(pairs.authoritativePairs()).isNull()
     }
 
     @Test
@@ -27,7 +25,7 @@ class PairCollectionTest {
         pairs.acceptPair(0)
         pairs.acceptPair(2)
 
-        assertEquals(2, pairs.authoritativePairs()?.size())
+        assertThat(pairs.authoritativePairs()?.size()).isEqualTo(2)
     }
 
     private fun PairCollection.acceptPair(openOffset: Int) {

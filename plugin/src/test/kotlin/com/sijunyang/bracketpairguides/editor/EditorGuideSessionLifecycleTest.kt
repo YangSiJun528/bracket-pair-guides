@@ -19,8 +19,7 @@ import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 
 class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
     override fun setUp() {
@@ -59,8 +58,8 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         }
         pass.doApplyInformationToEditor()
         val session = checkNotNull(EditorGuideSessions.get(editor))
-        assertEquals(1, editor.observedBracketMarkup().guideMarks.size)
-        assertEquals(2, editor.observedBracketMarkup().tokenMarks.size)
+        assertThat(editor.observedBracketMarkup().guideMarks).hasSize(1)
+        assertThat(editor.observedBracketMarkup().tokenMarks).hasSize(2)
 
         (editor as EditorEx).setHighlighter(
             EditorHighlighterFactory.getInstance()
@@ -68,9 +67,9 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         )
         session.visibleAreaChanged()
 
-        assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
+        assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
         editor.caretModel.moveToOffset(source.indexOf("content") + 1)
-        assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
+        assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
     }
 
     fun testDocumentChangeWithoutSnapshotDoesNotCreateActivePresentation() {
@@ -93,7 +92,7 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
             }
             editor.caretModel.moveToOffset(4)
 
-            assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
+            assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
         } finally {
             EditorGuideSessions.dispose(editor)
         }
@@ -128,25 +127,23 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
                 )
                 session
             }
-            assertEquals(
-                listOf(2, 2),
+            assertThat(
                 listOf(firstEditor, secondEditor).map {
                     it.observedBracketMarkup().activePairMarks.size
                 },
-            )
+            ).containsExactly(2, 2)
 
             WriteCommandAction.runWriteCommandAction(project) {
                 document.insertString(0, "x")
             }
 
-            assertEquals(2, sessions.size)
+            assertThat(sessions).hasSize(2)
             for (editor in listOf(firstEditor, secondEditor)) {
-                assertEquals(
-                    listOf(1, 9),
+                assertThat(
                     editor.observedBracketMarkup().activePairMarks
                         .map { it.startOffset }
                         .sorted(),
-                )
+                ).containsExactly(1, 9)
             }
         } finally {
             EditorGuideSessions.dispose(firstEditor)
@@ -181,7 +178,7 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         }
         pass.doApplyInformationToEditor()
         val session = checkNotNull(EditorGuideSessions.get(editor))
-        assertTrue(editor.observedBracketMarkup().allMarks.isNotEmpty())
+        assertThat(editor.observedBracketMarkup().allMarks).isNotEmpty()
 
         session.updateOptions(
             options.copy(disabledLanguageIds = setOf("changed.language")),
@@ -189,6 +186,6 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         )
         editor.caretModel.moveToOffset(source.indexOf("value") + 1)
 
-        assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
+        assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
     }
 }

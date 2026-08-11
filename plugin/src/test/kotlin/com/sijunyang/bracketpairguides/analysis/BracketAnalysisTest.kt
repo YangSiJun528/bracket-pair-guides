@@ -13,6 +13,8 @@ import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 
 class BracketAnalysisTest : BasePlatformTestCase() {
     fun testAnalyzePreservesStampAndAnswersOnlyPublicQueries() {
@@ -37,26 +39,23 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         }
         val result = complete(outcome)
 
-        assertSame(request.stamp, outcome.stamp)
-        assertSame(request.stamp, result.stamp)
+        assertThat(outcome.stamp).isSameAs(request.stamp)
+        assertThat(result.stamp).isSameAs(request.stamp)
         val tokens = result.visibleTokens(
             range = TextRange(0, source.length),
             focusOffset = source.indexOf("call"),
             limit = 100,
         )
-        assertFalse(tokens.isCapped)
-        assertTrue(tokens.size > 0)
-        assertEquals(
-            (0 until tokens.size).map(tokens::offsetAt).sorted(),
-            (0 until tokens.size).map(tokens::offsetAt),
-        )
+        assertThat(tokens.isCapped).isFalse()
+        assertThat(tokens.size).isPositive()
+        assertThat((0 until tokens.size).map(tokens::offsetAt)).isSorted()
 
         val activePair = checkNotNull(result.activePairAt(source.indexOf("call") + 2))
-        assertEquals(source.indexOf('{', source.indexOf("run")), activePair.openOffset)
-        assertEquals(source.indexOf('}', source.indexOf("call")), activePair.closeOffset)
+        assertThat(activePair.openOffset).isEqualTo(source.indexOf('{', source.indexOf("run")))
+        assertThat(activePair.closeOffset).isEqualTo(source.indexOf('}', source.indexOf("call")))
         val guide = checkNotNull(result.guideFor(activePair))
-        assertEquals(4, guide.guideColumn)
-        assertEquals(activePair.closeLine, guide.anchorLine)
+        assertThat(guide.guideColumn).isEqualTo(4)
+        assertThat(guide.anchorLine).isEqualTo(activePair.closeLine)
     }
 
     fun testCoverageBuildsOnlyRequestedArtifacts() {
@@ -77,8 +76,8 @@ class BracketAnalysisTest : BasePlatformTestCase() {
                 EmptyProgressIndicator(),
             )
         })
-        assertTrue(tokenOnly.visibleTokens(range, caretOffset, 100).size > 0)
-        assertNull(tokenOnly.activePairAt(caretOffset))
+        assertThat(tokenOnly.visibleTokens(range, caretOffset, 100).size).isPositive()
+        assertThat(tokenOnly.activePairAt(caretOffset)).isNull()
 
         val activeOnly = complete(inReadAction {
             analysis().analyze(
@@ -92,8 +91,8 @@ class BracketAnalysisTest : BasePlatformTestCase() {
                 EmptyProgressIndicator(),
             )
         })
-        assertEquals(0, activeOnly.visibleTokens(range, caretOffset, 100).size)
-        assertNotNull(activeOnly.activePairAt(caretOffset))
+        assertThat(activeOnly.visibleTokens(range, caretOffset, 100).size).isZero()
+        assertThat(activeOnly.activePairAt(caretOffset)).isNotNull()
 
         val inactive = complete(inReadAction {
             analysis().analyze(
@@ -107,8 +106,8 @@ class BracketAnalysisTest : BasePlatformTestCase() {
                 EmptyProgressIndicator(),
             )
         })
-        assertEquals(0, inactive.visibleTokens(range, caretOffset, 100).size)
-        assertNull(inactive.activePairAt(caretOffset))
+        assertThat(inactive.visibleTokens(range, caretOffset, 100).size).isZero()
+        assertThat(inactive.activePairAt(caretOffset)).isNull()
     }
 
     fun testUnavailableOutcomeRetainsTheAttemptStampWithoutAPartialSnapshot() {
@@ -126,12 +125,11 @@ class BracketAnalysisTest : BasePlatformTestCase() {
             AnalysisLimit.PAIR_CAPACITY,
         )
 
-        assertSame(request.stamp, outcome.stamp)
-        assertEquals(
-            AnalysisLimit.PAIR_CAPACITY,
-            (outcome as AnalysisOutcome.Unavailable).limit,
-        )
-        assertFalse(outcome is AnalysisOutcome.Complete)
+        assertThat(outcome.stamp).isSameAs(request.stamp)
+        assertThat(outcome)
+            .isInstanceOfSatisfying(AnalysisOutcome.Unavailable::class.java) { unavailable ->
+                assertThat(unavailable.limit).isEqualTo(AnalysisLimit.PAIR_CAPACITY)
+            }
     }
 
     fun testProductPairCapacityAcceptsTheBoundaryAndRejectsTheNextPair() {
@@ -144,7 +142,7 @@ class BracketAnalysisTest : BasePlatformTestCase() {
 
         val exact = analyzeCurrentTokens()
 
-        assertTrue(exact is AnalysisOutcome.Complete)
+        assertThat(exact).isInstanceOf(AnalysisOutcome.Complete::class.java)
 
         val overflowSource = buildString(200_022) {
             append("class Dense {")
@@ -155,11 +153,10 @@ class BracketAnalysisTest : BasePlatformTestCase() {
 
         val overflow = analyzeCurrentTokens()
 
-        assertTrue(overflow is AnalysisOutcome.Unavailable)
-        assertEquals(
-            AnalysisLimit.PAIR_CAPACITY,
-            (overflow as AnalysisOutcome.Unavailable).limit,
-        )
+        assertThat(overflow)
+            .isInstanceOfSatisfying(AnalysisOutcome.Unavailable::class.java) { unavailable ->
+                assertThat(unavailable.limit).isEqualTo(AnalysisLimit.PAIR_CAPACITY)
+            }
     }
 
     fun testProductPendingOpenCapacityAcceptsTheBoundaryAndRejectsTheNextOpen() {
@@ -170,7 +167,7 @@ class BracketAnalysisTest : BasePlatformTestCase() {
 
         val exact = analyzeCurrentTokens()
 
-        assertTrue(exact is AnalysisOutcome.Complete)
+        assertThat(exact).isInstanceOf(AnalysisOutcome.Complete::class.java)
 
         myFixture.configureByText(
             "ExceededPendingCapacity.java",
@@ -179,11 +176,10 @@ class BracketAnalysisTest : BasePlatformTestCase() {
 
         val overflow = analyzeCurrentTokens()
 
-        assertTrue(overflow is AnalysisOutcome.Unavailable)
-        assertEquals(
-            AnalysisLimit.PENDING_OPEN_CAPACITY,
-            (overflow as AnalysisOutcome.Unavailable).limit,
-        )
+        assertThat(overflow)
+            .isInstanceOfSatisfying(AnalysisOutcome.Unavailable::class.java) { unavailable ->
+                assertThat(unavailable.limit).isEqualTo(AnalysisLimit.PENDING_OPEN_CAPACITY)
+            }
     }
 
     fun testGuideCapacityKeepsExactPairAndTokenIndexesWithoutPublishingAGuide() {
@@ -219,30 +215,28 @@ class BracketAnalysisTest : BasePlatformTestCase() {
             analysis().analyze(input, replacingProgress)
         }
 
-        assertTrue(highlighterReplaced)
-        assertTrue(outcome is AnalysisOutcome.Limited)
+        assertThat(highlighterReplaced).isTrue()
+        assertThat(outcome).isInstanceOf(AnalysisOutcome.Limited::class.java)
         val limited = outcome as AnalysisOutcome.Limited
-        assertSame(input.stamp, limited.stamp)
-        assertEquals(AnalysisLimit.GUIDE_CAPACITY, limited.limit)
-        assertEquals(
-            input.coverage.copy(guidePosition = false),
+        assertThat(limited.stamp).isSameAs(input.stamp)
+        assertThat(limited.limit).isEqualTo(AnalysisLimit.GUIDE_CAPACITY)
+        assertThat(
             limited.snapshot.stamp.coverage,
-        )
-        assertTrue(input.stamp.covers(limited.snapshot.stamp))
-        assertFalse(
+        ).isEqualTo(input.coverage.copy(guidePosition = false))
+        assertThat(input.stamp.covers(limited.snapshot.stamp)).isTrue()
+        assertThat(
             request(input.coverage.copy(guidePosition = false)).stamp
                 .covers(limited.snapshot.stamp),
-        )
+        ).isFalse()
         val pair = checkNotNull(limited.snapshot.activePairAt(source.indexOf('\n') + 1))
-        assertNull(limited.snapshot.guideFor(pair))
-        assertEquals(
-            2,
+        assertThat(limited.snapshot.guideFor(pair)).isNull()
+        assertThat(
             limited.snapshot.visibleTokens(
                 TextRange(0, source.length),
                 pair.openOffset,
                 10,
             ).size,
-        )
+        ).isEqualTo(2)
     }
 
     fun testAnalyzePropagatesPlatformCancellation() {
@@ -255,7 +249,7 @@ class BracketAnalysisTest : BasePlatformTestCase() {
             override fun checkCanceled(): Unit = throw ProcessCanceledException()
         }
 
-        try {
+        assertThatThrownBy {
             inReadAction {
                 analysis().analyze(
                     request(
@@ -268,10 +262,7 @@ class BracketAnalysisTest : BasePlatformTestCase() {
                     canceled,
                 )
             }
-            fail("Expected facade analysis to propagate cancellation")
-        } catch (_: ProcessCanceledException) {
-            // Expected: the facade must not translate or suppress platform cancellation.
-        }
+        }.isInstanceOf(ProcessCanceledException::class.java)
     }
 
     private fun request(coverage: AnalysisCoverage): AnalysisInput = AnalysisInput(
@@ -297,10 +288,9 @@ class BracketAnalysisTest : BasePlatformTestCase() {
     }
 
     private fun complete(outcome: AnalysisOutcome): BracketSnapshot {
-        assertTrue(
-            "Expected complete analysis, got ${outcome.javaClass.simpleName}",
-            outcome is AnalysisOutcome.Complete,
-        )
+        assertThat(outcome)
+            .describedAs("complete analysis")
+            .isInstanceOf(AnalysisOutcome.Complete::class.java)
         return (outcome as AnalysisOutcome.Complete).snapshot
     }
 

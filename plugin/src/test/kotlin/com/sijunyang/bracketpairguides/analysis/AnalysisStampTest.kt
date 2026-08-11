@@ -5,22 +5,12 @@ import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 class AnalysisStampTest : BasePlatformTestCase() {
     fun testGuidePositionsRequireActivePairAnalysis() {
-        try {
-            AnalysisCoverage(
-                tokens = true,
-                activePair = false,
-                guidePosition = true,
-            )
-            fail("Expected guide positions without active-pair analysis to be rejected")
-        } catch (_: IllegalArgumentException) {
-            // Expected product invariant.
-        }
+        assertThatIllegalArgumentException().isThrownBy(::invalidGuideCoverage)
     }
 
     fun testTabSizeDoesNotInvalidateTokenOnlyAnalysis() {
@@ -38,7 +28,7 @@ class AnalysisStampTest : BasePlatformTestCase() {
             coverage = completed.coverage,
         )
 
-        assertTrue(completed.covers(required))
+        assertThat(completed.covers(required)).isTrue()
     }
 
     fun testTabSizeStillInvalidatesGuidePositionAnalysis() {
@@ -56,7 +46,7 @@ class AnalysisStampTest : BasePlatformTestCase() {
             coverage = completed.coverage,
         )
 
-        assertFalse(completed.covers(required))
+        assertThat(completed.covers(required)).isFalse()
     }
 
     fun testDifferentHighlighterInstanceInvalidatesTheStamp() {
@@ -74,7 +64,7 @@ class AnalysisStampTest : BasePlatformTestCase() {
         )
         val required = stamp(tabSize = 4, coverage = coverage)
 
-        assertFalse(completed.covers(required))
+        assertThat(completed.covers(required)).isFalse()
     }
 
     fun testChecksDocumentCoverageAndLanguageSelection() {
@@ -87,41 +77,41 @@ class AnalysisStampTest : BasePlatformTestCase() {
         val stamp = stamp(coverage)
         val fileType = myFixture.file.fileType
 
-        assertTrue(
+        assertThat(
             stamp.matchesCurrent(myFixture.editor, fileType, coverage, emptySet()),
-        )
-        assertFalse(
+        ).isTrue()
+        assertThat(
             stamp.matchesCurrent(
                 myFixture.editor,
                 PlainTextFileType.INSTANCE,
                 coverage,
                 emptySet(),
             ),
-        )
-        assertFalse(
+        ).isFalse()
+        assertThat(
             stamp.matchesCurrent(
                 myFixture.editor,
                 fileType,
                 coverage.copy(activePair = true),
                 emptySet(),
             ),
-        )
-        assertFalse(
+        ).isFalse()
+        assertThat(
             stamp.matchesCurrent(
                 myFixture.editor,
                 fileType,
                 coverage,
                 setOf("JAVA"),
             ),
-        )
+        ).isFalse()
 
         WriteCommandAction.runWriteCommandAction(project) {
             myFixture.editor.document.insertString(0, " ")
         }
 
-        assertFalse(
+        assertThat(
             stamp.matchesCurrent(myFixture.editor, fileType, coverage, emptySet()),
-        )
+        ).isFalse()
     }
 
     fun testIgnoresTabSizeOnlyWhenGuidePositionsAreNotRequired() {
@@ -138,14 +128,14 @@ class AnalysisStampTest : BasePlatformTestCase() {
 
         try {
             editor.settings.setTabSize(originalTabSize + 1)
-            assertTrue(
+            assertThat(
                 tokenStamp.matchesCurrent(
                     editor,
                     fileType,
                     tokenCoverage,
                     emptySet(),
                 ),
-            )
+            ).isTrue()
 
             val guideCoverage = AnalysisCoverage(
                 tokens = false,
@@ -154,14 +144,14 @@ class AnalysisStampTest : BasePlatformTestCase() {
             )
             val guideStamp = stamp(guideCoverage)
             editor.settings.setTabSize(originalTabSize + 2)
-            assertFalse(
+            assertThat(
                 guideStamp.matchesCurrent(
                     editor,
                     fileType,
                     guideCoverage,
                     emptySet(),
                 ),
-            )
+            ).isFalse()
         } finally {
             editor.settings.setTabSize(originalTabSize)
         }
@@ -183,7 +173,7 @@ class AnalysisStampTest : BasePlatformTestCase() {
                 .createEditorHighlighter(project, PlainTextFileType.INSTANCE),
         )
 
-        assertFalse(stamp.matchesCurrent(editor, fileType, coverage, emptySet()))
+        assertThat(stamp.matchesCurrent(editor, fileType, coverage, emptySet())).isFalse()
     }
 
     private fun stamp(
@@ -203,4 +193,12 @@ class AnalysisStampTest : BasePlatformTestCase() {
         coverage = coverage,
         disabledLanguageIds = disabledLanguageIds,
     ).stamp
+
+    private fun invalidGuideCoverage() {
+        AnalysisCoverage(
+            tokens = true,
+            activePair = false,
+            guidePosition = true,
+        )
+    }
 }

@@ -3,8 +3,7 @@ package com.sijunyang.bracketpairguides.editor.highlighting
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.PlatformTestUtil
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 
 internal class VisibleTokenWindowTest : BracketGuideHighlightingFixture() {
     fun testViewportBoundsMarkupForFiftyThousandPairsAndScrollReusesRecognition() {
@@ -33,22 +32,20 @@ internal class VisibleTokenWindowTest : BracketGuideHighlightingFixture() {
 
         applyPass(pairs) { visibleRange }
 
-        assertEquals(1, collections)
-        assertTrue(bracketColorHighlighters().isNotEmpty())
-        assertTrue(bracketColorHighlighters().size <= 1_024)
+        assertThat(collections).isEqualTo(1)
+        assertThat(bracketColorHighlighters()).isNotEmpty()
+        assertThat(bracketColorHighlighters().size).isLessThanOrEqualTo(1_024)
 
         visibleRange = TextRange(50_000, 50_256)
         session().visibleAreaChanged()
 
-        assertEquals(1, collections)
+        assertThat(collections).isEqualTo(1)
         val scrolledDecorations = bracketColorHighlighters()
-        assertTrue(scrolledDecorations.isNotEmpty())
-        assertTrue(scrolledDecorations.size <= 1_536)
-        assertTrue(
-            scrolledDecorations.any {
-                it.startOffset in visibleRange.startOffset until visibleRange.endOffset
-            },
-        )
+        assertThat(scrolledDecorations).isNotEmpty()
+        assertThat(scrolledDecorations.size).isLessThanOrEqualTo(1_536)
+        assertThat(scrolledDecorations).anyMatch {
+            it.startOffset in visibleRange.startOffset until visibleRange.endOffset
+        }
     }
 
     fun testOversizedDenseViewportStaysAnchoredAwayFromCaretAndCapsDecorations() {
@@ -74,12 +71,11 @@ internal class VisibleTokenWindowTest : BracketGuideHighlightingFixture() {
         }
 
         val decorations = bracketColorHighlighters()
-        assertTrue(decorations.isNotEmpty())
-        assertTrue(decorations.size < pairs.size * 2)
-        assertTrue(
-            "Decorations should follow the reported viewport instead of the off-screen caret",
-            decorations.minOf { it.startOffset } > 50_000,
-        )
+        assertThat(decorations).isNotEmpty()
+        assertThat(decorations.size).isLessThan(pairs.size * 2)
+        assertThat(decorations.minOf { it.startOffset })
+            .describedAs("Decorations should follow the reported viewport instead of the off-screen caret")
+            .isGreaterThan(50_000)
     }
 
     fun testCappedDenseDecorationsRecenterWhenScrollingInsideTheCachedPadding() {
@@ -103,7 +99,7 @@ internal class VisibleTokenWindowTest : BracketGuideHighlightingFixture() {
 
         applyPass({ pairs }) { visibleRange }
         val initialDecorations = bracketColorHighlighters()
-        assertTrue(initialDecorations.size < pairs.size * 2)
+        assertThat(initialDecorations.size).isLessThan(pairs.size * 2)
         val decorationLimit = initialDecorations.size
         val initialLastOffset = initialDecorations.maxOf { it.startOffset }
 
@@ -113,11 +109,10 @@ internal class VisibleTokenWindowTest : BracketGuideHighlightingFixture() {
         session().visibleAreaChanged()
 
         val scrolledDecorations = bracketColorHighlighters()
-        assertEquals(decorationLimit, scrolledDecorations.size)
-        assertTrue(
-            "Capped decorations must be recentered within a cached character window",
-            scrolledDecorations.minOf { it.startOffset } > initialLastOffset,
-        )
+        assertThat(scrolledDecorations).hasSize(decorationLimit)
+        assertThat(scrolledDecorations.minOf { it.startOffset })
+            .describedAs("Capped decorations must be recentered within a cached character window")
+            .isGreaterThan(initialLastOffset)
     }
 
     fun testCappedDenseDecorationsFollowCaretMovementWithoutScrolling() {
@@ -144,7 +139,7 @@ internal class VisibleTokenWindowTest : BracketGuideHighlightingFixture() {
             TextRange(0, source.length)
         }
         val initialDecorations = bracketColorHighlighters()
-        assertTrue(initialDecorations.size < pairs.size * 2)
+        assertThat(initialDecorations.size).isLessThan(pairs.size * 2)
         val decorationLimit = initialDecorations.size
         val initialLastOffset = initialDecorations.maxOf { it.startOffset }
         val initialViewportRequests = viewportRequests
@@ -162,7 +157,7 @@ internal class VisibleTokenWindowTest : BracketGuideHighlightingFixture() {
             },
             10_000,
         )
-        assertEquals(decorationLimit, bracketColorHighlighters().size)
-        assertEquals(initialViewportRequests + 1, viewportRequests)
+        assertThat(bracketColorHighlighters()).hasSize(decorationLimit)
+        assertThat(viewportRequests).isEqualTo(initialViewportRequests + 1)
     }
 }

@@ -3,8 +3,8 @@ package com.sijunyang.bracketpairguides.analysis.active
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.pairing.toPairTable
 import com.intellij.openapi.progress.ProcessCanceledException
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Test
 import kotlin.random.Random
 import kotlin.system.measureTimeMillis
@@ -15,11 +15,11 @@ class ActiveBracketPairIndexTest {
         val pair = pair(open = 2, close = 4)
         val index = indexFor(listOf(pair))
 
-        assertEquals(ActiveBracketPairIndex.NO_PAIR, index.activePairIndex(1))
-        assertEquals(ActiveBracketPairIndex.NO_PAIR, index.activePairIndex(2))
-        assertEquals(0, index.activePairIndex(3))
-        assertEquals(0, index.activePairIndex(4))
-        assertEquals(ActiveBracketPairIndex.NO_PAIR, index.activePairIndex(5))
+        assertThat(index.activePairIndex(1)).isEqualTo(ActiveBracketPairIndex.NO_PAIR)
+        assertThat(index.activePairIndex(2)).isEqualTo(ActiveBracketPairIndex.NO_PAIR)
+        assertThat(index.activePairIndex(3)).isZero()
+        assertThat(index.activePairIndex(4)).isZero()
+        assertThat(index.activePairIndex(5)).isEqualTo(ActiveBracketPairIndex.NO_PAIR)
     }
 
     @Test
@@ -28,11 +28,11 @@ class ActiveBracketPairIndexTest {
         val inner = pair(open = 3, close = 7, depth = 1)
         val index = indexFor(listOf(outer, inner))
 
-        assertEquals(0, index.activePairIndex(2))
-        assertEquals(1, index.activePairIndex(4))
-        assertEquals(1, index.activePairIndex(7))
-        assertEquals(0, index.activePairIndex(8))
-        assertEquals(ActiveBracketPairIndex.NO_PAIR, index.activePairIndex(11))
+        assertThat(index.activePairIndex(2)).isZero()
+        assertThat(index.activePairIndex(4)).isEqualTo(1)
+        assertThat(index.activePairIndex(7)).isEqualTo(1)
+        assertThat(index.activePairIndex(8)).isZero()
+        assertThat(index.activePairIndex(11)).isEqualTo(ActiveBracketPairIndex.NO_PAIR)
     }
 
     @Test
@@ -41,7 +41,7 @@ class ActiveBracketPairIndexTest {
         val laterLonger = pair(open = 5, close = 100, depth = 0)
         val index = indexFor(listOf(earlierShorter, laterLonger))
 
-        assertEquals(1, index.activePairIndex(7))
+        assertThat(index.activePairIndex(7)).isEqualTo(1)
     }
 
     @Test
@@ -59,7 +59,7 @@ class ActiveBracketPairIndexTest {
 
         val index = indexFor(listOf(valid, malformed))
 
-        assertEquals(0, index.activePairIndex(20))
+        assertThat(index.activePairIndex(20)).isZero()
     }
 
     @Test
@@ -67,9 +67,9 @@ class ActiveBracketPairIndexTest {
         val pair = pair(open = 0, close = 1)
         val index = indexFor(listOf(pair))
 
-        assertEquals(ActiveBracketPairIndex.NO_PAIR, index.activePairIndex(0))
-        assertEquals(0, index.activePairIndex(1))
-        assertEquals(ActiveBracketPairIndex.NO_PAIR, index.activePairIndex(2))
+        assertThat(index.activePairIndex(0)).isEqualTo(ActiveBracketPairIndex.NO_PAIR)
+        assertThat(index.activePairIndex(1)).isZero()
+        assertThat(index.activePairIndex(2)).isEqualTo(ActiveBracketPairIndex.NO_PAIR)
     }
 
     @Test
@@ -87,20 +87,20 @@ class ActiveBracketPairIndexTest {
         val elapsed = measureTimeMillis {
             index = indexFor(pairs)
             repeat(10_000) { query ->
-                assertEquals(
-                    pairCount - 1,
-                    index.activePairIndex(pairCount + query.mod(2)),
-                )
+                assertThat(index.activePairIndex(pairCount + query.mod(2)))
+                    .isEqualTo(pairCount - 1)
             }
         }
 
-        assertTrue("50k-pair index and lookups took ${elapsed}ms", elapsed < 15_000)
+        assertThat(elapsed)
+            .describedAs("50k-pair index and lookups")
+            .isLessThan(15_000)
     }
 
     @Test
     fun `index construction honors cancellation`() {
         var checks = 0
-        try {
+        assertThatThrownBy {
             indexFor(
                 pairs = List(2_000) { index ->
                     pair(index, 5_000 - index, index)
@@ -110,11 +110,8 @@ class ActiveBracketPairIndexTest {
                     if (checks == 3) throw ProcessCanceledException()
                 },
             )
-        } catch (_: ProcessCanceledException) {
-            assertEquals(3, checks)
-            return
-        }
-        throw AssertionError("Expected index construction to be canceled")
+        }.isInstanceOf(ProcessCanceledException::class.java)
+        assertThat(checks).isEqualTo(3)
     }
 
     @Test
@@ -134,11 +131,9 @@ class ActiveBracketPairIndexTest {
 
             var offset = 0
             while (offset <= 204) {
-                assertEquals(
-                    "sample=$sample offset=$offset",
-                    bruteForcePairIndex(pairs, offset),
-                    index.activePairIndex(offset),
-                )
+                assertThat(index.activePairIndex(offset))
+                    .describedAs("sample=%s offset=%s", sample, offset)
+                    .isEqualTo(bruteForcePairIndex(pairs, offset))
                 offset++
             }
             sample++

@@ -4,9 +4,7 @@ import com.intellij.lang.BracePair
 import com.intellij.lang.Language
 import com.intellij.psi.tree.IElementType
 import com.sijunyang.bracketpairguides.analysis.pairing.core.BracketRole
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class BracePairTopologyTest {
@@ -21,7 +19,7 @@ class BracePairTopologyTest {
     fun `recognizes a pure symmetric delimiter`() {
         val topology = BracePairTopology(arrayOf(BracePair(symmetric, symmetric, false)))
 
-        assertTrue(topology.isPureSymmetric(symmetric))
+        assertThat(topology.isPureSymmetric(symmetric)).isTrue()
     }
 
     @Test
@@ -33,7 +31,7 @@ class BracePairTopologyTest {
             ),
         )
 
-        assertFalse(topology.isPureSymmetric(symmetric))
+        assertThat(topology.isPureSymmetric(symmetric)).isFalse()
     }
 
     @Test
@@ -45,39 +43,36 @@ class BracePairTopologyTest {
             ),
         )
 
-        assertFalse(topology.isPureSymmetric(symmetric))
+        assertThat(topology.isPureSymmetric(symmetric)).isFalse()
     }
 
     @Test
     fun `pure symmetric type toggles only when the matcher accepts the close role`() {
-        assertEquals(
-            BracketRole.TOGGLE,
+        assertThat(
             bracketRole(
                 isLeft = true,
                 isRight = true,
                 isPureSymmetric = true,
             ),
-        )
-        assertEquals(
-            BracketRole.OPEN,
+        ).isEqualTo(BracketRole.TOGGLE)
+        assertThat(
             bracketRole(
                 isLeft = true,
                 isRight = false,
                 isPureSymmetric = true,
             ),
-        )
+        ).isEqualTo(BracketRole.OPEN)
     }
 
     @Test
     fun `mixed role token retains opening priority`() {
-        assertEquals(
-            BracketRole.OPEN,
+        assertThat(
             bracketRole(
                 isLeft = true,
                 isRight = true,
                 isPureSymmetric = false,
             ),
-        )
+        ).isEqualTo(BracketRole.OPEN)
     }
 
     @Test
@@ -89,13 +84,13 @@ class BracePairTopologyTest {
             ),
         )
 
-        assertFalse(topology.isStructuralOpen(left))
-        assertTrue(topology.isStructuralOpen(structuralLeft))
-        assertFalse(topology.isStructuralPair(left, right))
-        assertTrue(topology.isStructuralPair(structuralLeft, structuralRight))
-        assertFalse(topology.isStructuralPair(structuralLeft, right))
-        assertFalse(topology.isStructuralClose(right))
-        assertTrue(topology.isStructuralClose(structuralRight))
+        assertThat(topology.isStructuralOpen(left)).isFalse()
+        assertThat(topology.isStructuralOpen(structuralLeft)).isTrue()
+        assertThat(topology.isStructuralPair(left, right)).isFalse()
+        assertThat(topology.isStructuralPair(structuralLeft, structuralRight)).isTrue()
+        assertThat(topology.isStructuralPair(structuralLeft, right)).isFalse()
+        assertThat(topology.isStructuralClose(right)).isFalse()
+        assertThat(topology.isStructuralClose(structuralRight)).isTrue()
     }
 
     private companion object {

@@ -2,10 +2,8 @@ package com.sijunyang.bracketpairguides.analysis.token
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.pairing.toPairTable
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertThrows
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Test
 import kotlin.random.Random
 
@@ -19,12 +17,13 @@ class BracketTokenIndexTest {
         )
         val index = BracketTokenIndex.build(pairs.toPairTable(), NO_CANCELLATION)
 
-        assertEquals(6, index.tokenCount)
-        assertEquals(listOf(0, 10, 20, 30, 40, 100), index.values(BracketTokenIndex::offsetAt))
+        assertThat(index.tokenCount).isEqualTo(6)
+        assertThat(index.values(BracketTokenIndex::offsetAt))
+            .containsExactly(0, 10, 20, 30, 40, 100)
         val first = index.firstIndexInRange(9)
-        assertEquals(10, index.offsetAt(first))
-        assertEquals(1, index.depthAt(first))
-        assertEquals(1, index.lengthAt(first))
+        assertThat(index.offsetAt(first)).isEqualTo(10)
+        assertThat(index.depthAt(first)).isEqualTo(1)
+        assertThat(index.lengthAt(first)).isEqualTo(1)
     }
 
     @Test
@@ -43,7 +42,7 @@ class BracketTokenIndexTest {
             NO_CANCELLATION,
         )
 
-        assertEquals(0, index.firstIndexInRange(8))
+        assertThat(index.firstIndexInRange(8)).isZero()
     }
 
     @Test
@@ -64,8 +63,8 @@ class BracketTokenIndexTest {
             NO_CANCELLATION,
         )
 
-        assertEquals(2, index.tokenCount)
-        assertEquals(index.firstIndexAtOrAfter(11), index.firstIndexInRange(9))
+        assertThat(index.tokenCount).isEqualTo(2)
+        assertThat(index.firstIndexInRange(9)).isEqualTo(index.firstIndexAtOrAfter(11))
     }
 
     @Test
@@ -80,13 +79,12 @@ class BracketTokenIndexTest {
         val pairTable = pairs.toPairTable()
         val index = BracketTokenIndex.buildDetached(pairTable, NO_CANCELLATION)
 
-        assertEquals(6, index.tokenCount)
-        assertEquals(listOf(0, 4, 4, 4, 9, 9), index.values(BracketTokenIndex::offsetAt))
-        assertEquals(listOf(2, 3, 1, 2, 2, 1), index.values(BracketTokenIndex::lengthAt))
-        assertEquals(
-            listOf(Int.MIN_VALUE, Int.MIN_VALUE, Int.MAX_VALUE, -1, Int.MAX_VALUE, -1),
+        assertThat(index.tokenCount).isEqualTo(6)
+        assertThat(index.values(BracketTokenIndex::offsetAt)).containsExactly(0, 4, 4, 4, 9, 9)
+        assertThat(index.values(BracketTokenIndex::lengthAt)).containsExactly(2, 3, 1, 2, 2, 1)
+        assertThat(
             index.values(BracketTokenIndex::depthAt),
-        )
+        ).containsExactly(Int.MIN_VALUE, Int.MIN_VALUE, Int.MAX_VALUE, -1, Int.MAX_VALUE, -1)
     }
 
     @Test
@@ -113,8 +111,8 @@ class BracketTokenIndexTest {
             NO_CANCELLATION,
         )
 
-        assertTrue(first.hasSameContent(sameTokensWithDifferentPairs, NO_CANCELLATION))
-        assertFalse(first.hasSameContent(differentDepth, NO_CANCELLATION))
+        assertThat(first.hasSameContent(sameTokensWithDifferentPairs, NO_CANCELLATION)).isTrue()
+        assertThat(first.hasSameContent(differentDepth, NO_CANCELLATION)).isFalse()
     }
 
     @Test
@@ -126,11 +124,11 @@ class BracketTokenIndexTest {
         val second = BracketTokenIndex.buildDetached(pairs, NO_CANCELLATION)
         var checks = 0
 
-        assertThrows(TestCancellation::class.java) {
+        assertThatThrownBy {
             first.hasSameContent(second) {
                 if (++checks == 3) throw TestCancellation()
             }
-        }
+        }.isInstanceOf(TestCancellation::class.java)
     }
 
     @Test
@@ -207,12 +205,17 @@ class BracketTokenIndexTest {
                 NO_CANCELLATION,
             )
 
-            assertEquals("sample=$sample", expected.size, index.tokenCount)
+            assertThat(index.tokenCount)
+                .describedAs("sample=%s", sample)
+                .isEqualTo(expected.size)
             expected.forEachIndexed { tokenIndex, token ->
                 val message = "sample=$sample token=$tokenIndex"
-                assertEquals("$message offset", token.offset, index.offsetAt(tokenIndex))
-                assertEquals("$message length", token.length, index.lengthAt(tokenIndex))
-                assertEquals("$message depth", token.depth, index.depthAt(tokenIndex))
+                assertThat(index.offsetAt(tokenIndex)).describedAs("%s offset", message)
+                    .isEqualTo(token.offset)
+                assertThat(index.lengthAt(tokenIndex)).describedAs("%s length", message)
+                    .isEqualTo(token.length)
+                assertThat(index.depthAt(tokenIndex)).describedAs("%s depth", message)
+                    .isEqualTo(token.depth)
             }
 
             repeat(40) { viewport ->
@@ -222,20 +225,22 @@ class BracketTokenIndexTest {
                 val expectedFirstAtOrAfter = expected.indexOfFirst { it.offset >= startOffset }
                     .takeIf { it >= 0 }
                     ?: expected.size
-                assertEquals(
-                    "sample=$sample viewport=$viewport lower bound",
-                    expectedFirstAtOrAfter,
-                    firstAtOrAfter,
-                )
+                assertThat(firstAtOrAfter)
+                    .describedAs("sample=%s viewport=%s lower bound", sample, viewport)
+                    .isEqualTo(expectedFirstAtOrAfter)
 
                 val firstCandidate = index.firstIndexInRange(startOffset)
-                assertTrue(firstCandidate in 0..expected.size)
+                assertThat(firstCandidate).isBetween(0, expected.size)
                 for (tokenIndex in 0 until firstCandidate) {
                     val token = expected[tokenIndex]
-                    assertTrue(
-                        "sample=$sample viewport=$viewport skipped overlapping token=$tokenIndex",
+                    assertThat(
                         token.offset.toLong() + token.length <= startOffset,
-                    )
+                    ).describedAs(
+                        "sample=%s viewport=%s skipped overlapping token=%s",
+                        sample,
+                        viewport,
+                        tokenIndex,
+                    ).isTrue()
                 }
             }
         }

@@ -2,6 +2,7 @@ package com.sijunyang.bracketpairguides.compatibility
 
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import org.assertj.core.api.Assertions.assertThat
 
 class IdeCompatibilityTest : BasePlatformTestCase() {
     fun testSupportedWhenLanguageBraceMatchingIsPresent() {
@@ -12,17 +13,14 @@ class IdeCompatibilityTest : BasePlatformTestCase() {
             true
         }
 
-        assertSame(IdeCompatibility.Supported, compatibility)
-        assertEquals(listOf("com.intellij.lang.braceMatcher"), checkedExtensionPoints)
+        assertThat(compatibility).isSameAs(IdeCompatibility.Supported)
+        assertThat(checkedExtensionPoints).containsExactly("com.intellij.lang.braceMatcher")
     }
 
     fun testUnsupportedWhenLanguageBraceMatchingIsAbsent() {
         val compatibility = IdeCompatibility.from { false }
 
-        assertEquals(
-            IdeCompatibility.Unsupported("com.intellij.lang.braceMatcher"),
-            compatibility,
-        )
+        assertThat(compatibility).isEqualTo(IdeCompatibility.Unsupported("com.intellij.lang.braceMatcher"))
     }
 
     fun testNoticeAppearsOnceForAnUnsupportedIde() {
@@ -37,17 +35,14 @@ class IdeCompatibilityTest : BasePlatformTestCase() {
         warning.present(project, compatibility)
         warning.present(project, compatibility)
 
-        assertEquals(
-            listOf(
-                UnsupportedIdeWarning.WarningText(
-                    title = "Unsupported IDE",
-                    message =
-                        "Bracket Pair Guides is not supported in this IDE because it " +
-                            "does not provide the com.intellij.lang.braceMatcher " +
-                            "extension point.",
-                ),
+        assertThat(appearances).containsExactly(
+            UnsupportedIdeWarning.WarningText(
+                title = "Unsupported IDE",
+                message =
+                    "Bracket Pair Guides is not supported in this IDE because it " +
+                        "does not provide the com.intellij.lang.braceMatcher " +
+                        "extension point.",
             ),
-            appearances,
         )
     }
 

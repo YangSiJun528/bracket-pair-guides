@@ -20,6 +20,8 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 
 class DocumentBracketIndexesTest : BasePlatformTestCase() {
     fun testSplitEditorsKeepSnapshotAndPairMemoizationSeparate() {
@@ -53,15 +55,15 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
                 analysis.analyze(input(secondEditor, coverage), EmptyProgressIndicator())
             })
 
-            assertNotSame(first, second)
-            assertNotSame(first.stamp, second.stamp)
+            assertThat(second).isNotSameAs(first)
+            assertThat(second.stamp).isNotSameAs(first.stamp)
 
             val caretOffset = source.indexOf("call") + 1
             val firstPair = checkNotNull(first.activePairAt(caretOffset))
             val secondPair = checkNotNull(second.activePairAt(caretOffset))
-            assertNotSame(firstPair, secondPair)
-            assertSame(firstPair, first.activePairAt(caretOffset + 1))
-            assertSame(secondPair, second.activePairAt(caretOffset + 1))
+            assertThat(secondPair).isNotSameAs(firstPair)
+            assertThat(first.activePairAt(caretOffset + 1)).isSameAs(firstPair)
+            assertThat(second.activePairAt(caretOffset + 1)).isSameAs(secondPair)
         } finally {
             EditorFactory.getInstance().releaseEditor(secondEditor)
         }
@@ -82,14 +84,12 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
         val otherIndexes = indexes(equivalentPairs)
         val indexesByDocument = DocumentBracketIndexes()
 
-        assertSame(
-            firstIndexes,
+        assertThat(
             indexesByDocument.canonical(input, layout, firstPairs, firstIndexes),
-        )
-        assertSame(
-            firstIndexes,
+        ).isSameAs(firstIndexes)
+        assertThat(
             indexesByDocument.canonical(input, layout, equivalentPairs, otherIndexes),
-        )
+        ).isSameAs(firstIndexes)
     }
 
     fun testPairHashCollisionCannotCanonicalizeDifferentGeometry() {
@@ -103,22 +103,20 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
         val layout = IndexLayout.forCoverage(coverage)
         val firstPairs = pairTable(openLine = 0, closeLine = 100)
         val collidingPairs = pairTable(openLine = 1, closeLine = 69)
-        assertEquals(firstPairs.contentHash(), collidingPairs.contentHash())
-        assertFalse(firstPairs.hasSameContent(collidingPairs, NO_CANCELLATION_PROBE))
+        assertThat(collidingPairs.contentHash()).isEqualTo(firstPairs.contentHash())
+        assertThat(firstPairs.hasSameContent(collidingPairs, NO_CANCELLATION_PROBE)).isFalse()
 
         val indexesByDocument = DocumentBracketIndexes()
         val firstIndexes = indexes(firstPairs)
         val secondIndexes = indexes(collidingPairs)
 
-        assertSame(
-            firstIndexes,
+        assertThat(
             indexesByDocument.canonical(input, layout, firstPairs, firstIndexes),
-        )
-        assertSame(
-            secondIndexes,
+        ).isSameAs(firstIndexes)
+        assertThat(
             indexesByDocument.canonical(input, layout, collidingPairs, secondIndexes),
-        )
-        assertNotSame(firstIndexes, secondIndexes)
+        ).isSameAs(secondIndexes)
+        assertThat(secondIndexes).isNotSameAs(firstIndexes)
     }
 
     fun testTokenOnlyIndexesShareByExactObservableContentWithoutRetainingPairGeometry() {
@@ -138,27 +136,26 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
             intArrayOf(0, 8, 0),
             intArrayOf(2, 10, 0),
         )
-        assertFalse(
+        assertThat(
             firstPairs.hasSameContent(
                 sameTokensWithDifferentPairs,
                 NO_CANCELLATION_PROBE,
             ),
-        )
+        ).isFalse()
         val indexesByDocument = DocumentBracketIndexes()
         val firstIndexes = detachedIndexes(firstPairs)
 
         indexesByDocument.canonical(input, layout, firstPairs, firstIndexes)
 
-        assertSame(
-            firstIndexes,
+        assertThat(
             indexesByDocument.canonical(
                 input,
                 layout,
                 sameTokensWithDifferentPairs,
                 detachedIndexes(sameTokensWithDifferentPairs),
             ),
-        )
-        assertTrue(firstIndexes.pairs.isEmpty)
+        ).isSameAs(firstIndexes)
+        assertThat(firstIndexes.pairs.isEmpty).isTrue()
     }
 
     fun testRevisionLayoutAndCoverageAreExactCanonicalBoundaries() {
@@ -173,47 +170,43 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
         val pairs = pairTable(openLine = 0, closeLine = 0)
         val indexesByDocument = DocumentBracketIndexes()
         val firstIndexes = indexes(pairs)
-        assertSame(
-            firstIndexes,
+        assertThat(
             indexesByDocument.canonical(input, layout, pairs, firstIndexes),
-        )
+        ).isSameAs(firstIndexes)
 
         val otherLayoutIndexes = indexes(pairs)
-        assertSame(
-            otherLayoutIndexes,
+        assertThat(
             indexesByDocument.canonical(
                 input,
                 layout.copy(tokenStorage = TokenStorage.NONE),
                 pairs,
                 otherLayoutIndexes,
             ),
-        )
+        ).isSameAs(otherLayoutIndexes)
 
         val otherCoverage = coverage.copy(tokens = false)
         val otherCoverageIndexes = indexes(pairs)
-        assertSame(
-            otherCoverageIndexes,
+        assertThat(
             indexesByDocument.canonical(
                 input(myFixture.editor, otherCoverage),
                 layout,
                 pairs,
                 otherCoverageIndexes,
             ),
-        )
+        ).isSameAs(otherCoverageIndexes)
 
         WriteCommandAction.runWriteCommandAction(project) {
             myFixture.editor.document.insertString(0, " ")
         }
         val otherRevisionIndexes = indexes(pairs)
-        assertSame(
-            otherRevisionIndexes,
+        assertThat(
             indexesByDocument.canonical(
                 input(myFixture.editor, coverage),
                 layout,
                 pairs,
                 otherRevisionIndexes,
             ),
-        )
+        ).isSameAs(otherRevisionIndexes)
     }
 
     fun testTabSizeIsCanonicalBoundaryOnlyForGuideIndexes() {
@@ -257,24 +250,22 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
                 pairs,
                 guidePositions = guidePositions(originalTabSize + 1),
             )
-            assertSame(
-                otherGuideIndexes,
+            assertThat(
                 guideIndexesByDocument.canonical(
                     input(editor, guideCoverage),
                     guideLayout,
                     pairs,
                     otherGuideIndexes,
                 ),
-            )
-            assertSame(
-                tokenIndexes,
+            ).isSameAs(otherGuideIndexes)
+            assertThat(
                 tokenIndexesByDocument.canonical(
                     input(editor, tokenCoverage),
                     tokenLayout,
                     pairs,
                     indexes(pairs),
                 ),
-            )
+            ).isSameAs(tokenIndexes)
         } finally {
             editor.settings.setTabSize(originalTabSize)
         }
@@ -329,7 +320,7 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
                     },
                 )
             }
-            assertTrue(comparisonEntered.await(1, TimeUnit.SECONDS))
+            assertThat(comparisonEntered.await(1, TimeUnit.SECONDS)).isTrue()
 
             val secondIndexes = indexes(secondPairs)
             val unrelatedDocument = executor.submit<BracketIndexes> {
@@ -341,7 +332,7 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
                     checkCanceled = {},
                 )
             }
-            assertSame(secondIndexes, unrelatedDocument.get(1, TimeUnit.SECONDS))
+            assertThat(unrelatedDocument.get(1, TimeUnit.SECONDS)).isSameAs(secondIndexes)
 
             val waitChecks = AtomicInteger()
             val canceledWait = executor.submit<BracketIndexes> {
@@ -357,17 +348,14 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
                     },
                 )
             }
-            var failure: ExecutionException? = null
-            try {
+            assertThatThrownBy {
                 canceledWait.get(1, TimeUnit.SECONDS)
-                fail("Expected a canceled wait")
-            } catch (expected: ExecutionException) {
-                failure = expected
             }
-            assertTrue(failure?.cause is TestCancellation)
+                .isInstanceOf(ExecutionException::class.java)
+                .hasCauseInstanceOf(TestCancellation::class.java)
 
             releaseComparison.countDown()
-            assertNotNull(blockedComparison.get(1, TimeUnit.SECONDS))
+            assertThat(blockedComparison.get(1, TimeUnit.SECONDS)).isNotNull()
         } finally {
             releaseComparison.countDown()
             executor.shutdownNow()
@@ -442,7 +430,7 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
     }
 
     private fun complete(outcome: AnalysisOutcome): BracketSnapshot {
-        assertTrue(outcome is AnalysisOutcome.Complete)
+        assertThat(outcome).isInstanceOf(AnalysisOutcome.Complete::class.java)
         return (outcome as AnalysisOutcome.Complete).snapshot
     }
 

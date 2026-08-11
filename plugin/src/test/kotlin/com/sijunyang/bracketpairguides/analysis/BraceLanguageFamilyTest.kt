@@ -1,6 +1,6 @@
 package com.sijunyang.bracketpairguides.analysis
 
-import org.junit.Assert.assertEquals
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class BraceLanguageFamilyTest {
@@ -11,6 +11,6 @@ class BraceLanguageFamilyTest {
 
         members.clear()
 
-        assertEquals(listOf("Java"), family.memberDisplayNames)
+        assertThat(family.memberDisplayNames).containsExactly("Java")
     }
 }

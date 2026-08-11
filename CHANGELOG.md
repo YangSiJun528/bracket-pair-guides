@@ -73,6 +73,8 @@
   fixture conversions, policy controls, or convenience overloads. Tests use
   product inputs and results, actual editor markup, production policy objects,
   or fixtures located under test sources.
+- AssertJ 3.27.7 now provides the assertion vocabulary across Kotlin and Java
+  tests; JUnit 4 remains only the test lifecycle and IntelliJ fixture boundary.
 - Structural results are cached so caret movement uses an interval-index lookup
   and updates at most one guide and two active-symbol ranges. If no current
   snapshot exists, the editor waits for the background pass instead of running

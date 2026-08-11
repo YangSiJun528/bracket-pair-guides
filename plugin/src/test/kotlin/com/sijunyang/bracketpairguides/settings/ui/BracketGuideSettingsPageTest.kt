@@ -16,6 +16,7 @@ import java.awt.Color
 import java.awt.Component
 import java.awt.Container
 import javax.swing.JButton
+import org.assertj.core.api.Assertions.assertThat
 
 class BracketGuideSettingsPageTest : BasePlatformTestCase() {
     override fun setUp() {
@@ -30,23 +31,21 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
                 .mapNotNull(JBCheckBox::getText)
                 .toSet()
 
-            assertTrue("Enabled" in checkBoxes)
-            assertTrue("Bracket colorization" in checkBoxes)
-            assertTrue("Active guide" in checkBoxes)
-            assertTrue("Horizontal" in checkBoxes)
-            assertTrue("Vertical" in checkBoxes)
-            assertTrue("Pair border" in checkBoxes)
-            assertTrue("Pair background" in checkBoxes)
-            assertTrue("Component overrides" in checkBoxes)
-            assertEquals(
-                StoredColorFormat.COLOR_COUNT * 4,
+            assertThat(checkBoxes).contains(
+                "Enabled",
+                "Bracket colorization",
+                "Active guide",
+                "Horizontal",
+                "Vertical",
+                "Pair border",
+                "Pair background",
+                "Component overrides",
+            )
+            assertThat(
                 component.descendants().filterIsInstance<ColorPanel>().size,
-            )
-            assertEquals(
-                component.checkBox("Enabled"),
-                configurable.preferredFocusedComponent,
-            )
-            assertFalse(configurable.isModified)
+            ).isEqualTo(StoredColorFormat.COLOR_COUNT * 4)
+            assertThat(configurable.preferredFocusedComponent).isEqualTo(component.checkBox("Enabled"))
+            assertThat(configurable.isModified).isFalse()
         }
     }
 
@@ -63,29 +62,29 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
             component.spinner("pairBackgroundOpacityPercent").value = 37
             component.checkBox("Enabled").doClick()
 
-            assertTrue(configurable.isModified)
-            assertEquals(BracketGuidePreferences(), BracketGuideSettings.getInstance().options)
+            assertThat(configurable.isModified).isTrue()
+            assertThat(BracketGuideSettings.getInstance().options).isEqualTo(BracketGuidePreferences())
 
             configurable.apply()
 
             val applied = BracketGuideSettings.getInstance().options
-            assertFalse(applied.enabled)
-            assertFalse(applied.colorBracketTokens)
-            assertFalse(applied.showActiveGuide)
-            assertFalse(applied.showHorizontalGuides)
-            assertFalse(applied.showVerticalGuide)
-            assertEquals(3, applied.guideLineWidth)
-            assertEquals(65, applied.guideOpacityPercent)
-            assertTrue(applied.showActivePairBorder)
-            assertTrue(applied.showActivePairBackground)
-            assertEquals(37, applied.pairBackgroundOpacityPercent)
-            assertFalse(configurable.isModified)
+            assertThat(applied.enabled).isFalse()
+            assertThat(applied.colorBracketTokens).isFalse()
+            assertThat(applied.showActiveGuide).isFalse()
+            assertThat(applied.showHorizontalGuides).isFalse()
+            assertThat(applied.showVerticalGuide).isFalse()
+            assertThat(applied.guideLineWidth).isEqualTo(3)
+            assertThat(applied.guideOpacityPercent).isEqualTo(65)
+            assertThat(applied.showActivePairBorder).isTrue()
+            assertThat(applied.showActivePairBackground).isTrue()
+            assertThat(applied.pairBackgroundOpacityPercent).isEqualTo(37)
+            assertThat(configurable.isModified).isFalse()
 
             component.checkBox("Enabled").doClick()
-            assertTrue(configurable.isModified)
+            assertThat(configurable.isModified).isTrue()
             configurable.reset()
-            assertFalse(component.checkBox("Enabled").isSelected)
-            assertFalse(configurable.isModified)
+            assertThat(component.checkBox("Enabled").isSelected).isFalse()
+            assertThat(configurable.isModified).isFalse()
         }
     }
 
@@ -103,19 +102,18 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
         withConfigurable(languages) { configurable, component ->
             val alpha = component.languageCheckBox(ALPHA_LANGUAGE_ID)
             val beta = component.languageCheckBox(BETA_LANGUAGE_ID)
-            assertTrue(alpha.isSelected)
-            assertFalse(beta.isSelected)
-            assertTrue(beta.toolTipText.contains("Beta Dialect"))
+            assertThat(alpha.isSelected).isTrue()
+            assertThat(beta.isSelected).isFalse()
+            assertThat(beta.toolTipText).contains("Beta Dialect")
 
             alpha.doClick()
             beta.doClick()
             configurable.apply()
 
-            assertEquals(
-                setOf(UNAVAILABLE_LANGUAGE_ID, ALPHA_LANGUAGE_ID),
+            assertThat(
                 BracketGuideSettings.getInstance().options.disabledLanguageIds,
-            )
-            assertFalse(configurable.isModified)
+            ).isEqualTo(setOf(UNAVAILABLE_LANGUAGE_ID, ALPHA_LANGUAGE_ID))
+            assertThat(configurable.isModified).isFalse()
         }
     }
 
@@ -124,8 +122,8 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
                 _, component ->
             val language = component.languageCheckBox("TEXT")
 
-            assertEquals("Custom file types", language.text)
-            assertTrue(language.toolTipText.contains("raw plain text"))
+            assertThat(language.text).isEqualTo("Custom file types")
+            assertThat(language.toolTipText).contains("raw plain text")
         }
     }
 
@@ -143,44 +141,39 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
         withConfigurable(emptyList()) { configurable, component ->
             val base = component.colorPanel("base", 0)
             val guide = component.colorPanel("guide", 0)
-            assertEquals(Color(0x123456), base.selectedColor)
-            assertEquals(Color(0x234567), guide.selectedColor)
-            assertTrue(guide.isEnabled)
+            assertThat(base.selectedColor).isEqualTo(Color(0x123456))
+            assertThat(guide.selectedColor).isEqualTo(Color(0x234567))
+            assertThat(guide.isEnabled).isTrue()
 
             base.selectedColor = Color(0x654321)
             guide.selectedColor = null
             component.colorPanel("border", 0).selectedColor = Color(0x102030)
             component.colorPanel("background", 0).selectedColor = Color(0x203040)
-            assertTrue(configurable.isModified)
+            assertThat(configurable.isModified).isTrue()
             configurable.apply()
 
             val applied = BracketGuideSettings.getInstance().options
-            assertEquals(0x654321, applied.levelBaseColors[0])
-            assertEquals(
-                StoredColorFormat.AUTOMATIC_COLOR,
-                applied.guideLineColors[0],
-            )
-            assertEquals(0x102030, applied.pairBorderColors[0])
-            assertEquals(0x203040, applied.pairBackgroundColors[0])
+            assertThat(applied.levelBaseColors[0]).isEqualTo(0x654321)
+            assertThat(applied.guideLineColors[0]).isEqualTo(StoredColorFormat.AUTOMATIC_COLOR)
+            assertThat(applied.pairBorderColors[0]).isEqualTo(0x102030)
+            assertThat(applied.pairBackgroundColors[0]).isEqualTo(0x203040)
 
             component.checkBox("Component overrides").doClick()
-            assertFalse(guide.isEnabled)
+            assertThat(guide.isEnabled).isFalse()
             configurable.apply()
-            assertFalse(BracketGuideSettings.getInstance().options.useIndependentComponentColors)
-            assertEquals(0x102030, BracketGuideSettings.getInstance().options.pairBorderColors[0])
+            assertThat(BracketGuideSettings.getInstance().options.useIndependentComponentColors).isFalse()
+            assertThat(BracketGuideSettings.getInstance().options.pairBorderColors[0]).isEqualTo(0x102030)
 
             component.button("Reset colors").doClick()
-            assertTrue(
-                component.descendants().filterIsInstance<ColorPanel>()
-                    .all { it.selectedColor == null },
-            )
+            assertThat(component.descendants().filterIsInstance<ColorPanel>())
+                .allMatch { it.selectedColor == null }
             configurable.apply()
             val reset = BracketGuideSettings.getInstance().options
-            assertFalse(reset.useIndependentComponentColors)
-            assertTrue(reset.levelBaseColors.all(::isAutomatic))
-            assertTrue(reset.guideLineColors.all(::isAutomatic))
-            assertTrue(reset.pairBorderColors.all(::isAutomatic))
-            assertTrue(reset.pairBackgroundColors.all(::isAutomatic))
+            assertThat(reset.useIndependentComponentColors).isFalse()
+            assertThat(reset.levelBaseColors).allMatch(::isAutomatic)
+            assertThat(reset.guideLineColors).allMatch(::isAutomatic)
+            assertThat(reset.pairBorderColors).allMatch(::isAutomatic)
+            assertThat(reset.pairBackgroundColors).allMatch(::isAutomatic)
         }
     }
 
@@ -207,8 +200,8 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
                 configurable.apply()
             }
 
-            assertTrue(firstEditor.observedBracketMarkup().allMarks.isEmpty())
-            assertTrue(secondEditor.observedBracketMarkup().allMarks.isEmpty())
+            assertThat(firstEditor.observedBracketMarkup().allMarks).isEmpty()
+            assertThat(secondEditor.observedBracketMarkup().allMarks).isEmpty()
         } finally {
             EditorGuideSessions.dispose(firstEditor)
             EditorGuideSessions.dispose(secondEditor)

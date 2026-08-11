@@ -1,7 +1,6 @@
 package com.sijunyang.bracketpairguides.editor.events
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.util.ArrayDeque
 
@@ -13,10 +12,10 @@ class IdentityEventBatchTest {
 
         repeat(10) { fixture.batch.request(value) }
 
-        assertEquals(1, fixture.scheduled.size)
-        assertTrue(fixture.consumed.isEmpty())
+        assertThat(fixture.scheduled).hasSize(1)
+        assertThat(fixture.consumed).isEmpty()
         fixture.runNext()
-        assertEquals(listOf(value), fixture.consumed)
+        assertThat(fixture.consumed).containsExactly(value)
     }
 
     @Test
@@ -29,9 +28,9 @@ class IdentityEventBatchTest {
         fixture.batch.request(second)
         fixture.runNext()
 
-        assertEquals(2, fixture.consumed.size)
-        assertTrue(fixture.consumed.any { it === first })
-        assertTrue(fixture.consumed.any { it === second })
+        assertThat(fixture.consumed).hasSize(2)
+        assertThat(fixture.consumed).anyMatch { it === first }
+        assertThat(fixture.consumed).anyMatch { it === second }
     }
 
     @Test
@@ -45,11 +44,11 @@ class IdentityEventBatchTest {
 
         fixture.runNext()
 
-        assertEquals(listOf(retained), fixture.consumed)
+        assertThat(fixture.consumed).containsExactly(retained)
         fixture.batch.request(removed)
         fixture.batch.clear()
         fixture.runNext()
-        assertEquals(listOf(retained), fixture.consumed)
+        assertThat(fixture.consumed).containsExactly(retained)
     }
 
     @Test
@@ -70,10 +69,10 @@ class IdentityEventBatchTest {
         batch.request(first)
         scheduled.removeFirst().invoke()
 
-        assertEquals(listOf(first), consumed)
-        assertEquals(1, scheduled.size)
+        assertThat(consumed).containsExactly(first)
+        assertThat(scheduled).hasSize(1)
         scheduled.removeFirst().invoke()
-        assertEquals(listOf(first, second), consumed)
+        assertThat(consumed).containsExactly(first, second)
     }
 
     private class Fixture {

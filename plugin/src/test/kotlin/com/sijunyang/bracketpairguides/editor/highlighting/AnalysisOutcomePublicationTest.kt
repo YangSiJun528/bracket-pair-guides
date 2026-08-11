@@ -11,8 +11,7 @@ import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.io.FileUtilRt
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 
 internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture() {
     fun testUnavailableAnalysisSuppressesTheSameRequestUntilItsInputChanges() {
@@ -33,19 +32,19 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
 
         applyPass(pass)
 
-        assertEquals(1, analysisCount)
-        assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
-        assertTrue(
+        assertThat(analysisCount).isEqualTo(1)
+        assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
+        assertThat(
             EditorGuideSessions.canSkipAnalysis(
                 editor,
                 stampFor(editor, BracketGuideSettings.getInstance().options),
             ),
-        )
+        ).isTrue()
 
         applyPass(pass)
 
-        assertEquals(1, analysisCount)
-        assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
+        assertThat(analysisCount).isEqualTo(1)
+        assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
 
         val tokenOnlyOptions = fullOptions.copy(
             showActiveGuide = false,
@@ -53,28 +52,28 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
             showActivePairBackground = false,
         )
         applyOptions(tokenOnlyOptions)
-        assertFalse(
+        assertThat(
             EditorGuideSessions.canSkipAnalysis(
                 editor,
                 stampFor(editor, tokenOnlyOptions),
             ),
-        )
+        ).isFalse()
         applyPass(pass)
 
-        assertEquals(2, analysisCount)
-        assertTrue(
+        assertThat(analysisCount).isEqualTo(2)
+        assertThat(
             EditorGuideSessions.canSkipAnalysis(
                 editor,
                 stampFor(editor, tokenOnlyOptions),
             ),
-        )
+        ).isTrue()
 
         WriteCommandAction.runWriteCommandAction(project) {
             editor.document.insertString(editor.document.textLength, " ")
         }
         applyPass(pass)
 
-        assertEquals(3, analysisCount)
+        assertThat(analysisCount).isEqualTo(3)
     }
 
     fun testUnsavedLargeDocumentClearsPresentationWithoutRunningAnalysis() {
@@ -86,7 +85,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
             source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
         )
         applyPass(pairs = { listOf(pair) })
-        assertTrue(editor.observedBracketMarkup().allMarks.isNotEmpty())
+        assertThat(editor.observedBracketMarkup().allMarks).isNotEmpty()
         @Suppress("DEPRECATION")
         val codeInsightBoundary = FileUtilRt.getUserFileSizeLimit()
         resizeDocument(codeInsightBoundary + 1)
@@ -108,8 +107,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
 
         applyPass(pass)
 
-        assertEquals(0, analysisCount)
-        assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
+        assertThat(analysisCount).isEqualTo(0)
+        assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
     }
 
     fun testCurrentDocumentPolicyDominatesStalePassAndShrinkingCanRecover() {
@@ -137,8 +136,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
 
         applyPass(pass())
         val completedMarks = editor.observedBracketMarkup().allMarks.toSet()
-        assertEquals(1, analysisCount)
-        assertTrue(completedMarks.isNotEmpty())
+        assertThat(analysisCount).isEqualTo(1)
+        assertThat(completedMarks).isNotEmpty()
 
         val staleSmallPass = pass()
         inReadAction {
@@ -150,18 +149,18 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
             showActivePairBackground = false,
         )
         applyOptions(tokenOnlyOptions)
-        assertTrue(editor.observedBracketMarkup().allMarks.isNotEmpty())
+        assertThat(editor.observedBracketMarkup().allMarks).isNotEmpty()
         @Suppress("DEPRECATION")
         val codeInsightBoundary = FileUtilRt.getUserFileSizeLimit()
         resizeDocument(codeInsightBoundary + 1)
 
         staleSmallPass.doApplyInformationToEditor()
 
-        assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
+        assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
 
         applyPass(pass())
-        assertEquals(1, analysisCount)
-        assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
+        assertThat(analysisCount).isEqualTo(1)
+        assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
 
         val staleLargeRefusal = pass()
         inReadAction {
@@ -170,11 +169,11 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         resizeDocument(source.length)
         staleLargeRefusal.doApplyInformationToEditor()
 
-        assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
+        assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
         applyPass(pass())
 
-        assertEquals(2, analysisCount)
-        assertTrue(editor.observedBracketMarkup().allMarks.isNotEmpty())
+        assertThat(analysisCount).isEqualTo(2)
+        assertThat(editor.observedBracketMarkup().allMarks).isNotEmpty()
     }
 
     fun testExactPlatformBoundaryIsAllowedAndNullSourceUsesEngineCaps() {
@@ -210,8 +209,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
                 analysis,
             ),
         )
-        assertEquals(1, analysisCount)
-        assertTrue(editor.observedBracketMarkup().allMarks.isNotEmpty())
+        assertThat(analysisCount).isEqualTo(1)
+        assertThat(editor.observedBracketMarkup().allMarks).isNotEmpty()
 
         sourceFile.reportedLength = 0L
         resizeDocument(exactBoundary.toInt() + 1)
@@ -224,8 +223,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
                 analysis,
             ),
         )
-        assertEquals(1, analysisCount)
-        assertTrue(editor.observedBracketMarkup().allMarks.isEmpty())
+        assertThat(analysisCount).isEqualTo(1)
+        assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
 
         applyPass(
             BracketGuideHighlightingPass(
@@ -236,8 +235,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
                 analyze = analysis,
             ),
         )
-        assertEquals(2, analysisCount)
-        assertTrue(editor.observedBracketMarkup().allMarks.isNotEmpty())
+        assertThat(analysisCount).isEqualTo(2)
+        assertThat(editor.observedBracketMarkup().allMarks).isNotEmpty()
     }
 
     fun testLateLimitedCannotDowngradeCompletedGuideForTheSameStamp() {
@@ -289,20 +288,17 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         )
         applyPass(complete)
         val completedGuideMarks = editor.observedBracketMarkup().guideMarks.toSet()
-        assertTrue(completedGuideMarks.isNotEmpty())
+        assertThat(completedGuideMarks).isNotEmpty()
 
         lateLimited.doApplyInformationToEditor()
 
-        assertEquals(
-            completedGuideMarks,
-            editor.observedBracketMarkup().guideMarks.toSet(),
-        )
-        assertTrue(
+        assertThat(editor.observedBracketMarkup().guideMarks.toSet()).isEqualTo(completedGuideMarks)
+        assertThat(
             EditorGuideSessions.canSkipAnalysis(
                 editor,
                 stampFor(editor, BracketGuideSettings.getInstance().options),
             ),
-        )
+        ).isTrue()
     }
 
     fun testGuideCapacityKeepsTokensAndActivePairWithoutApproximateGuide() {
@@ -348,15 +344,15 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         applyPass(pass)
 
         val markup = editor.observedBracketMarkup()
-        assertEquals(2, markup.tokenMarks.size)
-        assertEquals(2, markup.activePairMarks.size)
-        assertTrue(markup.guideMarks.isEmpty())
-        assertTrue(EditorGuideSessions.canSkipAnalysis(editor, stampFor(editor, options)))
+        assertThat(markup.tokenMarks).hasSize(2)
+        assertThat(markup.activePairMarks).hasSize(2)
+        assertThat(markup.guideMarks).isEmpty()
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, stampFor(editor, options))).isTrue()
 
         applyPass(pass)
 
-        assertEquals(1, analysisCount)
-        assertTrue(editor.observedBracketMarkup().guideMarks.isEmpty())
+        assertThat(analysisCount).isEqualTo(1)
+        assertThat(editor.observedBracketMarkup().guideMarks).isEmpty()
     }
 
     fun testGuideCapacityRefusalSurvivesGuideSettingsRoundTrips() {
@@ -406,20 +402,18 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         )
 
         applyPass(pass)
-        assertEquals(1, analysisCount)
-        assertTrue(editor.observedBracketMarkup().guideMarks.isEmpty())
+        assertThat(analysisCount).isEqualTo(1)
+        assertThat(editor.observedBracketMarkup().guideMarks).isEmpty()
 
         val activeWithoutGuide = fullOptions.copy(showActiveGuide = false)
         applyOptions(activeWithoutGuide)
         applyOptions(fullOptions)
 
-        assertTrue(editor.observedBracketMarkup().guideMarks.isEmpty())
+        assertThat(editor.observedBracketMarkup().guideMarks).isEmpty()
         applyPass(pass)
-        assertEquals(
-            "Exact lower facets and their guide refusal should satisfy the restored request",
-            1,
+        assertThat(
             analysisCount,
-        )
+        ).describedAs("Exact lower facets and their guide refusal should satisfy the restored request").isEqualTo(1)
 
         val tokenOnlyOptions = fullOptions.copy(
             showActiveGuide = false,
@@ -428,20 +422,18 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         )
         applyOptions(tokenOnlyOptions)
         applyPass(pass)
-        assertEquals(2, analysisCount)
+        assertThat(analysisCount).isEqualTo(2)
         applyOptions(fullOptions)
 
-        assertTrue(editor.observedBracketMarkup().guideMarks.isEmpty())
+        assertThat(editor.observedBracketMarkup().guideMarks).isEmpty()
         applyPass(pass)
 
-        assertEquals(
-            "A guide refusal must not claim active-pair facets released by compaction",
-            3,
+        assertThat(
             analysisCount,
-        )
+        ).describedAs("A guide refusal must not claim active-pair facets released by compaction").isEqualTo(3)
         val restoredMarkup = editor.observedBracketMarkup()
-        assertEquals(2, restoredMarkup.activePairMarks.size)
-        assertTrue(restoredMarkup.guideMarks.isEmpty())
+        assertThat(restoredMarkup.activePairMarks).hasSize(2)
+        assertThat(restoredMarkup.guideMarks).isEmpty()
     }
 
     fun testLateRicherUnavailableCannotClearACompletedLowerCoverage() {
@@ -476,14 +468,14 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         val tokenOnlyStamp = stampFor(editor, tokenOnlyOptions)
         val completedMarks = editor.observedBracketMarkup().allMarks.toSet()
 
-        assertTrue(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp))
-        assertTrue(completedMarks.isNotEmpty())
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp)).isTrue()
+        assertThat(completedMarks).isNotEmpty()
 
         lateUnavailable.doApplyInformationToEditor()
         session().accept(AnalysisOutcome.Unavailable(fullStamp, AnalysisLimit.PAIR_CAPACITY))
 
-        assertTrue(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp))
-        assertEquals(completedMarks, editor.observedBracketMarkup().allMarks.toSet())
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp)).isTrue()
+        assertThat(editor.observedBracketMarkup().allMarks.toSet()).isEqualTo(completedMarks)
     }
 
     fun testLateUnavailableCannotDowngradeACompletedEquivalentAnalysis() {
@@ -512,7 +504,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
 
         lateUnavailable.doApplyInformationToEditor()
 
-        assertTrue(EditorGuideSessions.canSkipAnalysis(editor, stampFor(editor, options)))
-        assertEquals(completedMarks, editor.observedBracketMarkup().allMarks.toSet())
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, stampFor(editor, options))).isTrue()
+        assertThat(editor.observedBracketMarkup().allMarks.toSet()).isEqualTo(completedMarks)
     }
 }

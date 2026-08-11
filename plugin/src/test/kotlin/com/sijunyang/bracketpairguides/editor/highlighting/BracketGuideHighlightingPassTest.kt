@@ -15,8 +15,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 
 internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixture() {
     fun testCreatesReusesAndRemovesOwnedHighlighters() {
@@ -47,17 +46,14 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
 
         applyPass()
         val first = ownedHighlighters()
-        assertEquals(expectedPairCount * 2 + 1, first.size)
-        assertEquals(1, first.count { it.customRenderer is BracketGuideDrawing })
-        assertTrue(activePairHighlighters().isEmpty())
-        assertEquals(
-            expectedPairCount * 2,
-            bracketColorHighlighters().size,
-        )
+        assertThat(first).hasSize(expectedPairCount * 2 + 1)
+        assertThat(first.count { it.customRenderer is BracketGuideDrawing }).isEqualTo(1)
+        assertThat(activePairHighlighters()).isEmpty()
+        assertThat(bracketColorHighlighters()).hasSize(expectedPairCount * 2)
 
         applyPass()
         val second = ownedHighlighters()
-        assertEquals(first.toSet(), second.toSet())
+        assertThat(second.toSet()).isEqualTo(first.toSet())
 
         WriteCommandAction.runWriteCommandAction(project) {
             editor.document.setText("class Sample {}")
@@ -65,19 +61,16 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
         PsiDocumentManager.getInstance(project).commitDocument(editor.document)
         editor.caretModel.moveToOffset(editor.document.text.indexOf('{') + 1)
         applyPass()
-        assertEquals(3, ownedHighlighters().size)
-        assertEquals(
-            1,
-            ownedHighlighters().count { it.customRenderer is BracketGuideDrawing },
-        )
-        assertTrue(first.any { !it.isValid })
+        assertThat(ownedHighlighters()).hasSize(3)
+        assertThat(ownedHighlighters().count { it.customRenderer is BracketGuideDrawing }).isEqualTo(1)
+        assertThat(first).anyMatch { !it.isValid }
 
         WriteCommandAction.runWriteCommandAction(project) {
             editor.document.setText("class Sample")
         }
         PsiDocumentManager.getInstance(project).commitDocument(editor.document)
         applyPass()
-        assertTrue(ownedHighlighters().isEmpty())
+        assertThat(ownedHighlighters()).isEmpty()
     }
 
     fun testHighlightingAcceptsMockedPairsWithoutALanguageLexer() {
@@ -96,11 +89,8 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
 
         applyPass({ listOf(pair) })
 
-        assertEquals(3, ownedHighlighters().size)
-        assertEquals(
-            1,
-            ownedHighlighters().count { it.customRenderer is BracketGuideDrawing },
-        )
+        assertThat(ownedHighlighters()).hasSize(3)
+        assertThat(ownedHighlighters().count { it.customRenderer is BracketGuideDrawing }).isEqualTo(1)
     }
 
     fun testGuidePositionIndexRetainsOnlyTheMultilinePairEnvelope() {
@@ -127,16 +117,12 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
             analysis.activePairAt(source.indexOf("value")),
         )
 
-        assertEquals(
-            BracketGuide(pair, guideColumn = 2, anchorLine = 2),
-            analysis.guideFor(pair),
-        )
-        assertEquals(
-            null,
+        assertThat(analysis.guideFor(pair)).isEqualTo(BracketGuide(pair, guideColumn = 2, anchorLine = 2))
+        assertThat(
             analysis.guideFor(
                 pair.copy(openLine = 4_000, closeLine = 4_001),
             ),
-        )
+        ).isNull()
     }
 
     fun testInvalidPairTokenBoundsDoNotCreateActivePresentation() {
@@ -159,8 +145,8 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
 
         applyPass({ listOf(pair) })
 
-        assertNull(activeGuide())
-        assertTrue(activePairHighlighters().isEmpty())
+        assertThat(activeGuide()).isNull()
+        assertThat(activePairHighlighters()).isEmpty()
     }
 
     fun testCaretMovementWaitsForTheFirstFullSnapshot() {
@@ -181,9 +167,9 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
 
         myFixture.editor.caretModel.moveToOffset(source.indexOf("content"))
 
-        assertEquals(0, collections)
-        assertNull(activeGuide())
-        assertTrue(activePairHighlighters().isEmpty())
+        assertThat(collections).isEqualTo(0)
+        assertThat(activeGuide()).isNull()
+        assertThat(activePairHighlighters()).isEmpty()
     }
 
     fun testStaleCaretMovementKeepsAdjustedPairUntilTheNextSnapshot() {
@@ -206,17 +192,17 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
                 pairs = { listOf(outer, inner) },
             ),
         )
-        assertEquals(outer, activeGuideState()?.guide?.pair)
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(outer)
 
         WriteCommandAction.runWriteCommandAction(project) {
             editor.document.insertString(editor.document.textLength, "z")
         }
         editor.caretModel.moveToOffset(innerOffset)
 
-        assertEquals(outer, activeGuideState()?.guide?.pair)
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(outer)
 
         applyPass(testPass(project, editor, pairs = { listOf(outer, inner) }))
-        assertEquals(inner, activeGuideState()?.guide?.pair)
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(inner)
     }
 
     fun testDocumentEditDoesNotInventAReplacementBeforeTheNextSnapshot() {
@@ -234,13 +220,13 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
                 pairs = { listOf(pair) },
             ),
         )
-        assertEquals(pair, activeGuideState()?.guide?.pair)
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(pair)
 
         WriteCommandAction.runWriteCommandAction(project) {
             editor.document.insertString(source.indexOf("content") + 1, "x")
         }
 
-        assertEquals(pair.closeOffset + 1, activeGuideState()?.guide?.pair?.closeOffset)
+        assertThat(activeGuideState()?.guide?.pair?.closeOffset).isEqualTo(pair.closeOffset + 1)
     }
 
     fun testDocumentChangeKeepsTheAdjustedPairWhileSnapshotIsStale() {
@@ -263,10 +249,7 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
             editor.document.insertString(source.indexOf("content") + 1, "x")
         }
 
-        assertEquals(
-            pair.closeOffset + 1,
-            activeGuideState()?.guide?.pair?.closeOffset,
-        )
+        assertThat(activeGuideState()?.guide?.pair?.closeOffset).isEqualTo(pair.closeOffset + 1)
     }
 
     fun testDocumentChangesReleaseStaleAnalysisButKeepTokenPresentation() {
@@ -283,15 +266,15 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
         applyPass()
         val acceptedStamp = stampFor(editor, options)
         val decorations = bracketColorHighlighters().toSet()
-        assertTrue(decorations.isNotEmpty())
-        assertTrue(EditorGuideSessions.canSkipAnalysis(editor, acceptedStamp))
+        assertThat(decorations).isNotEmpty()
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, acceptedStamp)).isTrue()
 
         WriteCommandAction.runWriteCommandAction(project) {
             editor.document.insertString(source.indexOf("value"), "x")
         }
 
-        assertFalse(EditorGuideSessions.canSkipAnalysis(editor, acceptedStamp))
-        assertEquals(decorations, bracketColorHighlighters().toSet())
-        assertTrue(decorations.all { it.isValid })
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, acceptedStamp)).isFalse()
+        assertThat(bracketColorHighlighters().toSet()).isEqualTo(decorations)
+        assertThat(decorations).allMatch { it.isValid }
     }
 }

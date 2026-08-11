@@ -76,6 +76,7 @@ tasks.withType<JavaCompile>().configureEach {
 
 dependencies {
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.assertj:assertj-core:3.27.7")
     testImplementation("com.tngtech.archunit:archunit-junit4:1.5.0")
 
     intellijPlatform {

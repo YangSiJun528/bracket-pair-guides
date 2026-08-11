@@ -1,6 +1,6 @@
 package com.sijunyang.bracketpairguides.editor.events
 
-import org.junit.Assert.assertEquals
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class DaemonRestartContractTest {
@@ -9,7 +9,7 @@ class DaemonRestartContractTest {
         val method = contractFor(LegacyDaemonApi::class.java)
             .methodFor(LegacyDaemonApi::class.java)
 
-        assertEquals(0, method.parameterCount)
+        assertThat(method.parameterCount).isEqualTo(0)
     }
 
     @Test
@@ -17,8 +17,8 @@ class DaemonRestartContractTest {
         val method = contractFor(CurrentApiBase::class.java)
             .methodFor(CurrentDaemonApi::class.java)
 
-        assertEquals(1, method.parameterCount)
-        assertEquals(Any::class.java, method.parameterTypes.single())
+        assertThat(method.parameterCount).isEqualTo(1)
+        assertThat(method.parameterTypes.single()).isEqualTo(Any::class.java)
     }
 
     @Test
@@ -26,8 +26,8 @@ class DaemonRestartContractTest {
         val method = contractFor(ModernApiBase::class.java)
             .methodFor(LegacySubclass::class.java)
 
-        assertEquals(0, method.parameterCount)
-        assertEquals(ModernApiBase::class.java, method.declaringClass)
+        assertThat(method.parameterCount).isEqualTo(0)
+        assertThat(method.declaringClass).isEqualTo(ModernApiBase::class.java)
     }
 
     private fun contractFor(publicApiOwner: Class<*>): DaemonRestartContract =

@@ -11,8 +11,7 @@ import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 import java.awt.Color
 
 internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture() {
@@ -52,14 +51,12 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
                 refreshColors = true,
             )
 
-            assertEquals(originalHighlighters, bracketColorHighlighters().toSet())
-            assertTrue(
-                bracketColorHighlighters().all { highlighter ->
-                    highlighter.getTextAttributes(editor.colorsScheme)?.foregroundColor ==
-                        refreshedColor
-                },
-            )
-            assertEquals(1, collections)
+            assertThat(bracketColorHighlighters().toSet()).isEqualTo(originalHighlighters)
+            assertThat(bracketColorHighlighters()).allMatch { highlighter ->
+                highlighter.getTextAttributes(editor.colorsScheme)?.foregroundColor ==
+                    refreshedColor
+            }
+            assertThat(collections).isEqualTo(1)
         } finally {
             editor.setColorsScheme(originalScheme)
         }
@@ -80,8 +77,8 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
 
         BracketGuideSettings.getInstance().replace(BracketGuidePreferences(enabled = false))
         applyPass(pairs)
-        assertEquals(0, collections)
-        assertTrue(ownedHighlighters().isEmpty())
+        assertThat(collections).isEqualTo(0)
+        assertThat(ownedHighlighters()).isEmpty()
 
         val enabled = BracketGuidePreferences()
         BracketGuideSettings.getInstance().replace(enabled)
@@ -90,8 +87,8 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
             refreshColors = false,
         )
         applyPass(pairs)
-        assertEquals(1, collections)
-        assertEquals(3, ownedHighlighters().size)
+        assertThat(collections).isEqualTo(1)
+        assertThat(ownedHighlighters()).hasSize(3)
     }
 
     fun testDisablingAllPairFeaturesReleasesAndRebuildsTheSnapshot() {
@@ -110,21 +107,21 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
 
         applyPass(pairs)
         val acceptedStamp = stampFor(editor, enabled)
-        assertTrue(EditorGuideSessions.canSkipAnalysis(editor, acceptedStamp))
-        assertEquals(1, collections)
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, acceptedStamp)).isTrue()
+        assertThat(collections).isEqualTo(1)
 
         applyOptions(enabled.copy(enabled = false))
 
-        assertFalse(EditorGuideSessions.canSkipAnalysis(editor, acceptedStamp))
-        assertTrue(ownedHighlighters().isEmpty())
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, acceptedStamp)).isFalse()
+        assertThat(ownedHighlighters()).isEmpty()
         applyPass(pairs)
-        assertEquals(1, collections)
+        assertThat(collections).isEqualTo(1)
 
         applyOptions(enabled)
         applyPass(pairs)
 
-        assertEquals(2, collections)
-        assertTrue(bracketColorHighlighters().isNotEmpty())
+        assertThat(collections).isEqualTo(2)
+        assertThat(bracketColorHighlighters()).isNotEmpty()
     }
 
     fun testLateFullPassCannotRestoreASnapshotAfterAllFeaturesAreDisabled() {
@@ -151,15 +148,15 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
         latePass.doApplyInformationToEditor()
         val disabledStamp = stampFor(editor, disabled)
 
-        assertFalse(EditorGuideSessions.canSkipAnalysis(editor, fullStamp))
-        assertTrue(EditorGuideSessions.canSkipAnalysis(editor, disabledStamp))
-        assertTrue(ownedHighlighters().isEmpty())
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, fullStamp)).isFalse()
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, disabledStamp)).isTrue()
+        assertThat(ownedHighlighters()).isEmpty()
 
         applyOptions(enabled)
         applyPass(pairs)
 
-        assertEquals(2, collections)
-        assertTrue(bracketColorHighlighters().isNotEmpty())
+        assertThat(collections).isEqualTo(2)
+        assertThat(bracketColorHighlighters()).isNotEmpty()
     }
 
     fun testLateFullPassCannotPreventCompactTokenOnlyRebuild() {
@@ -189,15 +186,15 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
         val tokenOnlyStamp = stampFor(editor, tokenOnlyOptions)
         latePass.doApplyInformationToEditor()
 
-        assertEquals(1, collections)
-        assertTrue(bracketColorHighlighters().isNotEmpty())
-        assertFalse(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp))
+        assertThat(collections).isEqualTo(1)
+        assertThat(bracketColorHighlighters()).isNotEmpty()
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp)).isFalse()
 
         applyPass(pairs)
 
-        assertEquals(2, collections)
-        assertTrue(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp))
-        assertTrue(bracketColorHighlighters().isNotEmpty())
+        assertThat(collections).isEqualTo(2)
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp)).isTrue()
+        assertThat(bracketColorHighlighters()).isNotEmpty()
     }
 
     fun testLateFullPassCannotReplaceAnAcceptedCompactTokenOnlySnapshot() {
@@ -232,23 +229,22 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
         applyOptions(tokenOnlyOptions)
         applyPass(pairs) { visibleRange }
         val tokenOnlyStamp = stampFor(editor, tokenOnlyOptions)
-        assertEquals(2, collections)
-        assertTrue(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp))
+        assertThat(collections).isEqualTo(2)
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp)).isTrue()
 
         lateFullPass.doApplyInformationToEditor()
 
-        assertTrue(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp))
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp)).isTrue()
         visibleRange = TextRange(50_000, 50_256)
         session().visibleAreaChanged()
 
-        assertEquals(2, collections)
-        assertTrue(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp))
-        assertTrue(
-            "A late full pass must not discard the compact viewport index",
-            bracketColorHighlighters().any {
+        assertThat(collections).isEqualTo(2)
+        assertThat(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp)).isTrue()
+        assertThat(bracketColorHighlighters())
+            .describedAs("A late full pass must not discard the compact viewport index")
+            .anyMatch {
                 it.startOffset in visibleRange.startOffset until visibleRange.endOffset
-            },
-        )
+            }
     }
 
     fun testReenablingActivePresentationWaitsForTheNextSnapshot() {
@@ -271,8 +267,8 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
                 },
             ),
         )
-        assertEquals(0, collections)
-        assertNull(activeGuide())
+        assertThat(collections).isEqualTo(0)
+        assertThat(activeGuide()).isNull()
 
         val enabled = BracketGuidePreferences()
         BracketGuideSettings.getInstance().replace(enabled)
@@ -281,11 +277,11 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
             refreshColors = false,
         )
 
-        assertEquals(0, collections)
-        assertNull(activeGuide())
+        assertThat(collections).isEqualTo(0)
+        assertThat(activeGuide()).isNull()
 
         applyPass(testPass(project, editor, pairs = { listOf(pair) }))
-        assertEquals(pair, activeGuideState()?.guide?.pair)
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(pair)
     }
 
     fun testLanguageSelectionInvalidatesPresentationUntilTheNextSnapshot() {
@@ -303,26 +299,26 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
         )
 
         applyPass()
-        assertTrue(bracketColorHighlighters().isNotEmpty())
-        assertNotNull(activeGuide())
+        assertThat(bracketColorHighlighters()).isNotEmpty()
+        assertThat(activeGuide()).isNotNull()
 
         val disabled = BracketGuideSettings.getInstance().options.copy(
             disabledLanguageIds = setOf(capabilityId),
         )
         applyOptions(disabled)
-        assertTrue(bracketColorHighlighters().isEmpty())
-        assertNull(activeGuide())
+        assertThat(bracketColorHighlighters()).isEmpty()
+        assertThat(activeGuide()).isNull()
 
         applyPass()
-        assertTrue(ownedHighlighters().isEmpty())
+        assertThat(ownedHighlighters()).isEmpty()
 
         val enabled = disabled.copy(disabledLanguageIds = emptySet())
         applyOptions(enabled)
-        assertTrue(bracketColorHighlighters().isEmpty())
-        assertNull(activeGuide())
+        assertThat(bracketColorHighlighters()).isEmpty()
+        assertThat(activeGuide()).isNull()
 
         applyPass()
-        assertTrue(bracketColorHighlighters().isNotEmpty())
-        assertNotNull(activeGuide())
+        assertThat(bracketColorHighlighters()).isNotEmpty()
+        assertThat(activeGuide()).isNotNull()
     }
 }

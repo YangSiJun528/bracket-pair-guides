@@ -4,10 +4,7 @@ import com.intellij.openapi.util.JDOMUtil
 import com.intellij.util.xmlb.XmlSerializer
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotSame
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class BracketGuideSettingsTest {
@@ -15,22 +12,22 @@ class BracketGuideSettingsTest {
     fun `defaults to token colors and active guides without pair emphasis`() {
         val state = BracketGuidePreferences()
 
-        assertTrue(state.enabled)
-        assertTrue(state.disabledLanguageIds.isEmpty())
-        assertTrue(state.colorBracketTokens)
-        assertTrue(state.showActiveGuide)
-        assertTrue(state.showVerticalGuide)
-        assertTrue(state.showHorizontalGuides)
-        assertFalse(state.showActivePairBorder)
-        assertFalse(state.showActivePairBackground)
-        assertFalse(state.useIndependentComponentColors)
-        assertTrue(state.levelBaseColors.all { it == StoredColorFormat.AUTOMATIC_COLOR })
-        assertTrue(state.guideLineColors.all { it == StoredColorFormat.AUTOMATIC_COLOR })
-        assertTrue(state.pairBorderColors.all { it == StoredColorFormat.AUTOMATIC_COLOR })
-        assertTrue(state.pairBackgroundColors.all { it == StoredColorFormat.AUTOMATIC_COLOR })
-        assertEquals(1, state.guideLineWidth)
-        assertEquals(100, state.guideOpacityPercent)
-        assertEquals(22, state.pairBackgroundOpacityPercent)
+        assertThat(state.enabled).isTrue()
+        assertThat(state.disabledLanguageIds).isEmpty()
+        assertThat(state.colorBracketTokens).isTrue()
+        assertThat(state.showActiveGuide).isTrue()
+        assertThat(state.showVerticalGuide).isTrue()
+        assertThat(state.showHorizontalGuides).isTrue()
+        assertThat(state.showActivePairBorder).isFalse()
+        assertThat(state.showActivePairBackground).isFalse()
+        assertThat(state.useIndependentComponentColors).isFalse()
+        assertThat(state.levelBaseColors).allMatch { it == StoredColorFormat.AUTOMATIC_COLOR }
+        assertThat(state.guideLineColors).allMatch { it == StoredColorFormat.AUTOMATIC_COLOR }
+        assertThat(state.pairBorderColors).allMatch { it == StoredColorFormat.AUTOMATIC_COLOR }
+        assertThat(state.pairBackgroundColors).allMatch { it == StoredColorFormat.AUTOMATIC_COLOR }
+        assertThat(state.guideLineWidth).isEqualTo(1)
+        assertThat(state.guideOpacityPercent).isEqualTo(100)
+        assertThat(state.pairBackgroundOpacityPercent).isEqualTo(22)
     }
 
     @Test
@@ -45,19 +42,15 @@ class BracketGuideSettingsTest {
 
         settings.loadState(state)
 
-        assertEquals(BracketGuidePreferences.MAX_GUIDE_LINE_WIDTH, settings.state.guideLineWidth)
-        assertEquals(
-            BracketGuidePreferences.MIN_GUIDE_OPACITY_PERCENT,
-            settings.state.guideOpacityPercent,
-        )
-        assertEquals(
-            BracketGuidePreferences.MAX_PAIR_BACKGROUND_OPACITY_PERCENT,
+        assertThat(settings.state.guideLineWidth).isEqualTo(BracketGuidePreferences.MAX_GUIDE_LINE_WIDTH)
+        assertThat(settings.state.guideOpacityPercent).isEqualTo(BracketGuidePreferences.MIN_GUIDE_OPACITY_PERCENT)
+        assertThat(
             settings.state.pairBackgroundOpacityPercent,
-        )
-        assertEquals(StoredColorFormat.COLOR_COUNT, settings.state.levelBaseColors.size)
-        assertEquals(0x123456, settings.state.levelBaseColors[0])
-        assertEquals(StoredColorFormat.AUTOMATIC_COLOR, settings.state.levelBaseColors[1])
-        assertEquals(StoredColorFormat.AUTOMATIC_COLOR, settings.state.levelBaseColors[2])
+        ).isEqualTo(BracketGuidePreferences.MAX_PAIR_BACKGROUND_OPACITY_PERCENT)
+        assertThat(settings.state.levelBaseColors).hasSize(StoredColorFormat.COLOR_COUNT)
+        assertThat(settings.state.levelBaseColors[0]).isEqualTo(0x123456)
+        assertThat(settings.state.levelBaseColors[1]).isEqualTo(StoredColorFormat.AUTOMATIC_COLOR)
+        assertThat(settings.state.levelBaseColors[2]).isEqualTo(StoredColorFormat.AUTOMATIC_COLOR)
     }
 
     @Test
@@ -74,12 +67,9 @@ class BracketGuideSettingsTest {
             ),
         )
 
-        assertEquals(
-            setOf("JavaScript", "Rust"),
-            settings.state.disabledLanguageIds,
-        )
-        assertFalse(settings.options.isLanguageEnabled("Rust"))
-        assertTrue(settings.options.isLanguageEnabled("JAVA"))
+        assertThat(settings.state.disabledLanguageIds).isEqualTo(setOf("JavaScript", "Rust"))
+        assertThat(settings.options.isLanguageEnabled("Rust")).isFalse()
+        assertThat(settings.options.isLanguageEnabled("JAVA")).isTrue()
     }
 
     @Test
@@ -108,7 +98,7 @@ class BracketGuideSettingsTest {
         val serialized = XmlSerializer.serialize(source.state)
         restored.loadState(XmlSerializer.deserialize(serialized, BracketGuidePreferences::class.java))
 
-        assertEquals(expected, restored.options)
+        assertThat(restored.options).isEqualTo(expected)
     }
 
     @Test
@@ -136,10 +126,10 @@ class BracketGuideSettingsTest {
         val settings = BracketGuideSettings()
         settings.loadState(legacyState)
 
-        assertEquals(setOf("JavaScript", "Rust"), settings.options.disabledLanguageIds)
-        assertEquals(3, settings.options.guideLineWidth)
-        assertEquals(0x123456, settings.options.levelBaseColors[0])
-        assertEquals(StoredColorFormat.COLOR_COUNT, settings.options.levelBaseColors.size)
+        assertThat(settings.options.disabledLanguageIds).isEqualTo(setOf("JavaScript", "Rust"))
+        assertThat(settings.options.guideLineWidth).isEqualTo(3)
+        assertThat(settings.options.levelBaseColors[0]).isEqualTo(0x123456)
+        assertThat(settings.options.levelBaseColors).hasSize(StoredColorFormat.COLOR_COUNT)
     }
 
     @Test
@@ -156,10 +146,10 @@ class BracketGuideSettingsTest {
         disabledLanguageIds.clear()
         levelBaseColors[0] = 0x654321
 
-        assertEquals(setOf("Rust"), settings.options.disabledLanguageIds)
-        assertEquals(0x123456, settings.options.levelBaseColors[0])
-        assertNotSame(input.disabledLanguageIds, settings.options.disabledLanguageIds)
-        assertNotSame(input.levelBaseColors, settings.options.levelBaseColors)
+        assertThat(settings.options.disabledLanguageIds).isEqualTo(setOf("Rust"))
+        assertThat(settings.options.levelBaseColors[0]).isEqualTo(0x123456)
+        assertThat(settings.options.disabledLanguageIds).isNotSameAs(input.disabledLanguageIds)
+        assertThat(settings.options.levelBaseColors).isNotSameAs(input.levelBaseColors)
     }
 
     @Test
@@ -169,8 +159,8 @@ class BracketGuideSettingsTest {
 
         settings.replace(BracketGuidePreferences(enabled = false))
 
-        assertTrue(settings.stateModificationCount > before)
-        assertFalse(settings.options.enabled)
+        assertThat(settings.stateModificationCount).isGreaterThan(before)
+        assertThat(settings.options.enabled).isFalse()
     }
 
     @Test
@@ -180,6 +170,6 @@ class BracketGuideSettingsTest {
 
         settings.replace(BracketGuidePreferences())
 
-        assertEquals(before, settings.stateModificationCount)
+        assertThat(settings.stateModificationCount).isEqualTo(before)
     }
 }

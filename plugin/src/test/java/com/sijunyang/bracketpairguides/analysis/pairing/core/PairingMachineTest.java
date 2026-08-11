@@ -6,10 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiPredicate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class PairingMachineTest {
     @Test
@@ -22,10 +20,10 @@ public class PairingMachineTest {
         accept(session, "main", ']', BracketRole.CLOSE, 4, 1, 2);
         accept(session, "main", ')', BracketRole.CLOSE, 5, 2, 3);
 
-        assertEquals(List.of(
+        assertThat(output.pairs).containsExactly(
                 new PairRecord(3, 1, 4, 1, 1, 2, 2),
                 new PairRecord(0, 2, 5, 2, 0, 1, 3)
-        ), output.pairs);
+        );
     }
 
     @Test
@@ -37,7 +35,7 @@ public class PairingMachineTest {
         accept(session, "main", '}', BracketRole.CLOSE, 1, 1, 0);
         accept(session, "main", ')', BracketRole.CLOSE, 2, 1, 0);
 
-        assertEquals(List.of(new PairRecord(0, 1, 2, 1, 0, 0, 0)), output.pairs);
+        assertThat(output.pairs).containsExactly(new PairRecord(0, 1, 2, 1, 0, 0, 0));
     }
 
     @Test
@@ -50,10 +48,8 @@ public class PairingMachineTest {
         accept(session, "host", '}', BracketRole.CLOSE, 2, 1, 0);
         accept(session, "embedded", ')', BracketRole.CLOSE, 3, 1, 0);
 
-        assertEquals(0, output.pairs.get(0).depth);
-        assertEquals(0, output.pairs.get(1).depth);
-        assertEquals(0, output.pairs.get(0).openOffset);
-        assertEquals(1, output.pairs.get(1).openOffset);
+        assertThat(output.pairs).extracting(PairRecord::depth).containsExactly(0, 0);
+        assertThat(output.pairs).extracting(PairRecord::openOffset).containsExactly(0, 1);
     }
 
     @Test
@@ -69,7 +65,7 @@ public class PairingMachineTest {
         accept(session, "main", '}', BracketRole.CLOSE, 2, 1, 0);
         accept(session, "main", ')', BracketRole.CLOSE, 3, 1, 0);
 
-        assertEquals(List.of(new PairRecord(0, 1, 2, 1, 0, 0, 0)), output.pairs);
+        assertThat(output.pairs).containsExactly(new PairRecord(0, 1, 2, 1, 0, 0, 0));
     }
 
     @Test
@@ -103,7 +99,7 @@ public class PairingMachineTest {
                 0
         );
 
-        assertEquals(List.of(new PairRecord(0, 1, 2, 1, 0, 0, 0)), output.pairs);
+        assertThat(output.pairs).containsExactly(new PairRecord(0, 1, 2, 1, 0, 0, 0));
     }
 
     @Test
@@ -123,7 +119,7 @@ public class PairingMachineTest {
                 0
         );
         accept(session, "main", ')', BracketRole.CLOSE, 2, 1, 0);
-        assertTrue(output.pairs.isEmpty());
+        assertThat(output.pairs).isEmpty();
 
         accept(
                 session,
@@ -137,9 +133,8 @@ public class PairingMachineTest {
         );
         accept(session, "main", ')', BracketRole.CLOSE, 4, 1, 0);
 
-        assertEquals(2, output.pairs.size());
-        assertEquals(1, output.pairs.get(0).openOffset);
-        assertEquals(0, output.pairs.get(1).openOffset);
+        assertThat(output.pairs).hasSize(2);
+        assertThat(output.pairs).extracting(PairRecord::openOffset).containsExactly(1, 0);
     }
 
     @Test
@@ -170,9 +165,8 @@ public class PairingMachineTest {
                 0
         );
 
-        assertEquals(2, output.pairs.size());
-        assertEquals(1, output.pairs.get(0).openOffset);
-        assertEquals(0, output.pairs.get(1).openOffset);
+        assertThat(output.pairs).hasSize(2);
+        assertThat(output.pairs).extracting(PairRecord::openOffset).containsExactly(1, 0);
     }
 
     @Test(timeout = 10_000)
@@ -187,14 +181,14 @@ public class PairingMachineTest {
         for (int index = 0; index < depth; index++) {
             accept(session, "main", ']', BracketRole.CLOSE, depth + index, 1, 0);
         }
-        assertTrue(output.pairs.isEmpty());
+        assertThat(output.pairs).isEmpty();
 
         for (int index = 0; index < depth; index++) {
             accept(session, "main", ')', BracketRole.CLOSE, depth * 2 + index, 1, 0);
         }
-        assertEquals(depth, output.pairs.size());
-        assertEquals(depth - 1, output.pairs.get(0).depth);
-        assertEquals(0, output.pairs.get(depth - 1).depth);
+        assertThat(output.pairs).hasSize(depth);
+        assertThat(output.pairs.get(0).depth).isEqualTo(depth - 1);
+        assertThat(output.pairs.get(depth - 1).depth).isZero();
     }
 
     @Test(timeout = 10_000)
@@ -219,7 +213,7 @@ public class PairingMachineTest {
         for (int index = 0; index < depth; index++) {
             accept(session, "main", ')', BracketRole.CLOSE, depth + index + 1, 1, 0);
         }
-        assertTrue(output.pairs.isEmpty());
+        assertThat(output.pairs).isEmpty();
         accept(
                 session,
                 "main",
@@ -234,10 +228,10 @@ public class PairingMachineTest {
             accept(session, "main", ')', BracketRole.CLOSE, depth * 2 + index + 2, 1, 0);
         }
 
-        assertEquals(depth + 1, output.pairs.size());
-        assertEquals(depth, output.pairs.get(0).openOffset);
-        assertEquals(depth - 1, output.pairs.get(1).depth);
-        assertEquals(0, output.pairs.get(depth).depth);
+        assertThat(output.pairs).hasSize(depth + 1);
+        assertThat(output.pairs.get(0).openOffset).isEqualTo(depth);
+        assertThat(output.pairs.get(1).depth).isEqualTo(depth - 1);
+        assertThat(output.pairs.get(depth).depth).isZero();
     }
 
     @Test
@@ -259,8 +253,8 @@ public class PairingMachineTest {
         accept(session, "main", '[', BracketRole.OPEN, 2, 1, 0);
         accept(session, "main", ']', BracketRole.CLOSE, 3, 1, 0);
 
-        assertEquals(1, resolutions[0]);
-        assertEquals(2, output.pairs.size());
+        assertThat(resolutions[0]).isEqualTo(1);
+        assertThat(output.pairs).hasSize(2);
     }
 
     @Test
@@ -293,7 +287,7 @@ public class PairingMachineTest {
                 BracketRole.CLOSE, StructuralRole.NONE, 3, 1, 0
         );
 
-        assertEquals(List.of(new PairRecord(0, 1, 3, 1, 0, 0, 0)), output.pairs);
+        assertThat(output.pairs).containsExactly(new PairRecord(0, 1, 3, 1, 0, 0, 0));
     }
 
     @Test
@@ -319,7 +313,7 @@ public class PairingMachineTest {
                 BracketRole.CLOSE, StructuralRole.NONE, 1, 1, 0
         );
 
-        assertEquals(1, output.pairs.size());
+        assertThat(output.pairs).hasSize(1);
     }
 
     @Test
@@ -337,10 +331,10 @@ public class PairingMachineTest {
         accept(session, "main", '|', symmetric, 4, 1, 0);
         accept(session, "main", '|', symmetric, 6, 1, 0);
 
-        assertEquals(List.of(
+        assertThat(output.pairs).containsExactly(
                 new PairRecord(0, 1, 2, 1, 0, 0, 0),
                 new PairRecord(4, 1, 6, 1, 0, 0, 0)
-        ), output.pairs);
+        );
     }
 
     @Test
@@ -361,8 +355,8 @@ public class PairingMachineTest {
                 StructuralRole.OPEN_AND_CLOSE, 1, 1, 0
         );
 
-        assertEquals(1, output.pairs.size());
-        assertEquals(0, output.pairs.get(0).openOffset);
+        assertThat(output.pairs).hasSize(1);
+        assertThat(output.pairs.get(0).openOffset).isZero();
     }
 
     @Test
@@ -375,22 +369,21 @@ public class PairingMachineTest {
                 2
         );
 
-        assertTrue(session.accept(
+        assertThat(session.accept(
                 "main", '(', null, false,
                 BracketRole.OPEN, StructuralRole.NONE, 0, 1, 0
-        ));
-        assertTrue(session.accept(
+        )).isTrue();
+        assertThat(session.accept(
                 "main", '[', null, false,
                 BracketRole.OPEN, StructuralRole.NONE, 1, 1, 0
-        ));
-        assertFalse(session.accept(
+        )).isTrue();
+        assertThat(session.accept(
                 "main", '{', null, false,
                 BracketRole.OPEN, StructuralRole.NONE, 2, 1, 0
-        ));
-        assertTrue(
-                "No completed-prefix result should escape after capacity exhaustion",
-                output.pairs.isEmpty()
-        );
+        )).isFalse();
+        assertThat(output.pairs)
+                .as("no completed-prefix result escapes after capacity exhaustion")
+                .isEmpty();
     }
 
     @Test
@@ -430,9 +423,8 @@ public class PairingMachineTest {
             );
         }
 
-        assertThrows(
-                TestCancellation.class,
-                () -> session.accept(
+        assertThatExceptionOfType(TestCancellation.class)
+                .isThrownBy(() -> session.accept(
                         "xml",
                         "end",
                         "root",
@@ -442,9 +434,8 @@ public class PairingMachineTest {
                         20_000,
                         1,
                         0
-                )
-        );
-        assertEquals(3, checks[0]);
+                ));
+        assertThat(checks[0]).isEqualTo(3);
     }
 
     private static PairingMachine<Character, String>.Session session(RecordedPairs output) {

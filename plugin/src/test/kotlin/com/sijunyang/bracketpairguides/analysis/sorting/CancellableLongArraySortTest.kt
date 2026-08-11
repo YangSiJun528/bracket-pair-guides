@@ -1,9 +1,8 @@
 package com.sijunyang.bracketpairguides.analysis.sorting
 
 import com.intellij.openapi.progress.ProcessCanceledException
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Test
 
 class CancellableLongArraySortTest {
@@ -23,8 +22,8 @@ class CancellableLongArraySortTest {
 
         values.sortCancellable { cancellationChecks++ }
 
-        assertArrayEquals(expected, values)
-        assertTrue(cancellationChecks > 2)
+        assertThat(values).containsExactly(*expected)
+        assertThat(cancellationChecks).isGreaterThan(2)
     }
 
     @Test
@@ -32,16 +31,13 @@ class CancellableLongArraySortTest {
         val values = LongArray(LARGE_INPUT_SIZE) { -it.toLong() }
         var cancellationChecks = 0
 
-        try {
+        assertThatThrownBy {
             values.sortCancellable {
                 cancellationChecks++
                 if (cancellationChecks == FIRST_MERGE_CHECK) throw ProcessCanceledException()
             }
-        } catch (_: ProcessCanceledException) {
-            assertEquals(FIRST_MERGE_CHECK, cancellationChecks)
-            return
-        }
-        throw AssertionError("Expected sorting to be canceled during the merge")
+        }.isInstanceOf(ProcessCanceledException::class.java)
+        assertThat(cancellationChecks).isEqualTo(FIRST_MERGE_CHECK)
     }
 
     companion object {

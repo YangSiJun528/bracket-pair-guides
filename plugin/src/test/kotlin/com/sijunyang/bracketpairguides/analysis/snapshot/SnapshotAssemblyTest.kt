@@ -5,6 +5,7 @@ import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.pairing.BracketRecognitionRefusal
 import com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketRecognition
+import org.assertj.core.api.Assertions.assertThat
 
 class SnapshotAssemblyTest : BasePlatformTestCase() {
     fun testEmptyCoverageSkipsRecognition() {
@@ -23,8 +24,8 @@ class SnapshotAssemblyTest : BasePlatformTestCase() {
             },
         ).outcome()
 
-        assertTrue(outcome is AnalysisOutcome.Complete)
-        assertFalse(recognitionCalled)
+        assertThat(outcome).isInstanceOf(AnalysisOutcome.Complete::class.java)
+        assertThat(recognitionCalled).isFalse()
     }
 
     fun testRecognitionRefusalPublishesNoSnapshot() {
@@ -55,12 +56,11 @@ class SnapshotAssemblyTest : BasePlatformTestCase() {
             },
         ).outcome()
 
-        assertTrue(outcome is AnalysisOutcome.Unavailable)
-        assertEquals(
-            AnalysisLimit.PAIR_CAPACITY,
-            (outcome as AnalysisOutcome.Unavailable).limit,
-        )
-        assertFalse(canonicalizationCalled)
+        assertThat(outcome)
+            .isInstanceOfSatisfying(AnalysisOutcome.Unavailable::class.java) { unavailable ->
+                assertThat(unavailable.limit).isEqualTo(AnalysisLimit.PAIR_CAPACITY)
+            }
+        assertThat(canonicalizationCalled).isFalse()
     }
 
     private fun assembly(

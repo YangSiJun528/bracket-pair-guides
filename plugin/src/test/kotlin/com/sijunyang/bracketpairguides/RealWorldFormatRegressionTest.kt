@@ -19,6 +19,7 @@ import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
 import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
+import org.assertj.core.api.Assertions.assertThat
 
 class RealWorldFormatRegressionTest : BasePlatformTestCase() {
     override fun setUp() {
@@ -49,10 +50,9 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         val editor = myFixture.editor
         val document = editor.document
 
-        assertFalse(
-            "$fileName must be recognized by its bundled language plugin",
-            file.fileType === PlainTextFileType.INSTANCE,
-        )
+        assertThat(file.fileType)
+            .describedAs("$fileName must be recognized by its bundled language plugin")
+            .isNotSameAs(PlainTextFileType.INSTANCE)
 
         val analysis = service<BracketAnalysis>()
         val first = analyze(analysis, file.fileType)
@@ -64,32 +64,33 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         val secondTokenValues = secondTokens.toValues()
         val pairCount = firstTokens.size / TOKENS_PER_PAIR
 
-        assertEquals(
-            "$fileName analysis must be deterministic",
-            firstTokenValues,
-            secondTokenValues,
-        )
-        assertEquals(
-            "$fileName must produce complete token pairs",
-            0,
-            firstTokens.size % TOKENS_PER_PAIR,
-        )
-        assertTrue(
-            "$fileName should contain at least $minimumPairCount pairs, but had $pairCount",
-            pairCount >= minimumPairCount,
-        )
+        assertThat(secondTokenValues)
+            .describedAs("$fileName analysis must be deterministic")
+            .isEqualTo(firstTokenValues)
+        assertThat(firstTokens.size % TOKENS_PER_PAIR)
+            .describedAs("$fileName must produce complete token pairs")
+            .isZero()
+        assertThat(pairCount)
+            .describedAs(
+                "$fileName should contain at least $minimumPairCount pairs, but had $pairCount",
+            )
+            .isGreaterThanOrEqualTo(minimumPairCount)
         firstTokenValues.forEachIndexed { index, token ->
-            assertTrue("$fileName token $index has an invalid offset", token.offset >= 0)
-            assertTrue("$fileName token $index is empty", token.length > 0)
-            assertTrue(
-                "$fileName token $index exceeds the document",
-                token.offset.toLong() + token.length <= document.textLength,
-            )
-            assertTrue("$fileName token $index has a negative depth", token.depth >= 0)
-            assertTrue(
-                "$fileName token $index has an impossible depth",
-                token.depth < pairCount,
-            )
+            assertThat(token.offset)
+                .describedAs("$fileName token $index has an invalid offset")
+                .isNotNegative()
+            assertThat(token.length)
+                .describedAs("$fileName token $index is empty")
+                .isPositive()
+            assertThat(token.offset.toLong() + token.length)
+                .describedAs("$fileName token $index exceeds the document")
+                .isLessThanOrEqualTo(document.textLength.toLong())
+            assertThat(token.depth)
+                .describedAs("$fileName token $index has a negative depth")
+                .isNotNegative()
+            assertThat(token.depth)
+                .describedAs("$fileName token $index has an impossible depth")
+                .isLessThan(pairCount)
         }
 
         val pass = BracketGuideHighlightingPass(
@@ -107,20 +108,15 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
 
         val session = checkNotNull(EditorGuideSessions.get(editor))
         val coloredTokenCount = editor.observedBracketMarkup().tokenMarks.size
-        assertTrue(
-            "$fileName must not create more ranges than analyzed tokens",
-            coloredTokenCount <= firstTokens.size,
-        )
-        assertEquals(
-            "$fileName must activate exactly one custom guide renderer at the caret",
-            1,
-            editor.observedBracketMarkup().guideMarks.size,
-        )
-        assertEquals(
-            "$fileName must leave optional active-pair symbol emphasis disabled",
-            0,
-            editor.observedBracketMarkup().activePairMarks.size,
-        )
+        assertThat(coloredTokenCount)
+            .describedAs("$fileName must not create more ranges than analyzed tokens")
+            .isLessThanOrEqualTo(firstTokens.size)
+        assertThat(editor.observedBracketMarkup().guideMarks)
+            .describedAs("$fileName must activate exactly one custom guide renderer at the caret")
+            .hasSize(1)
+        assertThat(editor.observedBracketMarkup().activePairMarks)
+            .describedAs("$fileName must leave optional active-pair symbol emphasis disabled")
+            .isEmpty()
 
         val emphasized = BracketGuideSettings.getInstance().options.copy(
             showActivePairBorder = true,
@@ -152,16 +148,14 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
             session.caretMoved()
             val expected = first.activePairAt(offset)
             val activeGuide = editor.observedBracketMarkup().guideMarks.singleOrNull()
-            assertEquals(
-                "$fileName chose the wrong active pair at offset $offset",
-                expected,
-                (activeGuide?.customRenderer as? BracketGuideDrawing)?.guide?.pair,
-            )
-            assertEquals(
-                "$fileName must highlight two symbols exactly when a pair is active at $offset",
-                if (expected == null) 0 else 2,
-                editor.observedBracketMarkup().activePairMarks.size,
-            )
+            assertThat((activeGuide?.customRenderer as? BracketGuideDrawing)?.guide?.pair)
+                .describedAs("$fileName chose the wrong active pair at offset $offset")
+                .isEqualTo(expected)
+            assertThat(editor.observedBracketMarkup().activePairMarks)
+                .describedAs(
+                    "$fileName must highlight two symbols exactly when a pair is active at $offset",
+                )
+                .hasSize(if (expected == null) 0 else 2)
         }
     }
 

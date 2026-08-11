@@ -3,24 +3,22 @@ package com.sijunyang.bracketpairguides.analysis.guide
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.pairing.toPairTable
 import com.intellij.openapi.progress.ProcessCanceledException
-import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Test
 
 class GuideLineEnvelopeTest {
     @Test
     fun `finds the minimum multiline guide query envelope`() {
-        assertEquals(
-            null,
+        assertThat(
             GuideLineEnvelope.from(
                 listOf(pair(openLine = 3, closeLine = 3)).toPairTable(),
                 documentLength = 100,
                 documentLineCount = 20,
                 checkCanceled = {},
             ),
-        )
-        assertEquals(
-            4..12,
+        ).isNull()
+        assertThat(
             GuideLineEnvelope.from(
                 listOf(
                     pair(openLine = 3, closeLine = 4),
@@ -30,9 +28,8 @@ class GuideLineEnvelopeTest {
                 documentLineCount = 20,
                 checkCanceled = {},
             )?.lines,
-        )
-        assertEquals(
-            4..4,
+        ).isEqualTo(4..12)
+        assertThat(
             GuideLineEnvelope.from(
                 listOf(
                     pair(openLine = 3, closeLine = 4),
@@ -47,7 +44,7 @@ class GuideLineEnvelopeTest {
                 documentLineCount = 20,
                 checkCanceled = {},
             )?.lines,
-        )
+        ).isEqualTo(4..4)
     }
 
     @Test
@@ -55,7 +52,7 @@ class GuideLineEnvelopeTest {
         val pairs = List(2_000) { pair(openLine = it, closeLine = it) }
         var cancellationChecks = 0
 
-        try {
+        assertThatThrownBy {
             GuideLineEnvelope.from(
                 pairs.toPairTable(),
                 documentLength = 3_000,
@@ -64,10 +61,8 @@ class GuideLineEnvelopeTest {
                 cancellationChecks++
                 if (cancellationChecks == 3) throw ProcessCanceledException()
             }
-            fail("Expected multiline probing to be canceled")
-        } catch (_: ProcessCanceledException) {
-            assertEquals(3, cancellationChecks)
-        }
+        }.isInstanceOf(ProcessCanceledException::class.java)
+        assertThat(cancellationChecks).isEqualTo(3)
     }
 
     private fun pair(openLine: Int, closeLine: Int): BracketPair = BracketPair(

@@ -8,11 +8,7 @@ import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.analysis.pairing.toPairTable
 import com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertSame
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 
 class BracketSnapshotTest : BasePlatformTestCase() {
     fun testActivePairQueryHidesIndexReferences() {
@@ -20,10 +16,10 @@ class BracketSnapshotTest : BasePlatformTestCase() {
         val inner = pair(open = 20, close = 40, depth = 1)
         val snapshot = snapshot(listOf(outer, inner))
 
-        assertEquals(outer, snapshot.activePairAt(10))
-        assertEquals(inner, snapshot.activePairAt(30))
-        assertSame(snapshot.activePairAt(30), snapshot.activePairAt(31))
-        assertNull(snapshot.activePairAt(100))
+        assertThat(snapshot.activePairAt(10)).isEqualTo(outer)
+        assertThat(snapshot.activePairAt(30)).isEqualTo(inner)
+        assertThat(snapshot.activePairAt(31)).isSameAs(snapshot.activePairAt(30))
+        assertThat(snapshot.activePairAt(100)).isNull()
     }
 
     fun testVisibleTokenWindowPreservesSortedMetadataWithoutTokenAllocations() {
@@ -38,13 +34,13 @@ class BracketSnapshotTest : BasePlatformTestCase() {
             limit = 10,
         )
 
-        assertFalse(tokens.isCapped)
-        assertEquals(5, tokens.size)
-        assertEquals(listOf(0, 2, 10, 12, 20), tokens.offsets())
-        assertEquals(listOf(1, 1, 1, 1, 1), tokens.lengths())
-        assertEquals(listOf(0, 0, 1, 1, 2), tokens.depths())
-        assertEquals(1, tokens.stableFocusStartOffset)
-        assertEquals(21, tokens.stableFocusEndOffset)
+        assertThat(tokens.isCapped).isFalse()
+        assertThat(tokens.size).isEqualTo(5)
+        assertThat(tokens.offsets()).containsExactly(0, 2, 10, 12, 20)
+        assertThat(tokens.lengths()).containsExactly(1, 1, 1, 1, 1)
+        assertThat(tokens.depths()).containsExactly(0, 0, 1, 1, 2)
+        assertThat(tokens.stableFocusStartOffset).isEqualTo(1)
+        assertThat(tokens.stableFocusEndOffset).isEqualTo(21)
     }
 
     fun testCappedTokenWindowIsCenteredAndPublishesAStableFocusEnvelope() {
@@ -57,10 +53,10 @@ class BracketSnapshotTest : BasePlatformTestCase() {
             limit = 4,
         )
 
-        assertTrue(tokens.isCapped)
-        assertEquals(listOf(12, 20, 22, 30), tokens.offsets())
-        assertEquals(20, tokens.stableFocusStartOffset)
-        assertEquals(32, tokens.stableFocusEndOffset)
+        assertThat(tokens.isCapped).isTrue()
+        assertThat(tokens.offsets()).containsExactly(12, 20, 22, 30)
+        assertThat(tokens.stableFocusStartOffset).isEqualTo(20)
+        assertThat(tokens.stableFocusEndOffset).isEqualTo(32)
     }
 
     private fun snapshot(pairs: List<BracketPair>): BracketSnapshot {

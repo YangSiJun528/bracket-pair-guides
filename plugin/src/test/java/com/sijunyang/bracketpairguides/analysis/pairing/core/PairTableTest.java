@@ -2,12 +2,9 @@ package com.sijunyang.bracketpairguides.analysis.pairing.core;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 public class PairTableTest {
     private static final CancellationProbe NO_CANCELLATION = () -> { };
@@ -19,16 +16,16 @@ public class PairTableTest {
 
         PairTable table = draft.freeze();
 
-        assertEquals(1, table.size());
-        assertEquals(2, table.openOffsetAt(0));
-        assertEquals(1, table.openTokenLengthAt(0));
-        assertEquals(10, table.closeOffsetAt(0));
-        assertEquals(2, table.closeTokenLengthAt(0));
-        assertEquals(3, table.depthAt(0));
-        assertEquals(4, table.openLineAt(0));
-        assertEquals(8, table.closeLineAt(0));
-        assertTrue(table.hasWellFormedTokenRangeAt(0, 12));
-        assertFalse(table.hasWellFormedTokenRangeAt(0, 11));
+        assertThat(table.size()).isEqualTo(1);
+        assertThat(table.openOffsetAt(0)).isEqualTo(2);
+        assertThat(table.openTokenLengthAt(0)).isEqualTo(1);
+        assertThat(table.closeOffsetAt(0)).isEqualTo(10);
+        assertThat(table.closeTokenLengthAt(0)).isEqualTo(2);
+        assertThat(table.depthAt(0)).isEqualTo(3);
+        assertThat(table.openLineAt(0)).isEqualTo(4);
+        assertThat(table.closeLineAt(0)).isEqualTo(8);
+        assertThat(table.hasWellFormedTokenRangeAt(0, 12)).isTrue();
+        assertThat(table.hasWellFormedTokenRangeAt(0, 11)).isFalse();
     }
 
     @Test
@@ -36,12 +33,10 @@ public class PairTableTest {
         PairTable.Draft draft = PairTable.draft();
         PairTable first = draft.freeze();
 
-        assertSame(PairTable.empty(), first);
-        assertThrows(IllegalStateException.class, draft::freeze);
-        assertThrows(
-                IllegalStateException.class,
-                () -> draft.accept(0, 1, 1, 1, 0, 0, 0)
-        );
+        assertThat(first).isSameAs(PairTable.empty());
+        assertThatIllegalStateException().isThrownBy(draft::freeze);
+        assertThatIllegalStateException()
+                .isThrownBy(() -> draft.accept(0, 1, 1, 1, 0, 0, 0));
     }
 
     @Test
@@ -50,20 +45,19 @@ public class PairTableTest {
         PairTable baseline = table(geometry);
         PairTable equivalent = table(geometry.clone());
 
-        assertNotSame(baseline, equivalent);
-        assertEquals(baseline.contentHash(), equivalent.contentHash());
-        assertTrue(baseline.hasSameContent(equivalent, NO_CANCELLATION));
-        assertTrue(equivalent.hasSameContent(baseline, NO_CANCELLATION));
+        assertThat(equivalent).isNotSameAs(baseline);
+        assertThat(equivalent.contentHash()).isEqualTo(baseline.contentHash());
+        assertThat(baseline.hasSameContent(equivalent, NO_CANCELLATION)).isTrue();
+        assertThat(equivalent.hasSameContent(baseline, NO_CANCELLATION)).isTrue();
 
         for (int column = 0; column < geometry.length; column++) {
             int[] changed = geometry.clone();
             changed[column]++;
-            assertFalse(
-                    "Column " + column + " must participate in content identity",
-                    baseline.hasSameContent(table(changed), NO_CANCELLATION)
-            );
+            assertThat(baseline.hasSameContent(table(changed), NO_CANCELLATION))
+                    .as("geometry column %s participates in content identity", column)
+                    .isFalse();
         }
-        assertFalse(baseline.hasSameContent(null, NO_CANCELLATION));
+        assertThat(baseline.hasSameContent(null, NO_CANCELLATION)).isFalse();
     }
 
     @Test
@@ -76,14 +70,12 @@ public class PairTableTest {
         }
         int[] checks = {0};
 
-        assertThrows(
-                TestCancellation.class,
-                () -> first.freeze().hasSameContent(second.freeze(), () -> {
+        assertThatExceptionOfType(TestCancellation.class)
+                .isThrownBy(() -> first.freeze().hasSameContent(second.freeze(), () -> {
                     if (++checks[0] == 2) {
                         throw new TestCancellation();
                     }
-                })
-        );
+                }));
     }
 
     private static PairTable table(int... geometry) {

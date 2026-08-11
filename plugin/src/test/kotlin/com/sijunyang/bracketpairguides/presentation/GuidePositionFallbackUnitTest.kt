@@ -4,7 +4,7 @@ import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import org.junit.Assert.assertEquals
+import org.assertj.core.api.Assertions.assertThat
 import kotlin.random.Random
 
 class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
@@ -45,8 +45,8 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
             currentAnchorLine = 2,
         )
 
-        assertEquals(2, guide.guideColumn)
-        assertEquals(4, guide.anchorLine)
+        assertThat(guide.guideColumn).isEqualTo(2)
+        assertThat(guide.anchorLine).isEqualTo(4)
     }
 
     fun testSharedCharacterBudgetUsesClosingIndentAsDeterministicFallback() {
@@ -61,8 +61,8 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
             currentAnchorLine = null,
         )
 
-        assertEquals(4, guide.guideColumn)
-        assertEquals(3, guide.anchorLine)
+        assertThat(guide.guideColumn).isEqualTo(4)
+        assertThat(guide.anchorLine).isEqualTo(3)
     }
 
     fun testSharedLineBudgetUsesClosingIndentAsDeterministicFallback() {
@@ -79,8 +79,8 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
             currentAnchorLine = null,
         )
 
-        assertEquals(4, guide.guideColumn)
-        assertEquals(301, guide.anchorLine)
+        assertThat(guide.guideColumn).isEqualTo(4)
+        assertThat(guide.anchorLine).isEqualTo(301)
     }
 
     fun testSameLineFallbackClampsAnOverflowedProviderLine() {
@@ -97,8 +97,8 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
             currentAnchorLine = null,
         )
 
-        assertEquals(0, guide.guideColumn)
-        assertEquals(2, guide.anchorLine)
+        assertThat(guide.guideColumn).isEqualTo(0)
+        assertThat(guide.anchorLine).isEqualTo(2)
     }
 
     fun testIndentationColumnSaturatesBeforeOverflowOnBoundedFallback() {
@@ -113,8 +113,8 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
             currentAnchorLine = null,
         )
 
-        assertEquals(Int.MAX_VALUE - 1, guide.guideColumn)
-        assertEquals(1, guide.anchorLine)
+        assertThat(guide.guideColumn).isEqualTo(Int.MAX_VALUE - 1)
+        assertThat(guide.anchorLine).isEqualTo(1)
     }
 
     fun testBoundedFallbackMatchesTheExactIndexAcrossRandomIndentationRanges() {
@@ -159,16 +159,12 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
                     currentAnchorLine = null,
                 )
 
-                assertEquals(
-                    "sample=$sample range=$range lines=$openLine..$closeLine column",
-                    exact.guideColumn,
-                    fallback.guideColumn,
-                )
-                assertEquals(
-                    "sample=$sample range=$range lines=$openLine..$closeLine anchor",
-                    exact.anchorLine,
-                    fallback.anchorLine,
-                )
+                assertThat(fallback.guideColumn)
+                    .describedAs("sample=$sample range=$range lines=$openLine..$closeLine column")
+                    .isEqualTo(exact.guideColumn)
+                assertThat(fallback.anchorLine)
+                    .describedAs("sample=$sample range=$range lines=$openLine..$closeLine anchor")
+                    .isEqualTo(exact.anchorLine)
             }
         }
     }

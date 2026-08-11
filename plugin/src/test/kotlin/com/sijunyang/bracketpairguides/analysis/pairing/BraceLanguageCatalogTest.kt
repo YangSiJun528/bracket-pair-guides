@@ -8,16 +8,19 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IElementType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sijunyang.bracketpairguides.analysis.BraceLanguageFamily
+import org.assertj.core.api.Assertions.assertThat
 
 class BraceLanguageCatalogTest : BasePlatformTestCase() {
     fun testInstalledFamiliesAreStableUiReadyValues() {
         val families = BraceLanguageCatalog().installedFamilies()
 
-        assertTrue(families.isNotEmpty())
-        assertEquals(families.map { family -> family.id }.sorted(), families.map { it.id })
-        assertTrue(families.all { family -> family.id.isNotBlank() })
-        assertTrue(families.all { family -> family.displayName.isNotBlank() })
-        assertTrue(families.all { family -> family.memberDisplayNames.isNotEmpty() })
+        assertThat(families).isNotEmpty()
+        assertThat(families.map { family -> family.id }).isSorted()
+        assertThat(families).allSatisfy { family ->
+            assertThat(family.id).isNotBlank()
+            assertThat(family.displayName).isNotBlank()
+            assertThat(family.memberDisplayNames).isNotEmpty()
+        }
     }
 
     fun testTextMatcherIsPresentedAsCustomFileTypeCapability() {
@@ -26,13 +29,13 @@ class BraceLanguageCatalogTest : BasePlatformTestCase() {
                 language.id == "TEXT"
             }
 
-        assertEquals("TEXT", family.id)
-        assertTrue("Plain text" in family.memberDisplayNames)
+        assertThat(family.id).isEqualTo("TEXT")
+        assertThat(family.memberDisplayNames).contains("Plain text")
     }
 
     fun testMatcherFamilyWithoutStandaloneFileTypeIsExposedToSettings() {
-        assertNull(EMBEDDED_LANGUAGE.associatedFileType)
-        assertNull(EMBEDDED_DIALECT.associatedFileType)
+        assertThat(EMBEDDED_LANGUAGE.associatedFileType).isNull()
+        assertThat(EMBEDDED_DIALECT.associatedFileType).isNull()
         LanguageBraceMatching.INSTANCE.addExplicitExtension(EMBEDDED_LANGUAGE, MATCHER)
 
         try {
@@ -41,15 +44,14 @@ class BraceLanguageCatalogTest : BasePlatformTestCase() {
                 language.id == EMBEDDED_LANGUAGE.id
             }
 
-            assertEquals(EMBEDDED_LANGUAGE.displayName, family.displayName)
-            assertEquals(
-                setOf(EMBEDDED_LANGUAGE.displayName, EMBEDDED_DIALECT.displayName),
-                family.memberDisplayNames.toSet(),
+            assertThat(family.displayName).isEqualTo(EMBEDDED_LANGUAGE.displayName)
+            assertThat(family.memberDisplayNames).containsExactlyInAnyOrder(
+                EMBEDDED_LANGUAGE.displayName,
+                EMBEDDED_DIALECT.displayName,
             )
-            assertEquals(
-                EMBEDDED_LANGUAGE.id,
+            assertThat(
                 BraceLanguageCatalog().definitionFor(EMBEDDED_DIALECT)?.capabilityId,
-            )
+            ).isEqualTo(EMBEDDED_LANGUAGE.id)
         } finally {
             LanguageBraceMatching.INSTANCE.removeExplicitExtension(
                 EMBEDDED_LANGUAGE,

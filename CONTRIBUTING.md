@@ -69,8 +69,11 @@ complete edge list.
 
 ## Run tests
 
-The project uses JUnit 4.13.2. IntelliJ-bound tests also use the IntelliJ
-Platform test framework and bundled Java and Kotlin test plugins.
+JUnit 4.13.2 runs the tests, while AssertJ 3.27.7 is the assertion API.
+IntelliJ-bound tests also use the IntelliJ Platform test framework and bundled
+Java and Kotlin test plugins. Keep JUnit annotations, runners, rules, and
+`BasePlatformTestCase`; do not use `org.junit.Assert` or inherited JUnit
+assertion helpers.
 
 Run the production suite and compile the benchmark harness:
 
@@ -99,6 +102,11 @@ snapshot and policy objects from the same module when their internal visibility
 is sufficient. Keep scenario setup and call recording under `plugin/src/test`.
 Do not add a production getter, convenience overload, fake hierarchy, or
 `@TestOnly` declaration solely to expose implementation state.
+
+Prefer assertions that name the observable contract: collection contents and
+order, numeric bounds, object identity, and exception type or message. Avoid
+soft assertions and unrestricted recursive comparison; both can hide the first
+broken invariant or couple a test to implementation fields.
 
 ## Run the plugin
 
