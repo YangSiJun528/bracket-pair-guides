@@ -130,7 +130,7 @@ provider, bridge, 별도 module을 두지 않는다. 두 번째 실제 소비자
 
 ArchUnit은 behavior test의 대체물이 아니다. 아래 다섯 구조 속성만 맡는다.
 
-- production package dependency가 선언된 방향을 따르는가;
+- production package dependency가 네 개의 큰 구역 사이에서 안쪽을 향하는가;
 - package slice에 cycle이 없는가;
 - neutral policy package가 IntelliJ에 의존하지 않는가;
 - editor event adapter가 analysis 타입을 직접 알지 않는가;

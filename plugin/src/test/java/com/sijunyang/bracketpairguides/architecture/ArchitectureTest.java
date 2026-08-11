@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 
 import static com.tngtech.archunit.base.DescribedPredicate.describe;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideOutsideOfPackage;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
@@ -25,77 +26,34 @@ import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.sli
 public final class ArchitectureTest {
     private static final String ROOT = "com.sijunyang.bracketpairguides";
 
-    private static final String ANALYSIS = "analysis values";
-    private static final String ANALYSIS_INTELLIJ = "IntelliJ analysis";
-    private static final String SNAPSHOT = "snapshots";
-    private static final String PAIRING = "brace recognition";
-    private static final String GUIDE = "guide positions";
-    private static final String ACTIVE = "active pairs";
-    private static final String TOKEN = "bracket tokens";
-    private static final String PAIRING_CORE = "pairing core";
-    private static final String SORTING = "cooperative sorting";
-
-    private static final String PREFERENCES = "preferences";
-    private static final String SETTINGS = "settings persistence";
-    private static final String PRESENTATION = "editor presentation";
-    private static final String EDITOR = "editor sessions";
-    private static final String EDITOR_EVENTS = "editor events";
-    private static final String HIGHLIGHTING = "highlighting lifecycle";
-    private static final String SETTINGS_UI = "settings UI";
-    private static final String COMPATIBILITY = "IDE compatibility";
+    private static final String POLICY = "analysis policy";
+    private static final String STATE = "configuration state";
+    private static final String WORKBENCH = "editor workbench";
+    private static final String HOST = "IntelliJ host";
 
     @ArchTest
-    public static final ArchRule PRODUCTION_DEPENDENCIES_FOLLOW_THE_DECLARED_PACKAGE_DAG =
+    public static final ArchRule PRODUCTION_DEPENDENCIES_POINT_INWARD_ACROSS_ZONES =
         layeredArchitecture()
             .consideringOnlyDependenciesInLayers()
-            .layer(ANALYSIS).definedBy(ROOT + ".analysis")
-            .layer(ANALYSIS_INTELLIJ).definedBy(ROOT + ".analysis.intellij")
-            .layer(SNAPSHOT).definedBy(ROOT + ".analysis.snapshot")
-            .layer(PAIRING).definedBy(ROOT + ".analysis.pairing")
-            .layer(GUIDE).definedBy(ROOT + ".analysis.guide")
-            .layer(ACTIVE).definedBy(ROOT + ".analysis.active")
-            .layer(TOKEN).definedBy(ROOT + ".analysis.token")
-            .layer(PAIRING_CORE).definedBy(ROOT + ".analysis.pairing.core")
-            .layer(SORTING).definedBy(ROOT + ".analysis.sorting")
-            .layer(PREFERENCES).definedBy(ROOT + ".preferences")
-            .layer(SETTINGS).definedBy(ROOT + ".settings")
-            .layer(PRESENTATION).definedBy(ROOT + ".presentation")
-            .layer(EDITOR).definedBy(ROOT + ".editor")
-            .layer(EDITOR_EVENTS).definedBy(ROOT + ".editor.events")
-            .layer(HIGHLIGHTING).definedBy(ROOT + ".editor.highlighting")
-            .layer(SETTINGS_UI).definedBy(ROOT + ".settings.ui")
-            .layer(COMPATIBILITY).definedBy(ROOT + ".compatibility")
-            .whereLayer(ANALYSIS).mayNotAccessAnyLayer()
-            .whereLayer(ANALYSIS_INTELLIJ)
-                .mayOnlyAccessLayers(ANALYSIS, GUIDE, PAIRING, PAIRING_CORE, SNAPSHOT)
-            .whereLayer(SNAPSHOT)
-                .mayOnlyAccessLayers(ANALYSIS, ACTIVE, GUIDE, PAIRING, PAIRING_CORE, TOKEN)
-            .whereLayer(PAIRING).mayOnlyAccessLayers(ANALYSIS, PAIRING_CORE)
-            .whereLayer(GUIDE).mayOnlyAccessLayers(ANALYSIS, PAIRING_CORE)
-            .whereLayer(ACTIVE).mayOnlyAccessLayers(PAIRING_CORE, SORTING)
-            .whereLayer(TOKEN).mayOnlyAccessLayers(PAIRING_CORE, SORTING)
-            .whereLayer(PAIRING_CORE).mayNotAccessAnyLayer()
-            .whereLayer(SORTING).mayNotAccessAnyLayer()
-            .whereLayer(PREFERENCES).mayOnlyAccessLayers(ANALYSIS)
-            .whereLayer(SETTINGS).mayOnlyAccessLayers(PREFERENCES)
-            .whereLayer(PRESENTATION).mayOnlyAccessLayers(ANALYSIS, SNAPSHOT, PREFERENCES)
-            .whereLayer(EDITOR).mayOnlyAccessLayers(ANALYSIS, SNAPSHOT, PRESENTATION, PREFERENCES)
-            .whereLayer(EDITOR_EVENTS).mayOnlyAccessLayers(EDITOR, PREFERENCES, SETTINGS)
-            .whereLayer(HIGHLIGHTING)
-                .mayOnlyAccessLayers(
-                    ANALYSIS,
-                    ANALYSIS_INTELLIJ,
-                    SNAPSHOT,
-                    EDITOR,
-                    EDITOR_EVENTS,
-                    PREFERENCES,
-                    SETTINGS
-                )
-            .whereLayer(SETTINGS_UI)
-                .mayOnlyAccessLayers(ANALYSIS, PAIRING, EDITOR_EVENTS, PREFERENCES, SETTINGS)
-            .whereLayer(COMPATIBILITY).mayNotAccessAnyLayer()
+            .layer(POLICY).definedBy(
+                resideInAPackage(ROOT + ".analysis..")
+                    .and(resideOutsideOfPackage(ROOT + ".analysis.intellij.."))
+            )
+            .layer(STATE).definedBy(ROOT + ".preferences..", ROOT + ".settings")
+            .layer(WORKBENCH).definedBy(ROOT + ".presentation..", ROOT + ".editor")
+            .layer(HOST).definedBy(
+                ROOT + ".analysis.intellij..",
+                ROOT + ".editor.events..",
+                ROOT + ".editor.highlighting..",
+                ROOT + ".settings.ui..",
+                ROOT + ".compatibility.."
+            )
+            .whereLayer(POLICY).mayNotAccessAnyLayer()
+            .whereLayer(STATE).mayOnlyAccessLayers(POLICY)
+            .whereLayer(WORKBENCH).mayOnlyAccessLayers(POLICY, STATE)
+            .whereLayer(HOST).mayOnlyAccessLayers(POLICY, STATE, WORKBENCH)
             .ensureAllClassesAreContainedInArchitecture()
-            .because("one deployable plugin still needs one-way logical boundaries");
+            .because("host integration must depend inward on stable policy and editor state");
 
     @ArchTest
     public static final ArchRule PRODUCTION_PACKAGE_GRAPH_IS_FREE_OF_CYCLES =

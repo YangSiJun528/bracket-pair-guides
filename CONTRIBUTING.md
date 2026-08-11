@@ -34,9 +34,10 @@ reimplementing recognition or index behavior.
 
 ## Change an architecture boundary
 
-The production package graph is a directed acyclic graph. Multiple packages may
-depend on the same stable value or primitive policy, but a dependency must not
-point back toward its caller.
+Production code is grouped into four broad zones: IntelliJ host adapters, the
+editor workbench, configuration state, and analysis policy. Dependencies point
+inward in that order and may skip an intermediate zone. Packages inside a zone
+may cooperate, but the complete production package graph must remain acyclic.
 
 To move a responsibility or add a production package:
 
@@ -48,8 +49,9 @@ To move a responsibility or add a production package:
    import outward editor packages.
 4. Update the executable rule in
    [`ArchitectureTest.java`](plugin/src/test/java/com/sijunyang/bracketpairguides/architecture/ArchitectureTest.java)
-   only when the new direction is intentional. Add the narrow dependency the use
-   case requires; do not permit a reverse edge merely to silence a failure.
+   only when a responsibility moves between the four zones. An internal package
+   dependency that remains inward and cycle-free does not need a new allow-list
+   entry.
 5. Run the architecture tests and then the affected behavior tests.
 
 ```shell
@@ -58,14 +60,14 @@ To move a responsibility or add a production package:
 ./gradlew :plugin:check :benchmarks:jmhJar
 ```
 
-ArchUnit imports compiled Kotlin and Java production classes. Its layered rule
-checks the permitted package direction, its slice rule rejects cycles, and its
-neutral-policy rule rejects IntelliJ dependencies in the packages named by that
-rule. A separate dependency rule keeps editor event adapters unaware of analysis
-types. A method-call rule also checks return descriptors, which ArchUnit's class
-dependency set does not model for every Kotlin call shape. The test is the
-authoritative edge definition; documentation deliberately does not copy the
-complete edge list.
+ArchUnit imports compiled Kotlin and Java production classes. Its four-zone rule
+checks the inward direction, its slice rule rejects cycles, and its neutral-policy
+rule rejects IntelliJ dependencies in the packages named by that rule. A separate
+dependency rule keeps editor event adapters unaware of analysis types. A
+method-call rule also checks return descriptors, which ArchUnit's class dependency
+set does not model for every Kotlin call shape. The test is the authoritative
+boundary definition; documentation deliberately does not copy package-level
+edges.
 
 ## Run tests
 

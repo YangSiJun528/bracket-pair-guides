@@ -19,49 +19,32 @@ responsibility, and test-boundary decisions are explained in the
 
 ```mermaid
 flowchart TB
-    ENTRY["IntelliJ entry points<br/>highlighting · settings UI · compatibility"]
-    LIFE["Editor lifecycle<br/>events · sessions"]
-    VIEW["Presentation<br/>markers · drawing · viewport tokens"]
-    STATE["Preferences and persisted settings"]
-    HOST["IntelliJ analysis composition<br/>BracketAnalysis"]
-    RESULT["Snapshot policy<br/>outcomes · immutable queries"]
-    RECOG["Recognition and guide policy"]
-    INDEX["Active-pair and token indexes"]
-    CORE["Neutral primitive policy<br/>pairing core · sorting"]
+    HOST["IntelliJ host<br/>analysis adapter · events · highlighting · settings UI"]
+    WORKBENCH["Editor workbench<br/>sessions · presentation"]
+    STATE["Configuration state<br/>preferences · persistence"]
+    POLICY["Analysis policy<br/>snapshots · recognition · indexes · primitive core"]
 
-    ENTRY --> LIFE
-    ENTRY --> STATE
-    ENTRY --> HOST
-    LIFE --> VIEW
-    LIFE --> STATE
-    HOST --> RESULT
-    HOST --> RECOG
-    RESULT --> RECOG
-    RESULT --> INDEX
-    RECOG --> CORE
-    INDEX --> CORE
+    HOST --> WORKBENCH
+    HOST --> STATE
+    HOST --> POLICY
+    WORKBENCH --> STATE
+    WORKBENCH --> POLICY
+    STATE --> POLICY
 ```
 
-The diagram shows responsibility and representative direction, not the complete
-permission table. Several callers may depend on the same stable value or
-primitive policy; no package may depend back on a caller. The executable and
-authoritative rules are in
+These are deliberately broad zones. Packages inside one zone may cooperate as
+their implementation evolves, but dependencies between zones point inward and
+package cycles remain forbidden. The executable and authoritative rules are in
 [`ArchitectureTest.java`](../plugin/src/test/java/com/sijunyang/bracketpairguides/architecture/ArchitectureTest.java).
 
-The main package groups own these reasons to change:
+The zones own these reasons to change:
 
-| Package group | Responsibility |
-|---|---|
-| `analysis` | Internal analysis input, coverage, stamp, and bracket values |
-| `analysis.intellij` | IntelliJ service composition and document-backed guide input |
-| `analysis.snapshot` | Outcome policy, immutable snapshot queries, layout, and result sharing |
-| `analysis.pairing`, `analysis.guide` | Token recognition and exact guide-position policy |
-| `analysis.active`, `analysis.token` | Query indexes |
-| `analysis.pairing.core`, `analysis.sorting` | Platform-neutral primitive mechanisms |
-| `preferences`, `settings` | Immutable choices and IntelliJ persistence |
-| `presentation` | Per-editor markers, drawing, and viewport decoration |
-| `editor`, `editor.events` | One editor's state and IntelliJ event propagation |
-| `editor.highlighting`, `settings.ui`, `compatibility` | Host entry points |
+| Zone | Packages | Responsibility |
+|---|---|---|
+| Policy | `analysis` except `analysis.intellij` | Inputs, outcomes, recognition, indexes, and primitive mechanisms |
+| State | `preferences`, root `settings` | Immutable choices and IntelliJ persistence |
+| Workbench | root `editor`, `presentation` | Per-editor acceptance, markers, drawing, and viewport state |
+| Host | `analysis.intellij`, editor adapters, settings UI, compatibility | IntelliJ services, events, passes, and entry points |
 
 ## Runtime path
 
@@ -193,7 +176,7 @@ not a supported external plugin API; any addition still requires review.
 ArchUnit 1.5.0 runs under JUnit 4 as part of `:plugin:check`. It analyzes compiled
 Kotlin and Java production bytecode and enforces:
 
-- the declared package dependency direction;
+- the inward dependency direction between the four broad zones;
 - absence of cycles between production package slices;
 - absence of IntelliJ dependencies in the designated neutral policy packages;
 - absence of analysis-type dependencies from editor event adapters;

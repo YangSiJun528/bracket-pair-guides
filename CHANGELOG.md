@@ -44,10 +44,11 @@
   instead of an interface/implementation pair and XML service descriptor.
   Settings reads the installed-family projection from `BraceLanguageCatalog`
   instead of maintaining a separate language-inventory service.
-- Production packages form an enforced one-way DAG from IntelliJ entry points
-  toward snapshot and recognition policy and primitive leaves. ArchUnit 1.5.0
-  checks the declared layers, package-slice cycles, and IntelliJ neutrality as
-  part of the plugin test suite; the custom `buildSrc` source scanner was removed.
+- Production packages form an enforced one-way DAG across four broad zones:
+  IntelliJ host, editor workbench, configuration state, and analysis policy.
+  ArchUnit 1.5.0 checks that inward direction, package-slice cycles, and IntelliJ
+  neutrality as part of the plugin test suite; the custom `buildSrc` source
+  scanner was removed.
 - Preferences, persisted settings, editor events, sessions, and presentation
   now have separate package ownership. `ActiveGuidePresentation` owns the
   tracked active pair, its markup, and bounded provisional guide behavior for
