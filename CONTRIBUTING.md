@@ -32,7 +32,7 @@ Keep one implementation of bracket semantics in production source. Editor and
 settings code should consume analysis outcomes and queries instead of
 reimplementing recognition or index behavior.
 
-## Change an architecture boundary
+## Change a package boundary
 
 Production code is grouped into four broad zones: IntelliJ host adapters, the
 editor workbench, configuration state, and analysis policy. Dependencies point
@@ -53,8 +53,6 @@ To move a responsibility or add a production package:
    dependency that remains inward and cycle-free does not need a new allow-list
    entry.
 5. Run the architecture tests and then the affected behavior tests.
-6. Update the runtime DOT diagrams when an IntelliJ entry point, thread handoff,
-   outcome path, or editor ownership boundary changes.
 
 ```shell
 ./gradlew :plugin:test \
@@ -70,23 +68,6 @@ method-call rule also checks return descriptors, which ArchUnit's class dependen
 set does not model for every Kotlin call shape. The test is the authoritative
 boundary definition; documentation deliberately does not copy package-level
 edges.
-
-Regenerate the committed SVG diagrams after editing their DOT sources:
-
-```shell
-dot -Tsvg docs/diagrams/runtime_roles.dot \
-  -o docs/diagrams/runtime_roles.svg
-dot -Tsvg docs/diagrams/background_analysis_flow.dot \
-  -o docs/diagrams/background_analysis_flow.svg
-dot -Tsvg docs/diagrams/initial_render_sequence.dot \
-  -o docs/diagrams/initial_render_sequence.svg
-dot -Tsvg docs/diagrams/document_edit_sequence.dot \
-  -o docs/diagrams/document_edit_sequence.svg
-```
-
-Keep each `.dot` source and generated `.svg` in the same change. The runtime
-walkthrough explains diagram meaning; compiled ArchUnit rules remain the
-authority for dependency constraints.
 
 ## Run tests
 
