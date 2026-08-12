@@ -47,10 +47,10 @@ internal class BracketGuideSettings : SerializablePersistentStateComponent<Brack
             BracketGuidePreferences.MIN_PAIR_BACKGROUND_OPACITY_PERCENT,
             BracketGuidePreferences.MAX_PAIR_BACKGROUND_OPACITY_PERCENT,
         ),
-        levelBaseColors = StoredColorFormat.normalizeColors(levelBaseColors),
-        guideLineColors = StoredColorFormat.normalizeColors(guideLineColors),
-        pairBorderColors = StoredColorFormat.normalizeColors(pairBorderColors),
-        pairBackgroundColors = StoredColorFormat.normalizeColors(pairBackgroundColors),
+        levelBaseColors = StoredColorFormat.validatedColors(levelBaseColors),
+        guideLineColors = StoredColorFormat.validatedColors(guideLineColors),
+        pairBorderColors = StoredColorFormat.validatedColors(pairBorderColors),
+        pairBackgroundColors = StoredColorFormat.validatedColors(pairBackgroundColors),
     )
 
     companion object {

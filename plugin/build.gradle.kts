@@ -7,11 +7,6 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.intellij.platform")
-    id("org.jetbrains.changelog")
-}
-
-changelog {
-    path.set(rootProject.file("CHANGELOG.md").canonicalPath)
 }
 
 base {
@@ -32,7 +27,7 @@ intellijPlatform {
     buildSearchableOptions = false
 
     pluginConfiguration {
-        // Keep the published minimum stable when the test fixture is upgraded.
+        // Keep the declared minimum stable when the test fixture is upgraded.
         ideaVersion {
             sinceBuild = "241"
         }

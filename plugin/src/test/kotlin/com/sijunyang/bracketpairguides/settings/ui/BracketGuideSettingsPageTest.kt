@@ -16,6 +16,7 @@ import java.awt.Color
 import java.awt.Component
 import java.awt.Container
 import javax.swing.JButton
+import javax.swing.JTextField
 import org.assertj.core.api.Assertions.assertThat
 
 class BracketGuideSettingsPageTest : BasePlatformTestCase() {
@@ -45,6 +46,33 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
                 component.descendants().filterIsInstance<ColorPanel>().size,
             ).isEqualTo(StoredColorFormat.COLOR_COUNT * 4)
             assertThat(configurable.preferredFocusedComponent).isEqualTo(component.checkBox("Enabled"))
+            assertThat(configurable.isModified).isFalse()
+        }
+    }
+
+    fun testDefaultPaletteShowsEveryConcreteColorWithOnlyBaseEditable() {
+        withConfigurable(emptyList()) { configurable, component ->
+            assertThat(component.checkBox("Component overrides").isSelected).isFalse()
+            for (level in 0 until StoredColorFormat.COLOR_COUNT) {
+                val expected = Color(StoredColorFormat.defaultColor(level))
+                val base = component.colorPanel("base", level)
+                assertThat(base.selectedColor).isEqualTo(expected)
+                assertThat(base.isEnabled).isTrue()
+                assertThat(base.toolTipText).isNotNull()
+                assertThat(base.colorTextField().accessibleContext.accessibleName)
+                    .isEqualTo("Level ${level + 1} Base color")
+
+                for (target in listOf("guide", "border", "background")) {
+                    val componentColor = component.colorPanel(target, level)
+                    assertThat(componentColor.selectedColor).isEqualTo(expected)
+                    assertThat(componentColor.isEnabled).isTrue()
+                    assertThat(componentColor.toolTipText).isNull()
+                    assertThat(componentColor.colorTextField().accessibleContext.accessibleDescription)
+                        .isEqualTo(
+                            "Read-only; Base is applied while Component overrides is off.",
+                        )
+                }
+            }
             assertThat(configurable.isModified).isFalse()
         }
     }
@@ -127,10 +155,10 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
         }
     }
 
-    fun testStandardColorPanelsPreserveAutomaticAndOverrideSemantics() {
+    fun testComponentOverrideTogglePreservesVisibleColorsAndControlsEditing() {
         BracketGuideSettings.getInstance().loadState(
             BracketGuidePreferences(
-                useIndependentComponentColors = true,
+                useIndependentComponentColors = false,
                 levelBaseColors = colorsWithFirst(0x123456),
                 guideLineColors = colorsWithFirst(0x234567),
                 pairBorderColors = colorsWithFirst(0x345678),
@@ -144,9 +172,17 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
             assertThat(base.selectedColor).isEqualTo(Color(0x123456))
             assertThat(guide.selectedColor).isEqualTo(Color(0x234567))
             assertThat(guide.isEnabled).isTrue()
+            assertThat(guide.toolTipText).isNull()
+
+            component.checkBox("Component overrides").doClick()
+            assertThat(guide.isEnabled).isTrue()
+            assertThat(guide.selectedColor).isEqualTo(Color(0x234567))
+            assertThat(guide.toolTipText).isNotNull()
+            assertThat(guide.colorTextField().accessibleContext.accessibleDescription)
+                .isEqualTo("Editable component override.")
 
             base.selectedColor = Color(0x654321)
-            guide.selectedColor = null
+            guide.selectedColor = Color(0x765432)
             component.colorPanel("border", 0).selectedColor = Color(0x102030)
             component.colorPanel("background", 0).selectedColor = Color(0x203040)
             assertThat(configurable.isModified).isTrue()
@@ -154,26 +190,83 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
 
             val applied = BracketGuideSettings.getInstance().options
             assertThat(applied.levelBaseColors[0]).isEqualTo(0x654321)
-            assertThat(applied.guideLineColors[0]).isEqualTo(StoredColorFormat.AUTOMATIC_COLOR)
+            assertThat(applied.guideLineColors[0]).isEqualTo(0x765432)
             assertThat(applied.pairBorderColors[0]).isEqualTo(0x102030)
             assertThat(applied.pairBackgroundColors[0]).isEqualTo(0x203040)
+            assertThat(applied.useIndependentComponentColors).isTrue()
 
             component.checkBox("Component overrides").doClick()
-            assertThat(guide.isEnabled).isFalse()
+            assertThat(guide.isEnabled).isTrue()
+            assertThat(guide.selectedColor).isEqualTo(Color(0x765432))
+            assertThat(guide.toolTipText).isNull()
             configurable.apply()
             assertThat(BracketGuideSettings.getInstance().options.useIndependentComponentColors).isFalse()
             assertThat(BracketGuideSettings.getInstance().options.pairBorderColors[0]).isEqualTo(0x102030)
+        }
+    }
 
+    fun testResetRestoresAppliedColorsOverridesAndEditability() {
+        val applied = BracketGuidePreferences(
+            useIndependentComponentColors = true,
+            levelBaseColors = colorsWithFirst(0x123456),
+            guideLineColors = colorsWithFirst(0x234567),
+            pairBorderColors = colorsWithFirst(0x345678),
+            pairBackgroundColors = colorsWithFirst(0x456789),
+        )
+        BracketGuideSettings.getInstance().loadState(applied)
+
+        withConfigurable(emptyList()) { configurable, component ->
+            val overrides = component.checkBox("Component overrides")
+            val guide = component.colorPanel("guide", 0)
+            assertThat(overrides.isSelected).isTrue()
+            assertThat(guide.toolTipText).isNotNull()
+
+            guide.selectedColor = Color(0xABCDEF)
+            overrides.doClick()
+            assertThat(configurable.isModified).isTrue()
+            assertThat(BracketGuideSettings.getInstance().options).isEqualTo(applied)
+
+            configurable.reset()
+
+            assertThat(guide.selectedColor).isEqualTo(Color(0x234567))
+            assertThat(overrides.isSelected).isTrue()
+            assertThat(guide.toolTipText).isNotNull()
+            assertThat(guide.colorTextField().accessibleContext.accessibleDescription)
+                .isEqualTo("Editable component override.")
+            assertThat(configurable.isModified).isFalse()
+            assertThat(BracketGuideSettings.getInstance().options).isEqualTo(applied)
+        }
+    }
+
+    fun testResetColorsRestoresConcreteDefaultsAndDisablesOverrides() {
+        BracketGuideSettings.getInstance().loadState(
+            BracketGuidePreferences(
+                useIndependentComponentColors = true,
+                levelBaseColors = List(StoredColorFormat.COLOR_COUNT) { 0x101010 + it },
+                guideLineColors = List(StoredColorFormat.COLOR_COUNT) { 0x202020 + it },
+                pairBorderColors = List(StoredColorFormat.COLOR_COUNT) { 0x303030 + it },
+                pairBackgroundColors = List(StoredColorFormat.COLOR_COUNT) { 0x404040 + it },
+            ),
+        )
+
+        withConfigurable(emptyList()) { configurable, component ->
             component.button("Reset colors").doClick()
-            assertThat(component.descendants().filterIsInstance<ColorPanel>())
-                .allMatch { it.selectedColor == null }
+            assertThat(component.checkBox("Component overrides").isSelected).isFalse()
+            for (level in 0 until StoredColorFormat.COLOR_COUNT) {
+                val expected = Color(StoredColorFormat.defaultColor(level))
+                for (target in listOf("base", "guide", "border", "background")) {
+                    assertThat(component.colorPanel(target, level).selectedColor)
+                        .isEqualTo(expected)
+                }
+                assertThat(component.colorPanel("guide", level).toolTipText).isNull()
+            }
             configurable.apply()
             val reset = BracketGuideSettings.getInstance().options
             assertThat(reset.useIndependentComponentColors).isFalse()
-            assertThat(reset.levelBaseColors).allMatch(::isAutomatic)
-            assertThat(reset.guideLineColors).allMatch(::isAutomatic)
-            assertThat(reset.pairBorderColors).allMatch(::isAutomatic)
-            assertThat(reset.pairBackgroundColors).allMatch(::isAutomatic)
+            assertThat(reset.levelBaseColors).isEqualTo(StoredColorFormat.defaultColors())
+            assertThat(reset.guideLineColors).isEqualTo(StoredColorFormat.defaultColors())
+            assertThat(reset.pairBorderColors).isEqualTo(StoredColorFormat.defaultColors())
+            assertThat(reset.pairBackgroundColors).isEqualTo(StoredColorFormat.defaultColors())
         }
     }
 
@@ -239,6 +332,10 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
         .filterIsInstance<ColorPanel>()
         .single { it.name == "color.$target.$level" }
 
+    private fun ColorPanel.colorTextField(): JTextField = components
+        .filterIsInstance<JTextField>()
+        .single()
+
     private fun Component.button(text: String): JButton = descendants()
         .filterIsInstance<JButton>()
         .single { it.text == text }
@@ -251,12 +348,9 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
     }
 
     private fun colorsWithFirst(color: Int): List<Int> =
-        List(StoredColorFormat.COLOR_COUNT) { index ->
-            if (index == 0) color else StoredColorFormat.AUTOMATIC_COLOR
+        StoredColorFormat.defaultColors().mapIndexed { index, defaultColor ->
+            if (index == 0) color else defaultColor
         }
-
-    private fun isAutomatic(color: Int): Boolean =
-        color == StoredColorFormat.AUTOMATIC_COLOR
 
     private companion object {
         const val UNAVAILABLE_LANGUAGE_ID = "BRACKET_PAIR_GUIDES_UNAVAILABLE_TEST"

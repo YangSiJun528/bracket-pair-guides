@@ -2,7 +2,6 @@ package com.sijunyang.bracketpairguides.presentation
 
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
-import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.markup.EffectType
@@ -19,7 +18,6 @@ internal object BracketColorPalette {
         Array(StoredColorFormat.COLOR_COUNT) { index ->
             TextAttributesKey.createTextAttributesKey(
                 "BRACKET_PAIR_GUIDES_BRACKET_DEPTH_${index + 1}",
-                DefaultLanguageHighlighterColors.BRACES,
             )
         }
 
@@ -28,46 +26,35 @@ internal object BracketColorPalette {
     fun levelKey(levelIndex: Int): TextAttributesKey = levelKeys[levelIndex]
 
     fun baseColor(
-        scheme: EditorColorsScheme,
         settings: BracketGuidePreferences,
         depth: Int,
     ): Color {
         val index = levelIndex(depth)
-        return StoredColorFormat.storedColor(
-            settings.levelBaseColors.getOrNull(index),
-        )
-            ?: scheme.getAttributes(levelKeys[index]).foregroundColor
-            ?: scheme.defaultForeground
+        return StoredColorFormat.storedColor(settings.levelBaseColors[index])
     }
 
     fun guideLineColor(
-        scheme: EditorColorsScheme,
         settings: BracketGuidePreferences,
         depth: Int,
     ): Color = componentColor(
-        scheme = scheme,
         settings = settings,
         depth = depth,
         overrides = settings.guideLineColors,
     )
 
     fun pairBorderColor(
-        scheme: EditorColorsScheme,
         settings: BracketGuidePreferences,
         depth: Int,
     ): Color = componentColor(
-        scheme = scheme,
         settings = settings,
         depth = depth,
         overrides = settings.pairBorderColors,
     )
 
     fun pairBackgroundSourceColor(
-        scheme: EditorColorsScheme,
         settings: BracketGuidePreferences,
         depth: Int,
     ): Color = componentColor(
-        scheme = scheme,
         settings = settings,
         depth = depth,
         overrides = settings.pairBackgroundColors,
@@ -80,17 +67,16 @@ internal object BracketColorPalette {
     ): Color {
         return blend(
             background = scheme.defaultBackground,
-            foreground = pairBackgroundSourceColor(scheme, settings, depth),
+            foreground = pairBackgroundSourceColor(settings, depth),
             foregroundPercent = settings.pairBackgroundOpacityPercent,
         )
     }
 
     fun bracketTextAttributes(
-        scheme: EditorColorsScheme,
         settings: BracketGuidePreferences,
         depth: Int,
     ): TextAttributes = TextAttributes().also {
-        it.foregroundColor = baseColor(scheme, settings, depth)
+        it.foregroundColor = baseColor(settings, depth)
     }
 
     fun activePairTextAttributes(
@@ -102,7 +88,7 @@ internal object BracketColorPalette {
             attributes.backgroundColor = pairBackgroundColor(scheme, settings, depth)
         }
         if (settings.showActivePairBorder) {
-            attributes.effectColor = pairBorderColor(scheme, settings, depth)
+            attributes.effectColor = pairBorderColor(settings, depth)
             attributes.effectType = EffectType.BOXED
         }
     }
@@ -112,16 +98,17 @@ internal object BracketColorPalette {
             settings.pairBackgroundOpacityPercent.coerceIn(0, 100) > 0
 
     private fun componentColor(
-        scheme: EditorColorsScheme,
         settings: BracketGuidePreferences,
         depth: Int,
         overrides: List<Int>,
     ): Color {
         val index = levelIndex(depth)
-        if (settings.useIndependentComponentColors) {
-            StoredColorFormat.storedColor(overrides.getOrNull(index))?.let { return it }
+        val storedValue = if (settings.useIndependentComponentColors) {
+            overrides[index]
+        } else {
+            settings.levelBaseColors[index]
         }
-        return baseColor(scheme, settings, depth)
+        return StoredColorFormat.storedColor(storedValue)
     }
 
     private fun blend(

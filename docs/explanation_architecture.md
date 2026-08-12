@@ -13,7 +13,9 @@ This document explains the current design. Exact capacity values and memory
 layouts belong to the
 [performance and capacity reference](reference_performance_limits.md). Naming,
 responsibility, and test-boundary decisions are explained in the
-[design report](explanation_design.md).
+[design report](explanation_design.md). If IntelliJ plugin lifecycle, EDT/BGT,
+highlighting passes, services, or editor markup are unfamiliar, start with the
+[runtime walkthrough and Graphviz diagrams](explanation_intellij_runtime.md).
 
 ## Architecture at a glance
 
@@ -187,8 +189,8 @@ Kotlin and Java production bytecode and enforces:
 - absence of analysis-type dependencies from editor event adapters;
 - absence of event calls to methods that return analysis types.
 
-This replaces the former custom source scanner. Package rules belong in the
-test, where they run with behavior tests and inspect the bytecode that ships.
+Package rules belong in the test, where they run with behavior tests and inspect
+the bytecode that ships.
 See [Contributing](../CONTRIBUTING.md#change-an-architecture-boundary) before
 changing a boundary.
 

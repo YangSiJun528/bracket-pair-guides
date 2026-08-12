@@ -153,7 +153,6 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
             activeAttributes.effectColor,
         ).isEqualTo(
             BracketColorPalette.baseColor(
-                myFixture.editor.colorsScheme,
                 options,
                 pair.depth,
             ),

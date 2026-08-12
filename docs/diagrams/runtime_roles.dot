@@ -1,0 +1,120 @@
+digraph RuntimeRoles {
+    graph [
+        rankdir=TB,
+        bgcolor="#FFFFFF",
+        pad=0.35,
+        nodesep=0.42,
+        ranksep=0.68,
+        splines=polyline,
+        compound=true,
+        newrank=true,
+        fontname="Arial",
+        fontsize=18,
+        label="Bracket Pair Guides — runtime roles and dependency direction",
+        labelloc=t
+    ];
+    node [
+        shape=box,
+        style="rounded,filled",
+        color="#52606D",
+        fillcolor="#FFFFFF",
+        fontname="Arial",
+        fontsize=10,
+        margin="0.15,0.09"
+    ];
+    edge [
+        color="#52606D",
+        fontcolor="#334E68",
+        fontname="Arial",
+        fontsize=8,
+        arrowsize=0.70
+    ];
+
+    platform [
+        shape=component,
+        fillcolor="#F3F6F8",
+        label="IntelliJ Platform\nplugin.xml · highlighting daemon · Editor/Document\nbraceMatcher registry · Settings host · paint callbacks"
+    ];
+
+    subgraph cluster_host {
+        label="Host adapters — IntelliJ lifecycle and APIs";
+        color="#6C8EBF";
+        fillcolor="#EAF2FF";
+        style="rounded,filled";
+
+        compatibility [label="IdeCompatibilityStartupActivity\nstartup capability check"];
+        pass_registration [label="BracketGuidePassRegistration\nregister + create passes"];
+        pass [label="BracketGuideHighlightingPass\nBGT collect / EDT apply"];
+        analysis_service [label="BracketAnalysis\nAPP light service"];
+        events [label="EditorGuideEvents\ncaret / document / viewport"];
+        settings_page [label="BracketGuideSettingsPage\nConfigurable UI"];
+    }
+
+    subgraph cluster_state {
+        label="Configuration state";
+        color="#C9A227";
+        fillcolor="#FFF6D8";
+        style="rounded,filled";
+
+        settings [label="BracketGuideSettings\npersisted APP service"];
+        preferences [label="BracketGuidePreferences\nimmutable choices"];
+        settings -> preferences [label="normalizes + stores", color="#2F6B9A"];
+    }
+
+    subgraph cluster_workbench {
+        label="Editor workbench — one Editor owns one session";
+        color="#68A063";
+        fillcolor="#EAF7E7";
+        style="rounded,filled";
+
+        sessions [label="EditorGuideSessions\nEditor user-data registry"];
+        session [label="EditorGuideSession\noutcome acceptance + orchestration"];
+        acceptance [label="EditorAnalysisState\natomic acceptance"];
+        active [label="ActiveGuidePresentation\ntracked pair + RangeMarkers"];
+        tokens [label="VisibleTokenDecorations\nviewport token marks"];
+        drawing [label="BracketGuideDrawing\npaint-time geometry"];
+
+        sessions -> session [label="owns per Editor", color="#2F6B9A"];
+        session -> acceptance [label="publishes", color="#2F6B9A"];
+        session -> active [label="selects pair", color="#2F6B9A"];
+        session -> tokens [label="selects window", color="#2F6B9A"];
+        active -> drawing [label="owns renderer", color="#2F6B9A"];
+    }
+
+    subgraph cluster_policy {
+        label="Analysis policy — deterministic data and algorithms";
+        color="#8E6BBF";
+        fillcolor="#F4ECFF";
+        style="rounded,filled";
+
+        input [label="AnalysisInput + AnalysisStamp\nattempt identity"];
+        grammar [label="DocumentBrackets + DocumentBraceGrammar\nscan + token classification"];
+        pairing [label="PairingMachine.Session\nplatform-neutral pairing"];
+        assembly [label="SnapshotAssembly\nresult policy"];
+        indexes [label="BracketSnapshot + indexes\nactive pair / tokens / guide"];
+
+        grammar -> pairing [label="normalized roles", color="#2F6B9A"];
+        assembly -> grammar [label="recognize", color="#2F6B9A"];
+        assembly -> indexes [label="Complete / Limited", color="#2F6B9A"];
+    }
+
+    platform -> compatibility [label="project startup"];
+    platform -> pass_registration [label="highlighting lifecycle"];
+    platform -> events [label="editor events"];
+    platform -> settings_page [label="Settings UI"];
+    platform -> settings [label="persistent state"];
+    grammar -> platform [label="uses matcher registry"];
+    platform -> drawing [label="paint"];
+
+    pass_registration -> pass [label="creates per attempt", color="#2F6B9A"];
+    pass_registration -> analysis_service [label="injects analyze", color="#2F6B9A"];
+    pass -> input [label="captures", color="#2F6B9A"];
+    pass -> sessions [label="install / query / apply", color="#2F6B9A"];
+    pass -> events [label="lazy startup", color="#2F6B9A"];
+    analysis_service -> assembly [label="composes", color="#2F6B9A"];
+    events -> session [label="routes each view", color="#2F6B9A"];
+    session -> indexes [label="queries accepted result", color="#2F6B9A"];
+    settings_page -> settings [label="edits", color="#2F6B9A"];
+    pass -> preferences [label="derives coverage", color="#2F6B9A"];
+    session -> preferences [label="applies options", color="#2F6B9A"];
+}

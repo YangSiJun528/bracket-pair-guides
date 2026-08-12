@@ -6,10 +6,6 @@ why the objects are separated; the
 [benchmark guide](../benchmarks/guide_benchmarking.md) explains how to measure
 changes.
 
-Numbers preserved in the changelog or historical implementation reports
-describe their recorded revision. Update this reference with any production
-limit change.
-
 ## Terms
 
 | Symbol | Meaning |
@@ -49,27 +45,11 @@ another byte-size setting.
 | Pending-open limit | 50,000 one-character openers, about 49 KiB | Pathological nesting can grow the object-backed stack below the byte-size limit |
 | Exact guide payload | 1,032,192 indexed lines | Reachable near 1 MiB only with almost empty LF lines; at 40 bytes per line the source is about 39 MiB and normally fails the IDE gate first |
 
-The earlier 200,000-pair boundary was reachable with about 391 KiB of
-one-character brace tokens. Extrapolating the repository's Java and Kotlin
-bracket density placed the same count around 11–14 MiB and roughly
-320,000–380,000 lines. That is uncommon in handwritten code but plausible in
-generated or minified source, so byte-size and structural limits remain
-independent.
-
-## Policy comparison
+## Host file-size policy
 
 JetBrains defaults code insight to 2,500 KiB and general content loading to
 20,000 KiB. Bracket Pair Guides calls the code-insight predicate directly
 rather than assuming a custom highlighting pass will be skipped.
-
-The pinned Rainbow Brackets Lite source uses a more conservative 1,000-line
-default for its PSI-based highlighting, while the Marketplace release notes at
-the time of the audit described a 5,000-line user-facing threshold and the same
-threshold for indent guides. Bracket Pair Guides does not copy either line
-count: a line is not a memory unit, minified source may have one line, and this
-plugin retains primitive indexes while limiting per-editor token presentation.
-The comparison supports having a backstop but not reusing another plugin's
-storage-independent number.
 
 ## Memory rationale
 
@@ -92,13 +72,6 @@ retained-payload bound. The value covers those primitive-array payloads; it is
 not a total-heap guarantee and does not include object headers or allocations
 inside a third-party matcher.
 
-The removed 48 MiB arithmetic estimate is not a current limit. It omitted
-pending-opener objects, contexts, geometric array replacement, and
-collector-specific humongous-region effects, and it did not reject any layout
-otherwise admitted by the real drivers. Current policy therefore bounds
-observable allocation drivers instead: host file size, completed pairs,
-pending openers, and exact guide-array shape.
-
 ## Work by event
 
 | Event | Work |
@@ -109,7 +82,7 @@ pending openers, and exact guide-array shape.
 | Caret movement without a current snapshot | Range-marker adjustment and interval containment only; no token iteration or matcher callback on the EDT |
 | Document insertion, replacement, or deletion | Adjust the tracked endpoints and perform at most the bounded exact indentation-prefix scan; remove the guide if exact current geometry is unavailable; no token iteration or matcher callback on the EDT |
 | Enable a guide while exact guide coverage is pending | Bounded provisional whitespace scan for the already tracked pair; no token or matcher work |
-| Theme or palette change | Refresh attributes; no pair recognition |
+| Theme or palette change | Refresh explicit palette attributes and theme-dependent background blending; no pair recognition |
 | Global disable | Skip recognition and clear plugin-owned markup |
 
 The active interval uses this strict boundary:
@@ -175,5 +148,3 @@ Recorder.
 - [JetBrains large-file predicate](https://github.com/JetBrains/intellij-community/blob/4fa6dbe6b2d453005ea4d0ac22b25e00f3c2a420/platform/core-impl/src/com/intellij/psi/SingleRootFileViewProvider.java#L167-L183)
 - [JetBrains document-commit current-content check](https://github.com/JetBrains/intellij-community/blob/4fa6dbe6b2d453005ea4d0ac22b25e00f3c2a420/platform/ide-core-impl/src/com/intellij/psi/impl/DocumentCommitThread.kt#L236-L242)
 - [JetBrains indent-guide calculation](https://github.com/JetBrains/intellij-community/blob/4fa6dbe6b2d453005ea4d0ac22b25e00f3c2a420/platform/lang-impl/src/com/intellij/codeInsight/daemon/impl/indentGuide/IndentGuideCalculator.java#L36-L107)
-- [Rainbow Brackets large-file policy](https://github.com/izhangzhihao/intellij-rainbow-brackets/blob/c7bdbda6ce7baa7720eba436d528335b73a61e5a/src/main/kotlin/com/github/izhangzhihao/rainbow/brackets/lite/settings/RainbowSettings.kt#L23-L26)
-- [Rainbow Brackets Marketplace releases](https://plugins.jetbrains.com/plugin/10080-rainbow-brackets/)

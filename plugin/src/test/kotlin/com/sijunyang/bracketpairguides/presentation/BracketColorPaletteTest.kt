@@ -8,19 +8,21 @@ import java.awt.Color
 import org.assertj.core.api.Assertions.assertThat
 
 class BracketColorPaletteTest : BasePlatformTestCase() {
-    fun testBaseColorDrivesEveryComponentByDefaultAndDiffersByLevel() {
+    fun testExplicitDefaultPaletteDrivesEveryComponentByDefault() {
         myFixture.configureByText("Sample.java", "class Sample {}")
         val scheme = myFixture.editor.colorsScheme
         val state = BracketGuidePreferences()
         val baseColors = (0 until StoredColorFormat.COLOR_COUNT).map { depth ->
-            BracketColorPalette.baseColor(scheme, state, depth)
+            BracketColorPalette.baseColor(state, depth)
         }
 
-        assertThat(baseColors.toSet()).hasSize(StoredColorFormat.COLOR_COUNT)
+        assertThat(baseColors).containsExactlyElementsOf(
+            StoredColorFormat.defaultColors().map { rgb -> Color(rgb) },
+        )
         baseColors.forEachIndexed { depth, baseColor ->
-            assertThat(BracketColorPalette.guideLineColor(scheme, state, depth)).isEqualTo(baseColor)
-            assertThat(BracketColorPalette.pairBorderColor(scheme, state, depth)).isEqualTo(baseColor)
-            assertThat(BracketColorPalette.pairBackgroundSourceColor(scheme, state, depth)).isEqualTo(baseColor)
+            assertThat(BracketColorPalette.guideLineColor(state, depth)).isEqualTo(baseColor)
+            assertThat(BracketColorPalette.pairBorderColor(state, depth)).isEqualTo(baseColor)
+            assertThat(BracketColorPalette.pairBackgroundSourceColor(state, depth)).isEqualTo(baseColor)
             val renderedBackground = BracketColorPalette.pairBackgroundColor(
                 scheme,
                 state,
@@ -33,7 +35,6 @@ class BracketColorPaletteTest : BasePlatformTestCase() {
 
     fun testAdvancedColorsOverrideEachComponentIndependently() {
         myFixture.configureByText("Sample.java", "class Sample {}")
-        val scheme = myFixture.editor.colorsScheme
         val state = BracketGuidePreferences(
             useIndependentComponentColors = true,
             levelBaseColors = BracketGuidePreferences().levelBaseColors.updated(2, 0x102030),
@@ -42,10 +43,28 @@ class BracketColorPaletteTest : BasePlatformTestCase() {
             pairBackgroundColors = BracketGuidePreferences().pairBackgroundColors.updated(2, 0x405060),
         )
 
-        assertThat(BracketColorPalette.baseColor(scheme, state, 2)).isEqualTo(Color(0x102030))
-        assertThat(BracketColorPalette.guideLineColor(scheme, state, 2)).isEqualTo(Color(0x203040))
-        assertThat(BracketColorPalette.pairBorderColor(scheme, state, 2)).isEqualTo(Color(0x304050))
-        assertThat(BracketColorPalette.pairBackgroundSourceColor(scheme, state, 2)).isEqualTo(Color(0x405060))
+        assertThat(BracketColorPalette.baseColor(state, 2)).isEqualTo(Color(0x102030))
+        assertThat(BracketColorPalette.guideLineColor(state, 2)).isEqualTo(Color(0x203040))
+        assertThat(BracketColorPalette.pairBorderColor(state, 2)).isEqualTo(Color(0x304050))
+        assertThat(BracketColorPalette.pairBackgroundSourceColor(state, 2)).isEqualTo(Color(0x405060))
+    }
+
+    fun testDisabledComponentOverridesApplyBaseWithoutDiscardingSavedColors() {
+        val state = BracketGuidePreferences(
+            useIndependentComponentColors = false,
+            levelBaseColors = BracketGuidePreferences().levelBaseColors.updated(1, 0x102030),
+            guideLineColors = BracketGuidePreferences().guideLineColors.updated(1, 0x203040),
+            pairBorderColors = BracketGuidePreferences().pairBorderColors.updated(1, 0x304050),
+            pairBackgroundColors = BracketGuidePreferences().pairBackgroundColors.updated(1, 0x405060),
+        )
+
+        assertThat(BracketColorPalette.guideLineColor(state, 1)).isEqualTo(Color(0x102030))
+        assertThat(BracketColorPalette.pairBorderColor(state, 1)).isEqualTo(Color(0x102030))
+        assertThat(BracketColorPalette.pairBackgroundSourceColor(state, 1))
+            .isEqualTo(Color(0x102030))
+        assertThat(state.guideLineColors[1]).isEqualTo(0x203040)
+        assertThat(state.pairBorderColors[1]).isEqualTo(0x304050)
+        assertThat(state.pairBackgroundColors[1]).isEqualTo(0x405060)
     }
 
     fun testPairAttributesUseBoxBorderAndNamedBackgroundComponent() {
@@ -60,7 +79,7 @@ class BracketColorPaletteTest : BasePlatformTestCase() {
 
         assertThat(attributes.foregroundColor).isNull()
         assertThat(attributes.backgroundColor).isNotNull()
-        assertThat(attributes.effectColor).isEqualTo(BracketColorPalette.pairBorderColor(scheme, state, 1))
+        assertThat(attributes.effectColor).isEqualTo(BracketColorPalette.pairBorderColor(state, 1))
         assertThat(attributes.effectType).isEqualTo(EffectType.BOXED)
         assertThat(attributes.fontType).isEqualTo(0)
     }
@@ -77,7 +96,7 @@ class BracketColorPaletteTest : BasePlatformTestCase() {
         val attributes = BracketColorPalette.activePairTextAttributes(scheme, state, 1)
 
         assertThat(attributes.backgroundColor).isNull()
-        assertThat(attributes.effectColor).isEqualTo(BracketColorPalette.pairBorderColor(scheme, state, 1))
+        assertThat(attributes.effectColor).isEqualTo(BracketColorPalette.pairBorderColor(state, 1))
         assertThat(attributes.effectType).isEqualTo(EffectType.BOXED)
 
         val backgroundOnly = state.copy(showActivePairBorder = false)

@@ -20,13 +20,13 @@ internal data class BracketGuidePreferences(
         DEFAULT_PAIR_BACKGROUND_OPACITY_PERCENT,
     @JvmField @field:Property val useIndependentComponentColors: Boolean = false,
     @JvmField @field:Property val levelBaseColors: List<Int> =
-        StoredColorFormat.automaticColors(),
+        StoredColorFormat.defaultColors(),
     @JvmField @field:Property val guideLineColors: List<Int> =
-        StoredColorFormat.automaticColors(),
+        StoredColorFormat.defaultColors(),
     @JvmField @field:Property val pairBorderColors: List<Int> =
-        StoredColorFormat.automaticColors(),
+        StoredColorFormat.defaultColors(),
     @JvmField @field:Property val pairBackgroundColors: List<Int> =
-        StoredColorFormat.automaticColors(),
+        StoredColorFormat.defaultColors(),
 ) {
     fun isLanguageEnabled(languageId: String): Boolean =
         languageId !in disabledLanguageIds

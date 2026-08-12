@@ -1,18 +1,18 @@
-# 현재 설계와 재구성 보고서
+# 설계 원칙과 판단 근거
 
-이 문서는 2026-08-11 재구성 이후의 이름, 책임, 모듈, 테스트 경계를
-설명한다. 구현 방법이나 명령 모음이 아니라 설계 판단의 근거를 기록하는
-설명 문서다. 실행 절차는 [기여 가이드](../CONTRIBUTING.md), 런타임 흐름은
+이 문서는 이름, 책임, 모듈, 테스트 경계에 적용하는 설계 원칙을 설명한다.
+구현 방법이나 명령 모음이 아니라 현재 구조의 판단 근거를 다루는 설명
+문서다. 실행 절차는 [기여 가이드](../CONTRIBUTING.md), 런타임 흐름은
 [아키텍처](explanation_architecture.md)를 기준으로 한다.
 
 ## 결론
 
-프로덕션은 `plugin` Gradle 모듈 하나로 통합했다. 분석과 UI를 구분할 실제
-배포 단위나 독립 제품 소비자가 없는데도 `engine`을 별도 artifact로 유지하면
-공개 facade, ABI, 조립 설정, 서비스 interface가 생긴다. 이 비용은 현재
-요구사항에서 회수되지 않는다.
+프로덕션은 `plugin` Gradle 모듈 하나를 사용한다. 분석과 UI를 구분할 실제
+배포 단위나 독립 제품 소비자가 없는 상태에서 물리 모듈을 나누면 공개 facade,
+ABI, 조립 설정, 서비스 interface를 관리해야 한다. 이 비용은 현재 요구사항에서
+회수되지 않는다.
 
-물리 모듈을 합쳤다고 책임까지 합치지는 않았다. 분석, snapshot, 편집기 수명,
+책임은 물리 모듈 수와 별개로 나눈다. 분석, snapshot, 편집기 수명,
 presentation, 설정은 패키지와 객체로 분리하며, ArchUnit이 패키지 의존 방향과
 cycle을 검사한다. `benchmarks`는 성능 측정만 수행하는 별도 모듈이고 제품
 계약을 정의하지 않는다.
@@ -37,25 +37,6 @@ TDD 마스터 클래스*를 다음 기준으로 적용했다.
 
 강의 내용은 판단 기준으로 사용했으며, 이 구현이 강의의 공식 예제이거나
 검증을 받았다는 의미는 아니다.
-
-## 재구성 결과
-
-| 이전 구조 | 현재 구조 | 판단 |
-|---|---|---|
-| `engine`과 `plugin` 프로덕션 모듈 | `plugin` 하나 | 같은 IntelliJ classpath와 같은 배포 JAR을 위한 인위적 공개 경계 제거 |
-| `buildSrc`의 Kotlin 소스 parser와 사용자 정의 Gradle task | JUnit의 ArchUnit 1.5.0 테스트 | 컴파일된 Kotlin·Java bytecode의 실제 의존성을 검증하고 자체 도구 유지비 제거 |
-| `BracketAnalysis` interface와 `IntellijBracketAnalysis` 구현 | final light service `analysis.intellij.BracketAnalysis` | 구현과 대체 소비자가 하나뿐인 interface 제거 |
-| `BraceLanguageInventory` service와 구현 | `BraceLanguageCatalog.installedFamilies()` projection | 같은 플랫폼 registry의 별도 service lifecycle 제거 |
-| XML의 분석 service descriptor | `@Service(Service.Level.APP)` light service | override나 외부 plugin 소비가 없는 final service에 플랫폼 기본 방식 사용 |
-| 모듈 경계를 위한 public root `analysis` facade | 책임 패키지의 `internal` Kotlin 타입 | 제품 facade의 공개 JVM surface 제거; Java pairing core만 실제 package/JMH 소비를 위해 JVM-public으로 유지 |
-| `BracketSnapshot`·`TokenWindow` interface와 단일 indexed 구현 | `analysis.snapshot`의 concrete internal 객체 | 결과 query와 상태를 소유한 객체를 직접 표현 |
-| snapshot 계층의 중복 recognition bridge | `DocumentBracketRecognition` 한 종류 | 인식 단계의 완료/거부 상태만 남기고 전달용 복제 제거 |
-| production 알고리즘을 다시 구현한 fake snapshot/window 계층 | `BracketSnapshotFixture`가 실제 snapshot 조립 사용 | 테스트와 제품 알고리즘의 이중 진실 공급원 제거 |
-
-Gradle 모듈 수를 줄인 이유는 “모놀리스가 항상 낫다”가 아니다. 현재 분석
-코드는 IntelliJ의 editor, highlighter, matcher registry를 실제 입력으로 쓰고,
-별도 배포나 재사용 요구가 없다. 독립 CLI, 서버, 다른 host adapter처럼 두 번째
-제품 소비자가 생기면 그때 의존성과 API를 근거로 물리 모듈을 다시 판단한다.
 
 ## 이름과 책임
 
@@ -83,10 +64,10 @@ Gradle 모듈 수를 줄인 이유는 “모놀리스가 항상 낫다”가 아
 실제로 그 명사가 가장 정확하거나 IntelliJ가 요구하는 외부 interface 이름은
 의미를 우선한다. 이름 검사는 자동 문자열 규칙보다 책임 검토로 수행한다.
 
-## 남겨 둔 추상화
+## 추상화 기준
 
 YAGNI는 모든 interface와 callback을 제거한다는 뜻이 아니다. 다음 경계는 실제
-정책 차이나 host 격리를 표현하므로 남겼다.
+정책 차이나 host 격리를 표현한다.
 
 - `AnalysisOutcome`은 `Complete`, `Limited`, `Unavailable`의 서로 다른 제품
   상태와 invariant를 닫힌 계층으로 표현한다.
@@ -126,7 +107,7 @@ provider, bridge, 별도 module을 두지 않는다. 두 번째 실제 소비자
 3. private 계산의 각 분기보다 public/internal 행위 결과를 테스트한다.
 4. 테스트가 내부 상태 노출을 요구하면 먼저 책임이 너무 결합됐는지, 이미 더
    높은 수준에서 같은 행위를 검증하는지 확인한다.
-5. refactoring 뒤에도 가치가 남지 않는 구현 모양 테스트는 삭제한다.
+5. 구현 변경 뒤에도 가치가 남지 않는 구현 모양 테스트는 삭제한다.
 
 ArchUnit은 behavior test의 대체물이 아니다. 아래 다섯 구조 속성만 맡는다.
 

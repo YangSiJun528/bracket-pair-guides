@@ -23,6 +23,7 @@ import com.intellij.ui.layout.and
 import com.intellij.ui.layout.or
 import java.awt.Color
 import java.util.Locale
+import javax.swing.JTextField
 
 /** Standard platform controls bound directly to the persisted plugin options. */
 internal class BracketGuideSettingsPage(
@@ -34,7 +35,7 @@ internal class BracketGuideSettingsPage(
 
     override fun createPanel(): DialogPanel {
         val settings = BracketGuideSettings.getInstance()
-        val colorPanels = mutableListOf<ColorPanel>()
+        val colorPanels = mutableListOf<LeveledColorPanel>()
         appliedSnapshot = settings.options
 
         return panel {
@@ -213,7 +214,8 @@ internal class BracketGuideSettingsPage(
                     }
                         .enabledIf(enabled.selected)
                 }.rowComment(
-                    "When off, guide, border, and background inherit each level's Base color.",
+                    "When off, Base is applied to guide, border, and background. " +
+                        "Their saved colors remain visible but read-only.",
                 )
 
                 row("Level") {
@@ -224,30 +226,32 @@ internal class BracketGuideSettingsPage(
                 for (level in 0 until StoredColorFormat.COLOR_COUNT) {
                     row("${level + 1}:") {
                         for (target in ColorRole.entries) {
-                            val predicate = if (target == ColorRole.BASE) {
-                                enabled.selected
-                            } else {
-                                enabled.selected.and(componentOverrides.selected)
-                            }
                             val colorPanel = boundColorPanel(
                                 settings = settings,
                                 target = target,
                                 level = level,
-                                enabled = predicate,
+                                enabled = enabled.selected,
+                                editable = if (target == ColorRole.BASE) {
+                                    null
+                                } else {
+                                    componentOverrides.selected
+                                },
                             )
-                            colorPanels += colorPanel.component
+                            colorPanels += LeveledColorPanel(level, colorPanel.component)
                         }
                     }
                 }
                 row {
                     comment(
-                        "Empty Base colors use the editor theme. Empty component colors inherit Base.",
+                        "Reset colors restores the built-in six-color palette for every column.",
                     )
                 }
                 row {
                     button("Reset colors") {
-                        colorPanels.forEach { colorPanel ->
-                            colorPanel.selectedColor = null
+                        colorPanels.forEach { (level, colorPanel) ->
+                            colorPanel.selectedColor = StoredColorFormat.storedColor(
+                                StoredColorFormat.defaultColor(level),
+                            )
                         }
                         componentOverrides.component.isSelected = false
                     }.enabledIf(enabled.selected)
@@ -294,17 +298,18 @@ internal class BracketGuideSettingsPage(
         target: ColorRole,
         level: Int,
         enabled: ComponentPredicate,
+        editable: ComponentPredicate?,
     ): Cell<ColorPanel> {
         val property = MutableProperty<Color?>(
             {
                 StoredColorFormat.storedColor(
-                    target.colors(settings.options).getOrNull(level),
+                    target.colors(settings.options)[level],
                 )
             },
             { color ->
                 val options = settings.options
                 val storedValue = color?.let(StoredColorFormat::colorToStoredValue)
-                    ?: StoredColorFormat.AUTOMATIC_COLOR
+                    ?: StoredColorFormat.defaultColor(level)
                 val colors = target.colors(options).mapIndexed { index, value ->
                     if (index == level) storedValue else value
                 }
@@ -314,6 +319,13 @@ internal class BracketGuideSettingsPage(
         return cell(ColorPanel())
             .applyToComponent {
                 name = "color.${target.settingId}.$level"
+                val initiallyEditable = editable?.invoke() ?: true
+                setEditable(initiallyEditable)
+                updateColorAccessibility(target, level, initiallyEditable)
+                editable?.addListener { value ->
+                    setEditable(value)
+                    updateColorAccessibility(target, level, value)
+                }
             }
             .bind(
                 { colorPanel: ColorPanel -> colorPanel.selectedColor },
@@ -323,6 +335,23 @@ internal class BracketGuideSettingsPage(
                 property,
             )
             .enabledIf(enabled)
+    }
+
+    private fun ColorPanel.updateColorAccessibility(
+        target: ColorRole,
+        level: Int,
+        editable: Boolean,
+    ) {
+        val accessibleName = "Level ${level + 1} ${target.displayName} color"
+        val accessibleDescription = when {
+            target == ColorRole.BASE -> "Editable base color."
+            editable -> "Editable component override."
+            else -> "Read-only; Base is applied while Component overrides is off."
+        }
+        components.filterIsInstance<JTextField>().single().accessibleContext.apply {
+            this.accessibleName = accessibleName
+            this.accessibleDescription = accessibleDescription
+        }
     }
 
     private fun languageChoice(family: BraceLanguageFamily): LanguageChoice {
@@ -362,6 +391,11 @@ internal class BracketGuideSettingsPage(
         val displayName: String,
         val familyDisplayNames: List<String>,
         val constraintDescription: String?,
+    )
+
+    private data class LeveledColorPanel(
+        val level: Int,
+        val panel: ColorPanel,
     )
 
     private enum class ColorRole(

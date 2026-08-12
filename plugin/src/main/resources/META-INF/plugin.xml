@@ -32,12 +32,5 @@
                 instance="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPage"
                 id="com.sijunyang.bracketpairguides.settings.PluginConfigurable"
                 displayName="Bracket Pair Guides"/>
-
-        <additionalTextAttributes
-                scheme="Default"
-                file="colorSchemes/BracketPairGuidesDefault.xml"/>
-        <additionalTextAttributes
-                scheme="Darcula"
-                file="colorSchemes/BracketPairGuidesDarcula.xml"/>
     </extensions>
 </idea-plugin>

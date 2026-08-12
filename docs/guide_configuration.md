@@ -56,15 +56,17 @@ The **Colors** grid contains six levels. Deeper levels repeat the same sequence:
 level 7 uses level 1, level 8 uses level 2, and so on. The selectors are the
 IntelliJ Platform's standard color controls.
 
-An empty Base selector uses the active editor theme. By default, Base supplies
-the bracket-token foreground, guide line, pair border, and pair background for
-that level. Select **Reset colors** to clear explicit values and return every
-level to this automatic behavior.
+Every level starts with an explicit built-in Base color. These values are the
+applied palette, not placeholders that resolve through the active editor theme.
+By default, Base supplies the bracket-token foreground, guide line, pair border,
+and pair background for that level.
 
 Enable **Component overrides** only when Guide, Border, or Background should
-differ from Base. An empty component selector inherits Base. Turning the switch
-off retains explicit component values for later use; **Reset colors** clears
-them.
+differ from Base. While the switch is off, those three columns remain visible
+but read-only and Base is applied to all components. Turning the switch on makes
+the saved component colors editable. Turning it off retains them for later use.
+**Reset colors** restores the built-in palette in all four columns and turns
+component overrides off.
 
 ## Map familiar settings
 

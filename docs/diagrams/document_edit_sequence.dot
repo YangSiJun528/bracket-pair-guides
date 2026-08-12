@@ -1,0 +1,82 @@
+digraph DocumentEditSequence {
+    graph [
+        rankdir=TB,
+        bgcolor="#FFFFFF",
+        pad=0.30,
+        nodesep=0.58,
+        ranksep=0.50,
+        splines=polyline,
+        fontname="Arial",
+        fontsize=18,
+        label="Document edit — immediate tracked-pair repair, later recognition",
+        labelloc=t
+    ];
+    node [fontname="Arial", fontsize=9];
+    edge [fontname="Arial", fontsize=8, arrowsize=0.65];
+
+    user_h [shape=box, style="rounded,filled", fillcolor="#F3F6F8", label="User"];
+    document_h [shape=box, style="rounded,filled", fillcolor="#F3F6F8", label="IntelliJ\nDocument"];
+    events_h [shape=box, style="rounded,filled", fillcolor="#EAF2FF", label="EditorGuideEvents\n[APP service]"];
+    session_h [shape=box, style="rounded,filled", fillcolor="#EAF7E7", label="EditorGuideSession\n[each split view]"];
+    active_h [shape=box, style="rounded,filled", fillcolor="#EAF7E7", label="ActiveGuide\nPresentation"];
+    fallback_h [shape=box, style="rounded,filled", fillcolor="#F4ECFF", label="GuidePosition\nFallback"];
+    daemon_h [shape=box, style="rounded,filled", fillcolor="#EAF2FF", label="IntelliJ daemon +\nhighlighting pass"];
+
+    { rank=same; user_h; document_h; events_h; session_h; active_h; fallback_h; daemon_h; }
+    user_h -> document_h -> events_h -> session_h -> active_h -> fallback_h -> daemon_h [style=invis, weight=100];
+
+    node [shape=point, width=0.025, height=0.025, label="", color="#90A4AE"];
+
+    { rank=same; user1; document1; events1; session1; active1; fallback1; daemon1; }
+    { rank=same; user2; document2; events2; session2; active2; fallback2; daemon2; }
+    { rank=same; user3; document3; events3; session3; active3; fallback3; daemon3; }
+    { rank=same; user4; document4; events4; session4; active4; fallback4; daemon4; }
+    { rank=same; user5; document5; events5; session5; active5; fallback5; daemon5; }
+    { rank=same; user6; document6; events6; session6; active6; fallback6; daemon6; }
+    { rank=same; user7; document7; events7; session7; active7; fallback7; daemon7; }
+    { rank=same; user8; document8; events8; session8; active8; fallback8; daemon8; }
+    { rank=same; user9; document9; events9; session9; active9; fallback9; daemon9; }
+    { rank=same; user10; document10; events10; session10; active10; fallback10; daemon10; }
+    { rank=same; user11; document11; events11; session11; active11; fallback11; daemon11; }
+    { rank=same; user12; document12; events12; session12; active12; fallback12; daemon12; }
+    { rank=same; user13; document13; events13; session13; active13; fallback13; daemon13; }
+
+    user1 -> document1 -> events1 -> session1 -> active1 -> fallback1 -> daemon1 [style=invis, weight=100];
+    user2 -> document2 -> events2 -> session2 -> active2 -> fallback2 -> daemon2 [style=invis, weight=100];
+    user3 -> document3 -> events3 -> session3 -> active3 -> fallback3 -> daemon3 [style=invis, weight=100];
+    user4 -> document4 -> events4 -> session4 -> active4 -> fallback4 -> daemon4 [style=invis, weight=100];
+    user5 -> document5 -> events5 -> session5 -> active5 -> fallback5 -> daemon5 [style=invis, weight=100];
+    user6 -> document6 -> events6 -> session6 -> active6 -> fallback6 -> daemon6 [style=invis, weight=100];
+    user7 -> document7 -> events7 -> session7 -> active7 -> fallback7 -> daemon7 [style=invis, weight=100];
+    user8 -> document8 -> events8 -> session8 -> active8 -> fallback8 -> daemon8 [style=invis, weight=100];
+    user9 -> document9 -> events9 -> session9 -> active9 -> fallback9 -> daemon9 [style=invis, weight=100];
+    user10 -> document10 -> events10 -> session10 -> active10 -> fallback10 -> daemon10 [style=invis, weight=100];
+    user11 -> document11 -> events11 -> session11 -> active11 -> fallback11 -> daemon11 [style=invis, weight=100];
+    user12 -> document12 -> events12 -> session12 -> active12 -> fallback12 -> daemon12 [style=invis, weight=100];
+    user13 -> document13 -> events13 -> session13 -> active13 -> fallback13 -> daemon13 [style=invis, weight=100];
+
+    user_h -> user1 -> user2 -> user3 -> user4 -> user5 -> user6 -> user7 -> user8 -> user9 -> user10 -> user11 -> user12 -> user13 [style=dashed, arrowhead=none, color="#B0BEC5"];
+    document_h -> document1 -> document2 -> document3 -> document4 -> document5 -> document6 -> document7 -> document8 -> document9 -> document10 -> document11 -> document12 -> document13 [style=dashed, arrowhead=none, color="#B0BEC5"];
+    events_h -> events1 -> events2 -> events3 -> events4 -> events5 -> events6 -> events7 -> events8 -> events9 -> events10 -> events11 -> events12 -> events13 [style=dashed, arrowhead=none, color="#B0BEC5"];
+    session_h -> session1 -> session2 -> session3 -> session4 -> session5 -> session6 -> session7 -> session8 -> session9 -> session10 -> session11 -> session12 -> session13 [style=dashed, arrowhead=none, color="#B0BEC5"];
+    active_h -> active1 -> active2 -> active3 -> active4 -> active5 -> active6 -> active7 -> active8 -> active9 -> active10 -> active11 -> active12 -> active13 [style=dashed, arrowhead=none, color="#B0BEC5"];
+    fallback_h -> fallback1 -> fallback2 -> fallback3 -> fallback4 -> fallback5 -> fallback6 -> fallback7 -> fallback8 -> fallback9 -> fallback10 -> fallback11 -> fallback12 -> fallback13 [style=dashed, arrowhead=none, color="#B0BEC5"];
+    daemon_h -> daemon1 -> daemon2 -> daemon3 -> daemon4 -> daemon5 -> daemon6 -> daemon7 -> daemon8 -> daemon9 -> daemon10 -> daemon11 -> daemon12 -> daemon13 [style=dashed, arrowhead=none, color="#B0BEC5"];
+
+    user1 -> document1 [xlabel="1  insert / replace / delete [EDT]", color="#D97706", fontcolor="#B85C00", penwidth=2, constraint=false];
+    document2 -> events2 [xlabel="2  documentChanged(event) after text + RangeMarkers update", color="#D97706", fontcolor="#B85C00", penwidth=2, constraint=false];
+    events3 -> session3 [xlabel="3  documentChanged(change) for every Editor sharing Document", color="#D97706", fontcolor="#B85C00", penwidth=2, constraint=false];
+    session4 -> session4 [xlabel="4  discard stale snapshot acceptance", color="#D97706", fontcolor="#B85C00", constraint=false];
+    session5 -> active5 [xlabel="5  refreshAfterDocumentChange", color="#D97706", fontcolor="#B85C00", penwidth=2, constraint=false];
+    active6 -> fallback6 [xlabel="6  if endpoints survive: guideAfterChange(adjusted pair)", color="#D97706", fontcolor="#B85C00", penwidth=2, constraint=false];
+    fallback7 -> active7 [xlabel="7  exact current guide OR null on budget", style=dashed, color="#D97706", fontcolor="#B85C00", constraint=false];
+    active8 -> session8 [xlabel="8  replace current markup OR clear stale guide", style=dashed, color="#D97706", fontcolor="#B85C00", penwidth=2, constraint=false];
+    session9 -> events9 [xlabel="9  repaint requested; session returns", style=dashed, color="#D97706", fontcolor="#B85C00", constraint=false];
+    events10 -> document10 [xlabel="10  listener returns — visible pair is revision-consistent", style=dashed, color="#D97706", fontcolor="#B85C00", penwidth=2, constraint=false];
+    document11 -> daemon11 [xlabel="11  IntelliJ schedules normal reanalysis later", style=dashed, color="#6C8EBF", fontcolor="#3B6EA8", constraint=false];
+    daemon12 -> daemon12 [xlabel="12  recognize exact current bracket structure [BGT]", color="#3B6EA8", fontcolor="#3B6EA8", constraint=false];
+    daemon13 -> session13 [xlabel="13  publish authoritative outcome [later EDT]", style=dashed, color="#3A8F5B", fontcolor="#3A8F5B", constraint=false];
+
+    sequence_note [shape=note, style=filled, fillcolor="#FFF8EE", color="#D97706", label="Rows 1–10 are one EDT callback: repair or clear before return.\nDamaged endpoint tokens clear pair + guide and skip the fallback scan.\nRows 11–13 happen later and may discover a different semantic pair."];
+    document13 -> sequence_note [style=invis];
+}

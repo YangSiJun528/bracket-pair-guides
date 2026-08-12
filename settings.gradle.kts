@@ -7,7 +7,6 @@ include("plugin", "benchmarks")
 pluginManagement {
     plugins {
         id("org.jetbrains.kotlin.jvm") version "2.3.0"
-        id("org.jetbrains.changelog") version "2.5.0"
         id("me.champeau.jmh") version "0.7.3"
     }
 }

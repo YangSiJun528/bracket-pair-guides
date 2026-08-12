@@ -1,10 +1,10 @@
 package com.sijunyang.bracketpairguides.settings
 
-import com.intellij.openapi.util.JDOMUtil
 import com.intellij.util.xmlb.XmlSerializer
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.junit.Test
 
 class BracketGuideSettingsTest {
@@ -21,10 +21,10 @@ class BracketGuideSettingsTest {
         assertThat(state.showActivePairBorder).isFalse()
         assertThat(state.showActivePairBackground).isFalse()
         assertThat(state.useIndependentComponentColors).isFalse()
-        assertThat(state.levelBaseColors).allMatch { it == StoredColorFormat.AUTOMATIC_COLOR }
-        assertThat(state.guideLineColors).allMatch { it == StoredColorFormat.AUTOMATIC_COLOR }
-        assertThat(state.pairBorderColors).allMatch { it == StoredColorFormat.AUTOMATIC_COLOR }
-        assertThat(state.pairBackgroundColors).allMatch { it == StoredColorFormat.AUTOMATIC_COLOR }
+        assertThat(state.levelBaseColors).isEqualTo(StoredColorFormat.defaultColors())
+        assertThat(state.guideLineColors).isEqualTo(StoredColorFormat.defaultColors())
+        assertThat(state.pairBorderColors).isEqualTo(StoredColorFormat.defaultColors())
+        assertThat(state.pairBackgroundColors).isEqualTo(StoredColorFormat.defaultColors())
         assertThat(state.guideLineWidth).isEqualTo(1)
         assertThat(state.guideOpacityPercent).isEqualTo(100)
         assertThat(state.pairBackgroundOpacityPercent).isEqualTo(22)
@@ -37,7 +37,6 @@ class BracketGuideSettingsTest {
             guideLineWidth = Int.MAX_VALUE,
             guideOpacityPercent = Int.MIN_VALUE,
             pairBackgroundOpacityPercent = Int.MAX_VALUE,
-            levelBaseColors = listOf(0x123456, -9, 0xFFFFFF + 1),
         )
 
         settings.loadState(state)
@@ -47,10 +46,19 @@ class BracketGuideSettingsTest {
         assertThat(
             settings.state.pairBackgroundOpacityPercent,
         ).isEqualTo(BracketGuidePreferences.MAX_PAIR_BACKGROUND_OPACITY_PERCENT)
-        assertThat(settings.state.levelBaseColors).hasSize(StoredColorFormat.COLOR_COUNT)
-        assertThat(settings.state.levelBaseColors[0]).isEqualTo(0x123456)
-        assertThat(settings.state.levelBaseColors[1]).isEqualTo(StoredColorFormat.AUTOMATIC_COLOR)
-        assertThat(settings.state.levelBaseColors[2]).isEqualTo(StoredColorFormat.AUTOMATIC_COLOR)
+    }
+
+    @Test
+    fun `rejects malformed color state instead of migrating it`() {
+        val settings = BracketGuideSettings()
+
+        assertThatIllegalArgumentException().isThrownBy {
+            settings.loadState(
+                BracketGuidePreferences(
+                    levelBaseColors = listOf(0x123456, -1, 0xFFFFFF + 1),
+                ),
+            )
+        }
     }
 
     @Test
@@ -102,40 +110,11 @@ class BracketGuideSettingsTest {
     }
 
     @Test
-    fun `loads settings written by the previous mutable list state`() {
-        val legacyXml = JDOMUtil.load(
-            """
-            <state>
-              <option name="disabledLanguageIds">
-                <list>
-                  <option value=" Rust " />
-                  <option value="JavaScript" />
-                  <option value="Rust" />
-                </list>
-              </option>
-              <option name="guideLineWidth" value="3" />
-              <option name="levelBaseColors">
-                <list>
-                  <option value="1193046" />
-                </list>
-              </option>
-            </state>
-            """.trimIndent(),
-        )
-        val legacyState = XmlSerializer.deserialize(legacyXml, BracketGuidePreferences::class.java)
-        val settings = BracketGuideSettings()
-        settings.loadState(legacyState)
-
-        assertThat(settings.options.disabledLanguageIds).isEqualTo(setOf("JavaScript", "Rust"))
-        assertThat(settings.options.guideLineWidth).isEqualTo(3)
-        assertThat(settings.options.levelBaseColors[0]).isEqualTo(0x123456)
-        assertThat(settings.options.levelBaseColors).hasSize(StoredColorFormat.COLOR_COUNT)
-    }
-
-    @Test
     fun `load isolates state from mutable caller collections`() {
         val disabledLanguageIds = mutableSetOf("Rust")
-        val levelBaseColors = mutableListOf(0x123456)
+        val levelBaseColors = StoredColorFormat.defaultColors().toMutableList().apply {
+            this[0] = 0x123456
+        }
         val input = BracketGuidePreferences(
             disabledLanguageIds = disabledLanguageIds,
             levelBaseColors = levelBaseColors,

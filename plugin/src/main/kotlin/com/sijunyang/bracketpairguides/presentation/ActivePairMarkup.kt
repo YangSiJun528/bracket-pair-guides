@@ -58,7 +58,6 @@ internal class ActivePairMarkup(private val editor: Editor) {
                     ),
                 ),
                 color = BracketColorPalette.guideLineColor(
-                    editor.colorsScheme,
                     preferences,
                     guide.pair.depth,
                 ),

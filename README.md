@@ -36,7 +36,7 @@ point, Bracket Pair Guides reports one **Unsupported IDE** error at startup
 instead of silently showing an empty language list.
 
 See the [IDE and language support reference](docs/reference_language_support.md)
-for the audited compatibility matrix and the
+for the capability rules and the
 [language showcase](docs/example_language_showcase.md) for representative
 source examples.
 
@@ -71,13 +71,12 @@ changes, Plugin Verifier, and the complete pre-review workflow.
 
 ## Documentation
 
+- [IntelliJ runtime walkthrough and Graphviz diagrams](docs/explanation_intellij_runtime.md)
 - [Current architecture](docs/explanation_architecture.md)
-- [Current design and refactoring report](docs/explanation_design.md)
+- [Design principles and rationale](docs/explanation_design.md)
 - [Performance and capacity reference](docs/reference_performance_limits.md)
 - [IDE and language support reference](docs/reference_language_support.md)
 - [Run the performance benchmarks](benchmarks/guide_benchmarking.md)
-- [Release procedure](docs/how_to_release.md)
-- [Historical implementation reports](docs/history/README.md)
 
 ## License
 

@@ -4,6 +4,7 @@ import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalog
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 import com.sijunyang.bracketpairguides.presentation.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.intellij.openapi.editor.colors.impl.EditorColorsSchemeImpl
@@ -15,7 +16,7 @@ import org.assertj.core.api.Assertions.assertThat
 import java.awt.Color
 
 internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture() {
-    fun testThemeRefreshUpdatesTokenColorsWithoutRebuildingHighlighters() {
+    fun testThemeRefreshKeepsExplicitTokenColorsWithoutRebuildingHighlighters() {
         val source = "x { content } y"
         myFixture.configureByText("ThemeTokens.txt", source)
         val pair = BracketPair(
@@ -38,6 +39,7 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
         val editor = myFixture.editor as EditorEx
         val originalScheme = editor.colorsScheme
         val refreshedColor = Color(0x12, 0x6A, 0xD4)
+        val appliedColor = Color(StoredColorFormat.defaultColor(0))
         val refreshedScheme = EditorColorsSchemeImpl(originalScheme).apply {
             setAttributes(
                 BracketColorPalette.levelKey(0),
@@ -54,7 +56,7 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
             assertThat(bracketColorHighlighters().toSet()).isEqualTo(originalHighlighters)
             assertThat(bracketColorHighlighters()).allMatch { highlighter ->
                 highlighter.getTextAttributes(editor.colorsScheme)?.foregroundColor ==
-                    refreshedColor
+                    appliedColor
             }
             assertThat(collections).isEqualTo(1)
         } finally {

@@ -286,7 +286,7 @@ internal class VisibleTokenDecorations(
 
     private inner class TokenPalette(options: BracketGuidePreferences) {
         val attributes = Array(StoredColorFormat.COLOR_COUNT) { level ->
-            BracketColorPalette.bracketTextAttributes(editor.colorsScheme, options, level)
+            BracketColorPalette.bracketTextAttributes(options, level)
         }
     }
 

@@ -158,7 +158,7 @@ Brackets inside quoted strings remain string content.
 ```
 
 CSS-family support is available when the installed web-language plugin exposes
-its official matcher. LESS, SASS, and SCSS have separate audited registrations.
+its official matcher. LESS, SASS, and SCSS have separate matcher registrations.
 
 ## SQL
 
