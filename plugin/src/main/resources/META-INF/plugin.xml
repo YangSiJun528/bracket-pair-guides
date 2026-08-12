@@ -13,14 +13,6 @@
     <depends>com.intellij.modules.lang</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <postStartupActivity
-                implementation="com.sijunyang.bracketpairguides.compatibility.IdeCompatibilityStartupActivity"/>
-
-        <notificationGroup
-                id="Bracket Pair Guides errors"
-                displayType="STICKY_BALLOON"
-                isLogByDefault="true"/>
-
         <highlightingPassFactory
                 implementation="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuidePassRegistration"/>
 

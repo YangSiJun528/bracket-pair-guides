@@ -52,7 +52,6 @@ internal class ArchitectureTest {
                 "$ROOT.editor.events..",
                 "$ROOT.editor.highlighting..",
                 "$ROOT.settings.ui..",
-                "$ROOT.compatibility..",
             )
             .whereLayer(POLICY).mayNotAccessAnyLayer()
             .whereLayer(STATE).mayOnlyAccessLayers(POLICY)
