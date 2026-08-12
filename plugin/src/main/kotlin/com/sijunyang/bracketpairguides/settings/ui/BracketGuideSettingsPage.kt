@@ -3,6 +3,7 @@ package com.sijunyang.bracketpairguides.settings.ui
 import com.sijunyang.bracketpairguides.analysis.BraceLanguageFamily
 import com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalog
 import com.sijunyang.bracketpairguides.editor.events.GuideSettingsChange
+import com.sijunyang.bracketpairguides.editor.events.NativeMatchedBraceHighlighting
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
@@ -20,6 +21,7 @@ import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.builder.selected
 import com.intellij.ui.layout.ComponentPredicate
 import com.intellij.ui.layout.and
+import com.intellij.ui.layout.not
 import com.intellij.ui.layout.or
 import java.awt.Color
 import java.util.Locale
@@ -36,6 +38,7 @@ internal class BracketGuideSettingsPage(
     override fun createPanel(): DialogPanel {
         val settings = BracketGuideSettings.getInstance()
         val colorPanels = mutableListOf<LeveledColorPanel>()
+        NativeMatchedBraceHighlighting.getInstance().apply(settings.options)
         appliedSnapshot = settings.options
 
         return panel {
@@ -103,6 +106,27 @@ internal class BracketGuideSettingsPage(
             }
 
             group("Appearance") {
+                lateinit var disableNativeMatchedBraceHighlighting: Cell<JBCheckBox>
+                row {
+                    disableNativeMatchedBraceHighlighting = boundCheckBox(
+                        settings,
+                        "Disable IntelliJ matched-brace highlighting",
+                        BracketGuidePreferences::disableNativeMatchedBraceHighlighting,
+                    ) { options, value ->
+                        options.copy(disableNativeMatchedBraceHighlighting = value)
+                    }
+                        .enabledIf(enabled.selected)
+                }
+                row {
+                    comment(
+                        "This mode is not tested and may not match the intended appearance.",
+                    ).applyToComponent {
+                        name = "nativeMatchedBraceWarning"
+                    }
+                }.visibleIf(
+                    enabled.selected.and(disableNativeMatchedBraceHighlighting.selected.not()),
+                )
+
                 row {
                     boundCheckBox(
                         settings,

@@ -6,6 +6,7 @@ import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
+import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -16,13 +17,27 @@ import java.awt.Color
 import java.awt.Component
 import java.awt.Container
 import javax.swing.JButton
+import javax.swing.JEditorPane
 import javax.swing.JTextField
 import org.assertj.core.api.Assertions.assertThat
 
 class BracketGuideSettingsPageTest : BasePlatformTestCase() {
+    private var originalNativeMatchedBraceHighlighting = true
+
     override fun setUp() {
         super.setUp()
+        originalNativeMatchedBraceHighlighting =
+            CodeInsightSettings.getInstance().HIGHLIGHT_BRACES
         BracketGuideSettings.getInstance().loadState(BracketGuidePreferences())
+    }
+
+    override fun tearDown() {
+        try {
+            CodeInsightSettings.getInstance().HIGHLIGHT_BRACES =
+                originalNativeMatchedBraceHighlighting
+        } finally {
+            super.tearDown()
+        }
     }
 
     fun testUsesBoundPlatformControlsForEveryEditorSetting() {
@@ -34,6 +49,7 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
 
             assertThat(checkBoxes).contains(
                 "Enabled",
+                "Disable IntelliJ matched-brace highlighting",
                 "Bracket colorization",
                 "Active guide",
                 "Horizontal",
@@ -80,6 +96,7 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
     fun testScalarBindingsApplyAndResetWithoutWritingDraftValues() {
         withConfigurable(emptyList()) { configurable, component ->
             component.checkBox("Bracket colorization").doClick()
+            component.checkBox("Disable IntelliJ matched-brace highlighting").doClick()
             component.checkBox("Horizontal").doClick()
             component.checkBox("Vertical").doClick()
             component.spinner("guideLineWidth").value = 3
@@ -97,6 +114,7 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
 
             val applied = BracketGuideSettings.getInstance().options
             assertThat(applied.enabled).isFalse()
+            assertThat(applied.disableNativeMatchedBraceHighlighting).isFalse()
             assertThat(applied.colorBracketTokens).isFalse()
             assertThat(applied.showActiveGuide).isFalse()
             assertThat(applied.showHorizontalGuides).isFalse()
@@ -113,6 +131,26 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
             configurable.reset()
             assertThat(component.checkBox("Enabled").isSelected).isFalse()
             assertThat(configurable.isModified).isFalse()
+        }
+    }
+
+    fun testWarnsOnlyWhenNativeMatchedBraceHighlightingIsAllowed() {
+        withConfigurable(emptyList()) { _, component ->
+            val disableNative =
+                component.checkBox("Disable IntelliJ matched-brace highlighting")
+            val warning = component.editorPane("nativeMatchedBraceWarning")
+
+            assertThat(warning.text).contains(
+                "This mode is not tested and may not match the intended appearance.",
+            )
+
+            assertThat(disableNative.isSelected).isTrue()
+            assertThat(warning.isVisible).isFalse()
+
+            disableNative.doClick()
+
+            assertThat(disableNative.isSelected).isFalse()
+            assertThat(warning.isVisible).isTrue()
         }
     }
 
@@ -339,6 +377,10 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
     private fun Component.button(text: String): JButton = descendants()
         .filterIsInstance<JButton>()
         .single { it.text == text }
+
+    private fun Component.editorPane(name: String): JEditorPane = descendants()
+        .filterIsInstance<JEditorPane>()
+        .single { it.name == name }
 
     private fun Component.descendants(): List<Component> = buildList {
         add(this@descendants)

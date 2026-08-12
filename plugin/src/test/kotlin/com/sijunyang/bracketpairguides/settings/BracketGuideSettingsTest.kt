@@ -14,6 +14,7 @@ class BracketGuideSettingsTest {
 
         assertThat(state.enabled).isTrue()
         assertThat(state.disabledLanguageIds).isEmpty()
+        assertThat(state.disableNativeMatchedBraceHighlighting).isTrue()
         assertThat(state.colorBracketTokens).isTrue()
         assertThat(state.showActiveGuide).isTrue()
         assertThat(state.showVerticalGuide).isTrue()
@@ -85,6 +86,7 @@ class BracketGuideSettingsTest {
         val expected = BracketGuidePreferences(
             enabled = false,
             disabledLanguageIds = setOf("Rust", "JavaScript"),
+            disableNativeMatchedBraceHighlighting = false,
             colorBracketTokens = false,
             showActiveGuide = false,
             showVerticalGuide = false,

@@ -122,6 +122,9 @@ internal class EditorGuideEvents :
     }
 
     private fun primaryCaretChanged(editor: Editor) {
+        NativeMatchedBraceHighlighting.getInstance().apply(
+            BracketGuideSettings.getInstance().options,
+        )
         val session = EditorGuideSessions.get(editor) ?: return
         session.caretMoved()
         if (session.hasCappedTokenDecorations) {

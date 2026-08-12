@@ -13,11 +13,17 @@
     <depends>com.intellij.modules.lang</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity
+                implementation="com.sijunyang.bracketpairguides.editor.events.NativeMatchedBraceStartupActivity"/>
+
         <highlightingPassFactory
                 implementation="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuidePassRegistration"/>
 
         <applicationService
                 serviceImplementation="com.sijunyang.bracketpairguides.settings.BracketGuideSettings"/>
+
+        <applicationService
+                serviceImplementation="com.sijunyang.bracketpairguides.editor.events.NativeMatchedBraceHighlighting"/>
 
         <applicationConfigurable
                 parentId="editor"

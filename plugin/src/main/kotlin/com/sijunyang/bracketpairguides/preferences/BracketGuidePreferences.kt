@@ -6,6 +6,7 @@ import com.intellij.util.xmlb.annotations.Property
 internal data class BracketGuidePreferences(
     @JvmField @field:Property val enabled: Boolean = true,
     @JvmField @field:Property val disabledLanguageIds: Set<String> = emptySet(),
+    @JvmField @field:Property val disableNativeMatchedBraceHighlighting: Boolean = true,
     @JvmField @field:Property val colorBracketTokens: Boolean = true,
     @JvmField @field:Property val showActiveGuide: Boolean = true,
     @JvmField @field:Property val showVerticalGuide: Boolean = true,

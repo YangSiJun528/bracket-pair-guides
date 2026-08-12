@@ -8,6 +8,7 @@ Pair Guides**. There is no separate Color Scheme page.
 | Setting | Default | Effect |
 |---|---:|---|
 | Enabled | On | Enables or disables all plugin highlighting |
+| Disable IntelliJ matched-brace highlighting | On | Prevents IntelliJ's native endpoint foreground/background from replacing the plugin's pair colors |
 | Bracket colorization | On | Colors both symbols of every matched pair |
 | Active guide | On | Shows a guide for the innermost pair containing the primary caret |
 | Vertical | On | Shows the vertical part of a multiline guide |
@@ -24,6 +25,17 @@ emphasis; nesting-level token colors remain visible when enabled.
 The default active presentation uses only the vertical and horizontal guide
 segments. Enable either pair option when the two active symbols need additional
 emphasis.
+
+**Disable IntelliJ matched-brace highlighting** is enabled by default because
+IntelliJ normally replaces the endpoint foreground and background when the
+caret touches a brace boundary. Clear the option to restore the native setting.
+That combination is not tested and may not reproduce the intended appearance.
+
+This is an IDE-wide IntelliJ setting. The plugin remembers its previous value
+before taking ownership and restores that value when the option or plugin is
+disabled, or when the plugin is dynamically unloaded. If the native setting is
+explicitly enabled elsewhere while the plugin owns it, the newer native choice
+wins and this option is cleared.
 
 ## Choose languages
 
@@ -81,20 +93,23 @@ component overrides off.
 
 ## Avoid duplicate highlighting
 
-IntelliJ's **Current scope** line can overlap the active guide. **Matched brace**
-can overlap near a brace boundary, while indent guides use whitespace columns
-and normally coexist with this plugin.
+IntelliJ's **Current scope** line can overlap the active guide. The plugin
+suppresses **Matched brace** by default because its boundary attributes replace
+the configured pair colors. Indent guides use whitespace columns and normally
+coexist with this plugin.
 
 Recommended setup:
 
 1. Leave **Show indent guides** enabled.
-2. Leave **Matched brace** enabled if native boundary feedback is useful.
+2. Leave **Disable IntelliJ matched-brace highlighting** enabled for the tested
+   appearance. Clear it only when native boundary feedback is preferred.
 3. Disable **Current scope** when two active lines appear.
 4. If another bracket plugin is installed, enable token colors, guides,
    borders, and backgrounds in only one plugin for each overlapping component.
 
-Bracket Pair Guides removes only highlighters it created. It does not clear an
-editor's markup model or change another feature's settings.
+Bracket Pair Guides removes only highlighters it created and never clears an
+editor's markup model. The native matched-brace flag described above is the one
+IDE setting it intentionally changes and restores.
 
 Language support follows `com.intellij.lang.braceMatcher`, not the IDE product
 name. An IDE can load the plugin while its primary language remains unsupported;
