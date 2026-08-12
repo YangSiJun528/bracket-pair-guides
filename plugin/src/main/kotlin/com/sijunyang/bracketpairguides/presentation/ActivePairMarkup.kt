@@ -31,6 +31,22 @@ internal class ActivePairMarkup(private val editor: Editor) {
             return
         }
 
+        val appearance = GuideAppearance(
+            showVertical = preferences.showVerticalGuide,
+            showHorizontal = preferences.showHorizontalGuides,
+            lineWidth = preferences.guideLineWidth.coerceIn(
+                BracketGuidePreferences.MIN_GUIDE_LINE_WIDTH,
+                BracketGuidePreferences.MAX_GUIDE_LINE_WIDTH,
+            ),
+            opacityPercent = preferences.guideOpacityPercent.coerceIn(
+                BracketGuidePreferences.MIN_GUIDE_OPACITY_PERCENT,
+                BracketGuidePreferences.MAX_GUIDE_OPACITY_PERCENT,
+            ),
+        )
+        val color = BracketColorPalette.guideLineColor(
+            preferences,
+            guide.pair.depth,
+        )
         val highlighter = guideMark?.takeIf(RangeHighlighter::isValid)
             ?: editor.markupModel.addRangeHighlighter(
                 EMPTY_ATTRIBUTES_KEY,
@@ -43,25 +59,12 @@ internal class ActivePairMarkup(private val editor: Editor) {
                 it.isGreedyToRight = true
             }
         guideMark = highlighter.also {
-            it.customRenderer = BracketGuideDrawing(
-                guide = guide,
-                appearance = GuideAppearance(
-                    showVertical = preferences.showVerticalGuide,
-                    showHorizontal = preferences.showHorizontalGuides,
-                    lineWidth = preferences.guideLineWidth.coerceIn(
-                        BracketGuidePreferences.MIN_GUIDE_LINE_WIDTH,
-                        BracketGuidePreferences.MAX_GUIDE_LINE_WIDTH,
-                    ),
-                    opacityPercent = preferences.guideOpacityPercent.coerceIn(
-                        BracketGuidePreferences.MIN_GUIDE_OPACITY_PERCENT,
-                        BracketGuidePreferences.MAX_GUIDE_OPACITY_PERCENT,
-                    ),
-                ),
-                color = BracketColorPalette.guideLineColor(
-                    preferences,
-                    guide.pair.depth,
-                ),
-            )
+            val renderer = it.customRenderer as? BracketGuideDrawing
+            if (renderer == null) {
+                it.customRenderer = BracketGuideDrawing(guide, appearance, color)
+            } else {
+                renderer.update(guide, appearance, color)
+            }
         }
     }
 

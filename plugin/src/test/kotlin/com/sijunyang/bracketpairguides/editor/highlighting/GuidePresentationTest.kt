@@ -5,15 +5,94 @@ import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.presentation.BracketColorPalette
+import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.intellij.openapi.components.service
+import com.intellij.openapi.editor.ex.MarkupModelEx
+import com.intellij.openapi.editor.ex.RangeHighlighterEx
+import com.intellij.openapi.editor.impl.event.MarkupModelListener
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.util.TextRange
 import org.assertj.core.api.Assertions.assertThat
 import java.awt.Color
+import java.awt.image.BufferedImage
 
 internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
+    fun testGuideRendererUpdatesInPlaceUntilTheGuideIsCleared() {
+        val source = "x { outer (inner) tail } y"
+        myFixture.configureByText("RendererUpdates.txt", source)
+        val outer = BracketPair(
+            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
+        )
+        val inner = BracketPair(
+            source.indexOf('('), 1, source.indexOf(')'), 1, 1, 0, 0,
+        )
+        val editor = myFixture.editor
+        var rendererChanges = 0
+        (editor.markupModel as MarkupModelEx).addMarkupModelListener(
+            testRootDisposable,
+            object : MarkupModelListener {
+                override fun attributesChanged(
+                    highlighter: RangeHighlighterEx,
+                    renderersChanged: Boolean,
+                    fontStyleChanged: Boolean,
+                    foregroundColorChanged: Boolean,
+                ) {
+                    if (renderersChanged && highlighter.customRenderer is BracketGuideDrawing) {
+                        rendererChanges++
+                    }
+                }
+            },
+        )
+
+        editor.caretModel.moveToOffset(source.indexOf("inner"))
+        applyPass({ listOf(outer, inner) })
+        val persistentMark = checkNotNull(activeGuide())
+        val persistentRenderer = checkNotNull(activeGuideState())
+        assertThat(persistentRenderer.guide.pair).isEqualTo(inner)
+        assertThat(rendererChanges).isEqualTo(1)
+
+        editor.caretModel.moveToOffset(source.indexOf("tail"))
+        assertThat(activeGuide()).isSameAs(persistentMark)
+        assertThat(activeGuideState()).isSameAs(persistentRenderer)
+        assertThat(persistentRenderer.guide.pair).isEqualTo(outer)
+        assertThat(rendererChanges).isEqualTo(1)
+
+        val configuredColor = Color(0xCC, 0x22, 0x55)
+        val options = BracketGuideSettings.getInstance().options.copy(
+            useIndependentComponentColors = true,
+            guideLineColors = BracketGuideSettings.getInstance().options.guideLineColors
+                .updated(outer.depth, configuredColor.rgb and 0xFFFFFF),
+            guideLineWidth = 4,
+            guideOpacityPercent = 100,
+        )
+        applyOptions(options)
+        session().updateOptions(options, refreshColors = true)
+
+        assertThat(activeGuide()).isSameAs(persistentMark)
+        assertThat(activeGuideState()).isSameAs(persistentRenderer)
+        assertThat(rendererChanges).isEqualTo(1)
+        val image = BufferedImage(1_000, 1_000, BufferedImage.TYPE_INT_ARGB)
+        val graphics = image.createGraphics()
+        try {
+            persistentRenderer.paint(editor, persistentMark, graphics)
+        } finally {
+            graphics.dispose()
+        }
+        assertThat(image.containsColor(configuredColor)).isTrue()
+
+        editor.caretModel.moveToOffset(0)
+        assertThat(persistentMark.isValid).isFalse()
+        assertThat(activeGuide()).isNull()
+
+        editor.caretModel.moveToOffset(source.indexOf("tail"))
+        assertThat(activeGuide()).isNotSameAs(persistentMark)
+        assertThat(activeGuideState()).isNotSameAs(persistentRenderer)
+        assertThat(activeGuideState()?.guide?.pair).isEqualTo(outer)
+        assertThat(rendererChanges).isEqualTo(2)
+    }
+
     fun testCaretMovementReplacesOnlyActivePresentationUsingCachedRecognition() {
         val source = "x { outer (inner) tail } y"
         myFixture.configureByText("Sample.txt", source)
@@ -471,4 +550,13 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
 
         assertThat(collections).isEqualTo(1)
     }
+}
+
+private fun BufferedImage.containsColor(color: Color): Boolean {
+    for (y in 0 until height) {
+        for (x in 0 until width) {
+            if (getRGB(x, y) == color.rgb) return true
+        }
+    }
+    return false
 }

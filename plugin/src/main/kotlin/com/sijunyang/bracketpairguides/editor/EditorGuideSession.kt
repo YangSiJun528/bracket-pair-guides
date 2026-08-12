@@ -102,7 +102,7 @@ internal class EditorGuideSession(
                     visibleRange(editor),
                     options,
                 )
-                editor.contentComponent.repaint()
+                repaintVisibleContent()
                 return
             }
         }
@@ -128,7 +128,7 @@ internal class EditorGuideSession(
         } else {
             analysisState.publishComplete(nextAnalysis)
         }
-        editor.contentComponent.repaint()
+        repaintVisibleContent()
     }
 
     /** Publishes exact lower facets after the requested guide index crosses its cap. */
@@ -175,7 +175,7 @@ internal class EditorGuideSession(
             snapshot = nextAnalysis,
             attemptedStamp = attemptedStamp,
         )
-        editor.contentComponent.repaint()
+        repaintVisibleContent()
     }
 
     /** Accepts a bounded analysis refusal without publishing a partial snapshot. */
@@ -201,7 +201,7 @@ internal class EditorGuideSession(
         }
         analysisState.publishUnavailable(stamp, limit)
         clearPresentation()
-        editor.contentComponent.repaint()
+        repaintVisibleContent()
     }
 
     fun caretMoved(): Unit {
@@ -222,7 +222,7 @@ internal class EditorGuideSession(
             allowGuideFallback = allowsProvisionalGuide(currentAnalysis),
             preferences = options,
         )
-        editor.contentComponent.repaint()
+        repaintVisibleContent()
     }
 
     /**
@@ -249,7 +249,7 @@ internal class EditorGuideSession(
             options,
         )
         if (!presentationChanged) return
-        editor.contentComponent.repaint()
+        repaintVisibleContent()
     }
 
     fun updateOptions(
@@ -266,7 +266,7 @@ internal class EditorGuideSession(
         if (!nextOptions.analysisCoverage().pairs) {
             clearPresentation()
             analysisState.publishComplete(currentStamp())
-            editor.contentComponent.repaint()
+            repaintVisibleContent()
             return
         }
         if (languagesChanged) {
@@ -323,7 +323,7 @@ internal class EditorGuideSession(
         ) {
             analysisState.publishComplete(currentAnalysis)
         }
-        editor.contentComponent.repaint()
+        repaintVisibleContent()
     }
 
     private fun updateTokenPresentation(
@@ -378,7 +378,7 @@ internal class EditorGuideSession(
         if (!options.analysisCoverage().activePair) {
             val hadActivePresentation = activePresentation.isVisible
             activePresentation.clear(preserveGuide = false)
-            if (hadActivePresentation) editor.contentComponent.repaint()
+            if (hadActivePresentation) repaintVisibleContent()
             return
         }
         if (discardPresentationFromReplacedHighlighter()) return
@@ -391,7 +391,7 @@ internal class EditorGuideSession(
                 preferences = options,
             )
         }
-        editor.contentComponent.repaint()
+        repaintVisibleContent()
     }
 
     private fun discardPresentationFromReplacedHighlighter(): Boolean {
@@ -399,7 +399,7 @@ internal class EditorGuideSession(
             return false
         }
         clear()
-        editor.contentComponent.repaint()
+        repaintVisibleContent()
         return true
     }
 
@@ -448,6 +448,17 @@ internal class EditorGuideSession(
     ): Boolean = analysisState.shouldReleasePairGraph(required, provided)
 
     private fun caretOffset(): Int = editor.caretModel.primaryCaret.offset
+
+    /** Repaints only pixels that can currently display editor-owned presentation state. */
+    private fun repaintVisibleContent() {
+        val visibleArea = editor.scrollingModel.visibleArea
+        if (visibleArea.isEmpty) {
+            // Headless and detached editors may not have a viewport yet.
+            editor.contentComponent.repaint()
+        } else {
+            editor.contentComponent.repaint(visibleArea)
+        }
+    }
 
     private companion object {
         private fun assertEdt() {

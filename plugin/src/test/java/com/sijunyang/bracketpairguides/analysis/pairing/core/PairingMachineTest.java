@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiPredicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -235,7 +236,7 @@ public class PairingMachineTest {
     }
 
     @Test
-    public void groupRulesAreResolvedOnlyOncePerSession() {
+    public void emptyGroupIgnoresUnmatchedCloserAndReusesResolvedRules() {
         RecordedPairs output = new RecordedPairs();
         int[] resolutions = {0};
         PairingMachine<Character, String> machine = new PairingMachine<>(group -> {
@@ -250,9 +251,48 @@ public class PairingMachineTest {
 
         accept(session, "main", '(', BracketRole.OPEN, 0, 1, 0);
         accept(session, "main", ')', BracketRole.CLOSE, 1, 1, 0);
-        accept(session, "main", '[', BracketRole.OPEN, 2, 1, 0);
-        accept(session, "main", ']', BracketRole.CLOSE, 3, 1, 0);
+        accept(session, "main", '}', BracketRole.CLOSE, 2, 1, 0);
+        accept(session, "main", '[', BracketRole.OPEN, 3, 1, 0);
+        accept(session, "main", ']', BracketRole.CLOSE, 4, 1, 0);
 
+        assertThat(resolutions[0]).isEqualTo(1);
+        assertThat(output.pairs).hasSize(2);
+    }
+
+    @Test
+    public void oversizedEmptyGroupReleasesItsStateAndKeepsResolvedRules() throws Exception {
+        RecordedPairs output = new RecordedPairs();
+        int[] resolutions = {0};
+        PairingMachine<Character, String> machine = new PairingMachine<>(group -> {
+            resolutions[0]++;
+            return CHAR_RULES;
+        });
+        PairingMachine<Character, String>.Session session = machine.newSession(
+                output,
+                NO_CANCELLATION,
+                Integer.MAX_VALUE
+        );
+        int depth = 2_048;
+        accept(
+                session, "main", '{', BracketRole.OPEN,
+                StructuralRole.OPEN, 0, 1, 0
+        );
+        for (int offset = 1; offset < depth; offset++) {
+            accept(session, "main", '(', BracketRole.OPEN, offset, 1, 0);
+        }
+        Object oversizedState = groupState(session, "main");
+        accept(
+                session, "main", '}', BracketRole.CLOSE,
+                StructuralRole.CLOSE, depth, 1, 0
+        );
+
+        Object lightweightState = groupState(session, "main");
+        assertThat(lightweightState).isNotSameAs(oversizedState);
+        accept(session, "main", '}', BracketRole.CLOSE, depth + 1, 1, 0);
+        accept(session, "main", '[', BracketRole.OPEN, depth + 2, 1, 0);
+        accept(session, "main", ']', BracketRole.CLOSE, depth + 3, 1, 0);
+
+        assertThat(groupState(session, "main")).isSameAs(lightweightState);
         assertThat(resolutions[0]).isEqualTo(1);
         assertThat(output.pairs).hasSize(2);
     }
@@ -440,6 +480,16 @@ public class PairingMachineTest {
 
     private static PairingMachine<Character, String>.Session session(RecordedPairs output) {
         return session(output, CHAR_RULES);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Object groupState(
+            PairingMachine<Character, String>.Session session,
+            String group
+    ) throws Exception {
+        var statesField = session.getClass().getDeclaredField("states");
+        statesField.setAccessible(true);
+        return ((Map<String, Object>) statesField.get(session)).get(group);
     }
 
     private static PairingMachine<Character, String>.Session session(

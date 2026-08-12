@@ -1,5 +1,6 @@
 package com.sijunyang.bracketpairguides.presentation
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.editor.VisualPosition
@@ -23,10 +24,27 @@ import java.awt.geom.Path2D
  * the rest of the editor paint pipeline.
  */
 internal class BracketGuideDrawing(
-    val guide: BracketGuide,
-    private val appearance: GuideAppearance,
-    private val color: Color,
+    guide: BracketGuide,
+    appearance: GuideAppearance,
+    color: Color,
 ) : CustomHighlighterRenderer {
+    var guide: BracketGuide = guide
+        private set
+    private var appearance: GuideAppearance = appearance
+    private var color: Color = color
+
+    /** Updates the EDT-owned renderer without firing a markup renderer-change event. */
+    fun update(
+        guide: BracketGuide,
+        appearance: GuideAppearance,
+        color: Color,
+    ) {
+        ApplicationManager.getApplication().assertIsDispatchThread()
+        this.guide = guide
+        this.appearance = appearance
+        this.color = color
+    }
+
     override fun paint(
         editor: Editor,
         highlighter: RangeHighlighter,

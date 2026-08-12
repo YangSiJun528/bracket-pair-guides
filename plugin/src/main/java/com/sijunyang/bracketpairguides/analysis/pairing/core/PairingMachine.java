@@ -164,6 +164,7 @@ public final class PairingMachine<T, G> {
                     state.stack.size()
             );
             state.stack.addLast(open);
+            state.peakStackSize = Math.max(state.peakStackSize, state.stack.size());
             pendingOpenCount++;
             increment(state.allCounts, open);
             if (structural) {
@@ -183,7 +184,7 @@ public final class PairingMachine<T, G> {
                 boolean canCloseStructural
         ) {
             GroupState<T> state = states.get(group);
-            if (state == null) {
+            if (state == null || state.stack.isEmpty()) {
                 return null;
             }
             PairingRules<T> rules = state.rules;
@@ -194,7 +195,6 @@ public final class PairingMachine<T, G> {
 
             if (topMatches && rules.isStructuralPair(top.token, token)) {
                 match = removeLast(state);
-                removeGroupIfEmpty(group, state);
             } else if (canCloseStructural && state.structuralOpenCount > 0 &&
                     hasCandidate(
                             state.allCounts,
@@ -205,7 +205,6 @@ public final class PairingMachine<T, G> {
                             rules
                     )) {
                 match = recover(
-                        group,
                         state,
                         token,
                         context,
@@ -215,7 +214,6 @@ public final class PairingMachine<T, G> {
                 );
             } else if (topMatches) {
                 match = removeLast(state);
-                removeGroupIfEmpty(group, state);
             } else if (!hasCandidate(
                     state.regularScopes.getLast(),
                     token,
@@ -227,7 +225,6 @@ public final class PairingMachine<T, G> {
                 match = null;
             } else {
                 match = recover(
-                        group,
                         state,
                         token,
                         context,
@@ -237,7 +234,21 @@ public final class PairingMachine<T, G> {
                 );
             }
 
+            releaseOversizedEmptyState(group, state);
             return match;
+        }
+
+        /**
+         * Keeps the allocation benefit for ordinary sequential pairs without
+         * retaining a pathological stack's backing arrays for the rest of the
+         * document scan. Counts and structural scopes cannot grow beyond the
+         * same group's peak stack size.
+         */
+        private void releaseOversizedEmptyState(G group, GroupState<T> state) {
+            if (state.stack.isEmpty() &&
+                    state.peakStackSize > MAXIMUM_RETAINED_EMPTY_GROUP_DEPTH) {
+                states.put(group, new GroupState<>(state.rules));
+            }
         }
 
         private PairingRules<T> rulesFor(G group) {
@@ -291,7 +302,6 @@ public final class PairingMachine<T, G> {
         }
 
         private OpenToken<T> recover(
-                G group,
                 GroupState<T> state,
                 T closeToken,
                 String closeContext,
@@ -310,11 +320,9 @@ public final class PairingMachine<T, G> {
                 OpenToken<T> open = removeLast(state);
                 if (matches(open, closeToken, closeContext, strictContext, rules) &&
                         rules.isStructuralPair(open.token, closeToken) == structural) {
-                    removeGroupIfEmpty(group, state);
                     return open;
                 }
             }
-            states.remove(group);
             return null;
         }
 
@@ -341,12 +349,6 @@ public final class PairingMachine<T, G> {
                 decrement(state.regularScopes.getLast(), open);
             }
             return open;
-        }
-
-        private void removeGroupIfEmpty(G group, GroupState<T> state) {
-            if (state.stack.isEmpty()) {
-                states.remove(group);
-            }
         }
 
         private void increment(Counts<T> counts, OpenToken<T> open) {
@@ -406,6 +408,7 @@ public final class PairingMachine<T, G> {
         private final ArrayDeque<Counts<T>> regularScopes = new ArrayDeque<>();
         private final PairingRules<T> rules;
         private int structuralOpenCount;
+        private int peakStackSize;
 
         private GroupState(PairingRules<T> rules) {
             this.rules = rules;
@@ -420,6 +423,8 @@ public final class PairingMachine<T, G> {
 
     private record ContextKey<T>(T token, String context) {
     }
+
+    private static final int MAXIMUM_RETAINED_EMPTY_GROUP_DEPTH = 1_024;
 
     private static final class OpenToken<T> {
         private final T token;
