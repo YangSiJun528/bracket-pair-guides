@@ -1,83 +1,57 @@
 # Bracket Pair Guides
 
-Colorizes matching brackets by nesting level and shows an active guide for the
-innermost pair containing the caret.
+VS Code-style active bracket pair guides for JetBrains IDEs.
 
-## Features
+![Bracket Pair Guides in the editor](docs/images/editor-guide.png)
 
-- Six repeating nesting-level colors for matching bracket tokens.
-- One caret-activated guide for the innermost containing pair, with independent
-  horizontal and vertical segments.
-- Optional border and background emphasis on the active opening and closing
-  symbols.
-- One Settings page for languages, colors, guide geometry, and active-pair
-  styling.
-- Language-aware matching through each token language's
-  `com.intellij.lang.braceMatcher`.
-- Cancellable background recognition and indexed caret queries; editor events
-  never start bracket recognition on the event dispatch thread. Every document
-  insertion, replacement, or deletion synchronously refreshes the currently
-  tracked pair's geometry or removes that stale presentation.
-- IntelliJ's code-insight file-size policy plus independent structural and
-  retained-index capacity guards. A failed analysis never publishes a capped
-  pair prefix.
+Bracket Pair Guides builds a complete path around the bracket pair enclosing
+the caret using horizontal and vertical guide segments. It combines the active
+guide with nesting-level colors without recoloring variables, tags, or the
+surrounding scope.
 
-## IDE and language support
+## What it does
 
-The plugin requires IntelliJ Platform build 241 (2024.1) or newer and depends
-only on the platform-wide `platform` and `lang` modules. The Plugin Verifier
-matrix covers representative IntelliJ IDEA versions; other standalone JetBrains
-IDEs are load-compatible but are not all runtime-tested.
+- **Connects the complete pair.** A horizontal segment joins a single-line
+  pair. For a multiline pair, one vertical segment connects the opening and
+  closing arms.
+- **Tracks the caret.** The guide follows the innermost recognized bracket pair
+  enclosing the primary caret, not only a brace at the caret boundary.
+- **Indicates nesting depth.** Matching opening and closing tokens share one of
+  six repeating, customizable colors.
+- **Preserves syntax highlighting.** Bracket colors and guides are added
+  without recoloring variables, tags, or the surrounding scope.
 
-Language support is capability-based, not a hard-coded allowlist. An installed
-token language is supported when its plugin registers
-`com.intellij.lang.braceMatcher`. If the IDE does not provide that extension
-point, Bracket Pair Guides reports one **Unsupported IDE** error at startup
-instead of silently showing an empty language list.
+## Customization
 
-See the [IDE and language support reference](docs/reference_language_support.md)
-for the capability rules and the
-[language showcase](docs/example_language_showcase.md) for representative
-source examples.
+![Bracket Pair Guides settings](docs/images/settings.png)
 
-## Install a local build
+In **Settings | Editor | Bracket Pair Guides**, you can configure:
 
-1. Run `./gradlew :plugin:buildPlugin`.
-2. Open **Settings | Plugins** in the target IDE.
-3. Select **Install Plugin from Disk** from the gear menu.
-4. Choose the ZIP in `plugin/build/distributions/`.
+- the six nesting colors;
+- horizontal and vertical guide segments;
+- guide width and opacity;
+- optional border or background emphasis on the active endpoints;
+- separate guide, border, and background colors.
 
-Open **Settings | Editor | Bracket Pair Guides** to configure the plugin. See
-[Configuration and conflict handling](docs/guide_configuration.md) for all
-options and coexistence guidance.
+## Language support
 
-## Develop
+Bracket Pair Guides uses the bracket rules registered by installed JetBrains
+language plugins, so each language is recognized according to its own syntax.
 
-The repository has one production Gradle module, `plugin`. The `benchmarks`
-module is a measurement harness and contributes no production code.
+Requires IntelliJ Platform 2024.1 or newer. Support varies by IDE and language;
+see the [complete compatibility matrix](docs/reference_language_support.md) for
+verified products and known limitations.
 
-Run the normal verification with:
+## Privacy
 
-```shell
-./gradlew :plugin:check :benchmarks:jmhJar
-```
+Bracket Pair Guides does not collect telemetry, transmit source code, or make
+network requests. All analysis and settings remain inside the IDE.
 
-`plugin:check` includes the behavior tests and ArchUnit package rules. Qodana is
-the separate lint and static-analysis gate in CI; the
-repository does not add a second Spotless, ktlint, detekt, or Checkstyle gate.
+## More information
 
-See [Contributing](CONTRIBUTING.md) for individual tests, `runIde`, architecture
-changes, Plugin Verifier, and the complete pre-review workflow.
+- [Configuration guide](docs/guide_configuration.md)
+- [IDE, language support, and limitations](docs/reference_language_support.md)
+- [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md)
 
-## Documentation
-
-- [IntelliJ runtime walkthrough and Graphviz diagrams](docs/explanation_intellij_runtime.md)
-- [Current architecture](docs/explanation_architecture.md)
-- [Design principles and rationale](docs/explanation_design.md)
-- [Performance and capacity reference](docs/reference_performance_limits.md)
-- [IDE and language support reference](docs/reference_language_support.md)
-- [Run the performance benchmarks](benchmarks/guide_benchmarking.md)
-
-## License
-
-Copyright (c) 2026 sijun-yang. Distributed under the [MIT License](LICENSE).
+Distributed under the [MIT License](LICENSE).

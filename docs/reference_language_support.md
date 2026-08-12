@@ -1,8 +1,8 @@
-# Language and IDE Support Reference
+# IDE and Language Support Reference
 
-This page explains the current support rule. The installed language plugins are
-authoritative; Bracket Pair Guides does not maintain a separate language
-allowlist.
+This page distinguishes package compatibility from language-feature support.
+The installed language plugins are authoritative; Bracket Pair Guides does not
+maintain a separate language allowlist.
 
 ## Platform compatibility
 
@@ -15,6 +15,51 @@ modules are present.
 Load compatibility does not establish language support. An IDE can satisfy the
 module dependencies while its primary language remains unsupported by the
 matching rule below.
+
+## Current IDE matrix
+
+The 0.0.1 ZIP was checked on 2026-08-12 with Plugin Verifier 1.409 against the
+official distributions below. `Compatible` means the package has no binary API,
+missing-dependency, or plugin-structure problem in that product. It does not by
+itself prove that the product's primary language exposes a matcher this plugin
+can use.
+
+| Product | Distribution checked | Package | Primary-language result |
+|---|---|---|---|
+| IntelliJ IDEA | 2026.2.1, `IU-262.9437.185` | Compatible | Java and Kotlin matchers confirmed; Java, Kotlin, Kotlin script, and JSON also have repository regressions |
+| Android Studio | Quail 2 / 2026.1.2.10, `AI-261.25134.95.2612.15822958` | Compatible | Bundled Java and Kotlin matchers confirmed |
+| PyCharm | 2026.2.1, `PY-262.9437.214` | Compatible | Python matcher confirmed |
+| WebStorm | 2026.2.1, `WS-262.9437.145` | Compatible | JavaScript matcher confirmed; TypeScript is in its derived language family |
+| GoLand | 2026.2.1, `GO-262.9437.195` | Compatible | Go matcher confirmed |
+| RubyMine | 2026.2.1, `RM-262.9437.192` | Compatible | Ruby, ERB, and RBS matchers confirmed |
+| RustRover | 2026.2.1, `RR-262.9437.161` | Compatible | Rust matcher confirmed |
+| DataGrip | 2026.2.3, `DB-262.9437.163` | Compatible | SQL matcher confirmed |
+| PhpStorm | 2026.2.1, `PS-262.9437.196` | Compatible | **PHP is not currently supported:** the bundled PHP engine registers only the legacy file-type matcher; matcher-backed JavaScript, TypeScript, JSON, and other regions can still work |
+| CLion | 2026.2.1, `CL-262.9437.136` | Compatible | **Default CLion Nova C/C++ is not currently supported:** it uses the ReSharper-based engine and exposes no compatible C/C++ language matcher; other matcher-backed regions can still work |
+| Rider | 2026.2.0.2, `RD-262.8665.400` | Compatible | **C# and ReSharper C++ are not currently supported:** no ReSharper backend integration is included; IntelliJ-side matcher-backed regions can still work |
+| DataSpell | 2026.1.3, `DS-261.26222.84` | Compatible | Python matcher confirmed, but DataSpell is being retired as a standalone product and 2026.1 is its final release line |
+| MPS | 2026.1, `MPS-261.25134.779` | Not claimed | MPS uses projectional model editors rather than the standard text-editor token pipeline; Plugin Verifier 1.409 also could not parse this distribution's module-less product metadata |
+
+Every compatible row reported the same two deprecated-API warnings generated
+by Kotlin's compatibility bridge for `DynamicPluginListener`; no compatibility
+problem or internal API usage was reported. The regular release matrix also
+checks IntelliJ Platform builds 241, 242, 243, 251, 252, and 262.
+
+The primary-language result was determined from the matcher registration shipped
+inside the named distribution. It is capability evidence, not a claim that every
+language construct or bundled secondary language has received an end-to-end UI
+test.
+
+### Products not advertised as supported
+
+- Aqua and AppCode are discontinued. AppCode's final release predates the
+  minimum 241 platform build; Aqua was not included in the current-product
+  verification set.
+- Writerside is no longer available as a target IntelliJ Platform product.
+- JetBrains Gateway and JetBrains Client are remote-development containers, not
+  standalone code-editor targets for this release.
+- Third-party IntelliJ Platform products may satisfy the module dependencies,
+  but they have not been verified and are not claimed as supported.
 
 ## Runtime capability rule
 
@@ -31,7 +76,15 @@ The narrow exception is a platform `UserFileType`: its official
 There is no raw-character scanner, product-specific backend, or fallback to the
 legacy file-type `com.intellij.braceMatcher`. Layered files can therefore be
 partially supported: an embedded language region can work while its host
-template language remains unsupported.
+template language remains unsupported. The token language is also part of the
+pairing group, so one pair cannot start in a host language and close in an
+embedded language.
+
+The platform matcher supplies token classification, pair compatibility,
+structural-pair metadata, and any contextual callbacks. Bracket Pair Guides
+still owns the full-document pairing stack, malformed-input recovery, indexes,
+and guide geometry. Its result is therefore based on the installed language
+rules but is not claimed to be identical to IntelliJ's boundary highlighter.
 
 ## Support boundaries
 
@@ -43,6 +96,10 @@ template language remains unsupported.
 | Platform custom file types | Syntax-table bracket tokens are supported through the platform `TEXT` matcher |
 | Raw plain text | Unsupported; characters are never treated as brackets without matcher tokens |
 | Languages with only the legacy file-type matcher | Unsupported by the current recognition gate |
+| Pair spanning host and embedded token languages | Unsupported; token-language isolation prevents cross-language pairing |
+| Indentation-only blocks | Unsupported; indentation and scope models are not brace pairs |
+| Context-dependent angle brackets | Supported only when the installed matcher classifies them in that context |
+| ReSharper-only Rider/CLion Nova language engines | Unsupported; the plugin has no ReSharper backend integration |
 
 The **Languages** list in Settings is the runtime source of truth. Bracket Pair
 Guides automatically discovers installed matcher families and requires no
@@ -53,9 +110,9 @@ plugin can therefore change the available families and exact bracket pairs.
 
 Repository tests exercise matcher discovery, contextual matching, unsupported
 tokens, language-family settings, and representative Java, Kotlin, Kotlin
-script, JSON, and custom-file-type inputs. The configured Plugin Verifier tasks
-check binary compatibility and IntelliJ API usage; they do not launch every IDE
-or exercise every installed language plugin.
+script, JSON, and custom-file-type inputs. Plugin Verifier checks binary
+compatibility and IntelliJ API usage; it does not launch the editor or exercise
+every installed language plugin.
 
 Run the relevant checks described in
 [Contributing](../CONTRIBUTING.md#verify-intellij-compatibility) after changing
@@ -65,3 +122,8 @@ Related JetBrains documentation:
 
 - [Brace matching extension](https://plugins.jetbrains.com/docs/intellij/additional-minor-features.html)
 - [Plugin compatibility](https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html)
+- [IntelliJ Platform product types](https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-types.html)
+- [Android Studio release mapping](https://plugins.jetbrains.com/docs/intellij/android-studio-releases-list.html)
+- [CLion language engines](https://www.jetbrains.com/help/clion/clion-language-engines.html)
+- [DataSpell sunset](https://blog.jetbrains.com/dataspell/2026/05/the-upcoming-sunset-of-dataspell/)
+- [MPS projectional editor](https://www.jetbrains.com/help/mps/basic-notions.html)

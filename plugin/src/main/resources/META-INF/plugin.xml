@@ -1,13 +1,35 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
-<idea-plugin>
+<idea-plugin url="https://github.com/YangSiJun528/bracket-pair-guides">
     <id>com.sijunyang.bracketpairguides</id>
     <name>Bracket Pair Guides</name>
-    <vendor url="https://github.com/YangSiJun528">sijun-yang</vendor>
+    <vendor url="https://github.com/YangSiJun528" email="yangsijun5528@gmail.com">sijun-yang</vendor>
 
     <description><![CDATA[
-        <p>Colorizes matching brackets by nesting level and shows an active guide for the innermost pair containing the caret.</p>
-        <p>Uses the IntelliJ Platform's language brace-matching extension. Select language families and customize colors, guide lines, and active-pair emphasis in Editor settings.</p>
+        <p><b>Active bracket-pair guides for JetBrains IDEs.</b></p>
+        <p>Bracket Pair Guides colors matched opening and closing tokens by nesting depth, then draws one focused path for the innermost pair containing the primary caret.</p>
+        <ul>
+            <li>Follow the containing pair with a horizontal or multiline guide.</li>
+            <li>Use a customizable six-level repeating bracket palette.</li>
+            <li>Reuse the brace rules registered by each installed language plugin.</li>
+            <li>Optionally emphasize active endpoints with a border or background.</li>
+            <li>Suppress IntelliJ's competing matched-brace colors by default.</li>
+            <li>Enable or disable installed matcher-capable language families.</li>
+        </ul>
+        <p>Recognition follows syntax tokens and the brace matcher provided by each installed language plugin rather than guessing from raw characters. Exact language and bracket support therefore depends on that plugin.</p>
+        <p>Verified with current IntelliJ IDEA, Android Studio, PyCharm, WebStorm, GoLand, RubyMine, RustRover, and DataGrip releases.</p>
+        <p>Configure the plugin under Settings | Editor | Bracket Pair Guides. Requires IntelliJ Platform 2024.1 or newer.</p>
+        <p><a href="https://github.com/YangSiJun528/bracket-pair-guides#readme">Documentation</a> · <a href="https://github.com/YangSiJun528/bracket-pair-guides/issues">Report an issue</a></p>
     ]]></description>
+
+    <change-notes><![CDATA[
+        <p><b>0.0.1</b> — Initial public release.</p>
+        <ul>
+            <li>Six-level bracket-pair colorization.</li>
+            <li>A caret-driven guide for the innermost containing pair.</li>
+            <li>Default suppression of IntelliJ's matched-brace foreground and background.</li>
+            <li>Language-family and appearance settings.</li>
+        </ul>
+    ]]></change-notes>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
