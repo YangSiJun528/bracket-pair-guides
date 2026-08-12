@@ -57,6 +57,43 @@ public class PairingMachineBenchmark {
         return output.freeze();
     }
 
+    @Benchmark
+    public PairTable pairSequentialTokens() {
+        PairTable.Draft output = PairTable.draft();
+        PairingMachine<Token, Group> machine = new PairingMachine<>(ignored -> RULES);
+        PairingMachine<Token, Group>.Session session = machine.newSession(
+                output,
+                () -> { },
+                50_000
+        );
+        for (int index = 0; index < pairCount; index++) {
+            int openOffset = index * 2;
+            session.accept(
+                    Group.MAIN,
+                    Token.OPEN,
+                    null,
+                    false,
+                    BracketRole.OPEN,
+                    StructuralRole.NONE,
+                    openOffset,
+                    1,
+                    0
+            );
+            session.accept(
+                    Group.MAIN,
+                    Token.CLOSE,
+                    null,
+                    false,
+                    BracketRole.CLOSE,
+                    StructuralRole.NONE,
+                    openOffset + 1,
+                    1,
+                    0
+            );
+        }
+        return output.freeze();
+    }
+
     private enum Token {
         OPEN,
         CLOSE

@@ -1,8 +1,7 @@
 # Performance and Capacity Reference
 
 This document is the single current reference for analysis limits, retained
-payload bounds, fallback bounds, and asymptotic costs. The architecture explains
-why the objects are separated; the
+payload bounds, fallback bounds, and asymptotic costs. The
 [benchmark guide](../benchmarks/guide_benchmarking.md) explains how to measure
 changes.
 
@@ -41,7 +40,7 @@ another byte-size setting.
 | Boundary | Smallest representative input | Practical interpretation |
 |---|---:|---|
 | Default IDE code-insight size | 2,500 KiB | Ordinary large source usually stops before recognition |
-| Completed-pair limit | 200,000 one-character brace tokens, about 195 KiB | A minified or generated file can cross the structural limit below the byte-size limit |
+| Completed-pair limit | 200,002 one-character brace tokens, about 195 KiB | A minified or generated file can cross the structural limit below the byte-size limit |
 | Pending-open limit | 50,000 one-character openers, about 49 KiB | Pathological nesting can grow the object-backed stack below the byte-size limit |
 | Exact guide payload | 1,032,192 indexed lines | Reachable near 1 MiB only with almost empty LF lines; at 40 bytes per line the source is about 39 MiB and normally fails the IDE gate first |
 
@@ -139,7 +138,85 @@ Use [Run the performance benchmarks](../benchmarks/guide_benchmarking.md) for
 repeatable JMH comparisons of pairing and primitive sorting. Benchmark results
 are comparative evidence, not exact IDE latency. Validate changes that affect
 read actions, allocation, or painting in a running IDE with Java Flight
-Recorder.
+Recorder. The separate
+[IDE comparison guide](../benchmarks/guide_ide_comparison.md) records the
+black-box whole-IDE procedure used for the 0.0.1 sanity check.
+
+## Published 0.0.1 baseline
+
+The following numbers are evidence for the specific measured components, not a
+claim about total IDE latency or heap use. They were collected on 2026-08-12 on
+an Apple M1 Pro (10 cores, 32 GiB) with JDK 17.0.17.
+
+### Pairing throughput
+
+JMH 1.37 ran the production `PairingMachine` and `PairTable` with two forks,
+two 1-second warmup iterations, and three 1-second measurement iterations per
+fork. The published input is one token language/group with sequential `()`
+pairs. Its pending-open depth is one, so the first two rows stay within the
+production pending-opener and completed-pair limits.
+
+| Completed pairs | Input tokens | Mean time | Allocated per operation |
+|---:|---:|---:|---:|
+| 32,768 | 65,536 | 3.348 ms/op | 7,142,876 B/op |
+| 100,000 | 200,000 | 10.497 ms/op | 22,744,358 B/op |
+| 200,000 | 400,000 | 22.139 ms/op | 47,970,601 B/op |
+
+The 200,000 case is an isolated core scalability probe beyond the production
+completed-pair limit. The allocation column includes every byte allocated by
+the benchmark operation, including the output table and temporary opener and
+pairing bookkeeping; it is not retained model memory.
+These measurements exclude the IntelliJ editor-highlighter iterator, language
+matcher callbacks, snapshot indexes, markup publication, and painting.
+The versioned [raw result](../benchmarks/results/0.0.1/pairing-sequential-jmh.json)
+records the per-fork samples, environment, and source/artifact hashes.
+
+The benchmark also includes fully nested input. Only its 32,768-pair parameter
+is production-admissible; the 100,000 and 200,000 parameters intentionally
+exceed the 50,000 pending-opener limit to probe the isolated core.
+
+### Retained-model probe
+
+A JOL 0.17 probe estimated the retained object graph for the single-line
+geometry of 100,000 sequential `()` pairs. The production pairing core
+processed the classified-token stream, and JOL traversed the resulting
+`BracketIndexes` wrapper containing the `PairTable`, token index, and
+active-pair index. The run used JDK 17 with compressed object and class pointers
+and 8-byte alignment.
+
+| Retained model | Objects/arrays | Bytes | MiB |
+|---|---:|---:|---:|
+| Bracket Pair Guides | 14 | 6,513,896 | 6.21 |
+
+This value excludes IntelliJ syntax tokens and PSI, matcher allocations,
+transient pairing workspaces, editor `RangeHighlighter` objects, and total IDE
+heap. It also excludes guide-position data because every pair is on one line.
+It includes the active-pair and token indexes used by the default feature set.
+
+### Third-party comparison boundary
+
+The 0.0.1 release includes an exploratory black-box comparison with Rainbow
+Brackets 2025.3.12 and Color Brackets 2024.6.1.8. Each variant ran in a fresh
+IDE process and sandbox with the same IDE build, generated Java fixture, native
+matched-brace setting, phase order, heap, and caret paths. The repository keeps
+the [result snapshot](../benchmarks/ide-comparison/results/0.0.1/summary.md),
+raw rows, binary hashes, exclusions, and protocol outline.
+
+Only three complete blocks were collected. The run did not reveal an obvious
+whole-IDE heap release blocker, but idle CPU and caret timings showed
+substantial process-to-process variation. The Bracket Pair Guides caret batches
+were also consistently slower in this synthetic workload. The caret timers
+measure synchronous `%goto` command completion without a deferred visual-update
+fence, so they are not direct paint or user-perceived latency measurements.
+These results are a sanity record, not a speed or total-memory ranking and not
+evidence about why a difference occurred.
+
+Source-level object-graph probes remain invalid for the third-party comparison:
+the products expose different features and do not publish equivalent current
+retained models. A promotional comparison would require a preregistered
+workload, at least ten complete randomized blocks, confidence intervals, and a
+secondary fixture. The published three-block run deliberately makes no such
+claim.
 
 ## Evidence sources
 

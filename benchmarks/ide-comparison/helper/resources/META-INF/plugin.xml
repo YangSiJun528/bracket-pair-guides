@@ -1,0 +1,12 @@
+<idea-plugin>
+  <id>perf.harness.timer</id>
+  <name>Performance Harness Timer</name>
+  <version>1.0</version>
+  <vendor>Local benchmark harness</vendor>
+  <idea-version since-build="252" until-build="252.*"/>
+  <depends>com.jetbrains.performancePlugin</depends>
+  <extensions defaultExtensionNs="com.jetbrains.performancePlugin">
+    <profiler implementation="perf.harness.TimerOnlyProfiler"/>
+    <commandProvider implementation="perf.harness.HarnessMetricCommandProvider"/>
+  </extensions>
+</idea-plugin>

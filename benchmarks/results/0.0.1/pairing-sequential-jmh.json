@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "release": "0.0.1",
+  "measured_at": "2026-08-12",
+  "claim_scope": "Production PairingMachine core only; excludes IntelliJ tokenization, matcher callbacks, index construction, markup, and painting.",
+  "host": {
+    "os": "macOS 26.5.2 (25F84)",
+    "architecture": "arm64",
+    "processor": "Apple M1 Pro",
+    "cores": 10,
+    "memory_gib": 32
+  },
+  "command": "./gradlew :benchmarks:jmh -PbenchmarkInclude='.*PairingMachineBenchmark.pairSequentialTokens'",
+  "artifacts": {
+    "pairing_machine_source_sha256": "d6bbd1c267a6d2a26c1ea2956467d4cc2134840227c77476d31f3b862c312816",
+    "benchmark_source_sha256": "d0018ed5aaf0da16c44611d37d70c76fef26cfce4f5311bb12be1a2255705a76",
+    "jmh_jar_sha256": "8c4b24009f1f94b3a538bcc0432b486af229c48a7dc486b0c118456e8ca254a7",
+    "original_results_sha256": "1ba9d85eb1ca896db8f8558fb0492928d3f80e29e3fe0e24f44f572b305e93e2"
+  },
+  "environment": {
+    "jmh_version": "1.37",
+    "jdk_version": "17.0.17",
+    "vm_name": "OpenJDK 64-Bit Server VM",
+    "vm_version": "17.0.17+10",
+    "threads": 1,
+    "forks": 2,
+    "warmup_iterations": 2,
+    "warmup_time": "1 s",
+    "measurement_iterations": 3,
+    "measurement_time": "1 s"
+  },
+  "results": [
+    {
+      "completed_pairs": 32768,
+      "time": {
+        "score": 3.3484105898542516,
+        "score_error": 0.10722967547879056,
+        "score_confidence": [
+          3.241180914375461,
+          3.455640265333042
+        ],
+        "unit": "ms/op",
+        "raw_data": [
+          [
+            3.3282608973509933,
+            3.31855500660066,
+            3.2987626118421054
+          ],
+          [
+            3.3725050505050507,
+            3.3786480704697985,
+            3.3937319023569024
+          ]
+        ]
+      },
+      "allocated": {
+        "score": 7142875.8401388675,
+        "score_error": 0.7668854160050804,
+        "score_confidence": [
+          7142875.073253452,
+          7142876.607024283
+        ],
+        "unit": "B/op",
+        "raw_data": [
+          [
+            7142875.523178808,
+            7142875.669966997,
+            7142875.605263158
+          ],
+          [
+            7142876.175084176,
+            7142876.0,
+            7142876.067340068
+          ]
+        ]
+      }
+    },
+    {
+      "completed_pairs": 100000,
+      "time": {
+        "score": 10.496720000874246,
+        "score_error": 0.5010369331166045,
+        "score_confidence": [
+          9.995683067757643,
+          10.99775693399085
+        ],
+        "unit": "ms/op",
+        "raw_data": [
+          [
+            10.636587715789474,
+            10.596908778947368,
+            10.161290818181818
+          ],
+          [
+            10.62478947368421,
+            10.463442010309278,
+            10.497301208333333
+          ]
+        ]
+      },
+      "allocated": {
+        "score": 22744358.153466526,
+        "score_error": 2.7439607000446147,
+        "score_confidence": [
+          22744355.409505825,
+          22744360.897427227
+        ],
+        "unit": "B/op",
+        "raw_data": [
+          [
+            22744358.736842107,
+            22744358.736842107,
+            22744357.01010101
+          ],
+          [
+            22744358.736842107,
+            22744356.783505153,
+            22744358.916666668
+          ]
+        ]
+      }
+    },
+    {
+      "completed_pairs": 200000,
+      "time": {
+        "score": 22.13879812637217,
+        "score_error": 2.493667612492354,
+        "score_confidence": [
+          19.645130513879813,
+          24.632465738864525
+        ],
+        "unit": "ms/op",
+        "raw_data": [
+          [
+            21.38611022916667,
+            21.451112595744682,
+            21.63294059574468
+          ],
+          [
+            21.901699282608696,
+            23.56133041860465,
+            22.899595636363635
+          ]
+        ]
+      },
+      "allocated": {
+        "score": 47970601.31120279,
+        "score_error": 16.485481246956795,
+        "score_confidence": [
+          47970584.82572154,
+          47970617.796684034
+        ],
+        "unit": "B/op",
+        "raw_data": [
+          [
+            47970594.833333336,
+            47970597.44680851,
+            47970598.80851064
+          ],
+          [
+            47970600.17391305,
+            47970610.60465116,
+            47970606.0
+          ]
+        ]
+      }
+    }
+  ]
+}
