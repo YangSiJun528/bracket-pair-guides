@@ -15,7 +15,7 @@ class PairCollectionTest {
             pairs.acceptPair(4)
         }
 
-        assertThat(signal).isSameAs(PairCapacityReached)
+        assertThat(signal).isInstanceOf(PairCapacityReached::class.java)
         assertThat(pairs.authoritativePairs()).isNull()
     }
 

@@ -217,7 +217,7 @@ internal class BracketTokenIndex private constructor(
             (openLength.toLong() shl OFFSET_SHIFT) or
                 (closeLength.toLong() and TOKEN_REFERENCE_MASK)
 
-        private data class DetachedMetadata(
+        private class DetachedMetadata(
             val lengths: LongArray,
             val depths: IntArray,
         )

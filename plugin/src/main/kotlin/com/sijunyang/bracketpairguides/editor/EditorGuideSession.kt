@@ -55,7 +55,7 @@ internal class EditorGuideSession(
     }
 
     /** The only publication boundary for an authoritative analysis attempt. */
-    fun accept(outcome: AnalysisOutcome): Unit {
+    fun accept(outcome: AnalysisOutcome) {
         assertEdt()
         when (outcome) {
             is AnalysisOutcome.Complete -> acceptComplete(outcome.snapshot)
@@ -64,7 +64,7 @@ internal class EditorGuideSession(
         }
     }
 
-    private fun acceptComplete(nextAnalysis: BracketSnapshot): Unit {
+    private fun acceptComplete(nextAnalysis: BracketSnapshot) {
         assertEdt()
         if (disposed || editor.isDisposed) return
         val requiredCoverage = options.analysisCoverage()
@@ -132,7 +132,7 @@ internal class EditorGuideSession(
     }
 
     /** Publishes exact lower facets after the requested guide index crosses its cap. */
-    private fun acceptLimited(outcome: AnalysisOutcome.Limited): Unit {
+    private fun acceptLimited(outcome: AnalysisOutcome.Limited) {
         assertEdt()
         if (disposed || editor.isDisposed) return
         val nextAnalysis = outcome.snapshot
@@ -179,7 +179,7 @@ internal class EditorGuideSession(
     }
 
     /** Accepts a bounded analysis refusal without publishing a partial snapshot. */
-    private fun acceptUnavailable(outcome: AnalysisOutcome.Unavailable): Unit {
+    private fun acceptUnavailable(outcome: AnalysisOutcome.Unavailable) {
         assertEdt()
         if (disposed || editor.isDisposed) return
         val stamp = outcome.stamp
@@ -204,7 +204,7 @@ internal class EditorGuideSession(
         repaintVisibleContent()
     }
 
-    fun caretMoved(): Unit {
+    fun caretMoved() {
         assertEdt()
         if (disposed || editor.isDisposed) return
         if (!options.analysisCoverage().activePair) return
@@ -230,14 +230,14 @@ internal class EditorGuideSession(
      * This method must finish before the originating DocumentListener callback;
      * never make the active-pair refresh dependent on a later analysis pass.
      */
-    fun documentChanged(change: DocumentChange): Unit {
+    fun documentChanged(change: DocumentChange) {
         assertEdt()
         if (disposed || editor.isDisposed) return
         discardStaleAnalysis()
         updateProvisional(change)
     }
 
-    fun visibleAreaChanged(): Unit {
+    fun visibleAreaChanged() {
         assertEdt()
         if (disposed || editor.isDisposed) return
         if (discardPresentationFromReplacedHighlighter()) return
@@ -255,7 +255,7 @@ internal class EditorGuideSession(
     fun updateOptions(
         nextOptions: BracketGuidePreferences,
         refreshColors: Boolean,
-    ): Unit {
+    ) {
         assertEdt()
         if (disposed || editor.isDisposed) return
         val previousOptions = options
@@ -330,7 +330,7 @@ internal class EditorGuideSession(
         previousOptions: BracketGuidePreferences,
         currentAnalysis: BracketSnapshot?,
         refreshColors: Boolean,
-    ): Unit {
+    ) {
         val wasVisible = previousOptions.enabled && previousOptions.colorBracketTokens
         val isVisible = options.enabled && options.colorBracketTokens
         when {
@@ -347,7 +347,7 @@ internal class EditorGuideSession(
         }
     }
 
-    fun dispose(): Unit {
+    fun dispose() {
         assertEdt()
         if (disposed) return
         disposed = true
@@ -358,7 +358,7 @@ internal class EditorGuideSession(
     fun canSkipAnalysis(required: AnalysisStamp): Boolean = analysisState.canSkip(required)
 
     /** Avoids touching editor markup when the application is already shutting down. */
-    fun forgetAcceptedAnalysis(): Unit {
+    fun forgetAcceptedAnalysis() {
         analysisState.forgetAcceptance()
     }
 
@@ -425,22 +425,18 @@ internal class EditorGuideSession(
             options.disabledLanguageIds,
         )
 
-    private fun hasCurrentTokenAnalysis(candidate: BracketSnapshot): Boolean {
-        if (!options.analysisCoverage().tokens) return false
-        return analysisState.hasCurrentTokens(
+    private fun hasCurrentTokenAnalysis(candidate: BracketSnapshot): Boolean =
+        options.analysisCoverage().tokens && analysisState.hasCurrentTokens(
             candidate,
             editorFileType(editor),
             options.disabledLanguageIds,
         )
-    }
 
-    private fun allowsProvisionalGuide(candidate: BracketSnapshot): Boolean {
-        if (candidate.stamp.coverage.guidePosition) return false
-        return !analysisState.hasRefused(
+    private fun allowsProvisionalGuide(candidate: BracketSnapshot): Boolean =
+        !candidate.stamp.coverage.guidePosition && !analysisState.hasRefused(
             currentStamp(),
             AnalysisLimit.GUIDE_CAPACITY,
         )
-    }
 
     private fun shouldReleasePairGraph(
         required: AnalysisCoverage,

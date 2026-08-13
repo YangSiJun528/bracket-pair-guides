@@ -26,9 +26,8 @@ final class LongArraySamples {
     long[] values = new long[size];
     int pairCount = size / 2;
     for (int pair = 0; pair < pairCount; pair++) {
-      int openOffset = pair;
       int closeOffset = pairCount * 2 - pair;
-      values[pair * 2] = encode(openOffset, pair, true);
+      values[pair * 2] = encode(pair, pair, true);
       values[pair * 2 + 1] = encode(closeOffset, pair, false);
     }
     if ((size & 1) != 0) {

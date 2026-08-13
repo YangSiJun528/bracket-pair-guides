@@ -33,6 +33,7 @@ internal class BracketGuideSettingsPage(
 ) : BoundConfigurable("Bracket Pair Guides") {
     private var appliedSnapshot = BracketGuidePreferences()
 
+    @Suppress("unused")
     constructor() : this(BraceLanguageCatalog()::installedFamilies)
 
     override fun createPanel(): DialogPanel {
@@ -271,7 +272,7 @@ internal class BracketGuideSettingsPage(
                     )
                 }
                 row {
-                    button("Reset colors") {
+                    button("Reset Colors") {
                         colorPanels.forEach { (level, colorPanel) ->
                             colorPanel.selectedColor = StoredColorFormat.storedColor(
                                 StoredColorFormat.defaultColor(level),

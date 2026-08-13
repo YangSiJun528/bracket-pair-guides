@@ -21,7 +21,7 @@ changes.
 |---|---:|---|---|
 | Host code-insight file size | IntelliJ's configured `idea.max.intellisense.filesize`; default 2,500 KiB | `Unavailable(IDE_CODE_INSIGHT_FILE_SIZE)` | `BracketGuideHighlightingPass` via `SingleRootFileViewProvider` |
 | Completed pairs | 100,000 | `Unavailable(PAIR_CAPACITY)` with no pair prefix | `BracketRecognitionLimits.completedPairs` |
-| Pending openers | 50,000 | `Unavailable(PENDING_OPEN_CAPACITY)` before the next stack node is allocated | `BracketRecognitionLimits.pendingOpens` |
+| Pending openers | 50,000 | `Unavailable(PENDING_OPEN_CAPACITY)` before the next stack node is allocated | `BracketRecognitionLimits.MAXIMUM_PENDING_OPENS` |
 | Retained exact guide payload | 4 MiB | `Limited(GUIDE_CAPACITY)` with exact token and active-pair facets but no guide | `GuideIndexShape` |
 | Exact guide span under that payload | 1,032,192 lines | Same guide-only limitation | `GuideIndexShape` |
 | Synchronous document-edit guide scan | 256 lines and 32,768 inspected line-prefix characters, including each content terminator | Remove the stale guide immediately; wait for exact background analysis | `GuidePositionFallback` |

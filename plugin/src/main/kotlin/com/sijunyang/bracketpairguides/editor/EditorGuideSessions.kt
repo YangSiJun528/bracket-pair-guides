@@ -36,7 +36,7 @@ internal object EditorGuideSessions {
 
     fun get(editor: Editor): EditorGuideSession? = editor.getUserData(KEY)
 
-    fun dispose(editor: Editor): Unit {
+    fun dispose(editor: Editor) {
         val application = ApplicationManager.getApplication()
         if (!application.isDisposed) assertEdt()
         val session = editor.getUserData(KEY)

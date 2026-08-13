@@ -20,7 +20,7 @@ internal class BracketGuidePassRegistration :
     override fun registerHighlightingPassFactory(
         registrar: TextEditorHighlightingPassRegistrar,
         project: Project,
-    ): Unit {
+    ) {
         registrar.registerTextEditorHighlightingPass(this, null, null, false, -1)
     }
 

@@ -102,10 +102,9 @@ internal class VisibleTokenDecorations(
 
     /** A capped token slice must follow scrolling even inside its padded window. */
     private fun canReuseFor(range: TextRange, focusOffset: Int): Boolean {
-        if (windowStartOffset > range.startOffset || windowEndOffset < range.endOffset) {
-            return false
-        }
-        return !isCapped || focusOffset in stableFocusStartOffset..stableFocusEndOffset
+        return windowStartOffset <= range.startOffset &&
+            windowEndOffset >= range.endOffset &&
+            (!isCapped || focusOffset in stableFocusStartOffset..stableFocusEndOffset)
     }
 
     private fun createEntries(
@@ -284,7 +283,7 @@ internal class VisibleTokenDecorations(
         var attributes: TextAttributes,
     )
 
-    private inner class TokenPalette(options: BracketGuidePreferences) {
+    private class TokenPalette(options: BracketGuidePreferences) {
         val attributes = Array(StoredColorFormat.COLOR_COUNT) { level ->
             BracketColorPalette.bracketTextAttributes(options, level)
         }

@@ -76,6 +76,10 @@ internal class SnapshotAssembly(
             )
         }
 
+        // Qodana cannot infer that the preflight and allocation callbacks share
+        // the same capacity contract. Keep this assertion so a broken callback
+        // cannot publish a snapshot that claims guide coverage without an index.
+        @Suppress("RedundantRequireNotNullCall")
         val positionIndex = guideEnvelope?.let { envelope ->
             checkNotNull(
                 guidePositions(envelope.lines),

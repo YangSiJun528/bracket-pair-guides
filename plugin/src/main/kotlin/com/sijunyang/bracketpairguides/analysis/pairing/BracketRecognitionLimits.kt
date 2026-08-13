@@ -9,7 +9,7 @@ internal object BracketRecognitionLimits {
     // Pending opens are object-backed. A 50k strict-context adversarial scan
     // uses roughly 10-12 MiB on the supported JetBrains Runtime, while still
     // allowing nesting far beyond realistic hand-written source.
-    const val pendingOpens: Int = 50_000
+    const val MAXIMUM_PENDING_OPENS: Int = 50_000
 }
 
 /** Maximum pair count accepted by one authoritative recognition. */

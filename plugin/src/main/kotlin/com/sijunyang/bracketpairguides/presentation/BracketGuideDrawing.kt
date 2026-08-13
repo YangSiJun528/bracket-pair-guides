@@ -25,13 +25,11 @@ import java.awt.geom.Path2D
  */
 internal class BracketGuideDrawing(
     guide: BracketGuide,
-    appearance: GuideAppearance,
-    color: Color,
+    private var appearance: GuideAppearance,
+    private var color: Color,
 ) : CustomHighlighterRenderer {
     var guide: BracketGuide = guide
         private set
-    private var appearance: GuideAppearance = appearance
-    private var color: Color = color
 
     /** Updates the EDT-owned renderer without firing a markup renderer-change event. */
     fun update(
@@ -49,7 +47,7 @@ internal class BracketGuideDrawing(
         editor: Editor,
         highlighter: RangeHighlighter,
         graphics: Graphics,
-    ): Unit {
+    ) {
         val options = appearance
         if (!highlighter.isValid || editor.isDisposed) return
         if (!options.showVertical && !options.showHorizontal) return

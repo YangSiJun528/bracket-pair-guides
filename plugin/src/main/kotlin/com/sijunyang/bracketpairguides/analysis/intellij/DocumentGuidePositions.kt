@@ -51,9 +51,9 @@ internal class DocumentGuidePositions(
             if ((offset - start) and CANCELLATION_CHARACTER_MASK == 0) {
                 checkCanceled()
             }
-            when (text[offset]) {
-                ' ' -> column = VisualColumn.afterSpace(column)
-                '\t' -> column = VisualColumn.afterTab(column, tabSize)
+            column = when (text[offset]) {
+                ' ' -> VisualColumn.afterSpace(column)
+                '\t' -> VisualColumn.afterTab(column, tabSize)
                 else -> return column
             }
         }

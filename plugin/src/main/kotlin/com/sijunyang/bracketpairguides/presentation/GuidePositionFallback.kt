@@ -221,9 +221,9 @@ internal object GuidePositionFallback {
         var offset = start
         while (offset < end) {
             if (!budget.consumeCharacter()) return UNRESOLVED
-            when (text[offset]) {
-                ' ' -> column = incrementColumn(column)
-                '\t' -> column = nextTabStop(column, tabSize)
+            column = when (text[offset]) {
+                ' ' -> incrementColumn(column)
+                '\t' -> nextTabStop(column, tabSize)
                 else -> return column
             }
             offset++

@@ -73,7 +73,7 @@ internal class EditorGuideEvents :
      * A defensive off-EDT handoff remains asynchronous because blocking a host
      * write path with invokeAndWait can deadlock the IDE.
      */
-    override fun documentChanged(event: DocumentEvent): Unit {
+    override fun documentChanged(event: DocumentEvent) {
         val change = DocumentChange(
             offset = event.offset,
             oldLength = event.oldLength,
@@ -98,12 +98,12 @@ internal class EditorGuideEvents :
         }
     }
 
-    override fun editorReleased(event: EditorFactoryEvent): Unit {
+    override fun editorReleased(event: EditorFactoryEvent) {
         visibleRefreshBatch.remove(event.editor)
         EditorGuideSessions.dispose(event.editor)
     }
 
-    override fun globalSchemeChange(scheme: EditorColorsScheme?): Unit {
+    override fun globalSchemeChange(scheme: EditorColorsScheme?) {
         for (editor in EditorFactory.getInstance().allEditors) {
             onEdt(editor) {
                 EditorGuideSessions.get(editor)?.updateOptions(
@@ -114,7 +114,7 @@ internal class EditorGuideEvents :
         }
     }
 
-    override fun dispose(): Unit {
+    override fun dispose() {
         visibleRefreshBatch.clear()
         for (editor in EditorFactory.getInstance().allEditors) {
             EditorGuideSessions.dispose(editor)
@@ -150,7 +150,7 @@ internal class EditorGuideEvents :
     companion object {
         private const val VISIBLE_REFRESH_DELAY_MILLIS = 16
 
-        fun ensureInitialized(): Unit {
+        fun ensureInitialized() {
             ApplicationManager.getApplication().getService(EditorGuideEvents::class.java)
         }
     }

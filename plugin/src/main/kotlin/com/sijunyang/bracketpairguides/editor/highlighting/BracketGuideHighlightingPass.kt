@@ -44,7 +44,7 @@ internal class BracketGuideHighlightingPass(
         }
     }
 
-    override fun doCollectInformation(progress: ProgressIndicator): Unit {
+    override fun doCollectInformation(progress: ProgressIndicator) {
         collected = null
         collectedStamp = null
         val input = currentInput()
@@ -62,7 +62,7 @@ internal class BracketGuideHighlightingPass(
         collected = analyze(input, progress)
     }
 
-    override fun doApplyInformationToEditor(): Unit {
+    override fun doApplyInformationToEditor() {
         val result = collected
         val passStamp = collectedStamp
         collected = null

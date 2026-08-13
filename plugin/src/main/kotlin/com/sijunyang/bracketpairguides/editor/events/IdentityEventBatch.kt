@@ -11,7 +11,7 @@ internal class IdentityEventBatch<T : Any>(
     private val pending = Collections.newSetFromMap(IdentityHashMap<T, Boolean>())
     private var scheduled = false
 
-    fun request(value: T): Unit {
+    fun request(value: T) {
         pending += value
         if (scheduled) return
 
@@ -24,11 +24,11 @@ internal class IdentityEventBatch<T : Any>(
         }
     }
 
-    fun remove(value: T): Unit {
+    fun remove(value: T) {
         pending -= value
     }
 
-    fun clear(): Unit {
+    fun clear() {
         pending.clear()
     }
 

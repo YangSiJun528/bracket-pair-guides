@@ -225,19 +225,14 @@ public final class PairTable {
         }
 
         private void ensureCapacity(int required) {
+            if (required < 0) {
+                throw new OutOfMemoryError("Pair table exceeds the JVM array limit");
+            }
             if (required <= openOffsets.length) {
                 return;
             }
-            int next = openOffsets.length + (openOffsets.length >> 1);
-            if (next < required) {
-                next = required;
-            }
-            if (next < 0) {
-                if (required < 0) {
-                    throw new OutOfMemoryError("Pair table exceeds the JVM array limit");
-                }
-                next = Integer.MAX_VALUE;
-            }
+            long grown = (long) openOffsets.length + (openOffsets.length >> 1);
+            int next = (int) Math.min(Math.max(grown, (long) required), Integer.MAX_VALUE);
             openOffsets = Arrays.copyOf(openOffsets, next);
             openTokenLengths = Arrays.copyOf(openTokenLengths, next);
             closeOffsets = Arrays.copyOf(closeOffsets, next);

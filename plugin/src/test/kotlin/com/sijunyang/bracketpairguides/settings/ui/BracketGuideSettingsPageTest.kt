@@ -288,7 +288,7 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
         )
 
         withConfigurable(emptyList()) { configurable, component ->
-            component.button("Reset colors").doClick()
+            component.button("Reset Colors").doClick()
             assertThat(component.checkBox("Component overrides").isSelected).isFalse()
             for (level in 0 until StoredColorFormat.COLOR_COUNT) {
                 val expected = Color(StoredColorFormat.defaultColor(level))

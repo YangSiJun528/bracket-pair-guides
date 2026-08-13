@@ -20,10 +20,10 @@ internal class PairCollection(
         openLine: Int,
         closeLine: Int,
     ) {
-        if (overflowed) throw PairCapacityReached
+        if (overflowed) throw PairCapacityReached()
         if (pairCount == capacity.maximum) {
             overflowed = true
-            throw PairCapacityReached
+            throw PairCapacityReached()
         }
         draft.accept(
             openOffset,
@@ -41,5 +41,5 @@ internal class PairCollection(
     fun authoritativePairs(): PairTable? = if (overflowed) null else draft.freeze()
 }
 
-/** Allocation-free control signal used only on the first over-capacity pair. */
-internal object PairCapacityReached : RuntimeException(null, null, false, false)
+/** Control signal used only after the completed-pair capacity is crossed. */
+internal class PairCapacityReached : RuntimeException(null, null, false, false)

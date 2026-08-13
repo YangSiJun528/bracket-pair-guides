@@ -40,7 +40,7 @@ internal class DocumentBrackets(
         ).newSession(
             checkCanceled = checkCanceled,
             pairSink = pairs,
-            maximumPendingOpens = BracketRecognitionLimits.pendingOpens,
+            maximumPendingOpens = BracketRecognitionLimits.MAXIMUM_PENDING_OPENS,
         )
         var visitedTokens = 0
 

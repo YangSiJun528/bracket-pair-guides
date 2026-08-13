@@ -32,6 +32,7 @@ internal class NativeMatchedBraceHighlighting internal constructor(
 ) : SerializablePersistentStateComponent<NativeMatchedBraceHighlighting.OwnershipState>(
     OwnershipState(),
 ), Disposable, AppLifecycleListener, DynamicPluginListener {
+    @Suppress("unused")
     constructor() : this(
         nativeSetting = IntelliJMatchedBraceSetting,
         onExternalOverride = ::recordExternalOverride,

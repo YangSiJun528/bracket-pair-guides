@@ -10,7 +10,7 @@ import java.util.Arrays
  * bounded chunks and then merged, checking cancellation both between chunks
  * and while copying long merge runs.
  */
-internal fun LongArray.sortCancellable(checkCanceled: () -> Unit): Unit {
+internal fun LongArray.sortCancellable(checkCanceled: () -> Unit) {
     checkCanceled()
     if (size < 2) return
 
