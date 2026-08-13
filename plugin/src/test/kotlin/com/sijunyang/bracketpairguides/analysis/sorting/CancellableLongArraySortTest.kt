@@ -40,8 +40,27 @@ class CancellableLongArraySortTest {
         assertThat(cancellationChecks).isEqualTo(FIRST_MERGE_CHECK)
     }
 
+    @Test
+    fun `can cancel while the final merged buffer is copied back`() {
+        val values = LongArray(COPY_BACK_INPUT_SIZE) { index ->
+            (COPY_BACK_INPUT_SIZE - index).toLong()
+        }
+
+        assertThatThrownBy {
+            values.sortCancellable {
+                if (values[0] == 1L) throw ProcessCanceledException()
+            }
+        }.isInstanceOf(ProcessCanceledException::class.java)
+
+        assertThat(values.copyOfRange(0, COPY_BLOCK_SIZE))
+            .containsExactly(*LongArray(COPY_BLOCK_SIZE) { it + 1L })
+        assertThat(values[COPY_BLOCK_SIZE]).isNotEqualTo(COPY_BLOCK_SIZE + 1L)
+    }
+
     companion object {
         private const val LARGE_INPUT_SIZE = 50_000
+        private const val COPY_BACK_INPUT_SIZE = 20_000
+        private const val COPY_BLOCK_SIZE = 4_096
         // Initial check + four chunk completions precede merge progress checks.
         private const val FIRST_MERGE_CHECK = 8
     }

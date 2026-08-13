@@ -260,6 +260,49 @@ public class PairingMachineTest {
     }
 
     @Test
+    public void sequentialPairsReleasePendingCapacityAndReuseGroupState() throws Exception {
+        RecordedPairs output = new RecordedPairs();
+        int[] resolutions = {0};
+        PairingMachine<Character, String> machine = new PairingMachine<>(group -> {
+            resolutions[0]++;
+            return CHAR_RULES;
+        });
+        PairingMachine<Character, String>.Session session = machine.newSession(
+                output,
+                NO_CANCELLATION,
+                1
+        );
+
+        assertThat(session.accept(
+                "main", '(', null, false,
+                BracketRole.OPEN, StructuralRole.NONE, 0, 1, 0
+        )).isTrue();
+        assertThat(session.accept(
+                "main", ')', null, false,
+                BracketRole.CLOSE, StructuralRole.NONE, 1, 1, 0
+        )).isTrue();
+        Object lightweightState = groupState(session, "main");
+
+        boolean accepted = true;
+        for (int pair = 1; pair < 10_000; pair++) {
+            int openOffset = pair * 2;
+            accepted &= session.accept(
+                    "main", '(', null, false,
+                    BracketRole.OPEN, StructuralRole.NONE, openOffset, 1, 0
+            );
+            accepted &= session.accept(
+                    "main", ')', null, false,
+                    BracketRole.CLOSE, StructuralRole.NONE, openOffset + 1, 1, 0
+            );
+        }
+
+        assertThat(accepted).isTrue();
+        assertThat(groupState(session, "main")).isSameAs(lightweightState);
+        assertThat(resolutions[0]).isEqualTo(1);
+        assertThat(output.pairs).hasSize(10_000);
+    }
+
+    @Test
     public void oversizedEmptyGroupReleasesItsStateAndKeepsResolvedRules() throws Exception {
         RecordedPairs output = new RecordedPairs();
         int[] resolutions = {0};

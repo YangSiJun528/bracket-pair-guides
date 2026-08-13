@@ -59,6 +59,15 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
         assertThat(persistentRenderer.guide.pair).isEqualTo(outer)
         assertThat(rendererChanges).isEqualTo(1)
 
+        repeat(100) {
+            editor.caretModel.moveToOffset(source.indexOf("inner"))
+            editor.caretModel.moveToOffset(source.indexOf("tail"))
+        }
+        assertThat(activeGuide()).isSameAs(persistentMark)
+        assertThat(activeGuideState()).isSameAs(persistentRenderer)
+        assertThat(persistentRenderer.guide.pair).isEqualTo(outer)
+        assertThat(rendererChanges).isEqualTo(1)
+
         val configuredColor = Color(0xCC, 0x22, 0x55)
         val options = BracketGuideSettings.getInstance().options.copy(
             useIndependentComponentColors = true,
