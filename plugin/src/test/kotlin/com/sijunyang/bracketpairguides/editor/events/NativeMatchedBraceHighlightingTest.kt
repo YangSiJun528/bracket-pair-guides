@@ -1,8 +1,9 @@
 package com.sijunyang.bracketpairguides.editor.events
 
-import com.intellij.util.xmlb.XmlSerializer
+import com.intellij.ide.plugins.DynamicPluginListener
 import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.openapi.extensions.PluginId
+import com.intellij.util.xmlb.XmlSerializer
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -123,14 +124,14 @@ class NativeMatchedBraceHighlightingTest {
         val fixture = fixture(initialNativeValue = true)
         fixture.controller.apply(BracketGuidePreferences())
 
-        fixture.controller.beforePluginUnload(
+        fixture.pluginListener.beforePluginUnload(
             pluginDescriptor("unrelated.plugin"),
             false,
         )
         assertThat(fixture.nativeSetting.enabled).isFalse()
         assertThat(fixture.persistedSnapshots).isEmpty()
 
-        fixture.controller.beforePluginUnload(
+        fixture.pluginListener.beforePluginUnload(
             pluginDescriptor("com.sijunyang.bracketpairguides"),
             true,
         )
@@ -140,6 +141,8 @@ class NativeMatchedBraceHighlightingTest {
         assertThat(fixture.persistedSnapshots).containsExactly(
             PersistedSnapshot(nativeEnabled = true, restoreValue = null),
         )
+        assertThat(fixture.pluginListener.javaClass.declaredMethods.map { it.name })
+            .doesNotContain("checkUnloadPlugin")
     }
 
     @Test
@@ -165,6 +168,7 @@ class NativeMatchedBraceHighlightingTest {
         val nativeSetting = FakeNativeSetting(initialNativeValue)
         val externalOverrides = mutableListOf<Unit>()
         val persistedSnapshots = mutableListOf<PersistedSnapshot>()
+        lateinit var pluginListener: DynamicPluginListener
         lateinit var controller: NativeMatchedBraceHighlighting
         controller = NativeMatchedBraceHighlighting(
             nativeSetting = nativeSetting,
@@ -176,10 +180,11 @@ class NativeMatchedBraceHighlightingTest {
                     restoreValue = controller.state.restoreValue,
                 )
             },
-            subscribeToLifecycle = { _, _, _ -> },
+            subscribeToLifecycle = { _, listener, _ -> pluginListener = listener },
         )
         return Fixture(
             controller,
+            pluginListener,
             nativeSetting,
             externalOverrides,
             persistedSnapshots,
@@ -188,6 +193,7 @@ class NativeMatchedBraceHighlightingTest {
 
     private data class Fixture(
         val controller: NativeMatchedBraceHighlighting,
+        val pluginListener: DynamicPluginListener,
         val nativeSetting: FakeNativeSetting,
         val externalOverrides: List<Unit>,
         val persistedSnapshots: List<PersistedSnapshot>,

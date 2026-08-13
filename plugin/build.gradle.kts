@@ -38,7 +38,9 @@ intellijPlatform {
             recommended()
             // The recommended set follows the 2024.1 fixture and currently
             // stops at 2025.2. Also cover the open-ended descriptor's current
-            // IntelliJ Platform endpoint without downloading every product.
+            // IntelliJ Platform releases without downloading every product.
+            create(IntelliJPlatformType.IntellijIdea, "2025.3")
+            create(IntelliJPlatformType.IntellijIdea, "2026.1")
             create(IntelliJPlatformType.IntellijIdea, "2026.2")
         }
         failureLevel.set(

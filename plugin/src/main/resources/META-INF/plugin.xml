@@ -22,12 +22,13 @@
     ]]></description>
 
     <change-notes><![CDATA[
-        <p><b>0.0.1</b> — Initial public release.</p>
+        <p><b>0.0.2</b> — Initial public release.</p>
         <ul>
             <li>Six-level bracket-pair colorization.</li>
             <li>A caret-driven guide for the innermost containing pair.</li>
             <li>Default suppression of IntelliJ's matched-brace foreground and background.</li>
             <li>Language-family and appearance settings.</li>
+            <li>No deprecated IntelliJ API usage reported by Plugin Verifier.</li>
         </ul>
     ]]></change-notes>
 

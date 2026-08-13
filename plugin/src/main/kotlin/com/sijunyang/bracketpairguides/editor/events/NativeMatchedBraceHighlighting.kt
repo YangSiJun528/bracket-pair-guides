@@ -31,7 +31,7 @@ internal class NativeMatchedBraceHighlighting internal constructor(
     ) -> Unit,
 ) : SerializablePersistentStateComponent<NativeMatchedBraceHighlighting.OwnershipState>(
     OwnershipState(),
-), Disposable, AppLifecycleListener, DynamicPluginListener {
+), Disposable, AppLifecycleListener {
     @Suppress("unused")
     constructor() : this(
         nativeSetting = IntelliJMatchedBraceSetting,
@@ -47,7 +47,11 @@ internal class NativeMatchedBraceHighlighting internal constructor(
     )
 
     init {
-        subscribeToLifecycle(this, this, this)
+        subscribeToLifecycle(
+            this,
+            NativeMatchedBracePluginUnloadListener(::beforePluginUnload),
+            this,
+        )
     }
 
     @Synchronized
@@ -84,10 +88,7 @@ internal class NativeMatchedBraceHighlighting internal constructor(
     }
 
     @Synchronized
-    override fun beforePluginUnload(
-        pluginDescriptor: IdeaPluginDescriptor,
-        isUpdate: Boolean,
-    ) {
+    internal fun beforePluginUnload(pluginDescriptor: IdeaPluginDescriptor) {
         if (pluginDescriptor.pluginId == PLUGIN_ID) releaseAndPersistOwnership()
     }
 
