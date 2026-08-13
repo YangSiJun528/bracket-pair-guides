@@ -232,7 +232,7 @@ public final class PairTable {
                 return;
             }
             long grown = (long) openOffsets.length + (openOffsets.length >> 1);
-            int next = (int) Math.min(Math.max(grown, (long) required), Integer.MAX_VALUE);
+            int next = (int) Math.min(Math.max(grown, required), Integer.MAX_VALUE);
             openOffsets = Arrays.copyOf(openOffsets, next);
             openTokenLengths = Arrays.copyOf(openTokenLengths, next);
             closeOffsets = Arrays.copyOf(closeOffsets, next);
