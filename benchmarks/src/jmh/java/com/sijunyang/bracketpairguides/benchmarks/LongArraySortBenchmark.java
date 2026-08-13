@@ -54,6 +54,7 @@ public class LongArraySortBenchmark {
   }
 
   @Benchmark
+  @SuppressWarnings("KotlinInternalInJava") // Intentional benchmark-only production probe.
   public long[] productionCancellableSort() {
     CancellableLongArraySortKt.sortCancellable(working, NO_CANCELLATION);
     return working;

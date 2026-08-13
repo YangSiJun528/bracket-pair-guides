@@ -78,6 +78,7 @@ public class LongArraySortCancellationBenchmark {
   }
 
   @Benchmark
+  @SuppressWarnings("KotlinInternalInJava") // Intentional benchmark-only production probe.
   public long productionSortStopsCooperatively() throws Exception {
     Future<?> cancellation = requestCancellation();
     try {

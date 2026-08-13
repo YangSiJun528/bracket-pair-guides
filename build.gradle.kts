@@ -4,5 +4,5 @@ plugins {
 }
 
 tasks.named("check") {
-    dependsOn(":plugin:check", ":benchmarks:check")
+    dependsOn(":plugin:check", ":benchmarks:jmhJar")
 }
