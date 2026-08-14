@@ -1,8 +1,8 @@
 # Bracket Pair Guides
 
-VS Code-style active bracket pair guides for JetBrains IDEs.
+VS Code-style bracket pair guides for JetBrains IDEs.
 
-![Bracket Pair Guides in the editor](docs/images/editor-guide.png)
+![Bracket Pair Guides in the editor](marketplace-media/01-active-guide.gif)
 
 Bracket Pair Guides builds a complete path around the bracket pair enclosing
 the caret using horizontal and vertical guide segments. It combines the active
@@ -55,3 +55,7 @@ network requests. All analysis and settings remain inside the IDE.
 - [Contributing](CONTRIBUTING.md)
 
 Distributed under the [MIT License](LICENSE).
+
+Bracket Pair Guides is an independent project and is not affiliated with
+Microsoft. Visual Studio Code and VS Code are trademarks of Microsoft
+Corporation.
