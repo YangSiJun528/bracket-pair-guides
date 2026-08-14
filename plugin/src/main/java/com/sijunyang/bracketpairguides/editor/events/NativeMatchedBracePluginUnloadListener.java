@@ -2,6 +2,7 @@ package com.sijunyang.bracketpairguides.editor.events;
 
 import com.intellij.ide.plugins.DynamicPluginListener;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -23,7 +24,7 @@ final class NativeMatchedBracePluginUnloadListener implements DynamicPluginListe
     }
 
     @Override
-    public void beforePluginUnload(IdeaPluginDescriptor pluginDescriptor, boolean isUpdate) {
+    public void beforePluginUnload(@NotNull IdeaPluginDescriptor pluginDescriptor, boolean isUpdate) {
         beforeUnload.accept(pluginDescriptor);
     }
 }
