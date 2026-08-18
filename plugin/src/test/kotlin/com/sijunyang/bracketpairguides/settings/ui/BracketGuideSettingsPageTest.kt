@@ -196,6 +196,43 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
         }
     }
 
+    fun testLanguageBulkActionsPreserveUnavailableDisabledIds() {
+        BracketGuideSettings.getInstance().loadState(
+            BracketGuidePreferences(
+                disabledLanguageIds = setOf(UNAVAILABLE_LANGUAGE_ID, BETA_LANGUAGE_ID),
+            ),
+        )
+
+        withConfigurable(listOf(BETA_FAMILY, ALPHA_FAMILY)) { configurable, component ->
+            assertThat(component.languageCheckBox(ALPHA_LANGUAGE_ID).isSelected).isTrue()
+            assertThat(component.languageCheckBox(BETA_LANGUAGE_ID).isSelected).isFalse()
+
+            component.button("Select All").doClick()
+
+            assertThat(component.languageCheckBox(ALPHA_LANGUAGE_ID).isSelected).isTrue()
+            assertThat(component.languageCheckBox(BETA_LANGUAGE_ID).isSelected).isTrue()
+            assertThat(configurable.isModified).isTrue()
+            configurable.apply()
+            assertThat(BracketGuideSettings.getInstance().options.disabledLanguageIds)
+                .isEqualTo(setOf(UNAVAILABLE_LANGUAGE_ID))
+
+            component.button("Deselect All").doClick()
+
+            assertThat(component.languageCheckBox(ALPHA_LANGUAGE_ID).isSelected).isFalse()
+            assertThat(component.languageCheckBox(BETA_LANGUAGE_ID).isSelected).isFalse()
+            assertThat(configurable.isModified).isTrue()
+            configurable.apply()
+            assertThat(BracketGuideSettings.getInstance().options.disabledLanguageIds)
+                .isEqualTo(
+                    setOf(
+                        UNAVAILABLE_LANGUAGE_ID,
+                        ALPHA_LANGUAGE_ID,
+                        BETA_LANGUAGE_ID,
+                    ),
+                )
+        }
+    }
+
     fun testCustomFileTypeLanguageUsesSettingsSpecificLabelAndConstraint() {
         withConfigurable(listOf(TEXT_FAMILY)) {
                 _, component ->

@@ -39,6 +39,7 @@ internal class BracketGuideSettingsPage(
     override fun createPanel(): DialogPanel {
         val settings = BracketGuideSettings.getInstance()
         val colorPanels = mutableListOf<LeveledColorPanel>()
+        val languageCheckBoxes = mutableListOf<JBCheckBox>()
         NativeMatchedBraceHighlighting.getInstance().apply(settings.options)
         appliedSnapshot = settings.options
 
@@ -244,6 +245,18 @@ internal class BracketGuideSettingsPage(
                         comment("No installed language provides brace-matching support.")
                     }
                 } else {
+                    row {
+                        button("Select All") {
+                            languageCheckBoxes.forEach { checkBox ->
+                                checkBox.isSelected = true
+                            }
+                        }
+                        button("Deselect All") {
+                            languageCheckBoxes.forEach { checkBox ->
+                                checkBox.isSelected = false
+                            }
+                        }
+                    }
                     val duplicateNames = supportedLanguages
                         .groupingBy(LanguageChoice::displayName)
                         .eachCount()
@@ -256,6 +269,7 @@ internal class BracketGuideSettingsPage(
                         row {
                             checkBox(label)
                                 .applyToComponent {
+                                    languageCheckBoxes += this
                                     name = "language.${language.id}"
                                     val description = languageDescription(language)
                                     toolTipText = description

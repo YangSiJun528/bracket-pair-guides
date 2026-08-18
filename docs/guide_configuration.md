@@ -46,6 +46,8 @@ Every family is enabled by default.
 
 - Clear a family to exclude it from token colors, active guides, and pair
   emphasis.
+- Use **Select All** or **Deselect All** to change every currently installed
+  family at once, then adjust individual families as needed.
 - Derived languages that inherit the same matcher are grouped together. For
   example, TypeScript and JSX can appear in the JavaScript family tooltip.
 - A newly installed supported family starts enabled. A disabled selection is
