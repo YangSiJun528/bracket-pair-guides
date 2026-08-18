@@ -351,6 +351,58 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         }
     }
 
+    fun testLeftmostVerticalGuideKeepsItsFullDeviceWidth() {
+        val source = "{\n    call();\n}"
+        myFixture.configureByText("LeftmostGuide.java", source)
+        val editor = myFixture.editor
+        val pair = BracketPair(
+            openOffset = 0,
+            openTokenLength = 1,
+            closeOffset = source.lastIndexOf('}'),
+            closeTokenLength = 1,
+            depth = 0,
+            openLine = 0,
+            closeLine = 2,
+        )
+        val anchorVisualLine = editor.logicalToVisualPosition(
+            LogicalPosition(1, 0),
+        ).line
+        val logicalBodyY = editor.visualLineToY(anchorVisualLine) + editor.lineHeight / 2
+
+        for (graphicsScale in listOf(1.0, 2.0)) {
+            for (lineWidth in 1..4) {
+                val options = GuideAppearance(
+                    showVertical = true,
+                    showHorizontal = false,
+                    lineWidth = lineWidth,
+                    opacityPercent = 100,
+                )
+                val leftmost = paint(
+                    pair = pair,
+                    options = options,
+                    guideColumn = 0,
+                    anchorLine = 1,
+                    graphicsScale = graphicsScale,
+                )
+                val interior = paint(
+                    pair = pair,
+                    options = options,
+                    guideColumn = 4,
+                    anchorLine = 1,
+                    graphicsScale = graphicsScale,
+                )
+                val deviceBodyY = (logicalBodyY * graphicsScale).roundToInt()
+
+                assertThat(leftmost.inkPixelCountAt(deviceBodyY))
+                    .describedAs(
+                        "A left-edge width $lineWidth at ${graphicsScale}x must not lose " +
+                            "half of its stroke",
+                    )
+                    .isEqualTo(interior.inkPixelCountAt(deviceBodyY))
+            }
+        }
+    }
+
     fun testHugeSoftWrappedPairPaintIsBoundedByTheViewportClip() {
         val source = "call(" + "abcdefghij,".repeat(5_000) + "last)"
         myFixture.configureByText("Generated.java", source)
@@ -602,6 +654,9 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         }
         return maximum
     }
+
+    private fun BufferedImage.inkPixelCountAt(y: Int): Int =
+        (0 until width).count { x -> alphaAt(x, y) != 0 }
 
     private fun BufferedImage.alphaAt(x: Int, y: Int): Int = getRGB(x, y) ushr 24
 

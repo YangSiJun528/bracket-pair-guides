@@ -285,7 +285,7 @@ internal class BracketGuideDrawing(
         fun addVertical(x: Int, startY: Int, endY: Int) {
             if (startY >= endY) return
 
-            val centerX = PaintUtil.alignToInt(x.toDouble(), graphics)
+            val centerX = alignX(x)
             val top = PaintUtil.alignToInt(startY.toDouble(), graphics)
             val bottom = PaintUtil.alignToInt(endY.toDouble(), graphics)
             centerLines.moveTo(centerX, top)
@@ -296,8 +296,8 @@ internal class BracketGuideDrawing(
         fun addHorizontal(firstX: Int, secondX: Int, y: Int) {
             if (firstX == secondX) return
 
-            val left = PaintUtil.alignToInt(minOf(firstX, secondX).toDouble(), graphics)
-            val right = PaintUtil.alignToInt(maxOf(firstX, secondX).toDouble(), graphics)
+            val left = alignX(minOf(firstX, secondX))
+            val right = alignX(maxOf(firstX, secondX))
             val centerY = PaintUtil.alignToInt(y.toDouble(), graphics)
             centerLines.moveTo(left, centerY)
             centerLines.lineTo(right, centerY)
@@ -317,6 +317,12 @@ internal class BracketGuideDrawing(
             ) {
                 graphics.fill(outline)
             }
+        }
+
+        /** Keeps a centered stroke fully inside the editor content at x = 0. */
+        private fun alignX(x: Int): Double {
+            val aligned = PaintUtil.alignToInt(x.toDouble(), graphics)
+            return if (x == 0) aligned + thickness / 2 else aligned
         }
     }
 }
