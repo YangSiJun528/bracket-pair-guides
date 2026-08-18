@@ -53,59 +53,6 @@ internal class BracketGuideSettingsPage(
                     .focused()
             }
 
-            group("Languages") {
-                val supportedLanguages = installedLanguages()
-                    .map(::languageChoice)
-                    .sortedWith(
-                        compareBy<LanguageChoice>(
-                            { language -> language.displayName.lowercase(Locale.ROOT) },
-                            LanguageChoice::id,
-                        ),
-                    )
-                if (supportedLanguages.isEmpty()) {
-                    row {
-                        comment("No installed language provides brace-matching support.")
-                    }
-                } else {
-                    val duplicateNames = supportedLanguages
-                        .groupingBy(LanguageChoice::displayName)
-                        .eachCount()
-                    for (language in supportedLanguages) {
-                        val label = if (duplicateNames.getValue(language.displayName) > 1) {
-                            "${language.displayName} (${language.id})"
-                        } else {
-                            language.displayName
-                        }
-                        row {
-                            checkBox(label)
-                                .applyToComponent {
-                                    name = "language.${language.id}"
-                                    val description = languageDescription(language)
-                                    toolTipText = description
-                                    accessibleContext.accessibleName = "$label language"
-                                    accessibleContext.accessibleDescription = description
-                                }
-                                .bindSelected(
-                                    {
-                                        settings.options.isLanguageEnabled(language.id)
-                                    },
-                                    { selected ->
-                                        val options = settings.options
-                                        val disabledIds = if (selected) {
-                                            options.disabledLanguageIds - language.id
-                                        } else {
-                                            options.disabledLanguageIds + language.id
-                                        }
-                                        settings.replace(
-                                            options.copy(disabledLanguageIds = disabledIds),
-                                        )
-                                    },
-                                )
-                        }
-                    }
-                }
-            }
-
             group("Appearance") {
                 lateinit var disableNativeMatchedBraceHighlighting: Cell<JBCheckBox>
                 row {
@@ -280,6 +227,59 @@ internal class BracketGuideSettingsPage(
                         }
                         componentOverrides.component.isSelected = false
                     }.enabledIf(enabled.selected)
+                }
+            }
+
+            group("Languages") {
+                val supportedLanguages = installedLanguages()
+                    .map(::languageChoice)
+                    .sortedWith(
+                        compareBy<LanguageChoice>(
+                            { language -> language.displayName.lowercase(Locale.ROOT) },
+                            LanguageChoice::id,
+                        ),
+                    )
+                if (supportedLanguages.isEmpty()) {
+                    row {
+                        comment("No installed language provides brace-matching support.")
+                    }
+                } else {
+                    val duplicateNames = supportedLanguages
+                        .groupingBy(LanguageChoice::displayName)
+                        .eachCount()
+                    for (language in supportedLanguages) {
+                        val label = if (duplicateNames.getValue(language.displayName) > 1) {
+                            "${language.displayName} (${language.id})"
+                        } else {
+                            language.displayName
+                        }
+                        row {
+                            checkBox(label)
+                                .applyToComponent {
+                                    name = "language.${language.id}"
+                                    val description = languageDescription(language)
+                                    toolTipText = description
+                                    accessibleContext.accessibleName = "$label language"
+                                    accessibleContext.accessibleDescription = description
+                                }
+                                .bindSelected(
+                                    {
+                                        settings.options.isLanguageEnabled(language.id)
+                                    },
+                                    { selected ->
+                                        val options = settings.options
+                                        val disabledIds = if (selected) {
+                                            options.disabledLanguageIds - language.id
+                                        } else {
+                                            options.disabledLanguageIds + language.id
+                                        }
+                                        settings.replace(
+                                            options.copy(disabledLanguageIds = disabledIds),
+                                        )
+                                    },
+                                )
+                        }
+                    }
                 }
             }
 

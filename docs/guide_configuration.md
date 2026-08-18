@@ -39,9 +39,10 @@ wins and this option is cleared.
 
 ## Choose languages
 
-The **Languages** group lists every installed language family that provides the
-`com.intellij.lang.braceMatcher` capability, including embedded-only
-languages without a standalone file type. Every family is enabled by default.
+The **Languages** group is at the bottom of the settings page. It lists every
+installed language family that provides the `com.intellij.lang.braceMatcher`
+capability, including embedded-only languages without a standalone file type.
+Every family is enabled by default.
 
 - Clear a family to exclude it from token colors, active guides, and pair
   emphasis.

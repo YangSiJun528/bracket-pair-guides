@@ -12,6 +12,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.ui.ColorPanel
 import com.intellij.ui.JBIntSpinner
+import com.intellij.ui.TitledSeparator
 import com.intellij.ui.components.JBCheckBox
 import java.awt.Color
 import java.awt.Component
@@ -180,6 +181,18 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
                 BracketGuideSettings.getInstance().options.disabledLanguageIds,
             ).isEqualTo(setOf(UNAVAILABLE_LANGUAGE_ID, ALPHA_LANGUAGE_ID))
             assertThat(configurable.isModified).isFalse()
+        }
+    }
+
+    fun testLanguagesSectionIsVisibleAndLast() {
+        withConfigurable(listOf(ALPHA_FAMILY)) { _, component ->
+            val sectionTitles = component.descendants()
+                .filterIsInstance<TitledSeparator>()
+                .mapNotNull(TitledSeparator::getText)
+                .toList()
+
+            assertThat(component.languageCheckBox(ALPHA_LANGUAGE_ID).isVisible).isTrue()
+            assertThat(sectionTitles.last()).isEqualTo("Languages")
         }
     }
 
