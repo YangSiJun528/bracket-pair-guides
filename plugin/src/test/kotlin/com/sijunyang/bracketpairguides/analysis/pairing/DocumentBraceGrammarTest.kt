@@ -64,6 +64,39 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
         }
     }
 
+    fun testPairedMatcherUsesDeclaredStructuralTopology() {
+        val source = "{x}"
+        configure(source) { character ->
+            when (character) {
+                '{' -> STRUCTURAL_LEFT
+                '}' -> STRUCTURAL_RIGHT
+                else -> OTHER
+            }
+        }
+        var structuralCallbackCount = 0
+        val declaredMatcher = BraceGrammarFixture(
+            arrayOf(BracePair(STRUCTURAL_LEFT, STRUCTURAL_RIGHT, true)),
+        )
+        val matcher = object : PairedBraceMatcherAdapter(
+            declaredMatcher,
+            STRUCTURAL_LANGUAGE,
+        ) {
+            override fun isStructuralBrace(
+                iterator: HighlighterIterator,
+                fileText: CharSequence,
+                fileType: FileType,
+            ): Boolean {
+                structuralCallbackCount++
+                return false
+            }
+        }
+
+        withMatchers(STRUCTURAL_LANGUAGE to matcher) {
+            assertThat(analyze()).hasSize(1)
+            assertThat(structuralCallbackCount).isZero()
+        }
+    }
+
     fun testStrictTagContextIsCaseInsensitiveWhenTheMatcherSaysSo() {
         val source = "<A x >b y >a"
         configure(source) { character ->

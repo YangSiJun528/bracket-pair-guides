@@ -44,7 +44,7 @@ internal class DocumentBraceGrammar(
         pairSink: PairSink,
         maximumPendingOpens: Int,
     ) {
-        private val pairing = PairingMachine<BraceOccurrence, BraceGroup> { group ->
+        private val pairing = PairingMachine<IElementType, BraceGroup> { group ->
             group.definition
         }.newSession(
             pairSink,
@@ -60,7 +60,7 @@ internal class DocumentBraceGrammar(
             val line = document.getLineNumber(offset)
             return pairing.accept(
                 token.group,
-                token.occurrence,
+                token.type,
                 token.context.value,
                 token.context.strict,
                 token.role,
@@ -83,10 +83,9 @@ internal class DocumentBraceGrammar(
             matcher.isRBraceToken(iterator, text, fileType)
         if (!isLeft && !isRight) return null
         val role = bracketRole(isLeft, isRight, isSymmetric)
-        val isStructural = matcher.isStructuralBrace(iterator, text, fileType)
 
         return ClassifiedToken(
-            occurrence = BraceOccurrence(tokenType, isStructural),
+            type = tokenType,
             group = BraceGroup(
                 language = language,
                 tokenGroup = matcher.getBraceTokenGroupId(tokenType),
@@ -94,9 +93,12 @@ internal class DocumentBraceGrammar(
             ),
             context = matcher.contextAt(iterator),
             role = role,
-            structuralRole = StructuralRole.of(
-                isStructural && isLeft,
-                isStructural && isRight,
+            structuralRole = definition.structuralRole(
+                iterator = iterator,
+                text = text,
+                fileType = fileType,
+                isLeft = isLeft,
+                isRight = isRight,
             ),
         )
     }
@@ -149,7 +151,7 @@ internal class DocumentBraceGrammar(
     }
 
     private data class ClassifiedToken(
-        val occurrence: BraceOccurrence,
+        val type: IElementType,
         val group: BraceGroup,
         val context: TokenContext,
         val role: BracketRole,

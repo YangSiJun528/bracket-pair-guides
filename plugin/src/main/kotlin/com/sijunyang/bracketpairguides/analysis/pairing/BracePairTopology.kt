@@ -7,8 +7,7 @@ import com.intellij.psi.tree.IElementType
 internal class BracePairTopology(pairs: Array<BracePair>) {
     private val closesByOpen = HashMap<IElementType, MutableSet<IElementType>>(pairs.size)
     private val opensByClose = HashMap<IElementType, MutableSet<IElementType>>(pairs.size)
-    private val structuralClosesByOpen =
-        HashMap<IElementType, MutableSet<IElementType>>(pairs.size)
+    private val structuralOpens = HashSet<IElementType>(pairs.size)
     private val structuralCloses = HashSet<IElementType>(pairs.size)
 
     init {
@@ -16,18 +15,14 @@ internal class BracePairTopology(pairs: Array<BracePair>) {
             closesByOpen.getOrPut(pair.leftBraceType) { HashSet() } += pair.rightBraceType
             opensByClose.getOrPut(pair.rightBraceType) { HashSet() } += pair.leftBraceType
             if (pair.isStructural) {
-                structuralClosesByOpen.getOrPut(pair.leftBraceType) { HashSet() } +=
-                    pair.rightBraceType
+                structuralOpens += pair.leftBraceType
                 structuralCloses += pair.rightBraceType
             }
         }
     }
 
     fun isStructuralOpen(type: IElementType): Boolean =
-        structuralClosesByOpen.containsKey(type)
-
-    fun isStructuralPair(left: IElementType, right: IElementType): Boolean =
-        structuralClosesByOpen[left]?.contains(right) == true
+        type in structuralOpens
 
     fun isStructuralClose(type: IElementType): Boolean =
         type in structuralCloses

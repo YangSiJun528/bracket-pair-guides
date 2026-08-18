@@ -56,10 +56,7 @@ public class PairingMachineTest {
     @Test
     public void malformedRecoveryDiscardsUnclosedInnerTokens() {
         RecordedPairs output = new RecordedPairs();
-        PairingMachine<Character, String>.Session session = session(
-                output,
-                REGULAR_CHAR_RULES
-        );
+        PairingMachine<Character, String>.Session session = session(output);
 
         accept(session, "main", '{', BracketRole.OPEN, 0, 1, 0);
         accept(session, "main", '(', BracketRole.OPEN, 1, 1, 0);
@@ -73,8 +70,7 @@ public class PairingMachineTest {
     public void structuralCloserRecoversPastRegularOpenersWithPriority() {
         RecordedPairs output = new RecordedPairs();
         PairingRules<Character> sharedCloser = rules(
-                (left, right) -> right == 'x' && (left == '{' || left == '('),
-                (left, right) -> left == '{' && right == 'x'
+                (left, right) -> right == 'x' && (left == '{' || left == '(')
         );
         PairingMachine<Character, String>.Session session = session(output, sharedCloser);
 
@@ -101,6 +97,37 @@ public class PairingMachineTest {
         );
 
         assertThat(output.pairs).containsExactly(new PairRecord(0, 1, 2, 1, 0, 0, 0));
+    }
+
+    @Test
+    public void occurrenceStructuralRolesSeparateOtherwiseIdenticalTokenTypes() {
+        RecordedPairs output = new RecordedPairs();
+        PairingMachine<Character, String>.Session session = session(output);
+
+        accept(
+                session, "main", '(', BracketRole.OPEN,
+                StructuralRole.OPEN, 0, 1, 0
+        );
+        accept(session, "main", ')', BracketRole.CLOSE, 1, 1, 0);
+        assertThat(output.pairs).isEmpty();
+
+        accept(
+                session, "main", ')', BracketRole.CLOSE,
+                StructuralRole.CLOSE, 2, 1, 0
+        );
+        assertThat(output.pairs).containsExactly(new PairRecord(0, 1, 2, 1, 0, 0, 0));
+
+        accept(session, "main", '(', BracketRole.OPEN, 3, 1, 0);
+        accept(
+                session, "main", ')', BracketRole.CLOSE,
+                StructuralRole.CLOSE, 4, 1, 0
+        );
+        accept(session, "main", ')', BracketRole.CLOSE, 5, 1, 0);
+
+        assertThat(output.pairs).containsExactly(
+                new PairRecord(0, 1, 2, 1, 0, 0, 0),
+                new PairRecord(3, 1, 5, 1, 0, 0, 0)
+        );
     }
 
     @Test
@@ -344,8 +371,7 @@ public class PairingMachineTest {
     public void strictContextRequiresTheSameNormalizedValue() {
         RecordedPairs output = new RecordedPairs();
         PairingRules<String> tagRules = rules(
-                (left, right) -> left.equals("start") && right.equals("end"),
-                (left, right) -> false
+                (left, right) -> left.equals("start") && right.equals("end")
         );
         PairingMachine<String, String> machine = new PairingMachine<>(ignored -> tagRules);
         PairingMachine<String, String>.Session session = machine.newSession(
@@ -377,8 +403,7 @@ public class PairingMachineTest {
     public void strictContextCanUseANullKey() {
         RecordedPairs output = new RecordedPairs();
         PairingRules<String> tagRules = rules(
-                (left, right) -> left.equals("start") && right.equals("end"),
-                (left, right) -> false
+                (left, right) -> left.equals("start") && right.equals("end")
         );
         PairingMachine<String, String>.Session session =
                 new PairingMachine<String, String>(ignored -> tagRules).newSession(
@@ -404,8 +429,7 @@ public class PairingMachineTest {
         RecordedPairs output = new RecordedPairs();
         BracketRole symmetric = BracketRole.TOGGLE;
         PairingRules<Character> rules = rules(
-                (left, right) -> left == '|' && right == '|',
-                (left, right) -> false
+                (left, right) -> left == '|' && right == '|'
         );
         PairingMachine<Character, String>.Session session = session(output, rules);
 
@@ -424,7 +448,6 @@ public class PairingMachineTest {
     public void structuralToggleCanOpenAndCloseTheSameScope() {
         RecordedPairs output = new RecordedPairs();
         PairingRules<Character> rules = rules(
-                (left, right) -> left == '|' && right == '|',
                 (left, right) -> left == '|' && right == '|'
         );
         PairingMachine<Character, String>.Session session = session(output, rules);
@@ -479,8 +502,7 @@ public class PairingMachineTest {
             }
         };
         PairingRules<String> tagRules = rules(
-                (left, right) -> left.equals("start") && right.equals("end"),
-                (left, right) -> false
+                (left, right) -> left.equals("start") && right.equals("end")
         );
         PairingMachine<String, String> machine = new PairingMachine<>(ignored -> tagRules);
         PairingMachine<String, String>.Session session = machine.newSession(
@@ -587,19 +609,11 @@ public class PairingMachineTest {
         );
     }
 
-    private static <T> PairingRules<T> rules(
-            BiPredicate<T, T> pair,
-            BiPredicate<T, T> structuralPair
-    ) {
+    private static <T> PairingRules<T> rules(BiPredicate<T, T> pair) {
         return new PairingRules<>() {
             @Override
             public boolean isPair(T openToken, T closeToken) {
                 return pair.test(openToken, closeToken);
-            }
-
-            @Override
-            public boolean isStructuralPair(T openToken, T closeToken) {
-                return structuralPair.test(openToken, closeToken);
             }
         };
     }
@@ -610,12 +624,7 @@ public class PairingMachineTest {
                 case '[' -> right == ']';
                 case '{' -> right == '}';
                 default -> false;
-            },
-            (left, right) -> left == '{' && right == '}'
-    );
-    private static final PairingRules<Character> REGULAR_CHAR_RULES = rules(
-            CHAR_RULES::isPair,
-            (left, right) -> false
+            }
     );
 
     private static final CancellationProbe NO_CANCELLATION = () -> { };

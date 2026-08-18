@@ -166,9 +166,8 @@ public final class PairingMachine<T, G> {
             state.stack.addLast(open);
             state.peakStackSize = Math.max(state.peakStackSize, state.stack.size());
             pendingOpenCount++;
-            increment(state.allCounts, open);
             if (structural) {
-                state.structuralOpenCount++;
+                increment(state.structuralCounts, open);
                 state.regularScopes.addLast(new Counts<>());
             } else {
                 increment(state.regularScopes.getLast(), open);
@@ -181,7 +180,7 @@ public final class PairingMachine<T, G> {
                 T token,
                 String context,
                 boolean strictContext,
-                boolean canCloseStructural
+                boolean structural
         ) {
             GroupState<T> state = states.get(group);
             if (state == null || state.stack.isEmpty()) {
@@ -193,45 +192,30 @@ public final class PairingMachine<T, G> {
             boolean topMatches = matches(top, token, context, strictContext, rules);
             OpenToken<T> match;
 
-            if (topMatches && rules.isStructuralPair(top.token, token)) {
+            if (top.structural == structural && topMatches) {
                 match = removeLast(state);
-            } else if (canCloseStructural && state.structuralOpenCount > 0 &&
-                    hasCandidate(
-                            state.allCounts,
+            } else {
+                Counts<T> candidates = structural
+                        ? state.structuralCounts
+                        : state.regularScopes.getLast();
+                if (!hasCandidate(
+                        candidates,
+                        token,
+                        context,
+                        strictContext,
+                        rules
+                )) {
+                    match = null;
+                } else {
+                    match = recover(
+                            state,
                             token,
                             context,
                             strictContext,
-                            true,
+                            structural,
                             rules
-                    )) {
-                match = recover(
-                        state,
-                        token,
-                        context,
-                        strictContext,
-                        true,
-                        rules
-                );
-            } else if (topMatches) {
-                match = removeLast(state);
-            } else if (!hasCandidate(
-                    state.regularScopes.getLast(),
-                    token,
-                    context,
-                    strictContext,
-                    false,
-                    rules
-            )) {
-                match = null;
-            } else {
-                match = recover(
-                        state,
-                        token,
-                        context,
-                        strictContext,
-                        false,
-                        rules
-                );
+                    );
+                }
             }
 
             releaseOversizedEmptyState(group, state);
@@ -269,7 +253,6 @@ public final class PairingMachine<T, G> {
                 T closeToken,
                 String closeContext,
                 boolean strictContext,
-                boolean structural,
                 PairingRules<T> rules
         ) {
             if (counts.tokenCounts == null) {
@@ -282,9 +265,6 @@ public final class PairingMachine<T, G> {
                 }
                 T openToken = entry.getKey();
                 if (entry.getValue() == 0 || !rules.isPair(openToken, closeToken)) {
-                    continue;
-                }
-                if (rules.isStructuralPair(openToken, closeToken) != structural) {
                     continue;
                 }
                 if (!strictContext || contextCount(counts, openToken, closeContext) > 0) {
@@ -319,7 +299,7 @@ public final class PairingMachine<T, G> {
                 }
                 OpenToken<T> open = removeLast(state);
                 if (matches(open, closeToken, closeContext, strictContext, rules) &&
-                        rules.isStructuralPair(open.token, closeToken) == structural) {
+                        open.structural == structural) {
                     return open;
                 }
             }
@@ -341,9 +321,8 @@ public final class PairingMachine<T, G> {
         private OpenToken<T> removeLast(GroupState<T> state) {
             OpenToken<T> open = state.stack.removeLast();
             pendingOpenCount--;
-            decrement(state.allCounts, open);
             if (open.structural) {
-                state.structuralOpenCount--;
+                decrement(state.structuralCounts, open);
                 state.regularScopes.removeLast();
             } else {
                 decrement(state.regularScopes.getLast(), open);
@@ -404,10 +383,9 @@ public final class PairingMachine<T, G> {
 
     private static final class GroupState<T> {
         private final ArrayDeque<OpenToken<T>> stack = new ArrayDeque<>();
-        private final Counts<T> allCounts = new Counts<>();
+        private final Counts<T> structuralCounts = new Counts<>();
         private final ArrayDeque<Counts<T>> regularScopes = new ArrayDeque<>();
         private final PairingRules<T> rules;
-        private int structuralOpenCount;
         private int peakStackSize;
 
         private GroupState(PairingRules<T> rules) {

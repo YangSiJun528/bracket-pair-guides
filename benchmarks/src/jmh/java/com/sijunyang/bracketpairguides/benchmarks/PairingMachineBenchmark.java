@@ -108,10 +108,5 @@ public class PairingMachineBenchmark {
         public boolean isPair(Token openToken, Token closeToken) {
             return openToken == Token.OPEN && closeToken == Token.CLOSE;
         }
-
-        @Override
-        public boolean isStructuralPair(Token openToken, Token closeToken) {
-            return false;
-        }
     };
 }

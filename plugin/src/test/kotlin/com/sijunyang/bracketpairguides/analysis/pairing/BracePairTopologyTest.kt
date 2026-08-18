@@ -76,7 +76,7 @@ class BracePairTopologyTest {
     }
 
     @Test
-    fun `reports structurality for the exact registered pair`() {
+    fun `reports structurality for registered open and close tokens`() {
         val topology = BracePairTopology(
             arrayOf(
                 BracePair(left, right, false),
@@ -86,9 +86,6 @@ class BracePairTopologyTest {
 
         assertThat(topology.isStructuralOpen(left)).isFalse()
         assertThat(topology.isStructuralOpen(structuralLeft)).isTrue()
-        assertThat(topology.isStructuralPair(left, right)).isFalse()
-        assertThat(topology.isStructuralPair(structuralLeft, structuralRight)).isTrue()
-        assertThat(topology.isStructuralPair(structuralLeft, right)).isFalse()
         assertThat(topology.isStructuralClose(right)).isFalse()
         assertThat(topology.isStructuralClose(structuralRight)).isTrue()
     }

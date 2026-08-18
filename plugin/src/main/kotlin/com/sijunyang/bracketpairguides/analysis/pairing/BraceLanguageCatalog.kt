@@ -14,19 +14,14 @@ import com.intellij.openapi.fileTypes.UnknownFileType
 import com.intellij.psi.tree.IElementType
 import com.sijunyang.bracketpairguides.analysis.BraceLanguageFamily
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairingRules
+import com.sijunyang.bracketpairguides.analysis.pairing.core.StructuralRole
 
 /** Effective brace-matcher definitions and their shared capability families. */
 internal class BraceLanguageCatalog {
     fun definitionFor(language: Language): BraceLanguageDefinition? {
         val pairedMatcher =
             LanguageBraceMatching.INSTANCE.forLanguage(language) ?: return null
-        val matcher = (pairedMatcher as? BraceMatcher)
-            ?: PairedBraceMatcherAdapter(pairedMatcher, language)
-        return BraceLanguageDefinition(
-            matcher = matcher,
-            topology = BracePairTopology(pairedMatcher.pairs),
-            capabilityId = capabilityOwner(language, pairedMatcher).id,
-        )
+        return pairedDefinition(language, pairedMatcher)
     }
 
     /** Resolves the same effective matcher used by the platform for this token. */
@@ -35,15 +30,33 @@ internal class BraceLanguageCatalog {
         iterator: HighlighterIterator,
         language: Language,
     ): BraceLanguageDefinition? {
+        val pairedMatcher = LanguageBraceMatching.INSTANCE.forLanguage(language)
+        if (pairedMatcher != null) {
+            return pairedDefinition(language, pairedMatcher)
+        }
+
         val matcher = BraceMatchingUtil.getBraceMatcher(fileType, iterator)
         if (matcher === DEFAULT_MATCHER) return null
-        val topology = (matcher as? PairedBraceMatcher)?.let { pairedMatcher ->
-            BracePairTopology(pairedMatcher.pairs)
+        val topology = (matcher as? PairedBraceMatcher)?.let { declaredMatcher ->
+            BracePairTopology(declaredMatcher.pairs)
         }
         return BraceLanguageDefinition(
             matcher = matcher,
             topology = topology,
             capabilityId = capabilityOwner(fileType, language).id,
+        )
+    }
+
+    private fun pairedDefinition(
+        language: Language,
+        pairedMatcher: PairedBraceMatcher,
+    ): BraceLanguageDefinition {
+        val matcher = (pairedMatcher as? BraceMatcher)
+            ?: PairedBraceMatcherAdapter(pairedMatcher, language)
+        return BraceLanguageDefinition(
+            matcher = matcher,
+            topology = BracePairTopology(pairedMatcher.pairs),
+            capabilityId = capabilityOwner(language, pairedMatcher).id,
         )
     }
 
@@ -149,25 +162,37 @@ internal class BraceLanguageDefinition(
     val matcher: BraceMatcher,
     private val topology: BracePairTopology?,
     val capabilityId: String,
-) : PairingRules<BraceOccurrence> {
+) : PairingRules<IElementType> {
     override fun isPair(
-        openToken: BraceOccurrence,
-        closeToken: BraceOccurrence,
-    ): Boolean = openToken.structural == closeToken.structural &&
-        matcher.isPairBraces(openToken.type, closeToken.type)
+        openToken: IElementType,
+        closeToken: IElementType,
+    ): Boolean = matcher.isPairBraces(openToken, closeToken)
 
-    override fun isStructuralPair(
-        openToken: BraceOccurrence,
-        closeToken: BraceOccurrence,
-    ): Boolean = openToken.structural && closeToken.structural
+    /** Uses declared pair topology when available; legacy matchers classify each occurrence. */
+    fun structuralRole(
+        iterator: HighlighterIterator,
+        text: CharSequence,
+        fileType: FileType,
+        isLeft: Boolean,
+        isRight: Boolean,
+    ): StructuralRole {
+        val tokenType = iterator.tokenType ?: return StructuralRole.NONE
+        val declaredTopology = topology
+        if (declaredTopology != null) {
+            return StructuralRole.of(
+                isLeft && declaredTopology.isStructuralOpen(tokenType),
+                isRight && declaredTopology.isStructuralClose(tokenType),
+            )
+        }
+
+        val isStructural = matcher.isStructuralBrace(iterator, text, fileType)
+        return StructuralRole.of(
+            isStructural && isLeft,
+            isStructural && isRight,
+        )
+    }
 
     fun isPureSymmetric(tokenType: IElementType): Boolean =
         topology?.isPureSymmetric(tokenType)
             ?: (matcher.getOppositeBraceTokenType(tokenType) === tokenType)
 }
-
-/** Token identity plus the matcher's occurrence-specific structural classification. */
-internal data class BraceOccurrence(
-    val type: IElementType,
-    val structural: Boolean,
-)
