@@ -20,9 +20,9 @@ import java.util.Locale
 /**
  * Token-stream pairing semantics for one full document analysis.
  *
- * Brace-language definitions and the language-family gate are evaluated for every token.
- * Each [Session] owns independent stack state, while language definitions are cached
- * by this grammar so one full scan resolves each language extension only once.
+ * Effective matcher definitions and the language-family gate are evaluated for every
+ * token. Each [Session] owns independent stack state, while definitions are cached by
+ * token language so one full scan resolves each platform matcher only once.
  */
 internal class DocumentBraceGrammar(
     private val document: Document,
@@ -44,7 +44,7 @@ internal class DocumentBraceGrammar(
         pairSink: PairSink,
         maximumPendingOpens: Int,
     ) {
-        private val pairing = PairingMachine<IElementType, BraceGroup> { group ->
+        private val pairing = PairingMachine<BraceOccurrence, BraceGroup> { group ->
             group.definition
         }.newSession(
             pairSink,
@@ -60,7 +60,7 @@ internal class DocumentBraceGrammar(
             val line = document.getLineNumber(offset)
             return pairing.accept(
                 token.group,
-                token.type,
+                token.occurrence,
                 token.context.value,
                 token.context.strict,
                 token.role,
@@ -75,7 +75,7 @@ internal class DocumentBraceGrammar(
     private fun classify(iterator: HighlighterIterator): ClassifiedToken? {
         val tokenType = iterator.tokenType ?: return null
         val language = matcherLanguage(tokenType)
-        val definition = definitions.cached(language) ?: return null
+        val definition = definitions.cached(language, iterator) ?: return null
         val matcher = definition.matcher
         val isLeft = matcher.isLBraceToken(iterator, text, fileType)
         val isSymmetric = isLeft && definition.isPureSymmetric(tokenType)
@@ -83,9 +83,10 @@ internal class DocumentBraceGrammar(
             matcher.isRBraceToken(iterator, text, fileType)
         if (!isLeft && !isRight) return null
         val role = bracketRole(isLeft, isRight, isSymmetric)
+        val isStructural = matcher.isStructuralBrace(iterator, text, fileType)
 
         return ClassifiedToken(
-            type = tokenType,
+            occurrence = BraceOccurrence(tokenType, isStructural),
             group = BraceGroup(
                 language = language,
                 tokenGroup = matcher.getBraceTokenGroupId(tokenType),
@@ -94,8 +95,8 @@ internal class DocumentBraceGrammar(
             context = matcher.contextAt(iterator),
             role = role,
             structuralRole = StructuralRole.of(
-                definition.isStructuralOpen(tokenType),
-                definition.isStructuralClose(tokenType),
+                isStructural && isLeft,
+                isStructural && isRight,
             ),
         )
     }
@@ -122,9 +123,10 @@ internal class DocumentBraceGrammar(
 
     private fun HashMap<Language, BraceLanguageDefinition?>.cached(
         language: Language,
+        iterator: HighlighterIterator,
     ): BraceLanguageDefinition? {
         if (containsKey(language)) return this[language]
-        val candidate = languages.definitionFor(language)
+        val candidate = languages.definitionFor(fileType, iterator, language)
         val definition = candidate?.takeIf { braceLanguage ->
             isLanguageEnabled(braceLanguage.capabilityId)
         }
@@ -147,7 +149,7 @@ internal class DocumentBraceGrammar(
     }
 
     private data class ClassifiedToken(
-        val type: IElementType,
+        val occurrence: BraceOccurrence,
         val group: BraceGroup,
         val context: TokenContext,
         val role: BracketRole,

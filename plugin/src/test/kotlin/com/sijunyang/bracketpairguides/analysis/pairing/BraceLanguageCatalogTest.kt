@@ -4,6 +4,7 @@ import com.intellij.lang.BracePair
 import com.intellij.lang.Language
 import com.intellij.lang.LanguageBraceMatching
 import com.intellij.lang.PairedBraceMatcher
+import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IElementType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -31,6 +32,19 @@ class BraceLanguageCatalogTest : BasePlatformTestCase() {
 
         assertThat(family.id).isEqualTo("TEXT")
         assertThat(family.memberDisplayNames).contains("Plain text")
+    }
+
+    fun testLegacyFileTypeMatcherLanguageIsExposedToSettings() {
+        myFixture.configureByText("Legacy.xml", "<root/>")
+        val language = (myFixture.file.fileType as LanguageFileType).language
+
+        assertThat(LanguageBraceMatching.INSTANCE.forLanguage(language)).isNull()
+        val family = BraceLanguageCatalog().installedFamilies().single { candidate ->
+            candidate.id == language.id
+        }
+
+        assertThat(family.displayName).isEqualTo(language.displayName)
+        assertThat(family.memberDisplayNames).contains(language.displayName)
     }
 
     fun testMatcherFamilyWithoutStandaloneFileTypeIsExposedToSettings() {

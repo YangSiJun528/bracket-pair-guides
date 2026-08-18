@@ -6,11 +6,11 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable
 
 /**
- * Pairs tokens recognized by each token language's `lang.braceMatcher`.
+ * Pairs tokens recognized by IntelliJ's effective brace matcher.
  *
- * Recognition stays on the editor's token stream. This object neither scans
- * raw characters nor falls back to the legacy file-type brace matcher. A
- * language without a registered matcher is therefore deliberately ignored.
+ * Recognition stays on the editor's token stream and follows the platform's
+ * token-language, legacy file-type, and host-language fallback order. This
+ * object never scans raw characters.
  */
 internal class DocumentBrackets(
     private val editor: Editor,

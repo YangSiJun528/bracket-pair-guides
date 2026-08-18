@@ -34,7 +34,7 @@ can use.
 | RubyMine | 2026.2.1, `RM-262.9437.192` | Compatible | Ruby, ERB, and RBS matchers confirmed |
 | RustRover | 2026.2.1, `RR-262.9437.161` | Compatible | Rust matcher confirmed |
 | DataGrip | 2026.2.3, `DB-262.9437.163` | Compatible | SQL matcher confirmed |
-| PhpStorm | 2026.2.1, `PS-262.9437.196` | Compatible | **PHP is not currently supported:** the bundled PHP engine registers only the legacy file-type matcher; matcher-backed JavaScript, TypeScript, JSON, and other regions can still work |
+| PhpStorm | 2026.2.1, `PS-262.9437.196` | Compatible | PHP's legacy file-type matcher is supported; matcher-backed JavaScript, TypeScript, JSON, and other regions use their token-language matchers |
 | CLion | 2026.2.1, `CL-262.9437.136` | Compatible | **Default CLion Nova C/C++ is not currently supported:** it uses the ReSharper-based engine and exposes no compatible C/C++ language matcher; other matcher-backed regions can still work |
 | Rider | 2026.2.0.2, `RD-262.8665.400` | Compatible | **C# and ReSharper C++ are not currently supported:** no ReSharper backend integration is included; IntelliJ-side matcher-backed regions can still work |
 | DataSpell | 2026.1.3, `DS-261.26222.84` | Compatible | Python matcher confirmed, but DataSpell is being retired as a standalone product and 2026.1 is its final release line |
@@ -64,56 +64,62 @@ test.
 
 ## Runtime capability rule
 
-Recognition normally uses the language of each editor-highlighter token:
+Recognition asks the platform for the effective matcher of each
+editor-highlighter token with `BraceMatchingUtil.getBraceMatcher(...)`. The
+platform resolves matchers in this order:
 
-1. Resolve `LanguageBraceMatching.INSTANCE.forLanguage(tokenLanguage)`.
-2. Use the registered `BraceMatcher`, or adapt its `PairedBraceMatcher`.
-3. Ignore the token when no language matcher resolves.
+1. the token language's `com.intellij.lang.braceMatcher`;
+2. the host file type's legacy `com.intellij.braceMatcher`;
+3. an associated token-language file type or the host file type's language
+   matcher;
+4. the platform default matcher.
 
-The narrow exception is a platform `UserFileType`: its official
-`CustomHighlighterTokenType` bracket tokens resolve through the registered
-`TEXT` matcher. Other `Language.ANY` tokens and ordinary plain text are ignored.
+The platform default matcher is treated as unsupported. Matchers resolved by
+the first three steps are used directly, including the `TEXT` matcher for plain
+text and official `UserFileType` syntax-table bracket tokens.
 
-There is no raw-character scanner, product-specific backend, or fallback to the
-legacy file-type `com.intellij.braceMatcher`. Layered files can therefore be
-partially supported: an embedded language region can work while its host
-template language remains unsupported. The token language is also part of the
-pairing group, so one pair cannot start in a host language and close in an
-embedded language.
+There is no raw-character scanner or product-specific backend. Layered files
+can therefore be partially supported: an embedded language region can use its
+own matcher even when its host template language has different rules. The token
+language is also part of the pairing group, so one pair cannot start in a host
+language and close in an embedded language.
 
 The platform matcher supplies token classification, pair compatibility,
-structural-pair metadata, and any contextual callbacks. Bracket Pair Guides
-still owns the full-document pairing stack, malformed-input recovery, indexes,
-and guide geometry. Its result is therefore based on the installed language
-rules but is not claimed to be identical to IntelliJ's boundary highlighter.
+occurrence-specific structural-brace classification, and any contextual
+callbacks. Bracket Pair Guides still owns the full-document pairing stack,
+malformed-input recovery, indexes, and guide geometry. Its result is therefore
+based on the installed language rules but is not claimed to be identical to
+IntelliJ's boundary highlighter.
 
 ## Support boundaries
 
 | Language or file kind | Support |
 |---|---|
 | Java, Kotlin, Kotlin script, and JSON | Covered by repository runtime regressions and the installed matcher |
-| Other installed languages | Supported when their token language resolves `com.intellij.lang.braceMatcher` |
-| Derived and embedded languages | Supported only for tokens that resolve an inherited or embedded-language matcher |
+| Other installed languages | Supported when the platform resolves either a language or legacy file-type matcher |
+| Derived and embedded languages | Supported for tokens that resolve an inherited, embedded-language, or applicable file-type matcher |
 | Platform custom file types | Syntax-table bracket tokens are supported through the platform `TEXT` matcher |
-| Raw plain text | Unsupported; characters are never treated as brackets without matcher tokens |
-| Languages with only the legacy file-type matcher | Unsupported by the current recognition gate |
+| Raw plain text | Standard bracket tokens are supported through the host `TEXT` matcher; arbitrary characters are not scanned |
+| Languages with only the legacy file-type matcher | Supported through the platform's file-type matcher resolution, including PHP |
 | Pair spanning host and embedded token languages | Unsupported; token-language isolation prevents cross-language pairing |
 | Indentation-only blocks | Unsupported; indentation and scope models are not brace pairs |
 | Context-dependent angle brackets | Supported only when the installed matcher classifies them in that context |
 | ReSharper-only Rider/CLion Nova language engines | Unsupported; the plugin has no ReSharper backend integration |
 
 The **Languages** list in Settings is the runtime source of truth. Bracket Pair
-Guides automatically discovers installed matcher families and requires no
-product-specific integration. Installing, removing, or updating a language
-plugin can therefore change the available families and exact bracket pairs.
+Guides automatically discovers installed language matchers and language-backed
+legacy file-type matchers, with no product-specific integration. Installing,
+removing, or updating a language plugin can therefore change the available
+families and exact bracket pairs.
 
 ## Verification boundary
 
-Repository tests exercise matcher discovery, contextual matching, unsupported
+Repository tests exercise language and legacy file-type matcher discovery,
+contextual and structural matching, token-language isolation, unsupported
 tokens, language-family settings, and representative Java, Kotlin, Kotlin
-script, JSON, and custom-file-type inputs. Plugin Verifier checks binary
-compatibility and IntelliJ API usage; it does not launch the editor or exercise
-every installed language plugin.
+script, JSON, XML, plain-text, and custom-file-type inputs. Plugin Verifier
+checks binary compatibility and IntelliJ API usage; it does not launch the
+editor or exercise every installed language plugin.
 
 Run the relevant checks described in
 [Contributing](../CONTRIBUTING.md#verify-intellij-compatibility) after changing

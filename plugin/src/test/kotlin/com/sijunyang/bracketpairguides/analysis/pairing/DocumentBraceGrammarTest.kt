@@ -2,6 +2,7 @@ package com.sijunyang.bracketpairguides.analysis.pairing
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.intellij.codeInsight.highlighting.BraceMatcher
+import com.intellij.codeInsight.highlighting.PairedBraceMatcherAdapter
 import com.intellij.codeInsight.highlighting.XmlAwareBraceMatcher
 import com.intellij.lang.BracePair
 import com.intellij.lang.Language
@@ -15,12 +16,15 @@ import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.ex.util.LexerEditorHighlighter
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.FileTypeExtensionPoint
+import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.fileTypes.SyntaxHighlighter
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IElementType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.assertj.core.api.Assertions.assertThat
+import javax.swing.Icon
 
 class DocumentBraceGrammarTest : BasePlatformTestCase() {
     fun testDualInterfaceMatcherHonorsContextualCallbacks() {
@@ -32,9 +36,10 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
                 else -> OTHER
             }
         }
-        val matcher = object : BraceGrammarFixture(
+        val pairs = BraceGrammarFixture(
             arrayOf(BracePair(CONTEXT_LEFT, CONTEXT_RIGHT, false)),
-        ) {
+        )
+        val matcher = object : PairedBraceMatcherAdapter(pairs, CONTEXT_LANGUAGE) {
             override fun isLBraceToken(
                 iterator: HighlighterIterator,
                 fileText: CharSequence,
@@ -159,6 +164,24 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
         }
     }
 
+    fun testLegacyFileTypeMatcherSupportsPureSymmetricPairs() {
+        val source = "|x|"
+        configure(source) { character ->
+            if (character == '|') SYMMETRIC else OTHER
+        }
+        val matcher = LegacyBraceGrammarFixture(
+            listOf(SYMMETRIC to SYMMETRIC),
+        )
+
+        withLegacyMatcher(LEGACY_FILE_TYPE, matcher) {
+            val full = analyze(fileType = LEGACY_FILE_TYPE)
+
+            assertThat(full).hasSize(1)
+            assertThat(full.single().openOffset).isZero()
+            assertThat(full.single().closeOffset).isEqualTo(2)
+        }
+    }
+
     fun testSymmetricCloseIsNotReusedAsAnOpener() {
         val source = "|a| b |c|"
         configure(source) { character ->
@@ -211,6 +234,82 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
 
         withMatchers(STRUCTURAL_LANGUAGE to matcher) {
             assertThat(analyze()).isEmpty()
+        }
+    }
+
+    fun testLegacyMatcherUsesOccurrenceBasedStructuralBraceCallbacks() {
+        val source = "({x)"
+        configure(source) { character ->
+            when (character) {
+                '(' -> STRUCTURAL_REGULAR_LEFT
+                ')' -> STRUCTURAL_REGULAR_RIGHT
+                '{' -> STRUCTURAL_LEFT
+                '}' -> STRUCTURAL_RIGHT
+                else -> OTHER
+            }
+        }
+        val matcher = object : LegacyBraceGrammarFixture(
+            listOf(
+                STRUCTURAL_REGULAR_LEFT to STRUCTURAL_REGULAR_RIGHT,
+                STRUCTURAL_LEFT to STRUCTURAL_RIGHT,
+            ),
+        ) {
+            override fun isStructuralBrace(
+                iterator: HighlighterIterator,
+                fileText: CharSequence,
+                fileType: FileType,
+            ): Boolean = iterator.tokenType === STRUCTURAL_LEFT ||
+                iterator.tokenType === STRUCTURAL_RIGHT
+        }
+
+        withLegacyMatcher(LEGACY_FILE_TYPE, matcher) {
+            assertThat(analyze(fileType = LEGACY_FILE_TYPE)).isEmpty()
+        }
+    }
+
+    fun testLegacyMatcherKeepsTokenLanguagesSeparate() {
+        val source = "<x>"
+        configure(source) { character ->
+            when (character) {
+                '<' -> LAYER_CROSS_LEFT
+                '>' -> LAYER_CROSS_RIGHT
+                else -> OTHER
+            }
+        }
+        val matcher = LegacyBraceGrammarFixture(
+            listOf(LAYER_CROSS_LEFT to LAYER_CROSS_RIGHT),
+            groupId = SHARED_GROUP,
+        )
+
+        withLegacyMatcher(LEGACY_FILE_TYPE, matcher) {
+            assertThat(analyze(fileType = LEGACY_FILE_TYPE)).isEmpty()
+        }
+    }
+
+    fun testLegacyMatcherUsesHostLanguageAsCapabilityOwner() {
+        val source = "(x)"
+        configure(source) { character ->
+            when (character) {
+                '(' -> STRUCTURAL_REGULAR_LEFT
+                ')' -> STRUCTURAL_REGULAR_RIGHT
+                else -> OTHER
+            }
+        }
+        val matcher = LegacyBraceGrammarFixture(
+            listOf(STRUCTURAL_REGULAR_LEFT to STRUCTURAL_REGULAR_RIGHT),
+        )
+
+        withLegacyMatcher(LEGACY_FILE_TYPE, matcher) {
+            val full = analyze(fileType = LEGACY_FILE_TYPE)
+            val disabled = analyze(
+                isLanguageEnabled = { capabilityId ->
+                    capabilityId != STRUCTURAL_LANGUAGE.id
+                },
+                fileType = LEGACY_FILE_TYPE,
+            )
+
+            assertThat(full).hasSize(1)
+            assertThat(disabled).isEmpty()
         }
     }
 
@@ -371,10 +470,11 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
 
     private fun analyze(
         isLanguageEnabled: (String) -> Boolean = { true },
+        fileType: FileType = myFixture.file.fileType,
     ): List<BracketPair> = ReadAction.compute<List<BracketPair>, RuntimeException> {
         DocumentBrackets(
             editor = myFixture.editor,
-            fileType = myFixture.file.fileType,
+            fileType = fileType,
             languages = BraceLanguageCatalog(),
             isLanguageEnabled = isLanguageEnabled,
         ).recognize(EmptyProgressIndicator()).completeTable().toBracketPairs()
@@ -394,6 +494,22 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
                 LanguageBraceMatching.INSTANCE.removeExplicitExtension(language, matcher)
             }
         }
+    }
+
+    private fun withLegacyMatcher(
+        fileType: FileType,
+        matcher: BraceMatcher,
+        action: () -> Unit,
+    ) {
+        val extension = FileTypeExtensionPoint(fileType.name, matcher)
+        val extensionPoint = BraceMatcher.EP_NAME.point
+        extension.pluginDescriptor = extensionPoint.pluginDescriptor
+        extensionPoint.registerExtension(
+            extension,
+            extensionPoint.pluginDescriptor,
+            testRootDisposable,
+        )
+        action()
     }
 
     private open class BraceGrammarFixture(
@@ -443,6 +559,60 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
             for (pair in registeredPairs) {
                 if (pair.leftBraceType === type) return pair.rightBraceType
                 if (pair.rightBraceType === type) return pair.leftBraceType
+            }
+            return null
+        }
+
+        override fun isPairedBracesAllowedBeforeType(
+            lbraceType: IElementType,
+            contextType: IElementType?,
+        ): Boolean = true
+
+        override fun getCodeConstructStart(
+            file: PsiFile,
+            openingBraceOffset: Int,
+        ): Int = openingBraceOffset
+    }
+
+    private open class LegacyBraceGrammarFixture(
+        private val registeredPairs: List<Pair<IElementType, IElementType>>,
+        private val groupId: Int = DEFAULT_GROUP,
+    ) : BraceMatcher {
+        override fun getBraceTokenGroupId(tokenType: IElementType): Int = groupId
+
+        override fun isLBraceToken(
+            iterator: HighlighterIterator,
+            fileText: CharSequence,
+            fileType: FileType,
+        ): Boolean = registeredPairs.any { (left, _) ->
+            left === iterator.tokenType
+        }
+
+        override fun isRBraceToken(
+            iterator: HighlighterIterator,
+            fileText: CharSequence,
+            fileType: FileType,
+        ): Boolean = registeredPairs.any { (_, right) ->
+            right === iterator.tokenType
+        }
+
+        override fun isPairBraces(
+            tokenType1: IElementType,
+            tokenType2: IElementType,
+        ): Boolean = registeredPairs.any { (left, right) ->
+            left === tokenType1 && right === tokenType2
+        }
+
+        override fun isStructuralBrace(
+            iterator: HighlighterIterator,
+            fileText: CharSequence,
+            fileType: FileType,
+        ): Boolean = false
+
+        override fun getOppositeBraceTokenType(type: IElementType): IElementType? {
+            for ((left, right) in registeredPairs) {
+                if (left === type) return right
+                if (right === type) return left
             }
             return null
         }
@@ -554,6 +724,16 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
             IElementType("PARITY_STRUCTURAL_REGULAR_RIGHT", STRUCTURAL_LANGUAGE)
         val STRUCTURAL_LEFT = IElementType("PARITY_STRUCTURAL_LEFT", STRUCTURAL_LANGUAGE)
         val STRUCTURAL_RIGHT = IElementType("PARITY_STRUCTURAL_RIGHT", STRUCTURAL_LANGUAGE)
+
+        val LEGACY_FILE_TYPE = object : LanguageFileType(STRUCTURAL_LANGUAGE) {
+            override fun getName(): String = "BRACKET_PAIRING_LEGACY_TEST"
+
+            override fun getDescription(): String = "Bracket pairing legacy matcher test"
+
+            override fun getDefaultExtension(): String = "legacy-braces"
+
+            override fun getIcon(): Icon? = null
+        }
 
         val SHARED_LANGUAGE = object : Language("BRACKET_PAIRING_PARITY_SHARED") {}
         val SHARED_A = IElementType("PARITY_SHARED_A", SHARED_LANGUAGE)

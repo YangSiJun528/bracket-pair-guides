@@ -40,9 +40,9 @@ wins and this option is cleared.
 ## Choose languages
 
 The **Languages** group is at the bottom of the settings page. It lists every
-installed language family that provides the `com.intellij.lang.braceMatcher`
-capability, including embedded-only languages without a standalone file type.
-Every family is enabled by default.
+installed language family that provides either a language brace matcher or a
+language-backed legacy file-type brace matcher. This includes embedded-only
+languages without a standalone file type. Every family is enabled by default.
 
 - Clear a family to exclude it from token colors, active guides, and pair
   emphasis.
@@ -53,7 +53,8 @@ Every family is enabled by default.
 - A newly installed supported family starts enabled. A disabled selection is
   retained if its language plugin is temporarily removed.
 - **Custom file types** means syntax-table bracket tokens registered through
-  the platform `TEXT` matcher; ordinary raw plain text is not scanned.
+  the platform `TEXT` matcher. Plain text also uses matcher-defined standard
+  bracket tokens; arbitrary raw characters are not scanned.
 
 Applying a language change clears stale decorations in every live editor session
 and schedules complete background analysis. Editors and split views do not run
@@ -62,8 +63,9 @@ current snapshot. Reopen the Settings page after installing a language plugin so
 the family list can be rediscovered.
 
 Only matcher-defined pairs are affected. Enabling YAML does not turn indentation
-blocks into bracket pairs, and unsupported legacy-only languages are not added
-to this list. See the [IDE and language support reference](reference_language_support.md).
+blocks into bracket pairs. Languages backed only by the legacy file-type
+extension are included when their file type is language-backed. See the
+[IDE and language support reference](reference_language_support.md).
 
 ## Set level colors
 
@@ -125,10 +127,11 @@ Bracket Pair Guides removes only highlighters it created and never clears an
 editor's markup model. The native matched-brace flag described above is the one
 IDE setting it intentionally changes and restores.
 
-Language support follows `com.intellij.lang.braceMatcher`, not the IDE product
-name. An IDE can load the plugin while its primary language remains unsupported;
-for example, load compatibility with CLion does not imply C/C++ recognition.
-Languages with only the legacy file-type matcher are left unchanged.
+Language support follows the matcher selected by IntelliJ's brace-matching
+resolver, not the IDE product name. The resolver can select either a token
+language matcher or a legacy file-type matcher. An IDE can still load the plugin
+while its primary language remains unsupported; for example, load compatibility
+with CLion does not imply C/C++ recognition.
 
 Related JetBrains documentation:
 

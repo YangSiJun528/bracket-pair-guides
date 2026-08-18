@@ -134,16 +134,16 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         assertThat(cancellationChecks).isEqualTo(3)
     }
 
-    fun testLegacyFileTypeMatcherIsNotARecognitionFallback() {
-        myFixture.configureByText("Unsupported.xml", "<root><child/></root>")
+    fun testUsesLegacyFileTypeMatcherForRecognition() {
+        myFixture.configureByText("Supported.xml", "<root><child/></root>")
 
-        assertThat(analyze(EmptyProgressIndicator())).isEmpty()
+        assertThat(analyze(EmptyProgressIndicator())).isNotEmpty()
     }
 
-    fun testRawCharactersWithoutALanguageMatcherAreUnsupported() {
-        myFixture.configureByText("Unsupported.txt", "{[(content)]}")
+    fun testUsesPlatformHostLanguageFallbackForRawCharacters() {
+        myFixture.configureByText("Fallback.txt", "{[(content)]}")
 
-        assertThat(analyze(EmptyProgressIndicator())).isEmpty()
+        assertThat(analyze(EmptyProgressIndicator())).hasSize(3)
     }
 
     fun testUsesOfficialCustomFileTypeBracketTokens() {
