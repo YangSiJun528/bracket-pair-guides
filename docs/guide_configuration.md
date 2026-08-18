@@ -107,8 +107,19 @@ Recommended setup:
 2. Leave **Disable IntelliJ matched-brace highlighting** enabled for the tested
    appearance. Clear it only when native boundary feedback is preferred.
 3. Disable **Current scope** when two active lines appear.
-4. If another bracket plugin is installed, enable token colors, guides,
-   borders, and backgrounds in only one plugin for each overlapping component.
+4. If another plugin styles the same editor elements, either accept the
+   overlap or disable the overlapping feature in one of the plugins.
+
+### Use with other highlighting plugins
+
+Bracket Pair Guides does not reserve a higher rendering priority than other
+plugins. When multiple plugins draw colors, backgrounds, borders, or guides on
+the same editor elements, one plugin can partially cover another. The result
+depends on the layers and components used by each plugin, so there is no single
+ordering that works for every combination.
+
+Use the plugins together when the combined appearance is acceptable. Otherwise,
+disable overlapping features or disable one of the plugins.
 
 Bracket Pair Guides removes only highlighters it created and never clears an
 editor's markup model. The native matched-brace flag described above is the one
