@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.0.3
+
+- Moved the language-family settings to the bottom of the settings page.
+- Added enable-all and disable-all language actions.
+- Added an animated bracket-guide demo to the README and Marketplace media.
+- Added support for legacy file-type brace matchers.
+- Added a file-level warning when no IntelliJ brace matcher is available;
+  Rider/CLion warnings link to the
+  [ReSharper backend support request](https://github.com/YangSiJun528/bracket-pair-guides/issues/19).
+- Preserved guide thickness at the left edge of the editor.
+- Removed per-brace structural wrapper allocations from document analysis.
+- Clarified that other highlighting plugins can affect bracket colors.
+
 ## 0.0.2
 
 Initial public release.

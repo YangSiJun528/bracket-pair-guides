@@ -22,13 +22,15 @@
     ]]></description>
 
     <change-notes><![CDATA[
-        <p><b>0.0.2</b> — Initial public release.</p>
+        <p><b>0.0.3</b></p>
         <ul>
-            <li>Six-level bracket-pair colorization.</li>
-            <li>A caret-driven guide for the innermost containing pair.</li>
-            <li>Default suppression of IntelliJ's matched-brace foreground and background.</li>
-            <li>Language-family and appearance settings.</li>
-            <li>No deprecated IntelliJ API usage reported by Plugin Verifier.</li>
+            <li>Moved language-family settings to the bottom of the settings page.</li>
+            <li>Added enable-all and disable-all language actions.</li>
+            <li>Added an animated bracket-guide demo.</li>
+            <li>Support for legacy file-type brace matchers.</li>
+            <li>Warn when a file exposes no compatible IntelliJ brace matcher.</li>
+            <li>Correct guide thickness at the left edge of the editor.</li>
+            <li>Lower document-analysis allocation overhead.</li>
         </ul>
     ]]></change-notes>
 
