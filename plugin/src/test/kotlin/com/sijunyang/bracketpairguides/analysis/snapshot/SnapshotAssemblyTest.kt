@@ -3,8 +3,10 @@ package com.sijunyang.bracketpairguides.analysis.snapshot
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.BraceMatcherAvailability
 import com.sijunyang.bracketpairguides.analysis.pairing.BracketRecognitionRefusal
 import com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketRecognition
+import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable
 import org.assertj.core.api.Assertions.assertThat
 
 class SnapshotAssemblyTest : BasePlatformTestCase() {
@@ -61,6 +63,27 @@ class SnapshotAssemblyTest : BasePlatformTestCase() {
                 assertThat(unavailable.limit).isEqualTo(AnalysisLimit.PAIR_CAPACITY)
             }
         assertThat(canonicalizationCalled).isFalse()
+    }
+
+    fun testEmptyRecognitionPreservesUnavailableMatcherState() {
+        myFixture.configureByText("Unsupported.txt", "value")
+
+        val outcome = assembly(
+            coverage = AnalysisCoverage(
+                tokens = true,
+                activePair = true,
+                guidePosition = true,
+            ),
+            recognize = {
+                DocumentBracketRecognition.Complete(
+                    PairTable.empty(),
+                    BraceMatcherAvailability.UNAVAILABLE,
+                )
+            },
+        ).outcome() as AnalysisOutcome.Complete
+
+        assertThat(outcome.snapshot.matcherAvailability)
+            .isEqualTo(BraceMatcherAvailability.UNAVAILABLE)
     }
 
     private fun assembly(

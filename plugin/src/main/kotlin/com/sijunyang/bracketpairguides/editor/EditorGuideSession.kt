@@ -2,6 +2,7 @@ package com.sijunyang.bracketpairguides.editor
 
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
+import com.sijunyang.bracketpairguides.analysis.BraceMatcherAvailability
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
@@ -22,6 +23,7 @@ internal class EditorGuideSession(
     private val editor: Editor,
     private var visibleRange: (Editor) -> TextRange,
     private var options: BracketGuidePreferences,
+    private var matcherAvailabilityChanged: (Editor) -> Unit = {},
 ) {
     private var disposed = false
     private var analysisHighlighter = editor.highlighter
@@ -30,8 +32,18 @@ internal class EditorGuideSession(
     private val activePresentation = ActiveGuidePresentation(editor)
     private val tokenDecorations = VisibleTokenDecorations(editor)
 
+    @Volatile
+    var matcherAvailability: BraceMatcherAvailability =
+        BraceMatcherAvailability.UNDETERMINED
+        private set
+
     val hasCappedTokenDecorations: Boolean
         get() = tokenDecorations.isCapped
+
+    fun updateMatcherAvailabilityListener(listener: (Editor) -> Unit) {
+        assertEdt()
+        matcherAvailabilityChanged = listener
+    }
 
     fun updateDependenciesIfCurrent(
         visibleRange: (Editor) -> TextRange,
@@ -78,6 +90,7 @@ internal class EditorGuideSession(
         ) {
             return
         }
+        publishMatcherAvailability(nextAnalysis.matcherAvailability)
         if (!requiredCoverage.pairs) {
             clearPresentation()
             analysisState.publishComplete(currentStamp())
@@ -158,6 +171,8 @@ internal class EditorGuideSession(
             return
         }
         if (analysisState.hasCompleted(attemptedStamp)) return
+
+        publishMatcherAvailability(nextAnalysis.matcherAvailability)
 
         val pair = nextAnalysis.activePairAt(caretOffset())
         activePresentation.replace(
@@ -266,6 +281,7 @@ internal class EditorGuideSession(
         if (!nextOptions.analysisCoverage().pairs) {
             clearPresentation()
             analysisState.publishComplete(currentStamp())
+            publishMatcherAvailability(BraceMatcherAvailability.UNDETERMINED)
             repaintVisibleContent()
             return
         }
@@ -365,7 +381,14 @@ internal class EditorGuideSession(
     private fun clear() {
         assertEdt()
         analysisState.clear()
+        publishMatcherAvailability(BraceMatcherAvailability.UNDETERMINED)
         clearPresentation()
+    }
+
+    private fun publishMatcherAvailability(next: BraceMatcherAvailability) {
+        if (matcherAvailability == next) return
+        matcherAvailability = next
+        matcherAvailabilityChanged(editor)
     }
 
     private fun clearPresentation() {

@@ -1,6 +1,7 @@
 package com.sijunyang.bracketpairguides.analysis.pairing
 
 import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.BraceMatcherAvailability
 import com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalog
 import com.intellij.codeInsight.highlighting.PairedBraceMatcherAdapter
 import com.intellij.ide.highlighter.custom.CustomFileHighlighter
@@ -19,6 +20,7 @@ import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.impl.AbstractFileType
 import com.intellij.openapi.fileTypes.SyntaxHighlighter
+import com.intellij.openapi.fileTypes.UnknownFileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.progress.ProgressIndicator
@@ -143,7 +145,57 @@ class DocumentBracketsTest : BasePlatformTestCase() {
     fun testUsesPlatformHostLanguageFallbackForRawCharacters() {
         myFixture.configureByText("Fallback.txt", "{[(content)]}")
 
-        assertThat(analyze(EmptyProgressIndicator())).hasSize(3)
+        val recognition = recognize()
+
+        assertThat(recognition.pairs.toBracketPairs()).hasSize(3)
+        assertThat(recognition.matcherAvailability)
+            .isEqualTo(BraceMatcherAvailability.AVAILABLE)
+    }
+
+    fun testReportsUnavailableWhenNoCompatibleMatcherCanBeResolved() {
+        myFixture.configureByText("Unavailable.txt", "<value>")
+        (myFixture.editor as EditorEx).setHighlighter(
+            LexerEditorHighlighter(DYNAMIC_SYNTAX_HIGHLIGHTER, myFixture.editor.colorsScheme),
+        )
+
+        val recognition = recognize(UnknownFileType.INSTANCE)
+
+        assertThat(recognition.pairs.isEmpty).isTrue()
+        assertThat(recognition.matcherAvailability)
+            .isEqualTo(BraceMatcherAvailability.UNAVAILABLE)
+    }
+
+    fun testMixedDocumentReportsAvailableWhenAnyTokenLanguageHasMatcher() {
+        myFixture.configureByText("Mixed.txt", "x[]")
+        (myFixture.editor as EditorEx).setHighlighter(
+            LexerEditorHighlighter(MIXED_SYNTAX_HIGHLIGHTER, myFixture.editor.colorsScheme),
+        )
+        LanguageBraceMatching.INSTANCE.addExplicitExtension(
+            SUPPORTED_DYNAMIC_LANGUAGE,
+            SQUARE_PAIRS,
+        )
+
+        try {
+            val recognition = recognize(UnknownFileType.INSTANCE)
+
+            assertThat(recognition.pairs.toBracketPairs()).hasSize(1)
+            assertThat(recognition.matcherAvailability)
+                .isEqualTo(BraceMatcherAvailability.AVAILABLE)
+        } finally {
+            LanguageBraceMatching.INSTANCE.removeExplicitExtension(
+                SUPPORTED_DYNAMIC_LANGUAGE,
+                SQUARE_PAIRS,
+            )
+        }
+    }
+
+    fun testEmptyDocumentLeavesMatcherAvailabilityUndetermined() {
+        myFixture.configureByText("Empty.java", "")
+
+        val recognition = recognize()
+
+        assertThat(recognition.matcherAvailability)
+            .isEqualTo(BraceMatcherAvailability.UNDETERMINED)
     }
 
     fun testUsesOfficialCustomFileTypeBracketTokens() {
@@ -193,14 +245,14 @@ class DocumentBracketsTest : BasePlatformTestCase() {
             ),
         )
 
-        val pairs = ReadAction.compute<List<BracketPair>, RuntimeException> {
+        val recognition = ReadAction.compute<DocumentBracketRecognition.Complete, RuntimeException> {
             documentBrackets(
                 fileType = customFileType,
                 isLanguageEnabled = { capabilityId -> capabilityId != "TEXT" },
-            ).recognize(EmptyProgressIndicator()).completeTable().toBracketPairs()
+            ).recognize(EmptyProgressIndicator()) as DocumentBracketRecognition.Complete
         }
 
-        assertThat(pairs).isEmpty()
+        assertThat(recognition.pairs.isEmpty).isTrue()
     }
 
     fun testDisabledMatcherFamilyIsExcludedFromFullAnalysis() {
@@ -212,13 +264,15 @@ class DocumentBracketsTest : BasePlatformTestCase() {
             BraceLanguageCatalog().definitionFor(myFixture.file.language)?.capabilityId,
         )
 
-        val pairs = ReadAction.compute<List<BracketPair>, RuntimeException> {
+        val recognition = ReadAction.compute<DocumentBracketRecognition.Complete, RuntimeException> {
             documentBrackets(
                 isLanguageEnabled = { id -> id != capabilityId },
-            ).recognize(EmptyProgressIndicator()).completeTable().toBracketPairs()
+            ).recognize(EmptyProgressIndicator()) as DocumentBracketRecognition.Complete
         }
 
-        assertThat(pairs).isEmpty()
+        assertThat(recognition.pairs.isEmpty).isTrue()
+        assertThat(recognition.matcherAvailability)
+            .isEqualTo(BraceMatcherAvailability.DISABLED)
     }
 
     fun testInheritedMatcherUsesTheHighestSharedBaseLanguageAsCapabilityOwner() {
@@ -263,6 +317,14 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         }
     }
 
+    private fun recognize(
+        fileType: FileType = myFixture.file.fileType,
+    ): DocumentBracketRecognition.Complete =
+        ReadAction.compute<DocumentBracketRecognition.Complete, RuntimeException> {
+            documentBrackets(fileType).recognize(EmptyProgressIndicator())
+                as DocumentBracketRecognition.Complete
+        }
+
     private fun documentBrackets(
         fileType: FileType = myFixture.file.fileType,
         isLanguageEnabled: (String) -> Boolean = { true },
@@ -296,9 +358,17 @@ class DocumentBracketsTest : BasePlatformTestCase() {
             DYNAMIC_LANGUAGE,
             "BRACKET_PAIR_GUIDES_DYNAMIC_DIALECT_TEST",
         ) {}
+        val SUPPORTED_DYNAMIC_LANGUAGE = object : Language(
+            "BRACKET_PAIR_GUIDES_SUPPORTED_DYNAMIC_TEST",
+        ) {}
         val LEFT_ANGLE = IElementType("DYNAMIC_LEFT_ANGLE", DYNAMIC_LANGUAGE)
         val RIGHT_ANGLE = IElementType("DYNAMIC_RIGHT_ANGLE", DYNAMIC_LANGUAGE)
         val OTHER = IElementType("DYNAMIC_OTHER", DYNAMIC_LANGUAGE)
+        val LEFT_SQUARE = IElementType("SUPPORTED_DYNAMIC_LEFT_SQUARE", SUPPORTED_DYNAMIC_LANGUAGE)
+        val RIGHT_SQUARE = IElementType(
+            "SUPPORTED_DYNAMIC_RIGHT_SQUARE",
+            SUPPORTED_DYNAMIC_LANGUAGE,
+        )
 
         val ANGLE_PAIRS = object : PairedBraceMatcher {
             override fun getPairs(): Array<BracePair> =
@@ -315,8 +385,31 @@ class DocumentBracketsTest : BasePlatformTestCase() {
             ): Int = openingBraceOffset
         }
 
+        val SQUARE_PAIRS = object : PairedBraceMatcher {
+            override fun getPairs(): Array<BracePair> =
+                arrayOf(BracePair(LEFT_SQUARE, RIGHT_SQUARE, false))
+
+            override fun isPairedBracesAllowedBeforeType(
+                lbraceType: IElementType,
+                contextType: IElementType?,
+            ): Boolean = true
+
+            override fun getCodeConstructStart(
+                file: PsiFile,
+                openingBraceOffset: Int,
+            ): Int = openingBraceOffset
+        }
+
         val DYNAMIC_SYNTAX_HIGHLIGHTER = object : SyntaxHighlighter {
             override fun getHighlightingLexer(): Lexer = CharacterTokens()
+
+            override fun getTokenHighlights(
+                tokenType: IElementType,
+            ): Array<TextAttributesKey> = emptyArray()
+        }
+
+        val MIXED_SYNTAX_HIGHLIGHTER = object : SyntaxHighlighter {
+            override fun getHighlightingLexer(): Lexer = MixedCharacterTokens()
 
             override fun getTokenHighlights(
                 tokenType: IElementType,
@@ -364,6 +457,46 @@ class DocumentBracketsTest : BasePlatformTestCase() {
             return when (buffer[offset]) {
                 '<' -> LEFT_ANGLE
                 '>' -> RIGHT_ANGLE
+                else -> OTHER
+            }
+        }
+
+        override fun getTokenStart(): Int = offset
+
+        override fun getTokenEnd(): Int = (offset + 1).coerceAtMost(endOffset)
+
+        override fun advance() {
+            if (offset < endOffset) offset++
+        }
+
+        override fun getBufferSequence(): CharSequence = buffer
+
+        override fun getBufferEnd(): Int = endOffset
+    }
+
+    private class MixedCharacterTokens : LexerBase() {
+        private var buffer: CharSequence = ""
+        private var endOffset: Int = 0
+        private var offset: Int = 0
+
+        override fun start(
+            buffer: CharSequence,
+            startOffset: Int,
+            endOffset: Int,
+            initialState: Int,
+        ) {
+            this.buffer = buffer
+            this.endOffset = endOffset
+            offset = startOffset
+        }
+
+        override fun getState(): Int = 0
+
+        override fun getTokenType(): IElementType? {
+            if (offset >= endOffset) return null
+            return when (buffer[offset]) {
+                '[' -> LEFT_SQUARE
+                ']' -> RIGHT_SQUARE
                 else -> OTHER
             }
         }

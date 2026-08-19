@@ -161,6 +161,7 @@ internal class BracketGuideHighlightingPass(
             editor = editor,
             visibleRange = visibleRange,
             preferences = BracketGuideSettings.getInstance().options,
+            matcherAvailabilityChanged = UnsupportedBackendNotificationProvider::update,
         )
     }
 }

@@ -15,14 +15,19 @@ internal object EditorGuideSessions {
         editor: Editor,
         visibleRange: (Editor) -> TextRange,
         preferences: BracketGuidePreferences,
+        matcherAvailabilityChanged: (Editor) -> Unit = {},
     ): EditorGuideSession {
         assertEdt()
         val existing = editor.getUserData(KEY)
-        if (existing != null) return existing
+        if (existing != null) {
+            existing.updateMatcherAvailabilityListener(matcherAvailabilityChanged)
+            return existing
+        }
         return EditorGuideSession(
             editor,
             visibleRange,
             preferences,
+            matcherAvailabilityChanged,
         ).also {
             editor.putUserData(KEY, it)
         }

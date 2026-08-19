@@ -84,6 +84,19 @@ own matcher even when its host template language has different rules. The token
 language is also part of the pairing group, so one pair cannot start in a host
 language and close in an embedded language.
 
+A completed background pass that finds no compatible IntelliJ brace matcher
+shows a file-level warning in every IDE product. The warning is not shown for
+empty files, user-disabled matcher families, or layered files where at least one
+enabled matcher-backed region is available. Closing the warning suppresses it
+for that file type in the current project.
+
+In Rider and CLion, the same warning also links to the
+[Rider/CLion ReSharper backend support request][resharper-backend-support] so
+affected users can register demand with a reaction. Warnings in other products
+link to this language-support reference.
+
+[resharper-backend-support]: https://github.com/YangSiJun528/bracket-pair-guides/issues/19
+
 The platform matcher supplies token classification, pair compatibility,
 occurrence-specific structural-brace classification, and any contextual
 callbacks. Bracket Pair Guides still owns the full-document pairing stack,

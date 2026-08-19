@@ -3,6 +3,7 @@ package com.sijunyang.bracketpairguides.analysis.pairing
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.progress.ProgressIndicator
+import com.sijunyang.bracketpairguides.analysis.BraceMatcherAvailability
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable
 
 /**
@@ -21,23 +22,30 @@ internal class DocumentBrackets(
     fun recognize(progress: ProgressIndicator): DocumentBracketRecognition {
         val document = editor.document
         if (document.textLength == 0) {
-            return DocumentBracketRecognition.Complete(PairTable.empty())
+            return DocumentBracketRecognition.Complete(
+                PairTable.empty(),
+                BraceMatcherAvailability.UNDETERMINED,
+            )
         }
 
         val pairs = PairCollection(BracketRecognitionLimits.completedPairs)
         val iterator = editor.highlighter.createIterator(0)
         if (iterator.document !== document) {
-            return DocumentBracketRecognition.Complete(PairTable.empty())
+            return DocumentBracketRecognition.Complete(
+                PairTable.empty(),
+                BraceMatcherAvailability.UNDETERMINED,
+            )
         }
         val text = document.immutableCharSequence
         val checkCanceled = progress::checkCanceled
-        val pairing = DocumentBraceGrammar(
+        val grammar = DocumentBraceGrammar(
             document = document,
             fileType = fileType,
             text = text,
             languages = languages,
             isLanguageEnabled = isLanguageEnabled,
-        ).newSession(
+        )
+        val pairing = grammar.newSession(
             checkCanceled = checkCanceled,
             pairSink = pairs,
             maximumPendingOpens = BracketRecognitionLimits.MAXIMUM_PENDING_OPENS,
@@ -66,6 +74,7 @@ internal class DocumentBrackets(
         progress.checkCanceled()
         return DocumentBracketRecognition.Complete(
             checkNotNull(pairs.authoritativePairs()),
+            grammar.matcherAvailability(),
         )
     }
 
@@ -76,7 +85,10 @@ internal class DocumentBrackets(
 
 /** Authoritative document-pair recognition state. */
 internal sealed interface DocumentBracketRecognition {
-    class Complete(val pairs: PairTable) : DocumentBracketRecognition
+    class Complete(
+        val pairs: PairTable,
+        val matcherAvailability: BraceMatcherAvailability,
+    ) : DocumentBracketRecognition
 
     class Unavailable(val refusal: BracketRecognitionRefusal) : DocumentBracketRecognition
 }

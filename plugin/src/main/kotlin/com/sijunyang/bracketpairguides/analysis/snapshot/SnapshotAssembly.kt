@@ -1,6 +1,7 @@
 package com.sijunyang.bracketpairguides.analysis.snapshot
 
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.BraceMatcherAvailability
 import com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.analysis.guide.GuideIndexShape
 import com.sijunyang.bracketpairguides.analysis.guide.GuideLineEnvelope
@@ -29,15 +30,23 @@ internal class SnapshotAssembly(
         val stamp = input.stamp
         var snapshotInput = input
         var layout = IndexLayout.forCoverage(stamp.coverage)
-        if (!stamp.coverage.pairs) return complete(emptySnapshot(layout))
+        if (!stamp.coverage.pairs) {
+            return complete(
+                emptySnapshot(layout, BraceMatcherAvailability.UNDETERMINED),
+            )
+        }
 
-        val pairs = when (val recognition = recognize()) {
+        val recognition = recognize()
+        val pairs = when (recognition) {
             is DocumentBracketRecognition.Complete -> recognition.pairs
             is DocumentBracketRecognition.Unavailable -> {
                 return unavailable(recognition.refusal.analysisLimit())
             }
         }
-        if (pairs.isEmpty) return complete(emptySnapshot(layout))
+        val matcherAvailability = recognition.matcherAvailability
+        if (pairs.isEmpty) {
+            return complete(emptySnapshot(layout, matcherAvailability))
+        }
 
         var guideEnvelope = if (layout.guidePosition) {
             guideEnvelope(pairs)
@@ -93,6 +102,7 @@ internal class SnapshotAssembly(
         )
         val snapshot = BracketSnapshot(
             stamp = snapshotInput.stamp,
+            matcherAvailability = matcherAvailability,
             indexes = canonicalIndexes(snapshotInput, layout, pairs, indexes),
         )
         return if (omittedGuide) {
@@ -123,7 +133,10 @@ internal class SnapshotAssembly(
     private fun unavailable(limit: AnalysisLimit): AnalysisOutcome =
         AnalysisOutcome.Unavailable(input.stamp, limit)
 
-    private fun emptySnapshot(layout: IndexLayout): BracketSnapshot {
+    private fun emptySnapshot(
+        layout: IndexLayout,
+        matcherAvailability: BraceMatcherAvailability,
+    ): BracketSnapshot {
         val pairs = PairTable.empty()
         val indexes = BracketIndexes(
             pairs = pairs,
@@ -133,6 +146,7 @@ internal class SnapshotAssembly(
         )
         return BracketSnapshot(
             stamp = input.stamp,
+            matcherAvailability = matcherAvailability,
             indexes = canonicalIndexes(input, layout, pairs, indexes),
         )
     }

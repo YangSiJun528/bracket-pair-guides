@@ -42,6 +42,9 @@
         <highlightingPassFactory
                 implementation="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuidePassRegistration"/>
 
+        <editorNotificationProvider
+                implementation="com.sijunyang.bracketpairguides.editor.highlighting.UnsupportedBackendNotificationProvider"/>
+
         <applicationService
                 serviceImplementation="com.sijunyang.bracketpairguides.settings.BracketGuideSettings"/>
 

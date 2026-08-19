@@ -10,6 +10,7 @@ import com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotAssembly
 /** Builds a test result through the production snapshot assembly and indexes. */
 internal fun AnalysisInput.bracketSnapshot(
     pairs: Iterable<BracketPair>,
+    matcherAvailability: BraceMatcherAvailability = BraceMatcherAvailability.AVAILABLE,
 ): BracketSnapshot {
     val document = editor.document
     val guidePositions = DocumentGuidePositions(
@@ -20,7 +21,10 @@ internal fun AnalysisInput.bracketSnapshot(
     val outcome = SnapshotAssembly(
         input = this,
         recognize = {
-            DocumentBracketRecognition.Complete(pairs.toPairTable())
+            DocumentBracketRecognition.Complete(
+                pairs.toPairTable(),
+                matcherAvailability,
+            )
         },
         checkCanceled = {},
         documentLength = document.textLength,

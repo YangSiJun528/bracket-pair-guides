@@ -2,6 +2,7 @@ package com.sijunyang.bracketpairguides.analysis.snapshot
 
 import com.intellij.openapi.util.TextRange
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
+import com.sijunyang.bracketpairguides.analysis.BraceMatcherAvailability
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex
@@ -20,6 +21,7 @@ internal class BracketIndexes(
 /** Editor-specific snapshot view over immutable [BracketIndexes]. */
 internal class BracketSnapshot(
     val stamp: AnalysisStamp,
+    val matcherAvailability: BraceMatcherAvailability,
     private val indexes: BracketIndexes,
 ) {
     /** One-entry memoization preserves allocation-free movement inside one active pair. */

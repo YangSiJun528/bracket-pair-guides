@@ -4,6 +4,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.BraceMatcherAvailability
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.analysis.pairing.toPairTable
@@ -73,6 +74,7 @@ class BracketSnapshotTest : BasePlatformTestCase() {
                 ),
                 disabledLanguageIds = emptySet(),
             ).stamp,
+            matcherAvailability = BraceMatcherAvailability.AVAILABLE,
             indexes = BracketIndexes(
                 pairs = pairTable,
                 tokens = BracketTokenIndex.build(pairTable, NO_CANCELLATION),

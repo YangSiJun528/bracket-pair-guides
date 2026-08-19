@@ -10,6 +10,7 @@ import com.intellij.openapi.fileTypes.PlainTextLanguage
 import com.intellij.openapi.fileTypes.UserFileType
 import com.intellij.psi.CustomHighlighterTokenType
 import com.intellij.psi.tree.IElementType
+import com.sijunyang.bracketpairguides.analysis.BraceMatcherAvailability
 import com.sijunyang.bracketpairguides.analysis.pairing.core.BracketRole
 import com.sijunyang.bracketpairguides.analysis.pairing.core.CancellationProbe
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairSink
@@ -32,6 +33,16 @@ internal class DocumentBraceGrammar(
     private val isLanguageEnabled: (String) -> Boolean,
 ) {
     private val definitions = HashMap<Language, BraceLanguageDefinition?>()
+    private var inspectedLanguage = false
+    private var foundCompatibleMatcher = false
+    private var foundEnabledMatcher = false
+
+    fun matcherAvailability(): BraceMatcherAvailability = when {
+        foundEnabledMatcher -> BraceMatcherAvailability.AVAILABLE
+        foundCompatibleMatcher -> BraceMatcherAvailability.DISABLED
+        inspectedLanguage -> BraceMatcherAvailability.UNAVAILABLE
+        else -> BraceMatcherAvailability.UNDETERMINED
+    }
 
     fun newSession(
         checkCanceled: () -> Unit,
@@ -128,10 +139,13 @@ internal class DocumentBraceGrammar(
         iterator: HighlighterIterator,
     ): BraceLanguageDefinition? {
         if (containsKey(language)) return this[language]
+        inspectedLanguage = true
         val candidate = languages.definitionFor(fileType, iterator, language)
+        if (candidate != null) foundCompatibleMatcher = true
         val definition = candidate?.takeIf { braceLanguage ->
             isLanguageEnabled(braceLanguage.capabilityId)
         }
+        if (definition != null) foundEnabledMatcher = true
         return definition.also { this[language] = it }
     }
 
