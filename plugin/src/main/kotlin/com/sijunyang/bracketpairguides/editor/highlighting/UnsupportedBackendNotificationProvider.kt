@@ -23,6 +23,8 @@ internal class UnsupportedBackendNotificationProvider private constructor(
     private val productCode: () -> String,
     private val openUrl: (String) -> Unit,
 ) : EditorNotificationProvider, DumbAware {
+    // IntelliJ instantiates this constructor from the plugin.xml extension declaration.
+    @Suppress("unused")
     constructor() : this(
         productCode = ::currentProductCode,
         openUrl = BrowserUtil::browse,
