@@ -41,14 +41,28 @@ internal class VisibleTokenDecorations(
         val stickyRanges = normalizedStickySourceRanges(reportedStickySourceRanges)
         val reusable = PreviousTokenMarks(entries)
         val selection = if (options.enabled && options.colorBracketTokens) {
-            createEntries(
-                analysis,
-                window,
-                stickyRanges,
-                decorationFocusOffset(visibleRange),
-                reusable,
-                options,
-            )
+            val focusOffset = decorationFocusOffset(visibleRange)
+            if (stickyRanges.isEmpty()) {
+                createViewportEntries(
+                    analysis.visibleTokens(
+                        range = window,
+                        focusOffset = focusOffset,
+                        limit = MAX_VISIBLE_TOKEN_DECORATIONS,
+                    ),
+                    window,
+                    reusable,
+                    options,
+                )
+            } else {
+                createUnionEntries(
+                    analysis,
+                    window,
+                    stickyRanges,
+                    focusOffset,
+                    reusable,
+                    options,
+                )
+            }
         } else {
             EntrySelection.EMPTY
         }
@@ -57,7 +71,11 @@ internal class VisibleTokenDecorations(
         windowEndOffset = window.endOffset
         stickySourceRanges = stickyRanges
         entries = selection.entries
-        stickyEntries = selection.entries.filter(VisibleTokenEntry::stickyOnly)
+        stickyEntries = if (stickyRanges.isEmpty()) {
+            emptyList()
+        } else {
+            selection.entries.filter(VisibleTokenEntry::stickyOnly)
+        }
         stableFocusStartOffset = selection.stableFocusStartOffset ?: window.startOffset
         stableFocusEndOffset = selection.stableFocusEndOffset ?: window.endOffset
         isViewportCapped = selection.isViewportCapped
@@ -135,7 +153,42 @@ internal class VisibleTokenDecorations(
             (!isViewportCapped || focusOffset in stableFocusStartOffset..stableFocusEndOffset)
     }
 
-    private fun createEntries(
+    /** Keeps the ordinary viewport path allocation-equivalent to the pre-Sticky implementation. */
+    private fun createViewportEntries(
+        tokens: TokenWindow,
+        window: TextRange,
+        reusable: PreviousTokenMarks,
+        options: BracketGuidePreferences,
+    ): EntrySelection {
+        val palette = TokenPalette(options)
+        val entries = ArrayList<VisibleTokenEntry>(tokens.size)
+        var index = 0
+        while (index < tokens.size) {
+            val startOffset = tokens.offsetAt(index)
+            val endOffset = startOffset.toLong() + tokens.lengthAt(index)
+            if (endOffset > window.startOffset && endOffset <= editor.document.textLength) {
+                val levelIndex = BracketColorPalette.levelIndex(tokens.depthAt(index))
+                entries += applyToken(
+                    reusable,
+                    startOffset,
+                    endOffset.toInt(),
+                    levelIndex,
+                    false,
+                    palette,
+                )
+            }
+            index++
+        }
+        return EntrySelection(
+            entries = entries,
+            stableFocusStartOffset = tokens.stableFocusStartOffset,
+            stableFocusEndOffset = tokens.stableFocusEndOffset,
+            isViewportCapped = tokens.isCapped,
+            isCapped = tokens.isCapped,
+        )
+    }
+
+    private fun createUnionEntries(
         analysis: BracketSnapshot,
         window: TextRange,
         stickyRanges: List<TextRange>,
