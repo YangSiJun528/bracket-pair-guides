@@ -14,6 +14,7 @@ internal object EditorGuideSessions {
     fun install(
         editor: Editor,
         visibleRange: (Editor) -> TextRange,
+        stickySourceRanges: (Editor) -> List<TextRange> = { emptyList() },
         preferences: BracketGuidePreferences,
         matcherAvailabilityChanged: (Editor) -> Unit = {},
     ): EditorGuideSession {
@@ -26,6 +27,7 @@ internal object EditorGuideSessions {
         return EditorGuideSession(
             editor,
             visibleRange,
+            stickySourceRanges,
             preferences,
             matcherAvailabilityChanged,
         ).also {

@@ -20,9 +20,12 @@ internal class VisibleTokenDecorations(
 ) {
     private var windowStartOffset = 0
     private var windowEndOffset = 0
+    private var stickySourceRanges: List<TextRange> = emptyList()
     private var entries: List<VisibleTokenEntry> = emptyList()
+    private var stickyEntries: List<VisibleTokenEntry> = emptyList()
     private var stableFocusStartOffset = 0
     private var stableFocusEndOffset = 0
+    private var isViewportCapped = false
 
     var isCapped = false
         private set
@@ -30,19 +33,19 @@ internal class VisibleTokenDecorations(
     fun replace(
         analysis: BracketSnapshot,
         reportedVisibleRange: TextRange,
+        reportedStickySourceRanges: List<TextRange>,
         options: BracketGuidePreferences,
     ) {
         val visibleRange = normalizedVisibleRange(reportedVisibleRange)
         val window = desiredWindow(visibleRange)
+        val stickyRanges = normalizedStickySourceRanges(reportedStickySourceRanges)
         val reusable = PreviousTokenMarks(entries)
         val selection = if (options.enabled && options.colorBracketTokens) {
             createEntries(
-                analysis.visibleTokens(
-                    range = window,
-                    focusOffset = decorationFocusOffset(visibleRange),
-                    limit = MAX_VISIBLE_TOKEN_DECORATIONS,
-                ),
+                analysis,
                 window,
+                stickyRanges,
+                decorationFocusOffset(visibleRange),
                 reusable,
                 options,
             )
@@ -52,21 +55,26 @@ internal class VisibleTokenDecorations(
         reusable.disposeRemaining()
         windowStartOffset = window.startOffset
         windowEndOffset = window.endOffset
+        stickySourceRanges = stickyRanges
         entries = selection.entries
+        stickyEntries = selection.entries.filter(VisibleTokenEntry::stickyOnly)
         stableFocusStartOffset = selection.stableFocusStartOffset ?: window.startOffset
         stableFocusEndOffset = selection.stableFocusEndOffset ?: window.endOffset
+        isViewportCapped = selection.isViewportCapped
         isCapped = selection.isCapped
     }
 
     fun replaceIfOutsideWindow(
         analysis: BracketSnapshot,
         reportedVisibleRange: TextRange,
+        reportedStickySourceRanges: List<TextRange>,
         options: BracketGuidePreferences,
     ): Boolean {
         val visibleRange = normalizedVisibleRange(reportedVisibleRange)
+        val stickyRanges = normalizedStickySourceRanges(reportedStickySourceRanges)
         val focusOffset = decorationFocusOffset(visibleRange)
-        if (canReuseFor(visibleRange, focusOffset)) return false
-        replace(analysis, visibleRange, options)
+        if (canReuseFor(visibleRange, stickyRanges, focusOffset)) return false
+        replace(analysis, visibleRange, stickyRanges, options)
         return true
     }
 
@@ -74,8 +82,10 @@ internal class VisibleTokenDecorations(
         if (!options.enabled || !options.colorBracketTokens) {
             disposeEntries(entries)
             entries = emptyList()
+            stickyEntries = emptyList()
             stableFocusStartOffset = windowStartOffset
             stableFocusEndOffset = windowEndOffset
+            isViewportCapped = false
             isCapped = false
             return
         }
@@ -90,53 +100,214 @@ internal class VisibleTokenDecorations(
         }
     }
 
+    /** Removes source lines that are no longer authoritative after a document edit. */
+    fun documentChanged() {
+        if (stickyEntries.isEmpty()) return
+        disposeEntries(stickyEntries)
+        stickyEntries = emptyList()
+        stickySourceRanges = emptyList()
+        isViewportCapped = false
+        isCapped = false
+    }
+
     fun dispose() {
         disposeEntries(entries)
         windowStartOffset = 0
         windowEndOffset = 0
+        stickySourceRanges = emptyList()
         entries = emptyList()
+        stickyEntries = emptyList()
         stableFocusStartOffset = 0
         stableFocusEndOffset = 0
+        isViewportCapped = false
         isCapped = false
     }
 
     /** A capped token slice must follow scrolling even inside its padded window. */
-    private fun canReuseFor(range: TextRange, focusOffset: Int): Boolean {
+    private fun canReuseFor(
+        range: TextRange,
+        stickyRanges: List<TextRange>,
+        focusOffset: Int,
+    ): Boolean {
         return windowStartOffset <= range.startOffset &&
             windowEndOffset >= range.endOffset &&
-            (!isCapped || focusOffset in stableFocusStartOffset..stableFocusEndOffset)
+            stickySourceRanges == stickyRanges &&
+            (!isViewportCapped || focusOffset in stableFocusStartOffset..stableFocusEndOffset)
     }
 
     private fun createEntries(
-        tokens: TokenWindow,
+        analysis: BracketSnapshot,
         window: TextRange,
+        stickyRanges: List<TextRange>,
+        focusOffset: Int,
         reusable: PreviousTokenMarks,
         options: BracketGuidePreferences,
     ): EntrySelection {
+        val selection = selectTokens(
+            analysis = analysis,
+            window = window,
+            stickyRanges = stickyRanges,
+            focusOffset = focusOffset,
+        )
         val palette = TokenPalette(options)
-        val entries = ArrayList<VisibleTokenEntry>(tokens.size)
-        var index = 0
-        while (index < tokens.size) {
-            val startOffset = tokens.offsetAt(index)
-            val endOffset = startOffset.toLong() + tokens.lengthAt(index)
-            if (endOffset > window.startOffset && endOffset <= editor.document.textLength) {
-                val levelIndex = BracketColorPalette.levelIndex(tokens.depthAt(index))
-                entries += applyToken(
-                    reusable,
-                    startOffset,
-                    endOffset.toInt(),
-                    levelIndex,
-                    palette,
-                )
-            }
-            index++
+        val entries = ArrayList<VisibleTokenEntry>(selection.tokens.size)
+        for (token in selection.tokens) {
+            entries += applyToken(
+                reusable,
+                token.startOffset,
+                token.endOffset,
+                token.levelIndex,
+                token.stickyOnly,
+                palette,
+            )
         }
         return EntrySelection(
             entries = entries,
-            stableFocusStartOffset = tokens.stableFocusStartOffset,
-            stableFocusEndOffset = tokens.stableFocusEndOffset,
-            isCapped = tokens.isCapped,
+            stableFocusStartOffset = selection.stableFocusStartOffset,
+            stableFocusEndOffset = selection.stableFocusEndOffset,
+            isViewportCapped = selection.isViewportCapped,
+            isCapped = selection.isCapped,
         )
+    }
+
+    private fun selectTokens(
+        analysis: BracketSnapshot,
+        window: TextRange,
+        stickyRanges: List<TextRange>,
+        focusOffset: Int,
+    ): TokenSelection {
+        val selected = ArrayList<SelectedToken>(MAX_VISIBLE_TOKEN_DECORATIONS)
+        val selectedRanges = HashMap<TokenRange, Int>(MAX_VISIBLE_TOKEN_DECORATIONS)
+        val cappedStickyRanges = ArrayList<TextRange>(stickyRanges.size)
+        var processedStickyRanges = 0
+        for ((rangeIndex, range) in stickyRanges.withIndex()) {
+            val remaining = MAX_VISIBLE_TOKEN_DECORATIONS - selected.size
+            if (remaining == 0) {
+                break
+            }
+            val rangesRemaining = stickyRanges.size - rangeIndex
+            val reservedLimit = maxOf(1, remaining / rangesRemaining)
+            val tokens = analysis.visibleTokens(
+                range = range,
+                focusOffset = range.startOffset + range.length / 2,
+                limit = reservedLimit,
+            )
+            appendTokens(
+                tokens = tokens,
+                range = range,
+                stickyOnly = true,
+                selected = selected,
+                selectedRanges = selectedRanges,
+            )
+            if (tokens.isCapped) cappedStickyRanges += range
+            processedStickyRanges++
+        }
+
+        var stickySelectionCapped = processedStickyRanges < stickyRanges.size
+        for (range in cappedStickyRanges) {
+            val remaining = MAX_VISIBLE_TOKEN_DECORATIONS - selected.size
+            if (remaining == 0) {
+                stickySelectionCapped = true
+                continue
+            }
+            val selectedInRange = selected.count { token ->
+                token.startOffset >= range.startOffset &&
+                    token.startOffset < range.endOffset
+            }
+            val tokens = analysis.visibleTokens(
+                range = range,
+                focusOffset = range.startOffset + range.length / 2,
+                limit = minOf(
+                    MAX_VISIBLE_TOKEN_DECORATIONS,
+                    selectedInRange + remaining,
+                ),
+            )
+            appendTokens(
+                tokens = tokens,
+                range = range,
+                stickyOnly = true,
+                selected = selected,
+                selectedRanges = selectedRanges,
+            )
+            stickySelectionCapped = stickySelectionCapped || tokens.isCapped
+        }
+
+        val remaining = MAX_VISIBLE_TOKEN_DECORATIONS - selected.size
+        val possibleViewportDuplicates = selected.count { token ->
+            token.startOffset >= window.startOffset &&
+                token.startOffset < window.endOffset
+        }
+        val viewportTokens = if (remaining > 0) {
+            analysis.visibleTokens(
+                range = window,
+                focusOffset = focusOffset,
+                limit = remaining + possibleViewportDuplicates,
+            )
+        } else {
+            null
+        }
+        viewportTokens?.let { tokens ->
+            appendTokens(
+                tokens = tokens,
+                range = window,
+                stickyOnly = false,
+                selected = selected,
+                selectedRanges = selectedRanges,
+            )
+        }
+        selected.sortWith(
+            compareBy<SelectedToken>(SelectedToken::startOffset)
+                .thenBy(SelectedToken::endOffset),
+        )
+        val viewportCapped = viewportTokens?.isCapped == true
+        val viewportTokensOmitted = viewportTokens == null &&
+            analysis.visibleTokens(
+                range = window,
+                focusOffset = focusOffset,
+                limit = 1,
+            ).size > 0
+        return TokenSelection(
+            tokens = selected,
+            stableFocusStartOffset = viewportTokens?.stableFocusStartOffset,
+            stableFocusEndOffset = viewportTokens?.stableFocusEndOffset,
+            isViewportCapped = viewportCapped,
+            isCapped = stickySelectionCapped ||
+                viewportCapped ||
+                viewportTokensOmitted,
+        )
+    }
+
+    private fun appendTokens(
+        tokens: TokenWindow,
+        range: TextRange,
+        stickyOnly: Boolean,
+        selected: MutableList<SelectedToken>,
+        selectedRanges: MutableMap<TokenRange, Int>,
+    ) {
+        var index = 0
+        while (index < tokens.size && selected.size < MAX_VISIBLE_TOKEN_DECORATIONS) {
+            val startOffset = tokens.offsetAt(index)
+            val endOffset = startOffset.toLong() + tokens.lengthAt(index)
+            if (startOffset < range.endOffset &&
+                endOffset > range.startOffset &&
+                endOffset <= editor.document.textLength
+            ) {
+                val tokenRange = TokenRange(startOffset, endOffset.toInt())
+                val previousIndex = selectedRanges[tokenRange]
+                if (previousIndex == null) {
+                    selectedRanges[tokenRange] = selected.size
+                    selected += SelectedToken(
+                        startOffset = startOffset,
+                        endOffset = endOffset.toInt(),
+                        levelIndex = BracketColorPalette.levelIndex(tokens.depthAt(index)),
+                        stickyOnly = stickyOnly,
+                    )
+                } else if (!stickyOnly) {
+                    selected[previousIndex].stickyOnly = false
+                }
+            }
+            index++
+        }
     }
 
     private fun applyToken(
@@ -144,6 +315,7 @@ internal class VisibleTokenDecorations(
         startOffset: Int,
         endOffset: Int,
         levelIndex: Int,
+        stickyOnly: Boolean,
         palette: TokenPalette,
     ): VisibleTokenEntry {
         val colorKey = BracketColorPalette.levelKey(levelIndex)
@@ -161,7 +333,13 @@ internal class VisibleTokenDecorations(
             applyPresentation(highlighter, colorKey, attributes)
         }
         highlighter.customRenderer = null
-        return VisibleTokenEntry(highlighter, colorKey, levelIndex, attributes)
+        return VisibleTokenEntry(
+            highlighter,
+            colorKey,
+            levelIndex,
+            attributes,
+            stickyOnly,
+        )
     }
 
     private fun addHighlighter(
@@ -269,6 +447,34 @@ internal class VisibleTokenDecorations(
         )
     }
 
+    private fun normalizedStickySourceRanges(reported: List<TextRange>): List<TextRange> {
+        if (reported.isEmpty()) return emptyList()
+        val documentLength = editor.document.textLength
+        val sorted = reported.mapNotNull { range ->
+            val startOffset = range.startOffset.coerceIn(0, documentLength)
+            val endOffset = range.endOffset.coerceIn(startOffset, documentLength)
+            TextRange(startOffset, endOffset).takeUnless(TextRange::isEmpty)
+        }.sortedWith(
+            compareBy<TextRange>(TextRange::getStartOffset)
+                .thenBy(TextRange::getEndOffset),
+        )
+        if (sorted.isEmpty()) return emptyList()
+
+        val merged = ArrayList<TextRange>(sorted.size)
+        for (range in sorted) {
+            val previous = merged.lastOrNull()
+            if (previous != null && range.startOffset <= previous.endOffset) {
+                merged[merged.lastIndex] = TextRange(
+                    previous.startOffset,
+                    maxOf(previous.endOffset, range.endOffset),
+                )
+            } else {
+                merged += range
+            }
+        }
+        return merged
+    }
+
     private fun disposeEntries(entries: List<VisibleTokenEntry>) {
         for (entry in entries) {
             val highlighter = entry.highlighter
@@ -281,6 +487,7 @@ internal class VisibleTokenDecorations(
         val colorKey: TextAttributesKey,
         val levelIndex: Int,
         var attributes: TextAttributes,
+        val stickyOnly: Boolean,
     )
 
     private class TokenPalette(options: BracketGuidePreferences) {
@@ -289,10 +496,31 @@ internal class VisibleTokenDecorations(
         }
     }
 
+    private data class SelectedToken(
+        val startOffset: Int,
+        val endOffset: Int,
+        val levelIndex: Int,
+        var stickyOnly: Boolean,
+    )
+
+    private data class TokenRange(
+        val startOffset: Int,
+        val endOffset: Int,
+    )
+
+    private data class TokenSelection(
+        val tokens: List<SelectedToken>,
+        val stableFocusStartOffset: Int? = null,
+        val stableFocusEndOffset: Int? = null,
+        val isViewportCapped: Boolean = false,
+        val isCapped: Boolean = false,
+    )
+
     private data class EntrySelection(
         val entries: List<VisibleTokenEntry>,
         val stableFocusStartOffset: Int? = null,
         val stableFocusEndOffset: Int? = null,
+        val isViewportCapped: Boolean = false,
         val isCapped: Boolean = false,
     ) {
         companion object {
@@ -333,7 +561,8 @@ internal class VisibleTokenDecorations(
 
         fun disposeRemaining() {
             while (index < previous.size) {
-                previous[index++].highlighter.dispose()
+                val highlighter = previous[index++].highlighter
+                if (highlighter.isValid) highlighter.dispose()
             }
         }
 

@@ -22,6 +22,7 @@ import com.intellij.openapi.util.TextRange
 internal class EditorGuideSession(
     private val editor: Editor,
     private var visibleRange: (Editor) -> TextRange,
+    private var stickySourceRanges: (Editor) -> List<TextRange> = { emptyList() },
     private var options: BracketGuidePreferences,
     private var matcherAvailabilityChanged: (Editor) -> Unit = {},
 ) {
@@ -47,6 +48,7 @@ internal class EditorGuideSession(
 
     fun updateDependenciesIfCurrent(
         visibleRange: (Editor) -> TextRange,
+        stickySourceRanges: (Editor) -> List<TextRange>,
         passStamp: AnalysisStamp,
     ): Boolean {
         assertEdt()
@@ -63,6 +65,7 @@ internal class EditorGuideSession(
         }
         analysisHighlighter = editor.highlighter
         this.visibleRange = visibleRange
+        this.stickySourceRanges = stickySourceRanges
         return true
     }
 
@@ -113,6 +116,7 @@ internal class EditorGuideSession(
                 tokenDecorations.replace(
                     compactAnalysis,
                     visibleRange(editor),
+                    stickySourceRanges(editor),
                     options,
                 )
                 repaintVisibleContent()
@@ -130,6 +134,7 @@ internal class EditorGuideSession(
         tokenDecorations.replace(
             nextAnalysis,
             visibleRange(editor),
+            stickySourceRanges(editor),
             options,
         )
         if (shouldReleasePairGraph(
@@ -184,6 +189,7 @@ internal class EditorGuideSession(
         tokenDecorations.replace(
             nextAnalysis,
             visibleRange(editor),
+            stickySourceRanges(editor),
             options,
         )
         analysisState.publishLimited(
@@ -249,6 +255,7 @@ internal class EditorGuideSession(
         assertEdt()
         if (disposed || editor.isDisposed) return
         discardStaleAnalysis()
+        tokenDecorations.documentChanged()
         updateProvisional(change)
     }
 
@@ -261,6 +268,7 @@ internal class EditorGuideSession(
         val presentationChanged = tokenDecorations.replaceIfOutsideWindow(
             currentAnalysis,
             visibleRange(editor),
+            stickySourceRanges(editor),
             options,
         )
         if (!presentationChanged) return
@@ -355,6 +363,7 @@ internal class EditorGuideSession(
                 tokenDecorations.replace(
                     currentAnalysis,
                     visibleRange(editor),
+                    stickySourceRanges(editor),
                     options,
                 )
             isVisible &&

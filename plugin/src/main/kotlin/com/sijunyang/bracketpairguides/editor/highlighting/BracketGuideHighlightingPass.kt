@@ -18,6 +18,7 @@ import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.editor.events.EditorGuideEvents
+import com.sijunyang.bracketpairguides.editor.events.StickyLineSourceRanges
 import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 
@@ -34,6 +35,8 @@ internal class BracketGuideHighlightingPass(
     private val sourceFile: VirtualFile?,
     private val analyze: (AnalysisInput, ProgressIndicator) -> AnalysisOutcome,
     private val visibleRange: (Editor) -> TextRange = Editor::calculateVisibleRange,
+    private val stickySourceRanges: (Editor) -> List<TextRange> =
+        StickyLineSourceRanges::calculate,
 ) : TextEditorHighlightingPass(project, editor.document, false) {
     private var collected: AnalysisOutcome? = null
     private var collectedStamp: AnalysisStamp? = null
@@ -74,6 +77,7 @@ internal class BracketGuideHighlightingPass(
             val session = installSession() ?: return
             session.updateDependenciesIfCurrent(
                 visibleRange = visibleRange,
+                stickySourceRanges = stickySourceRanges,
                 passStamp = currentStamp,
             )
             session.accept(
@@ -102,6 +106,7 @@ internal class BracketGuideHighlightingPass(
         if (passStamp != null) {
             session.updateDependenciesIfCurrent(
                 visibleRange = visibleRange,
+                stickySourceRanges = stickySourceRanges,
                 passStamp = passStamp,
             )
         }
@@ -156,10 +161,11 @@ internal class BracketGuideHighlightingPass(
 
     private fun installSession(): EditorGuideSession? {
         if (editor.isDisposed) return null
-        EditorGuideEvents.ensureInitialized()
+        EditorGuideEvents.ensureInitialized(editor)
         return EditorGuideSessions.install(
             editor = editor,
             visibleRange = visibleRange,
+            stickySourceRanges = stickySourceRanges,
             preferences = BracketGuideSettings.getInstance().options,
             matcherAvailabilityChanged = UnsupportedBackendNotificationProvider::update,
         )
