@@ -204,13 +204,13 @@ internal class VisibleTokenDecorations(
         )
         val palette = TokenPalette(options)
         val entries = ArrayList<VisibleTokenEntry>(selection.tokens.size)
-        for (token in selection.tokens) {
+        for ((startOffset, endOffset, levelIndex, stickyOnly) in selection.tokens) {
             entries += applyToken(
                 reusable,
-                token.startOffset,
-                token.endOffset,
-                token.levelIndex,
-                token.stickyOnly,
+                startOffset,
+                endOffset,
+                levelIndex,
+                stickyOnly,
                 palette,
             )
         }
@@ -309,7 +309,7 @@ internal class VisibleTokenDecorations(
             )
         }
         selected.sortWith(
-            compareBy<SelectedToken>(SelectedToken::startOffset)
+            compareBy(SelectedToken::startOffset)
                 .thenBy(SelectedToken::endOffset),
         )
         val viewportCapped = viewportTokens?.isCapped == true
@@ -508,7 +508,7 @@ internal class VisibleTokenDecorations(
             val endOffset = range.endOffset.coerceIn(startOffset, documentLength)
             TextRange(startOffset, endOffset).takeUnless(TextRange::isEmpty)
         }.sortedWith(
-            compareBy<TextRange>(TextRange::getStartOffset)
+            compareBy(TextRange::getStartOffset)
                 .thenBy(TextRange::getEndOffset),
         )
         if (sorted.isEmpty()) return emptyList()

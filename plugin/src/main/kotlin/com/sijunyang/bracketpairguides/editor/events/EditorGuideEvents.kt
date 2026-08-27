@@ -27,7 +27,6 @@ import com.intellij.openapi.editor.impl.event.MarkupModelListener
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.Alarm
 import org.jetbrains.annotations.TestOnly
-import java.beans.PropertyChangeListener
 import java.util.IdentityHashMap
 
 /** Routes platform editor events to the state owned by each editor session. */
@@ -61,7 +60,7 @@ internal class EditorGuideEvents :
         ApplicationManager.getApplication().messageBus.connect(this)
             .subscribe(EditorColorsManager.TOPIC, this)
         EditorSettingsExternalizable.getInstance().addPropertyChangeListener(
-            PropertyChangeListener {
+            {
                 requestVisibleRefreshes(EditorFactory.getInstance().allEditors.toList())
             },
             this,

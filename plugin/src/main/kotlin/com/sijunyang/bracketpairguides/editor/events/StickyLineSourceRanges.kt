@@ -60,7 +60,7 @@ internal object StickyLineSourceRanges {
         }
         if (scopes.isEmpty()) return emptyList()
         scopes.sortWith(
-            compareBy<TextRange>(TextRange::getStartOffset)
+            compareBy(TextRange::getStartOffset)
                 .thenByDescending(TextRange::getEndOffset),
         )
 
@@ -88,7 +88,7 @@ internal object StickyLineSourceRanges {
             )
         }
         candidates.sortWith(
-            compareBy<StickyCandidate>(StickyCandidate::primaryVisualLine)
+            compareBy(StickyCandidate::primaryVisualLine)
                 .thenByDescending(StickyCandidate::scopeVisualLine),
         )
         return displayedSourceRanges(
@@ -113,12 +113,14 @@ internal object StickyLineSourceRanges {
         val document = editor.document
         val displayed = ArrayList<TextRange>(minOf(candidates.size, lineLimit))
         var panelHeight = 0
-        for (candidate in candidates) {
-            val primaryBottomY = editor.visualLineToY(candidate.primaryVisualLine) + lineHeight
-            val scopeTopY = editor.visualLineToY(candidate.scopeVisualLine)
+        for ((primaryLogicalLine, primaryVisualLine, scopeVisualLine) in candidates) {
+            val primaryBottomY = editor.visualLineToY(primaryVisualLine) + lineHeight
+            val scopeTopY = editor.visualLineToY(scopeVisualLine)
             val scopeBottomY = scopeTopY + lineHeight
             val stickyBottomY = editorY + panelHeight + lineHeight
-            if (primaryBottomY < stickyBottomY && stickyBottomY <= scopeBottomY) {
+            if (stickyBottomY.toLong() in
+                (primaryBottomY.toLong() + 1L)..scopeBottomY.toLong()
+            ) {
                 val overlap = if (stickyBottomY <= scopeTopY) {
                     0
                 } else {
@@ -126,8 +128,8 @@ internal object StickyLineSourceRanges {
                 }
                 if (overlap < lineHeight) {
                     displayed += TextRange(
-                        document.getLineStartOffset(candidate.primaryLogicalLine),
-                        document.getLineEndOffset(candidate.primaryLogicalLine),
+                        document.getLineStartOffset(primaryLogicalLine),
+                        document.getLineEndOffset(primaryLogicalLine),
                     )
                     panelHeight += lineHeight - overlap
                 }
