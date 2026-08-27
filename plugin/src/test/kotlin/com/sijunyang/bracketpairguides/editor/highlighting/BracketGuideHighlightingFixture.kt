@@ -33,6 +33,7 @@ internal abstract class BracketGuideHighlightingFixture : BasePlatformTestCase()
 
     internal fun applyPass(
         pairs: (() -> List<BracketPair>)? = null,
+        stickySourceRanges: ((Editor) -> List<TextRange>)? = null,
         visibleRange: ((Editor) -> TextRange)? = null,
     ) {
         val pass = if (pairs == null) {
@@ -49,6 +50,7 @@ internal abstract class BracketGuideHighlightingFixture : BasePlatformTestCase()
                 editor = myFixture.editor,
                 pairs = pairs,
                 visibleRange = visibleRange ?: Editor::calculateVisibleRange,
+                stickySourceRanges = stickySourceRanges ?: { emptyList() },
             )
         }
         applyPass(pass)
@@ -59,6 +61,7 @@ internal abstract class BracketGuideHighlightingFixture : BasePlatformTestCase()
         editor: Editor,
         pairs: () -> List<BracketPair>,
         visibleRange: (Editor) -> TextRange = Editor::calculateVisibleRange,
+        stickySourceRanges: (Editor) -> List<TextRange> = { emptyList() },
         fileType: FileType = myFixture.file.fileType,
     ): BracketGuideHighlightingPass {
         return BracketGuideHighlightingPass(
@@ -73,6 +76,7 @@ internal abstract class BracketGuideHighlightingFixture : BasePlatformTestCase()
                 AnalysisOutcome.Complete(input.bracketSnapshot(recognizedPairs))
             },
             visibleRange = visibleRange,
+            stickySourceRanges = stickySourceRanges,
             fileType = fileType,
             sourceFile = FileDocumentManager.getInstance().getFile(editor.document),
         )
