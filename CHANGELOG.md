@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Preserved configured bracket colors in visible IntelliJ Sticky Lines while
+  scrolling beyond the ordinary viewport token window.
+
 ## 0.0.3
 
 - Moved the language-family settings to the bottom of the settings page.

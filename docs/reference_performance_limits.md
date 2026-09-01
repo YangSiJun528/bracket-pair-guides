@@ -25,7 +25,7 @@ changes.
 | Retained exact guide payload | 4 MiB | `Limited(GUIDE_CAPACITY)` with exact token and active-pair facets but no guide | `GuideIndexShape` |
 | Exact guide span under that payload | 1,032,192 lines | Same guide-only limitation | `GuideIndexShape` |
 | Synchronous document-edit guide scan | 256 lines and 32,768 inspected line-prefix characters, including each content terminator | Remove the stale guide immediately; wait for exact background analysis | `GuidePositionFallback` |
-| Token highlighters per editor viewport | 2,048 | Publish a focused token slice and recenter it as the focus moves | `VisibleTokenDecorations` |
+| Token highlighters per editor presentation | 2,048 | Reserve displayed Sticky Lines tokens, then publish a focused ordinary-viewport slice from the remaining shared budget | `VisibleTokenDecorations` |
 | Reported viewport normalization | 16,384 characters | Center a bounded reported range on the caret or viewport midpoint | `VisibleTokenDecorations` |
 | Token-window padding | 256 to 4,096 characters | Clamp padding to the range | `VisibleTokenDecorations` |
 | Viewport refresh coalescing | 16 ms | Combine repeated events by editor identity | `EditorGuideEvents` |
@@ -79,7 +79,8 @@ inside a third-party matcher.
 | Exact guide query | Scan at most two partial 256-line blocks and query intervening block minima in `O(log(G / 256))` |
 | Caret movement with a current snapshot | `O(log P)` active-pair lookup; moving to another pair replaces at most one guide and two active-symbol ranges |
 | Caret movement without a current snapshot | Range-marker adjustment and interval containment only; no token iteration or matcher callback on the EDT |
-| Document insertion, replacement, or deletion | Adjust the tracked endpoints and perform at most the bounded exact indentation-prefix scan; remove the guide if exact current geometry is unavailable; no token iteration or matcher callback on the EDT |
+| Ordinary viewport or displayed Sticky Lines change | Query bounded token ranges from the current snapshot, deduplicate overlaps, and reuse matching highlighters; no recognition or matcher callback |
+| Document insertion, replacement, or deletion | Adjust tracked endpoints, remove bounded Sticky-only token decorations, and perform at most the bounded exact indentation-prefix scan; no token-index iteration or matcher callback on the EDT |
 | Enable a guide while exact guide coverage is pending | Bounded provisional whitespace scan for the already tracked pair; no token or matcher work |
 | Theme or palette change | Refresh explicit palette attributes and theme-dependent background blending; no pair recognition |
 | Global disable | Skip recognition and clear plugin-owned markup |
@@ -98,7 +99,9 @@ positions before the opener and after the closer.
 - `PairTable` stores seven primitive integer columns rather than one object per
   completed pair.
 - The active-pair index stores at most `2P` event boundaries.
-- Token presentation retains only the bounded viewport window for each editor.
+- Token presentation retains only the bounded ordinary viewport window and the
+  bounded source lines currently displayed by Sticky Lines. Both share the
+  2,048-highlighter cap.
 - Token-only snapshots detach token lengths and nesting depth, use 28 retained
   bytes per pair, and release the seven-column pair table.
 - The larger active index is built before detached token metadata is retained,
@@ -118,7 +121,7 @@ proportional indexes.
 
 Equivalent split-editor results may share immutable `BracketIndexes` after full
 content comparison. Each editor still owns its own snapshot stamp, active-pair
-memo, range markers, viewport decorations, and markup. Recognition and
+memo, range markers, presentation decorations, and markup. Recognition and
 transient index construction are not single-flight.
 
 ## Cancellation and matcher behavior
