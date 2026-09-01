@@ -34,11 +34,12 @@ class BracketGuideSettingsTest {
     @Test
     fun `normalizes persisted numeric guide options`() {
         val settings = BracketGuideSettings()
-        val state = BracketGuidePreferences(
-            guideLineWidth = Int.MAX_VALUE,
-            guideOpacityPercent = Int.MIN_VALUE,
-            pairBackgroundOpacityPercent = Int.MAX_VALUE,
-        )
+        val state =
+            BracketGuidePreferences(
+                guideLineWidth = Int.MAX_VALUE,
+                guideOpacityPercent = Int.MIN_VALUE,
+                pairBackgroundOpacityPercent = Int.MAX_VALUE,
+            )
 
         settings.loadState(state)
 
@@ -67,7 +68,8 @@ class BracketGuideSettingsTest {
         val settings = BracketGuideSettings()
         settings.loadState(
             BracketGuidePreferences(
-                disabledLanguageIds = setOf(
+                disabledLanguageIds =
+                setOf(
                     " Rust ",
                     "",
                     "JavaScript",
@@ -83,25 +85,26 @@ class BracketGuideSettingsTest {
 
     @Test
     fun `round trips every persisted option`() {
-        val expected = BracketGuidePreferences(
-            enabled = false,
-            disabledLanguageIds = setOf("Rust", "JavaScript"),
-            disableNativeMatchedBraceHighlighting = false,
-            colorBracketTokens = false,
-            showActiveGuide = false,
-            showVerticalGuide = false,
-            showHorizontalGuides = false,
-            guideLineWidth = 3,
-            guideOpacityPercent = 70,
-            showActivePairBorder = true,
-            showActivePairBackground = true,
-            pairBackgroundOpacityPercent = 45,
-            useIndependentComponentColors = true,
-            levelBaseColors = List(StoredColorFormat.COLOR_COUNT) { 0x101010 + it },
-            guideLineColors = List(StoredColorFormat.COLOR_COUNT) { 0x202020 + it },
-            pairBorderColors = List(StoredColorFormat.COLOR_COUNT) { 0x303030 + it },
-            pairBackgroundColors = List(StoredColorFormat.COLOR_COUNT) { 0x404040 + it },
-        )
+        val expected =
+            BracketGuidePreferences(
+                enabled = false,
+                disabledLanguageIds = setOf("Rust", "JavaScript"),
+                disableNativeMatchedBraceHighlighting = false,
+                colorBracketTokens = false,
+                showActiveGuide = false,
+                showVerticalGuide = false,
+                showHorizontalGuides = false,
+                guideLineWidth = 3,
+                guideOpacityPercent = 70,
+                showActivePairBorder = true,
+                showActivePairBackground = true,
+                pairBackgroundOpacityPercent = 45,
+                useIndependentComponentColors = true,
+                levelBaseColors = List(StoredColorFormat.COLOR_COUNT) { 0x101010 + it },
+                guideLineColors = List(StoredColorFormat.COLOR_COUNT) { 0x202020 + it },
+                pairBorderColors = List(StoredColorFormat.COLOR_COUNT) { 0x303030 + it },
+                pairBackgroundColors = List(StoredColorFormat.COLOR_COUNT) { 0x404040 + it },
+            )
         val source = BracketGuideSettings().apply { replace(expected) }
         val restored = BracketGuideSettings()
 
@@ -114,13 +117,15 @@ class BracketGuideSettingsTest {
     @Test
     fun `load isolates state from mutable caller collections`() {
         val disabledLanguageIds = mutableSetOf("Rust")
-        val levelBaseColors = StoredColorFormat.defaultColors().toMutableList().apply {
-            this[0] = 0x123456
-        }
-        val input = BracketGuidePreferences(
-            disabledLanguageIds = disabledLanguageIds,
-            levelBaseColors = levelBaseColors,
-        )
+        val levelBaseColors =
+            StoredColorFormat.defaultColors().toMutableList().apply {
+                this[0] = 0x123456
+            }
+        val input =
+            BracketGuidePreferences(
+                disabledLanguageIds = disabledLanguageIds,
+                levelBaseColors = levelBaseColors,
+            )
         val settings = BracketGuideSettings()
         settings.loadState(input)
 

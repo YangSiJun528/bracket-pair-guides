@@ -10,6 +10,5 @@ public interface PairSink {
             int closeTokenLength,
             int depth,
             int openLine,
-            int closeLine
-    );
+            int closeLine);
 }

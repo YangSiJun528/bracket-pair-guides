@@ -9,9 +9,8 @@ import java.util.function.Function;
 /**
  * Platform-neutral, single-pass bracket pairing state machine.
  *
- * <p>A session owns all mutable state and must stay on one thread. Inputs and
- * completed-pair output are supplied explicitly; no document, clock, executor,
- * or global service is read by this package.</p>
+ * <p>A session owns all mutable state and must stay on one thread. Inputs and completed-pair output
+ * are supplied explicitly; no document, clock, executor, or global service is read by this package.
  */
 public final class PairingMachine<T, G> {
     private final Function<? super G, ? extends PairingRules<T>> rulesForGroup;
@@ -19,29 +18,22 @@ public final class PairingMachine<T, G> {
     /**
      * Creates a stateless machine configuration.
      *
-     * <p>Each session resolves a group's rules once and keeps that result for
-     * the rest of the scan, so a group's pairing semantics cannot change
-     * halfway through a session.</p>
+     * <p>Each session resolves a group's rules once and keeps that result for the rest of the scan,
+     * so a group's pairing semantics cannot change halfway through a session.
      */
-    public PairingMachine(
-            Function<? super G, ? extends PairingRules<T>> rulesForGroup
-    ) {
+    public PairingMachine(Function<? super G, ? extends PairingRules<T>> rulesForGroup) {
         this.rulesForGroup = Objects.requireNonNull(rulesForGroup, "rulesForGroup");
     }
 
     public Session newSession(
-            PairSink sink,
-            CancellationProbe cancellation,
-            int maximumPendingOpens
-    ) {
+            PairSink sink, CancellationProbe cancellation, int maximumPendingOpens) {
         if (maximumPendingOpens <= 0) {
             throw new IllegalArgumentException("Pending-open capacity must be positive");
         }
         return new Session(
                 Objects.requireNonNull(sink, "sink"),
                 Objects.requireNonNull(cancellation, "cancellation"),
-                maximumPendingOpens
-        );
+                maximumPendingOpens);
     }
 
     public final class Session {
@@ -52,11 +44,7 @@ public final class PairingMachine<T, G> {
         private final Map<G, PairingRules<T>> rulesByGroup = new HashMap<>();
         private int pendingOpenCount;
 
-        private Session(
-                PairSink sink,
-                CancellationProbe cancellation,
-                int maximumPendingOpens
-        ) {
+        private Session(PairSink sink, CancellationProbe cancellation, int maximumPendingOpens) {
             this.sink = sink;
             this.cancellation = cancellation;
             this.maximumPendingOpens = maximumPendingOpens;
@@ -76,8 +64,7 @@ public final class PairingMachine<T, G> {
                 StructuralRole structuralRole,
                 int offset,
                 int tokenLength,
-                int line
-        ) {
+                int line) {
             Objects.requireNonNull(group, "group");
             Objects.requireNonNull(token, "token");
             Objects.requireNonNull(role, "role");
@@ -87,37 +74,27 @@ public final class PairingMachine<T, G> {
             }
 
             return switch (role) {
-                case OPEN -> open(
-                        group,
-                        token,
-                        context,
-                        strictContext,
-                        structuralRole.opens(),
-                        offset,
-                        tokenLength,
-                        line
-                );
+                case OPEN ->
+                        open(
+                                group,
+                                token,
+                                context,
+                                strictContext,
+                                structuralRole.opens(),
+                                offset,
+                                tokenLength,
+                                line);
                 case CLOSE -> {
-                    OpenToken<T> match = close(
-                            group,
-                            token,
-                            context,
-                            strictContext,
-                            structuralRole.closes()
-                    );
+                    OpenToken<T> match =
+                            close(group, token, context, strictContext, structuralRole.closes());
                     if (match != null) {
                         emit(match, offset, tokenLength, line);
                     }
                     yield true;
                 }
                 case TOGGLE -> {
-                    OpenToken<T> match = close(
-                            group,
-                            token,
-                            context,
-                            strictContext,
-                            structuralRole.closes()
-                    );
+                    OpenToken<T> match =
+                            close(group, token, context, strictContext, structuralRole.closes());
                     if (match != null) {
                         emit(match, offset, tokenLength, line);
                         yield true;
@@ -130,8 +107,7 @@ public final class PairingMachine<T, G> {
                             structuralRole.opens(),
                             offset,
                             tokenLength,
-                            line
-                    );
+                            line);
                 }
             };
         }
@@ -144,25 +120,22 @@ public final class PairingMachine<T, G> {
                 boolean structural,
                 int offset,
                 int tokenLength,
-                int line
-        ) {
+                int line) {
             if (pendingOpenCount == maximumPendingOpens) {
                 return false;
             }
-            GroupState<T> state = states.computeIfAbsent(
-                    group,
-                    ignored -> new GroupState<>(rulesFor(group))
-            );
-            OpenToken<T> open = new OpenToken<>(
-                    token,
-                    context,
-                    strictContext,
-                    structural,
-                    offset,
-                    tokenLength,
-                    line,
-                    state.stack.size()
-            );
+            GroupState<T> state =
+                    states.computeIfAbsent(group, ignored -> new GroupState<>(rulesFor(group)));
+            OpenToken<T> open =
+                    new OpenToken<>(
+                            token,
+                            context,
+                            strictContext,
+                            structural,
+                            offset,
+                            tokenLength,
+                            line,
+                            state.stack.size());
             state.stack.addLast(open);
             state.peakStackSize = Math.max(state.peakStackSize, state.stack.size());
             pendingOpenCount++;
@@ -176,12 +149,7 @@ public final class PairingMachine<T, G> {
         }
 
         private OpenToken<T> close(
-                G group,
-                T token,
-                String context,
-                boolean strictContext,
-                boolean structural
-        ) {
+                G group, T token, String context, boolean strictContext, boolean structural) {
             GroupState<T> state = states.get(group);
             if (state == null || state.stack.isEmpty()) {
                 return null;
@@ -195,26 +163,12 @@ public final class PairingMachine<T, G> {
             if (top.structural == structural && topMatches) {
                 match = removeLast(state);
             } else {
-                Counts<T> candidates = structural
-                        ? state.structuralCounts
-                        : state.regularScopes.getLast();
-                if (!hasCandidate(
-                        candidates,
-                        token,
-                        context,
-                        strictContext,
-                        rules
-                )) {
+                Counts<T> candidates =
+                        structural ? state.structuralCounts : state.regularScopes.getLast();
+                if (!hasCandidate(candidates, token, context, strictContext, rules)) {
                     match = null;
                 } else {
-                    match = recover(
-                            state,
-                            token,
-                            context,
-                            strictContext,
-                            structural,
-                            rules
-                    );
+                    match = recover(state, token, context, strictContext, structural, rules);
                 }
             }
 
@@ -223,14 +177,12 @@ public final class PairingMachine<T, G> {
         }
 
         /**
-         * Keeps the allocation benefit for ordinary sequential pairs without
-         * retaining a pathological stack's backing arrays for the rest of the
-         * document scan. Counts and structural scopes cannot grow beyond the
-         * same group's peak stack size.
+         * Keeps the allocation benefit for ordinary sequential pairs without retaining a
+         * pathological stack's backing arrays for the rest of the document scan. Counts and
+         * structural scopes cannot grow beyond the same group's peak stack size.
          */
         private void releaseOversizedEmptyState(G group, GroupState<T> state) {
-            if (state.stack.isEmpty() &&
-                    state.peakStackSize > MAXIMUM_RETAINED_EMPTY_GROUP_DEPTH) {
+            if (state.stack.isEmpty() && state.peakStackSize > MAXIMUM_RETAINED_EMPTY_GROUP_DEPTH) {
                 states.put(group, new GroupState<>(state.rules));
             }
         }
@@ -240,10 +192,8 @@ public final class PairingMachine<T, G> {
             if (cached != null) {
                 return cached;
             }
-            PairingRules<T> resolved = Objects.requireNonNull(
-                    rulesForGroup.apply(group),
-                    "rulesForGroup result"
-            );
+            PairingRules<T> resolved =
+                    Objects.requireNonNull(rulesForGroup.apply(group), "rulesForGroup result");
             rulesByGroup.put(group, resolved);
             return resolved;
         }
@@ -253,8 +203,7 @@ public final class PairingMachine<T, G> {
                 T closeToken,
                 String closeContext,
                 boolean strictContext,
-                PairingRules<T> rules
-        ) {
+                PairingRules<T> rules) {
             if (counts.tokenCounts == null) {
                 return false;
             }
@@ -287,8 +236,7 @@ public final class PairingMachine<T, G> {
                 String closeContext,
                 boolean strictContext,
                 boolean structural,
-                PairingRules<T> rules
-        ) {
+                PairingRules<T> rules) {
             int discarded = 0;
             while (!state.stack.isEmpty()) {
                 if (!structural && state.stack.getLast().structural) {
@@ -298,8 +246,8 @@ public final class PairingMachine<T, G> {
                     cancellation.check();
                 }
                 OpenToken<T> open = removeLast(state);
-                if (matches(open, closeToken, closeContext, strictContext, rules) &&
-                        open.structural == structural) {
+                if (matches(open, closeToken, closeContext, strictContext, rules)
+                        && open.structural == structural) {
                     return open;
                 }
             }
@@ -311,11 +259,10 @@ public final class PairingMachine<T, G> {
                 T closeToken,
                 String closeContext,
                 boolean strictContext,
-                PairingRules<T> rules
-        ) {
-            return rules.isPair(open.token, closeToken) &&
-                    (!strictContext ||
-                            (open.strictContext && Objects.equals(open.context, closeContext)));
+                PairingRules<T> rules) {
+            return rules.isPair(open.token, closeToken)
+                    && (!strictContext
+                            || (open.strictContext && Objects.equals(open.context, closeContext)));
         }
 
         private OpenToken<T> removeLast(GroupState<T> state) {
@@ -376,8 +323,7 @@ public final class PairingMachine<T, G> {
                     closeLength,
                     open.depth,
                     open.line,
-                    closeLine
-            );
+                    closeLine);
         }
     }
 
@@ -399,8 +345,7 @@ public final class PairingMachine<T, G> {
         private Map<ContextKey<T>, Integer> contextCounts;
     }
 
-    private record ContextKey<T>(T token, String context) {
-    }
+    private record ContextKey<T>(T token, String context) {}
 
     private static final int MAXIMUM_RETAINED_EMPTY_GROUP_DEPTH = 1_024;
 
@@ -422,8 +367,7 @@ public final class PairingMachine<T, G> {
                 int offset,
                 int tokenLength,
                 int line,
-                int depth
-        ) {
+                int depth) {
             this.token = token;
             this.context = context;
             this.strictContext = strictContext;

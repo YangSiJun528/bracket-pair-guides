@@ -44,24 +44,18 @@ internal class DocumentBraceGrammar(
         else -> BraceMatcherAvailability.UNDETERMINED
     }
 
-    fun newSession(
-        checkCanceled: () -> Unit,
-        pairSink: PairSink,
-        maximumPendingOpens: Int,
-    ): Session = Session(checkCanceled, pairSink, maximumPendingOpens)
+    fun newSession(checkCanceled: () -> Unit, pairSink: PairSink, maximumPendingOpens: Int): Session =
+        Session(checkCanceled, pairSink, maximumPendingOpens)
 
-    inner class Session(
-        checkCanceled: () -> Unit,
-        pairSink: PairSink,
-        maximumPendingOpens: Int,
-    ) {
-        private val pairing = PairingMachine<IElementType, BraceGroup> { group ->
-            group.definition
-        }.newSession(
-            pairSink,
-            CancellationProbe(checkCanceled),
-            maximumPendingOpens,
-        )
+    inner class Session(checkCanceled: () -> Unit, pairSink: PairSink, maximumPendingOpens: Int) {
+        private val pairing =
+            PairingMachine<IElementType, BraceGroup> { group ->
+                group.definition
+            }.newSession(
+                pairSink,
+                CancellationProbe(checkCanceled),
+                maximumPendingOpens,
+            )
 
         /** Returns false before an opener would cross the pending-open capacity. */
         fun accept(iterator: HighlighterIterator): Boolean {
@@ -90,21 +84,24 @@ internal class DocumentBraceGrammar(
         val matcher = definition.matcher
         val isLeft = matcher.isLBraceToken(iterator, text, fileType)
         val isSymmetric = isLeft && definition.isPureSymmetric(tokenType)
-        val isRight = (!isLeft || isSymmetric) &&
-            matcher.isRBraceToken(iterator, text, fileType)
+        val isRight =
+            (!isLeft || isSymmetric) &&
+                matcher.isRBraceToken(iterator, text, fileType)
         if (!isLeft && !isRight) return null
         val role = bracketRole(isLeft, isRight, isSymmetric)
 
         return ClassifiedToken(
             type = tokenType,
-            group = BraceGroup(
+            group =
+            BraceGroup(
                 language = language,
                 tokenGroup = matcher.getBraceTokenGroupId(tokenType),
                 definition = definition,
             ),
             context = matcher.contextAt(iterator),
             role = role,
-            structuralRole = definition.structuralRole(
+            structuralRole =
+            definition.structuralRole(
                 iterator = iterator,
                 text = text,
                 fileType = fileType,
@@ -131,6 +128,7 @@ internal class DocumentBraceGrammar(
         CustomHighlighterTokenType.L_PARENTH,
         CustomHighlighterTokenType.R_PARENTH,
         -> true
+
         else -> false
     }
 
@@ -142,25 +140,25 @@ internal class DocumentBraceGrammar(
         inspectedLanguage = true
         val candidate = languages.definitionFor(fileType, iterator, language)
         if (candidate != null) foundCompatibleMatcher = true
-        val definition = candidate?.takeIf { braceLanguage ->
-            isLanguageEnabled(braceLanguage.capabilityId)
-        }
+        val definition =
+            candidate?.takeIf { braceLanguage ->
+                isLanguageEnabled(braceLanguage.capabilityId)
+            }
         if (definition != null) foundEnabledMatcher = true
         return definition.also { this[language] = it }
     }
 
-    private fun BraceMatcher.contextAt(
-        iterator: HighlighterIterator,
-    ): TokenContext {
+    private fun BraceMatcher.contextAt(iterator: HighlighterIterator): TokenContext {
         val xmlMatcher = this as? XmlAwareBraceMatcher ?: return TokenContext.NONE
         val tokenType = iterator.tokenType ?: return TokenContext.NONE
         val group = getBraceTokenGroupId(tokenType)
         if (!xmlMatcher.isStrictTagMatching(fileType, group)) return TokenContext.NONE
 
         val caseSensitive = xmlMatcher.areTagsCaseSensitive(fileType, group)
-        val tagName = xmlMatcher.getTagName(text, iterator)?.let { name ->
-            if (caseSensitive) name else name.lowercase(Locale.ROOT)
-        }
+        val tagName =
+            xmlMatcher.getTagName(text, iterator)?.let { name ->
+                if (caseSensitive) name else name.lowercase(Locale.ROOT)
+            }
         return TokenContext(strict = true, value = tagName)
     }
 
@@ -173,32 +171,21 @@ internal class DocumentBraceGrammar(
     )
 
     /** Equality intentionally preserves the original language + numeric group key. */
-    private class BraceGroup(
-        val language: Language,
-        val tokenGroup: Int,
-        val definition: BraceLanguageDefinition,
-    ) {
+    private class BraceGroup(val language: Language, val tokenGroup: Int, val definition: BraceLanguageDefinition) {
         override fun equals(other: Any?): Boolean =
             other is BraceGroup && language == other.language && tokenGroup == other.tokenGroup
 
         override fun hashCode(): Int = 31 * language.hashCode() + tokenGroup
     }
 
-    private data class TokenContext(
-        val strict: Boolean,
-        val value: String?,
-    ) {
+    private data class TokenContext(val strict: Boolean, val value: String?) {
         companion object {
             val NONE = TokenContext(strict = false, value = null)
         }
     }
 }
 
-internal fun bracketRole(
-    isLeft: Boolean,
-    isRight: Boolean,
-    isPureSymmetric: Boolean,
-): BracketRole {
+internal fun bracketRole(isLeft: Boolean, isRight: Boolean, isPureSymmetric: Boolean): BracketRole {
     require(isLeft || isRight) { "A bracket token must have at least one direction" }
     return when {
         isPureSymmetric && isRight -> BracketRole.TOGGLE

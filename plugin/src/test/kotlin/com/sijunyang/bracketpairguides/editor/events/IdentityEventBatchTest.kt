@@ -58,13 +58,14 @@ class IdentityEventBatchTest {
         val second = Any()
         val consumed = ArrayList<Any>()
         lateinit var batch: IdentityEventBatch<Any>
-        batch = IdentityEventBatch(
-            schedule = scheduled::addLast,
-            consume = { value ->
-                consumed += value
-                if (value === first) batch.request(second)
-            },
-        )
+        batch =
+            IdentityEventBatch(
+                schedule = scheduled::addLast,
+                consume = { value ->
+                    consumed += value
+                    if (value === first) batch.request(second)
+                },
+            )
 
         batch.request(first)
         scheduled.removeFirst().invoke()
@@ -78,10 +79,11 @@ class IdentityEventBatchTest {
     private class Fixture {
         val scheduled = ArrayDeque<() -> Unit>()
         val consumed = ArrayList<Any>()
-        val batch = IdentityEventBatch<Any>(
-            schedule = scheduled::addLast,
-            consume = consumed::add,
-        )
+        val batch =
+            IdentityEventBatch<Any>(
+                schedule = scheduled::addLast,
+                consume = consumed::add,
+            )
 
         fun runNext() {
             scheduled.removeFirst().invoke()

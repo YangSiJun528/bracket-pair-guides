@@ -141,8 +141,10 @@ class NativeMatchedBraceHighlightingTest {
         assertThat(fixture.persistedSnapshots).containsExactly(
             PersistedSnapshot(nativeEnabled = true, restoreValue = null),
         )
-        assertThat(fixture.pluginListener.javaClass.declaredMethods.map { it.name })
-            .doesNotContain("checkUnloadPlugin")
+        assertThat(
+            fixture.pluginListener.javaClass.declaredMethods
+                .map { it.name },
+        ).doesNotContain("checkUnloadPlugin")
     }
 
     @Test
@@ -162,26 +164,26 @@ class NativeMatchedBraceHighlightingTest {
         assertThat(restored.controller.state.restoreValue).isFalse()
     }
 
-    private fun fixture(
-        initialNativeValue: Boolean,
-    ): Fixture {
+    private fun fixture(initialNativeValue: Boolean): Fixture {
         val nativeSetting = FakeNativeSetting(initialNativeValue)
         val externalOverrides = mutableListOf<Unit>()
         val persistedSnapshots = mutableListOf<PersistedSnapshot>()
         lateinit var pluginListener: DynamicPluginListener
         lateinit var controller: NativeMatchedBraceHighlighting
-        controller = NativeMatchedBraceHighlighting(
-            nativeSetting = nativeSetting,
-            onExternalOverride = { externalOverrides += Unit },
-            mayMutate = { true },
-            persistSettings = {
-                persistedSnapshots += PersistedSnapshot(
-                    nativeEnabled = nativeSetting.enabled,
-                    restoreValue = controller.state.restoreValue,
-                )
-            },
-            subscribeToLifecycle = { _, listener, _ -> pluginListener = listener },
-        )
+        controller =
+            NativeMatchedBraceHighlighting(
+                nativeSetting = nativeSetting,
+                onExternalOverride = { externalOverrides += Unit },
+                mayMutate = { true },
+                persistSettings = {
+                    persistedSnapshots +=
+                        PersistedSnapshot(
+                            nativeEnabled = nativeSetting.enabled,
+                            restoreValue = controller.state.restoreValue,
+                        )
+                },
+                subscribeToLifecycle = { _, listener, _ -> pluginListener = listener },
+            )
         return Fixture(
             controller,
             pluginListener,
@@ -199,24 +201,18 @@ class NativeMatchedBraceHighlightingTest {
         val persistedSnapshots: List<PersistedSnapshot>,
     )
 
-    private data class PersistedSnapshot(
-        val nativeEnabled: Boolean,
-        val restoreValue: Boolean?,
-    )
+    private data class PersistedSnapshot(val nativeEnabled: Boolean, val restoreValue: Boolean?)
 
-    private class FakeNativeSetting(
-        override var enabled: Boolean,
-    ) : NativeMatchedBraceSetting
+    private class FakeNativeSetting(override var enabled: Boolean) : NativeMatchedBraceSetting
 
-    private fun pluginDescriptor(id: String): IdeaPluginDescriptor =
-        Proxy.newProxyInstance(
-            IdeaPluginDescriptor::class.java.classLoader,
-            arrayOf(IdeaPluginDescriptor::class.java),
-        ) { _, method, _ ->
-            when (method.name) {
-                "getPluginId" -> PluginId.getId(id)
-                "toString" -> id
-                else -> error("Unexpected descriptor call: ${method.name}")
-            }
-        } as IdeaPluginDescriptor
+    private fun pluginDescriptor(id: String): IdeaPluginDescriptor = Proxy.newProxyInstance(
+        IdeaPluginDescriptor::class.java.classLoader,
+        arrayOf(IdeaPluginDescriptor::class.java),
+    ) { _, method, _ ->
+        when (method.name) {
+            "getPluginId" -> PluginId.getId(id)
+            "toString" -> id
+            else -> error("Unexpected descriptor call: ${method.name}")
+        }
+    } as IdeaPluginDescriptor
 }

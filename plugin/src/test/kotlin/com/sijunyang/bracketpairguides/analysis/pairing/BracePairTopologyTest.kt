@@ -24,24 +24,26 @@ class BracePairTopologyTest {
 
     @Test
     fun `mixed role token keeps opening priority instead of toggle behavior`() {
-        val topology = BracePairTopology(
-            arrayOf(
-                BracePair(symmetric, symmetric, false),
-                BracePair(symmetric, right, false),
-            ),
-        )
+        val topology =
+            BracePairTopology(
+                arrayOf(
+                    BracePair(symmetric, symmetric, false),
+                    BracePair(symmetric, right, false),
+                ),
+            )
 
         assertThat(topology.isPureSymmetric(symmetric)).isFalse()
     }
 
     @Test
     fun `an extra incoming edge also prevents symmetric toggle behavior`() {
-        val topology = BracePairTopology(
-            arrayOf(
-                BracePair(symmetric, symmetric, false),
-                BracePair(left, symmetric, false),
-            ),
-        )
+        val topology =
+            BracePairTopology(
+                arrayOf(
+                    BracePair(symmetric, symmetric, false),
+                    BracePair(left, symmetric, false),
+                ),
+            )
 
         assertThat(topology.isPureSymmetric(symmetric)).isFalse()
     }
@@ -77,12 +79,13 @@ class BracePairTopologyTest {
 
     @Test
     fun `reports structurality for registered open and close tokens`() {
-        val topology = BracePairTopology(
-            arrayOf(
-                BracePair(left, right, false),
-                BracePair(structuralLeft, structuralRight, true),
-            ),
-        )
+        val topology =
+            BracePairTopology(
+                arrayOf(
+                    BracePair(left, right, false),
+                    BracePair(structuralLeft, structuralRight, true),
+                ),
+            )
 
         assertThat(topology.isStructuralOpen(left)).isFalse()
         assertThat(topology.isStructuralOpen(structuralLeft)).isTrue()

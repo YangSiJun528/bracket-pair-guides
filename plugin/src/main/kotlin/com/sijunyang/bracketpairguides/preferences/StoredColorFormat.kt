@@ -6,14 +6,15 @@ import java.awt.Color
 internal object StoredColorFormat {
     const val COLOR_COUNT: Int = 6
 
-    private val DEFAULT_COLORS = listOf(
-        0xFFD700,
-        0xDA70D6,
-        0x179FFF,
-        0x00CC7A,
-        0xFF6B6B,
-        0xCC8833,
-    )
+    private val DEFAULT_COLORS =
+        listOf(
+            0xFFD700,
+            0xDA70D6,
+            0x179FFF,
+            0x00CC7A,
+            0xFF6B6B,
+            0xCC8833,
+        )
 
     fun defaultColors(): List<Int> = DEFAULT_COLORS.toList()
 

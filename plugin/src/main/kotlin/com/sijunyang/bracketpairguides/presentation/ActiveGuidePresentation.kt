@@ -6,9 +6,7 @@ import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 
 /** Tracked active-pair state and its editor markup for one editor session. */
-internal class ActiveGuidePresentation(
-    private val editor: Editor,
-) {
+internal class ActiveGuidePresentation(private val editor: Editor) {
     private val trackedPair = TrackedBracketPair(editor)
     private val markup = ActivePairMarkup(editor)
 
@@ -38,23 +36,21 @@ internal class ActiveGuidePresentation(
             return
         }
 
-        val guide = createGuide(
-            pair = pair,
-            indexedGuide = indexedGuide,
-            previousGuide = previousGuide,
-            currentAnchorLine = currentAnchorLine,
-            allowGuideFallback = allowGuideFallback,
-            preferences = preferences,
-        )
+        val guide =
+            createGuide(
+                pair = pair,
+                indexedGuide = indexedGuide,
+                previousGuide = previousGuide,
+                currentAnchorLine = currentAnchorLine,
+                allowGuideFallback = allowGuideFallback,
+                preferences = preferences,
+            )
         trackedPair.track(pair, guide)
         markup.showGuide(guide, preferences)
         markup.showPair(pair, preferences)
     }
 
-    fun refreshProvisional(
-        caretOffset: Int,
-        preferences: BracketGuidePreferences,
-    ) {
+    fun refreshProvisional(caretOffset: Int, preferences: BracketGuidePreferences) {
         val pair = trackedPair.adjusted
         if (pair?.contains(caretOffset) != true) {
             clear(preserveGuide = false)
@@ -62,16 +58,29 @@ internal class ActiveGuidePresentation(
         }
 
         val previousGuide = currentGuide()
-        val guide = when {
-            !preferences.enabled || !preferences.showsGuide -> null
-            pair.openLine == pair.closeLine -> BracketGuide(pair, guideColumn = 0)
-            previousGuide == null -> null
-            else -> previousGuide.copy(
-                pair = pair,
-                anchorLine = (trackedPair.anchorLine ?: previousGuide.anchorLine)
-                    .coerceIn(pair.openLine, pair.closeLine),
-            )
-        }
+        val guide =
+            when {
+                !preferences.enabled || !preferences.showsGuide -> {
+                    null
+                }
+
+                pair.openLine == pair.closeLine -> {
+                    BracketGuide(pair, guideColumn = 0)
+                }
+
+                previousGuide == null -> {
+                    null
+                }
+
+                else -> {
+                    previousGuide.copy(
+                        pair = pair,
+                        anchorLine =
+                        (trackedPair.anchorLine ?: previousGuide.anchorLine)
+                            .coerceIn(pair.openLine, pair.closeLine),
+                    )
+                }
+            }
         markup.showGuide(guide, preferences)
         trackedPair.refresh(pair, guide)
     }
@@ -82,11 +91,7 @@ internal class ActiveGuidePresentation(
      * bounded exact guide now, or remove the guide now. Do not defer either
      * outcome to background analysis and do not invoke a BraceMatcher here.
      */
-    fun refreshAfterDocumentChange(
-        change: DocumentChange,
-        caretOffset: Int,
-        preferences: BracketGuidePreferences,
-    ) {
+    fun refreshAfterDocumentChange(change: DocumentChange, caretOffset: Int, preferences: BracketGuidePreferences) {
         val previousPair = trackedPair.current
         if (previousPair == null || change.altersToken(previousPair)) {
             clear(preserveGuide = false)
@@ -102,18 +107,27 @@ internal class ActiveGuidePresentation(
         }
 
         val previousGuide = currentGuide()
-        val guide = when {
-            !preferences.enabled || !preferences.showsGuide -> null
-            pair.openLine == pair.closeLine -> BracketGuide(pair, guideColumn = 0)
-            else -> GuidePositionFallback.guideAfterChange(
-                editor = editor,
-                pair = pair,
-                previousPair = previousPair,
-                previous = previousGuide,
-                currentAnchorLine = trackedPair.anchorLine,
-                change = change,
-            )
-        }
+        val guide =
+            when {
+                !preferences.enabled || !preferences.showsGuide -> {
+                    null
+                }
+
+                pair.openLine == pair.closeLine -> {
+                    BracketGuide(pair, guideColumn = 0)
+                }
+
+                else -> {
+                    GuidePositionFallback.guideAfterChange(
+                        editor = editor,
+                        pair = pair,
+                        previousPair = previousPair,
+                        previous = previousGuide,
+                        currentAnchorLine = trackedPair.anchorLine,
+                        change = change,
+                    )
+                }
+            }
         // A null exact result deliberately clears stale guide pixels while the
         // already-adjusted pair tokens may remain visible.
         markup.showGuide(guide, preferences)

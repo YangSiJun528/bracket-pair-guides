@@ -1,5 +1,8 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
+import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.progress.EmptyProgressIndicator
+import com.intellij.openapi.util.io.FileUtilRt
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.bracketSnapshot
@@ -8,9 +11,6 @@ import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
-import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.progress.EmptyProgressIndicator
-import com.intellij.openapi.util.io.FileUtilRt
 import org.assertj.core.api.Assertions.assertThat
 
 internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture() {
@@ -19,16 +19,17 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         val editor = myFixture.editor
         val fullOptions = BracketGuideSettings.getInstance().options
         var analysisCount = 0
-        val pass = BracketGuideHighlightingPass(
-            project = project,
-            editor = editor,
-            fileType = myFixture.file.fileType,
-            sourceFile = myFixture.file.virtualFile,
-            analyze = { input, _ ->
-                analysisCount++
-                AnalysisOutcome.Unavailable(input.stamp, AnalysisLimit.PAIR_CAPACITY)
-            },
-        )
+        val pass =
+            BracketGuideHighlightingPass(
+                project = project,
+                editor = editor,
+                fileType = myFixture.file.fileType,
+                sourceFile = myFixture.file.virtualFile,
+                analyze = { input, _ ->
+                    analysisCount++
+                    AnalysisOutcome.Unavailable(input.stamp, AnalysisLimit.PAIR_CAPACITY)
+                },
+            )
 
         applyPass(pass)
 
@@ -46,11 +47,12 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         assertThat(analysisCount).isEqualTo(1)
         assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
 
-        val tokenOnlyOptions = fullOptions.copy(
-            showActiveGuide = false,
-            showActivePairBorder = false,
-            showActivePairBackground = false,
-        )
+        val tokenOnlyOptions =
+            fullOptions.copy(
+                showActiveGuide = false,
+                showActivePairBorder = false,
+                showActivePairBackground = false,
+            )
         applyOptions(tokenOnlyOptions)
         assertThat(
             EditorGuideSessions.canSkipAnalysis(
@@ -81,9 +83,16 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         myFixture.configureByText("Large.java", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("value"))
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         applyPass(pairs = { listOf(pair) })
         assertThat(editor.observedBracketMarkup().allMarks).isNotEmpty()
         @Suppress("DEPRECATION")
@@ -92,18 +101,19 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
 
         var analysisCount = 0
         val sourceFile = MutableLengthVirtualFile("Large.java", reportedLength = 0L)
-        val pass = BracketGuideHighlightingPass(
-            project = project,
-            editor = editor,
-            fileType = myFixture.file.fileType,
-            sourceFile = sourceFile,
-            analyze = { input, _ ->
-                analysisCount++
-                AnalysisOutcome.Complete(
-                    input.bracketSnapshot(listOf(pair)),
-                )
-            },
-        )
+        val pass =
+            BracketGuideHighlightingPass(
+                project = project,
+                editor = editor,
+                fileType = myFixture.file.fileType,
+                sourceFile = sourceFile,
+                analyze = { input, _ ->
+                    analysisCount++
+                    AnalysisOutcome.Complete(
+                        input.bracketSnapshot(listOf(pair)),
+                    )
+                },
+            )
 
         applyPass(pass)
 
@@ -116,11 +126,19 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         myFixture.configureByText("Mutable.java", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("value"))
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         val sourceFile = MutableLengthVirtualFile("Mutable.java", 0L)
         var analysisCount = 0
+
         fun pass(): BracketGuideHighlightingPass = BracketGuideHighlightingPass(
             project = project,
             editor = editor,
@@ -143,11 +161,12 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         inReadAction {
             staleSmallPass.doCollectInformation(EmptyProgressIndicator())
         }
-        val tokenOnlyOptions = BracketGuideSettings.getInstance().options.copy(
-            showActiveGuide = false,
-            showActivePairBorder = false,
-            showActivePairBackground = false,
-        )
+        val tokenOnlyOptions =
+            BracketGuideSettings.getInstance().options.copy(
+                showActiveGuide = false,
+                showActivePairBorder = false,
+                showActivePairBackground = false,
+            )
         applyOptions(tokenOnlyOptions)
         assertThat(editor.observedBracketMarkup().allMarks).isNotEmpty()
         @Suppress("DEPRECATION")
@@ -181,23 +200,32 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         myFixture.configureByText("Boundary.java", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("value"))
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
+
         @Suppress("DEPRECATION")
         val exactBoundary = FileUtilRt.getUserFileSizeLimit().toLong()
-        val sourceFile = MutableLengthVirtualFile(
-            "Boundary.java",
-            OVERSIZED_FILE_LENGTH,
-        )
+        val sourceFile =
+            MutableLengthVirtualFile(
+                "Boundary.java",
+                OVERSIZED_FILE_LENGTH,
+            )
         var analysisCount = 0
         val analysis: (AnalysisInput, com.intellij.openapi.progress.ProgressIndicator) ->
-            AnalysisOutcome = { input, _ ->
-                analysisCount++
-                AnalysisOutcome.Complete(
-                    input.bracketSnapshot(listOf(pair)),
-                )
-            }
+        AnalysisOutcome = { input, _ ->
+            analysisCount++
+            AnalysisOutcome.Complete(
+                input.bracketSnapshot(listOf(pair)),
+            )
+        }
 
         resizeDocument(exactBoundary.toInt())
         applyPass(
@@ -244,48 +272,52 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         myFixture.configureByText("StableGuide.java", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("value"))
-        val pair = BracketPair(
-            openOffset = source.indexOf('{'),
-            openTokenLength = 1,
-            closeOffset = source.indexOf('}'),
-            closeTokenLength = 1,
-            depth = 0,
-            openLine = 0,
-            closeLine = 2,
-        )
-        val lateLimited = BracketGuideHighlightingPass(
-            project = project,
-            editor = editor,
-            fileType = myFixture.file.fileType,
-            sourceFile = myFixture.file.virtualFile,
-            analyze = { input, _ ->
-                val completedInput = AnalysisInput(
-                    editor = input.editor,
-                    fileType = input.fileType,
-                    coverage = input.coverage.copy(guidePosition = false),
-                    disabledLanguageIds = input.disabledLanguageIds,
-                )
-                AnalysisOutcome.Limited(
-                    stamp = input.stamp,
-                    snapshot = completedInput.bracketSnapshot(listOf(pair)),
-                    limit = AnalysisLimit.GUIDE_CAPACITY,
-                )
-            },
-        )
+        val pair =
+            BracketPair(
+                openOffset = source.indexOf('{'),
+                openTokenLength = 1,
+                closeOffset = source.indexOf('}'),
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 2,
+            )
+        val lateLimited =
+            BracketGuideHighlightingPass(
+                project = project,
+                editor = editor,
+                fileType = myFixture.file.fileType,
+                sourceFile = myFixture.file.virtualFile,
+                analyze = { input, _ ->
+                    val completedInput =
+                        AnalysisInput(
+                            editor = input.editor,
+                            fileType = input.fileType,
+                            coverage = input.coverage.copy(guidePosition = false),
+                            disabledLanguageIds = input.disabledLanguageIds,
+                        )
+                    AnalysisOutcome.Limited(
+                        stamp = input.stamp,
+                        snapshot = completedInput.bracketSnapshot(listOf(pair)),
+                        limit = AnalysisLimit.GUIDE_CAPACITY,
+                    )
+                },
+            )
         inReadAction {
             lateLimited.doCollectInformation(EmptyProgressIndicator())
         }
-        val complete = BracketGuideHighlightingPass(
-            project = project,
-            editor = editor,
-            fileType = myFixture.file.fileType,
-            sourceFile = myFixture.file.virtualFile,
-            analyze = { input, _ ->
-                AnalysisOutcome.Complete(
-                    input.bracketSnapshot(listOf(pair)),
-                )
-            },
-        )
+        val complete =
+            BracketGuideHighlightingPass(
+                project = project,
+                editor = editor,
+                fileType = myFixture.file.fileType,
+                sourceFile = myFixture.file.virtualFile,
+                analyze = { input, _ ->
+                    AnalysisOutcome.Complete(
+                        input.bracketSnapshot(listOf(pair)),
+                    )
+                },
+            )
         applyPass(complete)
         val completedGuideMarks = editor.observedBracketMarkup().guideMarks.toSet()
         assertThat(completedGuideMarks).isNotEmpty()
@@ -306,40 +338,44 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         myFixture.configureByText("Limited.java", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("value"))
-        val options = BracketGuideSettings.getInstance().options.copy(
-            showActivePairBorder = true,
-        )
+        val options =
+            BracketGuideSettings.getInstance().options.copy(
+                showActivePairBorder = true,
+            )
         BracketGuideSettings.getInstance().replace(options)
-        val pair = BracketPair(
-            openOffset = source.indexOf('{'),
-            openTokenLength = 1,
-            closeOffset = source.indexOf('}'),
-            closeTokenLength = 1,
-            depth = 0,
-            openLine = 0,
-            closeLine = 2,
-        )
+        val pair =
+            BracketPair(
+                openOffset = source.indexOf('{'),
+                openTokenLength = 1,
+                closeOffset = source.indexOf('}'),
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 2,
+            )
         var analysisCount = 0
-        val pass = BracketGuideHighlightingPass(
-            project = project,
-            editor = editor,
-            fileType = myFixture.file.fileType,
-            sourceFile = myFixture.file.virtualFile,
-            analyze = { input, _ ->
-                analysisCount++
-                val completedInput = AnalysisInput(
-                    editor = input.editor,
-                    fileType = input.fileType,
-                    coverage = input.coverage.copy(guidePosition = false),
-                    disabledLanguageIds = input.disabledLanguageIds,
-                )
-                AnalysisOutcome.Limited(
-                    stamp = input.stamp,
-                    snapshot = completedInput.bracketSnapshot(listOf(pair)),
-                    limit = AnalysisLimit.GUIDE_CAPACITY,
-                )
-            },
-        )
+        val pass =
+            BracketGuideHighlightingPass(
+                project = project,
+                editor = editor,
+                fileType = myFixture.file.fileType,
+                sourceFile = myFixture.file.virtualFile,
+                analyze = { input, _ ->
+                    analysisCount++
+                    val completedInput =
+                        AnalysisInput(
+                            editor = input.editor,
+                            fileType = input.fileType,
+                            coverage = input.coverage.copy(guidePosition = false),
+                            disabledLanguageIds = input.disabledLanguageIds,
+                        )
+                    AnalysisOutcome.Limited(
+                        stamp = input.stamp,
+                        snapshot = completedInput.bracketSnapshot(listOf(pair)),
+                        limit = AnalysisLimit.GUIDE_CAPACITY,
+                    )
+                },
+            )
 
         applyPass(pass)
 
@@ -360,46 +396,50 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         myFixture.configureByText("LimitedSettings.java", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("value"))
-        val fullOptions = BracketGuideSettings.getInstance().options.copy(
-            showActivePairBorder = true,
-        )
+        val fullOptions =
+            BracketGuideSettings.getInstance().options.copy(
+                showActivePairBorder = true,
+            )
         BracketGuideSettings.getInstance().replace(fullOptions)
-        val pair = BracketPair(
-            openOffset = source.indexOf('{'),
-            openTokenLength = 1,
-            closeOffset = source.indexOf('}'),
-            closeTokenLength = 1,
-            depth = 0,
-            openLine = 0,
-            closeLine = 2,
-        )
+        val pair =
+            BracketPair(
+                openOffset = source.indexOf('{'),
+                openTokenLength = 1,
+                closeOffset = source.indexOf('}'),
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 2,
+            )
         var analysisCount = 0
-        val pass = BracketGuideHighlightingPass(
-            project = project,
-            editor = editor,
-            fileType = myFixture.file.fileType,
-            sourceFile = myFixture.file.virtualFile,
-            analyze = { input, _ ->
-                analysisCount++
-                if (input.coverage.guidePosition) {
-                    val completedInput = AnalysisInput(
-                        editor = input.editor,
-                        fileType = input.fileType,
-                        coverage = input.coverage.copy(guidePosition = false),
-                        disabledLanguageIds = input.disabledLanguageIds,
-                    )
-                    AnalysisOutcome.Limited(
-                        stamp = input.stamp,
-                        snapshot = completedInput.bracketSnapshot(listOf(pair)),
-                        limit = AnalysisLimit.GUIDE_CAPACITY,
-                    )
-                } else {
-                    AnalysisOutcome.Complete(
-                        input.bracketSnapshot(listOf(pair)),
-                    )
-                }
-            },
-        )
+        val pass =
+            BracketGuideHighlightingPass(
+                project = project,
+                editor = editor,
+                fileType = myFixture.file.fileType,
+                sourceFile = myFixture.file.virtualFile,
+                analyze = { input, _ ->
+                    analysisCount++
+                    if (input.coverage.guidePosition) {
+                        val completedInput =
+                            AnalysisInput(
+                                editor = input.editor,
+                                fileType = input.fileType,
+                                coverage = input.coverage.copy(guidePosition = false),
+                                disabledLanguageIds = input.disabledLanguageIds,
+                            )
+                        AnalysisOutcome.Limited(
+                            stamp = input.stamp,
+                            snapshot = completedInput.bracketSnapshot(listOf(pair)),
+                            limit = AnalysisLimit.GUIDE_CAPACITY,
+                        )
+                    } else {
+                        AnalysisOutcome.Complete(
+                            input.bracketSnapshot(listOf(pair)),
+                        )
+                    }
+                },
+            )
 
         applyPass(pass)
         assertThat(analysisCount).isEqualTo(1)
@@ -415,11 +455,12 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
             analysisCount,
         ).describedAs("Exact lower facets and their guide refusal should satisfy the restored request").isEqualTo(1)
 
-        val tokenOnlyOptions = fullOptions.copy(
-            showActiveGuide = false,
-            showActivePairBorder = false,
-            showActivePairBackground = false,
-        )
+        val tokenOnlyOptions =
+            fullOptions.copy(
+                showActiveGuide = false,
+                showActivePairBorder = false,
+                showActivePairBackground = false,
+            )
         applyOptions(tokenOnlyOptions)
         applyPass(pass)
         assertThat(analysisCount).isEqualTo(2)
@@ -442,28 +483,37 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         val editor = myFixture.editor
         val fullOptions = BracketGuideSettings.getInstance().options
         val fullStamp = stampFor(editor, fullOptions)
-        val lateUnavailable = BracketGuideHighlightingPass(
-            project = project,
-            editor = editor,
-            fileType = myFixture.file.fileType,
-            sourceFile = myFixture.file.virtualFile,
-            analyze = { input, _ ->
-                AnalysisOutcome.Unavailable(input.stamp, AnalysisLimit.PAIR_CAPACITY)
-            },
-        )
+        val lateUnavailable =
+            BracketGuideHighlightingPass(
+                project = project,
+                editor = editor,
+                fileType = myFixture.file.fileType,
+                sourceFile = myFixture.file.virtualFile,
+                analyze = { input, _ ->
+                    AnalysisOutcome.Unavailable(input.stamp, AnalysisLimit.PAIR_CAPACITY)
+                },
+            )
         inReadAction {
             lateUnavailable.doCollectInformation(EmptyProgressIndicator())
         }
 
-        val tokenOnlyOptions = fullOptions.copy(
-            showActiveGuide = false,
-            showActivePairBorder = false,
-            showActivePairBackground = false,
-        )
+        val tokenOnlyOptions =
+            fullOptions.copy(
+                showActiveGuide = false,
+                showActivePairBorder = false,
+                showActivePairBackground = false,
+            )
         applyOptions(tokenOnlyOptions)
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         applyPass(pairs = { listOf(pair) })
         val tokenOnlyStamp = stampFor(editor, tokenOnlyOptions)
         val completedMarks = editor.observedBracketMarkup().allMarks.toSet()
@@ -483,22 +533,30 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         myFixture.configureByText("StableOutcome.java", source)
         val editor = myFixture.editor
         val options = BracketGuideSettings.getInstance().options
-        val lateUnavailable = BracketGuideHighlightingPass(
-            project = project,
-            editor = editor,
-            fileType = myFixture.file.fileType,
-            sourceFile = myFixture.file.virtualFile,
-            analyze = { input, _ ->
-                AnalysisOutcome.Unavailable(input.stamp, AnalysisLimit.PAIR_CAPACITY)
-            },
-        )
+        val lateUnavailable =
+            BracketGuideHighlightingPass(
+                project = project,
+                editor = editor,
+                fileType = myFixture.file.fileType,
+                sourceFile = myFixture.file.virtualFile,
+                analyze = { input, _ ->
+                    AnalysisOutcome.Unavailable(input.stamp, AnalysisLimit.PAIR_CAPACITY)
+                },
+            )
         inReadAction {
             lateUnavailable.doCollectInformation(EmptyProgressIndicator())
         }
 
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         applyPass(pairs = { listOf(pair) })
         val completedMarks = editor.observedBracketMarkup().allMarks.toSet()
 

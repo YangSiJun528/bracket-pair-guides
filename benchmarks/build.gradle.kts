@@ -23,9 +23,11 @@ dependencies {
     jmhImplementation(project(":plugin"))
 }
 
-val smokeRun = providers.gradleProperty("benchmarkSmoke")
-    .map(String::toBoolean)
-    .orElse(false)
+val smokeRun =
+    providers
+        .gradleProperty("benchmarkSmoke")
+        .map(String::toBoolean)
+        .orElse(false)
 val benchmarkInclude = providers.gradleProperty("benchmarkInclude")
 
 jmh {
@@ -41,8 +43,16 @@ jmh {
     failOnError = true
     profilers = listOf("gc")
     resultFormat = "JSON"
-    humanOutputFile = layout.buildDirectory.file("reports/jmh/human.txt").get().asFile
-    resultsFile = layout.buildDirectory.file("reports/jmh/results.json").get().asFile
+    humanOutputFile =
+        layout.buildDirectory
+            .file("reports/jmh/human.txt")
+            .get()
+            .asFile
+    resultsFile =
+        layout.buildDirectory
+            .file("reports/jmh/results.json")
+            .get()
+            .asFile
 
     if (smokeRun.get()) {
         includes = listOf(".*LongArraySort.*Benchmark")

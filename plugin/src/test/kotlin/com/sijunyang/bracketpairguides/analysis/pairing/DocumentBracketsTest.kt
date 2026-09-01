@@ -1,8 +1,5 @@
 package com.sijunyang.bracketpairguides.analysis.pairing
 
-import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.BraceMatcherAvailability
-import com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalog
 import com.intellij.codeInsight.highlighting.PairedBraceMatcherAdapter
 import com.intellij.ide.highlighter.custom.CustomFileHighlighter
 import com.intellij.ide.highlighter.custom.SyntaxTable
@@ -18,22 +15,26 @@ import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.ex.util.LexerEditorHighlighter
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.fileTypes.impl.AbstractFileType
 import com.intellij.openapi.fileTypes.SyntaxHighlighter
 import com.intellij.openapi.fileTypes.UnknownFileType
+import com.intellij.openapi.fileTypes.impl.AbstractFileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IElementType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.sijunyang.bracketpairguides.analysis.BraceMatcherAvailability
+import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalog
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import kotlin.system.measureTimeMillis
 
 class DocumentBracketsTest : BasePlatformTestCase() {
     fun testUsesJavaLexerAndBraceDefinitions() {
-        val source = """
+        val source =
+            """
             class Sample {
                 void run() {
                     String ignored = "}";
@@ -42,7 +43,7 @@ class DocumentBracketsTest : BasePlatformTestCase() {
                     }
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         myFixture.configureByText("Sample.java", source)
 
         val pairs = analyze(EmptyProgressIndicator())
@@ -68,9 +69,10 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         myFixture.configureByText("Large.java", source)
 
         lateinit var first: List<BracketPair>
-        val firstElapsedMillis = measureTimeMillis {
-            first = analyze(EmptyProgressIndicator())
-        }
+        val firstElapsedMillis =
+            measureTimeMillis {
+                first = analyze(EmptyProgressIndicator())
+            }
         val second = analyze(EmptyProgressIndicator())
 
         assertThat(first).hasSize(methodCount * PAIRS_PER_GENERATED_METHOD + 1)
@@ -98,9 +100,11 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         assertThat(pairsByOpenOffset).hasSize(depth)
         repeat(depth) { openOffset ->
             val pair = checkNotNull(pairsByOpenOffset[openOffset])
-            assertThat(pair.depth).describedAs("depth at open offset %s", openOffset)
+            assertThat(pair.depth)
+                .describedAs("depth at open offset %s", openOffset)
                 .isEqualTo(openOffset)
-            assertThat(pair.closeOffset).describedAs("close offset for opener %s", openOffset)
+            assertThat(pair.closeOffset)
+                .describedAs("close offset for opener %s", openOffset)
                 .isEqualTo(source.lastIndex - openOffset)
         }
         assertThat(pairs).allMatch { pair -> source[pair.openOffset] == '(' }
@@ -122,13 +126,14 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         myFixture.configureByText("Canceled.java", largeJavaSource(1_000))
         val delegate = EmptyProgressIndicator()
         var cancellationChecks = 0
-        val indicator = object : ProgressIndicator by delegate {
-            override fun checkCanceled() {
-                cancellationChecks++
-                if (cancellationChecks == 3) throw ProcessCanceledException()
-                delegate.checkCanceled()
+        val indicator =
+            object : ProgressIndicator by delegate {
+                override fun checkCanceled() {
+                    cancellationChecks++
+                    if (cancellationChecks == 3) throw ProcessCanceledException()
+                    delegate.checkCanceled()
+                }
             }
-        }
 
         assertThatThrownBy {
             analyze(indicator)
@@ -201,11 +206,12 @@ class DocumentBracketsTest : BasePlatformTestCase() {
     fun testUsesOfficialCustomFileTypeBracketTokens() {
         val source = "{ [ ( value ) ] }"
         myFixture.configureByText("Custom.txt", source)
-        val syntaxTable = SyntaxTable().apply {
-            isHasBraces = true
-            isHasBrackets = true
-            isHasParens = true
-        }
+        val syntaxTable =
+            SyntaxTable().apply {
+                isHasBraces = true
+                isHasBrackets = true
+                isHasParens = true
+            }
         val customFileType = AbstractFileType(syntaxTable)
         (myFixture.editor as EditorEx).setHighlighter(
             LexerEditorHighlighter(
@@ -214,12 +220,13 @@ class DocumentBracketsTest : BasePlatformTestCase() {
             ),
         )
 
-        val pairs = ReadAction.compute<List<BracketPair>, RuntimeException> {
-            documentBrackets(customFileType)
-                .recognize(EmptyProgressIndicator())
-                .completeTable()
-                .toBracketPairs()
-        }
+        val pairs =
+            ReadAction.compute<List<BracketPair>, RuntimeException> {
+                documentBrackets(customFileType)
+                    .recognize(EmptyProgressIndicator())
+                    .completeTable()
+                    .toBracketPairs()
+            }
 
         assertThat(pairs).hasSize(3)
         assertThat(
@@ -227,9 +234,9 @@ class DocumentBracketsTest : BasePlatformTestCase() {
                 Triple(source[pair.openOffset], source[pair.closeOffset], pair.depth)
             },
         ).containsExactly(
-                Triple('{', '}', 0),
-                Triple('[', ']', 1),
-                Triple('(', ')', 2),
+            Triple('{', '}', 0),
+            Triple('[', ']', 1),
+            Triple('(', ')', 2),
         )
     }
 
@@ -245,12 +252,13 @@ class DocumentBracketsTest : BasePlatformTestCase() {
             ),
         )
 
-        val recognition = ReadAction.compute<DocumentBracketRecognition.Complete, RuntimeException> {
-            documentBrackets(
-                fileType = customFileType,
-                isLanguageEnabled = { capabilityId -> capabilityId != "TEXT" },
-            ).recognize(EmptyProgressIndicator()) as DocumentBracketRecognition.Complete
-        }
+        val recognition =
+            ReadAction.compute<DocumentBracketRecognition.Complete, RuntimeException> {
+                documentBrackets(
+                    fileType = customFileType,
+                    isLanguageEnabled = { capabilityId -> capabilityId != "TEXT" },
+                ).recognize(EmptyProgressIndicator()) as DocumentBracketRecognition.Complete
+            }
 
         assertThat(recognition.pairs.isEmpty).isTrue()
     }
@@ -260,15 +268,17 @@ class DocumentBracketsTest : BasePlatformTestCase() {
             "Disabled.java",
             "class Disabled { void run() { call(); } }",
         )
-        val capabilityId = checkNotNull(
-            BraceLanguageCatalog().definitionFor(myFixture.file.language)?.capabilityId,
-        )
+        val capabilityId =
+            checkNotNull(
+                BraceLanguageCatalog().definitionFor(myFixture.file.language)?.capabilityId,
+            )
 
-        val recognition = ReadAction.compute<DocumentBracketRecognition.Complete, RuntimeException> {
-            documentBrackets(
-                isLanguageEnabled = { id -> id != capabilityId },
-            ).recognize(EmptyProgressIndicator()) as DocumentBracketRecognition.Complete
-        }
+        val recognition =
+            ReadAction.compute<DocumentBracketRecognition.Complete, RuntimeException> {
+                documentBrackets(
+                    isLanguageEnabled = { id -> id != capabilityId },
+                ).recognize(EmptyProgressIndicator()) as DocumentBracketRecognition.Complete
+            }
 
         assertThat(recognition.pairs.isEmpty).isTrue()
         assertThat(recognition.matcherAvailability)
@@ -311,15 +321,12 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         }
     }
 
-    private fun analyze(indicator: ProgressIndicator): List<BracketPair> {
-        return ReadAction.compute<List<BracketPair>, RuntimeException> {
+    private fun analyze(indicator: ProgressIndicator): List<BracketPair> =
+        ReadAction.compute<List<BracketPair>, RuntimeException> {
             documentBrackets().recognize(indicator).completeTable().toBracketPairs()
         }
-    }
 
-    private fun recognize(
-        fileType: FileType = myFixture.file.fileType,
-    ): DocumentBracketRecognition.Complete =
+    private fun recognize(fileType: FileType = myFixture.file.fileType): DocumentBracketRecognition.Complete =
         ReadAction.compute<DocumentBracketRecognition.Complete, RuntimeException> {
             documentBrackets(fileType).recognize(EmptyProgressIndicator())
                 as DocumentBracketRecognition.Complete
@@ -335,18 +342,16 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         isLanguageEnabled = isLanguageEnabled,
     )
 
-    private fun largeJavaSource(methodCount: Int): String {
-        return buildString {
-            append("class Large {\n")
-            repeat(methodCount) { index ->
-                append("  void method")
-                append(index)
-                append("() { consume(new int[] { ")
-                append(index)
-                append(" }); }\n")
-            }
-            append('}')
+    private fun largeJavaSource(methodCount: Int): String = buildString {
+        append("class Large {\n")
+        repeat(methodCount) { index ->
+            append("  void method")
+            append(index)
+            append("() { consume(new int[] { ")
+            append(index)
+            append(" }); }\n")
         }
+        append('}')
     }
 
     private companion object {
@@ -354,71 +359,65 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         const val LARGE_ANALYSIS_LIMIT_MILLIS = 15_000L
 
         val DYNAMIC_LANGUAGE = object : Language("BRACKET_PAIR_GUIDES_DYNAMIC_TEST") {}
-        val DYNAMIC_DIALECT_LANGUAGE = object : Language(
-            DYNAMIC_LANGUAGE,
-            "BRACKET_PAIR_GUIDES_DYNAMIC_DIALECT_TEST",
-        ) {}
-        val SUPPORTED_DYNAMIC_LANGUAGE = object : Language(
-            "BRACKET_PAIR_GUIDES_SUPPORTED_DYNAMIC_TEST",
-        ) {}
+        val DYNAMIC_DIALECT_LANGUAGE =
+            object : Language(
+                DYNAMIC_LANGUAGE,
+                "BRACKET_PAIR_GUIDES_DYNAMIC_DIALECT_TEST",
+            ) {}
+        val SUPPORTED_DYNAMIC_LANGUAGE =
+            object : Language(
+                "BRACKET_PAIR_GUIDES_SUPPORTED_DYNAMIC_TEST",
+            ) {}
         val LEFT_ANGLE = IElementType("DYNAMIC_LEFT_ANGLE", DYNAMIC_LANGUAGE)
         val RIGHT_ANGLE = IElementType("DYNAMIC_RIGHT_ANGLE", DYNAMIC_LANGUAGE)
         val OTHER = IElementType("DYNAMIC_OTHER", DYNAMIC_LANGUAGE)
         val LEFT_SQUARE = IElementType("SUPPORTED_DYNAMIC_LEFT_SQUARE", SUPPORTED_DYNAMIC_LANGUAGE)
-        val RIGHT_SQUARE = IElementType(
-            "SUPPORTED_DYNAMIC_RIGHT_SQUARE",
-            SUPPORTED_DYNAMIC_LANGUAGE,
-        )
+        val RIGHT_SQUARE =
+            IElementType(
+                "SUPPORTED_DYNAMIC_RIGHT_SQUARE",
+                SUPPORTED_DYNAMIC_LANGUAGE,
+            )
 
-        val ANGLE_PAIRS = object : PairedBraceMatcher {
-            override fun getPairs(): Array<BracePair> =
-                arrayOf(BracePair(LEFT_ANGLE, RIGHT_ANGLE, false))
+        val ANGLE_PAIRS =
+            object : PairedBraceMatcher {
+                override fun getPairs(): Array<BracePair> = arrayOf(BracePair(LEFT_ANGLE, RIGHT_ANGLE, false))
 
-            override fun isPairedBracesAllowedBeforeType(
-                lbraceType: IElementType,
-                contextType: IElementType?,
-            ): Boolean = true
+                override fun isPairedBracesAllowedBeforeType(
+                    lbraceType: IElementType,
+                    contextType: IElementType?,
+                ): Boolean = true
 
-            override fun getCodeConstructStart(
-                file: PsiFile,
-                openingBraceOffset: Int,
-            ): Int = openingBraceOffset
-        }
+                override fun getCodeConstructStart(file: PsiFile, openingBraceOffset: Int): Int = openingBraceOffset
+            }
 
-        val SQUARE_PAIRS = object : PairedBraceMatcher {
-            override fun getPairs(): Array<BracePair> =
-                arrayOf(BracePair(LEFT_SQUARE, RIGHT_SQUARE, false))
+        val SQUARE_PAIRS =
+            object : PairedBraceMatcher {
+                override fun getPairs(): Array<BracePair> = arrayOf(BracePair(LEFT_SQUARE, RIGHT_SQUARE, false))
 
-            override fun isPairedBracesAllowedBeforeType(
-                lbraceType: IElementType,
-                contextType: IElementType?,
-            ): Boolean = true
+                override fun isPairedBracesAllowedBeforeType(
+                    lbraceType: IElementType,
+                    contextType: IElementType?,
+                ): Boolean = true
 
-            override fun getCodeConstructStart(
-                file: PsiFile,
-                openingBraceOffset: Int,
-            ): Int = openingBraceOffset
-        }
+                override fun getCodeConstructStart(file: PsiFile, openingBraceOffset: Int): Int = openingBraceOffset
+            }
 
-        val DYNAMIC_SYNTAX_HIGHLIGHTER = object : SyntaxHighlighter {
-            override fun getHighlightingLexer(): Lexer = CharacterTokens()
+        val DYNAMIC_SYNTAX_HIGHLIGHTER =
+            object : SyntaxHighlighter {
+                override fun getHighlightingLexer(): Lexer = CharacterTokens()
 
-            override fun getTokenHighlights(
-                tokenType: IElementType,
-            ): Array<TextAttributesKey> = emptyArray()
-        }
+                override fun getTokenHighlights(tokenType: IElementType): Array<TextAttributesKey> = emptyArray()
+            }
 
-        val MIXED_SYNTAX_HIGHLIGHTER = object : SyntaxHighlighter {
-            override fun getHighlightingLexer(): Lexer = MixedCharacterTokens()
+        val MIXED_SYNTAX_HIGHLIGHTER =
+            object : SyntaxHighlighter {
+                override fun getHighlightingLexer(): Lexer = MixedCharacterTokens()
 
-            override fun getTokenHighlights(
-                tokenType: IElementType,
-            ): Array<TextAttributesKey> = emptyArray()
-        }
+                override fun getTokenHighlights(tokenType: IElementType): Array<TextAttributesKey> = emptyArray()
+            }
     }
 
-    private class AngleBracketGrammar :
-        PairedBraceMatcherAdapter(ANGLE_PAIRS, DYNAMIC_LANGUAGE) {
+    private class AngleBracketGrammar : PairedBraceMatcherAdapter(ANGLE_PAIRS, DYNAMIC_LANGUAGE) {
         override fun isLBraceToken(
             iterator: HighlighterIterator,
             fileText: CharSequence,
@@ -439,12 +438,7 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         private var endOffset: Int = 0
         private var offset: Int = 0
 
-        override fun start(
-            buffer: CharSequence,
-            startOffset: Int,
-            endOffset: Int,
-            initialState: Int,
-        ) {
+        override fun start(buffer: CharSequence, startOffset: Int, endOffset: Int, initialState: Int) {
             this.buffer = buffer
             this.endOffset = endOffset
             offset = startOffset
@@ -479,12 +473,7 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         private var endOffset: Int = 0
         private var offset: Int = 0
 
-        override fun start(
-            buffer: CharSequence,
-            startOffset: Int,
-            endOffset: Int,
-            initialState: Int,
-        ) {
+        override fun start(buffer: CharSequence, startOffset: Int, endOffset: Int, initialState: Int) {
             this.buffer = buffer
             this.endOffset = endOffset
             offset = startOffset

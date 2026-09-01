@@ -32,22 +32,14 @@ internal class BracketGuideDrawing(
         private set
 
     /** Updates the EDT-owned renderer without firing a markup renderer-change event. */
-    fun update(
-        guide: BracketGuide,
-        appearance: GuideAppearance,
-        color: Color,
-    ) {
+    fun update(guide: BracketGuide, appearance: GuideAppearance, color: Color) {
         ApplicationManager.getApplication().assertIsDispatchThread()
         this.guide = guide
         this.appearance = appearance
         this.color = color
     }
 
-    override fun paint(
-        editor: Editor,
-        highlighter: RangeHighlighter,
-        graphics: Graphics,
-    ) {
+    override fun paint(editor: Editor, highlighter: RangeHighlighter, graphics: Graphics) {
         val options = appearance
         if (!highlighter.isValid || editor.isDisposed) return
         if (!options.showVertical && !options.showHorizontal) return
@@ -65,12 +57,14 @@ internal class BracketGuideDrawing(
         val currentOpenLine = document.getLineNumber(openOffset)
         val currentCloseLine = document.getLineNumber(closeOffset)
         if (currentOpenLine != currentCloseLine) {
-            val headerRegion = editor.foldingModel.getCollapsedRegionAtOffset(
-                document.getLineEndOffset(currentOpenLine),
-            )
-            val tailRegion = editor.foldingModel.getCollapsedRegionAtOffset(
-                document.getLineStartOffset(currentCloseLine),
-            )
+            val headerRegion =
+                editor.foldingModel.getCollapsedRegionAtOffset(
+                    document.getLineEndOffset(currentOpenLine),
+                )
+            val tailRegion =
+                editor.foldingModel.getCollapsedRegionAtOffset(
+                    document.getLineStartOffset(currentCloseLine),
+                )
             if (headerRegion != null && headerRegion === tailRegion) return
         }
 
@@ -82,12 +76,13 @@ internal class BracketGuideDrawing(
         val lineHeight = editor.lineHeight
         val baseColor = color
         val opacity = options.opacityPercent.coerceIn(0, 100)
-        val color = Color(
-            baseColor.red,
-            baseColor.green,
-            baseColor.blue,
-            baseColor.alpha * opacity / 100,
-        )
+        val color =
+            Color(
+                baseColor.red,
+                baseColor.green,
+                baseColor.blue,
+                baseColor.alpha * opacity / 100,
+            )
         if (currentOpenLine != currentCloseLine &&
             openPosition.line == closePosition.line
         ) {
@@ -97,10 +92,11 @@ internal class BracketGuideDrawing(
         val g = graphics.create() as Graphics2D
         try {
             g.color = color
-            val guideShape = GuideStrokeShape(
-                graphics = g,
-                lineWidth = options.lineWidth.coerceAtLeast(1),
-            )
+            val guideShape =
+                GuideStrokeShape(
+                    graphics = g,
+                    lineWidth = options.lineWidth.coerceAtLeast(1),
+                )
 
             if (currentOpenLine == currentCloseLine) {
                 if (!options.showHorizontal) return
@@ -123,12 +119,16 @@ internal class BracketGuideDrawing(
             }
 
             val anchorLine = guide.anchorLine.coerceIn(currentOpenLine, currentCloseLine)
-            val anchorVisualLine = editor.logicalToVisualPosition(
-                LogicalPosition(anchorLine, 0),
-            ).line
-            val guideX = editor.visualPositionToXY(
-                VisualPosition(anchorVisualLine, guide.guideColumn),
-            ).x
+            val anchorVisualLine =
+                editor
+                    .logicalToVisualPosition(
+                        LogicalPosition(anchorLine, 0),
+                    ).line
+            val guideX =
+                editor
+                    .visualPositionToXY(
+                        VisualPosition(anchorVisualLine, guide.guideColumn),
+                    ).x
             val openBottomY = openPoint.y + lineHeight - 1
             val closeBottomY = closePoint.y + lineHeight - 1
             val verticalEndY = if (guideX == closePoint.x) closePoint.y else closeBottomY
@@ -173,32 +173,38 @@ internal class BracketGuideDrawing(
         val openPoint = editor.offsetToXY(openEndOffset, false, true)
         val pairFirstLine = editor.yToVisualLine(openPoint.y)
         val pairLastLine = editor.offsetToVisualPosition(closeOffset).line
-        val firstLine = clip?.let {
-            maxOf(pairFirstLine, editor.yToVisualLine(it.y))
-        } ?: pairFirstLine
-        val lastLine = clip?.let {
-            val lastY = it.y + (it.height - 1).coerceAtLeast(0)
-            minOf(pairLastLine, editor.yToVisualLine(lastY))
-        } ?: pairLastLine
+        val firstLine =
+            clip?.let {
+                maxOf(pairFirstLine, editor.yToVisualLine(it.y))
+            } ?: pairFirstLine
+        val lastLine =
+            clip?.let {
+                val lastY = it.y + (it.height - 1).coerceAtLeast(0)
+                minOf(pairLastLine, editor.yToVisualLine(lastY))
+            } ?: pairLastLine
         if (firstLine > lastLine) return
 
         for (visualLine in firstLine..lastLine) {
-            val startX = if (visualLine == pairFirstLine) {
-                openPoint.x
-            } else {
-                val lineStartOffset = editor.visualPositionToOffset(
-                    VisualPosition(visualLine, 0),
-                )
-                editor.offsetToXY(lineStartOffset, false, false).x
-            }
-            val endX = if (visualLine == pairLastLine) {
-                closeX
-            } else {
-                val nextLineOffset = editor.visualPositionToOffset(
-                    VisualPosition(visualLine + 1, 0),
-                )
-                editor.offsetToXY(nextLineOffset, false, true).x
-            }
+            val startX =
+                if (visualLine == pairFirstLine) {
+                    openPoint.x
+                } else {
+                    val lineStartOffset =
+                        editor.visualPositionToOffset(
+                            VisualPosition(visualLine, 0),
+                        )
+                    editor.offsetToXY(lineStartOffset, false, false).x
+                }
+            val endX =
+                if (visualLine == pairLastLine) {
+                    closeX
+                } else {
+                    val nextLineOffset =
+                        editor.visualPositionToOffset(
+                            VisualPosition(visualLine + 1, 0),
+                        )
+                    editor.offsetToXY(nextLineOffset, false, true).x
+                }
             guideShape.addHorizontal(
                 startX,
                 endX,
@@ -225,26 +231,28 @@ internal class BracketGuideDrawing(
 
         var segmentStart = visibleStart
         val softWrapModel = editor.softWrapModel
-        val scanStartOffset = clip?.let {
-            maxOf(
-                openOffset,
-                editor.visualPositionToOffset(
-                    VisualPosition(editor.yToVisualLine(visibleStart), 0),
-                ),
-            )
-        } ?: openOffset
-        val scanEndOffset = clip?.let {
-            val lastVisibleLine = editor.yToVisualLine(visibleEnd - 1)
-            minOf(
-                closeOffset,
+        val scanStartOffset =
+            clip?.let {
                 maxOf(
-                    scanStartOffset,
+                    openOffset,
                     editor.visualPositionToOffset(
-                        VisualPosition(lastVisibleLine + 1, 0),
+                        VisualPosition(editor.yToVisualLine(visibleStart), 0),
                     ),
-                ),
-            )
-        } ?: closeOffset
+                )
+            } ?: openOffset
+        val scanEndOffset =
+            clip?.let {
+                val lastVisibleLine = editor.yToVisualLine(visibleEnd - 1)
+                minOf(
+                    closeOffset,
+                    maxOf(
+                        scanStartOffset,
+                        editor.visualPositionToOffset(
+                            VisualPosition(lastVisibleLine + 1, 0),
+                        ),
+                    ),
+                )
+            } ?: closeOffset
         for (softWrap in softWrapModel.getSoftWrapsForRange(scanStartOffset, scanEndOffset)) {
             if (!softWrapModel.isVisible(softWrap) ||
                 softWrap.indentInColumns >= guideColumn
@@ -273,13 +281,12 @@ internal class BracketGuideDrawing(
      * combined outline once. This preserves square-cap stroke geometry while
      * applying a translucent color only once where segments overlap.
      */
-    private class GuideStrokeShape(
-        private val graphics: Graphics2D,
-        lineWidth: Int,
-    ) {
+    private class GuideStrokeShape(private val graphics: Graphics2D, lineWidth: Int) {
         private val centerLines = Path2D.Double(Path2D.WIND_NON_ZERO)
-        private val thickness = PaintUtil.alignToInt(lineWidth.toDouble(), graphics)
-            .coerceAtLeast(PaintUtil.devPixel(graphics))
+        private val thickness =
+            PaintUtil
+                .alignToInt(lineWidth.toDouble(), graphics)
+                .coerceAtLeast(PaintUtil.devPixel(graphics))
         private var isEmpty = true
 
         fun addVertical(x: Int, startY: Int, endY: Int) {
@@ -306,11 +313,12 @@ internal class BracketGuideDrawing(
 
         fun paint() {
             if (isEmpty) return
-            val outline = BasicStroke(
-                thickness.toFloat(),
-                BasicStroke.CAP_SQUARE,
-                BasicStroke.JOIN_MITER,
-            ).createStrokedShape(centerLines)
+            val outline =
+                BasicStroke(
+                    thickness.toFloat(),
+                    BasicStroke.CAP_SQUARE,
+                    BasicStroke.JOIN_MITER,
+                ).createStrokedShape(centerLines)
             PaintUtil.paintWithAA(
                 graphics,
                 RenderingHints.VALUE_ANTIALIAS_DEFAULT,

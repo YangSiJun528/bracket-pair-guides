@@ -22,7 +22,8 @@ import javax.swing.JComponent
 internal class UnsupportedBackendNotificationProvider private constructor(
     private val productCode: () -> String,
     private val openUrl: (String) -> Unit,
-) : EditorNotificationProvider, DumbAware {
+) : EditorNotificationProvider,
+    DumbAware {
     // IntelliJ instantiates this constructor from the plugin.xml extension declaration.
     @Suppress("unused")
     constructor() : this(
@@ -49,11 +50,7 @@ internal class UnsupportedBackendNotificationProvider private constructor(
         }
     }
 
-    internal fun notificationPanel(
-        project: Project,
-        file: VirtualFile,
-        editor: Editor,
-    ): EditorNotificationPanel? {
+    internal fun notificationPanel(project: Project, file: VirtualFile, editor: Editor): EditorNotificationPanel? {
         if (isHidden(project, file)) return null
         if (EditorGuideSessions.get(editor)?.matcherAvailability !=
             BraceMatcherAvailability.UNAVAILABLE
@@ -106,13 +103,10 @@ internal class UnsupportedBackendNotificationProvider private constructor(
             EditorNotifications.getInstance(project).updateNotifications(file)
         }
 
-        internal fun hiddenProperty(file: VirtualFile): String =
-            HIDDEN_PROPERTY_PREFIX + file.fileType.name
+        internal fun hiddenProperty(file: VirtualFile): String = HIDDEN_PROPERTY_PREFIX + file.fileType.name
 
-        private fun currentProductCode(): String =
-            ApplicationInfo.getInstance().build.productCode
+        private fun currentProductCode(): String = ApplicationInfo.getInstance().build.productCode
 
-        private fun isReSharperProduct(productCode: String): Boolean =
-            productCode == "RD" || productCode == "CL"
+        private fun isReSharperProduct(productCode: String): Boolean = productCode == "RD" || productCode == "CL"
     }
 }

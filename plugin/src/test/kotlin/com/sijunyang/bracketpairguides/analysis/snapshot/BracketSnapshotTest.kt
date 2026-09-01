@@ -24,16 +24,18 @@ class BracketSnapshotTest : BasePlatformTestCase() {
     }
 
     fun testVisibleTokenWindowPreservesSortedMetadataWithoutTokenAllocations() {
-        val pairs = listOf(
-            pair(open = 0, close = 2, depth = 0),
-            pair(open = 10, close = 12, depth = 1),
-            pair(open = 20, close = 22, depth = 2),
-        )
-        val tokens = snapshot(pairs).visibleTokens(
-            range = TextRange(1, 21),
-            focusOffset = 10,
-            limit = 10,
-        )
+        val pairs =
+            listOf(
+                pair(open = 0, close = 2, depth = 0),
+                pair(open = 10, close = 12, depth = 1),
+                pair(open = 20, close = 22, depth = 2),
+            )
+        val tokens =
+            snapshot(pairs).visibleTokens(
+                range = TextRange(1, 21),
+                focusOffset = 10,
+                limit = 10,
+            )
 
         assertThat(tokens.isCapped).isFalse()
         assertThat(tokens.size).isEqualTo(5)
@@ -45,14 +47,16 @@ class BracketSnapshotTest : BasePlatformTestCase() {
     }
 
     fun testCappedTokenWindowIsCenteredAndPublishesAStableFocusEnvelope() {
-        val pairs = List(5) { index ->
-            pair(open = index * 10, close = index * 10 + 2, depth = index)
-        }
-        val tokens = snapshot(pairs).visibleTokens(
-            range = TextRange(0, 100),
-            focusOffset = 21,
-            limit = 4,
-        )
+        val pairs =
+            List(5) { index ->
+                pair(open = index * 10, close = index * 10 + 2, depth = index)
+            }
+        val tokens =
+            snapshot(pairs).visibleTokens(
+                range = TextRange(0, 100),
+                focusOffset = 21,
+                limit = 4,
+            )
 
         assertThat(tokens.isCapped).isTrue()
         assertThat(tokens.offsets()).containsExactly(12, 20, 22, 30)
@@ -64,10 +68,12 @@ class BracketSnapshotTest : BasePlatformTestCase() {
         myFixture.configureByText("Snapshot.txt", " ".repeat(128))
         val pairTable = pairs.toPairTable()
         return BracketSnapshot(
-            stamp = AnalysisInput(
+            stamp =
+            AnalysisInput(
                 editor = myFixture.editor,
                 fileType = myFixture.file.fileType,
-                coverage = AnalysisCoverage(
+                coverage =
+                AnalysisCoverage(
                     tokens = true,
                     activePair = true,
                     guidePosition = false,
@@ -75,7 +81,8 @@ class BracketSnapshotTest : BasePlatformTestCase() {
                 disabledLanguageIds = emptySet(),
             ).stamp,
             matcherAvailability = BraceMatcherAvailability.AVAILABLE,
-            indexes = BracketIndexes(
+            indexes =
+            BracketIndexes(
                 pairs = pairTable,
                 tokens = BracketTokenIndex.build(pairTable, NO_CANCELLATION),
                 activePairs = ActiveBracketPairIndex.build(pairTable, NO_CANCELLATION),
@@ -94,14 +101,11 @@ class BracketSnapshotTest : BasePlatformTestCase() {
         closeLine = 0,
     )
 
-    private fun TokenWindow.offsets(): List<Int> =
-        List(size, ::offsetAt)
+    private fun TokenWindow.offsets(): List<Int> = List(size, ::offsetAt)
 
-    private fun TokenWindow.lengths(): List<Int> =
-        List(size, ::lengthAt)
+    private fun TokenWindow.lengths(): List<Int> = List(size, ::lengthAt)
 
-    private fun TokenWindow.depths(): List<Int> =
-        List(size, ::depthAt)
+    private fun TokenWindow.depths(): List<Int> = List(size, ::depthAt)
 
     private companion object {
         val NO_CANCELLATION: () -> Unit = {}

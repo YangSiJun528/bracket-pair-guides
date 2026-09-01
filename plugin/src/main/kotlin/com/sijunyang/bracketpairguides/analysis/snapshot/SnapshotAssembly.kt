@@ -37,74 +37,93 @@ internal class SnapshotAssembly(
         }
 
         val recognition = recognize()
-        val pairs = when (recognition) {
-            is DocumentBracketRecognition.Complete -> recognition.pairs
-            is DocumentBracketRecognition.Unavailable -> {
-                return unavailable(recognition.refusal.analysisLimit())
+        val pairs =
+            when (recognition) {
+                is DocumentBracketRecognition.Complete -> {
+                    recognition.pairs
+                }
+
+                is DocumentBracketRecognition.Unavailable -> {
+                    return unavailable(recognition.refusal.analysisLimit())
+                }
             }
-        }
         val matcherAvailability = recognition.matcherAvailability
         if (pairs.isEmpty) {
             return complete(emptySnapshot(layout, matcherAvailability))
         }
 
-        var guideEnvelope = if (layout.guidePosition) {
-            guideEnvelope(pairs)
-        } else {
-            null
-        }
-        val omittedGuide = guideEnvelope?.let { envelope ->
-            GuideIndexShape.forLineCount(envelope.lineCount()) == null
-        } == true
+        var guideEnvelope =
+            if (layout.guidePosition) {
+                guideEnvelope(pairs)
+            } else {
+                null
+            }
+        val omittedGuide =
+            guideEnvelope?.let { envelope ->
+                GuideIndexShape.forLineCount(envelope.lineCount()) == null
+            } == true
         if (omittedGuide) {
             snapshotInput = input.withCoverage(input.coverage.withoutGuidePosition())
             layout = IndexLayout.forCoverage(snapshotInput.coverage)
             guideEnvelope = null
         }
 
-        val activeIndex = if (layout.activePair) {
-            ActiveBracketPairIndex.build(pairs, checkCanceled)
-        } else {
-            ActiveBracketPairIndex.build(PairTable.empty(), checkCanceled)
-        }
+        val activeIndex =
+            if (layout.activePair) {
+                ActiveBracketPairIndex.build(pairs, checkCanceled)
+            } else {
+                ActiveBracketPairIndex.build(PairTable.empty(), checkCanceled)
+            }
 
         // Active runs first so its larger temporary workspace is released before
         // the stable token-index payload is retained.
-        val tokenIndex = when (layout.tokenStorage) {
-            TokenStorage.NONE -> BracketTokenIndex.build(
-                PairTable.empty(),
-                checkCanceled,
-            )
-            TokenStorage.ATTACHED -> BracketTokenIndex.build(
-                pairs,
-                checkCanceled,
-            )
-            TokenStorage.DETACHED -> BracketTokenIndex.buildDetached(
-                pairs,
-                checkCanceled,
-            )
-        }
+        val tokenIndex =
+            when (layout.tokenStorage) {
+                TokenStorage.NONE -> {
+                    BracketTokenIndex.build(
+                        PairTable.empty(),
+                        checkCanceled,
+                    )
+                }
+
+                TokenStorage.ATTACHED -> {
+                    BracketTokenIndex.build(
+                        pairs,
+                        checkCanceled,
+                    )
+                }
+
+                TokenStorage.DETACHED -> {
+                    BracketTokenIndex.buildDetached(
+                        pairs,
+                        checkCanceled,
+                    )
+                }
+            }
 
         // Qodana cannot infer that the preflight and allocation callbacks share
         // the same capacity contract. Keep this assertion so a broken callback
         // cannot publish a snapshot that claims guide coverage without an index.
         @Suppress("RedundantRequireNotNullCall")
-        val positionIndex = guideEnvelope?.let { envelope ->
-            checkNotNull(
-                guidePositions(envelope.lines),
-            ) { "A preflighted guide index must be allocatable" }
-        }
-        val indexes = BracketIndexes(
-            pairs = pairs.takeIf { layout.activePair } ?: PairTable.empty(),
-            tokens = tokenIndex,
-            activePairs = activeIndex,
-            guidePositions = positionIndex,
-        )
-        val snapshot = BracketSnapshot(
-            stamp = snapshotInput.stamp,
-            matcherAvailability = matcherAvailability,
-            indexes = canonicalIndexes(snapshotInput, layout, pairs, indexes),
-        )
+        val positionIndex =
+            guideEnvelope?.let { envelope ->
+                checkNotNull(
+                    guidePositions(envelope.lines),
+                ) { "A preflighted guide index must be allocatable" }
+            }
+        val indexes =
+            BracketIndexes(
+                pairs = pairs.takeIf { layout.activePair } ?: PairTable.empty(),
+                tokens = tokenIndex,
+                activePairs = activeIndex,
+                guidePositions = positionIndex,
+            )
+        val snapshot =
+            BracketSnapshot(
+                stamp = snapshotInput.stamp,
+                matcherAvailability = matcherAvailability,
+                indexes = canonicalIndexes(snapshotInput, layout, pairs, indexes),
+            )
         return if (omittedGuide) {
             AnalysisOutcome.Limited(
                 stamp = stamp,
@@ -116,34 +135,28 @@ internal class SnapshotAssembly(
         }
     }
 
-    private fun guideEnvelope(pairs: PairTable): GuideLineEnvelope? =
-        GuideLineEnvelope.from(
-            pairs = pairs,
-            documentLength = documentLength,
-            documentLineCount = documentLineCount,
-            checkCanceled = checkCanceled,
-        )
+    private fun guideEnvelope(pairs: PairTable): GuideLineEnvelope? = GuideLineEnvelope.from(
+        pairs = pairs,
+        documentLength = documentLength,
+        documentLineCount = documentLineCount,
+        checkCanceled = checkCanceled,
+    )
 
-    private fun GuideLineEnvelope.lineCount(): Int =
-        (lines.last.toLong() - lines.first + 1L).toInt()
+    private fun GuideLineEnvelope.lineCount(): Int = (lines.last.toLong() - lines.first + 1L).toInt()
 
-    private fun complete(snapshot: BracketSnapshot): AnalysisOutcome =
-        AnalysisOutcome.Complete(snapshot)
+    private fun complete(snapshot: BracketSnapshot): AnalysisOutcome = AnalysisOutcome.Complete(snapshot)
 
-    private fun unavailable(limit: AnalysisLimit): AnalysisOutcome =
-        AnalysisOutcome.Unavailable(input.stamp, limit)
+    private fun unavailable(limit: AnalysisLimit): AnalysisOutcome = AnalysisOutcome.Unavailable(input.stamp, limit)
 
-    private fun emptySnapshot(
-        layout: IndexLayout,
-        matcherAvailability: BraceMatcherAvailability,
-    ): BracketSnapshot {
+    private fun emptySnapshot(layout: IndexLayout, matcherAvailability: BraceMatcherAvailability): BracketSnapshot {
         val pairs = PairTable.empty()
-        val indexes = BracketIndexes(
-            pairs = pairs,
-            tokens = BracketTokenIndex.build(pairs, checkCanceled),
-            activePairs = ActiveBracketPairIndex.build(pairs, checkCanceled),
-            guidePositions = null,
-        )
+        val indexes =
+            BracketIndexes(
+                pairs = pairs,
+                tokens = BracketTokenIndex.build(pairs, checkCanceled),
+                activePairs = ActiveBracketPairIndex.build(pairs, checkCanceled),
+                guidePositions = null,
+            )
         return BracketSnapshot(
             stamp = input.stamp,
             matcherAvailability = matcherAvailability,

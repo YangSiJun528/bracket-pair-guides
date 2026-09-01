@@ -1,14 +1,13 @@
 package com.sijunyang.bracketpairguides.analysis.pairing.core;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiPredicate;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import org.junit.Test;
 
 public class PairingMachineTest {
     @Test
@@ -21,10 +20,9 @@ public class PairingMachineTest {
         accept(session, "main", ']', BracketRole.CLOSE, 4, 1, 2);
         accept(session, "main", ')', BracketRole.CLOSE, 5, 2, 3);
 
-        assertThat(output.pairs).containsExactly(
-                new PairRecord(3, 1, 4, 1, 1, 2, 2),
-                new PairRecord(0, 2, 5, 2, 0, 1, 3)
-        );
+        assertThat(output.pairs)
+                .containsExactly(
+                        new PairRecord(3, 1, 4, 1, 1, 2, 2), new PairRecord(0, 2, 5, 2, 0, 1, 3));
     }
 
     @Test
@@ -69,32 +67,13 @@ public class PairingMachineTest {
     @Test
     public void structuralCloserRecoversPastRegularOpenersWithPriority() {
         RecordedPairs output = new RecordedPairs();
-        PairingRules<Character> sharedCloser = rules(
-                (left, right) -> right == 'x' && (left == '{' || left == '(')
-        );
+        PairingRules<Character> sharedCloser =
+                rules((left, right) -> right == 'x' && (left == '{' || left == '('));
         PairingMachine<Character, String>.Session session = session(output, sharedCloser);
 
-        accept(
-                session,
-                "main",
-                '{',
-                BracketRole.OPEN,
-                StructuralRole.OPEN,
-                0,
-                1,
-                0
-        );
+        accept(session, "main", '{', BracketRole.OPEN, StructuralRole.OPEN, 0, 1, 0);
         accept(session, "main", '(', BracketRole.OPEN, 1, 1, 0);
-        accept(
-                session,
-                "main",
-                'x',
-                BracketRole.CLOSE,
-                StructuralRole.CLOSE,
-                2,
-                1,
-                0
-        );
+        accept(session, "main", 'x', BracketRole.CLOSE, StructuralRole.CLOSE, 2, 1, 0);
 
         assertThat(output.pairs).containsExactly(new PairRecord(0, 1, 2, 1, 0, 0, 0));
     }
@@ -104,30 +83,20 @@ public class PairingMachineTest {
         RecordedPairs output = new RecordedPairs();
         PairingMachine<Character, String>.Session session = session(output);
 
-        accept(
-                session, "main", '(', BracketRole.OPEN,
-                StructuralRole.OPEN, 0, 1, 0
-        );
+        accept(session, "main", '(', BracketRole.OPEN, StructuralRole.OPEN, 0, 1, 0);
         accept(session, "main", ')', BracketRole.CLOSE, 1, 1, 0);
         assertThat(output.pairs).isEmpty();
 
-        accept(
-                session, "main", ')', BracketRole.CLOSE,
-                StructuralRole.CLOSE, 2, 1, 0
-        );
+        accept(session, "main", ')', BracketRole.CLOSE, StructuralRole.CLOSE, 2, 1, 0);
         assertThat(output.pairs).containsExactly(new PairRecord(0, 1, 2, 1, 0, 0, 0));
 
         accept(session, "main", '(', BracketRole.OPEN, 3, 1, 0);
-        accept(
-                session, "main", ')', BracketRole.CLOSE,
-                StructuralRole.CLOSE, 4, 1, 0
-        );
+        accept(session, "main", ')', BracketRole.CLOSE, StructuralRole.CLOSE, 4, 1, 0);
         accept(session, "main", ')', BracketRole.CLOSE, 5, 1, 0);
 
-        assertThat(output.pairs).containsExactly(
-                new PairRecord(0, 1, 2, 1, 0, 0, 0),
-                new PairRecord(3, 1, 5, 1, 0, 0, 0)
-        );
+        assertThat(output.pairs)
+                .containsExactly(
+                        new PairRecord(0, 1, 2, 1, 0, 0, 0), new PairRecord(3, 1, 5, 1, 0, 0, 0));
     }
 
     @Test
@@ -136,29 +105,11 @@ public class PairingMachineTest {
         PairingMachine<Character, String>.Session session = session(output);
 
         accept(session, "main", '(', BracketRole.OPEN, 0, 1, 0);
-        accept(
-                session,
-                "main",
-                '{',
-                BracketRole.OPEN,
-                StructuralRole.OPEN,
-                1,
-                1,
-                0
-        );
+        accept(session, "main", '{', BracketRole.OPEN, StructuralRole.OPEN, 1, 1, 0);
         accept(session, "main", ')', BracketRole.CLOSE, 2, 1, 0);
         assertThat(output.pairs).isEmpty();
 
-        accept(
-                session,
-                "main",
-                '}',
-                BracketRole.CLOSE,
-                StructuralRole.CLOSE,
-                3,
-                1,
-                0
-        );
+        accept(session, "main", '}', BracketRole.CLOSE, StructuralRole.CLOSE, 3, 1, 0);
         accept(session, "main", ')', BracketRole.CLOSE, 4, 1, 0);
 
         assertThat(output.pairs).hasSize(2);
@@ -170,28 +121,10 @@ public class PairingMachineTest {
         RecordedPairs output = new RecordedPairs();
         PairingMachine<Character, String>.Session session = session(output);
 
-        accept(
-                session,
-                "main",
-                '{',
-                BracketRole.OPEN,
-                StructuralRole.OPEN,
-                0,
-                1,
-                0
-        );
+        accept(session, "main", '{', BracketRole.OPEN, StructuralRole.OPEN, 0, 1, 0);
         accept(session, "main", '(', BracketRole.OPEN, 1, 1, 0);
         accept(session, "main", ')', BracketRole.CLOSE, 2, 1, 0);
-        accept(
-                session,
-                "main",
-                '}',
-                BracketRole.CLOSE,
-                StructuralRole.CLOSE,
-                3,
-                1,
-                0
-        );
+        accept(session, "main", '}', BracketRole.CLOSE, StructuralRole.CLOSE, 3, 1, 0);
 
         assertThat(output.pairs).hasSize(2);
         assertThat(output.pairs).extracting(PairRecord::openOffset).containsExactly(1, 0);
@@ -227,31 +160,13 @@ public class PairingMachineTest {
         for (int offset = 0; offset < depth; offset++) {
             accept(session, "main", '(', BracketRole.OPEN, offset, 1, 0);
         }
-        accept(
-                session,
-                "main",
-                '{',
-                BracketRole.OPEN,
-                StructuralRole.OPEN,
-                depth,
-                1,
-                0
-        );
+        accept(session, "main", '{', BracketRole.OPEN, StructuralRole.OPEN, depth, 1, 0);
 
         for (int index = 0; index < depth; index++) {
             accept(session, "main", ')', BracketRole.CLOSE, depth + index + 1, 1, 0);
         }
         assertThat(output.pairs).isEmpty();
-        accept(
-                session,
-                "main",
-                '}',
-                BracketRole.CLOSE,
-                StructuralRole.CLOSE,
-                depth * 2 + 1,
-                1,
-                0
-        );
+        accept(session, "main", '}', BracketRole.CLOSE, StructuralRole.CLOSE, depth * 2 + 1, 1, 0);
         for (int index = 0; index < depth; index++) {
             accept(session, "main", ')', BracketRole.CLOSE, depth * 2 + index + 2, 1, 0);
         }
@@ -266,15 +181,14 @@ public class PairingMachineTest {
     public void emptyGroupIgnoresUnmatchedCloserAndReusesResolvedRules() {
         RecordedPairs output = new RecordedPairs();
         int[] resolutions = {0};
-        PairingMachine<Character, String> machine = new PairingMachine<>(group -> {
-            resolutions[0]++;
-            return CHAR_RULES;
-        });
-        PairingMachine<Character, String>.Session session = machine.newSession(
-                output,
-                NO_CANCELLATION,
-                Integer.MAX_VALUE
-        );
+        PairingMachine<Character, String> machine =
+                new PairingMachine<>(
+                        group -> {
+                            resolutions[0]++;
+                            return CHAR_RULES;
+                        });
+        PairingMachine<Character, String>.Session session =
+                machine.newSession(output, NO_CANCELLATION, Integer.MAX_VALUE);
 
         accept(session, "main", '(', BracketRole.OPEN, 0, 1, 0);
         accept(session, "main", ')', BracketRole.CLOSE, 1, 1, 0);
@@ -290,37 +204,66 @@ public class PairingMachineTest {
     public void sequentialPairsReleasePendingCapacityAndReuseGroupState() throws Exception {
         RecordedPairs output = new RecordedPairs();
         int[] resolutions = {0};
-        PairingMachine<Character, String> machine = new PairingMachine<>(group -> {
-            resolutions[0]++;
-            return CHAR_RULES;
-        });
-        PairingMachine<Character, String>.Session session = machine.newSession(
-                output,
-                NO_CANCELLATION,
-                1
-        );
+        PairingMachine<Character, String> machine =
+                new PairingMachine<>(
+                        group -> {
+                            resolutions[0]++;
+                            return CHAR_RULES;
+                        });
+        PairingMachine<Character, String>.Session session =
+                machine.newSession(output, NO_CANCELLATION, 1);
 
-        assertThat(session.accept(
-                "main", '(', null, false,
-                BracketRole.OPEN, StructuralRole.NONE, 0, 1, 0
-        )).isTrue();
-        assertThat(session.accept(
-                "main", ')', null, false,
-                BracketRole.CLOSE, StructuralRole.NONE, 1, 1, 0
-        )).isTrue();
+        assertThat(
+                        session.accept(
+                                "main",
+                                '(',
+                                null,
+                                false,
+                                BracketRole.OPEN,
+                                StructuralRole.NONE,
+                                0,
+                                1,
+                                0))
+                .isTrue();
+        assertThat(
+                        session.accept(
+                                "main",
+                                ')',
+                                null,
+                                false,
+                                BracketRole.CLOSE,
+                                StructuralRole.NONE,
+                                1,
+                                1,
+                                0))
+                .isTrue();
         Object lightweightState = groupState(session, "main");
 
         boolean accepted = true;
         for (int pair = 1; pair < 10_000; pair++) {
             int openOffset = pair * 2;
-            accepted &= session.accept(
-                    "main", '(', null, false,
-                    BracketRole.OPEN, StructuralRole.NONE, openOffset, 1, 0
-            );
-            accepted &= session.accept(
-                    "main", ')', null, false,
-                    BracketRole.CLOSE, StructuralRole.NONE, openOffset + 1, 1, 0
-            );
+            accepted &=
+                    session.accept(
+                            "main",
+                            '(',
+                            null,
+                            false,
+                            BracketRole.OPEN,
+                            StructuralRole.NONE,
+                            openOffset,
+                            1,
+                            0);
+            accepted &=
+                    session.accept(
+                            "main",
+                            ')',
+                            null,
+                            false,
+                            BracketRole.CLOSE,
+                            StructuralRole.NONE,
+                            openOffset + 1,
+                            1,
+                            0);
         }
 
         assertThat(accepted).isTrue();
@@ -333,28 +276,21 @@ public class PairingMachineTest {
     public void oversizedEmptyGroupReleasesItsStateAndKeepsResolvedRules() throws Exception {
         RecordedPairs output = new RecordedPairs();
         int[] resolutions = {0};
-        PairingMachine<Character, String> machine = new PairingMachine<>(group -> {
-            resolutions[0]++;
-            return CHAR_RULES;
-        });
-        PairingMachine<Character, String>.Session session = machine.newSession(
-                output,
-                NO_CANCELLATION,
-                Integer.MAX_VALUE
-        );
+        PairingMachine<Character, String> machine =
+                new PairingMachine<>(
+                        group -> {
+                            resolutions[0]++;
+                            return CHAR_RULES;
+                        });
+        PairingMachine<Character, String>.Session session =
+                machine.newSession(output, NO_CANCELLATION, Integer.MAX_VALUE);
         int depth = 2_048;
-        accept(
-                session, "main", '{', BracketRole.OPEN,
-                StructuralRole.OPEN, 0, 1, 0
-        );
+        accept(session, "main", '{', BracketRole.OPEN, StructuralRole.OPEN, 0, 1, 0);
         for (int offset = 1; offset < depth; offset++) {
             accept(session, "main", '(', BracketRole.OPEN, offset, 1, 0);
         }
         Object oversizedState = groupState(session, "main");
-        accept(
-                session, "main", '}', BracketRole.CLOSE,
-                StructuralRole.CLOSE, depth, 1, 0
-        );
+        accept(session, "main", '}', BracketRole.CLOSE, StructuralRole.CLOSE, depth, 1, 0);
 
         Object lightweightState = groupState(session, "main");
         assertThat(lightweightState).isNotSameAs(oversizedState);
@@ -370,31 +306,19 @@ public class PairingMachineTest {
     @Test
     public void strictContextRequiresTheSameNormalizedValue() {
         RecordedPairs output = new RecordedPairs();
-        PairingRules<String> tagRules = rules(
-                (left, right) -> left.equals("start") && right.equals("end")
-        );
+        PairingRules<String> tagRules =
+                rules((left, right) -> left.equals("start") && right.equals("end"));
         PairingMachine<String, String> machine = new PairingMachine<>(ignored -> tagRules);
-        PairingMachine<String, String>.Session session = machine.newSession(
-                output,
-                NO_CANCELLATION,
-                Integer.MAX_VALUE
-        );
+        PairingMachine<String, String>.Session session =
+                machine.newSession(output, NO_CANCELLATION, Integer.MAX_VALUE);
         session.accept(
-                "xml", "start", "section", true,
-                BracketRole.OPEN, StructuralRole.NONE, 0, 1, 0
-        );
+                "xml", "start", "section", true, BracketRole.OPEN, StructuralRole.NONE, 0, 1, 0);
         session.accept(
-                "xml", "start", "item", true,
-                BracketRole.OPEN, StructuralRole.NONE, 1, 1, 0
-        );
+                "xml", "start", "item", true, BracketRole.OPEN, StructuralRole.NONE, 1, 1, 0);
         session.accept(
-                "xml", "end", "other", true,
-                BracketRole.CLOSE, StructuralRole.NONE, 2, 1, 0
-        );
+                "xml", "end", "other", true, BracketRole.CLOSE, StructuralRole.NONE, 2, 1, 0);
         session.accept(
-                "xml", "end", "section", true,
-                BracketRole.CLOSE, StructuralRole.NONE, 3, 1, 0
-        );
+                "xml", "end", "section", true, BracketRole.CLOSE, StructuralRole.NONE, 3, 1, 0);
 
         assertThat(output.pairs).containsExactly(new PairRecord(0, 1, 3, 1, 0, 0, 0));
     }
@@ -402,24 +326,14 @@ public class PairingMachineTest {
     @Test
     public void strictContextCanUseANullKey() {
         RecordedPairs output = new RecordedPairs();
-        PairingRules<String> tagRules = rules(
-                (left, right) -> left.equals("start") && right.equals("end")
-        );
+        PairingRules<String> tagRules =
+                rules((left, right) -> left.equals("start") && right.equals("end"));
         PairingMachine<String, String>.Session session =
-                new PairingMachine<String, String>(ignored -> tagRules).newSession(
-                        output,
-                        NO_CANCELLATION,
-                        Integer.MAX_VALUE
-                );
+                new PairingMachine<String, String>(ignored -> tagRules)
+                        .newSession(output, NO_CANCELLATION, Integer.MAX_VALUE);
 
-        session.accept(
-                "xml", "start", null, true,
-                BracketRole.OPEN, StructuralRole.NONE, 0, 1, 0
-        );
-        session.accept(
-                "xml", "end", null, true,
-                BracketRole.CLOSE, StructuralRole.NONE, 1, 1, 0
-        );
+        session.accept("xml", "start", null, true, BracketRole.OPEN, StructuralRole.NONE, 0, 1, 0);
+        session.accept("xml", "end", null, true, BracketRole.CLOSE, StructuralRole.NONE, 1, 1, 0);
 
         assertThat(output.pairs).hasSize(1);
     }
@@ -428,9 +342,7 @@ public class PairingMachineTest {
     public void pureSymmetricTokensCloseBeforeTheyOpenAgain() {
         RecordedPairs output = new RecordedPairs();
         BracketRole symmetric = BracketRole.TOGGLE;
-        PairingRules<Character> rules = rules(
-                (left, right) -> left == '|' && right == '|'
-        );
+        PairingRules<Character> rules = rules((left, right) -> left == '|' && right == '|');
         PairingMachine<Character, String>.Session session = session(output, rules);
 
         accept(session, "main", '|', symmetric, 0, 1, 0);
@@ -438,28 +350,19 @@ public class PairingMachineTest {
         accept(session, "main", '|', symmetric, 4, 1, 0);
         accept(session, "main", '|', symmetric, 6, 1, 0);
 
-        assertThat(output.pairs).containsExactly(
-                new PairRecord(0, 1, 2, 1, 0, 0, 0),
-                new PairRecord(4, 1, 6, 1, 0, 0, 0)
-        );
+        assertThat(output.pairs)
+                .containsExactly(
+                        new PairRecord(0, 1, 2, 1, 0, 0, 0), new PairRecord(4, 1, 6, 1, 0, 0, 0));
     }
 
     @Test
     public void structuralToggleCanOpenAndCloseTheSameScope() {
         RecordedPairs output = new RecordedPairs();
-        PairingRules<Character> rules = rules(
-                (left, right) -> left == '|' && right == '|'
-        );
+        PairingRules<Character> rules = rules((left, right) -> left == '|' && right == '|');
         PairingMachine<Character, String>.Session session = session(output, rules);
 
-        accept(
-                session, "main", '|', BracketRole.TOGGLE,
-                StructuralRole.OPEN_AND_CLOSE, 0, 1, 0
-        );
-        accept(
-                session, "main", '|', BracketRole.TOGGLE,
-                StructuralRole.OPEN_AND_CLOSE, 1, 1, 0
-        );
+        accept(session, "main", '|', BracketRole.TOGGLE, StructuralRole.OPEN_AND_CLOSE, 0, 1, 0);
+        accept(session, "main", '|', BracketRole.TOGGLE, StructuralRole.OPEN_AND_CLOSE, 1, 1, 0);
 
         assertThat(output.pairs).hasSize(1);
         assertThat(output.pairs.get(0).openOffset).isZero();
@@ -469,24 +372,45 @@ public class PairingMachineTest {
     public void pendingOpenCapacityRejectsTheNextOpenerBeforeAllocation() {
         RecordedPairs output = new RecordedPairs();
         PairingMachine<Character, String> machine = new PairingMachine<>(ignored -> CHAR_RULES);
-        PairingMachine<Character, String>.Session session = machine.newSession(
-                output,
-                NO_CANCELLATION,
-                2
-        );
+        PairingMachine<Character, String>.Session session =
+                machine.newSession(output, NO_CANCELLATION, 2);
 
-        assertThat(session.accept(
-                "main", '(', null, false,
-                BracketRole.OPEN, StructuralRole.NONE, 0, 1, 0
-        )).isTrue();
-        assertThat(session.accept(
-                "main", '[', null, false,
-                BracketRole.OPEN, StructuralRole.NONE, 1, 1, 0
-        )).isTrue();
-        assertThat(session.accept(
-                "main", '{', null, false,
-                BracketRole.OPEN, StructuralRole.NONE, 2, 1, 0
-        )).isFalse();
+        assertThat(
+                        session.accept(
+                                "main",
+                                '(',
+                                null,
+                                false,
+                                BracketRole.OPEN,
+                                StructuralRole.NONE,
+                                0,
+                                1,
+                                0))
+                .isTrue();
+        assertThat(
+                        session.accept(
+                                "main",
+                                '[',
+                                null,
+                                false,
+                                BracketRole.OPEN,
+                                StructuralRole.NONE,
+                                1,
+                                1,
+                                0))
+                .isTrue();
+        assertThat(
+                        session.accept(
+                                "main",
+                                '{',
+                                null,
+                                false,
+                                BracketRole.OPEN,
+                                StructuralRole.NONE,
+                                2,
+                                1,
+                                0))
+                .isFalse();
         assertThat(output.pairs)
                 .as("no completed-prefix result escapes after capacity exhaustion")
                 .isEmpty();
@@ -496,24 +420,19 @@ public class PairingMachineTest {
     public void deepMalformedRecoveryChecksCancellation() {
         RecordedPairs output = new RecordedPairs();
         int[] checks = {0};
-        CancellationProbe cancellation = () -> {
-            if (++checks[0] == 3) {
-                throw new TestCancellation();
-            }
-        };
-        PairingRules<String> tagRules = rules(
-                (left, right) -> left.equals("start") && right.equals("end")
-        );
+        CancellationProbe cancellation =
+                () -> {
+                    if (++checks[0] == 3) {
+                        throw new TestCancellation();
+                    }
+                };
+        PairingRules<String> tagRules =
+                rules((left, right) -> left.equals("start") && right.equals("end"));
         PairingMachine<String, String> machine = new PairingMachine<>(ignored -> tagRules);
-        PairingMachine<String, String>.Session session = machine.newSession(
-                output,
-                cancellation,
-                Integer.MAX_VALUE
-        );
+        PairingMachine<String, String>.Session session =
+                machine.newSession(output, cancellation, Integer.MAX_VALUE);
         session.accept(
-                "xml", "start", "root", true,
-                BracketRole.OPEN, StructuralRole.NONE, 0, 1, 0
-        );
+                "xml", "start", "root", true, BracketRole.OPEN, StructuralRole.NONE, 0, 1, 0);
         for (int i = 0; i < 10_000; i++) {
             session.accept(
                     "xml",
@@ -524,22 +443,22 @@ public class PairingMachineTest {
                     StructuralRole.NONE,
                     i + 1,
                     1,
-                    0
-            );
+                    0);
         }
 
         assertThatExceptionOfType(TestCancellation.class)
-                .isThrownBy(() -> session.accept(
-                        "xml",
-                        "end",
-                        "root",
-                        true,
-                        BracketRole.CLOSE,
-                        StructuralRole.NONE,
-                        20_000,
-                        1,
-                        0
-                ));
+                .isThrownBy(
+                        () ->
+                                session.accept(
+                                        "xml",
+                                        "end",
+                                        "root",
+                                        true,
+                                        BracketRole.CLOSE,
+                                        StructuralRole.NONE,
+                                        20_000,
+                                        1,
+                                        0));
         assertThat(checks[0]).isEqualTo(3);
     }
 
@@ -549,18 +468,14 @@ public class PairingMachineTest {
 
     @SuppressWarnings("unchecked")
     private static Object groupState(
-            PairingMachine<Character, String>.Session session,
-            String group
-    ) throws Exception {
+            PairingMachine<Character, String>.Session session, String group) throws Exception {
         var statesField = session.getClass().getDeclaredField("states");
         statesField.setAccessible(true);
         return ((Map<String, Object>) statesField.get(session)).get(group);
     }
 
     private static PairingMachine<Character, String>.Session session(
-            RecordedPairs output,
-            PairingRules<Character> rules
-    ) {
+            RecordedPairs output, PairingRules<Character> rules) {
         PairingMachine<Character, String> machine = new PairingMachine<>(ignored -> rules);
         return machine.newSession(output, NO_CANCELLATION, Integer.MAX_VALUE);
     }
@@ -572,18 +487,8 @@ public class PairingMachineTest {
             BracketRole role,
             int offset,
             int tokenLength,
-            int line
-    ) {
-        accept(
-                session,
-                group,
-                token,
-                role,
-                StructuralRole.NONE,
-                offset,
-                tokenLength,
-                line
-        );
+            int line) {
+        accept(session, group, token, role, StructuralRole.NONE, offset, tokenLength, line);
     }
 
     private static void accept(
@@ -594,19 +499,8 @@ public class PairingMachineTest {
             StructuralRole structuralRole,
             int offset,
             int tokenLength,
-            int line
-    ) {
-        session.accept(
-                group,
-                token,
-                null,
-                false,
-                role,
-                structuralRole,
-                offset,
-                tokenLength,
-                line
-        );
+            int line) {
+        session.accept(group, token, null, false, role, structuralRole, offset, tokenLength, line);
     }
 
     private static <T> PairingRules<T> rules(BiPredicate<T, T> pair) {
@@ -618,16 +512,17 @@ public class PairingMachineTest {
         };
     }
 
-    private static final PairingRules<Character> CHAR_RULES = rules(
-            (left, right) -> switch (left) {
-                case '(' -> right == ')';
-                case '[' -> right == ']';
-                case '{' -> right == '}';
-                default -> false;
-            }
-    );
+    private static final PairingRules<Character> CHAR_RULES =
+            rules(
+                    (left, right) ->
+                            switch (left) {
+                                case '(' -> right == ')';
+                                case '[' -> right == ']';
+                                case '{' -> right == '}';
+                                default -> false;
+                            });
 
-    private static final CancellationProbe NO_CANCELLATION = () -> { };
+    private static final CancellationProbe NO_CANCELLATION = () -> {};
 
     private static final class RecordedPairs implements PairSink {
         private final List<PairRecord> pairs = new ArrayList<>();
@@ -640,17 +535,16 @@ public class PairingMachineTest {
                 int closeTokenLength,
                 int depth,
                 int openLine,
-                int closeLine
-        ) {
-            pairs.add(new PairRecord(
-                    openOffset,
-                    openTokenLength,
-                    closeOffset,
-                    closeTokenLength,
-                    depth,
-                    openLine,
-                    closeLine
-            ));
+                int closeLine) {
+            pairs.add(
+                    new PairRecord(
+                            openOffset,
+                            openTokenLength,
+                            closeOffset,
+                            closeTokenLength,
+                            depth,
+                            openLine,
+                            closeLine));
         }
     }
 
@@ -661,10 +555,7 @@ public class PairingMachineTest {
             int closeLength,
             int depth,
             int openLine,
-            int closeLine
-    ) {
-    }
+            int closeLine) {}
 
-    private static final class TestCancellation extends RuntimeException {
-    }
+    private static final class TestCancellation extends RuntimeException {}
 }

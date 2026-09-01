@@ -5,17 +5,17 @@ import java.util.Arrays;
 /** Immutable primitive table containing recognized bracket-pair geometry. */
 public final class PairTable {
     private static final int CANCELLATION_MASK = 0xFF;
-    private static final PairTable EMPTY = new PairTable(
-            new int[0],
-            new int[0],
-            new int[0],
-            new int[0],
-            new int[0],
-            new int[0],
-            new int[0],
-            0,
-            1
-    );
+    private static final PairTable EMPTY =
+            new PairTable(
+                    new int[0],
+                    new int[0],
+                    new int[0],
+                    new int[0],
+                    new int[0],
+                    new int[0],
+                    new int[0],
+                    0,
+                    1);
 
     private final int[] openOffsets;
     private final int[] openTokenLengths;
@@ -36,8 +36,7 @@ public final class PairTable {
             int[] openLines,
             int[] closeLines,
             int size,
-            int contentHash
-    ) {
+            int contentHash) {
         this.openOffsets = openOffsets;
         this.openTokenLengths = openTokenLengths;
         this.closeOffsets = closeOffsets;
@@ -66,8 +65,8 @@ public final class PairTable {
     }
 
     /**
-     * Returns whether both tables contain exactly the same pair geometry.
-     * Backing-array identity and unused capacity are intentionally ignored.
+     * Returns whether both tables contain exactly the same pair geometry. Backing-array identity
+     * and unused capacity are intentionally ignored.
      */
     public boolean hasSameContent(PairTable other, CancellationProbe cancellation) {
         if (cancellation == null) {
@@ -83,13 +82,13 @@ public final class PairTable {
             if ((index & CANCELLATION_MASK) == 0) {
                 cancellation.check();
             }
-            if (openOffsets[index] != other.openOffsets[index] ||
-                    openTokenLengths[index] != other.openTokenLengths[index] ||
-                    closeOffsets[index] != other.closeOffsets[index] ||
-                    closeTokenLengths[index] != other.closeTokenLengths[index] ||
-                    depths[index] != other.depths[index] ||
-                    openLines[index] != other.openLines[index] ||
-                    closeLines[index] != other.closeLines[index]) {
+            if (openOffsets[index] != other.openOffsets[index]
+                    || openTokenLengths[index] != other.openTokenLengths[index]
+                    || closeOffsets[index] != other.closeOffsets[index]
+                    || closeTokenLengths[index] != other.closeTokenLengths[index]
+                    || depths[index] != other.depths[index]
+                    || openLines[index] != other.openLines[index]
+                    || closeLines[index] != other.closeLines[index]) {
                 return false;
             }
         }
@@ -138,8 +137,11 @@ public final class PairTable {
 
     public boolean hasWellFormedTokenRangeAt(int index, int maximumEndOffset) {
         checkIndex(index);
-        if (maximumEndOffset < 0 || openOffsets[index] < 0 || closeOffsets[index] < 0 ||
-                openTokenLengths[index] <= 0 || closeTokenLengths[index] <= 0) {
+        if (maximumEndOffset < 0
+                || openOffsets[index] < 0
+                || closeOffsets[index] < 0
+                || openTokenLengths[index] <= 0
+                || closeTokenLengths[index] <= 0) {
             return false;
         }
 
@@ -154,7 +156,8 @@ public final class PairTable {
 
     private void checkIndex(int index) {
         if (index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException("Pair index " + index + " is outside 0 until " + size);
+            throw new IndexOutOfBoundsException(
+                    "Pair index " + index + " is outside 0 until " + size);
         }
     }
 
@@ -181,8 +184,7 @@ public final class PairTable {
                 int closeTokenLength,
                 int depth,
                 int openLine,
-                int closeLine
-        ) {
+                int closeLine) {
             ensureMutable();
             ensureCapacity(size + 1);
             openOffsets[size] = openOffset;
@@ -209,17 +211,17 @@ public final class PairTable {
                 release();
                 return EMPTY;
             }
-            PairTable table = new PairTable(
-                    openOffsets,
-                    openTokenLengths,
-                    closeOffsets,
-                    closeTokenLengths,
-                    depths,
-                    openLines,
-                    closeLines,
-                    size,
-                    contentHash
-            );
+            PairTable table =
+                    new PairTable(
+                            openOffsets,
+                            openTokenLengths,
+                            closeOffsets,
+                            closeTokenLengths,
+                            depths,
+                            openLines,
+                            closeLines,
+                            size,
+                            contentHash);
             release();
             return table;
         }

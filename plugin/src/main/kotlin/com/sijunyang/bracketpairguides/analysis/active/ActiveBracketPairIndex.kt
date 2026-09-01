@@ -1,7 +1,7 @@
 package com.sijunyang.bracketpairguides.analysis.active
 
-import com.sijunyang.bracketpairguides.analysis.sorting.sortCancellable
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable
+import com.sijunyang.bracketpairguides.analysis.sorting.sortCancellable
 
 /**
  * Maps a caret offset to the innermost bracket pair that strictly contains it.
@@ -33,10 +33,7 @@ internal class ActiveBracketPairIndex private constructor(
     }
 
     companion object {
-        internal fun build(
-            pairs: PairTable,
-            checkCanceled: () -> Unit,
-        ): ActiveBracketPairIndex {
+        internal fun build(pairs: PairTable, checkCanceled: () -> Unit): ActiveBracketPairIndex {
             if (pairs.isEmpty) return EMPTY
             require(pairs.size() <= Int.MAX_VALUE / EVENTS_PER_PAIR)
 
@@ -109,12 +106,12 @@ internal class ActiveBracketPairIndex private constructor(
             )
         }
 
-        private fun IntArray.copyIfSmaller(size: Int): IntArray =
-            if (size == this.size) this else copyOf(size)
+        private fun IntArray.copyIfSmaller(size: Int): IntArray = if (size == this.size) this else copyOf(size)
 
         private fun encodeEvent(offset: Int, pairIndex: Int, isStart: Boolean): Long {
-            val reference = (pairIndex shl EVENT_KIND_BITS) or
-                if (isStart) START_EVENT else END_EVENT
+            val reference =
+                (pairIndex shl EVENT_KIND_BITS) or
+                    if (isStart) START_EVENT else END_EVENT
             return (offset.toLong() shl OFFSET_SHIFT) or
                 (reference.toLong() and EVENT_REFERENCE_MASK)
         }
@@ -123,9 +120,7 @@ internal class ActiveBracketPairIndex private constructor(
 
         private fun eventPairIndex(event: Long): Int = event.toInt() ushr EVENT_KIND_BITS
 
-        private fun isStartEvent(event: Long): Boolean {
-            return event.toInt() and EVENT_KIND_MASK == START_EVENT
-        }
+        private fun isStartEvent(event: Long): Boolean = event.toInt() and EVENT_KIND_MASK == START_EVENT
 
         private val EMPTY = ActiveBracketPairIndex(IntArray(0), IntArray(0))
 
@@ -140,11 +135,7 @@ internal class ActiveBracketPairIndex private constructor(
         private const val CANCELLATION_MASK = 0xFF
     }
 
-    private class CandidateHeap(
-        private val starts: IntArray,
-        private val ends: IntArray,
-        capacity: Int,
-    ) {
+    private class CandidateHeap(private val starts: IntArray, private val ends: IntArray, capacity: Int) {
         private val values = IntArray(capacity)
         private var size = 0
 
@@ -173,13 +164,14 @@ internal class ActiveBracketPairIndex private constructor(
                 val left = index * 2 + 1
                 if (left >= size) break
                 val right = left + 1
-                val preferredChild = if (right < size &&
-                    isPreferred(values[right], values[left])
-                ) {
-                    right
-                } else {
-                    left
-                }
+                val preferredChild =
+                    if (right < size &&
+                        isPreferred(values[right], values[left])
+                    ) {
+                        right
+                    } else {
+                        left
+                    }
                 if (!isPreferred(values[preferredChild], replacement)) break
                 values[index] = values[preferredChild]
                 index = preferredChild

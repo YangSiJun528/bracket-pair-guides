@@ -15,51 +15,59 @@ class AnalysisStampTest : BasePlatformTestCase() {
 
     fun testTabSizeDoesNotInvalidateTokenOnlyAnalysis() {
         myFixture.configureByText("TokenStamp.java", "class TokenStamp { }")
-        val completed = stamp(
-            tabSize = 4,
-            coverage = AnalysisCoverage(
-                tokens = true,
-                activePair = false,
-                guidePosition = false,
-            ),
-        )
-        val required = stamp(
-            tabSize = 8,
-            coverage = completed.coverage,
-        )
+        val completed =
+            stamp(
+                tabSize = 4,
+                coverage =
+                AnalysisCoverage(
+                    tokens = true,
+                    activePair = false,
+                    guidePosition = false,
+                ),
+            )
+        val required =
+            stamp(
+                tabSize = 8,
+                coverage = completed.coverage,
+            )
 
         assertThat(completed.covers(required)).isTrue()
     }
 
     fun testTabSizeStillInvalidatesGuidePositionAnalysis() {
         myFixture.configureByText("GuideStamp.java", "class GuideStamp { }")
-        val completed = stamp(
-            tabSize = 4,
-            coverage = AnalysisCoverage(
-                tokens = false,
-                activePair = true,
-                guidePosition = true,
-            ),
-        )
-        val required = stamp(
-            tabSize = 8,
-            coverage = completed.coverage,
-        )
+        val completed =
+            stamp(
+                tabSize = 4,
+                coverage =
+                AnalysisCoverage(
+                    tokens = false,
+                    activePair = true,
+                    guidePosition = true,
+                ),
+            )
+        val required =
+            stamp(
+                tabSize = 8,
+                coverage = completed.coverage,
+            )
 
         assertThat(completed.covers(required)).isFalse()
     }
 
     fun testDifferentHighlighterInstanceInvalidatesTheStamp() {
         myFixture.configureByText("HighlighterStamp.java", "class HighlighterStamp { }")
-        val coverage = AnalysisCoverage(
-            tokens = true,
-            activePair = false,
-            guidePosition = false,
-        )
+        val coverage =
+            AnalysisCoverage(
+                tokens = true,
+                activePair = false,
+                guidePosition = false,
+            )
 
         val completed = stamp(tabSize = 4, coverage = coverage)
         (myFixture.editor as EditorEx).setHighlighter(
-            EditorHighlighterFactory.getInstance()
+            EditorHighlighterFactory
+                .getInstance()
                 .createEditorHighlighter(project, PlainTextFileType.INSTANCE),
         )
         val required = stamp(tabSize = 4, coverage = coverage)
@@ -69,11 +77,12 @@ class AnalysisStampTest : BasePlatformTestCase() {
 
     fun testChecksDocumentCoverageAndLanguageSelection() {
         myFixture.configureByText("Revision.java", "class Revision { }")
-        val coverage = AnalysisCoverage(
-            tokens = true,
-            activePair = false,
-            guidePosition = false,
-        )
+        val coverage =
+            AnalysisCoverage(
+                tokens = true,
+                activePair = false,
+                guidePosition = false,
+            )
         val stamp = stamp(coverage)
         val fileType = myFixture.file.fileType
 
@@ -118,11 +127,12 @@ class AnalysisStampTest : BasePlatformTestCase() {
         myFixture.configureByText("Tabs.java", "class Tabs { }")
         val editor = myFixture.editor
         val originalTabSize = editor.settings.getTabSize(project)
-        val tokenCoverage = AnalysisCoverage(
-            tokens = true,
-            activePair = false,
-            guidePosition = false,
-        )
+        val tokenCoverage =
+            AnalysisCoverage(
+                tokens = true,
+                activePair = false,
+                guidePosition = false,
+            )
         val tokenStamp = stamp(tokenCoverage)
         val fileType = myFixture.file.fileType
 
@@ -137,11 +147,12 @@ class AnalysisStampTest : BasePlatformTestCase() {
                 ),
             ).isTrue()
 
-            val guideCoverage = AnalysisCoverage(
-                tokens = false,
-                activePair = true,
-                guidePosition = true,
-            )
+            val guideCoverage =
+                AnalysisCoverage(
+                    tokens = false,
+                    activePair = true,
+                    guidePosition = true,
+                )
             val guideStamp = stamp(guideCoverage)
             editor.settings.setTabSize(originalTabSize + 2)
             assertThat(
@@ -160,39 +171,36 @@ class AnalysisStampTest : BasePlatformTestCase() {
     fun testRejectsAReplacementHighlighter() {
         myFixture.configureByText("Highlighter.java", "class Highlighter { }")
         val editor = myFixture.editor
-        val coverage = AnalysisCoverage(
-            tokens = true,
-            activePair = false,
-            guidePosition = false,
-        )
+        val coverage =
+            AnalysisCoverage(
+                tokens = true,
+                activePair = false,
+                guidePosition = false,
+            )
         val stamp = stamp(coverage)
         val fileType = myFixture.file.fileType
 
         (editor as EditorEx).setHighlighter(
-            EditorHighlighterFactory.getInstance()
+            EditorHighlighterFactory
+                .getInstance()
                 .createEditorHighlighter(project, PlainTextFileType.INSTANCE),
         )
 
         assertThat(stamp.matchesCurrent(editor, fileType, coverage, emptySet())).isFalse()
     }
 
-    private fun stamp(
-        tabSize: Int,
-        coverage: AnalysisCoverage,
-    ): AnalysisStamp {
+    private fun stamp(tabSize: Int, coverage: AnalysisCoverage): AnalysisStamp {
         myFixture.editor.settings.setTabSize(tabSize)
         return stamp(coverage, setOf("test.matcher"))
     }
 
-    private fun stamp(
-        coverage: AnalysisCoverage,
-        disabledLanguageIds: Set<String> = emptySet(),
-    ): AnalysisStamp = AnalysisInput(
-        editor = myFixture.editor,
-        fileType = myFixture.file.fileType,
-        coverage = coverage,
-        disabledLanguageIds = disabledLanguageIds,
-    ).stamp
+    private fun stamp(coverage: AnalysisCoverage, disabledLanguageIds: Set<String> = emptySet()): AnalysisStamp =
+        AnalysisInput(
+            editor = myFixture.editor,
+            fileType = myFixture.file.fileType,
+            coverage = coverage,
+            disabledLanguageIds = disabledLanguageIds,
+        ).stamp
 
     private fun invalidGuideCoverage() {
         AnalysisCoverage(

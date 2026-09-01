@@ -13,25 +13,27 @@ internal fun AnalysisInput.bracketSnapshot(
     matcherAvailability: BraceMatcherAvailability = BraceMatcherAvailability.AVAILABLE,
 ): BracketSnapshot {
     val document = editor.document
-    val guidePositions = DocumentGuidePositions(
-        document = document,
-        tabSize = stamp.tabSize,
-        checkCanceled = {},
-    )
-    val outcome = SnapshotAssembly(
-        input = this,
-        recognize = {
-            DocumentBracketRecognition.Complete(
-                pairs.toPairTable(),
-                matcherAvailability,
-            )
-        },
-        checkCanceled = {},
-        documentLength = document.textLength,
-        documentLineCount = document.lineCount,
-        guidePositions = guidePositions::index,
-        canonicalIndexes = { _, _, _, indexes -> indexes },
-    ).outcome()
+    val guidePositions =
+        DocumentGuidePositions(
+            document = document,
+            tabSize = stamp.tabSize,
+            checkCanceled = {},
+        )
+    val outcome =
+        SnapshotAssembly(
+            input = this,
+            recognize = {
+                DocumentBracketRecognition.Complete(
+                    pairs.toPairTable(),
+                    matcherAvailability,
+                )
+            },
+            checkCanceled = {},
+            documentLength = document.textLength,
+            documentLineCount = document.lineCount,
+            guidePositions = guidePositions::index,
+            canonicalIndexes = { _, _, _, indexes -> indexes },
+        ).outcome()
     return (outcome as? AnalysisOutcome.Complete)?.snapshot
         ?: error("Expected complete fixture analysis, got ${outcome::class.java.simpleName}")
 }

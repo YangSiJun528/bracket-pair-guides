@@ -1,7 +1,7 @@
 package com.sijunyang.bracketpairguides.benchmarks;
 
-import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable;
 import com.sijunyang.bracketpairguides.analysis.pairing.core.BracketRole;
+import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable;
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachine;
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairingRules;
 import com.sijunyang.bracketpairguides.analysis.pairing.core.StructuralRole;
@@ -36,11 +36,8 @@ public class PairingMachineBenchmark {
     public PairTable pairNestedTokens() {
         PairTable.Draft output = PairTable.draft();
         PairingMachine<Token, Group> machine = new PairingMachine<>(ignored -> RULES);
-        PairingMachine<Token, Group>.Session session = machine.newSession(
-                output,
-                () -> { },
-                pairCount
-        );
+        PairingMachine<Token, Group>.Session session =
+                machine.newSession(output, () -> {}, pairCount);
         for (int index = 0; index < tokens.length; index++) {
             session.accept(
                     Group.MAIN,
@@ -51,8 +48,7 @@ public class PairingMachineBenchmark {
                     StructuralRole.NONE,
                     index,
                     1,
-                    0
-            );
+                    0);
         }
         return output.freeze();
     }
@@ -61,11 +57,7 @@ public class PairingMachineBenchmark {
     public PairTable pairSequentialTokens() {
         PairTable.Draft output = PairTable.draft();
         PairingMachine<Token, Group> machine = new PairingMachine<>(ignored -> RULES);
-        PairingMachine<Token, Group>.Session session = machine.newSession(
-                output,
-                () -> { },
-                50_000
-        );
+        PairingMachine<Token, Group>.Session session = machine.newSession(output, () -> {}, 50_000);
         for (int index = 0; index < pairCount; index++) {
             int openOffset = index * 2;
             session.accept(
@@ -77,8 +69,7 @@ public class PairingMachineBenchmark {
                     StructuralRole.NONE,
                     openOffset,
                     1,
-                    0
-            );
+                    0);
             session.accept(
                     Group.MAIN,
                     Token.CLOSE,
@@ -88,8 +79,7 @@ public class PairingMachineBenchmark {
                     StructuralRole.NONE,
                     openOffset + 1,
                     1,
-                    0
-            );
+                    0);
         }
         return output.freeze();
     }
@@ -103,10 +93,11 @@ public class PairingMachineBenchmark {
         MAIN
     }
 
-    private static final PairingRules<Token> RULES = new PairingRules<>() {
-        @Override
-        public boolean isPair(Token openToken, Token closeToken) {
-            return openToken == Token.OPEN && closeToken == Token.CLOSE;
-        }
-    };
+    private static final PairingRules<Token> RULES =
+            new PairingRules<>() {
+                @Override
+                public boolean isPair(Token openToken, Token closeToken) {
+                    return openToken == Token.OPEN && closeToken == Token.CLOSE;
+                }
+            };
 }

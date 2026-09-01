@@ -1,5 +1,10 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
+import com.intellij.openapi.editor.colors.impl.EditorColorsSchemeImpl
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.openapi.progress.EmptyProgressIndicator
+import com.intellij.openapi.util.TextRange
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalog
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
@@ -7,11 +12,6 @@ import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 import com.sijunyang.bracketpairguides.presentation.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
-import com.intellij.openapi.editor.colors.impl.EditorColorsSchemeImpl
-import com.intellij.openapi.editor.ex.EditorEx
-import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.openapi.progress.EmptyProgressIndicator
-import com.intellij.openapi.util.TextRange
 import org.assertj.core.api.Assertions.assertThat
 import java.awt.Color
 
@@ -19,15 +19,23 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
     fun testThemeRefreshKeepsExplicitTokenColorsWithoutRebuildingHighlighters() {
         val source = "x { content } y"
         myFixture.configureByText("ThemeTokens.txt", source)
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         var collections = 0
-        val options = BracketGuidePreferences(
-            showActiveGuide = false,
-            showActivePairBorder = false,
-            showActivePairBackground = false,
-        )
+        val options =
+            BracketGuidePreferences(
+                showActiveGuide = false,
+                showActivePairBorder = false,
+                showActivePairBackground = false,
+            )
         BracketGuideSettings.getInstance().replace(options)
         applyPass(
             {
@@ -40,12 +48,13 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
         val originalScheme = editor.colorsScheme
         val refreshedColor = Color(0x12, 0x6A, 0xD4)
         val appliedColor = Color(StoredColorFormat.defaultColor(0))
-        val refreshedScheme = EditorColorsSchemeImpl(originalScheme).apply {
-            setAttributes(
-                BracketColorPalette.levelKey(0),
-                TextAttributes().apply { foregroundColor = refreshedColor },
-            )
-        }
+        val refreshedScheme =
+            EditorColorsSchemeImpl(originalScheme).apply {
+                setAttributes(
+                    BracketColorPalette.levelKey(0),
+                    TextAttributes().apply { foregroundColor = refreshedColor },
+                )
+            }
         try {
             editor.setColorsScheme(refreshedScheme)
             session().updateOptions(
@@ -67,9 +76,16 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
     fun testDisabledPassSkipsRecognitionAndReenableCanAnalyze() {
         val source = "x { content } y"
         myFixture.configureByText("Sample.txt", source)
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         var collections = 0
         val pairs = {
             collections++
@@ -96,9 +112,16 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
     fun testDisablingAllPairFeaturesReleasesAndRebuildsTheSnapshot() {
         val source = "x { content } y"
         myFixture.configureByText("ReleasedSnapshot.txt", source)
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         var collections = 0
         val pairs = {
             collections++
@@ -129,9 +152,16 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
     fun testLateFullPassCannotRestoreASnapshotAfterAllFeaturesAreDisabled() {
         val source = "x { content } y"
         myFixture.configureByText("LateDisabledSnapshot.txt", source)
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         var collections = 0
         val pairs = {
             collections++
@@ -164,9 +194,16 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
     fun testLateFullPassCannotPreventCompactTokenOnlyRebuild() {
         val source = "x { content } y"
         myFixture.configureByText("LateCompactTokenAnalysis.txt", source)
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         var collections = 0
         val pairs = {
             collections++
@@ -179,11 +216,12 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
             latePass.doCollectInformation(EmptyProgressIndicator())
         }
 
-        val tokenOnlyOptions = fullOptions.copy(
-            showActiveGuide = false,
-            showActivePairBorder = false,
-            showActivePairBackground = false,
-        )
+        val tokenOnlyOptions =
+            fullOptions.copy(
+                showActiveGuide = false,
+                showActivePairBorder = false,
+                showActivePairBackground = false,
+            )
         applyOptions(tokenOnlyOptions)
         val tokenOnlyStamp = stampFor(editor, tokenOnlyOptions)
         latePass.doApplyInformationToEditor()
@@ -213,21 +251,23 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
             recognizedPairs
         }
         val fullOptions = BracketGuideSettings.getInstance().options
-        val lateFullPass = testPass(
-            project = project,
-            editor = editor,
-            pairs = pairs,
-            visibleRange = { visibleRange },
-        )
+        val lateFullPass =
+            testPass(
+                project = project,
+                editor = editor,
+                pairs = pairs,
+                visibleRange = { visibleRange },
+            )
         inReadAction {
             lateFullPass.doCollectInformation(EmptyProgressIndicator())
         }
 
-        val tokenOnlyOptions = fullOptions.copy(
-            showActiveGuide = false,
-            showActivePairBorder = false,
-            showActivePairBackground = false,
-        )
+        val tokenOnlyOptions =
+            fullOptions.copy(
+                showActiveGuide = false,
+                showActivePairBorder = false,
+                showActivePairBackground = false,
+            )
         applyOptions(tokenOnlyOptions)
         applyPass(pairs) { visibleRange }
         val tokenOnlyStamp = stampFor(editor, tokenOnlyOptions)
@@ -252,9 +292,16 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
     fun testReenablingActivePresentationWaitsForTheNextSnapshot() {
         val source = "x { content } y"
         myFixture.configureByText("ReenabledSnapshot.txt", source)
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("content"))
         var collections = 0
@@ -291,22 +338,24 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
         myFixture.configureByText("LanguageSelection.java", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("call") + 2)
-        val capabilityId = checkNotNull(
-            BraceLanguageCatalog().installedFamilies()
-                .firstOrNull { family ->
-                    family.id == myFixture.file.language.id ||
-                        myFixture.file.language.displayName in family.memberDisplayNames
-                }
-                ?.id,
-        )
+        val capabilityId =
+            checkNotNull(
+                BraceLanguageCatalog()
+                    .installedFamilies()
+                    .firstOrNull { family ->
+                        family.id == myFixture.file.language.id ||
+                            myFixture.file.language.displayName in family.memberDisplayNames
+                    }?.id,
+            )
 
         applyPass()
         assertThat(bracketColorHighlighters()).isNotEmpty()
         assertThat(activeGuide()).isNotNull()
 
-        val disabled = BracketGuideSettings.getInstance().options.copy(
-            disabledLanguageIds = setOf(capabilityId),
-        )
+        val disabled =
+            BracketGuideSettings.getInstance().options.copy(
+                disabledLanguageIds = setOf(capabilityId),
+            )
         applyOptions(disabled)
         assertThat(bracketColorHighlighters()).isEmpty()
         assertThat(activeGuide()).isNull()

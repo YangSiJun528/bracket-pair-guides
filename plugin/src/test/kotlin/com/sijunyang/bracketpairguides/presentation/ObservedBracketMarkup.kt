@@ -19,11 +19,12 @@ internal fun Editor.observedBracketMarkup(): ObservedBracketMarkup {
     val marks = markupModel.allHighlighters.filter(RangeHighlighter::isValid)
     val tokenMarks = marks.filter(RangeHighlighter::isBracketTokenMark)
     val guideMarks = marks.filter { mark -> mark.customRenderer is BracketGuideDrawing }
-    val activePairMarks = marks.filter { mark ->
-        mark.layer == HighlighterLayer.ELEMENT_UNDER_CARET &&
-            mark !in tokenMarks &&
-            mark !in guideMarks
-    }
+    val activePairMarks =
+        marks.filter { mark ->
+            mark.layer == HighlighterLayer.ELEMENT_UNDER_CARET &&
+                mark !in tokenMarks &&
+                mark !in guideMarks
+        }
     return ObservedBracketMarkup(tokenMarks, activePairMarks, guideMarks)
 }
 

@@ -1,9 +1,9 @@
 package com.sijunyang.bracketpairguides.preferences
 
-import java.awt.Color
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.junit.Test
+import java.awt.Color
 
 class StoredColorFormatTest {
     @Test
@@ -22,14 +22,15 @@ class StoredColorFormatTest {
 
     @Test
     fun `validates exact concrete persisted colors without migration`() {
-        val colors = listOf(
-            0x010203,
-            0x102030,
-            0x203040,
-            0xA0B0C0,
-            0x000000,
-            0xFFFFFF,
-        )
+        val colors =
+            listOf(
+                0x010203,
+                0x102030,
+                0x203040,
+                0xA0B0C0,
+                0x000000,
+                0xFFFFFF,
+            )
 
         assertThat(StoredColorFormat.validatedColors(colors)).isEqualTo(colors)
         assertThat(StoredColorFormat.validatedColors(colors)).isNotSameAs(colors)
@@ -57,8 +58,7 @@ class StoredColorFormatTest {
             .isThrownBy { StoredColorFormat.storedColor(0x01000000) }
     }
 
-    private fun List<Int>.updated(index: Int, value: Int): List<Int> =
-        mapIndexed { currentIndex, currentValue ->
-            if (currentIndex == index) value else currentValue
-        }
+    private fun List<Int>.updated(index: Int, value: Int): List<Int> = mapIndexed { currentIndex, currentValue ->
+        if (currentIndex == index) value else currentValue
+    }
 }

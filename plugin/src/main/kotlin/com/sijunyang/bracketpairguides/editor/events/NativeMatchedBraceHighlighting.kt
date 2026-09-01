@@ -31,7 +31,9 @@ internal class NativeMatchedBraceHighlighting internal constructor(
     ) -> Unit,
 ) : SerializablePersistentStateComponent<NativeMatchedBraceHighlighting.OwnershipState>(
     OwnershipState(),
-), Disposable, AppLifecycleListener {
+),
+    Disposable,
+    AppLifecycleListener {
     @Suppress("unused")
     constructor() : this(
         nativeSetting = IntelliJMatchedBraceSetting,
@@ -118,17 +120,14 @@ internal class NativeMatchedBraceHighlighting internal constructor(
         updateState { OwnershipState() }
     }
 
-    internal data class OwnershipState(
-        @JvmField @field:Property val restoreValue: Boolean? = null,
-    )
+    internal data class OwnershipState(@JvmField @field:Property val restoreValue: Boolean? = null)
 
     companion object {
         private val PLUGIN_ID = PluginId.getId("com.sijunyang.bracketpairguides")
 
-        fun getInstance(): NativeMatchedBraceHighlighting =
-            ApplicationManager.getApplication().getService(
-                NativeMatchedBraceHighlighting::class.java,
-            )
+        fun getInstance(): NativeMatchedBraceHighlighting = ApplicationManager.getApplication().getService(
+            NativeMatchedBraceHighlighting::class.java,
+        )
 
         private fun recordExternalOverride() {
             val settings = BracketGuideSettings.getInstance()

@@ -70,10 +70,7 @@ jobs:
           cache-read-only: true
 
       - name: Run Tests
-        run: >-
-          ./gradlew
-          :plugin:check
-          :benchmarks:jmhJar
+        run: ./gradlew check
 
       - name: Collect Failed Test Reports
         if: ${{ failure() }}

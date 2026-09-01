@@ -1,7 +1,7 @@
 package com.sijunyang.bracketpairguides.editor.events
 
-import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
 import com.intellij.openapi.editor.impl.DocumentMarkupModel
 import com.intellij.openapi.editor.markup.HighlighterLayer
@@ -82,16 +82,18 @@ internal class StickyLineRefreshEventTest : BracketGuideHighlightingFixture() {
         )
         assertThat(bracketColorHighlighters()).isEmpty()
 
-        val markup = checkNotNull(
-            DocumentMarkupModel.forDocument(editor.document, project, true),
-        )
-        val marker = markup.addRangeHighlighter(
-            TextAttributesKey.createTextAttributesKey("STICKY_LINE_MARKER"),
-            90,
-            1_000,
-            HighlighterLayer.SYNTAX,
-            HighlighterTargetArea.EXACT_RANGE,
-        )
+        val markup =
+            checkNotNull(
+                DocumentMarkupModel.forDocument(editor.document, project, true),
+            )
+        val marker =
+            markup.addRangeHighlighter(
+                TextAttributesKey.createTextAttributesKey("STICKY_LINE_MARKER"),
+                90,
+                1_000,
+                HighlighterLayer.SYNTAX,
+                HighlighterTargetArea.EXACT_RANGE,
+            )
         try {
             stickyRanges = listOf(TextRange(90, 120))
             PlatformTestUtil.waitWithEventsDispatching(

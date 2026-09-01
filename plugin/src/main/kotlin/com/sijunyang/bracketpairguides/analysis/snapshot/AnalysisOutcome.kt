@@ -8,9 +8,7 @@ internal sealed interface AnalysisOutcome {
     val stamp: AnalysisStamp
 
     /** All facets requested by the stamp are available in [snapshot]. */
-    class Complete(
-        val snapshot: BracketSnapshot,
-    ) : AnalysisOutcome {
+    class Complete(val snapshot: BracketSnapshot) : AnalysisOutcome {
         override val stamp: AnalysisStamp
             get() = snapshot.stamp
     }
@@ -19,11 +17,8 @@ internal sealed interface AnalysisOutcome {
      * [snapshot] contains every requested facet except the one rejected by
      * [limit]. The attempted [stamp] prevents repeated work for the same input.
      */
-    class Limited(
-        override val stamp: AnalysisStamp,
-        val snapshot: BracketSnapshot,
-        val limit: AnalysisLimit,
-    ) : AnalysisOutcome {
+    class Limited(override val stamp: AnalysisStamp, val snapshot: BracketSnapshot, val limit: AnalysisLimit) :
+        AnalysisOutcome {
         init {
             require(limit == AnalysisLimit.GUIDE_CAPACITY) {
                 "Only guide capacity can publish a lower-facet snapshot"
@@ -41,10 +36,7 @@ internal sealed interface AnalysisOutcome {
     }
 
     /** No snapshot is published because completing it would cross [limit]. */
-    class Unavailable(
-        override val stamp: AnalysisStamp,
-        val limit: AnalysisLimit,
-    ) : AnalysisOutcome {
+    class Unavailable(override val stamp: AnalysisStamp, val limit: AnalysisLimit) : AnalysisOutcome {
         init {
             require(limit != AnalysisLimit.GUIDE_CAPACITY) {
                 "Guide capacity must preserve exact lower facets"

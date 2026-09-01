@@ -9,15 +9,15 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
-import com.sijunyang.bracketpairguides.analysis.requireSnapshot
 import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
+import com.sijunyang.bracketpairguides.analysis.requireSnapshot
 import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.snapshot.TokenWindow
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPass
+import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
 import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
-import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import org.assertj.core.api.Assertions.assertThat
 
@@ -73,8 +73,7 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         assertThat(pairCount)
             .describedAs(
                 "$fileName should contain at least $minimumPairCount pairs, but had $pairCount",
-            )
-            .isGreaterThanOrEqualTo(minimumPairCount)
+            ).isGreaterThanOrEqualTo(minimumPairCount)
         firstTokenValues.forEachIndexed { index, token ->
             assertThat(token.offset)
                 .describedAs("$fileName token $index has an invalid offset")
@@ -93,13 +92,14 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
                 .isLessThan(pairCount)
         }
 
-        val pass = BracketGuideHighlightingPass(
-            project = project,
-            editor = editor,
-            fileType = file.fileType,
-            sourceFile = file.virtualFile,
-            analyze = service<BracketAnalysis>()::analyze,
-        )
+        val pass =
+            BracketGuideHighlightingPass(
+                project = project,
+                editor = editor,
+                fileType = file.fileType,
+                sourceFile = file.virtualFile,
+                analyze = service<BracketAnalysis>()::analyze,
+            )
         editor.caretModel.moveToOffset(firstTokens.offsetAt(0) + 1)
         inReadAction {
             pass.doCollectInformation(EmptyProgressIndicator())
@@ -118,31 +118,33 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
             .describedAs("$fileName must leave optional active-pair symbol emphasis disabled")
             .isEmpty()
 
-        val emphasized = BracketGuideSettings.getInstance().options.copy(
-            showActivePairBorder = true,
-            showActivePairBackground = true,
-        )
+        val emphasized =
+            BracketGuideSettings.getInstance().options.copy(
+                showActivePairBorder = true,
+                showActivePairBackground = true,
+            )
         BracketGuideSettings.getInstance().replace(emphasized)
         session.updateOptions(
             emphasized,
             refreshColors = false,
         )
 
-        val sampledOffsets = buildSet {
-            val sections = 24
-            repeat(sections + 1) { section ->
-                add(
-                    (document.textLength.toLong() * section / sections)
-                        .toInt(),
-                )
-            }
-            firstTokenValues.indices
-                .step(maxOf(1, firstTokenValues.size / sections))
-                .take(sections)
-                .forEach { tokenIndex ->
-                    add((firstTokenValues[tokenIndex].offset + 1).coerceAtMost(document.textLength))
+        val sampledOffsets =
+            buildSet {
+                val sections = 24
+                repeat(sections + 1) { section ->
+                    add(
+                        (document.textLength.toLong() * section / sections)
+                            .toInt(),
+                    )
                 }
-        }
+                firstTokenValues.indices
+                    .step(maxOf(1, firstTokenValues.size / sections))
+                    .take(sections)
+                    .forEach { tokenIndex ->
+                        add((firstTokenValues[tokenIndex].offset + 1).coerceAtMost(document.textLength))
+                    }
+            }
         sampledOffsets.forEach { offset ->
             editor.caretModel.moveToOffset(offset)
             session.caretMoved()
@@ -154,18 +156,18 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
             assertThat(editor.observedBracketMarkup().activePairMarks)
                 .describedAs(
                     "$fileName must highlight two symbols exactly when a pair is active at $offset",
-                )
-                .hasSize(if (expected == null) 0 else 2)
+                ).hasSize(if (expected == null) 0 else 2)
         }
     }
 
-    private fun analyze(analysis: BracketAnalysis, fileType: FileType): BracketSnapshot =
-        inReadAction {
-            analysis.analyze(
+    private fun analyze(analysis: BracketAnalysis, fileType: FileType): BracketSnapshot = inReadAction {
+        analysis
+            .analyze(
                 AnalysisInput(
                     editor = myFixture.editor,
                     fileType = fileType,
-                    coverage = AnalysisCoverage(
+                    coverage =
+                    AnalysisCoverage(
                         tokens = true,
                         activePair = true,
                         guidePosition = true,
@@ -174,7 +176,7 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
                 ),
                 EmptyProgressIndicator(),
             ).requireSnapshot()
-        }
+    }
 
     private fun TokenWindow.toValues(): List<TokenValue> = List(size) { index ->
         TokenValue(
@@ -184,15 +186,9 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         )
     }
 
-    private fun <T> inReadAction(action: () -> T): T {
-        return ReadAction.compute<T, RuntimeException>(action)
-    }
+    private fun <T> inReadAction(action: () -> T): T = ReadAction.compute<T, RuntimeException>(action)
 
-    private data class TokenValue(
-        val offset: Int,
-        val length: Int,
-        val depth: Int,
-    )
+    private data class TokenValue(val offset: Int, val length: Int, val depth: Int)
 
     private companion object {
         const val TOKENS_PER_PAIR = 2

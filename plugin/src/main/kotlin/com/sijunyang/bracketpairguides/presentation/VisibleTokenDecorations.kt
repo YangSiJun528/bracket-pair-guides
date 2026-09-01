@@ -1,9 +1,5 @@
 package com.sijunyang.bracketpairguides.presentation
 
-import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
-import com.sijunyang.bracketpairguides.analysis.snapshot.TokenWindow
-import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
-import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.ex.MarkupModelEx
@@ -13,11 +9,13 @@ import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
+import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
+import com.sijunyang.bracketpairguides.analysis.snapshot.TokenWindow
+import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 
 /** EDT-owned token markup and the viewport window it represents. */
-internal class VisibleTokenDecorations(
-    private val editor: Editor,
-) {
+internal class VisibleTokenDecorations(private val editor: Editor) {
     private var windowStartOffset = 0
     private var windowEndOffset = 0
     private var stickySourceRanges: List<TextRange> = emptyList()
@@ -40,42 +38,44 @@ internal class VisibleTokenDecorations(
         val window = desiredWindow(visibleRange)
         val stickyRanges = normalizedStickySourceRanges(reportedStickySourceRanges)
         val reusable = PreviousTokenMarks(entries)
-        val selection = if (options.enabled && options.colorBracketTokens) {
-            val focusOffset = decorationFocusOffset(visibleRange)
-            if (stickyRanges.isEmpty()) {
-                createViewportEntries(
-                    analysis.visibleTokens(
-                        range = window,
-                        focusOffset = focusOffset,
-                        limit = MAX_VISIBLE_TOKEN_DECORATIONS,
-                    ),
-                    window,
-                    reusable,
-                    options,
-                )
+        val selection =
+            if (options.enabled && options.colorBracketTokens) {
+                val focusOffset = decorationFocusOffset(visibleRange)
+                if (stickyRanges.isEmpty()) {
+                    createViewportEntries(
+                        analysis.visibleTokens(
+                            range = window,
+                            focusOffset = focusOffset,
+                            limit = MAX_VISIBLE_TOKEN_DECORATIONS,
+                        ),
+                        window,
+                        reusable,
+                        options,
+                    )
+                } else {
+                    createUnionEntries(
+                        analysis,
+                        window,
+                        stickyRanges,
+                        focusOffset,
+                        reusable,
+                        options,
+                    )
+                }
             } else {
-                createUnionEntries(
-                    analysis,
-                    window,
-                    stickyRanges,
-                    focusOffset,
-                    reusable,
-                    options,
-                )
+                EntrySelection.EMPTY
             }
-        } else {
-            EntrySelection.EMPTY
-        }
         reusable.disposeRemaining()
         windowStartOffset = window.startOffset
         windowEndOffset = window.endOffset
         stickySourceRanges = stickyRanges
         entries = selection.entries
-        stickyEntries = if (stickyRanges.isEmpty()) {
-            emptyList()
-        } else {
-            selection.entries.filter(VisibleTokenEntry::stickyOnly)
-        }
+        stickyEntries =
+            if (stickyRanges.isEmpty()) {
+                emptyList()
+            } else {
+                selection.entries.filter(VisibleTokenEntry::stickyOnly)
+            }
         stableFocusStartOffset = selection.stableFocusStartOffset ?: window.startOffset
         stableFocusEndOffset = selection.stableFocusEndOffset ?: window.endOffset
         isViewportCapped = selection.isViewportCapped
@@ -142,16 +142,11 @@ internal class VisibleTokenDecorations(
     }
 
     /** A capped token slice must follow scrolling even inside its padded window. */
-    private fun canReuseFor(
-        range: TextRange,
-        stickyRanges: List<TextRange>,
-        focusOffset: Int,
-    ): Boolean {
-        return windowStartOffset <= range.startOffset &&
+    private fun canReuseFor(range: TextRange, stickyRanges: List<TextRange>, focusOffset: Int): Boolean =
+        windowStartOffset <= range.startOffset &&
             windowEndOffset >= range.endOffset &&
             stickySourceRanges == stickyRanges &&
             (!isViewportCapped || focusOffset in stableFocusStartOffset..stableFocusEndOffset)
-    }
 
     /** Keeps the ordinary viewport path allocation-equivalent to the pre-Sticky implementation. */
     private fun createViewportEntries(
@@ -168,14 +163,15 @@ internal class VisibleTokenDecorations(
             val endOffset = startOffset.toLong() + tokens.lengthAt(index)
             if (endOffset > window.startOffset && endOffset <= editor.document.textLength) {
                 val levelIndex = BracketColorPalette.levelIndex(tokens.depthAt(index))
-                entries += applyToken(
-                    reusable,
-                    startOffset,
-                    endOffset.toInt(),
-                    levelIndex,
-                    false,
-                    palette,
-                )
+                entries +=
+                    applyToken(
+                        reusable,
+                        startOffset,
+                        endOffset.toInt(),
+                        levelIndex,
+                        false,
+                        palette,
+                    )
             }
             index++
         }
@@ -196,23 +192,25 @@ internal class VisibleTokenDecorations(
         reusable: PreviousTokenMarks,
         options: BracketGuidePreferences,
     ): EntrySelection {
-        val selection = selectTokens(
-            analysis = analysis,
-            window = window,
-            stickyRanges = stickyRanges,
-            focusOffset = focusOffset,
-        )
+        val selection =
+            selectTokens(
+                analysis = analysis,
+                window = window,
+                stickyRanges = stickyRanges,
+                focusOffset = focusOffset,
+            )
         val palette = TokenPalette(options)
         val entries = ArrayList<VisibleTokenEntry>(selection.tokens.size)
         for ((startOffset, endOffset, levelIndex, stickyOnly) in selection.tokens) {
-            entries += applyToken(
-                reusable,
-                startOffset,
-                endOffset,
-                levelIndex,
-                stickyOnly,
-                palette,
-            )
+            entries +=
+                applyToken(
+                    reusable,
+                    startOffset,
+                    endOffset,
+                    levelIndex,
+                    stickyOnly,
+                    palette,
+                )
         }
         return EntrySelection(
             entries = entries,
@@ -240,11 +238,12 @@ internal class VisibleTokenDecorations(
             }
             val rangesRemaining = stickyRanges.size - rangeIndex
             val reservedLimit = maxOf(1, remaining / rangesRemaining)
-            val tokens = analysis.visibleTokens(
-                range = range,
-                focusOffset = range.startOffset + range.length / 2,
-                limit = reservedLimit,
-            )
+            val tokens =
+                analysis.visibleTokens(
+                    range = range,
+                    focusOffset = range.startOffset + range.length / 2,
+                    limit = reservedLimit,
+                )
             appendTokens(
                 tokens = tokens,
                 range = range,
@@ -263,18 +262,21 @@ internal class VisibleTokenDecorations(
                 stickySelectionCapped = true
                 continue
             }
-            val selectedInRange = selected.count { token ->
-                token.startOffset >= range.startOffset &&
-                    token.startOffset < range.endOffset
-            }
-            val tokens = analysis.visibleTokens(
-                range = range,
-                focusOffset = range.startOffset + range.length / 2,
-                limit = minOf(
-                    MAX_VISIBLE_TOKEN_DECORATIONS,
-                    selectedInRange + remaining,
-                ),
-            )
+            val selectedInRange =
+                selected.count { token ->
+                    token.startOffset >= range.startOffset &&
+                        token.startOffset < range.endOffset
+                }
+            val tokens =
+                analysis.visibleTokens(
+                    range = range,
+                    focusOffset = range.startOffset + range.length / 2,
+                    limit =
+                    minOf(
+                        MAX_VISIBLE_TOKEN_DECORATIONS,
+                        selectedInRange + remaining,
+                    ),
+                )
             appendTokens(
                 tokens = tokens,
                 range = range,
@@ -286,19 +288,21 @@ internal class VisibleTokenDecorations(
         }
 
         val remaining = MAX_VISIBLE_TOKEN_DECORATIONS - selected.size
-        val possibleViewportDuplicates = selected.count { token ->
-            token.startOffset >= window.startOffset &&
-                token.startOffset < window.endOffset
-        }
-        val viewportTokens = if (remaining > 0) {
-            analysis.visibleTokens(
-                range = window,
-                focusOffset = focusOffset,
-                limit = remaining + possibleViewportDuplicates,
-            )
-        } else {
-            null
-        }
+        val possibleViewportDuplicates =
+            selected.count { token ->
+                token.startOffset >= window.startOffset &&
+                    token.startOffset < window.endOffset
+            }
+        val viewportTokens =
+            if (remaining > 0) {
+                analysis.visibleTokens(
+                    range = window,
+                    focusOffset = focusOffset,
+                    limit = remaining + possibleViewportDuplicates,
+                )
+            } else {
+                null
+            }
         viewportTokens?.let { tokens ->
             appendTokens(
                 tokens = tokens,
@@ -313,18 +317,21 @@ internal class VisibleTokenDecorations(
                 .thenBy(SelectedToken::endOffset),
         )
         val viewportCapped = viewportTokens?.isCapped == true
-        val viewportTokensOmitted = viewportTokens == null &&
-            analysis.visibleTokens(
-                range = window,
-                focusOffset = focusOffset,
-                limit = 1,
-            ).size > 0
+        val viewportTokensOmitted =
+            viewportTokens == null &&
+                analysis
+                    .visibleTokens(
+                        range = window,
+                        focusOffset = focusOffset,
+                        limit = 1,
+                    ).size > 0
         return TokenSelection(
             tokens = selected,
             stableFocusStartOffset = viewportTokens?.stableFocusStartOffset,
             stableFocusEndOffset = viewportTokens?.stableFocusEndOffset,
             isViewportCapped = viewportCapped,
-            isCapped = stickySelectionCapped ||
+            isCapped =
+            stickySelectionCapped ||
                 viewportCapped ||
                 viewportTokensOmitted,
         )
@@ -349,12 +356,13 @@ internal class VisibleTokenDecorations(
                 val previousIndex = selectedRanges[tokenRange]
                 if (previousIndex == null) {
                     selectedRanges[tokenRange] = selected.size
-                    selected += SelectedToken(
-                        startOffset = startOffset,
-                        endOffset = endOffset.toInt(),
-                        levelIndex = BracketColorPalette.levelIndex(tokens.depthAt(index)),
-                        stickyOnly = stickyOnly,
-                    )
+                    selected +=
+                        SelectedToken(
+                            startOffset = startOffset,
+                            endOffset = endOffset.toInt(),
+                            levelIndex = BracketColorPalette.levelIndex(tokens.depthAt(index)),
+                            stickyOnly = stickyOnly,
+                        )
                 } else if (!stickyOnly) {
                     selected[previousIndex].stickyOnly = false
                 }
@@ -374,12 +382,13 @@ internal class VisibleTokenDecorations(
         val colorKey = BracketColorPalette.levelKey(levelIndex)
         val attributes = palette.attributes[levelIndex]
         val previous = reusable.take(startOffset, endOffset)
-        val highlighter = previous?.highlighter ?: addHighlighter(
-            colorKey,
-            startOffset,
-            endOffset,
-            attributes,
-        )
+        val highlighter =
+            previous?.highlighter ?: addHighlighter(
+                colorKey,
+                startOffset,
+                endOffset,
+                attributes,
+            )
         if (previous != null &&
             (previous.colorKey !== colorKey || previous.attributes != attributes)
         ) {
@@ -414,15 +423,16 @@ internal class VisibleTokenDecorations(
                 highlighter.textAttributes = attributes
             }
         } else {
-            markup.addRangeHighlighter(
-                colorKey,
-                startOffset,
-                endOffset,
-                HighlighterLayer.ADDITIONAL_SYNTAX,
-                HighlighterTargetArea.EXACT_RANGE,
-            ).also { highlighter ->
-                applyPresentation(highlighter, colorKey, attributes)
-            }
+            markup
+                .addRangeHighlighter(
+                    colorKey,
+                    startOffset,
+                    endOffset,
+                    HighlighterLayer.ADDITIONAL_SYNTAX,
+                    HighlighterTargetArea.EXACT_RANGE,
+                ).also { highlighter ->
+                    applyPresentation(highlighter, colorKey, attributes)
+                }
         }
     }
 
@@ -447,39 +457,46 @@ internal class VisibleTokenDecorations(
 
     private fun normalizedVisibleRange(reported: TextRange): TextRange {
         val documentLength = editor.document.textLength
-        val caretOffset = editor.caretModel.primaryCaret.offset.coerceIn(0, documentLength)
+        val caretOffset =
+            editor.caretModel.primaryCaret.offset
+                .coerceIn(0, documentLength)
         var startOffset = reported.startOffset.coerceIn(0, documentLength)
         var endOffset = reported.endOffset.coerceIn(startOffset, documentLength)
         if (startOffset == endOffset) {
             startOffset = minOf(startOffset, caretOffset)
-            endOffset = maxOf(
-                endOffset,
-                (caretOffset.toLong() + 1)
-                    .coerceAtMost(documentLength.toLong())
-                    .toInt(),
-            )
+            endOffset =
+                maxOf(
+                    endOffset,
+                    (caretOffset.toLong() + 1)
+                        .coerceAtMost(documentLength.toLong())
+                        .toInt(),
+                )
         }
         if (endOffset - startOffset > MAX_REPORTED_VISIBLE_CHARACTERS) {
-            val anchorOffset = if (caretOffset in startOffset..endOffset) {
-                caretOffset
-            } else {
-                (startOffset.toLong() + (endOffset - startOffset) / 2)
+            val anchorOffset =
+                if (caretOffset in startOffset..endOffset) {
+                    caretOffset
+                } else {
+                    (startOffset.toLong() + (endOffset - startOffset) / 2)
+                        .coerceAtMost(documentLength.toLong())
+                        .toInt()
+                }
+            startOffset =
+                (anchorOffset - MAX_REPORTED_VISIBLE_CHARACTERS / 2)
+                    .coerceAtLeast(0)
+            endOffset =
+                (startOffset.toLong() + MAX_REPORTED_VISIBLE_CHARACTERS)
                     .coerceAtMost(documentLength.toLong())
                     .toInt()
-            }
-            startOffset = (anchorOffset - MAX_REPORTED_VISIBLE_CHARACTERS / 2)
-                .coerceAtLeast(0)
-            endOffset = (startOffset.toLong() + MAX_REPORTED_VISIBLE_CHARACTERS)
-                .coerceAtMost(documentLength.toLong())
-                .toInt()
             startOffset = (endOffset - MAX_REPORTED_VISIBLE_CHARACTERS).coerceAtLeast(0)
         }
         return TextRange(startOffset, endOffset)
     }
 
     private fun decorationFocusOffset(visible: TextRange): Int {
-        val caretOffset = editor.caretModel.primaryCaret.offset
-            .coerceIn(0, editor.document.textLength)
+        val caretOffset =
+            editor.caretModel.primaryCaret.offset
+                .coerceIn(0, editor.document.textLength)
         return if (caretOffset in visible.startOffset..visible.endOffset) {
             caretOffset
         } else {
@@ -488,10 +505,11 @@ internal class VisibleTokenDecorations(
     }
 
     private fun desiredWindow(visible: TextRange): TextRange {
-        val padding = maxOf(
-            MIN_TOKEN_WINDOW_PADDING,
-            minOf(visible.length, MAX_TOKEN_WINDOW_PADDING),
-        )
+        val padding =
+            maxOf(
+                MIN_TOKEN_WINDOW_PADDING,
+                minOf(visible.length, MAX_TOKEN_WINDOW_PADDING),
+            )
         return TextRange(
             (visible.startOffset - padding).coerceAtLeast(0),
             (visible.endOffset.toLong() + padding)
@@ -503,24 +521,27 @@ internal class VisibleTokenDecorations(
     private fun normalizedStickySourceRanges(reported: List<TextRange>): List<TextRange> {
         if (reported.isEmpty()) return emptyList()
         val documentLength = editor.document.textLength
-        val sorted = reported.mapNotNull { range ->
-            val startOffset = range.startOffset.coerceIn(0, documentLength)
-            val endOffset = range.endOffset.coerceIn(startOffset, documentLength)
-            TextRange(startOffset, endOffset).takeUnless(TextRange::isEmpty)
-        }.sortedWith(
-            compareBy(TextRange::getStartOffset)
-                .thenBy(TextRange::getEndOffset),
-        )
+        val sorted =
+            reported
+                .mapNotNull { range ->
+                    val startOffset = range.startOffset.coerceIn(0, documentLength)
+                    val endOffset = range.endOffset.coerceIn(startOffset, documentLength)
+                    TextRange(startOffset, endOffset).takeUnless(TextRange::isEmpty)
+                }.sortedWith(
+                    compareBy(TextRange::getStartOffset)
+                        .thenBy(TextRange::getEndOffset),
+                )
         if (sorted.isEmpty()) return emptyList()
 
         val merged = ArrayList<TextRange>(sorted.size)
         for (range in sorted) {
             val previous = merged.lastOrNull()
             if (previous != null && range.startOffset <= previous.endOffset) {
-                merged[merged.lastIndex] = TextRange(
-                    previous.startOffset,
-                    maxOf(previous.endOffset, range.endOffset),
-                )
+                merged[merged.lastIndex] =
+                    TextRange(
+                        previous.startOffset,
+                        maxOf(previous.endOffset, range.endOffset),
+                    )
             } else {
                 merged += range
             }
@@ -544,9 +565,10 @@ internal class VisibleTokenDecorations(
     )
 
     private class TokenPalette(options: BracketGuidePreferences) {
-        val attributes = Array(StoredColorFormat.COLOR_COUNT) { level ->
-            BracketColorPalette.bracketTextAttributes(options, level)
-        }
+        val attributes =
+            Array(StoredColorFormat.COLOR_COUNT) { level ->
+                BracketColorPalette.bracketTextAttributes(options, level)
+            }
     }
 
     private data class SelectedToken(
@@ -556,10 +578,7 @@ internal class VisibleTokenDecorations(
         var stickyOnly: Boolean,
     )
 
-    private data class TokenRange(
-        val startOffset: Int,
-        val endOffset: Int,
-    )
+    private data class TokenRange(val startOffset: Int, val endOffset: Int)
 
     private data class TokenSelection(
         val tokens: List<SelectedToken>,
@@ -594,12 +613,13 @@ internal class VisibleTokenDecorations(
                     index++
                     continue
                 }
-                val comparison = compareRange(
-                    highlighter.startOffset,
-                    highlighter.endOffset,
-                    startOffset,
-                    endOffset,
-                )
+                val comparison =
+                    compareRange(
+                        highlighter.startOffset,
+                        highlighter.endOffset,
+                        startOffset,
+                        endOffset,
+                    )
                 if (comparison < 0) {
                     highlighter.dispose()
                     index++
@@ -619,12 +639,7 @@ internal class VisibleTokenDecorations(
             }
         }
 
-        private fun compareRange(
-            firstStart: Int,
-            firstEnd: Int,
-            secondStart: Int,
-            secondEnd: Int,
-        ): Int {
+        private fun compareRange(firstStart: Int, firstEnd: Int, secondStart: Int, secondEnd: Int): Int {
             val startComparison = firstStart.compareTo(secondStart)
             return if (startComparison != 0) startComparison else firstEnd.compareTo(secondEnd)
         }

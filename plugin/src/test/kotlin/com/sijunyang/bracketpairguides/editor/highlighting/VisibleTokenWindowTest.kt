@@ -1,11 +1,11 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
+import com.intellij.openapi.util.TextRange
+import com.intellij.testFramework.PlatformTestUtil
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.presentation.BracketColorPalette
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
-import com.intellij.openapi.util.TextRange
-import com.intellij.testFramework.PlatformTestUtil
 import org.assertj.core.api.Assertions.assertThat
 import java.awt.Color
 
@@ -46,10 +46,11 @@ internal class VisibleTokenWindowTest : BracketGuideHighlightingFixture() {
     fun testStickyRangesAreRemovedAndDeduplicatedWithTheViewport() {
         val source = " ".repeat(20_000)
         myFixture.configureByText("StickyLifecycle.txt", source)
-        val pairs = listOf(
-            BracketPair(100, 1, 3_000, 1, 0, 0, 0),
-            BracketPair(1_000, 1, 2_000, 1, 1, 0, 0),
-        )
+        val pairs =
+            listOf(
+                BracketPair(100, 1, 3_000, 1, 0, 0, 0),
+                BracketPair(1_000, 1, 2_000, 1, 1, 0, 0),
+            )
         var visibleRange = TextRange(10_000, 10_256)
         var stickyRanges = listOf(TextRange(90, 120), TextRange(990, 1_020))
 
@@ -181,9 +182,10 @@ internal class VisibleTokenWindowTest : BracketGuideHighlightingFixture() {
             highlighter.textAttributesKey == BracketColorPalette.levelKey(1)
         }
 
-        val recoloredOptions = enabled.copy(
-            levelBaseColors = enabled.levelBaseColors.updated(1, 0x123456),
-        )
+        val recoloredOptions =
+            enabled.copy(
+                levelBaseColors = enabled.levelBaseColors.updated(1, 0x123456),
+            )
         applyOptions(recoloredOptions)
         val recolored = bracketColorHighlighters()
         assertThat(recolored).containsExactlyElementsOf(initiallyVisible)
@@ -230,17 +232,18 @@ internal class VisibleTokenWindowTest : BracketGuideHighlightingFixture() {
         myFixture.configureByText("Viewport.txt", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(1)
-        val recognizedPairs = List(pairCount) { index ->
-            BracketPair(
-                openOffset = index * 2,
-                openTokenLength = 1,
-                closeOffset = index * 2 + 1,
-                closeTokenLength = 1,
-                depth = 0,
-                openLine = 0,
-                closeLine = 0,
-            )
-        }
+        val recognizedPairs =
+            List(pairCount) { index ->
+                BracketPair(
+                    openOffset = index * 2,
+                    openTokenLength = 1,
+                    closeOffset = index * 2 + 1,
+                    closeTokenLength = 1,
+                    depth = 0,
+                    openLine = 0,
+                    closeLine = 0,
+                )
+            }
         var collections = 0
         var visibleRange = TextRange(0, 256)
         val pairs = {
@@ -272,17 +275,18 @@ internal class VisibleTokenWindowTest : BracketGuideHighlightingFixture() {
         myFixture.configureByText("DenseViewport.txt", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(1)
-        val pairs = List(pairCount) { index ->
-            BracketPair(
-                openOffset = index * 2,
-                openTokenLength = 1,
-                closeOffset = index * 2 + 1,
-                closeTokenLength = 1,
-                depth = 0,
-                openLine = 0,
-                closeLine = 0,
-            )
-        }
+        val pairs =
+            List(pairCount) { index ->
+                BracketPair(
+                    openOffset = index * 2,
+                    openTokenLength = 1,
+                    closeOffset = index * 2 + 1,
+                    closeTokenLength = 1,
+                    depth = 0,
+                    openLine = 0,
+                    closeLine = 0,
+                )
+            }
 
         applyPass({ pairs }) {
             TextRange(50_000, source.length)
@@ -302,17 +306,18 @@ internal class VisibleTokenWindowTest : BracketGuideHighlightingFixture() {
         myFixture.configureByText("DenseViewportScroll.txt", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(1)
-        val pairs = List(pairCount) { index ->
-            BracketPair(
-                openOffset = index * 2,
-                openTokenLength = 1,
-                closeOffset = index * 2 + 1,
-                closeTokenLength = 1,
-                depth = 0,
-                openLine = 0,
-                closeLine = 0,
-            )
-        }
+        val pairs =
+            List(pairCount) { index ->
+                BracketPair(
+                    openOffset = index * 2,
+                    openTokenLength = 1,
+                    closeOffset = index * 2 + 1,
+                    closeTokenLength = 1,
+                    depth = 0,
+                    openLine = 0,
+                    closeLine = 0,
+                )
+            }
         var visibleRange = TextRange(20_000, 36_384)
 
         applyPass({ pairs }) { visibleRange }
@@ -339,17 +344,18 @@ internal class VisibleTokenWindowTest : BracketGuideHighlightingFixture() {
         myFixture.configureByText("DenseViewportCaret.txt", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(1)
-        val pairs = List(pairCount) { index ->
-            BracketPair(
-                openOffset = index * 2,
-                openTokenLength = 1,
-                closeOffset = index * 2 + 1,
-                closeTokenLength = 1,
-                depth = 0,
-                openLine = 0,
-                closeLine = 0,
-            )
-        }
+        val pairs =
+            List(pairCount) { index ->
+                BracketPair(
+                    openOffset = index * 2,
+                    openTokenLength = 1,
+                    closeOffset = index * 2 + 1,
+                    closeTokenLength = 1,
+                    depth = 0,
+                    openLine = 0,
+                    closeLine = 0,
+                )
+            }
 
         var viewportRequests = 0
         applyPass({ pairs }) {
@@ -369,7 +375,8 @@ internal class VisibleTokenWindowTest : BracketGuideHighlightingFixture() {
         PlatformTestUtil.waitWithEventsDispatching(
             "capped token window follows caret",
             {
-                bracketColorHighlighters().minOfOrNull { it.startOffset }
+                bracketColorHighlighters()
+                    .minOfOrNull { it.startOffset }
                     ?.let { it > initialLastOffset } == true &&
                     viewportRequests == initialViewportRequests + 1
             },

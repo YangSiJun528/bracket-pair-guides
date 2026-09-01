@@ -10,11 +10,12 @@ import kotlin.random.Random
 class BracketTokenIndexTest {
     @Test
     fun `sorts both endpoints and selects only an overlapping viewport`() {
-        val pairs = listOf(
-            pair(open = 0, close = 100, depth = 0),
-            pair(open = 10, close = 20, depth = 1),
-            pair(open = 30, close = 40, depth = 1),
-        )
+        val pairs =
+            listOf(
+                pair(open = 0, close = 100, depth = 0),
+                pair(open = 10, close = 20, depth = 1),
+                pair(open = 30, close = 40, depth = 1),
+            )
         val index = BracketTokenIndex.build(pairs.toPairTable(), NO_CANCELLATION)
 
         assertThat(index.tokenCount).isEqualTo(6)
@@ -28,19 +29,21 @@ class BracketTokenIndexTest {
 
     @Test
     fun `includes a token that begins before the viewport and overlaps it`() {
-        val pair = BracketPair(
-            openOffset = 2,
-            openTokenLength = 8,
-            closeOffset = 30,
-            closeTokenLength = 1,
-            depth = 0,
-            openLine = 0,
-            closeLine = 0,
-        )
-        val index = BracketTokenIndex.build(
-            listOf(pair).toPairTable(),
-            NO_CANCELLATION,
-        )
+        val pair =
+            BracketPair(
+                openOffset = 2,
+                openTokenLength = 8,
+                closeOffset = 30,
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 0,
+            )
+        val index =
+            BracketTokenIndex.build(
+                listOf(pair).toPairTable(),
+                NO_CANCELLATION,
+            )
 
         assertThat(index.firstIndexInRange(8)).isZero()
     }
@@ -48,20 +51,22 @@ class BracketTokenIndexTest {
     @Test
     fun `ignores both endpoints of a structurally invalid pair`() {
         val valid = pair(open = 0, close = 100, depth = 0)
-        val invalid = BracketPair(
-            openOffset = 10,
-            openTokenLength = 1,
-            closeOffset = -1,
-            closeTokenLength = 100,
-            depth = 1,
-            openLine = 0,
-            closeLine = 0,
-        )
+        val invalid =
+            BracketPair(
+                openOffset = 10,
+                openTokenLength = 1,
+                closeOffset = -1,
+                closeTokenLength = 100,
+                depth = 1,
+                openLine = 0,
+                closeLine = 0,
+            )
 
-        val index = BracketTokenIndex.build(
-            listOf(valid, invalid).toPairTable(),
-            NO_CANCELLATION,
-        )
+        val index =
+            BracketTokenIndex.build(
+                listOf(valid, invalid).toPairTable(),
+                NO_CANCELLATION,
+            )
 
         assertThat(index.tokenCount).isEqualTo(2)
         assertThat(index.firstIndexInRange(9)).isEqualTo(index.firstIndexAtOrAfter(11))
@@ -69,12 +74,13 @@ class BracketTokenIndexTest {
 
     @Test
     fun `detached index preserves every token metadata field`() {
-        val pairs = listOf(
-            BracketPair(0, 2, 4, 3, Int.MIN_VALUE, 0, 0),
-            BracketPair(4, 1, 9, 2, Int.MAX_VALUE, 0, 0),
-            BracketPair(6, 0, 8, 1, 17, 0, 0),
-            BracketPair(4, 2, 9, 1, -1, 0, 0),
-        )
+        val pairs =
+            listOf(
+                BracketPair(0, 2, 4, 3, Int.MIN_VALUE, 0, 0),
+                BracketPair(4, 1, 9, 2, Int.MAX_VALUE, 0, 0),
+                BracketPair(6, 0, 8, 1, 17, 0, 0),
+                BracketPair(4, 2, 9, 1, -1, 0, 0),
+            )
 
         val pairTable = pairs.toPairTable()
         val index = BracketTokenIndex.buildDetached(pairTable, NO_CANCELLATION)
@@ -89,27 +95,30 @@ class BracketTokenIndexTest {
 
     @Test
     fun `content equality compares the complete observable token sequence`() {
-        val first = BracketTokenIndex.buildDetached(
-            listOf(
-                pair(open = 0, close = 10, depth = 0),
-                pair(open = 2, close = 8, depth = 0),
-            ).toPairTable(),
-            NO_CANCELLATION,
-        )
-        val sameTokensWithDifferentPairs = BracketTokenIndex.buildDetached(
-            listOf(
-                pair(open = 0, close = 8, depth = 0),
-                pair(open = 2, close = 10, depth = 0),
-            ).toPairTable(),
-            NO_CANCELLATION,
-        )
-        val differentDepth = BracketTokenIndex.buildDetached(
-            listOf(
-                pair(open = 0, close = 10, depth = 1),
-                pair(open = 2, close = 8, depth = 0),
-            ).toPairTable(),
-            NO_CANCELLATION,
-        )
+        val first =
+            BracketTokenIndex.buildDetached(
+                listOf(
+                    pair(open = 0, close = 10, depth = 0),
+                    pair(open = 2, close = 8, depth = 0),
+                ).toPairTable(),
+                NO_CANCELLATION,
+            )
+        val sameTokensWithDifferentPairs =
+            BracketTokenIndex.buildDetached(
+                listOf(
+                    pair(open = 0, close = 8, depth = 0),
+                    pair(open = 2, close = 10, depth = 0),
+                ).toPairTable(),
+                NO_CANCELLATION,
+            )
+        val differentDepth =
+            BracketTokenIndex.buildDetached(
+                listOf(
+                    pair(open = 0, close = 10, depth = 1),
+                    pair(open = 2, close = 8, depth = 0),
+                ).toPairTable(),
+                NO_CANCELLATION,
+            )
 
         assertThat(first.hasSameContent(sameTokensWithDifferentPairs, NO_CANCELLATION)).isTrue()
         assertThat(first.hasSameContent(differentDepth, NO_CANCELLATION)).isFalse()
@@ -117,9 +126,10 @@ class BracketTokenIndexTest {
 
     @Test
     fun `content equality checks cancellation during a large exact comparison`() {
-        val pairs = List(300) { index ->
-            pair(open = index * 2, close = index * 2 + 1, depth = index)
-        }.toPairTable()
+        val pairs =
+            List(300) { index ->
+                pair(open = index * 2, close = index * 2 + 1, depth = index)
+            }.toPairTable()
         val first = BracketTokenIndex.buildDetached(pairs, NO_CANCELLATION)
         val second = BracketTokenIndex.buildDetached(pairs, NO_CANCELLATION)
         var checks = 0
@@ -136,85 +146,95 @@ class BracketTokenIndexTest {
         val random = Random(0x70C3_11DE)
 
         repeat(40) { sample ->
-            val baseOffset = if (sample and 1 == 0) {
-                0
-            } else {
-                Int.MAX_VALUE - RELATIVE_OFFSET_LIMIT
-            }
-            val pairs = MutableList(80) { pairIndex ->
-                val openRelative = random.nextInt(0, 800)
-                val openLength = random.nextInt(1, 9)
-                val closeRelative = random.nextInt(openRelative + openLength, 950)
-                val closeLength = random.nextInt(
-                    from = 1,
-                    until = minOf(9, RELATIVE_OFFSET_LIMIT - closeRelative + 1),
-                )
-                BracketPair(
-                    openOffset = baseOffset + openRelative,
-                    openTokenLength = openLength,
-                    closeOffset = baseOffset + closeRelative,
-                    closeTokenLength = closeLength,
-                    depth = pairIndex,
-                    openLine = 0,
-                    closeLine = 0,
-                )
-            }
+            val baseOffset =
+                if (sample and 1 == 0) {
+                    0
+                } else {
+                    Int.MAX_VALUE - RELATIVE_OFFSET_LIMIT
+                }
+            val pairs =
+                MutableList(80) { pairIndex ->
+                    val openRelative = random.nextInt(0, 800)
+                    val openLength = random.nextInt(1, 9)
+                    val closeRelative = random.nextInt(openRelative + openLength, 950)
+                    val closeLength =
+                        random.nextInt(
+                            from = 1,
+                            until = minOf(9, RELATIVE_OFFSET_LIMIT - closeRelative + 1),
+                        )
+                    BracketPair(
+                        openOffset = baseOffset + openRelative,
+                        openTokenLength = openLength,
+                        closeOffset = baseOffset + closeRelative,
+                        closeTokenLength = closeLength,
+                        depth = pairIndex,
+                        openLine = 0,
+                        closeLine = 0,
+                    )
+                }
             if (baseOffset != 0) {
-                pairs += BracketPair(
-                    openOffset = Int.MAX_VALUE - 4,
-                    openTokenLength = 1,
-                    closeOffset = Int.MAX_VALUE - 3,
-                    closeTokenLength = 3,
-                    depth = pairs.size,
-                    openLine = 0,
-                    closeLine = 0,
-                )
+                pairs +=
+                    BracketPair(
+                        openOffset = Int.MAX_VALUE - 4,
+                        openTokenLength = 1,
+                        closeOffset = Int.MAX_VALUE - 3,
+                        closeTokenLength = 3,
+                        depth = pairs.size,
+                        openLine = 0,
+                        closeLine = 0,
+                    )
             }
             pairs += malformedPairs(baseOffset, pairs.size)
 
-            val expected = pairs.flatMapIndexed { pairIndex, pair ->
-                if (!isWellFormed(pair)) {
-                    emptyList()
-                } else {
-                    listOf(
-                        ExpectedToken(
-                            offset = pair.openOffset,
-                            length = pair.openTokenLength,
-                            depth = pair.depth,
-                            pairIndex = pairIndex,
-                            tokenKind = OPEN_TOKEN,
-                        ),
-                        ExpectedToken(
-                            offset = pair.closeOffset,
-                            length = pair.closeTokenLength,
-                            depth = pair.depth,
-                            pairIndex = pairIndex,
-                            tokenKind = CLOSE_TOKEN,
+            val expected =
+                pairs
+                    .flatMapIndexed { pairIndex, pair ->
+                        if (!isWellFormed(pair)) {
+                            emptyList()
+                        } else {
+                            listOf(
+                                ExpectedToken(
+                                    offset = pair.openOffset,
+                                    length = pair.openTokenLength,
+                                    depth = pair.depth,
+                                    pairIndex = pairIndex,
+                                    tokenKind = OPEN_TOKEN,
+                                ),
+                                ExpectedToken(
+                                    offset = pair.closeOffset,
+                                    length = pair.closeTokenLength,
+                                    depth = pair.depth,
+                                    pairIndex = pairIndex,
+                                    tokenKind = CLOSE_TOKEN,
+                                ),
+                            )
+                        }
+                    }.sortedWith(
+                        compareBy(
+                            ExpectedToken::offset,
+                            ExpectedToken::pairIndex,
+                            ExpectedToken::tokenKind,
                         ),
                     )
-                }
-            }.sortedWith(
-                compareBy(
-                    ExpectedToken::offset,
-                    ExpectedToken::pairIndex,
-                    ExpectedToken::tokenKind,
-                ),
-            )
-            val index = BracketTokenIndex.build(
-                pairs.toPairTable(),
-                NO_CANCELLATION,
-            )
+            val index =
+                BracketTokenIndex.build(
+                    pairs.toPairTable(),
+                    NO_CANCELLATION,
+                )
 
             assertThat(index.tokenCount)
                 .describedAs("sample=%s", sample)
                 .isEqualTo(expected.size)
             expected.forEachIndexed { tokenIndex, token ->
                 val message = "sample=$sample token=$tokenIndex"
-                assertThat(index.offsetAt(tokenIndex)).describedAs("%s offset", message)
+                assertThat(index.offsetAt(tokenIndex))
+                    .describedAs("%s offset", message)
                     .isEqualTo(token.offset)
-                assertThat(index.lengthAt(tokenIndex)).describedAs("%s length", message)
+                assertThat(index.lengthAt(tokenIndex))
+                    .describedAs("%s length", message)
                     .isEqualTo(token.length)
-                assertThat(index.depthAt(tokenIndex)).describedAs("%s depth", message)
+                assertThat(index.depthAt(tokenIndex))
+                    .describedAs("%s depth", message)
                     .isEqualTo(token.depth)
             }
 
@@ -222,9 +242,11 @@ class BracketTokenIndexTest {
                 val startRelative = random.nextInt(0, RELATIVE_OFFSET_LIMIT)
                 val startOffset = baseOffset + startRelative
                 val firstAtOrAfter = index.firstIndexAtOrAfter(startOffset)
-                val expectedFirstAtOrAfter = expected.indexOfFirst { it.offset >= startOffset }
-                    .takeIf { it >= 0 }
-                    ?: expected.size
+                val expectedFirstAtOrAfter =
+                    expected
+                        .indexOfFirst { it.offset >= startOffset }
+                        .takeIf { it >= 0 }
+                        ?: expected.size
                 assertThat(firstAtOrAfter)
                     .describedAs("sample=%s viewport=%s lower bound", sample, viewport)
                     .isEqualTo(expectedFirstAtOrAfter)
@@ -246,9 +268,7 @@ class BracketTokenIndexTest {
         }
     }
 
-    private fun pair(open: Int, close: Int, depth: Int): BracketPair {
-        return BracketPair(open, 1, close, 1, depth, 0, 0)
-    }
+    private fun pair(open: Int, close: Int, depth: Int): BracketPair = BracketPair(open, 1, close, 1, depth, 0, 0)
 
     private fun BracketTokenIndex.values(read: BracketTokenIndex.(Int) -> Int): List<Int> =
         List(tokenCount) { index -> read(index) }

@@ -15,9 +15,10 @@ class IndexLayoutTest {
 
     @Test
     fun `token metadata stays attached to retained active pairs`() {
-        val plan = IndexLayout.forCoverage(
-            coverage(tokens = true, activePair = true),
-        )
+        val plan =
+            IndexLayout.forCoverage(
+                coverage(tokens = true, activePair = true),
+            )
 
         assertThat(plan.activePair).isTrue()
         assertThat(plan.tokenStorage).isEqualTo(TokenStorage.ATTACHED)
@@ -30,10 +31,7 @@ class IndexLayoutTest {
         assertThat(plan.tokenStorage).isEqualTo(TokenStorage.NONE)
     }
 
-    private fun coverage(
-        tokens: Boolean = false,
-        activePair: Boolean = false,
-    ): AnalysisCoverage = AnalysisCoverage(
+    private fun coverage(tokens: Boolean = false, activePair: Boolean = false): AnalysisCoverage = AnalysisCoverage(
         tokens = tokens,
         activePair = activePair,
         guidePosition = false,

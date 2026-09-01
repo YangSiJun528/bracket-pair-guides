@@ -24,8 +24,8 @@ import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
 /**
- * Compares how soon each implementation returns after cancellation is requested.
- * The JDK sort can observe cancellation only after its monolithic sort returns.
+ * Compares how soon each implementation returns after cancellation is requested. The JDK sort can
+ * observe cancellation only after its monolithic sort returns.
  */
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -33,89 +33,96 @@ import org.openjdk.jmh.annotations.Warmup;
 @Measurement(iterations = 3, time = 1)
 @State(Scope.Thread)
 public class LongArraySortCancellationBenchmark {
-  @Param({"200000", "1000000", "2000000"})
-  public int size;
+    @Param({"200000", "1000000", "2000000"})
+    public int size;
 
-  @Param({"1"})
-  public long cancellationDelayMillis;
+    @Param({"1"})
+    public long cancellationDelayMillis;
 
-  private long[] baseline;
-  private long[] working;
-  private AtomicBoolean cancellationRequested;
-  private ExecutorService cancellationExecutor;
+    private long[] baseline;
+    private long[] working;
+    private AtomicBoolean cancellationRequested;
+    private ExecutorService cancellationExecutor;
 
-  @Setup(Level.Trial)
-  public void createState() {
-    baseline = LongArraySamples.create(size, "pair-events");
-    cancellationRequested = new AtomicBoolean();
-    cancellationExecutor = Executors.newSingleThreadExecutor(runnable -> {
-      Thread thread = new Thread(runnable, "sort-benchmark-canceller");
-      thread.setDaemon(true);
-      return thread;
-    });
-  }
-
-  @Setup(Level.Invocation)
-  public void copyInput() {
-    working = baseline.clone();
-    cancellationRequested.set(false);
-  }
-
-  @TearDown(Level.Trial)
-  public void disposeState() {
-    cancellationExecutor.shutdownNow();
-  }
-
-  @Benchmark
-  public long jdkSortObservesCancellationAfterSort() throws Exception {
-    Future<?> cancellation = requestCancellation();
-    Arrays.sort(working);
-    cancellation.get();
-    if (!cancellationRequested.get()) {
-      throw new AssertionError("Cancellation was not requested");
+    @Setup(Level.Trial)
+    public void createState() {
+        baseline = LongArraySamples.create(size, "pair-events");
+        cancellationRequested = new AtomicBoolean();
+        cancellationExecutor =
+                Executors.newSingleThreadExecutor(
+                        runnable -> {
+                            Thread thread = new Thread(runnable, "sort-benchmark-canceller");
+                            thread.setDaemon(true);
+                            return thread;
+                        });
     }
-    return working[0];
-  }
 
-  @Benchmark
-  @SuppressWarnings("KotlinInternalInJava") // Intentional benchmark-only production probe.
-  public long productionSortStopsCooperatively() throws Exception {
-    Future<?> cancellation = requestCancellation();
-    try {
-      CancellableLongArraySortKt.sortCancellable(working, () -> {
-        if (cancellationRequested.get()) {
-          throw BenchmarkCancellation.INSTANCE;
+    @Setup(Level.Invocation)
+    public void copyInput() {
+        working = baseline.clone();
+        cancellationRequested.set(false);
+    }
+
+    @TearDown(Level.Trial)
+    public void disposeState() {
+        cancellationExecutor.shutdownNow();
+    }
+
+    @Benchmark
+    public long jdkSortObservesCancellationAfterSort() throws Exception {
+        Future<?> cancellation = requestCancellation();
+        Arrays.sort(working);
+        cancellation.get();
+        if (!cancellationRequested.get()) {
+            throw new AssertionError("Cancellation was not requested");
         }
-        return Unit.INSTANCE;
-      });
-    } catch (BenchmarkCancellation expected) {
-      // Expected after the canceller publishes the request.
+        return working[0];
     }
-    cancellation.get();
-    return working[0];
-  }
 
-  private Future<?> requestCancellation() {
-    CountDownLatch started = new CountDownLatch(1);
-    Future<?> cancellation = cancellationExecutor.submit(() -> {
-      started.countDown();
-      LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(cancellationDelayMillis));
-      cancellationRequested.set(true);
-    });
-    try {
-      started.await();
-    } catch (InterruptedException exception) {
-      Thread.currentThread().interrupt();
-      throw new IllegalStateException("Interrupted before benchmark sorting", exception);
+    @Benchmark
+    @SuppressWarnings("KotlinInternalInJava") // Intentional benchmark-only production probe.
+    public long productionSortStopsCooperatively() throws Exception {
+        Future<?> cancellation = requestCancellation();
+        try {
+            CancellableLongArraySortKt.sortCancellable(
+                    working,
+                    () -> {
+                        if (cancellationRequested.get()) {
+                            throw BenchmarkCancellation.INSTANCE;
+                        }
+                        return Unit.INSTANCE;
+                    });
+        } catch (BenchmarkCancellation expected) {
+            // Expected after the canceller publishes the request.
+        }
+        cancellation.get();
+        return working[0];
     }
-    return cancellation;
-  }
 
-  private static final class BenchmarkCancellation extends RuntimeException {
-    private static final BenchmarkCancellation INSTANCE = new BenchmarkCancellation();
-
-    private BenchmarkCancellation() {
-      super(null, null, false, false);
+    private Future<?> requestCancellation() {
+        CountDownLatch started = new CountDownLatch(1);
+        Future<?> cancellation =
+                cancellationExecutor.submit(
+                        () -> {
+                            started.countDown();
+                            LockSupport.parkNanos(
+                                    TimeUnit.MILLISECONDS.toNanos(cancellationDelayMillis));
+                            cancellationRequested.set(true);
+                        });
+        try {
+            started.await();
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted before benchmark sorting", exception);
+        }
+        return cancellation;
     }
-  }
+
+    private static final class BenchmarkCancellation extends RuntimeException {
+        private static final BenchmarkCancellation INSTANCE = new BenchmarkCancellation();
+
+        private BenchmarkCancellation() {
+            super(null, null, false, false);
+        }
+    }
 }

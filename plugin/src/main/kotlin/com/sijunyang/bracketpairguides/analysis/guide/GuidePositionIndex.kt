@@ -33,11 +33,7 @@ internal class GuidePositionIndex private constructor(
         )
     }
 
-    private fun guideForRange(
-        pair: BracketPair,
-        firstLine: Int,
-        lastLine: Int,
-    ): BracketGuide {
+    private fun guideForRange(pair: BracketPair, firstLine: Int, lastLine: Int): BracketGuide {
         val minimum = minimumEntry(firstLine, lastLine)
         val column = entryColumn(minimum)
         return if (column == VisualColumn.BLANK_LINE_COLUMN) {
@@ -64,31 +60,35 @@ internal class GuidePositionIndex private constructor(
         var minimum = NO_INDENT_ENTRY
 
         val afterLeftEdge = minOf(afterLastRelativeLine, firstFullBlockLine)
-        minimum = minOf(
-            minimum,
-            minimumLineEntry(firstRelativeLine, afterLeftEdge),
-        )
-        if (firstFullBlock < afterLastFullBlock) {
-            minimum = minOf(
+        minimum =
+            minOf(
                 minimum,
-                minimumBlockEntry(firstFullBlock, afterLastFullBlock),
+                minimumLineEntry(firstRelativeLine, afterLeftEdge),
             )
+        if (firstFullBlock < afterLastFullBlock) {
+            minimum =
+                minOf(
+                    minimum,
+                    minimumBlockEntry(firstFullBlock, afterLastFullBlock),
+                )
         }
         val firstRightEdge = maxOf(afterLeftEdge, afterLastFullBlockLine)
-        minimum = minOf(
-            minimum,
-            minimumLineEntry(firstRightEdge, afterLastRelativeLine),
-        )
+        minimum =
+            minOf(
+                minimum,
+                minimumLineEntry(firstRightEdge, afterLastRelativeLine),
+            )
         return minimum
     }
 
     private fun minimumLineEntry(firstLine: Int, afterLastLine: Int): Long {
         var minimum = NO_INDENT_ENTRY
         for (line in firstLine until afterLastLine) {
-            minimum = minOf(
-                minimum,
-                entry(indentationByLine[line], baseLine + line),
-            )
+            minimum =
+                minOf(
+                    minimum,
+                    entry(indentationByLine[line], baseLine + line),
+                )
         }
         return minimum
     }
@@ -106,9 +106,8 @@ internal class GuidePositionIndex private constructor(
         return minimum
     }
 
-    private fun firstBlockAtOrAfter(relativeLine: Int): Int =
-        relativeLine / LINES_PER_BLOCK +
-            if (relativeLine % LINES_PER_BLOCK == 0) 0 else 1
+    private fun firstBlockAtOrAfter(relativeLine: Int): Int = relativeLine / LINES_PER_BLOCK +
+        if (relativeLine % LINES_PER_BLOCK == 0) 0 else 1
 
     companion object {
         internal fun from(
@@ -142,29 +141,32 @@ internal class GuidePositionIndex private constructor(
             indentationAt: (Int) -> Int,
         ): GuidePositionIndex {
             val indentationByLine = IntArray(storage.indentationEntryCount)
-            val blockMinimumTree = LongArray(storage.blockTreeEntryCount) {
-                NO_INDENT_ENTRY
-            }
+            val blockMinimumTree =
+                LongArray(storage.blockTreeEntryCount) {
+                    NO_INDENT_ENTRY
+                }
 
             for (line in 0 until lineCount) {
                 if (line and CANCELLATION_LINE_MASK == 0) checkCanceled()
                 val indentation = indentationAt(line)
                 indentationByLine[line] = indentation
                 val blockLeaf = storage.blockLeafCount + line / LINES_PER_BLOCK
-                blockMinimumTree[blockLeaf] = minOf(
-                    blockMinimumTree[blockLeaf],
-                    entry(
-                        indentation,
-                        baseLine + line,
-                    ),
-                )
+                blockMinimumTree[blockLeaf] =
+                    minOf(
+                        blockMinimumTree[blockLeaf],
+                        entry(
+                            indentation,
+                            baseLine + line,
+                        ),
+                    )
             }
             for (node in storage.blockLeafCount - 1 downTo 1) {
                 if (node and CANCELLATION_TREE_MASK == 0) checkCanceled()
-                blockMinimumTree[node] = minOf(
-                    blockMinimumTree[node * 2],
-                    blockMinimumTree[node * 2 + 1],
-                )
+                blockMinimumTree[node] =
+                    minOf(
+                        blockMinimumTree[node * 2],
+                        blockMinimumTree[node * 2 + 1],
+                    )
             }
             checkCanceled()
 

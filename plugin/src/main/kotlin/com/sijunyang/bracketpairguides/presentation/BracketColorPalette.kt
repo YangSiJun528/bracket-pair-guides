@@ -1,11 +1,11 @@
 package com.sijunyang.bracketpairguides.presentation
 
-import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
-import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.TextAttributes
+import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 import java.awt.Color
 
 /**
@@ -25,57 +25,36 @@ internal object BracketColorPalette {
 
     fun levelKey(levelIndex: Int): TextAttributesKey = levelKeys[levelIndex]
 
-    fun baseColor(
-        settings: BracketGuidePreferences,
-        depth: Int,
-    ): Color {
+    fun baseColor(settings: BracketGuidePreferences, depth: Int): Color {
         val index = levelIndex(depth)
         return StoredColorFormat.storedColor(settings.levelBaseColors[index])
     }
 
-    fun guideLineColor(
-        settings: BracketGuidePreferences,
-        depth: Int,
-    ): Color = componentColor(
+    fun guideLineColor(settings: BracketGuidePreferences, depth: Int): Color = componentColor(
         settings = settings,
         depth = depth,
         overrides = settings.guideLineColors,
     )
 
-    fun pairBorderColor(
-        settings: BracketGuidePreferences,
-        depth: Int,
-    ): Color = componentColor(
+    fun pairBorderColor(settings: BracketGuidePreferences, depth: Int): Color = componentColor(
         settings = settings,
         depth = depth,
         overrides = settings.pairBorderColors,
     )
 
-    fun pairBackgroundSourceColor(
-        settings: BracketGuidePreferences,
-        depth: Int,
-    ): Color = componentColor(
+    fun pairBackgroundSourceColor(settings: BracketGuidePreferences, depth: Int): Color = componentColor(
         settings = settings,
         depth = depth,
         overrides = settings.pairBackgroundColors,
     )
 
-    fun pairBackgroundColor(
-        scheme: EditorColorsScheme,
-        settings: BracketGuidePreferences,
-        depth: Int,
-    ): Color {
-        return blend(
-            background = scheme.defaultBackground,
-            foreground = pairBackgroundSourceColor(settings, depth),
-            foregroundPercent = settings.pairBackgroundOpacityPercent,
-        )
-    }
+    fun pairBackgroundColor(scheme: EditorColorsScheme, settings: BracketGuidePreferences, depth: Int): Color = blend(
+        background = scheme.defaultBackground,
+        foreground = pairBackgroundSourceColor(settings, depth),
+        foregroundPercent = settings.pairBackgroundOpacityPercent,
+    )
 
-    fun bracketTextAttributes(
-        settings: BracketGuidePreferences,
-        depth: Int,
-    ): TextAttributes = TextAttributes().also {
+    fun bracketTextAttributes(settings: BracketGuidePreferences, depth: Int): TextAttributes = TextAttributes().also {
         it.foregroundColor = baseColor(settings, depth)
     }
 
@@ -93,29 +72,21 @@ internal object BracketColorPalette {
         }
     }
 
-    fun hasVisiblePairBackground(settings: BracketGuidePreferences): Boolean =
-        settings.showActivePairBackground &&
-            settings.pairBackgroundOpacityPercent.coerceIn(0, 100) > 0
+    fun hasVisiblePairBackground(settings: BracketGuidePreferences): Boolean = settings.showActivePairBackground &&
+        settings.pairBackgroundOpacityPercent.coerceIn(0, 100) > 0
 
-    private fun componentColor(
-        settings: BracketGuidePreferences,
-        depth: Int,
-        overrides: List<Int>,
-    ): Color {
+    private fun componentColor(settings: BracketGuidePreferences, depth: Int, overrides: List<Int>): Color {
         val index = levelIndex(depth)
-        val storedValue = if (settings.useIndependentComponentColors) {
-            overrides[index]
-        } else {
-            settings.levelBaseColors[index]
-        }
+        val storedValue =
+            if (settings.useIndependentComponentColors) {
+                overrides[index]
+            } else {
+                settings.levelBaseColors[index]
+            }
         return StoredColorFormat.storedColor(storedValue)
     }
 
-    private fun blend(
-        background: Color,
-        foreground: Color,
-        foregroundPercent: Int,
-    ): Color {
+    private fun blend(background: Color, foreground: Color, foregroundPercent: Int): Color {
         val foregroundWeight = foregroundPercent.coerceIn(0, 100)
         val backgroundWeight = 100 - foregroundWeight
         return Color(

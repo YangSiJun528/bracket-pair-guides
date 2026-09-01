@@ -1,8 +1,5 @@
 package com.sijunyang.bracketpairguides.editor.events
 
-import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
-import com.sijunyang.bracketpairguides.presentation.DocumentChange
-import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
@@ -26,6 +23,9 @@ import com.intellij.openapi.editor.ex.RangeHighlighterEx
 import com.intellij.openapi.editor.impl.event.MarkupModelListener
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.Alarm
+import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
+import com.sijunyang.bracketpairguides.presentation.DocumentChange
+import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import org.jetbrains.annotations.TestOnly
 import java.util.IdentityHashMap
 
@@ -39,14 +39,15 @@ internal class EditorGuideEvents :
     VisibleAreaListener,
     Disposable {
     private val visibleRefreshAlarm = Alarm(Alarm.ThreadToUse.SWING_THREAD, this)
-    private val visibleRefreshBatch = IdentityEventBatch<Editor>(
-        schedule = { refresh ->
-            visibleRefreshAlarm.addRequest(refresh, VISIBLE_REFRESH_DELAY_MILLIS)
-        },
-        consume = { editor ->
-            if (!editor.isDisposed) EditorGuideSessions.get(editor)?.visibleAreaChanged()
-        },
-    )
+    private val visibleRefreshBatch =
+        IdentityEventBatch<Editor>(
+            schedule = { refresh ->
+                visibleRefreshAlarm.addRequest(refresh, VISIBLE_REFRESH_DELAY_MILLIS)
+            },
+            consume = { editor ->
+                if (!editor.isDisposed) EditorGuideSessions.get(editor)?.visibleAreaChanged()
+            },
+        )
     private val stickyMarkupByEditor = IdentityHashMap<Editor, StickyMarkupObservation>()
     private val stickyMarkupObservations =
         IdentityHashMap<MarkupModelEx, StickyMarkupObservation>()
@@ -57,7 +58,10 @@ internal class EditorGuideEvents :
         editorFactory.eventMulticaster.addDocumentListener(this, this)
         editorFactory.eventMulticaster.addVisibleAreaListener(this, this)
         editorFactory.addEditorFactoryListener(this, this)
-        ApplicationManager.getApplication().messageBus.connect(this)
+        ApplicationManager
+            .getApplication()
+            .messageBus
+            .connect(this)
             .subscribe(EditorColorsManager.TOPIC, this)
         EditorSettingsExternalizable.getInstance().addPropertyChangeListener(
             {
@@ -91,11 +95,12 @@ internal class EditorGuideEvents :
      * write path with invokeAndWait can deadlock the IDE.
      */
     override fun documentChanged(event: DocumentEvent) {
-        val change = DocumentChange(
-            offset = event.offset,
-            oldLength = event.oldLength,
-            newLength = event.newLength,
-        )
+        val change =
+            DocumentChange(
+                offset = event.offset,
+                oldLength = event.oldLength,
+                newLength = event.newLength,
+            )
         val editors = EditorFactory.getInstance().getEditors(event.document).toList()
         // Valid document writes for the supported platform run on EDT. onEdt
         // therefore executes ordinary typing synchronously. Its off-EDT branch
@@ -158,29 +163,32 @@ internal class EditorGuideEvents :
 
     private fun createObservation(markup: MarkupModelEx): StickyMarkupObservation {
         val parentDisposable = Disposer.newDisposable("Bracket Pair Guides sticky-line observer")
-        markup.addMarkupModelListener(parentDisposable, object : MarkupModelListener {
-            override fun afterAdded(highlighter: RangeHighlighterEx) {
-                if (StickyLineSourceRanges.isStickyLineMarker(highlighter)) {
-                    stickyLinesChanged(markup.document)
+        markup.addMarkupModelListener(
+            parentDisposable,
+            object : MarkupModelListener {
+                override fun afterAdded(highlighter: RangeHighlighterEx) {
+                    if (StickyLineSourceRanges.isStickyLineMarker(highlighter)) {
+                        stickyLinesChanged(markup.document)
+                    }
                 }
-            }
 
-            override fun beforeRemoved(highlighter: RangeHighlighterEx) {
-                if (StickyLineSourceRanges.isStickyLineMarker(highlighter)) {
-                    stickyLinesChanged(markup.document)
+                override fun beforeRemoved(highlighter: RangeHighlighterEx) {
+                    if (StickyLineSourceRanges.isStickyLineMarker(highlighter)) {
+                        stickyLinesChanged(markup.document)
+                    }
                 }
-            }
 
-            override fun attributesChanged(
-                highlighter: RangeHighlighterEx,
-                renderersChanged: Boolean,
-                fontStyleOrColorChanged: Boolean,
-            ) {
-                if (StickyLineSourceRanges.isStickyLineMarker(highlighter)) {
-                    stickyLinesChanged(markup.document)
+                override fun attributesChanged(
+                    highlighter: RangeHighlighterEx,
+                    renderersChanged: Boolean,
+                    fontStyleOrColorChanged: Boolean,
+                ) {
+                    if (StickyLineSourceRanges.isStickyLineMarker(highlighter)) {
+                        stickyLinesChanged(markup.document)
+                    }
                 }
-            }
-        })
+            },
+        )
         return StickyMarkupObservation(markup, parentDisposable).also { observation ->
             stickyMarkupObservations[markup] = observation
         }
@@ -242,15 +250,19 @@ internal class EditorGuideEvents :
         private const val VISIBLE_REFRESH_DELAY_MILLIS = 16
 
         fun ensureInitialized(editor: Editor? = null) {
-            val events = ApplicationManager.getApplication()
-                .getService(EditorGuideEvents::class.java)
+            val events =
+                ApplicationManager
+                    .getApplication()
+                    .getService(EditorGuideEvents::class.java)
             if (editor != null) events.observeStickyLineModel(editor)
         }
 
         @TestOnly
         internal fun isObservingStickyLineModel(editor: Editor): Boolean {
-            val events = ApplicationManager.getApplication()
-                .getService(EditorGuideEvents::class.java)
+            val events =
+                ApplicationManager
+                    .getApplication()
+                    .getService(EditorGuideEvents::class.java)
             return events.stickyMarkupByEditor.containsKey(editor)
         }
     }

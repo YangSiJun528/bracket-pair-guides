@@ -29,12 +29,12 @@ internal data class BracketGuidePreferences(
     @JvmField @field:Property val pairBackgroundColors: List<Int> =
         StoredColorFormat.defaultColors(),
 ) {
-    fun isLanguageEnabled(languageId: String): Boolean =
-        languageId !in disabledLanguageIds
+    fun isLanguageEnabled(languageId: String): Boolean = languageId !in disabledLanguageIds
 
     val showsActivePair: Boolean
-        get() = showActivePairBorder ||
-            (showActivePairBackground && pairBackgroundOpacityPercent > 0)
+        get() =
+            showActivePairBorder ||
+                (showActivePairBackground && pairBackgroundOpacityPercent > 0)
 
     val showsGuide: Boolean
         get() = showActiveGuide && (showVerticalGuide || showHorizontalGuides)

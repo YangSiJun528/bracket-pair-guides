@@ -11,9 +11,10 @@ class PairCollectionTest {
         pairs.acceptPair(0)
         pairs.acceptPair(2)
 
-        val signal = catchThrowable {
-            pairs.acceptPair(4)
-        }
+        val signal =
+            catchThrowable {
+                pairs.acceptPair(4)
+            }
 
         assertThat(signal).isInstanceOf(PairCapacityReached::class.java)
         assertThat(pairs.authoritativePairs()).isNull()

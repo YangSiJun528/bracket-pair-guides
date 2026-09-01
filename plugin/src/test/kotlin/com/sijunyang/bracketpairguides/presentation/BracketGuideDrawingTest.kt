@@ -1,7 +1,5 @@
 package com.sijunyang.bracketpairguides.presentation
 
-import com.sijunyang.bracketpairguides.analysis.BracketGuide
-import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.EditorCustomElementRenderer
 import com.intellij.openapi.editor.Inlay
@@ -11,6 +9,8 @@ import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.sijunyang.bracketpairguides.analysis.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.BracketPair
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
 import java.awt.Color
@@ -20,13 +20,14 @@ import kotlin.system.measureTimeMillis
 
 class BracketGuideDrawingTest : BasePlatformTestCase() {
     fun testInlineHintBeforeOpeningBracketDoesNotShiftGuide() {
-        val source = """
+        val source =
+            """
             fun update() {
                 state.copy(
                     activePair = value,
                     )
             }
-        """.trimIndent()
+            """.trimIndent()
         myFixture.configureByText("Sample.kt", source)
         val editor = myFixture.editor
         val openOffset = source.indexOf("copy(") + "copy".length
@@ -34,48 +35,60 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         val openLine = editor.document.getLineNumber(openOffset)
         val closeLine = editor.document.getLineNumber(closeOffset)
         val guideColumn = 8
-        val firstVisualLine = editor.logicalToVisualPosition(
-            LogicalPosition(openLine, 0),
-        ).line
+        val firstVisualLine =
+            editor
+                .logicalToVisualPosition(
+                    LogicalPosition(openLine, 0),
+                ).line
         val anchorLine = openLine + 1
-        val anchorVisualLine = editor.logicalToVisualPosition(
-            LogicalPosition(anchorLine, 0),
-        ).line
-        val expectedX = editor.visualPositionToXY(
-            VisualPosition(anchorVisualLine, guideColumn),
-        ).x
+        val anchorVisualLine =
+            editor
+                .logicalToVisualPosition(
+                    LogicalPosition(anchorLine, 0),
+                ).line
+        val expectedX =
+            editor
+                .visualPositionToXY(
+                    VisualPosition(anchorVisualLine, guideColumn),
+                ).x
         val hintOffset = source.indexOf("state.copy")
-        val inlay = requireNotNull(
-            editor.inlayModel.addInlineElement(
-                hintOffset,
-                true,
-                FixedWidthInlay(width = 72),
-            ),
-        )
+        val inlay =
+            requireNotNull(
+                editor.inlayModel.addInlineElement(
+                    hintOffset,
+                    true,
+                    FixedWidthInlay(width = 72),
+                ),
+            )
 
         try {
-            val shiftedX = editor.visualPositionToXY(
-                VisualPosition(firstVisualLine, guideColumn),
-            ).x
-            assertThat(shiftedX).describedAs(
-                "Test inlay must shift the raw visual position: " +
-                    "expected=$expectedX, shifted=$shiftedX, bounds=${inlay.bounds}, " +
-                    "visualPosition=${inlay.visualPosition}",
-            ).isGreaterThan(expectedX)
+            val shiftedX =
+                editor
+                    .visualPositionToXY(
+                        VisualPosition(firstVisualLine, guideColumn),
+                    ).x
+            assertThat(shiftedX)
+                .describedAs(
+                    "Test inlay must shift the raw visual position: " +
+                        "expected=$expectedX, shifted=$shiftedX, bounds=${inlay.bounds}, " +
+                        "visualPosition=${inlay.visualPosition}",
+                ).isGreaterThan(expectedX)
 
-            val image = paint(
-                pair = BracketPair(
-                    openOffset = openOffset,
-                    openTokenLength = 1,
-                    closeOffset = closeOffset,
-                    closeTokenLength = 1,
-                    depth = 0,
-                    openLine = openLine,
-                    closeLine = closeLine,
-                ),
-                guideColumn = guideColumn,
-                anchorLine = anchorLine,
-            )
+            val image =
+                paint(
+                    pair =
+                    BracketPair(
+                        openOffset = openOffset,
+                        openTokenLength = 1,
+                        closeOffset = closeOffset,
+                        closeTokenLength = 1,
+                        depth = 0,
+                        openLine = openLine,
+                        closeLine = closeLine,
+                    ),
+                    guideColumn = guideColumn,
+                    anchorLine = anchorLine,
+                )
             val bodyY = editor.visualLineToY(anchorVisualLine) + editor.lineHeight / 2
 
             assertThat(
@@ -104,21 +117,23 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         val closeVisualLine = editor.offsetToVisualPosition(closeOffset).line
         assertThat(closeVisualLine - openVisualLine).isGreaterThanOrEqualTo(2)
 
-        val image = paint(
-            BracketPair(
-                openOffset = openOffset,
-                openTokenLength = 1,
-                closeOffset = closeOffset,
-                closeTokenLength = 1,
-                depth = 0,
-                openLine = 0,
-                closeLine = 0,
-            ),
-        )
+        val image =
+            paint(
+                BracketPair(
+                    openOffset = openOffset,
+                    openTokenLength = 1,
+                    closeOffset = closeOffset,
+                    closeTokenLength = 1,
+                    depth = 0,
+                    openLine = 0,
+                    closeLine = 0,
+                ),
+            )
 
         for (visualLine in openVisualLine..closeVisualLine) {
-            val bottomY = editor.visualPositionToXY(VisualPosition(visualLine, 0)).y +
-                editor.lineHeight - 1
+            val bottomY =
+                editor.visualPositionToXY(VisualPosition(visualLine, 0)).y +
+                    editor.lineHeight - 1
             assertThat(image.hasInkNear(bottomY))
                 .describedAs("Expected a horizontal guide on visual line $visualLine")
                 .isTrue()
@@ -132,27 +147,29 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         val closeOffset = source.lastIndexOf('}')
 
         editor.foldingModel.runBatchFoldingOperation {
-            val region = editor.foldingModel.addFoldRegion(
-                editor.document.getLineEndOffset(0),
-                editor.document.getLineStartOffset(2),
-                "…",
-            )
+            val region =
+                editor.foldingModel.addFoldRegion(
+                    editor.document.getLineEndOffset(0),
+                    editor.document.getLineStartOffset(2),
+                    "…",
+                )
             requireNotNull(region).isExpanded = false
         }
         assertThat(editor.offsetToVisualPosition(closeOffset).line)
             .isEqualTo(editor.offsetToVisualPosition(0).line)
 
-        val image = paint(
-            BracketPair(
-                openOffset = 0,
-                openTokenLength = 1,
-                closeOffset = closeOffset,
-                closeTokenLength = 1,
-                depth = 0,
-                openLine = 0,
-                closeLine = 2,
-            ),
-        )
+        val image =
+            paint(
+                BracketPair(
+                    openOffset = 0,
+                    openTokenLength = 1,
+                    closeOffset = closeOffset,
+                    closeTokenLength = 1,
+                    depth = 0,
+                    openLine = 0,
+                    closeLine = 2,
+                ),
+            )
 
         assertThat(image.hasAnyInk()).isFalse()
     }
@@ -160,33 +177,7 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
     fun testCanDisableHorizontalGuidesForASingleLogicalLine() {
         val source = "call(argument)"
         myFixture.configureByText("Sample.java", source)
-        val pair = BracketPair(
-            openOffset = source.indexOf('('),
-            openTokenLength = 1,
-            closeOffset = source.lastIndexOf(')'),
-            closeTokenLength = 1,
-            depth = 0,
-            openLine = 0,
-            closeLine = 0,
-        )
-
-        val image = paint(
-            pair,
-            GuideAppearance(
-                showVertical = true,
-                showHorizontal = false,
-                lineWidth = 4,
-                opacityPercent = 100,
-            ),
-        )
-
-        assertThat(image.hasAnyInk()).isFalse()
-    }
-
-    fun testAppliesConfiguredGuideOpacity() {
-        val source = "call(argument)"
-        myFixture.configureByText("Sample.java", source)
-        val image = paint(
+        val pair =
             BracketPair(
                 openOffset = source.indexOf('('),
                 openTokenLength = 1,
@@ -195,14 +186,43 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
                 depth = 0,
                 openLine = 0,
                 closeLine = 0,
-            ),
-            GuideAppearance(
-                showVertical = true,
-                showHorizontal = true,
-                lineWidth = 1,
-                opacityPercent = 50,
-            ),
-        )
+            )
+
+        val image =
+            paint(
+                pair,
+                GuideAppearance(
+                    showVertical = true,
+                    showHorizontal = false,
+                    lineWidth = 4,
+                    opacityPercent = 100,
+                ),
+            )
+
+        assertThat(image.hasAnyInk()).isFalse()
+    }
+
+    fun testAppliesConfiguredGuideOpacity() {
+        val source = "call(argument)"
+        myFixture.configureByText("Sample.java", source)
+        val image =
+            paint(
+                BracketPair(
+                    openOffset = source.indexOf('('),
+                    openTokenLength = 1,
+                    closeOffset = source.lastIndexOf(')'),
+                    closeTokenLength = 1,
+                    depth = 0,
+                    openLine = 0,
+                    closeLine = 0,
+                ),
+                GuideAppearance(
+                    showVertical = true,
+                    showHorizontal = true,
+                    lineWidth = 1,
+                    opacityPercent = 50,
+                ),
+            )
 
         assertThat(image.maximumAlpha()).isBetween(1, 200)
     }
@@ -211,24 +231,27 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         val source = "call(argument)"
         myFixture.configureByText("GuideColor.java", source)
         val color = Color(0x12, 0x34, 0x56)
-        val image = paint(
-            pair = BracketPair(
-                openOffset = source.indexOf('('),
-                openTokenLength = 1,
-                closeOffset = source.lastIndexOf(')'),
-                closeTokenLength = 1,
-                depth = 0,
-                openLine = 0,
-                closeLine = 0,
-            ),
-            options = GuideAppearance(
-                showVertical = false,
-                showHorizontal = true,
-                lineWidth = 4,
-                opacityPercent = 100,
-            ),
-            color = color,
-        )
+        val image =
+            paint(
+                pair =
+                BracketPair(
+                    openOffset = source.indexOf('('),
+                    openTokenLength = 1,
+                    closeOffset = source.lastIndexOf(')'),
+                    closeTokenLength = 1,
+                    depth = 0,
+                    openLine = 0,
+                    closeLine = 0,
+                ),
+                options =
+                GuideAppearance(
+                    showVertical = false,
+                    showHorizontal = true,
+                    lineWidth = 4,
+                    opacityPercent = 100,
+                ),
+                color = color,
+            )
 
         assertThat(image.containsOpaque(color)).isTrue()
     }
@@ -239,32 +262,39 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         val editor = myFixture.editor
         val closeOffset = source.lastIndexOf('}')
         val guideColumn = 4
-        val pair = BracketPair(
-            openOffset = 0,
-            openTokenLength = 1,
-            closeOffset = closeOffset,
-            closeTokenLength = 1,
-            depth = 0,
-            openLine = 0,
-            closeLine = 2,
-        )
-        val image = paint(
-            pair = pair,
-            options = GuideAppearance(
-                showVertical = true,
-                showHorizontal = true,
-                lineWidth = 4,
-                opacityPercent = 50,
-            ),
-            guideColumn = guideColumn,
-            anchorLine = 1,
-        )
-        val anchorVisualLine = editor.logicalToVisualPosition(
-            LogicalPosition(1, 0),
-        ).line
-        val guideX = editor.visualPositionToXY(
-            VisualPosition(anchorVisualLine, guideColumn),
-        ).x
+        val pair =
+            BracketPair(
+                openOffset = 0,
+                openTokenLength = 1,
+                closeOffset = closeOffset,
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 2,
+            )
+        val image =
+            paint(
+                pair = pair,
+                options =
+                GuideAppearance(
+                    showVertical = true,
+                    showHorizontal = true,
+                    lineWidth = 4,
+                    opacityPercent = 50,
+                ),
+                guideColumn = guideColumn,
+                anchorLine = 1,
+            )
+        val anchorVisualLine =
+            editor
+                .logicalToVisualPosition(
+                    LogicalPosition(1, 0),
+                ).line
+        val guideX =
+            editor
+                .visualPositionToXY(
+                    VisualPosition(anchorVisualLine, guideColumn),
+                ).x
         val openBottomY = editor.offsetToXY(pair.openOffset).y + editor.lineHeight - 1
         val closeBottomY = editor.offsetToXY(pair.closeOffset).y + editor.lineHeight - 1
         val bodyY = editor.visualLineToY(anchorVisualLine) + editor.lineHeight / 2
@@ -282,22 +312,27 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         val source = "{\n    call();\n}"
         myFixture.configureByText("Sample.java", source)
         val editor = myFixture.editor
-        val pair = BracketPair(
-            openOffset = 0,
-            openTokenLength = 1,
-            closeOffset = source.lastIndexOf('}'),
-            closeTokenLength = 1,
-            depth = 0,
-            openLine = 0,
-            closeLine = 2,
-        )
+        val pair =
+            BracketPair(
+                openOffset = 0,
+                openTokenLength = 1,
+                closeOffset = source.lastIndexOf('}'),
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 2,
+            )
         val guideColumn = 4
-        val anchorVisualLine = editor.logicalToVisualPosition(
-            LogicalPosition(1, 0),
-        ).line
-        val guideX = editor.visualPositionToXY(
-            VisualPosition(anchorVisualLine, guideColumn),
-        ).x
+        val anchorVisualLine =
+            editor
+                .logicalToVisualPosition(
+                    LogicalPosition(1, 0),
+                ).line
+        val guideX =
+            editor
+                .visualPositionToXY(
+                    VisualPosition(anchorVisualLine, guideColumn),
+                ).x
         val bodyY = editor.visualLineToY(anchorVisualLine) + editor.lineHeight / 2
         val openPoint = editor.offsetToXY(pair.openOffset)
         val openBottomY = openPoint.y + editor.lineHeight - 1
@@ -305,18 +340,20 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
 
         for (scale in listOf(1.0, 2.0)) {
             for (lineWidth in 2..4) {
-                val image = paint(
-                    pair = pair,
-                    options = GuideAppearance(
-                        showVertical = true,
-                        showHorizontal = true,
-                        lineWidth = lineWidth,
-                        opacityPercent = 100,
-                    ),
-                    guideColumn = guideColumn,
-                    anchorLine = 1,
-                    graphicsScale = scale,
-                )
+                val image =
+                    paint(
+                        pair = pair,
+                        options =
+                        GuideAppearance(
+                            showVertical = true,
+                            showHorizontal = true,
+                            lineWidth = lineWidth,
+                            opacityPercent = 100,
+                        ),
+                        guideColumn = guideColumn,
+                        anchorLine = 1,
+                        graphicsScale = scale,
+                    )
                 val deviceGuideX = guideX * scale
                 val deviceBodyY = (bodyY * scale).roundToInt()
                 val deviceHorizontalX = (horizontalSampleX * scale).roundToInt()
@@ -355,50 +392,55 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         val source = "{\n    call();\n}"
         myFixture.configureByText("LeftmostGuide.java", source)
         val editor = myFixture.editor
-        val pair = BracketPair(
-            openOffset = 0,
-            openTokenLength = 1,
-            closeOffset = source.lastIndexOf('}'),
-            closeTokenLength = 1,
-            depth = 0,
-            openLine = 0,
-            closeLine = 2,
-        )
-        val anchorVisualLine = editor.logicalToVisualPosition(
-            LogicalPosition(1, 0),
-        ).line
+        val pair =
+            BracketPair(
+                openOffset = 0,
+                openTokenLength = 1,
+                closeOffset = source.lastIndexOf('}'),
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 2,
+            )
+        val anchorVisualLine =
+            editor
+                .logicalToVisualPosition(
+                    LogicalPosition(1, 0),
+                ).line
         val logicalBodyY = editor.visualLineToY(anchorVisualLine) + editor.lineHeight / 2
 
         for (graphicsScale in listOf(1.0, 2.0)) {
             for (lineWidth in 1..4) {
-                val options = GuideAppearance(
-                    showVertical = true,
-                    showHorizontal = false,
-                    lineWidth = lineWidth,
-                    opacityPercent = 100,
-                )
-                val leftmost = paint(
-                    pair = pair,
-                    options = options,
-                    guideColumn = 0,
-                    anchorLine = 1,
-                    graphicsScale = graphicsScale,
-                )
-                val interior = paint(
-                    pair = pair,
-                    options = options,
-                    guideColumn = 4,
-                    anchorLine = 1,
-                    graphicsScale = graphicsScale,
-                )
+                val options =
+                    GuideAppearance(
+                        showVertical = true,
+                        showHorizontal = false,
+                        lineWidth = lineWidth,
+                        opacityPercent = 100,
+                    )
+                val leftmost =
+                    paint(
+                        pair = pair,
+                        options = options,
+                        guideColumn = 0,
+                        anchorLine = 1,
+                        graphicsScale = graphicsScale,
+                    )
+                val interior =
+                    paint(
+                        pair = pair,
+                        options = options,
+                        guideColumn = 4,
+                        anchorLine = 1,
+                        graphicsScale = graphicsScale,
+                    )
                 val deviceBodyY = (logicalBodyY * graphicsScale).roundToInt()
 
                 assertThat(leftmost.inkPixelCountAt(deviceBodyY))
                     .describedAs(
                         "A left-edge width $lineWidth at ${graphicsScale}x must not lose " +
                             "half of its stroke",
-                    )
-                    .isEqualTo(interior.inkPixelCountAt(deviceBodyY))
+                    ).isEqualTo(interior.inkPixelCountAt(deviceBodyY))
             }
         }
     }
@@ -413,30 +455,32 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         val closeOffset = source.lastIndexOf(')')
         val closeVisualLine = editor.offsetToVisualPosition(closeOffset).line
         assertThat(closeVisualLine).isGreaterThan(2_000)
-        val pair = BracketPair(
-            openOffset = openOffset,
-            openTokenLength = 1,
-            closeOffset = closeOffset,
-            closeTokenLength = 1,
-            depth = 0,
-            openLine = 0,
-            closeLine = 0,
-        )
+        val pair =
+            BracketPair(
+                openOffset = openOffset,
+                openTokenLength = 1,
+                closeOffset = closeOffset,
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 0,
+            )
         val highlighter = createGuideHighlighter(pair)
         val targetY = editor.visualLineToY(closeVisualLine / 2)
         val viewportHeight = editor.lineHeight * 3
         val image = BufferedImage(1_000, viewportHeight, BufferedImage.TYPE_INT_ARGB)
         val graphics = image.createGraphics()
-        val elapsed = try {
-            graphics.translate(0, -targetY)
-            graphics.clipRect(0, targetY, image.width, viewportHeight)
-            measureTimeMillis {
-                drawGuide(editor, highlighter, graphics)
+        val elapsed =
+            try {
+                graphics.translate(0, -targetY)
+                graphics.clipRect(0, targetY, image.width, viewportHeight)
+                measureTimeMillis {
+                    drawGuide(editor, highlighter, graphics)
+                }
+            } finally {
+                graphics.dispose()
+                highlighter.dispose()
             }
-        } finally {
-            graphics.dispose()
-            highlighter.dispose()
-        }
 
         assertThat(elapsed)
             .describedAs("Clipped soft-wrap paint took ${elapsed}ms")
@@ -448,15 +492,16 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         val source = "{\n    call();\n}"
         myFixture.configureByText("Sample.java", source)
         val editor = myFixture.editor
-        val pair = BracketPair(
-            openOffset = 0,
-            openTokenLength = 1,
-            closeOffset = source.lastIndexOf('}'),
-            closeTokenLength = 1,
-            depth = 0,
-            openLine = 0,
-            closeLine = 2,
-        )
+        val pair =
+            BracketPair(
+                openOffset = 0,
+                openTokenLength = 1,
+                closeOffset = source.lastIndexOf('}'),
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 2,
+            )
         val highlighter = createGuideHighlighter(pair)
 
         WriteCommandAction.runWriteCommandAction(project) {
@@ -477,20 +522,22 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
     fun testInvalidStoredTokenBoundsAreIgnored() {
         val source = "call(argument)"
         myFixture.configureByText("InvalidStoredPair.java", source)
-        val validPair = BracketPair(
-            openOffset = source.indexOf('('),
-            openTokenLength = 1,
-            closeOffset = source.lastIndexOf(')'),
-            closeTokenLength = 1,
-            depth = 0,
-            openLine = 0,
-            closeLine = 0,
-        )
-        val invalidPairs = listOf(
-            validPair.copy(openTokenLength = -10),
-            validPair.copy(closeTokenLength = source.length),
-            validPair.copy(closeOffset = validPair.openOffset),
-        )
+        val validPair =
+            BracketPair(
+                openOffset = source.indexOf('('),
+                openTokenLength = 1,
+                closeOffset = source.lastIndexOf(')'),
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 0,
+            )
+        val invalidPairs =
+            listOf(
+                validPair.copy(openTokenLength = -10),
+                validPair.copy(closeTokenLength = source.length),
+                validPair.copy(closeOffset = validPair.openOffset),
+            )
 
         for (pair in invalidPairs) {
             val image = paintStoredGuide(pair)
@@ -506,13 +553,14 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         graphicsScale: Double = 1.0,
         color: Color = Color.WHITE,
     ): BufferedImage {
-        val highlighter = createGuideHighlighter(
-            pair,
-            options,
-            guideColumn,
-            anchorLine,
-            color,
-        )
+        val highlighter =
+            createGuideHighlighter(
+                pair,
+                options,
+                guideColumn,
+                anchorLine,
+                color,
+            )
 
         val imageSize = (1_000 * graphicsScale).roundToInt()
         return BufferedImage(
@@ -533,19 +581,22 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
 
     private fun paintStoredGuide(pair: BracketPair): BufferedImage {
         val editor = myFixture.editor
-        val highlighter = editor.markupModel.addRangeHighlighter(
-            null,
-            0,
-            editor.document.textLength,
-            HighlighterLayer.ADDITIONAL_SYNTAX,
-            HighlighterTargetArea.EXACT_RANGE,
-        ).also { highlighter ->
-            highlighter.customRenderer = BracketGuideDrawing(
-                BracketGuide(pair, 0),
-                DEFAULT_OPTIONS,
-                Color.WHITE,
-            )
-        }
+        val highlighter =
+            editor.markupModel
+                .addRangeHighlighter(
+                    null,
+                    0,
+                    editor.document.textLength,
+                    HighlighterLayer.ADDITIONAL_SYNTAX,
+                    HighlighterTargetArea.EXACT_RANGE,
+                ).also { highlighter ->
+                    highlighter.customRenderer =
+                        BracketGuideDrawing(
+                            BracketGuide(pair, 0),
+                            DEFAULT_OPTIONS,
+                            Color.WHITE,
+                        )
+                }
         return BufferedImage(1_000, 1_000, BufferedImage.TYPE_INT_ARGB).also { image ->
             val graphics = image.createGraphics()
             try {
@@ -563,19 +614,20 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         guideColumn: Int = 0,
         anchorLine: Int = pair.openLine,
         color: Color = Color.WHITE,
-    ) =
-        myFixture.editor.markupModel.addRangeHighlighter(
+    ) = myFixture.editor.markupModel
+        .addRangeHighlighter(
             null,
             pair.openOffset,
             pair.closeOffset + pair.closeTokenLength,
             HighlighterLayer.ADDITIONAL_SYNTAX,
             HighlighterTargetArea.EXACT_RANGE,
         ).also { highlighter ->
-            highlighter.customRenderer = BracketGuideDrawing(
-                BracketGuide(pair, guideColumn, anchorLine),
-                options,
-                color,
-            )
+            highlighter.customRenderer =
+                BracketGuideDrawing(
+                    BracketGuide(pair, guideColumn, anchorLine),
+                    options,
+                    color,
+                )
         }
 
     private fun drawGuide(
@@ -589,17 +641,16 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
 
     companion object {
         private const val CENTER_TOLERANCE_IN_DEVICE_PIXELS = 0.55
-        private val DEFAULT_OPTIONS = GuideAppearance(
-            showVertical = true,
-            showHorizontal = true,
-            lineWidth = 1,
-            opacityPercent = 100,
-        )
+        private val DEFAULT_OPTIONS =
+            GuideAppearance(
+                showVertical = true,
+                showHorizontal = true,
+                lineWidth = 1,
+                opacityPercent = 100,
+            )
     }
 
-    private class FixedWidthInlay(
-        private val width: Int,
-    ) : EditorCustomElementRenderer {
+    private class FixedWidthInlay(private val width: Int) : EditorCustomElementRenderer {
         override fun calcWidthInPixels(inlay: Inlay<*>): Int = width
     }
 
@@ -655,20 +706,15 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         return maximum
     }
 
-    private fun BufferedImage.inkPixelCountAt(y: Int): Int =
-        (0 until width).count { x -> alphaAt(x, y) != 0 }
+    private fun BufferedImage.inkPixelCountAt(y: Int): Int = (0 until width).count { x -> alphaAt(x, y) != 0 }
 
     private fun BufferedImage.alphaAt(x: Int, y: Int): Int = getRGB(x, y) ushr 24
 
-    private fun BufferedImage.alphaWeightedCenterX(
-        y: Int,
-        centerX: Int,
-        radius: Int,
-    ): Double {
+    private fun BufferedImage.alphaWeightedCenterX(y: Int, centerX: Int, radius: Int): Double {
         var weightedPosition = 0.0
         var totalAlpha = 0L
-        for (x in (centerX - radius).coerceAtLeast(0)..
-            (centerX + radius).coerceAtMost(width - 1)
+        for (
+        x in (centerX - radius).coerceAtLeast(0)..(centerX + radius).coerceAtMost(width - 1)
         ) {
             val alpha = alphaAt(x, y)
             weightedPosition += (x + 0.5) * alpha
@@ -680,15 +726,11 @@ class BracketGuideDrawingTest : BasePlatformTestCase() {
         return weightedPosition / totalAlpha
     }
 
-    private fun BufferedImage.alphaWeightedCenterY(
-        x: Int,
-        centerY: Int,
-        radius: Int,
-    ): Double {
+    private fun BufferedImage.alphaWeightedCenterY(x: Int, centerY: Int, radius: Int): Double {
         var weightedPosition = 0.0
         var totalAlpha = 0L
-        for (y in (centerY - radius).coerceAtLeast(0)..
-            (centerY + radius).coerceAtMost(height - 1)
+        for (
+        y in (centerY - radius).coerceAtLeast(0)..(centerY + radius).coerceAtMost(height - 1)
         ) {
             val alpha = alphaAt(x, y)
             weightedPosition += (y + 0.5) * alpha

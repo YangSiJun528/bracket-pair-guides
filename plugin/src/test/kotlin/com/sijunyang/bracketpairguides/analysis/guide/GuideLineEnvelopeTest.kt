@@ -1,8 +1,8 @@
 package com.sijunyang.bracketpairguides.analysis.guide
 
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.pairing.toPairTable
-import com.intellij.openapi.progress.ProcessCanceledException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Test
@@ -19,31 +19,33 @@ class GuideLineEnvelopeTest {
             ),
         ).isNull()
         assertThat(
-            GuideLineEnvelope.from(
-                listOf(
-                    pair(openLine = 3, closeLine = 4),
-                    pair(openLine = 9, closeLine = 12),
-                ).toPairTable(),
-                documentLength = 100,
-                documentLineCount = 20,
-                checkCanceled = {},
-            )?.lines,
+            GuideLineEnvelope
+                .from(
+                    listOf(
+                        pair(openLine = 3, closeLine = 4),
+                        pair(openLine = 9, closeLine = 12),
+                    ).toPairTable(),
+                    documentLength = 100,
+                    documentLineCount = 20,
+                    checkCanceled = {},
+                )?.lines,
         ).isEqualTo(4..12)
         assertThat(
-            GuideLineEnvelope.from(
-                listOf(
-                    pair(openLine = 3, closeLine = 4),
-                    pair(openLine = 0, closeLine = 1).copy(
-                        openOffset = 0,
-                        closeOffset = 10,
-                        openLine = Int.MIN_VALUE,
-                        closeLine = Int.MAX_VALUE,
-                    ),
-                ).toPairTable(),
-                documentLength = 100,
-                documentLineCount = 20,
-                checkCanceled = {},
-            )?.lines,
+            GuideLineEnvelope
+                .from(
+                    listOf(
+                        pair(openLine = 3, closeLine = 4),
+                        pair(openLine = 0, closeLine = 1).copy(
+                            openOffset = 0,
+                            closeOffset = 10,
+                            openLine = Int.MIN_VALUE,
+                            closeLine = Int.MAX_VALUE,
+                        ),
+                    ).toPairTable(),
+                    documentLength = 100,
+                    documentLineCount = 20,
+                    checkCanceled = {},
+                )?.lines,
         ).isEqualTo(4..4)
     }
 

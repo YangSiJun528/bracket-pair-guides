@@ -1,13 +1,13 @@
 package com.sijunyang.bracketpairguides.analysis.pairing.core;
 
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
+import org.junit.Test;
+
 public class PairTableTest {
-    private static final CancellationProbe NO_CANCELLATION = () -> { };
+    private static final CancellationProbe NO_CANCELLATION = () -> {};
 
     @Test
     public void draftFreezesPrimitivePairGeometry() {
@@ -35,8 +35,7 @@ public class PairTableTest {
 
         assertThat(first).isSameAs(PairTable.empty());
         assertThatIllegalStateException().isThrownBy(draft::freeze);
-        assertThatIllegalStateException()
-                .isThrownBy(() -> draft.accept(0, 1, 1, 1, 0, 0, 0));
+        assertThatIllegalStateException().isThrownBy(() -> draft.accept(0, 1, 1, 1, 0, 0, 0));
     }
 
     @Test
@@ -71,11 +70,16 @@ public class PairTableTest {
         int[] checks = {0};
 
         assertThatExceptionOfType(TestCancellation.class)
-                .isThrownBy(() -> first.freeze().hasSameContent(second.freeze(), () -> {
-                    if (++checks[0] == 2) {
-                        throw new TestCancellation();
-                    }
-                }));
+                .isThrownBy(
+                        () ->
+                                first.freeze()
+                                        .hasSameContent(
+                                                second.freeze(),
+                                                () -> {
+                                                    if (++checks[0] == 2) {
+                                                        throw new TestCancellation();
+                                                    }
+                                                }));
     }
 
     private static PairTable table(int... geometry) {
@@ -87,11 +91,9 @@ public class PairTableTest {
                 geometry[3],
                 geometry[4],
                 geometry[5],
-                geometry[6]
-        );
+                geometry[6]);
         return draft.freeze();
     }
 
-    private static final class TestCancellation extends RuntimeException {
-    }
+    private static final class TestCancellation extends RuntimeException {}
 }

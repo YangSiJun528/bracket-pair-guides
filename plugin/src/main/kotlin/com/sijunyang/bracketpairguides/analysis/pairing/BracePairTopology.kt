@@ -21,11 +21,9 @@ internal class BracePairTopology(pairs: Array<BracePair>) {
         }
     }
 
-    fun isStructuralOpen(type: IElementType): Boolean =
-        type in structuralOpens
+    fun isStructuralOpen(type: IElementType): Boolean = type in structuralOpens
 
-    fun isStructuralClose(type: IElementType): Boolean =
-        type in structuralCloses
+    fun isStructuralClose(type: IElementType): Boolean = type in structuralCloses
 
     fun isPureSymmetric(type: IElementType): Boolean {
         val outgoing = closesByOpen[type] ?: return false

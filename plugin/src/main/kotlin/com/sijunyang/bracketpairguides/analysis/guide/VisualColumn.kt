@@ -5,8 +5,7 @@ internal object VisualColumn {
     const val BLANK_LINE_COLUMN: Int = Int.MAX_VALUE
     private const val MAXIMUM_COLUMN: Int = Int.MAX_VALUE - 1
 
-    fun afterSpace(column: Int): Int =
-        (column + 1).coerceAtMost(MAXIMUM_COLUMN)
+    fun afterSpace(column: Int): Int = (column + 1).coerceAtMost(MAXIMUM_COLUMN)
 
     fun afterTab(column: Int, tabSize: Int): Int {
         val effectiveTabSize = tabSize.coerceAtLeast(1)
