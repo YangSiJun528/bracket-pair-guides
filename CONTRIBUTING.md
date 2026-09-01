@@ -26,7 +26,7 @@ have no independent consumer.
 | Recognition, snapshot, indexes, or analysis values | `plugin/src/main/.../analysis` | `./gradlew :plugin:check` |
 | Editor lifetime, highlighting, presentation, settings, or compatibility | Other `plugin/src/main` packages | `./gradlew :plugin:check` |
 | Pairing or sorting measurement | `benchmarks/src/jmh` | `./gradlew :benchmarks:jmhJar` |
-| Build coordination or CI | Repository root | `./gradlew :plugin:check :benchmarks:jmhJar` |
+| Build coordination or CI | Repository root | `./gradlew check` |
 
 Keep one implementation of bracket semantics in production source. Editor and
 settings code should consume analysis outcomes and queries instead of
@@ -57,7 +57,7 @@ To move a responsibility or add a production package:
 ```shell
 ./gradlew :plugin:test \
   --tests 'com.sijunyang.bracketpairguides.architecture.ArchitectureTest'
-./gradlew :plugin:check :benchmarks:jmhJar
+./gradlew check
 ```
 
 ArchUnit imports compiled Kotlin and Java production classes. Its four-zone rule
@@ -77,10 +77,10 @@ Java and Kotlin test plugins. Keep JUnit annotations, runners, rules, and
 `BasePlatformTestCase`; do not use `org.junit.Assert` or inherited JUnit
 assertion helpers.
 
-Run the production suite and compile the benchmark harness:
+Run formatting checks, the production suite, and compile the benchmark harness:
 
 ```shell
-./gradlew :plugin:check :benchmarks:jmhJar
+./gradlew check
 ```
 
 Run only the production suite:
@@ -163,7 +163,28 @@ The full task downloads the configured IDE matrix. It checks binary
 compatibility and disallowed IntelliJ API usage; it does not replace behavior
 tests, ArchUnit, or Qodana.
 
-## Check lint and static analysis
+## Format and inspect code
+
+Spotless is the repository-wide format gate. It uses ktlint for Kotlin source
+and Gradle Kotlin DSL, Google Java Format's four-space AOSP style for Java, and
+built-in whitespace rules for repository configuration files. Formatter and
+plugin versions are pinned in the Gradle build.
+
+Apply formatting after changing source or build files:
+
+```shell
+./gradlew spotlessApply
+```
+
+Check formatting without changing files:
+
+```shell
+./gradlew spotlessCheck
+```
+
+The root `check` task includes `spotlessCheck`. Upstream regression fixtures
+under `plugin/src/test/testData` are excluded so their recorded contents remain
+unchanged.
 
 Qodana is the repository's lint and static-analysis gate. The GitHub Actions
 **Inspect Code** job runs the JVM Community linter and the
@@ -173,12 +194,9 @@ Qodana is separate from Gradle `check`. A green local build does not imply a
 green inspection job. Review Qodana findings on the pull request and reproduce
 them with the corresponding IntelliJ inspection when possible.
 
-There is no repository-wide auto-format gate. Use the IDE formatter for touched
-code and avoid unrelated formatting changes.
-
 ## Before requesting review
 
-1. Run `./gradlew :plugin:check :benchmarks:jmhJar`.
+1. Run `./gradlew check`.
 2. Run `./gradlew :plugin:buildPlugin` when production code or resources changed.
 3. Run the relevant Plugin Verifier tasks for platform or descriptor changes.
 4. Confirm the CI **Inspect Code** job passes.
