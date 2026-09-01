@@ -24,39 +24,39 @@ import org.openjdk.jmh.annotations.Warmup;
 @Measurement(iterations = 3, time = 1)
 @State(Scope.Thread)
 public class LongArraySortBenchmark {
-  private static final Function0<Unit> NO_CANCELLATION = () -> Unit.INSTANCE;
+    private static final Function0<Unit> NO_CANCELLATION = () -> Unit.INSTANCE;
 
-  /** Endpoint count. A snapshot normally creates two endpoints per bracket pair. */
-  @Param({"32768", "200000", "1000000", "2000000"})
-  public int size;
+    /** Endpoint count. A snapshot normally creates two endpoints per bracket pair. */
+    @Param({"32768", "200000", "1000000", "2000000"})
+    public int size;
 
-  @Param({"pair-events", "random", "ascending", "descending"})
-  public String distribution;
+    @Param({"pair-events", "random", "ascending", "descending"})
+    public String distribution;
 
-  private long[] baseline;
-  private long[] working;
+    private long[] baseline;
+    private long[] working;
 
-  @Setup(Level.Trial)
-  public void createBaseline() {
-    baseline = LongArraySamples.create(size, distribution);
-  }
+    @Setup(Level.Trial)
+    public void createBaseline() {
+        baseline = LongArraySamples.create(size, distribution);
+    }
 
-  /** Copying is setup work and is excluded from the measured sort invocation. */
-  @Setup(Level.Invocation)
-  public void copyInput() {
-    working = baseline.clone();
-  }
+    /** Copying is setup work and is excluded from the measured sort invocation. */
+    @Setup(Level.Invocation)
+    public void copyInput() {
+        working = baseline.clone();
+    }
 
-  @Benchmark
-  public long[] jdkSort() {
-    Arrays.sort(working);
-    return working;
-  }
+    @Benchmark
+    public long[] jdkSort() {
+        Arrays.sort(working);
+        return working;
+    }
 
-  @Benchmark
-  @SuppressWarnings("KotlinInternalInJava") // Intentional benchmark-only production probe.
-  public long[] productionCancellableSort() {
-    CancellableLongArraySortKt.sortCancellable(working, NO_CANCELLATION);
-    return working;
-  }
+    @Benchmark
+    @SuppressWarnings("KotlinInternalInJava") // Intentional benchmark-only production probe.
+    public long[] productionCancellableSort() {
+        CancellableLongArraySortKt.sortCancellable(working, NO_CANCELLATION);
+        return working;
+    }
 }

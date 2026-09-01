@@ -1,5 +1,11 @@
 package com.sijunyang.bracketpairguides.editor
 
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.PlainTextFileType
+import com.intellij.openapi.util.TextRange
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.BraceMatcherAvailability
@@ -11,12 +17,6 @@ import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 import com.sijunyang.bracketpairguides.presentation.ActiveGuidePresentation
 import com.sijunyang.bracketpairguides.presentation.DocumentChange
 import com.sijunyang.bracketpairguides.presentation.VisibleTokenDecorations
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.fileTypes.PlainTextFileType
-import com.intellij.openapi.util.TextRange
 
 /** EDT-owned state and presentation for one editor. */
 internal class EditorGuideSession(
@@ -100,18 +100,19 @@ internal class EditorGuideSession(
             return
         }
         if (shouldReleasePairGraph(requiredCoverage, nextAnalysis.stamp.coverage)) {
-            val compactAnalysis = analysisState.snapshot?.takeIf { current ->
-                current.stamp.matchesCurrent(
-                    editor,
-                    currentFileType,
-                    requiredCoverage,
-                    options.disabledLanguageIds,
-                ) &&
-                    !shouldReleasePairGraph(
+            val compactAnalysis =
+                analysisState.snapshot?.takeIf { current ->
+                    current.stamp.matchesCurrent(
+                        editor,
+                        currentFileType,
                         requiredCoverage,
-                        current.stamp.coverage,
-                    )
-            }
+                        options.disabledLanguageIds,
+                    ) &&
+                        !shouldReleasePairGraph(
+                            requiredCoverage,
+                            current.stamp.coverage,
+                        )
+                }
             if (compactAnalysis != null) {
                 tokenDecorations.replace(
                     compactAnalysis,
@@ -138,9 +139,9 @@ internal class EditorGuideSession(
             options,
         )
         if (shouldReleasePairGraph(
-            requiredCoverage,
-            nextAnalysis.stamp.coverage,
-        )
+                requiredCoverage,
+                nextAnalysis.stamp.coverage,
+            )
         ) {
             analysisState.publishPending(nextAnalysis)
         } else {
@@ -206,7 +207,8 @@ internal class EditorGuideSession(
         val stamp = outcome.stamp
         val limit = outcome.limit
         val requiredCoverage = options.analysisCoverage()
-        if (stamp.coverage != requiredCoverage || !stamp.matchesCurrent(
+        if (stamp.coverage != requiredCoverage ||
+            !stamp.matchesCurrent(
                 editor,
                 editorFileType(editor),
                 requiredCoverage,
@@ -265,20 +267,18 @@ internal class EditorGuideSession(
         if (discardPresentationFromReplacedHighlighter()) return
         val currentAnalysis = analysisState.snapshot ?: return
         if (!hasCurrentTokenAnalysis(currentAnalysis)) return
-        val presentationChanged = tokenDecorations.replaceIfOutsideWindow(
-            currentAnalysis,
-            visibleRange(editor),
-            stickySourceRanges(editor),
-            options,
-        )
+        val presentationChanged =
+            tokenDecorations.replaceIfOutsideWindow(
+                currentAnalysis,
+                visibleRange(editor),
+                stickySourceRanges(editor),
+                options,
+            )
         if (!presentationChanged) return
         repaintVisibleContent()
     }
 
-    fun updateOptions(
-        nextOptions: BracketGuidePreferences,
-        refreshColors: Boolean,
-    ) {
+    fun updateOptions(nextOptions: BracketGuidePreferences, refreshColors: Boolean) {
         assertEdt()
         if (disposed || editor.isDisposed) return
         val previousOptions = options
@@ -300,32 +300,37 @@ internal class EditorGuideSession(
         }
         val requiredCoverage = options.analysisCoverage()
         val currentFileType = editorFileType(editor)
-        val currentAnalysis = analysisState.snapshot?.takeIf { candidate ->
-            candidate.stamp.matchesCurrent(
-                editor,
-                currentFileType,
-                candidate.stamp.coverage,
-                options.disabledLanguageIds,
-            )
-        }
-        val releasePairGraph = currentAnalysis?.let { candidate ->
-            shouldReleasePairGraph(requiredCoverage, candidate.stamp.coverage)
-        } == true
+        val currentAnalysis =
+            analysisState.snapshot?.takeIf { candidate ->
+                candidate.stamp.matchesCurrent(
+                    editor,
+                    currentFileType,
+                    candidate.stamp.coverage,
+                    options.disabledLanguageIds,
+                )
+            }
+        val releasePairGraph =
+            currentAnalysis?.let { candidate ->
+                shouldReleasePairGraph(requiredCoverage, candidate.stamp.coverage)
+            } == true
         updateTokenPresentation(
             previousOptions,
             currentAnalysis,
             refreshColors,
         )
 
-        val currentPairAnalysis = currentAnalysis
-            ?.takeIf { requiredCoverage.activePair && it.stamp.coverage.activePair }
-        val pair = currentPairAnalysis
-            ?.activePairAt(caretOffset())
-            ?: activePresentation.adjustedPair
+        val currentPairAnalysis =
+            currentAnalysis
+                ?.takeIf { requiredCoverage.activePair && it.stamp.coverage.activePair }
+        val pair =
+            currentPairAnalysis
+                ?.activePairAt(caretOffset())
+                ?: activePresentation.adjustedPair
         activePresentation.replace(
             pair = pair,
             indexedGuide = pair?.let { currentPairAnalysis?.guideFor(it) },
-            allowGuideFallback = currentPairAnalysis == null ||
+            allowGuideFallback =
+            currentPairAnalysis == null ||
                 allowsProvisionalGuide(currentPairAnalysis),
             preferences = options,
         )
@@ -358,17 +363,23 @@ internal class EditorGuideSession(
         val wasVisible = previousOptions.enabled && previousOptions.colorBracketTokens
         val isVisible = options.enabled && options.colorBracketTokens
         when {
-            wasVisible && !isVisible -> tokenDecorations.updateAttributes(options)
-            !wasVisible && isVisible && currentAnalysis != null ->
+            wasVisible && !isVisible -> {
+                tokenDecorations.updateAttributes(options)
+            }
+
+            !wasVisible && isVisible && currentAnalysis != null -> {
                 tokenDecorations.replace(
                     currentAnalysis,
                     visibleRange(editor),
                     stickySourceRanges(editor),
                     options,
                 )
+            }
+
             isVisible &&
-                (refreshColors || previousOptions.levelBaseColors != options.levelBaseColors) ->
+                (refreshColors || previousOptions.levelBaseColors != options.levelBaseColors) -> {
                 tokenDecorations.updateAttributes(options)
+            }
         }
     }
 
@@ -450,30 +461,27 @@ internal class EditorGuideSession(
         options.disabledLanguageIds,
     )
 
-    private fun hasCurrentActivePair(candidate: BracketSnapshot): Boolean =
-        analysisState.hasCurrentActivePair(
+    private fun hasCurrentActivePair(candidate: BracketSnapshot): Boolean = analysisState.hasCurrentActivePair(
+        candidate,
+        editorFileType(editor),
+        options.disabledLanguageIds,
+    )
+
+    private fun hasCurrentTokenAnalysis(candidate: BracketSnapshot): Boolean = options.analysisCoverage().tokens &&
+        analysisState.hasCurrentTokens(
             candidate,
             editorFileType(editor),
             options.disabledLanguageIds,
         )
 
-    private fun hasCurrentTokenAnalysis(candidate: BracketSnapshot): Boolean =
-        options.analysisCoverage().tokens && analysisState.hasCurrentTokens(
-            candidate,
-            editorFileType(editor),
-            options.disabledLanguageIds,
-        )
-
-    private fun allowsProvisionalGuide(candidate: BracketSnapshot): Boolean =
-        !candidate.stamp.coverage.guidePosition && !analysisState.hasRefused(
+    private fun allowsProvisionalGuide(candidate: BracketSnapshot): Boolean = !candidate.stamp.coverage.guidePosition &&
+        !analysisState.hasRefused(
             currentStamp(),
             AnalysisLimit.GUIDE_CAPACITY,
         )
 
-    private fun shouldReleasePairGraph(
-        required: AnalysisCoverage,
-        provided: AnalysisCoverage,
-    ): Boolean = analysisState.shouldReleasePairGraph(required, provided)
+    private fun shouldReleasePairGraph(required: AnalysisCoverage, provided: AnalysisCoverage): Boolean =
+        analysisState.shouldReleasePairGraph(required, provided)
 
     private fun caretOffset(): Int = editor.caretModel.primaryCaret.offset
 

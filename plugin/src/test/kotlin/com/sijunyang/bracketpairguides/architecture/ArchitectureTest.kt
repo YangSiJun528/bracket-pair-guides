@@ -39,63 +39,81 @@ internal class ArchitectureTest {
 
         @ArchTest
         @JvmField
-        val productionDependenciesPointInwardAcrossZones: ArchRule = layeredArchitecture()
-            .consideringOnlyDependenciesInLayers()
-            .layer(POLICY).definedBy(
-                resideInAPackage("$ROOT.analysis..")
-                    .and(resideOutsideOfPackage("$ROOT.analysis.intellij..")),
-            )
-            .layer(STATE).definedBy("$ROOT.preferences..", "$ROOT.settings")
-            .layer(WORKBENCH).definedBy("$ROOT.presentation..", "$ROOT.editor")
-            .layer(HOST).definedBy(
-                "$ROOT.analysis.intellij..",
-                "$ROOT.editor.events..",
-                "$ROOT.editor.highlighting..",
-                "$ROOT.settings.ui..",
-            )
-            .whereLayer(POLICY).mayNotAccessAnyLayer()
-            .whereLayer(STATE).mayOnlyAccessLayers(POLICY)
-            .whereLayer(WORKBENCH).mayOnlyAccessLayers(POLICY, STATE)
-            .whereLayer(HOST).mayOnlyAccessLayers(POLICY, STATE, WORKBENCH)
-            .ensureAllClassesAreContainedInArchitecture()
-            .because("host integration must depend inward on stable policy and editor state")
+        val productionDependenciesPointInwardAcrossZones: ArchRule =
+            layeredArchitecture()
+                .consideringOnlyDependenciesInLayers()
+                .layer(POLICY)
+                .definedBy(
+                    resideInAPackage("$ROOT.analysis..")
+                        .and(resideOutsideOfPackage("$ROOT.analysis.intellij..")),
+                ).layer(STATE)
+                .definedBy("$ROOT.preferences..", "$ROOT.settings")
+                .layer(WORKBENCH)
+                .definedBy("$ROOT.presentation..", "$ROOT.editor")
+                .layer(HOST)
+                .definedBy(
+                    "$ROOT.analysis.intellij..",
+                    "$ROOT.editor.events..",
+                    "$ROOT.editor.highlighting..",
+                    "$ROOT.settings.ui..",
+                ).whereLayer(POLICY)
+                .mayNotAccessAnyLayer()
+                .whereLayer(STATE)
+                .mayOnlyAccessLayers(POLICY)
+                .whereLayer(WORKBENCH)
+                .mayOnlyAccessLayers(POLICY, STATE)
+                .whereLayer(HOST)
+                .mayOnlyAccessLayers(POLICY, STATE, WORKBENCH)
+                .ensureAllClassesAreContainedInArchitecture()
+                .because("host integration must depend inward on stable policy and editor state")
 
         @ArchTest
         @JvmField
-        val productionPackageGraphIsFreeOfCycles: ArchRule = slices()
-            .matching("$ROOT.(**)")
-            .should().beFreeOfCycles()
-            .because("feature packages must form a one-way dependency graph")
+        val productionPackageGraphIsFreeOfCycles: ArchRule =
+            slices()
+                .matching("$ROOT.(**)")
+                .should()
+                .beFreeOfCycles()
+                .because("feature packages must form a one-way dependency graph")
 
         @ArchTest
         @JvmField
-        val neutralAnalysisPoliciesDoNotDependOnIntellij: ArchRule = noClasses()
-            .that().resideInAnyPackage(
-                "$ROOT.analysis.pairing.core",
-                "$ROOT.analysis.active",
-                "$ROOT.analysis.guide",
-                "$ROOT.analysis.sorting",
-                "$ROOT.analysis.token",
-            )
-            .should().dependOnClassesThat().resideInAnyPackage("com.intellij..")
-            .because("neutral policy code must not acquire IntelliJ host responsibilities")
+        val neutralAnalysisPoliciesDoNotDependOnIntellij: ArchRule =
+            noClasses()
+                .that()
+                .resideInAnyPackage(
+                    "$ROOT.analysis.pairing.core",
+                    "$ROOT.analysis.active",
+                    "$ROOT.analysis.guide",
+                    "$ROOT.analysis.sorting",
+                    "$ROOT.analysis.token",
+                ).should()
+                .dependOnClassesThat()
+                .resideInAnyPackage("com.intellij..")
+                .because("neutral policy code must not acquire IntelliJ host responsibilities")
 
         @ArchTest
         @JvmField
-        val editorEventsDoNotDependOnAnalysisTypes: ArchRule = noClasses()
-            .that().resideInAPackage("$ROOT.editor.events..")
-            .should().dependOnClassesThat().resideInAPackage("$ROOT.analysis..")
-            .because("events may ask preferences whether analysis changed without knowing analysis types")
+        val editorEventsDoNotDependOnAnalysisTypes: ArchRule =
+            noClasses()
+                .that()
+                .resideInAPackage("$ROOT.editor.events..")
+                .should()
+                .dependOnClassesThat()
+                .resideInAPackage("$ROOT.analysis..")
+                .because("events may ask preferences whether analysis changed without knowing analysis types")
 
         @ArchTest
         @JvmField
-        val editorEventsDoNotCallMethodsReturningAnalysisTypes: ArchRule = noClasses()
-            .that().resideInAPackage("$ROOT.editor.events..")
-            .should().callMethodWhere(
-                describe<JavaMethodCall>("return an analysis type") { call ->
-                    resideInAPackage("$ROOT.analysis..").test(call.target.rawReturnType)
-                },
-            )
-            .because("preference queries must keep analysis return types behind their package boundary")
+        val editorEventsDoNotCallMethodsReturningAnalysisTypes: ArchRule =
+            noClasses()
+                .that()
+                .resideInAPackage("$ROOT.editor.events..")
+                .should()
+                .callMethodWhere(
+                    describe<JavaMethodCall>("return an analysis type") { call ->
+                        resideInAPackage("$ROOT.analysis..").test(call.target.rawReturnType)
+                    },
+                ).because("preference queries must keep analysis return types behind their package boundary")
     }
 }

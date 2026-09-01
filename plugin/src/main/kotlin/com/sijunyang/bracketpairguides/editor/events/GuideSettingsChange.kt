@@ -6,10 +6,7 @@ import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.hasDifferentAnalysisFrom
 
 /** A committed preference transition and its effects on live editor sessions. */
-internal data class GuideSettingsChange(
-    val previous: BracketGuidePreferences,
-    val current: BracketGuidePreferences,
-) {
+internal data class GuideSettingsChange(val previous: BracketGuidePreferences, val current: BracketGuidePreferences) {
     val isEmpty: Boolean
         get() = previous == current
 
@@ -24,9 +21,10 @@ internal data class GuideSettingsChange(
 
         applyNativeMatchedBraceSetting(current)
 
-        val sessionEditors = EditorFactory.getInstance().allEditors.filter { editor ->
-            !editor.isDisposed && EditorGuideSessions.get(editor) != null
-        }
+        val sessionEditors =
+            EditorFactory.getInstance().allEditors.filter { editor ->
+                !editor.isDisposed && EditorGuideSessions.get(editor) != null
+            }
         for (editor in sessionEditors) {
             EditorGuideSessions.get(editor)?.updateOptions(
                 current,

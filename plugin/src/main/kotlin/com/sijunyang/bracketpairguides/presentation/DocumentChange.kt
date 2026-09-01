@@ -7,11 +7,7 @@ import com.sijunyang.bracketpairguides.analysis.BracketPair
  * [offset] and [oldLength] belong to the document state before the change;
  * [newLength] describes the replacement now present in the document.
  */
-internal data class DocumentChange(
-    val offset: Int,
-    val oldLength: Int,
-    val newLength: Int,
-) {
+internal data class DocumentChange(val offset: Int, val oldLength: Int, val newLength: Int) {
     init {
         require(offset >= 0) { "offset must not be negative" }
         require(oldLength >= 0) { "oldLength must not be negative" }
@@ -40,12 +36,7 @@ internal data class DocumentChange(
         return oldEnd <= pair.openOffset.toLong() || offset.toLong() >= pairEnd
     }
 
-    private fun overlaps(
-        changeStart: Long,
-        changeEnd: Long,
-        tokenStart: Int,
-        tokenLength: Int,
-    ): Boolean {
+    private fun overlaps(changeStart: Long, changeEnd: Long, tokenStart: Int, tokenLength: Int): Boolean {
         val tokenEnd = tokenStart.toLong() + tokenLength
         return changeStart < tokenEnd && changeEnd > tokenStart.toLong()
     }

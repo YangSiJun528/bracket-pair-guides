@@ -10,9 +10,10 @@ internal object DaemonRefresh {
     private const val REASON = "Bracket Pair Guides settings changed"
     private val contract = DaemonRestartContract(DaemonCodeAnalyzer::class.java)
 
-    private val signatures = object : ClassValue<Method>() {
-        override fun computeValue(type: Class<*>): Method = contract.methodFor(type)
-    }
+    private val signatures =
+        object : ClassValue<Method>() {
+            override fun computeValue(type: Class<*>): Method = contract.methodFor(type)
+        }
 
     fun request() {
         for (project in ProjectManager.getInstance().openProjects) {
@@ -39,5 +40,4 @@ internal object DaemonRefresh {
             throw IllegalStateException("Could not restart code analysis", error)
         }
     }
-
 }

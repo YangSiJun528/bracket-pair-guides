@@ -38,18 +38,20 @@ internal class DocumentBrackets(
         }
         val text = document.immutableCharSequence
         val checkCanceled = progress::checkCanceled
-        val grammar = DocumentBraceGrammar(
-            document = document,
-            fileType = fileType,
-            text = text,
-            languages = languages,
-            isLanguageEnabled = isLanguageEnabled,
-        )
-        val pairing = grammar.newSession(
-            checkCanceled = checkCanceled,
-            pairSink = pairs,
-            maximumPendingOpens = BracketRecognitionLimits.MAXIMUM_PENDING_OPENS,
-        )
+        val grammar =
+            DocumentBraceGrammar(
+                document = document,
+                fileType = fileType,
+                text = text,
+                languages = languages,
+                isLanguageEnabled = isLanguageEnabled,
+            )
+        val pairing =
+            grammar.newSession(
+                checkCanceled = checkCanceled,
+                pairSink = pairs,
+                maximumPendingOpens = BracketRecognitionLimits.MAXIMUM_PENDING_OPENS,
+            )
         var visitedTokens = 0
 
         try {
@@ -85,10 +87,8 @@ internal class DocumentBrackets(
 
 /** Authoritative document-pair recognition state. */
 internal sealed interface DocumentBracketRecognition {
-    class Complete(
-        val pairs: PairTable,
-        val matcherAvailability: BraceMatcherAvailability,
-    ) : DocumentBracketRecognition
+    class Complete(val pairs: PairTable, val matcherAvailability: BraceMatcherAvailability) :
+        DocumentBracketRecognition
 
     class Unavailable(val refusal: BracketRecognitionRefusal) : DocumentBracketRecognition
 }

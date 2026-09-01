@@ -41,15 +41,10 @@ internal class BracketSnapshot(
     }
 
     /** Returns an indexed guide, or null when that index was intentionally omitted. */
-    fun guideFor(pair: BracketPair): BracketGuide? =
-        indexes.guidePositions?.guideForOrNull(pair)
+    fun guideFor(pair: BracketPair): BracketGuide? = indexes.guidePositions?.guideForOrNull(pair)
 
     /** Returns a capped, allocation-light token window near [range]. */
-    fun visibleTokens(
-        range: TextRange,
-        focusOffset: Int,
-        limit: Int,
-    ): TokenWindow {
+    fun visibleTokens(range: TextRange, focusOffset: Int, limit: Int): TokenWindow {
         require(limit > 0) { "Visible token limit must be positive" }
 
         val tokenIndex = indexes.tokens
@@ -67,34 +62,41 @@ internal class BracketSnapshot(
             )
         }
 
-        val focusIndex = tokenIndex.firstIndexAtOrAfter(focusOffset)
-            .coerceIn(firstCandidate, lastCandidate)
+        val focusIndex =
+            tokenIndex
+                .firstIndexAtOrAfter(focusOffset)
+                .coerceIn(firstCandidate, lastCandidate)
         var firstSelected = (focusIndex - limit / 2).coerceAtLeast(firstCandidate)
-        val lastSelected = minOf(
-            firstSelected.toLong() + limit,
-            lastCandidate.toLong(),
-        ).toInt()
+        val lastSelected =
+            minOf(
+                firstSelected.toLong() + limit,
+                lastCandidate.toLong(),
+            ).toInt()
         firstSelected = (lastSelected - limit).coerceAtLeast(firstCandidate)
 
         val selectedFocusIndex = focusIndex.coerceIn(firstSelected, lastSelected - 1)
         val tolerance = limit / 4
-        val stableFirstIndex = (selectedFocusIndex - tolerance)
-            .coerceAtLeast(firstSelected)
-        val stableAfterLastIndex = minOf(
-            selectedFocusIndex.toLong() + tolerance + 1L,
-            lastSelected.toLong(),
-        ).toInt()
+        val stableFirstIndex =
+            (selectedFocusIndex - tolerance)
+                .coerceAtLeast(firstSelected)
+        val stableAfterLastIndex =
+            minOf(
+                selectedFocusIndex.toLong() + tolerance + 1L,
+                lastSelected.toLong(),
+            ).toInt()
         return TokenWindow(
             tokenIndex = tokenIndex,
             firstIndex = firstSelected,
             afterLastIndex = lastSelected,
             isCapped = true,
-            stableFocusStartOffset = if (stableFirstIndex == firstCandidate) {
+            stableFocusStartOffset =
+            if (stableFirstIndex == firstCandidate) {
                 range.startOffset
             } else {
                 tokenIndex.offsetAt(stableFirstIndex)
             },
-            stableFocusEndOffset = if (stableAfterLastIndex == lastCandidate) {
+            stableFocusEndOffset =
+            if (stableAfterLastIndex == lastCandidate) {
                 range.endOffset
             } else {
                 tokenIndex.offsetAt(stableAfterLastIndex)
@@ -116,14 +118,11 @@ internal class TokenWindow internal constructor(
     val size: Int
         get() = afterLastIndex - firstIndex
 
-    fun offsetAt(index: Int): Int =
-        tokenIndex.offsetAt(globalIndex(index))
+    fun offsetAt(index: Int): Int = tokenIndex.offsetAt(globalIndex(index))
 
-    fun lengthAt(index: Int): Int =
-        tokenIndex.lengthAt(globalIndex(index))
+    fun lengthAt(index: Int): Int = tokenIndex.lengthAt(globalIndex(index))
 
-    fun depthAt(index: Int): Int =
-        tokenIndex.depthAt(globalIndex(index))
+    fun depthAt(index: Int): Int = tokenIndex.depthAt(globalIndex(index))
 
     private fun globalIndex(index: Int): Int {
         if (index !in 0 until size) {

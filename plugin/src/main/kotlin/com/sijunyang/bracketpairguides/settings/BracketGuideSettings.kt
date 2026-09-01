@@ -11,9 +11,10 @@ import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
     name = "BracketPairGuides",
     storages = [Storage("bracket-pair-guides.xml")],
 )
-internal class BracketGuideSettings : SerializablePersistentStateComponent<BracketGuidePreferences>(
-    BracketGuidePreferences(),
-) {
+internal class BracketGuideSettings :
+    SerializablePersistentStateComponent<BracketGuidePreferences>(
+        BracketGuidePreferences(),
+    ) {
     val options: BracketGuidePreferences
         get() = state
 
@@ -29,21 +30,26 @@ internal class BracketGuideSettings : SerializablePersistentStateComponent<Brack
     }
 
     private fun BracketGuidePreferences.normalized(): BracketGuidePreferences = copy(
-        disabledLanguageIds = disabledLanguageIds.asSequence()
+        disabledLanguageIds =
+        disabledLanguageIds
+            .asSequence()
             .map { languageId -> languageId.trim() }
             .filter { languageId -> languageId.isNotEmpty() }
             .distinct()
             .sorted()
             .toSet(),
-        guideLineWidth = guideLineWidth.coerceIn(
+        guideLineWidth =
+        guideLineWidth.coerceIn(
             BracketGuidePreferences.MIN_GUIDE_LINE_WIDTH,
             BracketGuidePreferences.MAX_GUIDE_LINE_WIDTH,
         ),
-        guideOpacityPercent = guideOpacityPercent.coerceIn(
+        guideOpacityPercent =
+        guideOpacityPercent.coerceIn(
             BracketGuidePreferences.MIN_GUIDE_OPACITY_PERCENT,
             BracketGuidePreferences.MAX_GUIDE_OPACITY_PERCENT,
         ),
-        pairBackgroundOpacityPercent = pairBackgroundOpacityPercent.coerceIn(
+        pairBackgroundOpacityPercent =
+        pairBackgroundOpacityPercent.coerceIn(
             BracketGuidePreferences.MIN_PAIR_BACKGROUND_OPACITY_PERCENT,
             BracketGuidePreferences.MAX_PAIR_BACKGROUND_OPACITY_PERCENT,
         ),
@@ -54,8 +60,7 @@ internal class BracketGuideSettings : SerializablePersistentStateComponent<Brack
     )
 
     companion object {
-        fun getInstance(): BracketGuideSettings {
-            return ApplicationManager.getApplication().getService(BracketGuideSettings::class.java)
-        }
+        fun getInstance(): BracketGuideSettings =
+            ApplicationManager.getApplication().getService(BracketGuideSettings::class.java)
     }
 }

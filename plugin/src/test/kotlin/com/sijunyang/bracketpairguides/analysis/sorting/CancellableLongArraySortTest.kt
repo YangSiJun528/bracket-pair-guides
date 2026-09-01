@@ -8,15 +8,16 @@ import org.junit.Test
 class CancellableLongArraySortTest {
     @Test
     fun `sorts multiple chunks with signed values and duplicates`() {
-        val values = LongArray(LARGE_INPUT_SIZE) { index ->
-            when (index.mod(11)) {
-                0 -> Long.MIN_VALUE
-                1 -> Long.MAX_VALUE
-                2, 3 -> -7L
-                4, 5 -> 7L
-                else -> ((index.toLong() * 7_919L).mod(100_003L)) - 50_001L
-            }
-        }.also { it.reverse() }
+        val values =
+            LongArray(LARGE_INPUT_SIZE) { index ->
+                when (index.mod(11)) {
+                    0 -> Long.MIN_VALUE
+                    1 -> Long.MAX_VALUE
+                    2, 3 -> -7L
+                    4, 5 -> 7L
+                    else -> ((index.toLong() * 7_919L).mod(100_003L)) - 50_001L
+                }
+            }.also { it.reverse() }
         val expected = values.sortedArray()
         var cancellationChecks = 0
 
@@ -42,9 +43,10 @@ class CancellableLongArraySortTest {
 
     @Test
     fun `can cancel while the final merged buffer is copied back`() {
-        val values = LongArray(COPY_BACK_INPUT_SIZE) { index ->
-            (COPY_BACK_INPUT_SIZE - index).toLong()
-        }
+        val values =
+            LongArray(COPY_BACK_INPUT_SIZE) { index ->
+                (COPY_BACK_INPUT_SIZE - index).toLong()
+            }
 
         assertThatThrownBy {
             values.sortCancellable {
@@ -61,6 +63,7 @@ class CancellableLongArraySortTest {
         private const val LARGE_INPUT_SIZE = 50_000
         private const val COPY_BACK_INPUT_SIZE = 20_000
         private const val COPY_BLOCK_SIZE = 4_096
+
         // Initial check + four chunk completions precede merge progress checks.
         private const val FIRST_MERGE_CHECK = 8
     }

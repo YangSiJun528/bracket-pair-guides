@@ -33,28 +33,30 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         val source = "class Sample { content }"
         myFixture.configureByText("Sample.java", source)
         val editor = myFixture.editor
-        val pair = BracketPair(
-            openOffset = source.indexOf('{'),
-            openTokenLength = 1,
-            closeOffset = source.indexOf('}'),
-            closeTokenLength = 1,
-            depth = 0,
-            openLine = 0,
-            closeLine = 0,
-        )
+        val pair =
+            BracketPair(
+                openOffset = source.indexOf('{'),
+                openTokenLength = 1,
+                closeOffset = source.indexOf('}'),
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 0,
+            )
         editor.caretModel.moveToOffset(source.indexOf("content"))
-        val pass = BracketGuideHighlightingPass(
-            project = project,
-            editor = editor,
-            fileType = myFixture.file.fileType,
-            sourceFile = myFixture.file.virtualFile,
-            analyze = { input, _ ->
-                AnalysisOutcome.Complete(input.bracketSnapshot(listOf(pair)))
-            },
-            visibleRange = { current ->
-                TextRange(0, current.document.textLength)
-            },
-        )
+        val pass =
+            BracketGuideHighlightingPass(
+                project = project,
+                editor = editor,
+                fileType = myFixture.file.fileType,
+                sourceFile = myFixture.file.virtualFile,
+                analyze = { input, _ ->
+                    AnalysisOutcome.Complete(input.bracketSnapshot(listOf(pair)))
+                },
+                visibleRange = { current ->
+                    TextRange(0, current.document.textLength)
+                },
+            )
         ReadAction.compute<Unit, RuntimeException> {
             pass.doCollectInformation(EmptyProgressIndicator())
         }
@@ -64,7 +66,8 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         assertThat(editor.observedBracketMarkup().tokenMarks).hasSize(2)
 
         (editor as EditorEx).setHighlighter(
-            EditorHighlighterFactory.getInstance()
+            EditorHighlighterFactory
+                .getInstance()
                 .createEditorHighlighter(project, PlainTextFileType.INSTANCE),
         )
         session.visibleAreaChanged()
@@ -109,26 +112,29 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         EditorGuideEvents.ensureInitialized()
         val pair = BracketPair(0, 1, 8, 1, 0, 0, 0)
         try {
-            val sessions = listOf(firstEditor, secondEditor).map { editor ->
-                editor.caretModel.moveToOffset(3)
-                val session = EditorGuideSessions.install(
-                    editor = editor,
-                    visibleRange = { TextRange(0, document.textLength) },
-                    preferences = options,
-                )
-                val input = AnalysisInput(
-                    editor = editor,
-                    fileType = PlainTextFileType.INSTANCE,
-                    coverage = options.analysisCoverage(),
-                    disabledLanguageIds = emptySet(),
-                )
-                session.accept(
-                    AnalysisOutcome.Complete(
-                        input.bracketSnapshot(listOf(pair)),
-                    ),
-                )
-                session
-            }
+            val sessions =
+                listOf(firstEditor, secondEditor).map { editor ->
+                    editor.caretModel.moveToOffset(3)
+                    val session =
+                        EditorGuideSessions.install(
+                            editor = editor,
+                            visibleRange = { TextRange(0, document.textLength) },
+                            preferences = options,
+                        )
+                    val input =
+                        AnalysisInput(
+                            editor = editor,
+                            fileType = PlainTextFileType.INSTANCE,
+                            coverage = options.analysisCoverage(),
+                            disabledLanguageIds = emptySet(),
+                        )
+                    session.accept(
+                        AnalysisOutcome.Complete(
+                            input.bracketSnapshot(listOf(pair)),
+                        ),
+                    )
+                    session
+                }
             assertThat(
                 listOf(firstEditor, secondEditor).map {
                     it.observedBracketMarkup().activePairMarks.size
@@ -142,7 +148,9 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
             assertThat(sessions).hasSize(2)
             for (editor in listOf(firstEditor, secondEditor)) {
                 assertThat(
-                    editor.observedBracketMarkup().activePairMarks
+                    editor
+                        .observedBracketMarkup()
+                        .activePairMarks
                         .map { it.startOffset }
                         .sorted(),
                 ).containsExactly(1, 9)
@@ -165,29 +173,32 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         secondEditor.settings.setTabSize(4)
         BracketGuideSettings.getInstance().replace(options)
         EditorGuideEvents.ensureInitialized()
-        val pair = BracketPair(
-            openOffset = source.indexOf('{'),
-            openTokenLength = 1,
-            closeOffset = source.lastIndexOf('}'),
-            closeTokenLength = 1,
-            depth = 0,
-            openLine = 0,
-            closeLine = 2,
-        )
+        val pair =
+            BracketPair(
+                openOffset = source.indexOf('{'),
+                openTokenLength = 1,
+                closeOffset = source.lastIndexOf('}'),
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 2,
+            )
         try {
             for (editor in listOf(firstEditor, secondEditor)) {
                 editor.caretModel.moveToOffset(source.indexOf("value"))
-                val session = EditorGuideSessions.install(
-                    editor = editor,
-                    visibleRange = { TextRange(0, document.textLength) },
-                    preferences = options,
-                )
-                val input = AnalysisInput(
-                    editor = editor,
-                    fileType = PlainTextFileType.INSTANCE,
-                    coverage = options.analysisCoverage(),
-                    disabledLanguageIds = emptySet(),
-                )
+                val session =
+                    EditorGuideSessions.install(
+                        editor = editor,
+                        visibleRange = { TextRange(0, document.textLength) },
+                        preferences = options,
+                    )
+                val input =
+                    AnalysisInput(
+                        editor = editor,
+                        fileType = PlainTextFileType.INSTANCE,
+                        coverage = options.analysisCoverage(),
+                        disabledLanguageIds = emptySet(),
+                    )
                 session.accept(
                     AnalysisOutcome.Complete(
                         input.bracketSnapshot(listOf(pair)),
@@ -229,18 +240,19 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         BracketGuideSettings.getInstance().replace(options)
         editor.caretModel.moveToOffset(source.indexOf("value"))
         val pair = BracketPair(0, 1, source.lastIndex, 1, 0, 0, 0)
-        val pass = BracketGuideHighlightingPass(
-            project = project,
-            editor = editor,
-            fileType = myFixture.file.fileType,
-            sourceFile = myFixture.file.virtualFile,
-            analyze = { input, _ ->
-                AnalysisOutcome.Complete(input.bracketSnapshot(listOf(pair)))
-            },
-            visibleRange = { current ->
-                TextRange(0, current.document.textLength)
-            },
-        )
+        val pass =
+            BracketGuideHighlightingPass(
+                project = project,
+                editor = editor,
+                fileType = myFixture.file.fileType,
+                sourceFile = myFixture.file.virtualFile,
+                analyze = { input, _ ->
+                    AnalysisOutcome.Complete(input.bracketSnapshot(listOf(pair)))
+                },
+                visibleRange = { current ->
+                    TextRange(0, current.document.textLength)
+                },
+            )
         ReadAction.compute<Unit, RuntimeException> {
             pass.doCollectInformation(EmptyProgressIndicator())
         }

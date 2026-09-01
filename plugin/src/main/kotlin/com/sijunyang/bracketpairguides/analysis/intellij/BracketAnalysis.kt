@@ -15,24 +15,23 @@ internal class BracketAnalysis {
     private val languages = BraceLanguageCatalog()
     private val documentIndexes = DocumentBracketIndexes()
 
-    fun analyze(
-        input: AnalysisInput,
-        progress: ProgressIndicator,
-    ): AnalysisOutcome {
+    fun analyze(input: AnalysisInput, progress: ProgressIndicator): AnalysisOutcome {
         val disabledLanguageIds = input.disabledLanguageIds
-        val documentBrackets = DocumentBrackets(
-            editor = input.editor,
-            fileType = input.fileType,
-            languages = languages,
-        ) { capabilityId ->
-            capabilityId !in disabledLanguageIds
-        }
+        val documentBrackets =
+            DocumentBrackets(
+                editor = input.editor,
+                fileType = input.fileType,
+                languages = languages,
+            ) { capabilityId ->
+                capabilityId !in disabledLanguageIds
+            }
         val document = input.editor.document
-        val guidePositions = DocumentGuidePositions(
-            document = document,
-            tabSize = input.stamp.tabSize,
-            checkCanceled = progress::checkCanceled,
-        )
+        val guidePositions =
+            DocumentGuidePositions(
+                document = document,
+                tabSize = input.stamp.tabSize,
+                checkCanceled = progress::checkCanceled,
+            )
         return SnapshotAssembly(
             input = input,
             recognize = { documentBrackets.recognize(progress) },

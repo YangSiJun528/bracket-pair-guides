@@ -10,50 +10,59 @@ import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndex
-import com.sijunyang.bracketpairguides.analysis.intellij.DocumentGuidePositions
 import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
+import com.sijunyang.bracketpairguides.analysis.intellij.DocumentGuidePositions
 import com.sijunyang.bracketpairguides.analysis.pairing.core.CancellationProbe
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable
 import com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 
 class DocumentBracketIndexesTest : BasePlatformTestCase() {
     fun testSplitEditorsKeepSnapshotAndPairMemoizationSeparate() {
-        val source = """
+        val source =
+            """
             class SplitView {
                 void run() {
                     call();
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         myFixture.configureByText("SplitView.java", source)
         val firstEditor = myFixture.editor
-        val secondEditor = EditorFactory.getInstance().createEditor(
-            firstEditor.document,
-            project,
-            myFixture.file.fileType,
-            false,
-        )
-        try {
-            val coverage = AnalysisCoverage(
-                tokens = true,
-                activePair = true,
-                guidePosition = true,
+        val secondEditor =
+            EditorFactory.getInstance().createEditor(
+                firstEditor.document,
+                project,
+                myFixture.file.fileType,
+                false,
             )
+        try {
+            val coverage =
+                AnalysisCoverage(
+                    tokens = true,
+                    activePair = true,
+                    guidePosition = true,
+                )
             val analysis = BracketAnalysis()
 
-            val first = complete(inReadAction {
-                analysis.analyze(input(firstEditor, coverage), EmptyProgressIndicator())
-            })
-            val second = complete(inReadAction {
-                analysis.analyze(input(secondEditor, coverage), EmptyProgressIndicator())
-            })
+            val first =
+                complete(
+                    inReadAction {
+                        analysis.analyze(input(firstEditor, coverage), EmptyProgressIndicator())
+                    },
+                )
+            val second =
+                complete(
+                    inReadAction {
+                        analysis.analyze(input(secondEditor, coverage), EmptyProgressIndicator())
+                    },
+                )
 
             assertThat(second).isNotSameAs(first)
             assertThat(second.stamp).isNotSameAs(first.stamp)
@@ -71,11 +80,12 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
 
     fun testEquivalentIndexCandidatesShareTheCanonicalInstance() {
         myFixture.configureByText("Equivalent.java", "class Equivalent { }")
-        val coverage = AnalysisCoverage(
-            tokens = true,
-            activePair = true,
-            guidePosition = false,
-        )
+        val coverage =
+            AnalysisCoverage(
+                tokens = true,
+                activePair = true,
+                guidePosition = false,
+            )
         val input = input(myFixture.editor, coverage)
         val layout = IndexLayout.forCoverage(coverage)
         val firstPairs = pairTable(openLine = 0, closeLine = 0)
@@ -94,11 +104,12 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
 
     fun testPairHashCollisionCannotCanonicalizeDifferentGeometry() {
         myFixture.configureByText("Collision.java", "class Collision { }")
-        val coverage = AnalysisCoverage(
-            tokens = true,
-            activePair = true,
-            guidePosition = false,
-        )
+        val coverage =
+            AnalysisCoverage(
+                tokens = true,
+                activePair = true,
+                guidePosition = false,
+            )
         val input = input(myFixture.editor, coverage)
         val layout = IndexLayout.forCoverage(coverage)
         val firstPairs = pairTable(openLine = 0, closeLine = 100)
@@ -121,21 +132,24 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
 
     fun testTokenOnlyIndexesShareByExactObservableContentWithoutRetainingPairGeometry() {
         myFixture.configureByText("TokenOnly.java", "class TokenOnly { value }")
-        val coverage = AnalysisCoverage(
-            tokens = true,
-            activePair = false,
-            guidePosition = false,
-        )
+        val coverage =
+            AnalysisCoverage(
+                tokens = true,
+                activePair = false,
+                guidePosition = false,
+            )
         val input = input(myFixture.editor, coverage)
         val layout = IndexLayout.forCoverage(coverage)
-        val firstPairs = pairTable(
-            intArrayOf(0, 10, 0),
-            intArrayOf(2, 8, 0),
-        )
-        val sameTokensWithDifferentPairs = pairTable(
-            intArrayOf(0, 8, 0),
-            intArrayOf(2, 10, 0),
-        )
+        val firstPairs =
+            pairTable(
+                intArrayOf(0, 10, 0),
+                intArrayOf(2, 8, 0),
+            )
+        val sameTokensWithDifferentPairs =
+            pairTable(
+                intArrayOf(0, 8, 0),
+                intArrayOf(2, 10, 0),
+            )
         assertThat(
             firstPairs.hasSameContent(
                 sameTokensWithDifferentPairs,
@@ -160,11 +174,12 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
 
     fun testRevisionLayoutAndCoverageAreExactCanonicalBoundaries() {
         myFixture.configureByText("Boundaries.java", "class Boundaries { }")
-        val coverage = AnalysisCoverage(
-            tokens = true,
-            activePair = true,
-            guidePosition = false,
-        )
+        val coverage =
+            AnalysisCoverage(
+                tokens = true,
+                activePair = true,
+                guidePosition = false,
+            )
         val input = input(myFixture.editor, coverage)
         val layout = IndexLayout.forCoverage(coverage)
         val pairs = pairTable(openLine = 0, closeLine = 0)
@@ -213,21 +228,23 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
         myFixture.configureByText("Tabs.java", "class Tabs { }")
         val editor = myFixture.editor
         val pairs = pairTable(openLine = 0, closeLine = 0)
-        val guideCoverage = AnalysisCoverage(
-            tokens = true,
-            activePair = true,
-            guidePosition = true,
-        )
+        val guideCoverage =
+            AnalysisCoverage(
+                tokens = true,
+                activePair = true,
+                guidePosition = true,
+            )
         val tokenCoverage = guideCoverage.copy(guidePosition = false)
         val guideLayout = IndexLayout.forCoverage(guideCoverage)
         val tokenLayout = IndexLayout.forCoverage(tokenCoverage)
         val guideIndexesByDocument = DocumentBracketIndexes()
         val tokenIndexesByDocument = DocumentBracketIndexes()
         val originalTabSize = editor.settings.getTabSize(project)
-        val guideIndexes = indexes(
-            pairs,
-            guidePositions = guidePositions(originalTabSize),
-        )
+        val guideIndexes =
+            indexes(
+                pairs,
+                guidePositions = guidePositions(originalTabSize),
+            )
         val tokenIndexes = indexes(pairs)
 
         try {
@@ -246,10 +263,11 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
 
             editor.settings.setTabSize(originalTabSize + 1)
 
-            val otherGuideIndexes = indexes(
-                pairs,
-                guidePositions = guidePositions(originalTabSize + 1),
-            )
+            val otherGuideIndexes =
+                indexes(
+                    pairs,
+                    guidePositions = guidePositions(originalTabSize + 1),
+                )
             assertThat(
                 guideIndexesByDocument.canonical(
                     input(editor, guideCoverage),
@@ -274,24 +292,27 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
     fun testCanonicalizationIsCancellableAndDoesNotSerializeUnrelatedDocuments() {
         myFixture.configureByText("First.java", "class First { value }")
         val firstEditor = myFixture.editor
-        val secondDocument = EditorFactory.getInstance().createDocument(
-            "class Second { value }",
-        )
-        val secondEditor = EditorFactory.getInstance().createEditor(
-            secondDocument,
-            project,
-            myFixture.file.fileType,
-            false,
-        )
+        val secondDocument =
+            EditorFactory.getInstance().createDocument(
+                "class Second { value }",
+            )
+        val secondEditor =
+            EditorFactory.getInstance().createEditor(
+                secondDocument,
+                project,
+                myFixture.file.fileType,
+                false,
+            )
         val executor = Executors.newFixedThreadPool(3)
         val comparisonEntered = CountDownLatch(1)
         val releaseComparison = CountDownLatch(1)
         try {
-            val coverage = AnalysisCoverage(
-                tokens = true,
-                activePair = true,
-                guidePosition = false,
-            )
+            val coverage =
+                AnalysisCoverage(
+                    tokens = true,
+                    activePair = true,
+                    guidePosition = false,
+                )
             val layout = IndexLayout.forCoverage(coverage)
             val firstInput = input(firstEditor, coverage)
             val secondInput = input(secondEditor, coverage)
@@ -305,53 +326,55 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
                 indexes(firstPairs),
             )
 
-            val blockedComparison = executor.submit<BracketIndexes> {
-                var checks = 0
-                indexesByDocument.canonical(
-                    input = firstInput,
-                    layout = layout,
-                    pairs = firstPairs,
-                    candidate = indexes(firstPairs),
-                    checkCanceled = {
-                        if (++checks == 2) {
-                            comparisonEntered.countDown()
-                            check(releaseComparison.await(5, TimeUnit.SECONDS))
-                        }
-                    },
-                )
-            }
+            val blockedComparison =
+                executor.submit<BracketIndexes> {
+                    var checks = 0
+                    indexesByDocument.canonical(
+                        input = firstInput,
+                        layout = layout,
+                        pairs = firstPairs,
+                        candidate = indexes(firstPairs),
+                        checkCanceled = {
+                            if (++checks == 2) {
+                                comparisonEntered.countDown()
+                                check(releaseComparison.await(5, TimeUnit.SECONDS))
+                            }
+                        },
+                    )
+                }
             assertThat(comparisonEntered.await(1, TimeUnit.SECONDS)).isTrue()
 
             val secondIndexes = indexes(secondPairs)
-            val unrelatedDocument = executor.submit<BracketIndexes> {
-                indexesByDocument.canonical(
-                    input = secondInput,
-                    layout = layout,
-                    pairs = secondPairs,
-                    candidate = secondIndexes,
-                    checkCanceled = {},
-                )
-            }
+            val unrelatedDocument =
+                executor.submit<BracketIndexes> {
+                    indexesByDocument.canonical(
+                        input = secondInput,
+                        layout = layout,
+                        pairs = secondPairs,
+                        candidate = secondIndexes,
+                        checkCanceled = {},
+                    )
+                }
             assertThat(unrelatedDocument.get(1, TimeUnit.SECONDS)).isSameAs(secondIndexes)
 
             val waitChecks = AtomicInteger()
-            val canceledWait = executor.submit<BracketIndexes> {
-                indexesByDocument.canonical(
-                    input = firstInput,
-                    layout = layout,
-                    pairs = firstPairs,
-                    candidate = indexes(firstPairs),
-                    checkCanceled = {
-                        if (waitChecks.incrementAndGet() == 2) {
-                            throw TestCancellation()
-                        }
-                    },
-                )
-            }
+            val canceledWait =
+                executor.submit<BracketIndexes> {
+                    indexesByDocument.canonical(
+                        input = firstInput,
+                        layout = layout,
+                        pairs = firstPairs,
+                        candidate = indexes(firstPairs),
+                        checkCanceled = {
+                            if (waitChecks.incrementAndGet() == 2) {
+                                throw TestCancellation()
+                            }
+                        },
+                    )
+                }
             assertThatThrownBy {
                 canceledWait.get(1, TimeUnit.SECONDS)
-            }
-                .isInstanceOf(ExecutionException::class.java)
+            }.isInstanceOf(ExecutionException::class.java)
                 .hasCauseInstanceOf(TestCancellation::class.java)
 
             releaseComparison.countDown()
@@ -363,18 +386,14 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
         }
     }
 
-    private fun input(editor: Editor, coverage: AnalysisCoverage): AnalysisInput =
-        AnalysisInput(
-            editor = editor,
-            fileType = myFixture.file.fileType,
-            coverage = coverage,
-            disabledLanguageIds = emptySet(),
-        )
+    private fun input(editor: Editor, coverage: AnalysisCoverage): AnalysisInput = AnalysisInput(
+        editor = editor,
+        fileType = myFixture.file.fileType,
+        coverage = coverage,
+        disabledLanguageIds = emptySet(),
+    )
 
-    private fun indexes(
-        pairs: PairTable,
-        guidePositions: GuidePositionIndex? = null,
-    ): BracketIndexes = BracketIndexes(
+    private fun indexes(pairs: PairTable, guidePositions: GuidePositionIndex? = null): BracketIndexes = BracketIndexes(
         pairs = pairs,
         tokens = BracketTokenIndex.build(pairs, NO_CANCELLATION),
         activePairs = ActiveBracketPairIndex.build(pairs, NO_CANCELLATION),
@@ -384,7 +403,8 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
     private fun detachedIndexes(pairs: PairTable): BracketIndexes = BracketIndexes(
         pairs = PairTable.empty(),
         tokens = BracketTokenIndex.buildDetached(pairs, NO_CANCELLATION),
-        activePairs = ActiveBracketPairIndex.build(
+        activePairs =
+        ActiveBracketPairIndex.build(
             PairTable.empty(),
             NO_CANCELLATION,
         ),
@@ -434,8 +454,7 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
         return (outcome as AnalysisOutcome.Complete).snapshot
     }
 
-    private fun <T> inReadAction(action: () -> T): T =
-        ReadAction.compute<T, RuntimeException>(action)
+    private fun <T> inReadAction(action: () -> T): T = ReadAction.compute<T, RuntimeException>(action)
 
     private fun DocumentBracketIndexes.canonical(
         input: AnalysisInput,

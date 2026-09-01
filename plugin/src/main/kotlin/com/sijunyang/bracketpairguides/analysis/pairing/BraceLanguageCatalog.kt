@@ -37,9 +37,10 @@ internal class BraceLanguageCatalog {
 
         val matcher = BraceMatchingUtil.getBraceMatcher(fileType, iterator)
         if (matcher === DEFAULT_MATCHER) return null
-        val topology = (matcher as? PairedBraceMatcher)?.let { declaredMatcher ->
-            BracePairTopology(declaredMatcher.pairs)
-        }
+        val topology =
+            (matcher as? PairedBraceMatcher)?.let { declaredMatcher ->
+                BracePairTopology(declaredMatcher.pairs)
+            }
         return BraceLanguageDefinition(
             matcher = matcher,
             topology = topology,
@@ -47,12 +48,10 @@ internal class BraceLanguageCatalog {
         )
     }
 
-    private fun pairedDefinition(
-        language: Language,
-        pairedMatcher: PairedBraceMatcher,
-    ): BraceLanguageDefinition {
-        val matcher = (pairedMatcher as? BraceMatcher)
-            ?: PairedBraceMatcherAdapter(pairedMatcher, language)
+    private fun pairedDefinition(language: Language, pairedMatcher: PairedBraceMatcher): BraceLanguageDefinition {
+        val matcher =
+            (pairedMatcher as? BraceMatcher)
+                ?: PairedBraceMatcherAdapter(pairedMatcher, language)
         return BraceLanguageDefinition(
             matcher = matcher,
             topology = BracePairTopology(pairedMatcher.pairs),
@@ -61,46 +60,52 @@ internal class BraceLanguageCatalog {
     }
 
     fun installedFamilies(): List<BraceLanguageFamily> {
-        val languageMatchers = Language.getRegisteredLanguages()
-            .asSequence()
-            .filter { language -> language !== Language.ANY }
-            .mapNotNull { language ->
-                val matcher = LanguageBraceMatching.INSTANCE.forLanguage(language)
-                    ?: return@mapNotNull null
-                capabilityOwner(language, matcher) to language
-            }
+        val languageMatchers =
+            Language
+                .getRegisteredLanguages()
+                .asSequence()
+                .filter { language -> language !== Language.ANY }
+                .mapNotNull { language ->
+                    val matcher =
+                        LanguageBraceMatching.INSTANCE.forLanguage(language)
+                            ?: return@mapNotNull null
+                    capabilityOwner(language, matcher) to language
+                }
 
-        val legacyMatchers = BraceMatcher.EP_NAME.extensionList
-            .asSequence()
-            .mapNotNull { extension ->
-                FileTypeRegistry.getInstance().findFileTypeByName(extension.filetype)
-            }
-            .filterIsInstance<LanguageFileType>()
-            .map(LanguageFileType::getLanguage)
-            .filter { language ->
-                LanguageBraceMatching.INSTANCE.forLanguage(language) == null
-            }
-            .map { language -> language to language }
+        val legacyMatchers =
+            BraceMatcher.EP_NAME.extensionList
+                .asSequence()
+                .mapNotNull { extension ->
+                    FileTypeRegistry.getInstance().findFileTypeByName(extension.filetype)
+                }.filterIsInstance<LanguageFileType>()
+                .map(LanguageFileType::getLanguage)
+                .filter { language ->
+                    LanguageBraceMatching.INSTANCE.forLanguage(language) == null
+                }.map { language -> language to language }
 
-        val families = (languageMatchers + legacyMatchers)
-            .groupBy(
-                keySelector = { (owner, _) -> owner.id },
-            )
+        val families =
+            (languageMatchers + legacyMatchers)
+                .groupBy(
+                    keySelector = { (owner, _) -> owner.id },
+                )
 
-        return families.map { (ownerId, entries) ->
-            val owner = entries.first().first
-            val familyMembers = entries.map { (_, member) -> member }
-                .distinctBy(Language::getID)
-            BraceLanguageFamily(
-                id = ownerId,
-                displayName = owner.displayName.ifBlank { ownerId },
-                memberDisplayNames = familyMembers
-                    .map { language -> language.displayName.ifBlank { language.id } }
-                    .distinct()
-                    .sortedWith(String.CASE_INSENSITIVE_ORDER),
-            )
-        }
-            .sortedBy(BraceLanguageFamily::id)
+        return families
+            .map { (ownerId, entries) ->
+                val owner = entries.first().first
+                val familyMembers =
+                    entries
+                        .map { (_, member) -> member }
+                        .distinctBy(Language::getID)
+                BraceLanguageFamily(
+                    id = ownerId,
+                    displayName = owner.displayName.ifBlank { ownerId },
+                    memberDisplayNames =
+                    familyMembers
+                        .map { language -> language.displayName.ifBlank { language.id } }
+                        .distinct()
+                        .sortedWith(String.CASE_INSENSITIVE_ORDER),
+                )
+            }.sortedBy(BraceLanguageFamily::id)
     }
 
     private fun capabilityOwner(fileType: FileType, language: Language): Language {
@@ -128,15 +133,11 @@ internal class BraceLanguageCatalog {
         return (fileType as? LanguageFileType)?.language ?: language
     }
 
-    private fun hasLegacyMatcher(fileType: FileType): Boolean =
-        BraceMatcher.EP_NAME.extensionList.any { extension ->
-            extension.filetype == fileType.name
-        }
+    private fun hasLegacyMatcher(fileType: FileType): Boolean = BraceMatcher.EP_NAME.extensionList.any { extension ->
+        extension.filetype == fileType.name
+    }
 
-    private fun capabilityOwner(
-        language: Language,
-        matcher: PairedBraceMatcher,
-    ): Language {
+    private fun capabilityOwner(language: Language, matcher: PairedBraceMatcher): Language {
         var owner = language
         var base = owner.baseLanguage
         while (
@@ -150,10 +151,11 @@ internal class BraceLanguageCatalog {
     }
 
     private companion object {
-        val DEFAULT_MATCHER = BraceMatchingUtil.getBraceMatcher(
-            UnknownFileType.INSTANCE,
-            Language.ANY,
-        )
+        val DEFAULT_MATCHER =
+            BraceMatchingUtil.getBraceMatcher(
+                UnknownFileType.INSTANCE,
+                Language.ANY,
+            )
     }
 }
 
@@ -163,10 +165,8 @@ internal class BraceLanguageDefinition(
     private val topology: BracePairTopology?,
     val capabilityId: String,
 ) : PairingRules<IElementType> {
-    override fun isPair(
-        openToken: IElementType,
-        closeToken: IElementType,
-    ): Boolean = matcher.isPairBraces(openToken, closeToken)
+    override fun isPair(openToken: IElementType, closeToken: IElementType): Boolean =
+        matcher.isPairBraces(openToken, closeToken)
 
     /** Uses declared pair topology when available; legacy matchers classify each occurrence. */
     fun structuralRole(
@@ -192,7 +192,6 @@ internal class BraceLanguageDefinition(
         )
     }
 
-    fun isPureSymmetric(tokenType: IElementType): Boolean =
-        topology?.isPureSymmetric(tokenType)
-            ?: (matcher.getOppositeBraceTokenType(tokenType) === tokenType)
+    fun isPureSymmetric(tokenType: IElementType): Boolean = topology?.isPureSymmetric(tokenType)
+        ?: (matcher.getOppositeBraceTokenType(tokenType) === tokenType)
 }

@@ -1,8 +1,8 @@
 package com.sijunyang.bracketpairguides.analysis.intellij
 
 import com.intellij.openapi.editor.Document
-import com.sijunyang.bracketpairguides.analysis.guide.VisualColumn
 import com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndex
+import com.sijunyang.bracketpairguides.analysis.guide.VisualColumn
 
 /** IntelliJ document view used to create one exact guide-position index. */
 internal class DocumentGuidePositions(
@@ -41,21 +41,18 @@ internal class DocumentGuidePositions(
         }
     }
 
-    private fun indentationColumn(
-        text: CharSequence,
-        start: Int,
-        end: Int,
-    ): Int {
+    private fun indentationColumn(text: CharSequence, start: Int, end: Int): Int {
         var column = 0
         for (offset in start until end) {
             if ((offset - start) and CANCELLATION_CHARACTER_MASK == 0) {
                 checkCanceled()
             }
-            column = when (text[offset]) {
-                ' ' -> VisualColumn.afterSpace(column)
-                '\t' -> VisualColumn.afterTab(column, tabSize)
-                else -> return column
-            }
+            column =
+                when (text[offset]) {
+                    ' ' -> VisualColumn.afterSpace(column)
+                    '\t' -> VisualColumn.afterTab(column, tabSize)
+                    else -> return column
+                }
         }
         return VisualColumn.BLANK_LINE_COLUMN
     }

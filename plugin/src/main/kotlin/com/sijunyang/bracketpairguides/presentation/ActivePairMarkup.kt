@@ -16,11 +16,12 @@ internal class ActivePairMarkup(private val editor: Editor) {
     private var pairMarks: List<RangeHighlighter> = emptyList()
 
     val guide: BracketGuide?
-        get() = guideMark
-            ?.takeIf(RangeHighlighter::isValid)
-            ?.customRenderer
-            ?.let { it as? BracketGuideDrawing }
-            ?.guide
+        get() =
+            guideMark
+                ?.takeIf(RangeHighlighter::isValid)
+                ?.customRenderer
+                ?.let { it as? BracketGuideDrawing }
+                ?.guide
 
     val isVisible: Boolean
         get() = guideMark != null || pairMarks.isNotEmpty()
@@ -31,41 +32,48 @@ internal class ActivePairMarkup(private val editor: Editor) {
             return
         }
 
-        val appearance = GuideAppearance(
-            showVertical = preferences.showVerticalGuide,
-            showHorizontal = preferences.showHorizontalGuides,
-            lineWidth = preferences.guideLineWidth.coerceIn(
-                BracketGuidePreferences.MIN_GUIDE_LINE_WIDTH,
-                BracketGuidePreferences.MAX_GUIDE_LINE_WIDTH,
-            ),
-            opacityPercent = preferences.guideOpacityPercent.coerceIn(
-                BracketGuidePreferences.MIN_GUIDE_OPACITY_PERCENT,
-                BracketGuidePreferences.MAX_GUIDE_OPACITY_PERCENT,
-            ),
-        )
-        val color = BracketColorPalette.guideLineColor(
-            preferences,
-            guide.pair.depth,
-        )
-        val highlighter = guideMark?.takeIf(RangeHighlighter::isValid)
-            ?: editor.markupModel.addRangeHighlighter(
-                EMPTY_ATTRIBUTES_KEY,
-                0,
-                editor.document.textLength,
-                GUIDE_LAYER,
-                HighlighterTargetArea.EXACT_RANGE,
-            ).also {
-                it.isGreedyToLeft = true
-                it.isGreedyToRight = true
+        val appearance =
+            GuideAppearance(
+                showVertical = preferences.showVerticalGuide,
+                showHorizontal = preferences.showHorizontalGuides,
+                lineWidth =
+                preferences.guideLineWidth.coerceIn(
+                    BracketGuidePreferences.MIN_GUIDE_LINE_WIDTH,
+                    BracketGuidePreferences.MAX_GUIDE_LINE_WIDTH,
+                ),
+                opacityPercent =
+                preferences.guideOpacityPercent.coerceIn(
+                    BracketGuidePreferences.MIN_GUIDE_OPACITY_PERCENT,
+                    BracketGuidePreferences.MAX_GUIDE_OPACITY_PERCENT,
+                ),
+            )
+        val color =
+            BracketColorPalette.guideLineColor(
+                preferences,
+                guide.pair.depth,
+            )
+        val highlighter =
+            guideMark?.takeIf(RangeHighlighter::isValid)
+                ?: editor.markupModel
+                    .addRangeHighlighter(
+                        EMPTY_ATTRIBUTES_KEY,
+                        0,
+                        editor.document.textLength,
+                        GUIDE_LAYER,
+                        HighlighterTargetArea.EXACT_RANGE,
+                    ).also {
+                        it.isGreedyToLeft = true
+                        it.isGreedyToRight = true
+                    }
+        guideMark =
+            highlighter.also {
+                val renderer = it.customRenderer as? BracketGuideDrawing
+                if (renderer == null) {
+                    it.customRenderer = BracketGuideDrawing(guide, appearance, color)
+                } else {
+                    renderer.update(guide, appearance, color)
+                }
             }
-        guideMark = highlighter.also {
-            val renderer = it.customRenderer as? BracketGuideDrawing
-            if (renderer == null) {
-                it.customRenderer = BracketGuideDrawing(guide, appearance, color)
-            } else {
-                renderer.update(guide, appearance, color)
-            }
-        }
     }
 
     fun showPair(pair: BracketPair, preferences: BracketGuidePreferences) {
@@ -77,26 +85,29 @@ internal class ActivePairMarkup(private val editor: Editor) {
         ) {
             return
         }
-        val attributes = BracketColorPalette.activePairTextAttributes(
-            editor.colorsScheme,
-            preferences,
-            pair.depth,
-        )
-        pairMarks = listOf(
-            pair.openOffset to pair.openTokenLength,
-            pair.closeOffset to pair.closeTokenLength,
-        ).map { (startOffset, tokenLength) ->
-            editor.markupModel.addRangeHighlighter(
-                startOffset,
-                startOffset + tokenLength,
-                ACTIVE_PAIR_LAYER,
-                attributes,
-                HighlighterTargetArea.EXACT_RANGE,
-            ).also {
-                it.isGreedyToLeft = false
-                it.isGreedyToRight = false
+        val attributes =
+            BracketColorPalette.activePairTextAttributes(
+                editor.colorsScheme,
+                preferences,
+                pair.depth,
+            )
+        pairMarks =
+            listOf(
+                pair.openOffset to pair.openTokenLength,
+                pair.closeOffset to pair.closeTokenLength,
+            ).map { (startOffset, tokenLength) ->
+                editor.markupModel
+                    .addRangeHighlighter(
+                        startOffset,
+                        startOffset + tokenLength,
+                        ACTIVE_PAIR_LAYER,
+                        attributes,
+                        HighlighterTargetArea.EXACT_RANGE,
+                    ).also {
+                        it.isGreedyToLeft = false
+                        it.isGreedyToRight = false
+                    }
             }
-        }
     }
 
     fun clear(preserveGuide: Boolean) {
@@ -116,22 +127,21 @@ internal class ActivePairMarkup(private val editor: Editor) {
         pairMarks = emptyList()
     }
 
-    private fun canShow(
-        guide: BracketGuide,
-        preferences: BracketGuidePreferences,
-    ): Boolean {
-        val hasSegment = if (guide.pair.openLine == guide.pair.closeLine) {
-            preferences.showHorizontalGuides
-        } else {
-            preferences.showVerticalGuide || preferences.showHorizontalGuides
-        }
+    private fun canShow(guide: BracketGuide, preferences: BracketGuidePreferences): Boolean {
+        val hasSegment =
+            if (guide.pair.openLine == guide.pair.closeLine) {
+                preferences.showHorizontalGuides
+            } else {
+                preferences.showVerticalGuide || preferences.showHorizontalGuides
+            }
         return preferences.enabled && preferences.showActiveGuide && hasSegment
     }
 
     private companion object {
-        private val EMPTY_ATTRIBUTES_KEY = TextAttributesKey.createTextAttributesKey(
-            "BRACKET_PAIR_GUIDES_EMPTY_ATTRIBUTES",
-        )
+        private val EMPTY_ATTRIBUTES_KEY =
+            TextAttributesKey.createTextAttributesKey(
+                "BRACKET_PAIR_GUIDES_EMPTY_ATTRIBUTES",
+            )
         private const val GUIDE_LAYER = HighlighterLayer.ADDITIONAL_SYNTAX
         private const val ACTIVE_PAIR_LAYER = HighlighterLayer.ELEMENT_UNDER_CARET
     }

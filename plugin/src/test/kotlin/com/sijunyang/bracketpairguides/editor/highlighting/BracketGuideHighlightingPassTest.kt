@@ -1,20 +1,20 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
-import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
-import com.sijunyang.bracketpairguides.analysis.AnalysisInput
-import com.sijunyang.bracketpairguides.analysis.BracketGuide
-import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.requireSnapshot
-import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
-import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
-import com.sijunyang.bracketpairguides.preferences.analysisCoverage
-import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
-import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.components.service
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
+import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
+import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.BracketGuide
+import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
+import com.sijunyang.bracketpairguides.analysis.requireSnapshot
+import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
+import com.sijunyang.bracketpairguides.preferences.analysisCoverage
+import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
+import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import org.assertj.core.api.Assertions.assertThat
 
 internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixture() {
@@ -27,22 +27,26 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
         )
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("()") + 1)
-        val expectedPairCount = inReadAction {
-            val analysis = service<BracketAnalysis>().analyze(
-                AnalysisInput(
-                    editor = editor,
-                    fileType = myFixture.file.fileType,
-                    coverage = BracketGuideSettings.getInstance().options.analysisCoverage(),
-                    disabledLanguageIds = emptySet(),
-                ),
-                EmptyProgressIndicator(),
-            ).requireSnapshot()
-            analysis.visibleTokens(
-                range = TextRange(0, editor.document.textLength),
-                focusOffset = editor.caretModel.primaryCaret.offset,
-                limit = 10_000,
-            ).size / 2
-        }
+        val expectedPairCount =
+            inReadAction {
+                val analysis =
+                    service<BracketAnalysis>()
+                        .analyze(
+                            AnalysisInput(
+                                editor = editor,
+                                fileType = myFixture.file.fileType,
+                                coverage = BracketGuideSettings.getInstance().options.analysisCoverage(),
+                                disabledLanguageIds = emptySet(),
+                            ),
+                            EmptyProgressIndicator(),
+                        ).requireSnapshot()
+                analysis
+                    .visibleTokens(
+                        range = TextRange(0, editor.document.textLength),
+                        focusOffset = editor.caretModel.primaryCaret.offset,
+                        limit = 10_000,
+                    ).size / 2
+            }
 
         applyPass()
         val first = ownedHighlighters()
@@ -76,15 +80,16 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
     fun testHighlightingAcceptsMockedPairsWithoutALanguageLexer() {
         val source = "opening content closing"
         myFixture.configureByText("Sample.txt", source)
-        val pair = BracketPair(
-            openOffset = 0,
-            openTokenLength = "opening".length,
-            closeOffset = source.indexOf("closing"),
-            closeTokenLength = "closing".length,
-            depth = 0,
-            openLine = 0,
-            closeLine = 0,
-        )
+        val pair =
+            BracketPair(
+                openOffset = 0,
+                openTokenLength = "opening".length,
+                closeOffset = source.indexOf("closing"),
+                closeTokenLength = "closing".length,
+                depth = 0,
+                openLine = 0,
+                closeLine = 0,
+            )
         myFixture.editor.caretModel.moveToOffset(source.indexOf("content"))
 
         applyPass({ listOf(pair) })
@@ -98,24 +103,28 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
         val source = pairSource + "// outside\n".repeat(5_000)
         myFixture.configureByText("BoundedGuidePositionIndex.java", source)
         val editor = myFixture.editor
-        val analysis = inReadAction {
-            service<BracketAnalysis>().analyze(
-                AnalysisInput(
-                    editor = editor,
-                    fileType = myFixture.file.fileType,
-                    coverage = AnalysisCoverage(
-                        tokens = true,
-                        activePair = true,
-                        guidePosition = true,
-                    ),
-                    disabledLanguageIds = emptySet(),
-                ),
-                EmptyProgressIndicator(),
-            ).requireSnapshot()
-        }
-        val pair = checkNotNull(
-            analysis.activePairAt(source.indexOf("value")),
-        )
+        val analysis =
+            inReadAction {
+                service<BracketAnalysis>()
+                    .analyze(
+                        AnalysisInput(
+                            editor = editor,
+                            fileType = myFixture.file.fileType,
+                            coverage =
+                            AnalysisCoverage(
+                                tokens = true,
+                                activePair = true,
+                                guidePosition = true,
+                            ),
+                            disabledLanguageIds = emptySet(),
+                        ),
+                        EmptyProgressIndicator(),
+                    ).requireSnapshot()
+            }
+        val pair =
+            checkNotNull(
+                analysis.activePairAt(source.indexOf("value")),
+            )
 
         assertThat(analysis.guideFor(pair)).isEqualTo(BracketGuide(pair, guideColumn = 2, anchorLine = 2))
         assertThat(
@@ -128,15 +137,16 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
     fun testInvalidPairTokenBoundsDoNotCreateActivePresentation() {
         val source = "opening content closing"
         myFixture.configureByText("InvalidProviderPair.txt", source)
-        val pair = BracketPair(
-            openOffset = 0,
-            openTokenLength = "opening".length,
-            closeOffset = source.indexOf("closing"),
-            closeTokenLength = source.length,
-            depth = 0,
-            openLine = 0,
-            closeLine = 0,
-        )
+        val pair =
+            BracketPair(
+                openOffset = 0,
+                openTokenLength = "opening".length,
+                closeOffset = source.indexOf("closing"),
+                closeTokenLength = source.length,
+                depth = 0,
+                openLine = 0,
+                closeLine = 0,
+            )
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("content"))
         BracketGuideSettings.getInstance().replace(
@@ -152,9 +162,16 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
     fun testCaretMovementWaitsForTheFirstFullSnapshot() {
         val source = "x { content } y"
         myFixture.configureByText("InitialSnapshot.txt", source)
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         var collections = 0
         testPass(
             project = project,
@@ -175,12 +192,26 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
     fun testStaleCaretMovementKeepsAdjustedPairUntilTheNextSnapshot() {
         val source = "x { outer (inner) tail } y"
         myFixture.configureByText("StaleCaret.txt", source)
-        val outer = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
-        val inner = BracketPair(
-            source.indexOf('('), 1, source.indexOf(')'), 1, 1, 0, 0,
-        )
+        val outer =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
+        val inner =
+            BracketPair(
+                source.indexOf('('),
+                1,
+                source.indexOf(')'),
+                1,
+                1,
+                0,
+                0,
+            )
         val editor = myFixture.editor
         val tailOffset = source.indexOf("tail")
         val innerOffset = source.indexOf("inner")
@@ -208,9 +239,16 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
     fun testDocumentEditDoesNotInventAReplacementBeforeTheNextSnapshot() {
         val source = "x { content } y"
         myFixture.configureByText("ContextChange.txt", source)
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("content"))
         applyPass(
@@ -232,9 +270,16 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
     fun testDocumentChangeKeepsTheAdjustedPairWhileSnapshotIsStale() {
         val source = "x { content } y"
         myFixture.configureByText("StaleSnapshot.txt", source)
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("content"))
         applyPass(
@@ -256,12 +301,13 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
         val source = "class Sample { int value; }"
         myFixture.configureByText("ReleaseStaleSnapshot.java", source)
         val editor = myFixture.editor
-        val options = BracketGuideSettings.getInstance().options.copy(
-            showActiveGuide = false,
-            showActivePairBorder = false,
-            showActivePairBackground = false,
-            colorBracketTokens = true,
-        )
+        val options =
+            BracketGuideSettings.getInstance().options.copy(
+                showActiveGuide = false,
+                showActivePairBorder = false,
+                showActivePairBackground = false,
+                colorBracketTokens = true,
+            )
         BracketGuideSettings.getInstance().replace(options)
         applyPass()
         val acceptedStamp = stampFor(editor, options)

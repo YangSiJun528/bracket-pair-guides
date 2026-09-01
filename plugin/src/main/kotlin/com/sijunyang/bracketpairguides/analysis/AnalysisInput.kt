@@ -24,12 +24,13 @@ internal class AnalysisInput {
         this.fileType = fileType
         this.coverage = coverage
         this.disabledLanguageIds = immutableLanguageIds
-        this.stamp = AnalysisStamp(
-            editor = editor,
-            fileType = fileType,
-            coverage = coverage,
-            disabledLanguageIds = immutableLanguageIds,
-        )
+        this.stamp =
+            AnalysisStamp(
+                editor = editor,
+                fileType = fileType,
+                coverage = coverage,
+                disabledLanguageIds = immutableLanguageIds,
+            )
     }
 
     private constructor(
@@ -49,18 +50,17 @@ internal class AnalysisInput {
         this.stamp = stamp
     }
 
-    internal fun withCoverage(nextCoverage: AnalysisCoverage): AnalysisInput =
-        if (nextCoverage == coverage) {
-            this
-        } else {
-            AnalysisInput(
-                editor = editor,
-                fileType = fileType,
-                coverage = nextCoverage,
-                disabledLanguageIds = disabledLanguageIds,
-                stamp = stamp.withCoverage(nextCoverage),
-            )
-        }
+    internal fun withCoverage(nextCoverage: AnalysisCoverage): AnalysisInput = if (nextCoverage == coverage) {
+        this
+    } else {
+        AnalysisInput(
+            editor = editor,
+            fileType = fileType,
+            coverage = nextCoverage,
+            disabledLanguageIds = disabledLanguageIds,
+            stamp = stamp.withCoverage(nextCoverage),
+        )
+    }
 }
 
 private fun <T> immutableCopy(values: Set<T>): Set<T> =

@@ -1,8 +1,8 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
-import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.util.TextRange
+import com.sijunyang.bracketpairguides.analysis.BracketPair
 import org.assertj.core.api.Assertions.assertThat
 import kotlin.system.measureTimeMillis
 
@@ -16,9 +16,16 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
     fun testDocumentEditAdjustsTheActiveGuideBeforeFullRecognitionCompletes() {
         val source = "x { active content } y"
         myFixture.configureByText("Priority.txt", source)
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         var collections = 0
         val pairs = {
             collections++
@@ -39,27 +46,29 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
     }
 
     fun testInsertionRecalculatesTrackedGuideImmediatelyWithoutBackgroundAnalysis() {
-        val source = """
+        val source =
+            """
             class Sample {
               void run() {
                 call();
               }
             }
-        """.trimIndent()
+            """.trimIndent()
         myFixture.configureByText("ImmediateInsertion.java", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("call"))
         val openingBrace = source.indexOf('{', source.indexOf("run"))
         val closingBrace = source.indexOf('}', openingBrace)
-        val pair = BracketPair(
-            openingBrace,
-            1,
-            closingBrace,
-            1,
-            1,
-            editor.document.getLineNumber(openingBrace),
-            editor.document.getLineNumber(closingBrace),
-        )
+        val pair =
+            BracketPair(
+                openingBrace,
+                1,
+                closingBrace,
+                1,
+                1,
+                editor.document.getLineNumber(openingBrace),
+                editor.document.getLineNumber(closingBrace),
+            )
         var collections = 0
         applyPass(pairs = {
             collections++
@@ -73,9 +82,10 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
             editor.document.insertString(closeLineStart, "  ")
         }
 
-        val adjustedGuide = checkNotNull(
-            activeGuideState()?.guide,
-        )
+        val adjustedGuide =
+            checkNotNull(
+                activeGuideState()?.guide,
+            )
         assertThat(adjustedGuide.guideColumn).isEqualTo(4)
         assertThat(adjustedGuide.pair.closeOffset).isEqualTo(editor.document.text.indexOf('}', closeLineStart))
         assertThat(collections).isEqualTo(1)
@@ -106,9 +116,10 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
             )
         }
 
-        val adjustedGuide = checkNotNull(
-            activeGuideState()?.guide,
-        )
+        val adjustedGuide =
+            checkNotNull(
+                activeGuideState()?.guide,
+            )
         assertThat(adjustedGuide.guideColumn).isEqualTo(2)
         assertThat(adjustedGuide.pair.openLine).isEqualTo(0)
         assertThat(adjustedGuide.pair.closeLine).isEqualTo(2)
@@ -152,13 +163,14 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
     }
 
     fun testRemovalRecalculatesTrackedGuideImmediatelyWithoutBackgroundAnalysis() {
-        val source = """
+        val source =
+            """
             class Sample {
                 void run() {
                     call();
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         myFixture.configureByText("ImmediateRemoval.java", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("call"))
@@ -216,15 +228,16 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
         myFixture.configureByText("ImmediateMultiCharacterEndpoint.txt", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("content"))
-        val pair = BracketPair(
-            openOffset = source.indexOf("<<"),
-            openTokenLength = 2,
-            closeOffset = source.indexOf(">>"),
-            closeTokenLength = 2,
-            depth = 0,
-            openLine = 0,
-            closeLine = 0,
-        )
+        val pair =
+            BracketPair(
+                openOffset = source.indexOf("<<"),
+                openTokenLength = 2,
+                closeOffset = source.indexOf(">>"),
+                closeTokenLength = 2,
+                depth = 0,
+                openLine = 0,
+                closeLine = 0,
+            )
         var collections = 0
         applyPass(pairs = {
             collections++
@@ -243,23 +256,25 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
     }
 
     fun testEditBeyondSynchronousLineBudgetClearsStaleGuideImmediately() {
-        val source = buildString {
-            append("{\n")
-            repeat(300) { append("    value\n") }
-            append("    }")
-        }
+        val source =
+            buildString {
+                append("{\n")
+                repeat(300) { append("    value\n") }
+                append("    }")
+            }
         myFixture.configureByText("ImmediateBudget.txt", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("value"))
-        val pair = BracketPair(
-            openOffset = source.indexOf('{'),
-            openTokenLength = 1,
-            closeOffset = source.lastIndexOf('}'),
-            closeTokenLength = 1,
-            depth = 0,
-            openLine = 0,
-            closeLine = 301,
-        )
+        val pair =
+            BracketPair(
+                openOffset = source.indexOf('{'),
+                openTokenLength = 1,
+                closeOffset = source.lastIndexOf('}'),
+                closeTokenLength = 1,
+                depth = 0,
+                openLine = 0,
+                closeLine = 301,
+            )
         var collections = 0
         applyPass(pairs = {
             collections++
@@ -293,9 +308,10 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
             editor.document.insertString(start, "(")
         }
 
-        val adjustedPair = checkNotNull(
-            activeGuideState()?.guide?.pair,
-        )
+        val adjustedPair =
+            checkNotNull(
+                activeGuideState()?.guide?.pair,
+            )
         assertThat(adjustedPair.openOffset).isEqualTo(previousPair.openOffset)
         assertThat(adjustedPair.openOffset).isNotEqualTo(start)
 
@@ -311,22 +327,24 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
         val pairCount = 10_000
         val source = "(x)".repeat(pairCount)
         myFixture.configureByText("Switches.txt", source)
-        val pairs = List(pairCount) { index ->
-            val openOffset = index * 3
-            BracketPair(openOffset, 1, openOffset + 2, 1, 0, 0, 0)
-        }
+        val pairs =
+            List(pairCount) { index ->
+                val openOffset = index * 3
+                BracketPair(openOffset, 1, openOffset + 2, 1, 0, 0, 0)
+            }
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(1)
         applyPass({ pairs }) { TextRange(0, 256) }
         val persistentGuide = checkNotNull(activeGuide())
 
-        val elapsed = measureTimeMillis {
-            var index = 1
-            while (index <= 2_000) {
-                editor.caretModel.moveToOffset(index * 3 + 1)
-                index++
+        val elapsed =
+            measureTimeMillis {
+                var index = 1
+                while (index <= 2_000) {
+                    editor.caretModel.moveToOffset(index * 3 + 1)
+                    index++
+                }
             }
-        }
 
         assertThat(activeGuide()).isSameAs(persistentGuide)
         assertThat(guideHighlighters()).hasSize(1)

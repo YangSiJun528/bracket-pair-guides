@@ -39,9 +39,10 @@ class BraceLanguageCatalogTest : BasePlatformTestCase() {
         val language = (myFixture.file.fileType as LanguageFileType).language
 
         assertThat(LanguageBraceMatching.INSTANCE.forLanguage(language)).isNull()
-        val family = BraceLanguageCatalog().installedFamilies().single { candidate ->
-            candidate.id == language.id
-        }
+        val family =
+            BraceLanguageCatalog().installedFamilies().single { candidate ->
+                candidate.id == language.id
+            }
 
         assertThat(family.displayName).isEqualTo(language.displayName)
         assertThat(family.memberDisplayNames).contains(language.displayName)
@@ -54,9 +55,10 @@ class BraceLanguageCatalogTest : BasePlatformTestCase() {
 
         try {
             val supported = BraceLanguageCatalog().installedFamilies()
-            val family: BraceLanguageFamily = supported.single { language ->
-                language.id == EMBEDDED_LANGUAGE.id
-            }
+            val family: BraceLanguageFamily =
+                supported.single { language ->
+                    language.id == EMBEDDED_LANGUAGE.id
+                }
 
             assertThat(family.displayName).isEqualTo(EMBEDDED_LANGUAGE.displayName)
             assertThat(family.memberDisplayNames).containsExactlyInAnyOrder(
@@ -75,28 +77,27 @@ class BraceLanguageCatalogTest : BasePlatformTestCase() {
     }
 
     private companion object {
-        val EMBEDDED_LANGUAGE = object : Language(
-            "BRACKET_PAIR_GUIDES_EMBEDDED_SETTINGS_TEST",
-        ) {}
-        val EMBEDDED_DIALECT = object : Language(
-            EMBEDDED_LANGUAGE,
-            "BRACKET_PAIR_GUIDES_EMBEDDED_DIALECT_SETTINGS_TEST",
-        ) {}
+        val EMBEDDED_LANGUAGE =
+            object : Language(
+                "BRACKET_PAIR_GUIDES_EMBEDDED_SETTINGS_TEST",
+            ) {}
+        val EMBEDDED_DIALECT =
+            object : Language(
+                EMBEDDED_LANGUAGE,
+                "BRACKET_PAIR_GUIDES_EMBEDDED_DIALECT_SETTINGS_TEST",
+            ) {}
         val LEFT = IElementType("EMBEDDED_SETTINGS_LEFT", EMBEDDED_LANGUAGE)
         val RIGHT = IElementType("EMBEDDED_SETTINGS_RIGHT", EMBEDDED_LANGUAGE)
-        val MATCHER = object : PairedBraceMatcher {
-            override fun getPairs(): Array<BracePair> =
-                arrayOf(BracePair(LEFT, RIGHT, false))
+        val MATCHER =
+            object : PairedBraceMatcher {
+                override fun getPairs(): Array<BracePair> = arrayOf(BracePair(LEFT, RIGHT, false))
 
-            override fun isPairedBracesAllowedBeforeType(
-                lbraceType: IElementType,
-                contextType: IElementType?,
-            ): Boolean = true
+                override fun isPairedBracesAllowedBeforeType(
+                    lbraceType: IElementType,
+                    contextType: IElementType?,
+                ): Boolean = true
 
-            override fun getCodeConstructStart(
-                file: PsiFile,
-                openingBraceOffset: Int,
-            ): Int = openingBraceOffset
-        }
+                override fun getCodeConstructStart(file: PsiFile, openingBraceOffset: Int): Int = openingBraceOffset
+            }
     }
 }

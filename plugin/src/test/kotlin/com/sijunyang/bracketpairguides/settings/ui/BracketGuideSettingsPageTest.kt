@@ -1,11 +1,5 @@
 package com.sijunyang.bracketpairguides.settings.ui
 
-import com.sijunyang.bracketpairguides.analysis.BraceLanguageFamily
-import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
-import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
-import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
-import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
-import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.util.TextRange
@@ -14,13 +8,19 @@ import com.intellij.ui.ColorPanel
 import com.intellij.ui.JBIntSpinner
 import com.intellij.ui.TitledSeparator
 import com.intellij.ui.components.JBCheckBox
+import com.sijunyang.bracketpairguides.analysis.BraceLanguageFamily
+import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
+import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
+import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
+import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
+import org.assertj.core.api.Assertions.assertThat
 import java.awt.Color
 import java.awt.Component
 import java.awt.Container
 import javax.swing.JButton
 import javax.swing.JEditorPane
 import javax.swing.JTextField
-import org.assertj.core.api.Assertions.assertThat
 
 class BracketGuideSettingsPageTest : BasePlatformTestCase() {
     private var originalNativeMatchedBraceHighlighting = true
@@ -43,10 +43,12 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
 
     fun testUsesBoundPlatformControlsForEveryEditorSetting() {
         withConfigurable(emptyList()) { configurable, component ->
-            val checkBoxes = component.descendants()
-                .filterIsInstance<JBCheckBox>()
-                .mapNotNull(JBCheckBox::getText)
-                .toSet()
+            val checkBoxes =
+                component
+                    .descendants()
+                    .filterIsInstance<JBCheckBox>()
+                    .mapNotNull(JBCheckBox::getText)
+                    .toSet()
 
             assertThat(checkBoxes).contains(
                 "Enabled",
@@ -156,10 +158,11 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
     }
 
     fun testLanguageBindingsPreserveUnavailableDisabledIds() {
-        val languages = listOf(
-            ALPHA_FAMILY,
-            BETA_FAMILY,
-        )
+        val languages =
+            listOf(
+                ALPHA_FAMILY,
+                BETA_FAMILY,
+            )
         BracketGuideSettings.getInstance().loadState(
             BracketGuidePreferences(
                 disabledLanguageIds = setOf(UNAVAILABLE_LANGUAGE_ID, BETA_LANGUAGE_ID),
@@ -186,10 +189,12 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
 
     fun testLanguagesSectionIsVisibleAndLast() {
         withConfigurable(listOf(ALPHA_FAMILY)) { _, component ->
-            val sectionTitles = component.descendants()
-                .filterIsInstance<TitledSeparator>()
-                .mapNotNull(TitledSeparator::getText)
-                .toList()
+            val sectionTitles =
+                component
+                    .descendants()
+                    .filterIsInstance<TitledSeparator>()
+                    .mapNotNull(TitledSeparator::getText)
+                    .toList()
 
             assertThat(component.languageCheckBox(ALPHA_LANGUAGE_ID).isVisible).isTrue()
             assertThat(sectionTitles.last()).isEqualTo("Languages")
@@ -234,8 +239,7 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
     }
 
     fun testCustomFileTypeLanguageUsesSettingsSpecificLabelAndConstraint() {
-        withConfigurable(listOf(TEXT_FAMILY)) {
-                _, component ->
+        withConfigurable(listOf(TEXT_FAMILY)) { _, component ->
             val language = component.languageCheckBox("TEXT")
 
             assertThat(language.text).isEqualTo("Custom file types")
@@ -294,13 +298,14 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
     }
 
     fun testResetRestoresAppliedColorsOverridesAndEditability() {
-        val applied = BracketGuidePreferences(
-            useIndependentComponentColors = true,
-            levelBaseColors = colorsWithFirst(0x123456),
-            guideLineColors = colorsWithFirst(0x234567),
-            pairBorderColors = colorsWithFirst(0x345678),
-            pairBackgroundColors = colorsWithFirst(0x456789),
-        )
+        val applied =
+            BracketGuidePreferences(
+                useIndependentComponentColors = true,
+                levelBaseColors = colorsWithFirst(0x123456),
+                guideLineColors = colorsWithFirst(0x234567),
+                pairBorderColors = colorsWithFirst(0x345678),
+                pairBackgroundColors = colorsWithFirst(0x456789),
+            )
         BracketGuideSettings.getInstance().loadState(applied)
 
         withConfigurable(emptyList()) { configurable, component ->
@@ -449,20 +454,23 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
         const val ALPHA_LANGUAGE_ID = "BRACKET_PAIR_GUIDES_ALPHA_TEST"
         const val BETA_LANGUAGE_ID = "BRACKET_PAIR_GUIDES_BETA_TEST"
 
-        val ALPHA_FAMILY = BraceLanguageFamily(
-            id = ALPHA_LANGUAGE_ID,
-            displayName = "Alpha",
-            memberDisplayNames = listOf("Alpha"),
-        )
-        val BETA_FAMILY = BraceLanguageFamily(
-            id = BETA_LANGUAGE_ID,
-            displayName = "Beta",
-            memberDisplayNames = listOf("Beta", "Beta Dialect"),
-        )
-        val TEXT_FAMILY = BraceLanguageFamily(
-            id = "TEXT",
-            displayName = "Plain text",
-            memberDisplayNames = listOf("Plain text"),
-        )
+        val ALPHA_FAMILY =
+            BraceLanguageFamily(
+                id = ALPHA_LANGUAGE_ID,
+                displayName = "Alpha",
+                memberDisplayNames = listOf("Alpha"),
+            )
+        val BETA_FAMILY =
+            BraceLanguageFamily(
+                id = BETA_LANGUAGE_ID,
+                displayName = "Beta",
+                memberDisplayNames = listOf("Beta", "Beta Dialect"),
+            )
+        val TEXT_FAMILY =
+            BraceLanguageFamily(
+                id = "TEXT",
+                displayName = "Plain text",
+                memberDisplayNames = listOf("Plain text"),
+            )
     }
 }

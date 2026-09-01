@@ -1,8 +1,8 @@
 package com.sijunyang.bracketpairguides.analysis.active
 
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.pairing.toPairTable
-import com.intellij.openapi.progress.ProcessCanceledException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Test
@@ -47,15 +47,16 @@ class ActiveBracketPairIndexTest {
     @Test
     fun `malformed pair cannot hide a valid containing pair`() {
         val valid = pair(open = 0, close = 100)
-        val malformed = BracketPair(
-            openOffset = 10,
-            openTokenLength = 1,
-            closeOffset = -1,
-            closeTokenLength = 100,
-            depth = 1,
-            openLine = 0,
-            closeLine = 0,
-        )
+        val malformed =
+            BracketPair(
+                openOffset = 10,
+                openTokenLength = 1,
+                closeOffset = -1,
+                closeTokenLength = 100,
+                depth = 1,
+                openLine = 0,
+                closeLine = 0,
+            )
 
         val index = indexFor(listOf(valid, malformed))
 
@@ -75,22 +76,24 @@ class ActiveBracketPairIndexTest {
     @Test
     fun `deep index construction and repeated caret lookup stay bounded`() {
         val pairCount = 50_000
-        val pairs = List(pairCount) { depth ->
-            pair(
-                open = depth,
-                close = pairCount * 2 - depth,
-                depth = depth,
-            )
-        }
+        val pairs =
+            List(pairCount) { depth ->
+                pair(
+                    open = depth,
+                    close = pairCount * 2 - depth,
+                    depth = depth,
+                )
+            }
 
         lateinit var index: ActiveBracketPairIndex
-        val elapsed = measureTimeMillis {
-            index = indexFor(pairs)
-            repeat(10_000) { query ->
-                assertThat(index.activePairIndex(pairCount + query.mod(2)))
-                    .isEqualTo(pairCount - 1)
+        val elapsed =
+            measureTimeMillis {
+                index = indexFor(pairs)
+                repeat(10_000) { query ->
+                    assertThat(index.activePairIndex(pairCount + query.mod(2)))
+                        .isEqualTo(pairCount - 1)
+                }
             }
-        }
 
         assertThat(elapsed)
             .describedAs("50k-pair index and lookups")
@@ -102,7 +105,8 @@ class ActiveBracketPairIndexTest {
         var checks = 0
         assertThatThrownBy {
             indexFor(
-                pairs = List(2_000) { index ->
+                pairs =
+                List(2_000) { index ->
                     pair(index, 5_000 - index, index)
                 },
                 checkCanceled = {
@@ -155,19 +159,13 @@ class ActiveBracketPairIndexTest {
         return winner
     }
 
-    private fun indexFor(
-        pairs: Iterable<BracketPair>,
-        checkCanceled: () -> Unit = {},
-    ): ActiveBracketPairIndex = ActiveBracketPairIndex.build(
-        pairs = pairs.toPairTable(),
-        checkCanceled = checkCanceled,
-    )
+    private fun indexFor(pairs: Iterable<BracketPair>, checkCanceled: () -> Unit = {}): ActiveBracketPairIndex =
+        ActiveBracketPairIndex.build(
+            pairs = pairs.toPairTable(),
+            checkCanceled = checkCanceled,
+        )
 
-    private fun isPreferred(
-        candidateIndex: Int,
-        currentIndex: Int,
-        pairs: List<BracketPair>,
-    ): Boolean {
+    private fun isPreferred(candidateIndex: Int, currentIndex: Int, pairs: List<BracketPair>): Boolean {
         if (currentIndex == ActiveBracketPairIndex.NO_PAIR) return true
         val candidate = pairs[candidateIndex]
         val current = pairs[currentIndex]
@@ -183,15 +181,13 @@ class ActiveBracketPairIndexTest {
         }
     }
 
-    private fun pair(open: Int, close: Int, depth: Int = 0): BracketPair {
-        return BracketPair(
-            openOffset = open,
-            openTokenLength = 1,
-            closeOffset = close,
-            closeTokenLength = 1,
-            depth = depth,
-            openLine = 0,
-            closeLine = 0,
-        )
-    }
+    private fun pair(open: Int, close: Int, depth: Int = 0): BracketPair = BracketPair(
+        openOffset = open,
+        openTokenLength = 1,
+        closeOffset = close,
+        closeTokenLength = 1,
+        depth = depth,
+        openLine = 0,
+        closeLine = 0,
+    )
 }

@@ -38,13 +38,15 @@ internal class TrackedBracketPair(private val editor: Editor) {
     fun track(pair: BracketPair, guide: BracketGuide?) {
         clear()
         current = pair
-        range = editor.document.createRangeMarker(
-            pair.openOffset,
-            pair.closeOffset + pair.closeTokenLength,
-        ).apply {
-            isGreedyToLeft = false
-            isGreedyToRight = false
-        }
+        range =
+            editor.document
+                .createRangeMarker(
+                    pair.openOffset,
+                    pair.closeOffset + pair.closeTokenLength,
+                ).apply {
+                    isGreedyToLeft = false
+                    isGreedyToRight = false
+                }
         moveAnchorTo(guide)
     }
 
@@ -70,10 +72,11 @@ internal class TrackedBracketPair(private val editor: Editor) {
         } else if (anchorLine != line) {
             anchor?.dispose()
             val offset = editor.document.getLineStartOffset(line)
-            anchor = editor.document.createRangeMarker(offset, offset).apply {
-                isGreedyToLeft = false
-                isGreedyToRight = false
-            }
+            anchor =
+                editor.document.createRangeMarker(offset, offset).apply {
+                    isGreedyToLeft = false
+                    isGreedyToRight = false
+                }
         }
     }
 }

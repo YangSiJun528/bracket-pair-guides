@@ -18,34 +18,38 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 
 class BracketAnalysisTest : BasePlatformTestCase() {
     fun testAnalyzePreservesStampAndAnswersOnlyPublicQueries() {
-        val source = """
+        val source =
+            """
             class Sample {
                 void run() {
                     call();
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         myFixture.configureByText("Sample.java", source)
-        val request = request(
-            AnalysisCoverage(
-                tokens = true,
-                activePair = true,
-                guidePosition = true,
-            ),
-        )
+        val request =
+            request(
+                AnalysisCoverage(
+                    tokens = true,
+                    activePair = true,
+                    guidePosition = true,
+                ),
+            )
 
-        val outcome = inReadAction {
-            analysis().analyze(request, EmptyProgressIndicator())
-        }
+        val outcome =
+            inReadAction {
+                analysis().analyze(request, EmptyProgressIndicator())
+            }
         val result = complete(outcome)
 
         assertThat(outcome.stamp).isSameAs(request.stamp)
         assertThat(result.stamp).isSameAs(request.stamp)
-        val tokens = result.visibleTokens(
-            range = TextRange(0, source.length),
-            focusOffset = source.indexOf("call"),
-            limit = 100,
-        )
+        val tokens =
+            result.visibleTokens(
+                range = TextRange(0, source.length),
+                focusOffset = source.indexOf("call"),
+                limit = 100,
+            )
         assertThat(tokens.isCapped).isFalse()
         assertThat(tokens.size).isPositive()
         assertThat((0 until tokens.size).map(tokens::offsetAt)).isSorted()
@@ -64,66 +68,77 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         val caretOffset = source.indexOf("call") + 2
         val range = TextRange(0, source.length)
 
-        val tokenOnly = complete(inReadAction {
-            analysis().analyze(
-                request(
-                    AnalysisCoverage(
-                        tokens = true,
-                        activePair = false,
-                        guidePosition = false,
-                    ),
-                ),
-                EmptyProgressIndicator(),
+        val tokenOnly =
+            complete(
+                inReadAction {
+                    analysis().analyze(
+                        request(
+                            AnalysisCoverage(
+                                tokens = true,
+                                activePair = false,
+                                guidePosition = false,
+                            ),
+                        ),
+                        EmptyProgressIndicator(),
+                    )
+                },
             )
-        })
         assertThat(tokenOnly.visibleTokens(range, caretOffset, 100).size).isPositive()
         assertThat(tokenOnly.activePairAt(caretOffset)).isNull()
 
-        val activeOnly = complete(inReadAction {
-            analysis().analyze(
-                request(
-                    AnalysisCoverage(
-                        tokens = false,
-                        activePair = true,
-                        guidePosition = false,
-                    ),
-                ),
-                EmptyProgressIndicator(),
+        val activeOnly =
+            complete(
+                inReadAction {
+                    analysis().analyze(
+                        request(
+                            AnalysisCoverage(
+                                tokens = false,
+                                activePair = true,
+                                guidePosition = false,
+                            ),
+                        ),
+                        EmptyProgressIndicator(),
+                    )
+                },
             )
-        })
         assertThat(activeOnly.visibleTokens(range, caretOffset, 100).size).isZero()
         assertThat(activeOnly.activePairAt(caretOffset)).isNotNull()
 
-        val inactive = complete(inReadAction {
-            analysis().analyze(
-                request(
-                    AnalysisCoverage(
-                        tokens = false,
-                        activePair = false,
-                        guidePosition = false,
-                    ),
-                ),
-                EmptyProgressIndicator(),
+        val inactive =
+            complete(
+                inReadAction {
+                    analysis().analyze(
+                        request(
+                            AnalysisCoverage(
+                                tokens = false,
+                                activePair = false,
+                                guidePosition = false,
+                            ),
+                        ),
+                        EmptyProgressIndicator(),
+                    )
+                },
             )
-        })
         assertThat(inactive.visibleTokens(range, caretOffset, 100).size).isZero()
         assertThat(inactive.activePairAt(caretOffset)).isNull()
     }
 
     fun testUnavailableOutcomeRetainsTheAttemptStampWithoutAPartialSnapshot() {
         myFixture.configureByText("Unavailable.java", "class Unavailable { }")
-        val request = request(
-            AnalysisCoverage(
-                tokens = true,
-                activePair = true,
-                guidePosition = false,
-            ),
-        )
+        val request =
+            request(
+                AnalysisCoverage(
+                    tokens = true,
+                    activePair = true,
+                    guidePosition = false,
+                ),
+            )
 
-        val outcome: AnalysisOutcome = AnalysisOutcome.Unavailable(
-            request.stamp,
-            AnalysisLimit.PAIR_CAPACITY,
-        )
+        val outcome: AnalysisOutcome =
+            AnalysisOutcome.Unavailable(
+                request.stamp,
+                AnalysisLimit.PAIR_CAPACITY,
+            )
 
         assertThat(outcome.stamp).isSameAs(request.stamp)
         assertThat(outcome)
@@ -133,22 +148,24 @@ class BracketAnalysisTest : BasePlatformTestCase() {
     }
 
     fun testProductPairCapacityAcceptsTheBoundaryAndRejectsTheNextPair() {
-        val exactSource = buildString(200_020) {
-            append("class Dense {")
-            repeat(99_999) { append("{}") }
-            append('}')
-        }
+        val exactSource =
+            buildString(200_020) {
+                append("class Dense {")
+                repeat(99_999) { append("{}") }
+                append('}')
+            }
         myFixture.configureByText("ExactPairCapacity.java", exactSource)
 
         val exact = analyzeCurrentTokens()
 
         assertThat(exact).isInstanceOf(AnalysisOutcome.Complete::class.java)
 
-        val overflowSource = buildString(200_022) {
-            append("class Dense {")
-            repeat(100_000) { append("{}") }
-            append('}')
-        }
+        val overflowSource =
+            buildString(200_022) {
+                append("class Dense {")
+                repeat(100_000) { append("{}") }
+                append('}')
+            }
         myFixture.configureByText("ExceededPairCapacity.java", overflowSource)
 
         val overflow = analyzeCurrentTokens()
@@ -184,36 +201,42 @@ class BracketAnalysisTest : BasePlatformTestCase() {
 
     fun testGuideCapacityKeepsExactPairAndTokenIndexesWithoutPublishingAGuide() {
         val guideLineCount = 1_032_193
-        val source = buildString(guideLineCount + 20) {
-            append("class Huge {\n")
-            repeat(guideLineCount - 1) { append('\n') }
-            append('}')
-        }
+        val source =
+            buildString(guideLineCount + 20) {
+                append("class Huge {\n")
+                repeat(guideLineCount - 1) { append('\n') }
+                append('}')
+            }
         myFixture.configureByText("Huge.java", source)
-        val input = request(
-            AnalysisCoverage(
-                tokens = true,
-                activePair = true,
-                guidePosition = true,
-            ),
-        )
-        val replacementHighlighter = EditorHighlighterFactory.getInstance()
-            .createEditorHighlighter(project, PlainTextFileType.INSTANCE)
+        val input =
+            request(
+                AnalysisCoverage(
+                    tokens = true,
+                    activePair = true,
+                    guidePosition = true,
+                ),
+            )
+        val replacementHighlighter =
+            EditorHighlighterFactory
+                .getInstance()
+                .createEditorHighlighter(project, PlainTextFileType.INSTANCE)
         var highlighterReplaced = false
         val progressDelegate = EmptyProgressIndicator()
-        val replacingProgress = object : ProgressIndicator by progressDelegate {
-            override fun checkCanceled() {
-                if (!highlighterReplaced) {
-                    highlighterReplaced = true
-                    (myFixture.editor as EditorEx).setHighlighter(replacementHighlighter)
+        val replacingProgress =
+            object : ProgressIndicator by progressDelegate {
+                override fun checkCanceled() {
+                    if (!highlighterReplaced) {
+                        highlighterReplaced = true
+                        (myFixture.editor as EditorEx).setHighlighter(replacementHighlighter)
+                    }
+                    progressDelegate.checkCanceled()
                 }
-                progressDelegate.checkCanceled()
             }
-        }
 
-        val outcome = inReadAction {
-            analysis().analyze(input, replacingProgress)
-        }
+        val outcome =
+            inReadAction {
+                analysis().analyze(input, replacingProgress)
+            }
 
         assertThat(highlighterReplaced).isTrue()
         assertThat(outcome).isInstanceOf(AnalysisOutcome.Limited::class.java)
@@ -225,17 +248,19 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         ).isEqualTo(input.coverage.copy(guidePosition = false))
         assertThat(input.stamp.covers(limited.snapshot.stamp)).isTrue()
         assertThat(
-            request(input.coverage.copy(guidePosition = false)).stamp
+            request(input.coverage.copy(guidePosition = false))
+                .stamp
                 .covers(limited.snapshot.stamp),
         ).isFalse()
         val pair = checkNotNull(limited.snapshot.activePairAt(source.indexOf('\n') + 1))
         assertThat(limited.snapshot.guideFor(pair)).isNull()
         assertThat(
-            limited.snapshot.visibleTokens(
-                TextRange(0, source.length),
-                pair.openOffset,
-                10,
-            ).size,
+            limited.snapshot
+                .visibleTokens(
+                    TextRange(0, source.length),
+                    pair.openOffset,
+                    10,
+                ).size,
         ).isEqualTo(2)
     }
 
@@ -245,9 +270,10 @@ class BracketAnalysisTest : BasePlatformTestCase() {
             "class Canceled { void run() { call(); } }",
         )
         val delegate = EmptyProgressIndicator()
-        val canceled = object : ProgressIndicator by delegate {
-            override fun checkCanceled(): Unit = throw ProcessCanceledException()
-        }
+        val canceled =
+            object : ProgressIndicator by delegate {
+                override fun checkCanceled(): Unit = throw ProcessCanceledException()
+            }
 
         assertThatThrownBy {
             inReadAction {
@@ -294,6 +320,5 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         return (outcome as AnalysisOutcome.Complete).snapshot
     }
 
-    private fun <T> inReadAction(action: () -> T): T =
-        ReadAction.compute<T, RuntimeException>(action)
+    private fun <T> inReadAction(action: () -> T): T = ReadAction.compute<T, RuntimeException>(action)
 }

@@ -27,28 +27,32 @@ internal object StickyLineSourceRanges {
             ApplicationInfo.getInstance().build.baselineVersion <= LEGACY_BASELINE_VERSION
         val startLine = editor.xyToLogicalPosition(Point(0, visibleArea.y)).line
         if (startLine !in 0 until lineCount) return emptyList()
-        val maximumPanelHeight = (lineHeight.toLong() * lineLimit + STICKY_BORDER_HEIGHT)
-            .coerceAtMost(Int.MAX_VALUE.toLong())
-            .toInt()
-        val queryEndY = (visibleArea.y.toLong() + maximumPanelHeight)
-            .coerceAtMost(Int.MAX_VALUE.toLong())
-            .toInt()
+        val maximumPanelHeight =
+            (lineHeight.toLong() * lineLimit + STICKY_BORDER_HEIGHT)
+                .coerceAtMost(Int.MAX_VALUE.toLong())
+                .toInt()
+        val queryEndY =
+            (visibleArea.y.toLong() + maximumPanelHeight)
+                .coerceAtMost(Int.MAX_VALUE.toLong())
+                .toInt()
         val reportedEndLine = editor.xyToLogicalPosition(Point(0, queryEndY)).line
         if (usesLegacyCandidateCollection && reportedEndLine !in 0 until lineCount) {
             return emptyList()
         }
         val endLine = reportedEndLine.coerceIn(startLine, lineCount - 1)
-        val queryRange = TextRange(
-            document.getLineStartOffset(startLine),
-            document.getLineEndOffset(endLine),
-        )
+        val queryRange =
+            TextRange(
+                document.getLineStartOffset(startLine),
+                document.getLineEndOffset(endLine),
+            )
         val markup = documentMarkupModel(editor) ?: return emptyList()
         val scopes = ArrayList<TextRange>()
-        val candidateLimit = if (usesLegacyCandidateCollection) {
-            maxOf(1, (lineLimit * LEGACY_CANDIDATE_LIMIT_FACTOR).toInt())
-        } else {
-            Int.MAX_VALUE
-        }
+        val candidateLimit =
+            if (usesLegacyCandidateCollection) {
+                maxOf(1, (lineLimit * LEGACY_CANDIDATE_LIMIT_FACTOR).toInt())
+            } else {
+                Int.MAX_VALUE
+            }
         markup.processRangeHighlightersOverlappingWith(
             queryRange.startOffset,
             queryRange.endOffset,
@@ -71,21 +75,26 @@ internal object StickyLineSourceRanges {
             val endOffset = scope.endOffset.coerceIn(startOffset, document.textLength)
             val primaryLogicalLine = document.getLineNumber(startOffset)
             val scopeLogicalLine = document.getLineNumber(endOffset)
-            val primaryVisualLine = editor.logicalToVisualPosition(
-                LogicalPosition(primaryLogicalLine, 0),
-            ).line
+            val primaryVisualLine =
+                editor
+                    .logicalToVisualPosition(
+                        LogicalPosition(primaryLogicalLine, 0),
+                    ).line
             if (!deduplicatedVisualLines.add(primaryVisualLine)) continue
-            val scopeVisualLine = editor.logicalToVisualPosition(
-                LogicalPosition(scopeLogicalLine, 0),
-            ).line
+            val scopeVisualLine =
+                editor
+                    .logicalToVisualPosition(
+                        LogicalPosition(scopeLogicalLine, 0),
+                    ).line
             if (scopeVisualLine - primaryVisualLine + 1 < MINIMUM_SCOPE_VISUAL_LINES) {
                 continue
             }
-            candidates += StickyCandidate(
-                primaryLogicalLine = primaryLogicalLine,
-                primaryVisualLine = primaryVisualLine,
-                scopeVisualLine = scopeVisualLine,
-            )
+            candidates +=
+                StickyCandidate(
+                    primaryLogicalLine = primaryLogicalLine,
+                    primaryVisualLine = primaryVisualLine,
+                    scopeVisualLine = scopeVisualLine,
+                )
         }
         candidates.sortWith(
             compareBy(StickyCandidate::primaryVisualLine)
@@ -121,16 +130,18 @@ internal object StickyLineSourceRanges {
             if (stickyBottomY.toLong() in
                 (primaryBottomY.toLong() + 1L)..scopeBottomY.toLong()
             ) {
-                val overlap = if (stickyBottomY <= scopeTopY) {
-                    0
-                } else {
-                    stickyBottomY - scopeTopY
-                }
+                val overlap =
+                    if (stickyBottomY <= scopeTopY) {
+                        0
+                    } else {
+                        stickyBottomY - scopeTopY
+                    }
                 if (overlap < lineHeight) {
-                    displayed += TextRange(
-                        document.getLineStartOffset(primaryLogicalLine),
-                        document.getLineEndOffset(primaryLogicalLine),
-                    )
+                    displayed +=
+                        TextRange(
+                            document.getLineStartOffset(primaryLogicalLine),
+                            document.getLineEndOffset(primaryLogicalLine),
+                        )
                     panelHeight += lineHeight - overlap
                 }
                 if (overlap > 0 ||
@@ -144,11 +155,8 @@ internal object StickyLineSourceRanges {
         return displayed
     }
 
-    private fun panelIsTooLarge(
-        panelHeight: Int,
-        lineHeight: Int,
-        editorHeight: Int,
-    ): Boolean = panelHeight.toLong() + 2L * lineHeight > editorHeight / 2L
+    private fun panelIsTooLarge(panelHeight: Int, lineHeight: Int, editorHeight: Int): Boolean =
+        panelHeight.toLong() + 2L * lineHeight > editorHeight / 2L
 
     fun documentMarkupModel(editor: Editor): MarkupModelEx? {
         val project = editor.project?.takeUnless { it.isDisposed } ?: return null

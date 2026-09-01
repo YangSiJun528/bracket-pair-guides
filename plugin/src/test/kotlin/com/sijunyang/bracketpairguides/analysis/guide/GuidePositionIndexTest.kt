@@ -1,9 +1,9 @@
 package com.sijunyang.bracketpairguides.analysis.guide
 
-import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.intellij.openapi.editor.impl.DocumentImpl
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
+import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.intellij.DocumentGuidePositions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -13,14 +13,15 @@ class GuidePositionIndexTest {
     fun `builds from primitive line indentation`() {
         val indentation = intArrayOf(8, 2, 4)
         var cancellationChecks = 0
-        val index = checkNotNull(
-            GuidePositionIndex.from(
-                baseLine = 4,
-                lineCount = indentation.size,
-                checkCanceled = { cancellationChecks++ },
-                indentationAt = indentation::get,
-            ),
-        )
+        val index =
+            checkNotNull(
+                GuidePositionIndex.from(
+                    baseLine = 4,
+                    lineCount = indentation.size,
+                    checkCanceled = { cancellationChecks++ },
+                    indentationAt = indentation::get,
+                ),
+            )
 
         val guide = index.guide(pair(closeLine = 6).copy(openLine = 3))
 
@@ -73,24 +74,28 @@ class GuidePositionIndexTest {
     @Test
     fun `blocked queries match linear minima around every block edge`() {
         val indentations = IntArray(1_025) { line -> (line * 17) % 13 }
-        val index = indexFor(
-            indentations.joinToString("\n") { indentation ->
-                " ".repeat(indentation) + "value"
-            },
-        )
+        val index =
+            indexFor(
+                indentations.joinToString("\n") { indentation ->
+                    " ".repeat(indentation) + "value"
+                },
+            )
         val edges = listOf(1, 2, 254, 255, 256, 257, 510, 511, 512, 513, 767, 768, 1_024)
 
         for (firstLine in edges) {
             for (lastLine in edges) {
                 if (lastLine < firstLine) continue
-                val expectedColumn = (firstLine..lastLine)
-                    .minOf(indentations::get)
-                val expectedLine = (firstLine..lastLine)
-                    .first { line -> indentations[line] == expectedColumn }
+                val expectedColumn =
+                    (firstLine..lastLine)
+                        .minOf(indentations::get)
+                val expectedLine =
+                    (firstLine..lastLine)
+                        .first { line -> indentations[line] == expectedColumn }
 
-                val guide = index.guide(
-                    pair(closeLine = lastLine).copy(openLine = firstLine - 1),
-                )
+                val guide =
+                    index.guide(
+                        pair(closeLine = lastLine).copy(openLine = firstLine - 1),
+                    )
 
                 assertThat(guide.guideColumn)
                     .describedAs("guide column for lines %s..%s", firstLine, lastLine)
@@ -104,10 +109,11 @@ class GuidePositionIndexTest {
 
     @Test
     fun `restricted index retains absolute anchor lines`() {
-        val index = indexFor(
-            "ignored\n{\n    nested\n  }\nignored",
-            indexedLineRange = 2..3,
-        )
+        val index =
+            indexFor(
+                "ignored\n{\n    nested\n  }\nignored",
+                indexedLineRange = 2..3,
+            )
 
         val guide = index.guide(pair(closeLine = 3).copy(openLine = 1))
 
@@ -140,12 +146,13 @@ class GuidePositionIndexTest {
         var cancellationChecks = 0
         val text = " ".repeat(20_000)
         val progressState = ProgressIndicatorBase()
-        val progress = object : ProgressIndicator by progressState {
-            override fun checkCanceled() {
-                cancellationChecks++
-                progressState.checkCanceled()
+        val progress =
+            object : ProgressIndicator by progressState {
+                override fun checkCanceled() {
+                    cancellationChecks++
+                    progressState.checkCanceled()
+                }
             }
-        }
 
         DocumentGuidePositions(
             document = DocumentImpl(text),
@@ -201,11 +208,7 @@ class GuidePositionIndexTest {
         assertThat(index.guideForOrNull(malformed)).isNull()
     }
 
-    private fun indexFor(
-        text: String,
-        tabSize: Int = 4,
-        indexedLineRange: IntRange? = null,
-    ): GuidePositionIndex {
+    private fun indexFor(text: String, tabSize: Int = 4, indexedLineRange: IntRange? = null): GuidePositionIndex {
         val document = DocumentImpl(text)
         return checkNotNull(
             DocumentGuidePositions(
@@ -216,8 +219,7 @@ class GuidePositionIndexTest {
         )
     }
 
-    private fun GuidePositionIndex.guide(pair: BracketPair) =
-        checkNotNull(guideForOrNull(pair))
+    private fun GuidePositionIndex.guide(pair: BracketPair) = checkNotNull(guideForOrNull(pair))
 
     private fun pair(closeLine: Int): BracketPair = BracketPair(
         openOffset = 0,

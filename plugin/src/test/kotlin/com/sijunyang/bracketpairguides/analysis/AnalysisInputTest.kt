@@ -7,16 +7,18 @@ class AnalysisInputTest : BasePlatformTestCase() {
     fun testDefensivelyCopiesDisabledLanguageIds() {
         myFixture.configureByText("Copy.java", "class Copy { }")
         val disabled = mutableSetOf("JAVA")
-        val input = AnalysisInput(
-            editor = myFixture.editor,
-            fileType = myFixture.file.fileType,
-            coverage = AnalysisCoverage(
-                tokens = true,
-                activePair = false,
-                guidePosition = false,
-            ),
-            disabledLanguageIds = disabled,
-        )
+        val input =
+            AnalysisInput(
+                editor = myFixture.editor,
+                fileType = myFixture.file.fileType,
+                coverage =
+                AnalysisCoverage(
+                    tokens = true,
+                    activePair = false,
+                    guidePosition = false,
+                ),
+                disabledLanguageIds = disabled,
+            )
 
         disabled.clear()
         disabled += "KOTLIN"

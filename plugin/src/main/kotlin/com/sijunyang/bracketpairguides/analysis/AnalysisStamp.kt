@@ -45,13 +45,12 @@ internal class AnalysisStamp private constructor(
         }
     }
 
-    fun covers(required: AnalysisStamp): Boolean =
-        documentStamp == required.documentStamp &&
-            (!required.coverage.guidePosition || tabSize == required.tabSize) &&
-            highlighter === required.highlighter &&
-            fileType === required.fileType &&
-            disabledLanguageIds == required.disabledLanguageIds &&
-            coverage.includes(required.coverage)
+    fun covers(required: AnalysisStamp): Boolean = documentStamp == required.documentStamp &&
+        (!required.coverage.guidePosition || tabSize == required.tabSize) &&
+        highlighter === required.highlighter &&
+        fileType === required.fileType &&
+        disabledLanguageIds == required.disabledLanguageIds &&
+        coverage.includes(required.coverage)
 
     /** Checks live editor state without allocating another stamp. */
     fun matchesCurrent(
@@ -59,12 +58,13 @@ internal class AnalysisStamp private constructor(
         requiredFileType: FileType,
         requiredCoverage: AnalysisCoverage,
         requiredDisabledLanguageIds: Set<String>,
-    ): Boolean =
-        documentStamp == editor.document.modificationStamp &&
-            (!requiredCoverage.guidePosition ||
-                tabSize == editor.settings.getTabSize(editor.project).coerceAtLeast(1)) &&
-            highlighter === editor.highlighter &&
-            fileType === requiredFileType &&
-            disabledLanguageIds == requiredDisabledLanguageIds &&
-            coverage.includes(requiredCoverage)
+    ): Boolean = documentStamp == editor.document.modificationStamp &&
+        (
+            !requiredCoverage.guidePosition ||
+                tabSize == editor.settings.getTabSize(editor.project).coerceAtLeast(1)
+            ) &&
+        highlighter === editor.highlighter &&
+        fileType === requiredFileType &&
+        disabledLanguageIds == requiredDisabledLanguageIds &&
+        coverage.includes(requiredCoverage)
 }

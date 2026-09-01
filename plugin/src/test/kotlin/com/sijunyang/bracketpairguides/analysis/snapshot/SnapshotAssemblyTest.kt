@@ -14,17 +14,19 @@ class SnapshotAssemblyTest : BasePlatformTestCase() {
         myFixture.configureByText("NoCoverage.java", "class NoCoverage { }")
         var recognitionCalled = false
 
-        val outcome = assembly(
-            coverage = AnalysisCoverage(
-                tokens = false,
-                activePair = false,
-                guidePosition = false,
-            ),
-            recognize = {
-                recognitionCalled = true
-                error("Recognition is not part of empty coverage")
-            },
-        ).outcome()
+        val outcome =
+            assembly(
+                coverage =
+                AnalysisCoverage(
+                    tokens = false,
+                    activePair = false,
+                    guidePosition = false,
+                ),
+                recognize = {
+                    recognitionCalled = true
+                    error("Recognition is not part of empty coverage")
+                },
+            ).outcome()
 
         assertThat(outcome).isInstanceOf(AnalysisOutcome.Complete::class.java)
         assertThat(recognitionCalled).isFalse()
@@ -33,30 +35,32 @@ class SnapshotAssemblyTest : BasePlatformTestCase() {
     fun testRecognitionRefusalPublishesNoSnapshot() {
         myFixture.configureByText("Refused.java", "class Refused { }")
         var canonicalizationCalled = false
-        val input = input(
-            AnalysisCoverage(
-                tokens = true,
-                activePair = false,
-                guidePosition = false,
-            ),
-        )
+        val input =
+            input(
+                AnalysisCoverage(
+                    tokens = true,
+                    activePair = false,
+                    guidePosition = false,
+                ),
+            )
 
-        val outcome = SnapshotAssembly(
-            input = input,
-            recognize = {
-                DocumentBracketRecognition.Unavailable(
-                    BracketRecognitionRefusal.PAIR_CAPACITY,
-                )
-            },
-            checkCanceled = {},
-            documentLength = myFixture.editor.document.textLength,
-            documentLineCount = myFixture.editor.document.lineCount,
-            guidePositions = { error("Guide positions were not requested") },
-            canonicalIndexes = { _, _, _, indexes ->
-                canonicalizationCalled = true
-                indexes
-            },
-        ).outcome()
+        val outcome =
+            SnapshotAssembly(
+                input = input,
+                recognize = {
+                    DocumentBracketRecognition.Unavailable(
+                        BracketRecognitionRefusal.PAIR_CAPACITY,
+                    )
+                },
+                checkCanceled = {},
+                documentLength = myFixture.editor.document.textLength,
+                documentLineCount = myFixture.editor.document.lineCount,
+                guidePositions = { error("Guide positions were not requested") },
+                canonicalIndexes = { _, _, _, indexes ->
+                    canonicalizationCalled = true
+                    indexes
+                },
+            ).outcome()
 
         assertThat(outcome)
             .isInstanceOfSatisfying(AnalysisOutcome.Unavailable::class.java) { unavailable ->
@@ -68,28 +72,27 @@ class SnapshotAssemblyTest : BasePlatformTestCase() {
     fun testEmptyRecognitionPreservesUnavailableMatcherState() {
         myFixture.configureByText("Unsupported.txt", "value")
 
-        val outcome = assembly(
-            coverage = AnalysisCoverage(
-                tokens = true,
-                activePair = true,
-                guidePosition = true,
-            ),
-            recognize = {
-                DocumentBracketRecognition.Complete(
-                    PairTable.empty(),
-                    BraceMatcherAvailability.UNAVAILABLE,
-                )
-            },
-        ).outcome() as AnalysisOutcome.Complete
+        val outcome =
+            assembly(
+                coverage =
+                AnalysisCoverage(
+                    tokens = true,
+                    activePair = true,
+                    guidePosition = true,
+                ),
+                recognize = {
+                    DocumentBracketRecognition.Complete(
+                        PairTable.empty(),
+                        BraceMatcherAvailability.UNAVAILABLE,
+                    )
+                },
+            ).outcome() as AnalysisOutcome.Complete
 
         assertThat(outcome.snapshot.matcherAvailability)
             .isEqualTo(BraceMatcherAvailability.UNAVAILABLE)
     }
 
-    private fun assembly(
-        coverage: AnalysisCoverage,
-        recognize: () -> DocumentBracketRecognition,
-    ): SnapshotAssembly {
+    private fun assembly(coverage: AnalysisCoverage, recognize: () -> DocumentBracketRecognition): SnapshotAssembly {
         val input = input(coverage)
         return SnapshotAssembly(
             input = input,

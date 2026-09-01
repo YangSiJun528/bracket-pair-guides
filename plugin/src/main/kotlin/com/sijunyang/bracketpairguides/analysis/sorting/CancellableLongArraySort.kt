@@ -73,11 +73,12 @@ private fun mergeSortedRuns(
     var right = middle
     var output = start
     while (left < middle && right < end) {
-        destination[output++] = if (source[left] <= source[right]) {
-            source[left++]
-        } else {
-            source[right++]
-        }
+        destination[output++] =
+            if (source[left] <= source[right]) {
+                source[left++]
+            } else {
+                source[right++]
+            }
         checkMergeProgress(output - start, checkCanceled)
     }
     while (left < middle) {
@@ -90,11 +91,7 @@ private fun mergeSortedRuns(
     }
 }
 
-private fun copyWithCancellation(
-    source: LongArray,
-    destination: LongArray,
-    checkCanceled: () -> Unit,
-) {
+private fun copyWithCancellation(source: LongArray, destination: LongArray, checkCanceled: () -> Unit) {
     var start = 0
     while (start < source.size) {
         val end = boundedEnd(start, CANCELLABLE_LONG_SORT_COPY_SIZE, source.size)
@@ -108,13 +105,9 @@ private fun checkMergeProgress(processed: Int, checkCanceled: () -> Unit) {
     if ((processed and CANCELLABLE_LONG_SORT_CHECK_MASK) == 0) checkCanceled()
 }
 
-private fun boundedEnd(start: Int, length: Int, size: Int): Int {
-    return boundedEnd(start, length.toLong(), size)
-}
+private fun boundedEnd(start: Int, length: Int, size: Int): Int = boundedEnd(start, length.toLong(), size)
 
-private fun boundedEnd(start: Int, length: Long, size: Int): Int {
-    return minOf(start.toLong() + length, size.toLong()).toInt()
-}
+private fun boundedEnd(start: Int, length: Long, size: Int): Int = minOf(start.toLong() + length, size.toLong()).toInt()
 
 private const val CANCELLABLE_LONG_SORT_CHUNK_SIZE = 16_384
 private const val CANCELLABLE_LONG_SORT_COPY_SIZE = 4_096

@@ -1,11 +1,5 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
-import com.sijunyang.bracketpairguides.analysis.AnalysisInput
-import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.bracketSnapshot
-import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
-import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
-import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
@@ -13,6 +7,12 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.concurrency.AppExecutorUtil
+import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.bracketSnapshot
+import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
+import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
+import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import org.assertj.core.api.Assertions.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -23,9 +23,16 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
     fun testAppliesActiveGuideBeforeRequestingViewportDecorations() {
         val source = "x { content } y"
         myFixture.configureByText("ActiveFirst.txt", source)
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("content"))
         BracketGuideSettings.getInstance().replace(
@@ -33,16 +40,17 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
         )
         var activePairWhenViewportWasRequested: BracketPair? = null
         var activeHighlightsWhenViewportWasRequested = 0
-        val pass = testPass(
-            project = project,
-            editor = editor,
-            pairs = { listOf(pair) },
-            visibleRange = {
-                activePairWhenViewportWasRequested = activeGuideState()?.guide?.pair
-                activeHighlightsWhenViewportWasRequested = activePairHighlighters().size
-                TextRange(0, source.length)
-            },
-        )
+        val pass =
+            testPass(
+                project = project,
+                editor = editor,
+                pairs = { listOf(pair) },
+                visibleRange = {
+                    activePairWhenViewportWasRequested = activeGuideState()?.guide?.pair
+                    activeHighlightsWhenViewportWasRequested = activePairHighlighters().size
+                    TextRange(0, source.length)
+                },
+            )
 
         applyPass(pass)
 
@@ -54,9 +62,16 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
     fun testBackgroundPassConstructionAndDedupDoNotReadPresentationState() {
         val source = "x { content } y"
         myFixture.configureByText("BackgroundDedup.txt", source)
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("content"))
         val collections = AtomicInteger()
@@ -66,15 +81,18 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
         }
         EditorGuideSessions.dispose(editor)
         assertThat(EditorGuideSessions.get(editor)).isNull()
+
         fun collectInBackground(): BracketGuideHighlightingPass {
-            val collection = AppExecutorUtil.getAppExecutorService()
-                .submit<BracketGuideHighlightingPass> {
-                    inReadAction {
-                        testPass(project, editor, pairs).also { pass ->
-                            pass.doCollectInformation(EmptyProgressIndicator())
+            val collection =
+                AppExecutorUtil
+                    .getAppExecutorService()
+                    .submit<BracketGuideHighlightingPass> {
+                        inReadAction {
+                            testPass(project, editor, pairs).also { pass ->
+                                pass.doCollectInformation(EmptyProgressIndicator())
+                            }
                         }
                     }
-                }
             PlatformTestUtil.waitWithEventsDispatching(
                 "background guide collection",
                 { collection.isDone },
@@ -103,9 +121,16 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
         val source = "x { content } y"
         myFixture.configureByText("LanguageSelectionSnapshot.txt", source)
         val editor = myFixture.editor
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         editor.caretModel.moveToOffset(source.indexOf("content"))
         val initialOptions = BracketGuideSettings.getInstance().options
         val disabledDuringCollection = setOf("test.matcher.family")
@@ -120,25 +145,28 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
             observedGlobalLanguageIds.set(
                 BracketGuideSettings.getInstance().options.disabledLanguageIds,
             )
-            val pairs = if (disabledDuringCollection.single() in input.disabledLanguageIds) {
-                emptyList()
-            } else {
-                listOf(pair)
-            }
+            val pairs =
+                if (disabledDuringCollection.single() in input.disabledLanguageIds) {
+                    emptyList()
+                } else {
+                    listOf(pair)
+                }
             AnalysisOutcome.Complete(input.bracketSnapshot(pairs))
         }
-        val pass = BracketGuideHighlightingPass(
-            project = project,
-            editor = editor,
-            fileType = myFixture.file.fileType,
-            sourceFile = myFixture.file.virtualFile,
-            analyze = analysis,
-        )
-        val collection = AppExecutorUtil.getAppExecutorService().submit<Unit> {
-            inReadAction {
-                pass.doCollectInformation(EmptyProgressIndicator())
+        val pass =
+            BracketGuideHighlightingPass(
+                project = project,
+                editor = editor,
+                fileType = myFixture.file.fileType,
+                sourceFile = myFixture.file.virtualFile,
+                analyze = analysis,
+            )
+        val collection =
+            AppExecutorUtil.getAppExecutorService().submit<Unit> {
+                inReadAction {
+                    pass.doCollectInformation(EmptyProgressIndicator())
+                }
             }
-        }
 
         try {
             PlatformTestUtil.waitWithEventsDispatching(
@@ -174,24 +202,33 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
         val source = "x { content } y"
         myFixture.configureByText("StaleBackgroundInstall.txt", source)
         val editor = myFixture.editor
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         editor.caretModel.moveToOffset(source.indexOf("content"))
         EditorGuideSessions.dispose(editor)
         assertThat(EditorGuideSessions.get(editor)).isNull()
-        val staleCollection = AppExecutorUtil.getAppExecutorService()
-            .submit<BracketGuideHighlightingPass> {
-                inReadAction {
-                    testPass(
-                        project = project,
-                        editor = editor,
-                        pairs = { listOf(pair) },
-                    ).also { pass ->
-                        pass.doCollectInformation(EmptyProgressIndicator())
+        val staleCollection =
+            AppExecutorUtil
+                .getAppExecutorService()
+                .submit<BracketGuideHighlightingPass> {
+                    inReadAction {
+                        testPass(
+                            project = project,
+                            editor = editor,
+                            pairs = { listOf(pair) },
+                        ).also { pass ->
+                            pass.doCollectInformation(EmptyProgressIndicator())
+                        }
                     }
                 }
-            }
         PlatformTestUtil.waitWithEventsDispatching(
             "stale background collection",
             { staleCollection.isDone },
@@ -213,26 +250,35 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
         myFixture.configureByText("FileTypeChange.java", source)
         val editor = myFixture.editor
         val highlighter = editor.highlighter
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         editor.caretModel.moveToOffset(source.indexOf("content"))
         EditorGuideSessions.dispose(editor)
-        val stalePass = testPass(
-            project = project,
-            editor = editor,
-            pairs = { listOf(pair) },
-            fileType = PlainTextFileType.INSTANCE,
-        )
+        val stalePass =
+            testPass(
+                project = project,
+                editor = editor,
+                pairs = { listOf(pair) },
+                fileType = PlainTextFileType.INSTANCE,
+            )
         inReadAction {
             stalePass.doCollectInformation(EmptyProgressIndicator())
         }
-        val currentPass = testPass(
-            project = project,
-            editor = editor,
-            pairs = { listOf(pair) },
-            fileType = myFixture.file.fileType,
-        )
+        val currentPass =
+            testPass(
+                project = project,
+                editor = editor,
+                pairs = { listOf(pair) },
+                fileType = myFixture.file.fileType,
+            )
         applyPass(currentPass)
 
         stalePass.doApplyInformationToEditor()
@@ -249,21 +295,29 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
         val source = "x { content } y"
         myFixture.configureByText("DependencyOrder.txt", source)
         val editor = myFixture.editor
-        val pair = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
+        val pair =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
         editor.caretModel.moveToOffset(source.indexOf("content"))
         var staleVisibleRangeCalls = 0
         var currentVisibleRangeCalls = 0
-        val stalePass = testPass(
-            project = project,
-            editor = editor,
-            pairs = { listOf(pair) },
-            visibleRange = {
-                staleVisibleRangeCalls++
-                TextRange(0, it.document.textLength)
-            },
-        )
+        val stalePass =
+            testPass(
+                project = project,
+                editor = editor,
+                pairs = { listOf(pair) },
+                visibleRange = {
+                    staleVisibleRangeCalls++
+                    TextRange(0, it.document.textLength)
+                },
+            )
         inReadAction {
             stalePass.doCollectInformation(EmptyProgressIndicator())
         }
@@ -271,15 +325,16 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
         WriteCommandAction.runWriteCommandAction(project) {
             editor.document.insertString(editor.document.textLength, "z")
         }
-        val currentPass = testPass(
-            project = project,
-            editor = editor,
-            pairs = { listOf(pair) },
-            visibleRange = {
-                currentVisibleRangeCalls++
-                TextRange(0, it.document.textLength)
-            },
-        )
+        val currentPass =
+            testPass(
+                project = project,
+                editor = editor,
+                pairs = { listOf(pair) },
+                visibleRange = {
+                    currentVisibleRangeCalls++
+                    TextRange(0, it.document.textLength)
+                },
+            )
         applyPass(currentPass)
 
         stalePass.doApplyInformationToEditor()

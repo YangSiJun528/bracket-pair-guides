@@ -4,9 +4,7 @@ import com.sijunyang.bracketpairguides.analysis.pairing.core.PairSink
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable
 
 /** A pair table that becomes unavailable instead of exposing a capped prefix. */
-internal class PairCollection(
-    private val capacity: PairCapacity,
-) : PairSink {
+internal class PairCollection(private val capacity: PairCapacity) : PairSink {
     private val draft = PairTable.draft()
     private var pairCount = 0
     private var overflowed = false

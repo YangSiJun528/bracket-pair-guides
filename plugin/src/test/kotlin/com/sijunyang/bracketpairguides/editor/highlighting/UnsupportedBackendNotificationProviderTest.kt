@@ -12,9 +12,9 @@ import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
+import org.assertj.core.api.Assertions.assertThat
 import java.awt.Component
 import java.awt.Container
-import org.assertj.core.api.Assertions.assertThat
 
 class UnsupportedBackendNotificationProviderTest : BasePlatformTestCase() {
     override fun setUp() {
@@ -71,7 +71,8 @@ class UnsupportedBackendNotificationProviderTest : BasePlatformTestCase() {
         var openedUrl: String? = null
         val panel = panel("IC") { url -> openedUrl = url }
 
-        panel?.action(UnsupportedBackendNotificationProvider.DOCUMENTATION_ACTION_TEXT)
+        panel
+            ?.action(UnsupportedBackendNotificationProvider.DOCUMENTATION_ACTION_TEXT)
             ?.doClick()
 
         assertThat(openedUrl)
@@ -83,7 +84,8 @@ class UnsupportedBackendNotificationProviderTest : BasePlatformTestCase() {
         var openedUrl: String? = null
         val panel = panel("RD") { url -> openedUrl = url }
 
-        panel?.action(UnsupportedBackendNotificationProvider.SUPPORT_ACTION_TEXT)
+        panel
+            ?.action(UnsupportedBackendNotificationProvider.SUPPORT_ACTION_TEXT)
             ?.doClick()
 
         assertThat(openedUrl)
@@ -100,17 +102,19 @@ class UnsupportedBackendNotificationProviderTest : BasePlatformTestCase() {
 
     private fun publish(availability: BraceMatcherAvailability) {
         val options = BracketGuideSettings.getInstance().options
-        val input = AnalysisInput(
-            editor = myFixture.editor,
-            fileType = myFixture.file.fileType,
-            coverage = options.analysisCoverage(),
-            disabledLanguageIds = options.disabledLanguageIds,
-        )
-        val session = EditorGuideSessions.install(
-            editor = myFixture.editor,
-            visibleRange = { editor -> TextRange(0, editor.document.textLength) },
-            preferences = options,
-        )
+        val input =
+            AnalysisInput(
+                editor = myFixture.editor,
+                fileType = myFixture.file.fileType,
+                coverage = options.analysisCoverage(),
+                disabledLanguageIds = options.disabledLanguageIds,
+            )
+        val session =
+            EditorGuideSessions.install(
+                editor = myFixture.editor,
+                visibleRange = { editor -> TextRange(0, editor.document.textLength) },
+                preferences = options,
+            )
         session.accept(
             AnalysisOutcome.Complete(
                 input.bracketSnapshot(emptyList(), availability),
@@ -118,14 +122,12 @@ class UnsupportedBackendNotificationProviderTest : BasePlatformTestCase() {
         )
     }
 
-    private fun panel(
-        productCode: String,
-        openUrl: (String) -> Unit = {},
-    ) = UnsupportedBackendNotificationProvider(productCode, openUrl).notificationPanel(
-        project,
-        myFixture.file.virtualFile,
-        myFixture.editor,
-    )
+    private fun panel(productCode: String, openUrl: (String) -> Unit = {}) =
+        UnsupportedBackendNotificationProvider(productCode, openUrl).notificationPanel(
+            project,
+            myFixture.file.virtualFile,
+            myFixture.editor,
+        )
 
     private fun hiddenProperty(): String =
         UnsupportedBackendNotificationProvider.hiddenProperty(myFixture.file.virtualFile)

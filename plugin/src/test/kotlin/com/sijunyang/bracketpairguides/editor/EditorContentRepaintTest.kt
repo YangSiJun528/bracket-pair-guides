@@ -38,24 +38,40 @@ class EditorContentRepaintTest : BasePlatformTestCase() {
         val repaints = RecordingComponent()
         val editor = FixedViewportEditor(delegate, visibleArea, repaints)
         val options = BracketGuidePreferences(colorBracketTokens = false)
-        val outer = BracketPair(
-            source.indexOf('{'), 1, source.indexOf('}'), 1, 0, 0, 0,
-        )
-        val inner = BracketPair(
-            source.indexOf('('), 1, source.indexOf(')'), 1, 1, 0, 0,
-        )
+        val outer =
+            BracketPair(
+                source.indexOf('{'),
+                1,
+                source.indexOf('}'),
+                1,
+                0,
+                0,
+                0,
+            )
+        val inner =
+            BracketPair(
+                source.indexOf('('),
+                1,
+                source.indexOf(')'),
+                1,
+                1,
+                0,
+                0,
+            )
         delegate.caretModel.moveToOffset(source.indexOf("inner"))
-        val session = EditorGuideSession(
-            editor = editor,
-            visibleRange = { TextRange(0, it.document.textLength) },
-            options = options,
-        )
-        val input = AnalysisInput(
-            editor = editor,
-            fileType = myFixture.file.fileType,
-            coverage = options.analysisCoverage(),
-            disabledLanguageIds = emptySet(),
-        )
+        val session =
+            EditorGuideSession(
+                editor = editor,
+                visibleRange = { TextRange(0, it.document.textLength) },
+                options = options,
+            )
+        val input =
+            AnalysisInput(
+                editor = editor,
+                fileType = myFixture.file.fileType,
+                coverage = options.analysisCoverage(),
+                disabledLanguageIds = emptySet(),
+            )
 
         try {
             session.accept(
@@ -77,9 +93,10 @@ private class FixedViewportEditor(
     visibleArea: Rectangle,
     private val recordedContentComponent: JComponent,
 ) : Editor by delegate {
-    private val fixedScrollingModel = object : ScrollingModel by delegate.scrollingModel {
-        override fun getVisibleArea(): Rectangle = Rectangle(visibleArea)
-    }
+    private val fixedScrollingModel =
+        object : ScrollingModel by delegate.scrollingModel {
+            override fun getVisibleArea(): Rectangle = Rectangle(visibleArea)
+        }
 
     override fun getScrollingModel(): ScrollingModel = fixedScrollingModel
 
