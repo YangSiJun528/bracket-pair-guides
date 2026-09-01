@@ -22,15 +22,9 @@
     ]]></description>
 
     <change-notes><![CDATA[
-        <p><b>0.0.3</b></p>
+        <p><b>0.0.4</b></p>
         <ul>
-            <li>Moved language-family settings to the bottom of the settings page.</li>
-            <li>Added enable-all and disable-all language actions.</li>
-            <li>Added an animated bracket-guide demo.</li>
-            <li>Support for legacy file-type brace matchers.</li>
-            <li>Warn when a file exposes no compatible IntelliJ brace matcher.</li>
-            <li>Correct guide thickness at the left edge of the editor.</li>
-            <li>Lower document-analysis allocation overhead.</li>
+            <li>Preserve configured bracket colors in visible IntelliJ Sticky Lines while scrolling beyond the ordinary viewport token window.</li>
         </ul>
     ]]></change-notes>
 
