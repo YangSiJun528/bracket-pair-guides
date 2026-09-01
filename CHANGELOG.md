@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.0.4
 
 - Preserved configured bracket colors in visible IntelliJ Sticky Lines while
   scrolling beyond the ordinary viewport token window.
