@@ -96,21 +96,24 @@ component overrides off.
 | `editorBracketHighlight.foreground1..6` | Base colors |
 | `editorBracketPairGuide.activeBackground1..6` | Guide colors with Component overrides enabled |
 
-## Avoid duplicate highlighting
+## Adjust IntelliJ indent guides
 
-IntelliJ's **Current scope** line can overlap the active guide. The plugin
-suppresses **Matched brace** by default because its boundary attributes replace
-the configured pair colors. Indent guides use whitespace columns and normally
-coexist with this plugin.
+IntelliJ's built-in indent guide can appear beside the active guide. **Current
+scope** highlights the existing guide for the scope at the caret; it does not
+create the guide.
 
-Recommended setup:
+Choose the preferred appearance:
 
-1. Leave **Show indent guides** enabled.
-2. Leave **Disable IntelliJ matched-brace highlighting** enabled for the tested
-   appearance. Clear it only when native boundary feedback is preferred.
-3. Disable **Current scope** when two active lines appear.
-4. If another plugin styles the same editor elements, either accept the
-   overlap or disable the overlapping feature in one of the plugins.
+- To hide the built-in gray line, open **Settings | Editor | General |
+  Appearance** and clear **Show indent guides**.
+- To keep the line without highlighting the scope at the caret, open **Settings
+  | Editor | General | Code Editing** and clear **Current scope** under
+  **Highlight on Caret Movement**.
+
+Leave **Disable IntelliJ matched-brace highlighting** enabled for the tested
+appearance. Clear it only when native boundary feedback is preferred. If
+another plugin styles the same editor elements, either accept the combined
+appearance or disable the overlapping feature in one of the plugins.
 
 ### Use with other highlighting plugins
 

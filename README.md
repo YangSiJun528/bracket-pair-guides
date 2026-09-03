@@ -33,6 +33,17 @@ In **Settings | Editor | Bracket Pair Guides**, you can configure:
 - optional border or background emphasis on the active endpoints;
 - separate guide, border, and background colors.
 
+## IntelliJ indent guides
+
+IntelliJ's built-in indent guide can appear beside the plugin's active guide.
+To hide the built-in gray line, clear **Show indent guides** under **Settings |
+Editor | General | Appearance**. To keep the line without highlighting the
+scope at the caret, clear **Current scope** under **Settings | Editor | General
+| Code Editing | Highlight on Caret Movement**.
+
+See the [configuration guide](docs/guide_configuration.md#adjust-intellij-indent-guides)
+for related highlighting options.
+
 ## Language support
 
 Bracket Pair Guides uses the bracket rules registered by installed JetBrains
