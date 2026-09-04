@@ -1,6 +1,10 @@
 package com.sijunyang.bracketpairguides.architecture
 
+import com.sijunyang.bracketpairguides.editor.events.BracketGuideSettingsController
+import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.tngtech.archunit.base.DescribedPredicate.describe
+import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage
 import com.tngtech.archunit.core.domain.JavaClass.Predicates.resideOutsideOfPackage
 import com.tngtech.archunit.core.domain.JavaMethodCall
@@ -115,5 +119,20 @@ internal class ArchitectureTest {
                         resideInAPackage("$ROOT.analysis..").test(call.target.rawReturnType)
                     },
                 ).because("preference queries must keep analysis return types behind their package boundary")
+
+        @ArchTest
+        @JvmField
+        val committedSettingsChangesGoThroughTheController: ArchRule =
+            noClasses()
+                .that(
+                    describe<JavaClass>("are not the settings controller") { javaClass ->
+                        javaClass.name != BracketGuideSettingsController::class.java.name
+                    },
+                ).should()
+                .callMethod(
+                    BracketGuideSettings::class.java,
+                    "replace",
+                    BracketGuidePreferences::class.java,
+                ).because("production preference commits must apply persistence and runtime effects together")
     }
 }

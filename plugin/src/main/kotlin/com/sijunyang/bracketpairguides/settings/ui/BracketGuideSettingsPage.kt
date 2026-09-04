@@ -2,8 +2,7 @@ package com.sijunyang.bracketpairguides.settings.ui
 
 import com.sijunyang.bracketpairguides.analysis.BraceLanguageFamily
 import com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalog
-import com.sijunyang.bracketpairguides.editor.events.GuideSettingsChange
-import com.sijunyang.bracketpairguides.editor.events.NativeMatchedBraceHighlighting
+import com.sijunyang.bracketpairguides.editor.events.BracketGuideSettingsController
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
@@ -27,11 +26,14 @@ import java.awt.Color
 import java.util.Locale
 import javax.swing.JTextField
 
-/** Standard platform controls bound directly to the persisted plugin options. */
+/** Standard platform controls committed as one immutable preference draft. */
 internal class BracketGuideSettingsPage(
     private val installedLanguages: () -> List<BraceLanguageFamily>,
+    private val applySettings: (BracketGuidePreferences) -> Unit = { options ->
+        BracketGuideSettingsController.getInstance().applySettings(options)
+    },
 ) : BoundConfigurable("Bracket Pair Guides") {
-    private var appliedSnapshot = BracketGuidePreferences()
+    private var draftOptions: BracketGuidePreferences? = null
 
     @Suppress("unused")
     constructor() : this(BraceLanguageCatalog()::installedFamilies)
@@ -40,8 +42,7 @@ internal class BracketGuideSettingsPage(
         val settings = BracketGuideSettings.getInstance()
         val colorPanels = mutableListOf<LeveledColorPanel>()
         val languageCheckBoxes = mutableListOf<JBCheckBox>()
-        NativeMatchedBraceHighlighting.getInstance().apply(settings.options)
-        appliedSnapshot = settings.options
+        draftOptions = null
 
         return panel {
             lateinit var enabled: Cell<JBCheckBox>
@@ -281,15 +282,14 @@ internal class BracketGuideSettingsPage(
                                         settings.options.isLanguageEnabled(language.id)
                                     },
                                     { selected ->
-                                        val options = settings.options
+                                        val options = draftOptions ?: settings.options
                                         val disabledIds = if (selected) {
                                             options.disabledLanguageIds - language.id
                                         } else {
                                             options.disabledLanguageIds + language.id
                                         }
-                                        settings.replace(
-                                            options.copy(disabledLanguageIds = disabledIds),
-                                        )
+                                        draftOptions =
+                                            options.copy(disabledLanguageIds = disabledIds)
                                     },
                                 )
                         }
@@ -298,12 +298,11 @@ internal class BracketGuideSettingsPage(
             }
 
             onApply {
-                val applied = settings.options
-                GuideSettingsChange(appliedSnapshot, applied).apply()
-                appliedSnapshot = applied
+                applySettings(draftOptions ?: settings.options)
+                draftOptions = null
             }
             onReset {
-                appliedSnapshot = settings.options
+                draftOptions = null
             }
         }
     }
@@ -315,7 +314,7 @@ internal class BracketGuideSettingsPage(
         set: (BracketGuidePreferences, Boolean) -> BracketGuidePreferences,
     ): Cell<JBCheckBox> = checkBox(text).bindSelected(
         { get(settings.options) },
-        { value -> settings.replace(set(settings.options, value)) },
+        { value -> updateDraft(settings) { options -> set(options, value) } },
     )
 
     private fun Row.boundSpinner(
@@ -328,7 +327,7 @@ internal class BracketGuideSettingsPage(
     ): Cell<JBIntSpinner> = spinner(range, step)
         .bindIntValue(
             { get(settings.options) },
-            { value -> settings.replace(set(settings.options, value)) },
+            { value -> updateDraft(settings) { options -> set(options, value) } },
         )
         .applyToComponent { this.name = name }
 
@@ -346,13 +345,13 @@ internal class BracketGuideSettingsPage(
                 )
             },
             { color ->
-                val options = settings.options
+                val options = draftOptions ?: settings.options
                 val storedValue = color?.let(StoredColorFormat::colorToStoredValue)
                     ?: StoredColorFormat.defaultColor(level)
                 val colors = target.colors(options).mapIndexed { index, value ->
                     if (index == level) storedValue else value
                 }
-                settings.replace(target.withColors(options, colors))
+                draftOptions = target.withColors(options, colors)
             },
         )
         return cell(ColorPanel())
@@ -374,6 +373,13 @@ internal class BracketGuideSettingsPage(
                 property,
             )
             .enabledIf(enabled)
+    }
+
+    private fun updateDraft(
+        settings: BracketGuideSettings,
+        update: (BracketGuidePreferences) -> BracketGuidePreferences,
+    ) {
+        draftOptions = update(draftOptions ?: settings.options)
     }
 
     private fun ColorPanel.updateColorAccessibility(

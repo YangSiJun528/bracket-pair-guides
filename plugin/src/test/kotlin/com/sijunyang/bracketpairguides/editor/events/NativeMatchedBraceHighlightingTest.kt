@@ -73,16 +73,17 @@ class NativeMatchedBraceHighlightingTest {
     }
 
     @Test
-    fun `external native enablement wins and clears the plugin preference`() {
+    fun `external native enablement returns a corrected plugin preference`() {
         val fixture = fixture(initialNativeValue = true)
         fixture.controller.apply(BracketGuidePreferences())
         fixture.nativeSetting.enabled = true
 
-        fixture.controller.apply(BracketGuidePreferences())
+        val reconciled = fixture.controller.apply(BracketGuidePreferences())
 
         assertThat(fixture.nativeSetting.enabled).isTrue()
         assertThat(fixture.controller.state.restoreValue).isNull()
-        assertThat(fixture.externalOverrides).hasSize(1)
+        assertThat(reconciled.disableNativeMatchedBraceHighlighting).isFalse()
+        assertThat(fixture.externalOverrides).isEmpty()
         assertThat(fixture.persistedSnapshots).isEmpty()
     }
 
