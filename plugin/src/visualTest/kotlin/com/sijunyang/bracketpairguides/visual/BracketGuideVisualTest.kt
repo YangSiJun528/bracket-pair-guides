@@ -602,8 +602,6 @@ private interface DriverBridge {
 
     fun setShowActiveGuide(enabled: Boolean): Boolean
 
-    fun isShowActiveGuideEnabled(): Boolean
-
     fun configureEditorAppearance(fontName: String, fontSize: Int): String
 
     fun prepareEditorForCapture(filePathSuffix: String): String

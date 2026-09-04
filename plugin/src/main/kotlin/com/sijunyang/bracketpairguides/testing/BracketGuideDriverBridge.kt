@@ -19,9 +19,10 @@ import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
  * Keep every public method limited to primitive and String values. The Driver
  * API is deliberately absent from the production plugin classpath.
  */
-public object BracketGuideDriverBridge {
+@Suppress("unused") // Loaded reflectively by the out-of-process IntelliJ Driver.
+object BracketGuideDriverBridge {
     @JvmStatic
-    public fun setShowActiveGuide(enabled: Boolean): Boolean = driverTestOnEdt {
+    fun setShowActiveGuide(enabled: Boolean): Boolean = driverTestOnEdt {
         val current = BracketGuideSettings.getInstance().options
         BracketGuideSettingsController.getInstance().applySettings(
             current.copy(showActiveGuide = enabled),
@@ -30,34 +31,29 @@ public object BracketGuideDriverBridge {
     }
 
     @JvmStatic
-    public fun isShowActiveGuideEnabled(): Boolean = driverTestOnEdt {
-        BracketGuideSettings.getInstance().options.showActiveGuide
-    }
-
-    @JvmStatic
-    @Suppress("DEPRECATION")
-    public fun applyDarculaTheme(): String = driverTestOnEdt {
+    @Suppress("UnstableApiUsage") // The visual runtime is pinned; verifier covers the supported IDE range.
+    fun applyDarculaTheme(): String = driverTestOnEdt {
         val manager = LafManager.getInstance()
         manager.autodetect = false
-        val darcula = manager.installedLookAndFeels.firstOrNull { lookAndFeel ->
-            lookAndFeel.name == DARCULA_THEME
+        val darcula = manager.installedThemes.firstOrNull { theme ->
+            theme.name == DARCULA_THEME
         }
         checkNotNull(darcula) {
             "The pinned IDE does not provide the $DARCULA_THEME theme"
         }
-        manager.currentLookAndFeel = darcula
+        manager.currentUIThemeLookAndFeel = darcula
         manager.updateUI()
-        manager.currentLookAndFeel.name
+        checkNotNull(manager.currentUIThemeLookAndFeel).name
     }
 
     @JvmStatic
-    @Suppress("DEPRECATION")
-    public fun currentTheme(): String = driverTestOnEdt {
-        LafManager.getInstance().currentLookAndFeel.name
+    @Suppress("UnstableApiUsage") // Paired with applyDarculaTheme in the pinned visual runtime.
+    fun currentTheme(): String = driverTestOnEdt {
+        checkNotNull(LafManager.getInstance().currentUIThemeLookAndFeel).name
     }
 
     @JvmStatic
-    public fun configureIdeFrame(x: Int, y: Int, width: Int, height: Int): String = driverTestOnEdt {
+    fun configureIdeFrame(x: Int, y: Int, width: Int, height: Int): String = driverTestOnEdt {
         require(width > 0 && height > 0)
         val frame = checkNotNull(WindowManager.getInstance().findVisibleFrame()) {
             "No visible IDE frame"
@@ -67,7 +63,7 @@ public object BracketGuideDriverBridge {
     }
 
     @JvmStatic
-    public fun configureEditorAppearance(fontName: String, fontSize: Int): String = driverTestOnEdt {
+    fun configureEditorAppearance(fontName: String, fontSize: Int): String = driverTestOnEdt {
         require(fontName.isNotBlank())
         require(fontSize in 8..72)
         val scheme = EditorColorsManager.getInstance().globalScheme
@@ -80,7 +76,7 @@ public object BracketGuideDriverBridge {
     }
 
     @JvmStatic
-    public fun prepareEditorForCapture(filePathSuffix: String): String = driverTestOnEdt {
+    fun prepareEditorForCapture(filePathSuffix: String): String = driverTestOnEdt {
         val editor = checkNotNull(editorForFile(filePathSuffix) as? EditorEx) {
             "No extended editor found for $filePathSuffix"
         }
@@ -93,7 +89,7 @@ public object BracketGuideDriverBridge {
     }
 
     @JvmStatic
-    public fun activeGuideState(filePathSuffix: String): String = driverTestOnEdt {
+    fun activeGuideState(filePathSuffix: String): String = driverTestOnEdt {
         val editor = editorForFile(filePathSuffix) ?: return@driverTestOnEdt NO_EDITOR
         val session = EditorGuideSessions.get(editor) ?: return@driverTestOnEdt NO_SESSION
         if (session.isActiveGuideVisible) VISIBLE else HIDDEN
