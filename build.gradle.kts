@@ -9,6 +9,7 @@ spotless {
         target(
             "plugin/src/main/kotlin/**/*.kt",
             "plugin/src/test/kotlin/**/*.kt",
+            "plugin/src/visualTest/kotlin/**/*.kt",
         )
         targetExclude("plugin/src/test/testData/**")
         ktlint("1.8.0")
@@ -36,6 +37,7 @@ spotless {
         target(
             "plugin/src/main/java/**/*.java",
             "plugin/src/test/java/**/*.java",
+            "plugin/src/visualTest/java/**/*.java",
             "benchmarks/src/jmh/java/**/*.java",
         )
         targetExclude("plugin/src/test/testData/**")
