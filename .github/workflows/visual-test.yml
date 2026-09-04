@@ -97,7 +97,7 @@ jobs:
           xvfb-run \
             --auto-servernum \
             --server-args="-screen 0 1920x1080x24 -dpi 96 -nolisten tcp" \
-            ./gradlew --no-daemon visualTest \
+            ./gradlew --no-daemon visualTest --stacktrace \
             2>&1 | tee plugin/build/visual-test-gradle.log
 
       - name: Upload Actual Image
@@ -150,7 +150,8 @@ jobs:
             plugin/build/test-results/visualTest
             plugin/build/visual-test-artifacts
             plugin/build/visual-test-gradle.log
-            out/perf-startup
+            out/perf-startup/tests/*/*/log
+            out/perf-startup/tests/*/*/reports
           if-no-files-found: ignore
           retention-days: 14
 
