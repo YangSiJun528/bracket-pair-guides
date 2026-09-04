@@ -1,0 +1,462 @@
+# Report untrusted visual-test artifacts from a separately privileged workflow.
+
+name: Visual Test Report
+on:
+  workflow_run:
+    workflows: [ Visual Test ]
+    types: [ completed ]
+
+permissions:
+  actions: read
+  pull-requests: write
+
+jobs:
+  report:
+    name: Report Visual Test
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.pull_requests[0].number > 0 &&
+      github.event.workflow_run.pull_requests[1] == null
+    concurrency:
+      group: visual-test-report-${{ github.event.workflow_run.pull_requests[0].number }}
+      cancel-in-progress: false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Inspect Allowlisted Artifacts
+        id: inspect
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const allowedNames = new Set([
+              'actual.png',
+              'expected.png',
+              'diff.png',
+              'visual-test-metrics.json',
+              'visual-test-diagnostics',
+            ])
+            const runId = Number(context.payload.workflow_run.id)
+            const runAttempt = Number(context.payload.workflow_run.run_attempt)
+            if (
+              !Number.isSafeInteger(runId) ||
+              runId <= 0 ||
+              !Number.isSafeInteger(runAttempt) ||
+              runAttempt <= 0
+            ) {
+              throw new Error('Invalid workflow run metadata')
+            }
+
+            const artifacts = await github.paginate(
+              github.rest.actions.listWorkflowRunArtifacts,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: runId,
+                per_page: 100,
+              },
+            )
+            const selected = artifacts.filter(
+              artifact => allowedNames.has(artifact.name) && !artifact.expired,
+            )
+            const counts = new Map()
+            for (const artifact of selected) {
+              counts.set(artifact.name, (counts.get(artifact.name) || 0) + 1)
+            }
+            if ([...counts.values()].some(count => count !== 1)) {
+              throw new Error('Duplicate allowlisted artifact name')
+            }
+
+            const jobs = await github.paginate(
+              github.rest.actions.listJobsForWorkflowRunAttempt,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: runId,
+                attempt_number: runAttempt,
+                per_page: 100,
+              },
+            )
+            const visualJobs = jobs.filter(job => job.name === 'Visual Test')
+            if (visualJobs.length > 1) {
+              throw new Error('Expected exactly one visual-test job')
+            }
+            if (visualJobs.length === 0 || visualJobs[0].conclusion === 'skipped') {
+              core.setOutput('should_report', 'false')
+              core.setOutput('metrics_id', '')
+              return
+            }
+
+            const metrics = selected.filter(
+              artifact => artifact.name === 'visual-test-metrics.json',
+            )
+            if (metrics.length > 1) {
+              throw new Error('Expected at most one metrics artifact')
+            }
+            if (metrics.length === 1) {
+              const metric = metrics[0]
+              if (
+                !Number.isSafeInteger(metric.id) ||
+                metric.id <= 0 ||
+                !Number.isSafeInteger(metric.size_in_bytes) ||
+                metric.size_in_bytes <= 0 ||
+                metric.size_in_bytes > 16 * 1024
+              ) {
+                throw new Error('Metrics artifact failed metadata validation')
+              }
+              core.setOutput('metrics_id', String(metric.id))
+            } else {
+              core.setOutput('metrics_id', '')
+            }
+            core.setOutput('should_report', 'true')
+
+      - name: Download Metrics Without Extraction
+        id: download-metrics
+        if: ${{ steps.inspect.outputs.metrics_id != '' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          artifact-ids: ${{ steps.inspect.outputs.metrics_id }}
+          path: ${{ runner.temp }}/visual-test-report
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+          skip-decompress: true
+          digest-mismatch: error
+
+      - name: Validate Metrics and Update Pull Request
+        if: ${{ always() && steps.inspect.outputs.should_report == 'true' }}
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          DOWNLOAD_OUTCOME: ${{ steps.download-metrics.outcome }}
+          METRICS_ARTIFACT_ID: ${{ steps.inspect.outputs.metrics_id }}
+          METRICS_DIRECTORY: ${{ runner.temp }}/visual-test-report
+        with:
+          script: |
+            const fs = require('fs')
+            const path = require('path')
+
+            const marker = '<!-- visual-test-report:v1 -->'
+            const orderPrefix = '<!-- visual-test-report-order:'
+            const allowedNames = [
+              'actual.png',
+              'expected.png',
+              'diff.png',
+              'visual-test-metrics.json',
+              'visual-test-diagnostics',
+            ]
+            const expectedEnvironment =
+              'ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1'
+            const run = context.payload.workflow_run
+            const runId = Number(run.id)
+            const runNumber = Number(run.run_number)
+            const runAttempt = Number(run.run_attempt)
+            const linkedPullRequest = run.pull_requests?.[0]
+            const pullNumber = Number(linkedPullRequest?.number)
+            const positiveInteger = value =>
+              Number.isSafeInteger(value) && value > 0
+            if (
+              !positiveInteger(runId) ||
+              !positiveInteger(runNumber) ||
+              !positiveInteger(runAttempt) ||
+              !positiveInteger(pullNumber) ||
+              !Array.isArray(run.pull_requests) ||
+              run.pull_requests.length !== 1
+            ) {
+              throw new Error('Invalid trusted workflow metadata')
+            }
+            if (run.head_repository?.full_name !== `${context.repo.owner}/${context.repo.repo}`) {
+              throw new Error('Refusing to report a cross-repository run')
+            }
+
+            const pull = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullNumber,
+            })
+            if (pull.data.head.repo?.full_name !== `${context.repo.owner}/${context.repo.repo}`) {
+              throw new Error('Refusing to report to a cross-repository pull request')
+            }
+            const linkedHeadSha = linkedPullRequest?.head?.sha
+            if (
+              !/^[0-9a-f]{40}$/u.test(linkedHeadSha || '') ||
+              run.head_sha !== linkedHeadSha ||
+              pull.data.head.sha !== linkedHeadSha
+            ) {
+              core.info('Skipping a stale or mismatched pull-request association')
+              return
+            }
+
+            const artifacts = await github.paginate(
+              github.rest.actions.listWorkflowRunArtifacts,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: runId,
+                per_page: 100,
+              },
+            )
+            const artifactMap = new Map()
+            for (const name of allowedNames) {
+              const matches = artifacts.filter(
+                artifact => artifact.name === name && !artifact.expired,
+              )
+              if (matches.length > 1) {
+                throw new Error('Duplicate allowlisted artifact name')
+              }
+              if (matches.length === 1) {
+                const artifactId = Number(matches[0].id)
+                if (!positiveInteger(artifactId)) {
+                  throw new Error('Invalid artifact ID')
+                }
+                artifactMap.set(name, artifactId)
+              }
+            }
+
+            const exactKeys = (value, expected) => {
+              if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+                return false
+              }
+              const actual = Object.keys(value).sort()
+              return actual.length === expected.length &&
+                actual.every((key, index) => key === [...expected].sort()[index])
+            }
+            const boundedInteger = (value, minimum, maximum) =>
+              Number.isSafeInteger(value) && value >= minimum && value <= maximum
+            const parseMetrics = value => {
+              const baseKeys = ['schemaVersion', 'environment', 'comparisons']
+              if (
+                !exactKeys(value, baseKeys) &&
+                !exactKeys(value, [...baseKeys, 'error'])
+              ) {
+                throw new Error('Invalid metrics root schema')
+              }
+              if (value.schemaVersion !== 1 || value.environment !== expectedEnvironment) {
+                throw new Error('Unexpected metrics version or environment')
+              }
+              if (!Array.isArray(value.comparisons)) {
+                throw new Error('Invalid comparisons value')
+              }
+
+              if (Object.hasOwn(value, 'error')) {
+                if (
+                  value.comparisons.length !== 0 ||
+                  typeof value.error !== 'string' ||
+                  value.error.length < 1 ||
+                  value.error.length > 512 ||
+                  /[\u0000-\u001f\u007f]/u.test(value.error)
+                ) {
+                  throw new Error('Unsafe metrics error value')
+                }
+                return {kind: 'error', environment: value.environment}
+              }
+
+              const names = ['show-active-guide-off', 'show-active-guide-on']
+              if (value.comparisons.length !== names.length) {
+                throw new Error('Unexpected comparison count')
+              }
+              const rowKeys = [
+                'name',
+                'width',
+                'height',
+                'changedPixels',
+                'totalPixels',
+                'maximumChannelDifference',
+                'meanAbsoluteChannelDifference',
+              ]
+              const comparisons = value.comparisons.map((row, index) => {
+                if (!exactKeys(row, rowKeys) || row.name !== names[index]) {
+                  throw new Error('Invalid comparison schema')
+                }
+                if (
+                  row.width !== 220 ||
+                  row.height !== 240 ||
+                  !boundedInteger(row.totalPixels, 1, 4096 * 4096) ||
+                  row.totalPixels !== row.width * row.height ||
+                  !boundedInteger(row.changedPixels, 0, row.totalPixels) ||
+                  !boundedInteger(row.maximumChannelDifference, 0, 255) ||
+                  typeof row.meanAbsoluteChannelDifference !== 'number' ||
+                  !Number.isFinite(row.meanAbsoluteChannelDifference) ||
+                  row.meanAbsoluteChannelDifference < 0 ||
+                  row.meanAbsoluteChannelDifference > 255
+                ) {
+                  throw new Error('Comparison metrics are out of range')
+                }
+                return {
+                  name: row.name,
+                  width: row.width,
+                  height: row.height,
+                  changedPixels: row.changedPixels,
+                  totalPixels: row.totalPixels,
+                  maximumChannelDifference: row.maximumChannelDifference,
+                  meanAbsoluteChannelDifference: row.meanAbsoluteChannelDifference,
+                }
+              })
+              return {kind: 'comparisons', environment: value.environment, comparisons}
+            }
+
+            let metricReport = {kind: 'missing'}
+            const expectedMetricsId = Number(process.env.METRICS_ARTIFACT_ID)
+            const currentMetricsId = artifactMap.get('visual-test-metrics.json')
+            if (
+              positiveInteger(expectedMetricsId) &&
+              expectedMetricsId === currentMetricsId &&
+              process.env.DOWNLOAD_OUTCOME === 'success'
+            ) {
+              try {
+                const directory = path.resolve(process.env.METRICS_DIRECTORY)
+                const entries = fs.readdirSync(directory)
+                if (
+                  entries.length !== 1 ||
+                  entries[0] !== 'visual-test-metrics.json'
+                ) {
+                  throw new Error('Unexpected metrics download contents')
+                }
+                const metricsPath = path.join(directory, 'visual-test-metrics.json')
+                const stat = fs.lstatSync(metricsPath)
+                if (
+                  stat.isSymbolicLink() ||
+                  !stat.isFile() ||
+                  stat.size <= 0 ||
+                  stat.size > 16 * 1024
+                ) {
+                  throw new Error('Unsafe metrics file')
+                }
+                metricReport = parseMetrics(
+                  JSON.parse(fs.readFileSync(metricsPath, 'utf8')),
+                )
+              } catch (_error) {
+                core.warning('Metrics artifact failed strict validation')
+                metricReport = {kind: 'invalid'}
+              }
+            } else if (positiveInteger(expectedMetricsId)) {
+              core.warning('Metrics artifact could not be downloaded safely')
+              metricReport = {kind: 'invalid'}
+            }
+
+            const conclusionLabels = new Map([
+              ['success', '✅ Passed'],
+              ['failure', '❌ Failed'],
+              ['cancelled', '⏹️ Cancelled'],
+              ['timed_out', '⏱️ Timed out'],
+              ['action_required', '⚠️ Action required'],
+              ['neutral', '⚠️ Neutral'],
+              ['skipped', '⏭️ Skipped'],
+              ['stale', '⚠️ Stale'],
+              ['startup_failure', '❌ Startup failure'],
+            ])
+            const status = conclusionLabels.get(run.conclusion) || '⚠️ Completed'
+
+            const repositoryUrl =
+              `${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}`
+            const runUrl = `${repositoryUrl}/actions/runs/${runId}`
+            const artifactLabels = new Map([
+              ['actual.png', 'Actual (OFF / ON)'],
+              ['expected.png', 'Expected (OFF / ON)'],
+              ['diff.png', 'Diff (OFF / ON)'],
+              ['visual-test-metrics.json', 'Metrics JSON'],
+              ['visual-test-diagnostics', 'Diagnostics'],
+            ])
+            const artifactLinks = allowedNames
+              .filter(name => artifactMap.has(name))
+              .map(name =>
+                `[${artifactLabels.get(name)}](${runUrl}/artifacts/${artifactMap.get(name)})`,
+              )
+            const commitSha = /^[0-9a-f]{40}$/u.test(run.head_sha || '')
+              ? run.head_sha
+              : null
+            const commitLine = commitSha
+              ? `Tested commit: [\`${commitSha.slice(0, 12)}\`](${repositoryUrl}/commit/${commitSha})`
+              : 'Tested commit: unavailable'
+            const createdAt = new Date(run.created_at)
+            const expiry = Number.isNaN(createdAt.getTime())
+              ? '14 days after the run'
+              : new Date(createdAt.getTime() + 14 * 24 * 60 * 60 * 1000)
+                .toISOString()
+                .slice(0, 10)
+
+            const details = []
+            if (metricReport.kind === 'comparisons') {
+              details.push(`Environment: \`${metricReport.environment}\``)
+              details.push('')
+              details.push('| State | Size | Changed pixels | Max channel delta | Mean absolute delta |')
+              details.push('| --- | ---: | ---: | ---: | ---: |')
+              for (const comparison of metricReport.comparisons) {
+                const state = comparison.name === 'show-active-guide-off' ? 'OFF' : 'ON'
+                details.push(
+                  `| ${state} | ${comparison.width}×${comparison.height} | ` +
+                  `${comparison.changedPixels}/${comparison.totalPixels} | ` +
+                  `${comparison.maximumChannelDifference} | ` +
+                  `${comparison.meanAbsoluteChannelDifference.toFixed(4)} |`,
+                )
+              }
+            } else if (metricReport.kind === 'error') {
+              details.push(`Environment: \`${metricReport.environment}\``)
+              details.push('')
+              details.push('The harness reported a bounded setup or baseline error. See diagnostics.')
+            } else {
+              details.push('The metrics artifact was absent or rejected by strict validation.')
+            }
+
+            const body = [
+              marker,
+              `${orderPrefix}${runNumber}:${runAttempt} -->`,
+              '## Visual test',
+              '',
+              status,
+              '',
+              commitLine,
+              `Workflow: [run #${runNumber}, attempt ${runAttempt}](${runUrl})`,
+              ...details,
+              '',
+              artifactLinks.length > 0
+                ? `Artifacts: ${artifactLinks.join(' · ')}`
+                : 'Artifacts: none available',
+              `Artifacts are retained through ${expiry} (14 days).`,
+            ].join('\n')
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pullNumber,
+                per_page: 100,
+              },
+            )
+            const existing = comments
+              .filter(comment =>
+                comment.user?.login === 'github-actions[bot]' &&
+                comment.body?.includes(marker),
+              )
+              .sort((left, right) => right.id - left.id)[0]
+
+            if (existing) {
+              const orderMatch = existing.body.match(
+                /<!-- visual-test-report-order:(\d+):(\d+) -->/u,
+              )
+              if (orderMatch) {
+                const existingRun = Number(orderMatch[1])
+                const existingAttempt = Number(orderMatch[2])
+                if (
+                  existingRun > runNumber ||
+                  (existingRun === runNumber && existingAttempt > runAttempt)
+                ) {
+                  core.info('A newer visual-test report already exists')
+                  return
+                }
+              }
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              })
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pullNumber,
+                body,
+              })
+            }
