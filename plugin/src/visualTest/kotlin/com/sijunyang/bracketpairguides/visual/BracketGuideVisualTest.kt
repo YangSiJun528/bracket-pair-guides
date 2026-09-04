@@ -121,6 +121,9 @@ class BracketGuideVisualTest {
                     val editor = codeEditor()
                     editor.setCaretPosition(line = CARET_LINE, column = CARET_COLUMN)
                     waitForCodeAnalysis(project, sample, 5.minutes)
+                    assertTrue(
+                        bridge.prepareEditorForCapture(SAMPLE_FILE) == "$CARET_LINE:$CARET_COLUMN",
+                    )
                     assertTrue(bridge.setShowActiveGuide(true))
                     waitFor(1.minutes, 100.milliseconds, "active guide did not become visible for warm-up") {
                         bridge.activeGuideState(SAMPLE_FILE) == "VISIBLE"
@@ -191,6 +194,9 @@ class BracketGuideVisualTest {
         waitFor(1.minutes, 100.milliseconds, "active guide did not become $expectedState") {
             bridge.activeGuideState(SAMPLE_FILE) == expectedState
         }
+        assertTrue(
+            bridge.prepareEditorForCapture(SAMPLE_FILE) == "$CARET_LINE:$CARET_COLUMN",
+        )
         val actual = stableScreenshot(editor)
         writePng(actual, artifacts.resolve("$name-actual.png"))
         return actual
@@ -377,8 +383,8 @@ class BracketGuideVisualTest {
         require(screenshot.width >= CROP_WIDTH && screenshot.height >= CROP_HEIGHT) {
             "Code editor is too small for the pinned crop: ${screenshot.width}x${screenshot.height}"
         }
-        // The caret is at column 20, to the right of this crop. The crop keeps
-        // the nested guide and source text while excluding caret blink and the scrollbar.
+        // The crop keeps the nested guide and source text while excluding the scrollbar.
+        // The production-side test bridge disables the blinking caret and intention bulb.
         val cropped = screenshot.getSubimage(0, 0, CROP_WIDTH, CROP_HEIGHT)
         return BufferedImage(CROP_WIDTH, CROP_HEIGHT, BufferedImage.TYPE_INT_ARGB).apply {
             createGraphics().use { graphics -> graphics.drawImage(cropped, 0, 0, null) }
@@ -599,6 +605,8 @@ private interface DriverBridge {
     fun isShowActiveGuideEnabled(): Boolean
 
     fun configureEditorAppearance(fontName: String, fontSize: Int): String
+
+    fun prepareEditorForCapture(filePathSuffix: String): String
 
     fun activeGuideState(filePathSuffix: String): String
 }

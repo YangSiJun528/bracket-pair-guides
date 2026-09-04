@@ -5,6 +5,8 @@ import com.intellij.ide.ui.LafManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.colors.EditorColorsManager
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.wm.WindowManager
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
@@ -73,20 +75,36 @@ public object BracketGuideDriverBridge {
         scheme.editorFontSize = fontSize
         scheme.lineSpacing = 1.0f
         CodeVisionSettings.getInstance().codeVisionEnabled = false
+        EditorSettingsExternalizable.getInstance().isShowIntentionBulb = false
         "${scheme.editorFontName}:${scheme.editorFontSize}:${scheme.lineSpacing}"
     }
 
     @JvmStatic
+    public fun prepareEditorForCapture(filePathSuffix: String): String = driverTestOnEdt {
+        val editor = checkNotNull(editorForFile(filePathSuffix) as? EditorEx) {
+            "No extended editor found for $filePathSuffix"
+        }
+        editor.settings.isShowIntentionBulb = false
+        editor.setCaretEnabled(false)
+        editor.setCaretVisible(false)
+        editor.contentComponent.repaint()
+        val position = editor.caretModel.logicalPosition
+        "${position.line + 1}:${position.column + 1}"
+    }
+
+    @JvmStatic
     public fun activeGuideState(filePathSuffix: String): String = driverTestOnEdt {
-        val editor =
-            EditorFactory.getInstance().allEditors.firstOrNull { candidate ->
-                if (candidate.isDisposed) return@firstOrNull false
-                val file = FileDocumentManager.getInstance().getFile(candidate.document)
-                file?.path?.replace('\\', '/')?.endsWith(filePathSuffix.replace('\\', '/')) == true
-            } ?: return@driverTestOnEdt NO_EDITOR
+        val editor = editorForFile(filePathSuffix) ?: return@driverTestOnEdt NO_EDITOR
         val session = EditorGuideSessions.get(editor) ?: return@driverTestOnEdt NO_SESSION
         if (session.isActiveGuideVisible) VISIBLE else HIDDEN
     }
+
+    private fun editorForFile(filePathSuffix: String) =
+        EditorFactory.getInstance().allEditors.firstOrNull { candidate ->
+            if (candidate.isDisposed) return@firstOrNull false
+            val file = FileDocumentManager.getInstance().getFile(candidate.document)
+            file?.path?.replace('\\', '/')?.endsWith(filePathSuffix.replace('\\', '/')) == true
+        }
 
     private fun <T> driverTestOnEdt(action: () -> T): T {
         check(System.getProperty(DRIVER_TEST_PROPERTY) == "true") {
