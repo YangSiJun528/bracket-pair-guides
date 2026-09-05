@@ -137,6 +137,59 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
         }
     }
 
+    fun testApplyCommitsOneCombinedDraftThroughTheControllerEntryPoint() {
+        val commits = mutableListOf<BracketGuidePreferences>()
+        val configurable =
+            BracketGuideSettingsPage(
+                installedLanguages = { emptyList() },
+                applySettings = { options -> commits += options },
+            )
+        val component = configurable.createComponent()
+        try {
+            component.checkBox("Bracket colorization").doClick()
+            component.spinner("guideLineWidth").value = 3
+            component.checkBox("Pair border").doClick()
+
+            assertThat(commits).isEmpty()
+            assertThat(BracketGuideSettings.getInstance().options)
+                .isEqualTo(BracketGuidePreferences())
+
+            configurable.apply()
+
+            assertThat(commits).hasSize(1)
+            assertThat(commits.single().colorBracketTokens).isFalse()
+            assertThat(commits.single().guideLineWidth).isEqualTo(3)
+            assertThat(commits.single().showActivePairBorder).isTrue()
+        } finally {
+            configurable.disposeUIResources()
+        }
+    }
+
+    fun testOpeningResetAndDisposeDoNotCommitTheDraft() {
+        val commits = mutableListOf<BracketGuidePreferences>()
+        val configurable =
+            BracketGuideSettingsPage(
+                installedLanguages = { emptyList() },
+                applySettings = { options -> commits += options },
+            )
+        val component = configurable.createComponent()
+        try {
+            assertThat(commits).isEmpty()
+
+            component.checkBox("Bracket colorization").doClick()
+            configurable.reset()
+            assertThat(commits).isEmpty()
+
+            component.checkBox("Pair border").doClick()
+        } finally {
+            configurable.disposeUIResources()
+        }
+
+        assertThat(commits).isEmpty()
+        assertThat(BracketGuideSettings.getInstance().options)
+            .isEqualTo(BracketGuidePreferences())
+    }
+
     fun testWarnsOnlyWhenNativeMatchedBraceHighlightingIsAllowed() {
         withConfigurable(emptyList()) { _, component ->
             val disableNative =
@@ -400,7 +453,10 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
         supportedLanguages: List<BraceLanguageFamily>,
         block: (BracketGuideSettingsPage, Component) -> Unit,
     ) {
-        val configurable = BracketGuideSettingsPage { supportedLanguages }
+        val configurable =
+            BracketGuideSettingsPage(
+                installedLanguages = { supportedLanguages },
+            )
         val component = configurable.createComponent()
         try {
             block(configurable, component)

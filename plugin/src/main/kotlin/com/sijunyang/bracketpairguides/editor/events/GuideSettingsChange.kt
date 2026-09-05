@@ -13,13 +13,8 @@ internal data class GuideSettingsChange(val previous: BracketGuidePreferences, v
     val requiresAnalysisRefresh: Boolean
         get() = current.hasDifferentAnalysisFrom(previous)
 
-    fun apply(
-        applyNativeMatchedBraceSetting: (BracketGuidePreferences) -> Unit =
-            NativeMatchedBraceHighlighting.getInstance()::apply,
-    ) {
+    fun apply() {
         if (isEmpty) return
-
-        applyNativeMatchedBraceSetting(current)
 
         val sessionEditors =
             EditorFactory.getInstance().allEditors.filter { editor ->

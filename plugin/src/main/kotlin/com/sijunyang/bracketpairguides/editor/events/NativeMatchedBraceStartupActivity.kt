@@ -3,7 +3,6 @@ package com.sijunyang.bracketpairguides.editor.events
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.ProjectActivity
-import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 
 /** Applies the persisted native-highlight choice before the first editor interaction. */
 internal class NativeMatchedBraceStartupActivity : ProjectActivity {
@@ -11,8 +10,6 @@ internal class NativeMatchedBraceStartupActivity : ProjectActivity {
         val application = ApplicationManager.getApplication()
         if (project.isDisposed || application.isUnitTestMode) return
 
-        NativeMatchedBraceHighlighting.getInstance().apply(
-            BracketGuideSettings.getInstance().options,
-        )
+        BracketGuideSettingsController.getInstance().reconcileNativeSettings()
     }
 }

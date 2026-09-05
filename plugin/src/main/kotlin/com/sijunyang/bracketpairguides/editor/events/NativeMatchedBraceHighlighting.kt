@@ -12,7 +12,6 @@ import com.intellij.openapi.components.Storage
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.util.xmlb.annotations.Property
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
-import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 
 /** Owns and reverses the plugin's temporary suppression of IntelliJ's endpoint highlight. */
 @State(
@@ -57,12 +56,11 @@ internal class NativeMatchedBraceHighlighting internal constructor(
     }
 
     @Synchronized
-    fun apply(preferences: BracketGuidePreferences) {
-        if (!mayMutate()) return
+    fun apply(preferences: BracketGuidePreferences): BracketGuidePreferences {
+        if (!mayMutate()) return preferences
 
         if (!preferences.enabled || !preferences.disableNativeMatchedBraceHighlighting) {
-            releaseOwnership()
-            return
+            return preferences.after(releaseOwnership())
         }
 
         val restoreValue = state.restoreValue
@@ -70,18 +68,22 @@ internal class NativeMatchedBraceHighlighting internal constructor(
             if (nativeSetting.enabled) {
                 // A newer explicit platform choice wins over the plugin-owned false value.
                 clearOwnership()
-                onExternalOverride()
+                return preferences.copy(disableNativeMatchedBraceHighlighting = false)
             }
-            return
+            return preferences
         }
 
         updateState { OwnershipState(nativeSetting.enabled) }
         nativeSetting.enabled = false
+        return preferences
     }
 
     @Synchronized
     override fun dispose() {
-        if (mayMutate()) releaseOwnership()
+        if (!mayMutate()) return
+        if (releaseOwnership() == OwnershipRelease.EXTERNAL_OVERRIDE) {
+            onExternalOverride()
+        }
     }
 
     @Synchronized
@@ -95,7 +97,12 @@ internal class NativeMatchedBraceHighlighting internal constructor(
     }
 
     private fun releaseAndPersistOwnership() {
-        if (!mayMutate() || !releaseOwnership()) return
+        if (!mayMutate()) return
+        val release = releaseOwnership()
+        if (release == OwnershipRelease.NONE) return
+        if (release == OwnershipRelease.EXTERNAL_OVERRIDE) {
+            onExternalOverride()
+        }
 
         // IntelliJ 2024.1 saves application settings before appWillBeClosed, and
         // dynamic unload does not save this service after dispose. Persist both
@@ -103,21 +110,37 @@ internal class NativeMatchedBraceHighlighting internal constructor(
         persistSettings()
     }
 
-    private fun releaseOwnership(): Boolean {
-        val restoreValue = state.restoreValue ?: return false
+    private fun releaseOwnership(): OwnershipRelease {
+        val restoreValue = state.restoreValue ?: return OwnershipRelease.NONE
         val externallyEnabled = nativeSetting.enabled
         if (!externallyEnabled) {
             nativeSetting.enabled = restoreValue
         }
         clearOwnership()
-        if (externallyEnabled) {
-            onExternalOverride()
+        return if (externallyEnabled) {
+            OwnershipRelease.EXTERNAL_OVERRIDE
+        } else {
+            OwnershipRelease.RESTORED
         }
-        return true
     }
 
     private fun clearOwnership() {
         updateState { OwnershipState() }
+    }
+
+    private fun BracketGuidePreferences.after(release: OwnershipRelease): BracketGuidePreferences = if (
+        release == OwnershipRelease.EXTERNAL_OVERRIDE &&
+        disableNativeMatchedBraceHighlighting
+    ) {
+        copy(disableNativeMatchedBraceHighlighting = false)
+    } else {
+        this
+    }
+
+    private enum class OwnershipRelease {
+        NONE,
+        RESTORED,
+        EXTERNAL_OVERRIDE,
     }
 
     internal data class OwnershipState(@JvmField @field:Property val restoreValue: Boolean? = null)
@@ -130,13 +153,8 @@ internal class NativeMatchedBraceHighlighting internal constructor(
         )
 
         private fun recordExternalOverride() {
-            val settings = BracketGuideSettings.getInstance()
-            val options = settings.options
-            if (options.disableNativeMatchedBraceHighlighting) {
-                settings.replace(
-                    options.copy(disableNativeMatchedBraceHighlighting = false),
-                )
-            }
+            BracketGuideSettingsController.getInstance()
+                .nativeMatchedBraceSettingWasOverridden()
         }
     }
 }
