@@ -8,16 +8,27 @@ on:
     types: [ opened, synchronize, reopened, ready_for_review, converted_to_draft, labeled, unlabeled ]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # Only skip-ci label changes share the normal concurrency group. Other label
+  # events must neither start Build nor cancel an in-flight Build run.
+  group: >-
+    ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{
+    (github.event_name == 'pull_request' &&
+    (github.event.action == 'labeled' || github.event.action == 'unlabeled') &&
+    github.event.label.name != 'skip-ci') && github.run_id || 'ci' }}
   cancel-in-progress: true
 
 jobs:
   build:
-    name: Build
+    name: >-
+      ${{ (github.event_name == 'pull_request' &&
+      (github.event.action == 'labeled' || github.event.action == 'unlabeled') &&
+      github.event.label.name != 'skip-ci') && 'Build (label event ignored)' || 'Build' }}
     if: >-
       github.event_name == 'push' ||
       (github.event.pull_request.draft == false &&
-      !contains(github.event.pull_request.labels.*.name, 'skip-ci'))
+      !contains(github.event.pull_request.labels.*.name, 'skip-ci') &&
+      ((github.event.action != 'labeled' && github.event.action != 'unlabeled') ||
+      github.event.label.name == 'skip-ci'))
     runs-on: ubuntu-latest
     steps:
       - name: Maximize Build Space
@@ -48,7 +59,10 @@ jobs:
           path: ./plugin/build/distributions/*.zip
 
   test:
-    name: Test
+    name: >-
+      ${{ (github.event_name == 'pull_request' &&
+      (github.event.action == 'labeled' || github.event.action == 'unlabeled') &&
+      github.event.label.name != 'skip-ci') && 'Test (label event ignored)' || 'Test' }}
     needs: [ build ]
     runs-on: ubuntu-latest
     steps:
@@ -84,7 +98,11 @@ jobs:
             ${{ github.workspace }}/plugin/build/reports/tests
 
   inspectCode:
-    name: Inspect Code
+    name: >-
+      ${{ (github.event_name == 'pull_request' &&
+      (github.event.action == 'labeled' || github.event.action == 'unlabeled') &&
+      github.event.label.name != 'skip-ci') &&
+      'Inspect Code (label event ignored)' || 'Inspect Code' }}
     needs: [ build ]
     runs-on: ubuntu-latest
     permissions:
@@ -116,7 +134,11 @@ jobs:
           pr-mode: false
 
   verify:
-    name: Verify Plugin
+    name: >-
+      ${{ (github.event_name == 'pull_request' &&
+      (github.event.action == 'labeled' || github.event.action == 'unlabeled') &&
+      github.event.label.name != 'skip-ci') &&
+      'Verify Plugin (label event ignored)' || 'Verify Plugin' }}
     needs: [ build ]
     runs-on: ubuntu-latest
     steps:

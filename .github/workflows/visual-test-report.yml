@@ -1,0 +1,949 @@
+# Report untrusted visual-test artifacts from a separately privileged workflow.
+
+name: Visual Test Report
+on:
+  workflow_run:
+    workflows: [ Visual Test ]
+    types: [ completed ]
+
+permissions:
+  actions: read
+  contents: write
+  pull-requests: write
+
+jobs:
+  report:
+    name: Report Visual Test
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.pull_requests[0].number > 0 &&
+      github.event.workflow_run.pull_requests[1] == null
+    concurrency:
+      group: visual-test-report-publish
+      cancel-in-progress: false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Inspect Allowlisted Artifacts
+        id: inspect
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const allowedNames = new Set([
+              'show-active-guide-off-actual.png',
+              'show-active-guide-on-actual.png',
+              'diff.png',
+              'visual-test-metrics.json',
+              'visual-test-diagnostics',
+            ])
+            const maximumSizes = new Map([
+              ['show-active-guide-off-actual.png', 256 * 1024],
+              ['show-active-guide-on-actual.png', 256 * 1024],
+              ['diff.png', 512 * 1024],
+              ['visual-test-metrics.json', 16 * 1024],
+              ['visual-test-diagnostics', 64 * 1024 * 1024],
+            ])
+            const runId = Number(context.payload.workflow_run.id)
+            const runAttempt = Number(context.payload.workflow_run.run_attempt)
+            if (
+              !Number.isSafeInteger(runId) ||
+              runId <= 0 ||
+              !Number.isSafeInteger(runAttempt) ||
+              runAttempt <= 0
+            ) {
+              throw new Error('Invalid workflow run metadata')
+            }
+
+            const run = context.payload.workflow_run
+            const linkedPullRequest = run.pull_requests?.[0]
+            const pullNumber = Number(linkedPullRequest?.number)
+            if (!Number.isSafeInteger(pullNumber) || pullNumber <= 0) {
+              throw new Error('Invalid pull-request association')
+            }
+            const pull = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullNumber,
+            })
+            const stack = pull.data.stack
+            const stackIsValid = stack == null || (
+              stack !== null &&
+              typeof stack === 'object' &&
+              Number.isSafeInteger(stack.position) &&
+              stack.position > 0 &&
+              Number.isSafeInteger(stack.size) &&
+              stack.size > 0 &&
+              stack.position === stack.size &&
+              stack.base?.ref === 'main'
+            )
+            const targetsMain = stack == null
+              ? pull.data.base?.ref === 'main'
+              : stackIsValid
+            const labels = Array.isArray(pull.data.labels)
+              ? pull.data.labels.map(label => label.name)
+              : []
+            const linkedHeadSha = linkedPullRequest?.head?.sha
+            if (
+              pull.data.state !== 'open' ||
+              pull.data.draft !== false ||
+              pull.data.head.repo?.full_name !== `${context.repo.owner}/${context.repo.repo}` ||
+              !labels.includes('visual-test') ||
+              !targetsMain ||
+              !stackIsValid ||
+              !/^[0-9a-f]{40}$/u.test(linkedHeadSha || '') ||
+              run.head_sha !== linkedHeadSha ||
+              pull.data.head.sha !== linkedHeadSha
+            ) {
+              core.info('Skipping a pull request that is no longer eligible')
+              core.setOutput('should_report', 'false')
+              core.setOutput('metrics_id', '')
+              core.setOutput('image_ids', '')
+              return
+            }
+
+            const artifacts = await github.paginate(
+              github.rest.actions.listWorkflowRunArtifacts,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: runId,
+                per_page: 100,
+              },
+            )
+            const selected = artifacts.filter(
+              artifact => allowedNames.has(artifact.name) && !artifact.expired,
+            )
+            const counts = new Map()
+            for (const artifact of selected) {
+              counts.set(artifact.name, (counts.get(artifact.name) || 0) + 1)
+            }
+            if ([...counts.values()].some(count => count !== 1)) {
+              throw new Error('Duplicate allowlisted artifact name')
+            }
+            for (const artifact of selected) {
+              if (
+                !Number.isSafeInteger(artifact.id) ||
+                artifact.id <= 0 ||
+                !Number.isSafeInteger(artifact.size_in_bytes) ||
+                artifact.size_in_bytes <= 0 ||
+                artifact.size_in_bytes > maximumSizes.get(artifact.name)
+              ) {
+                throw new Error(`Artifact metadata failed validation: ${artifact.name}`)
+              }
+            }
+
+            const jobs = await github.paginate(
+              github.rest.actions.listJobsForWorkflowRunAttempt,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: runId,
+                attempt_number: runAttempt,
+                per_page: 100,
+              },
+            )
+            const visualJobs = jobs.filter(job => job.name === 'Visual Test')
+            if (visualJobs.length > 1) {
+              throw new Error('Expected exactly one visual-test job')
+            }
+            if (visualJobs.length === 0 || visualJobs[0].conclusion === 'skipped') {
+              core.setOutput('should_report', 'false')
+              core.setOutput('metrics_id', '')
+              core.setOutput('image_ids', '')
+              return
+            }
+
+            const metrics = selected.filter(
+              artifact => artifact.name === 'visual-test-metrics.json',
+            )
+            if (metrics.length > 1) {
+              throw new Error('Expected at most one metrics artifact')
+            }
+            if (metrics.length === 1) {
+              const metric = metrics[0]
+              core.setOutput('metrics_id', String(metric.id))
+            } else {
+              core.setOutput('metrics_id', '')
+            }
+            const imageNames = [
+              'show-active-guide-off-actual.png',
+              'show-active-guide-on-actual.png',
+              'diff.png',
+            ]
+            const imageIds = imageNames
+              .map(name => selected.find(artifact => artifact.name === name)?.id)
+              .filter(id => id !== undefined)
+            core.setOutput('image_ids', imageIds.join(','))
+            core.setOutput('should_report', 'true')
+
+      - name: Download Metrics Without Extraction
+        id: download-metrics
+        if: ${{ steps.inspect.outputs.metrics_id != '' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          artifact-ids: ${{ steps.inspect.outputs.metrics_id }}
+          path: ${{ runner.temp }}/visual-test-report
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+          skip-decompress: true
+          digest-mismatch: error
+
+      - name: Download Captures Without Extraction
+        id: download-images
+        if: ${{ steps.inspect.outputs.image_ids != '' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          artifact-ids: ${{ steps.inspect.outputs.image_ids }}
+          path: ${{ runner.temp }}/visual-test-images
+          merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+          skip-decompress: true
+          digest-mismatch: error
+
+      - name: Validate Metrics and Update Pull Request
+        if: ${{ always() && steps.inspect.outputs.should_report == 'true' }}
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          DOWNLOAD_OUTCOME: ${{ steps.download-metrics.outcome }}
+          METRICS_ARTIFACT_ID: ${{ steps.inspect.outputs.metrics_id }}
+          METRICS_DIRECTORY: ${{ runner.temp }}/visual-test-report
+          IMAGES_DOWNLOAD_OUTCOME: ${{ steps.download-images.outcome }}
+          IMAGE_ARTIFACT_IDS: ${{ steps.inspect.outputs.image_ids }}
+          IMAGES_DIRECTORY: ${{ runner.temp }}/visual-test-images
+        with:
+          script: |
+            const fs = require('fs')
+            const path = require('path')
+            const zlib = require('zlib')
+
+            const marker = '<!-- visual-test-report:v1 -->'
+            const orderPrefix = '<!-- visual-test-report-order:'
+            const imageNames = [
+              'show-active-guide-off-actual.png',
+              'show-active-guide-on-actual.png',
+              'diff.png',
+            ]
+            const allowedNames = [
+              ...imageNames,
+              'visual-test-metrics.json',
+              'visual-test-diagnostics',
+            ]
+            const maximumSizes = new Map([
+              ['show-active-guide-off-actual.png', 256 * 1024],
+              ['show-active-guide-on-actual.png', 256 * 1024],
+              ['diff.png', 512 * 1024],
+              ['visual-test-metrics.json', 16 * 1024],
+              ['visual-test-diagnostics', 64 * 1024 * 1024],
+            ])
+            const expectedDimensions = new Map([
+              ['show-active-guide-off-actual.png', [220, 240]],
+              ['show-active-guide-on-actual.png', [220, 240]],
+              ['diff.png', [440, 240]],
+            ])
+            const expectedEnvironment =
+              'ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1'
+            const run = context.payload.workflow_run
+            const runId = Number(run.id)
+            const runNumber = Number(run.run_number)
+            const runAttempt = Number(run.run_attempt)
+            const linkedPullRequest = run.pull_requests?.[0]
+            const pullNumber = Number(linkedPullRequest?.number)
+            const positiveInteger = value =>
+              Number.isSafeInteger(value) && value > 0
+            if (
+              !positiveInteger(runId) ||
+              !positiveInteger(runNumber) ||
+              !positiveInteger(runAttempt) ||
+              !positiveInteger(pullNumber) ||
+              !Array.isArray(run.pull_requests) ||
+              run.pull_requests.length !== 1
+            ) {
+              throw new Error('Invalid trusted workflow metadata')
+            }
+            if (run.head_repository?.full_name !== `${context.repo.owner}/${context.repo.repo}`) {
+              throw new Error('Refusing to report a cross-repository run')
+            }
+
+            const pull = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullNumber,
+            })
+            if (pull.data.head.repo?.full_name !== `${context.repo.owner}/${context.repo.repo}`) {
+              throw new Error('Refusing to report to a cross-repository pull request')
+            }
+            const pullLabels = Array.isArray(pull.data.labels)
+              ? pull.data.labels.map(label => label.name)
+              : []
+            const stack = pull.data.stack
+            const stackIsValid = stack == null || (
+              stack !== null &&
+              typeof stack === 'object' &&
+              positiveInteger(stack.position) &&
+              positiveInteger(stack.size) &&
+              stack.position === stack.size &&
+              stack.base?.ref === 'main'
+            )
+            const targetsMain = stack == null
+              ? pull.data.base?.ref === 'main'
+              : stackIsValid
+            if (
+              pull.data.state !== 'open' ||
+              pull.data.draft !== false ||
+              !pullLabels.includes('visual-test') ||
+              !targetsMain ||
+              !stackIsValid
+            ) {
+              core.info('Skipping a pull request that is no longer eligible')
+              return
+            }
+            const linkedHeadSha = linkedPullRequest?.head?.sha
+            if (
+              !/^[0-9a-f]{40}$/u.test(linkedHeadSha || '') ||
+              run.head_sha !== linkedHeadSha ||
+              pull.data.head.sha !== linkedHeadSha
+            ) {
+              core.info('Skipping a stale or mismatched pull-request association')
+              return
+            }
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pullNumber,
+                per_page: 100,
+              },
+            )
+            const existing = comments
+              .filter(comment =>
+                comment.user?.login === 'github-actions[bot]' &&
+                comment.body?.includes(marker),
+              )
+              .sort((left, right) => right.id - left.id)[0]
+            if (existing) {
+              const orderMatch = existing.body.match(
+                /<!-- visual-test-report-order:(\d+):(\d+) -->/u,
+              )
+              if (orderMatch) {
+                const existingRun = Number(orderMatch[1])
+                const existingAttempt = Number(orderMatch[2])
+                if (
+                  existingRun > runNumber ||
+                  (existingRun === runNumber && existingAttempt > runAttempt)
+                ) {
+                  core.info('A newer visual-test report already exists')
+                  return
+                }
+              }
+            }
+
+            const artifacts = await github.paginate(
+              github.rest.actions.listWorkflowRunArtifacts,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: runId,
+                per_page: 100,
+              },
+            )
+            const artifactMap = new Map()
+            for (const name of allowedNames) {
+              const matches = artifacts.filter(
+                artifact => artifact.name === name && !artifact.expired,
+              )
+              if (matches.length > 1) {
+                throw new Error('Duplicate allowlisted artifact name')
+              }
+              if (matches.length === 1) {
+                const artifact = matches[0]
+                if (
+                  !positiveInteger(artifact.id) ||
+                  !positiveInteger(artifact.size_in_bytes) ||
+                  artifact.size_in_bytes > maximumSizes.get(name)
+                ) {
+                  throw new Error(`Artifact metadata failed validation: ${name}`)
+                }
+                artifactMap.set(name, {
+                  id: artifact.id,
+                  size: artifact.size_in_bytes,
+                })
+              }
+            }
+
+            const exactKeys = (value, expected) => {
+              if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+                return false
+              }
+              const actual = Object.keys(value).sort()
+              return actual.length === expected.length &&
+                actual.every((key, index) => key === [...expected].sort()[index])
+            }
+            const boundedInteger = (value, minimum, maximum) =>
+              Number.isSafeInteger(value) && value >= minimum && value <= maximum
+            const parseMetrics = value => {
+              const baseKeys = ['schemaVersion', 'environment', 'comparisons']
+              if (
+                !exactKeys(value, baseKeys) &&
+                !exactKeys(value, [...baseKeys, 'error'])
+              ) {
+                throw new Error('Invalid metrics root schema')
+              }
+              if (value.schemaVersion !== 1 || value.environment !== expectedEnvironment) {
+                throw new Error('Unexpected metrics version or environment')
+              }
+              if (!Array.isArray(value.comparisons)) {
+                throw new Error('Invalid comparisons value')
+              }
+
+              if (Object.hasOwn(value, 'error')) {
+                if (
+                  value.comparisons.length !== 0 ||
+                  typeof value.error !== 'string' ||
+                  value.error.length < 1 ||
+                  value.error.length > 512 ||
+                  /[\u0000-\u001f\u007f]/u.test(value.error)
+                ) {
+                  throw new Error('Unsafe metrics error value')
+                }
+                return {kind: 'error', environment: value.environment}
+              }
+
+              const names = ['show-active-guide-off', 'show-active-guide-on']
+              if (value.comparisons.length !== names.length) {
+                throw new Error('Unexpected comparison count')
+              }
+              const rowKeys = [
+                'name',
+                'width',
+                'height',
+                'changedPixels',
+                'totalPixels',
+                'maximumChannelDifference',
+                'meanAbsoluteChannelDifference',
+              ]
+              const comparisons = value.comparisons.map((row, index) => {
+                if (!exactKeys(row, rowKeys) || row.name !== names[index]) {
+                  throw new Error('Invalid comparison schema')
+                }
+                if (
+                  row.width !== 220 ||
+                  row.height !== 240 ||
+                  !boundedInteger(row.totalPixels, 1, 4096 * 4096) ||
+                  row.totalPixels !== row.width * row.height ||
+                  !boundedInteger(row.changedPixels, 0, row.totalPixels) ||
+                  !boundedInteger(row.maximumChannelDifference, 0, 255) ||
+                  typeof row.meanAbsoluteChannelDifference !== 'number' ||
+                  !Number.isFinite(row.meanAbsoluteChannelDifference) ||
+                  row.meanAbsoluteChannelDifference < 0 ||
+                  row.meanAbsoluteChannelDifference > 255
+                ) {
+                  throw new Error('Comparison metrics are out of range')
+                }
+                return {
+                  name: row.name,
+                  width: row.width,
+                  height: row.height,
+                  changedPixels: row.changedPixels,
+                  totalPixels: row.totalPixels,
+                  maximumChannelDifference: row.maximumChannelDifference,
+                  meanAbsoluteChannelDifference: row.meanAbsoluteChannelDifference,
+                }
+              })
+              return {kind: 'comparisons', environment: value.environment, comparisons}
+            }
+
+            let metricReport = {kind: 'missing'}
+            const expectedMetricsId = Number(process.env.METRICS_ARTIFACT_ID)
+            const currentMetrics = artifactMap.get('visual-test-metrics.json')
+            if (
+              positiveInteger(expectedMetricsId) &&
+              expectedMetricsId === currentMetrics?.id &&
+              process.env.DOWNLOAD_OUTCOME === 'success'
+            ) {
+              try {
+                const directory = path.resolve(process.env.METRICS_DIRECTORY)
+                const entries = fs.readdirSync(directory)
+                if (
+                  entries.length !== 1 ||
+                  entries[0] !== 'visual-test-metrics.json'
+                ) {
+                  throw new Error('Unexpected metrics download contents')
+                }
+                const metricsPath = path.join(directory, 'visual-test-metrics.json')
+                const stat = fs.lstatSync(metricsPath)
+                if (
+                  stat.isSymbolicLink() ||
+                  !stat.isFile() ||
+                  stat.size <= 0 ||
+                  stat.size > 16 * 1024 ||
+                  stat.size !== currentMetrics.size
+                ) {
+                  throw new Error('Unsafe metrics file')
+                }
+                metricReport = parseMetrics(
+                  JSON.parse(fs.readFileSync(metricsPath, 'utf8')),
+                )
+              } catch (_error) {
+                core.warning('Metrics artifact failed strict validation')
+                metricReport = {kind: 'invalid'}
+              }
+            } else if (positiveInteger(expectedMetricsId) || currentMetrics) {
+              core.warning('Metrics artifact could not be downloaded safely')
+              metricReport = {kind: 'invalid'}
+            }
+
+            const crcTable = new Uint32Array(256)
+            for (let index = 0; index < crcTable.length; index += 1) {
+              let value = index
+              for (let bit = 0; bit < 8; bit += 1) {
+                value = (value & 1) !== 0
+                  ? (0xedb88320 ^ (value >>> 1))
+                  : (value >>> 1)
+              }
+              crcTable[index] = value >>> 0
+            }
+            const pngCrc32 = value => {
+              let crc = 0xffffffff
+              for (const byte of value) {
+                crc = crcTable[(crc ^ byte) & 0xff] ^ (crc >>> 8)
+              }
+              return (crc ^ 0xffffffff) >>> 0
+            }
+            const pngChunk = (type, data) => {
+              const typeBytes = Buffer.from(type, 'ascii')
+              const chunk = Buffer.alloc(12 + data.length)
+              chunk.writeUInt32BE(data.length, 0)
+              typeBytes.copy(chunk, 4)
+              data.copy(chunk, 8)
+              chunk.writeUInt32BE(
+                pngCrc32(Buffer.concat([typeBytes, data])),
+                8 + data.length,
+              )
+              return chunk
+            }
+            const validatePng = (filePath, artifact, width, height) => {
+              const stat = fs.lstatSync(filePath)
+              if (
+                stat.isSymbolicLink() ||
+                !stat.isFile() ||
+                stat.size !== artifact.size ||
+                stat.size <= 0 ||
+                stat.size > maximumSizes.get(path.basename(filePath))
+              ) {
+                throw new Error('Unsafe capture file')
+              }
+              const png = fs.readFileSync(filePath)
+              const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
+              if (png.length < 45 || !png.subarray(0, 8).equals(signature)) {
+                throw new Error('Invalid PNG signature')
+              }
+
+              let offset = 8
+              let chunkIndex = 0
+              let sawHeader = false
+              let sawData = false
+              let sawEnd = false
+              const compressedParts = []
+              while (offset < png.length) {
+                if (offset + 12 > png.length) {
+                  throw new Error('Truncated PNG chunk')
+                }
+                const length = png.readUInt32BE(offset)
+                const typeBytes = png.subarray(offset + 4, offset + 8)
+                const type = typeBytes.toString('ascii')
+                const dataStart = offset + 8
+                const dataEnd = dataStart + length
+                const chunkEnd = dataEnd + 4
+                if (!/^[A-Za-z]{4}$/u.test(type) || chunkEnd > png.length) {
+                  throw new Error('Invalid PNG chunk boundary')
+                }
+                const data = png.subarray(dataStart, dataEnd)
+                const expectedCrc = png.readUInt32BE(dataEnd)
+                const actualCrc = pngCrc32(Buffer.concat([typeBytes, data]))
+                if (expectedCrc !== actualCrc) {
+                  throw new Error('Invalid PNG chunk checksum')
+                }
+
+                if (type === 'IHDR') {
+                  if (chunkIndex !== 0 || sawHeader || length !== 13) {
+                    throw new Error('Invalid PNG header placement')
+                  }
+                  if (
+                    data.readUInt32BE(0) !== width ||
+                    data.readUInt32BE(4) !== height ||
+                    data[8] !== 8 ||
+                    data[9] !== 6 ||
+                    data[10] !== 0 ||
+                    data[11] !== 0 ||
+                    data[12] !== 0
+                  ) {
+                    throw new Error('Unexpected PNG image format')
+                  }
+                  sawHeader = true
+                } else if (type === 'IDAT') {
+                  if (!sawHeader || sawEnd) {
+                    throw new Error('Invalid PNG image-data placement')
+                  }
+                  compressedParts.push(data)
+                  sawData = true
+                } else if (type === 'IEND') {
+                  if (!sawHeader || !sawData || sawEnd || length !== 0) {
+                    throw new Error('Invalid PNG end marker')
+                  }
+                  sawEnd = true
+                  if (chunkEnd !== png.length) {
+                    throw new Error('Trailing PNG content')
+                  }
+                } else {
+                  throw new Error(`Unexpected PNG chunk: ${type}`)
+                }
+                offset = chunkEnd
+                chunkIndex += 1
+              }
+              if (!sawHeader || !sawData || !sawEnd) {
+                throw new Error('Incomplete PNG')
+              }
+
+              const rowSize = 1 + width * 4
+              const rawSize = rowSize * height
+              const inflated = zlib.inflateSync(Buffer.concat(compressedParts), {
+                maxOutputLength: rawSize,
+              })
+              if (inflated.length !== rawSize) {
+                throw new Error('Unexpected PNG pixel-data size')
+              }
+              for (let row = 0; row < height; row += 1) {
+                if (inflated[row * rowSize] > 4) {
+                  throw new Error('Invalid PNG row filter')
+                }
+              }
+              const header = Buffer.alloc(13)
+              header.writeUInt32BE(width, 0)
+              header.writeUInt32BE(height, 4)
+              header[8] = 8
+              header[9] = 6
+              return Buffer.concat([
+                signature,
+                pngChunk('IHDR', header),
+                pngChunk('IDAT', zlib.deflateSync(inflated, {level: 9})),
+                pngChunk('IEND', Buffer.alloc(0)),
+              ])
+            }
+
+            const rawExpectedImageIds = process.env.IMAGE_ARTIFACT_IDS || ''
+            const expectedImageIds = rawExpectedImageIds === ''
+              ? []
+              : rawExpectedImageIds.split(',').map(value => Number(value))
+            const currentImageNames = imageNames.filter(name => artifactMap.has(name))
+            const currentImageIds = currentImageNames.map(name => artifactMap.get(name).id)
+            let imageReport = {kind: 'missing', files: new Map()}
+            if (expectedImageIds.length > 0 || currentImageIds.length > 0) {
+              try {
+                if (
+                  expectedImageIds.some(id => !positiveInteger(id)) ||
+                  expectedImageIds.length !== currentImageIds.length ||
+                  !expectedImageIds.every((id, index) => id === currentImageIds[index]) ||
+                  process.env.IMAGES_DOWNLOAD_OUTCOME !== 'success'
+                ) {
+                  throw new Error('Capture artifact IDs or download outcome changed')
+                }
+                const directory = path.resolve(process.env.IMAGES_DIRECTORY)
+                const entries = fs.readdirSync(directory).sort()
+                const expectedEntries = [...currentImageNames].sort()
+                if (
+                  entries.length !== expectedEntries.length ||
+                  !entries.every((entry, index) => entry === expectedEntries[index])
+                ) {
+                  throw new Error('Unexpected capture download contents')
+                }
+                const files = new Map()
+                for (const name of currentImageNames) {
+                  const dimensions = expectedDimensions.get(name)
+                  files.set(
+                    name,
+                    validatePng(
+                      path.join(directory, name),
+                      artifactMap.get(name),
+                      dimensions[0],
+                      dimensions[1],
+                    ),
+                  )
+                }
+                imageReport = {kind: 'valid', files}
+              } catch (_error) {
+                core.warning('Capture artifacts failed strict validation')
+                imageReport = {kind: 'invalid', files: new Map()}
+              }
+            }
+
+            let reporterFailed = imageReport.kind === 'invalid'
+            if (
+              run.conclusion === 'success' &&
+              (
+                imageReport.kind !== 'valid' ||
+                !imageReport.files.has('show-active-guide-off-actual.png') ||
+                !imageReport.files.has('show-active-guide-on-actual.png')
+              )
+            ) {
+              core.warning('A successful visual test must provide both validated captures')
+              reporterFailed = true
+            }
+            if (
+              metricReport.kind === 'invalid' ||
+              (run.conclusion === 'success' && metricReport.kind !== 'comparisons')
+            ) {
+              reporterFailed = true
+            }
+
+            const repositoryUrl =
+              `${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}`
+            const publishedImages = new Map()
+            if (imageReport.kind === 'valid' && imageReport.files.size > 0) {
+              const resultPaths = new Map([
+                [
+                  'show-active-guide-off-actual.png',
+                  `pull/${pullNumber}/${linkedHeadSha}/option-off.png`,
+                ],
+                [
+                  'show-active-guide-on-actual.png',
+                  `pull/${pullNumber}/${linkedHeadSha}/option-on.png`,
+                ],
+                ['diff.png', `pull/${pullNumber}/${linkedHeadSha}/diff.png`],
+              ])
+              const filesToPublish = [...imageReport.files.entries()].filter(
+                ([name]) => name !== 'diff.png' || run.conclusion !== 'success',
+              )
+              if (filesToPublish.length === 0) {
+                reporterFailed = true
+              } else {
+                try {
+                  const branch = 'visual-test-results'
+                  let parentCommitSha = null
+                  try {
+                    const currentRef = await github.rest.git.getRef({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      ref: `heads/${branch}`,
+                    })
+                    parentCommitSha = currentRef.data.object.sha
+                    if (
+                      currentRef.data.object.type !== 'commit' ||
+                      !/^[0-9a-f]{40}$/u.test(parentCommitSha || '')
+                    ) {
+                      throw new Error('Invalid result branch head')
+                    }
+                  } catch (error) {
+                    if (error.status !== 404) {
+                      throw error
+                    }
+                  }
+
+                  const tree = []
+                  for (const [name, contents] of filesToPublish) {
+                    const blob = await github.rest.git.createBlob({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      content: contents.toString('base64'),
+                      encoding: 'base64',
+                    })
+                    tree.push({
+                      path: resultPaths.get(name),
+                      mode: '100644',
+                      type: 'blob',
+                      sha: blob.data.sha,
+                    })
+                  }
+                  const resultTree = await github.rest.git.createTree({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    tree,
+                  })
+                  const resultCommit = await github.rest.git.createCommit({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    message:
+                      `Publish visual test captures for PR #${pullNumber} at ` +
+                      linkedHeadSha.slice(0, 12),
+                    tree: resultTree.data.sha,
+                    parents: parentCommitSha === null ? [] : [parentCommitSha],
+                  })
+                  const resultCommitSha = resultCommit.data.sha
+                  if (!/^[0-9a-f]{40}$/u.test(resultCommitSha || '')) {
+                    throw new Error('Invalid result commit SHA')
+                  }
+                  if (parentCommitSha === null) {
+                    await github.rest.git.createRef({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      ref: `refs/heads/${branch}`,
+                      sha: resultCommitSha,
+                    })
+                  } else {
+                    await github.rest.git.updateRef({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      ref: `heads/${branch}`,
+                      sha: resultCommitSha,
+                      force: false,
+                    })
+                  }
+                  for (const [name] of filesToPublish) {
+                    publishedImages.set(
+                      name,
+                      `${repositoryUrl}/blob/${resultCommitSha}/${resultPaths.get(name)}?raw=true`,
+                    )
+                  }
+                } catch (_error) {
+                  core.warning('Validated captures could not be published')
+                  reporterFailed = true
+                }
+              }
+            }
+
+            const conclusionLabels = new Map([
+              ['success', '✅ Passed'],
+              ['failure', '❌ Failed'],
+              ['cancelled', '⏹️ Cancelled'],
+              ['timed_out', '⏱️ Timed out'],
+              ['action_required', '⚠️ Action required'],
+              ['neutral', '⚠️ Neutral'],
+              ['skipped', '⏭️ Skipped'],
+              ['stale', '⚠️ Stale'],
+              ['startup_failure', '❌ Startup failure'],
+            ])
+            const status = conclusionLabels.get(run.conclusion) || '⚠️ Completed'
+
+            const runUrl = `${repositoryUrl}/actions/runs/${runId}`
+            const artifactLabels = new Map([
+              ['visual-test-metrics.json', 'Metrics JSON'],
+              ['visual-test-diagnostics', 'Diagnostics'],
+            ])
+            const supportArtifactNames = [
+              'visual-test-metrics.json',
+              'visual-test-diagnostics',
+            ]
+            const artifactLinks = supportArtifactNames
+              .filter(name => artifactMap.has(name))
+              .map(name =>
+                `[${artifactLabels.get(name)}](${runUrl}/artifacts/${artifactMap.get(name).id})`,
+              )
+            const commitLine =
+              `Tested commit: [\`${linkedHeadSha.slice(0, 12)}\`]` +
+              `(${repositoryUrl}/commit/${linkedHeadSha})`
+            const createdAt = new Date(run.created_at)
+            const expiry = Number.isNaN(createdAt.getTime())
+              ? '14 days after the run'
+              : new Date(createdAt.getTime() + 14 * 24 * 60 * 60 * 1000)
+                .toISOString()
+                .slice(0, 10)
+
+            const details = []
+            if (metricReport.kind === 'comparisons') {
+              details.push(`Environment: \`${metricReport.environment}\``)
+              details.push('Baseline: screenshots committed in the tested revision; CI never updates them.')
+              details.push('')
+              details.push('| State | Size | Changed pixels | Max channel delta | Mean absolute delta |')
+              details.push('| --- | ---: | ---: | ---: | ---: |')
+              for (const comparison of metricReport.comparisons) {
+                const state = comparison.name === 'show-active-guide-off' ? 'OFF' : 'ON'
+                details.push(
+                  `| ${state} | ${comparison.width}×${comparison.height} | ` +
+                  `${comparison.changedPixels}/${comparison.totalPixels} | ` +
+                  `${comparison.maximumChannelDifference} | ` +
+                  `${comparison.meanAbsoluteChannelDifference.toFixed(4)} |`,
+                )
+              }
+            } else if (metricReport.kind === 'error') {
+              details.push(`Environment: \`${metricReport.environment}\``)
+              details.push('')
+              details.push('The harness reported a bounded setup or baseline error. See diagnostics.')
+            } else {
+              details.push('The metrics artifact was absent or rejected by strict validation.')
+            }
+
+            const gallery = []
+            const offImage = publishedImages.get('show-active-guide-off-actual.png')
+            const onImage = publishedImages.get('show-active-guide-on-actual.png')
+            const diffImage = publishedImages.get('diff.png')
+            if (offImage || onImage || diffImage) {
+              gallery.push('')
+              gallery.push('<details>')
+              gallery.push('<summary>Editor captures — option OFF / ON</summary>')
+              gallery.push('')
+              if (offImage && onImage) {
+                gallery.push('| Option OFF | Option ON |')
+                gallery.push('| --- | --- |')
+                gallery.push(
+                  `| ![Darcula editor with the active guide disabled](${offImage}) ` +
+                  `| ![Darcula editor with the active guide enabled](${onImage}) |`,
+                )
+              } else {
+                if (offImage) {
+                  gallery.push(`Option OFF: ![Darcula editor with the active guide disabled](${offImage})`)
+                }
+                if (onImage) {
+                  gallery.push(`Option ON: ![Darcula editor with the active guide enabled](${onImage})`)
+                }
+              }
+              if (diffImage) {
+                gallery.push('')
+                gallery.push('#### Baseline diff')
+                gallery.push('')
+                gallery.push(`![Visual difference from the committed baseline](${diffImage})`)
+              }
+              gallery.push('')
+              gallery.push('</details>')
+            } else if (imageReport.kind === 'invalid') {
+              gallery.push('')
+              gallery.push('Capture gallery: rejected by strict PNG validation.')
+            } else if (imageReport.kind === 'valid') {
+              gallery.push('')
+              gallery.push('Capture gallery: validated images could not be published.')
+            } else {
+              gallery.push('')
+              gallery.push('Capture gallery: no editor images were produced.')
+            }
+
+            const body = [
+              marker,
+              `${orderPrefix}${runNumber}:${runAttempt} -->`,
+              '## Visual test',
+              '',
+              status,
+              '',
+              commitLine,
+              `Workflow: [run #${runNumber}, attempt ${runAttempt}](${runUrl})`,
+              ...details,
+              ...gallery,
+              '',
+              artifactLinks.length > 0
+                ? `Support artifacts: ${artifactLinks.join(' · ')}`
+                : 'Support artifacts: none available',
+              `Support artifacts are retained through ${expiry} (14 days).`,
+            ].join('\n')
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              })
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pullNumber,
+                body,
+              })
+            }
+            if (reporterFailed) {
+              core.setFailed('Visual-test report validation or image publication failed')
+            }
