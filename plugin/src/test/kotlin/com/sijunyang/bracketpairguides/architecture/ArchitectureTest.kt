@@ -60,6 +60,7 @@ internal class ArchitectureTest {
                     "$ROOT.editor.events..",
                     "$ROOT.editor.highlighting..",
                     "$ROOT.settings.ui..",
+                    "$ROOT.testing..",
                 ).whereLayer(POLICY)
                 .mayNotAccessAnyLayer()
                 .whereLayer(STATE)

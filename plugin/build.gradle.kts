@@ -1,4 +1,6 @@
+import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel
@@ -7,6 +9,28 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.intellij.platform")
+}
+
+val visualTestSourceSet = sourceSets.create("visualTest") {
+    compileClasspath += sourceSets.main.get().output
+    runtimeClasspath += sourceSets.main.get().output
+}
+
+val visualTestImplementation = configurations.getByName(
+    visualTestSourceSet.implementationConfigurationName,
+)
+
+val visualTestArtifactsDirectory = layout.buildDirectory.dir("visual-test-artifacts")
+val visualTestBaselinesDirectory = layout.projectDirectory.dir("src/visualTest/resources/baselines")
+val visualTestProjectDirectory = layout.buildDirectory.dir("visual-test-project")
+val visualTestJavaLauncher = javaToolchains.launcherFor {
+    languageVersion = JavaLanguageVersion.of(21)
+}
+val cleanVisualTestArtifacts = tasks.register<Delete>("cleanVisualTestArtifacts") {
+    delete(visualTestArtifactsDirectory, visualTestProjectDirectory)
+}
+val cleanRecordedVisualTestArtifacts = tasks.register<Delete>("cleanRecordedVisualTestArtifacts") {
+    delete(visualTestArtifactsDirectory, visualTestProjectDirectory)
 }
 
 base {
@@ -73,5 +97,85 @@ dependencies {
         testBundledPlugin("org.jetbrains.kotlin")
 
         testFramework(TestFrameworkType.Platform)
+        testFramework(
+            TestFrameworkType.Starter,
+            version = "242.26775.15",
+            configurationName = "visualTestImplementation",
+        )
+    }
+
+    add(visualTestImplementation.name, "org.junit.jupiter:junit-jupiter:5.10.2")
+    add(visualTestImplementation.name, "org.kodein.di:kodein-di-jvm:7.20.2")
+    add(
+        visualTestImplementation.name,
+        "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.1",
+    )
+    add(
+        visualTestSourceSet.runtimeOnlyConfigurationName,
+        "org.junit.platform:junit-platform-launcher:1.10.2",
+    )
+}
+
+intellijPlatformTesting.testIdeUi.register("visualTest") {
+    type = IntelliJPlatformType.IntellijIdeaCommunity
+    version = "2024.2.6"
+
+    task {
+        description = "Runs deterministic Starter and Driver visual regression tests."
+        group = "verification"
+        testClassesDirs = visualTestSourceSet.output.classesDirs
+        classpath = visualTestSourceSet.runtimeClasspath
+        useJUnitPlatform()
+        javaLauncher.set(visualTestJavaLauncher)
+        maxParallelForks = 1
+        systemProperty(
+            "visual.test.artifacts.dir",
+            visualTestArtifactsDirectory.get().asFile.absolutePath,
+        )
+        systemProperty(
+            "visual.test.baselines.dir",
+            visualTestBaselinesDirectory.asFile.absolutePath,
+        )
+        systemProperty(
+            "visual.test.project.dir",
+            visualTestProjectDirectory.get().asFile.absolutePath,
+        )
+        outputs.dir(visualTestArtifactsDirectory)
+        outputs.upToDateWhen { false }
+        dependsOn(cleanVisualTestArtifacts)
+    }
+}
+
+intellijPlatformTesting.testIdeUi.register("recordVisualTestBaseline") {
+    type = IntelliJPlatformType.IntellijIdeaCommunity
+    version = "2024.2.6"
+
+    task {
+        description = "Explicitly records visual baselines for the pinned IDE."
+        group = "verification"
+        testClassesDirs = visualTestSourceSet.output.classesDirs
+        classpath = visualTestSourceSet.runtimeClasspath
+        useJUnitPlatform()
+        javaLauncher.set(visualTestJavaLauncher)
+        maxParallelForks = 1
+        systemProperty("visual.test.record-baseline", true)
+        systemProperty(
+            "visual.test.force-baseline-overwrite",
+            providers.gradleProperty("forceVisualBaselineOverwrite").orElse("false").get(),
+        )
+        systemProperty(
+            "visual.test.artifacts.dir",
+            visualTestArtifactsDirectory.get().asFile.absolutePath,
+        )
+        systemProperty(
+            "visual.test.baselines.dir",
+            visualTestBaselinesDirectory.asFile.absolutePath,
+        )
+        systemProperty(
+            "visual.test.project.dir",
+            visualTestProjectDirectory.get().asFile.absolutePath,
+        )
+        outputs.upToDateWhen { false }
+        dependsOn(cleanRecordedVisualTestArtifacts)
     }
 }
