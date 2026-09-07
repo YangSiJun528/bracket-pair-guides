@@ -112,7 +112,7 @@ dependencies {
     )
     add(
         visualTestSourceSet.runtimeOnlyConfigurationName,
-        "org.junit.platform:junit-platform-launcher:1.10.2",
+        "org.junit.platform:junit-platform-launcher:6.1.3",
     )
 }
 
