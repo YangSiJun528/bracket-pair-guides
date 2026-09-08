@@ -23,9 +23,12 @@ import com.sijunyang.bracketpairguides.editor.highlighting.NativeGuideConflictNo
 import com.sijunyang.bracketpairguides.preferences.NativeHighlightMode
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPage
+import java.awt.Component
+import java.awt.Container
 import java.awt.Frame
 import java.awt.Toolkit
 import java.awt.Window
+import javax.swing.JComboBox
 
 /**
  * Stable, dependency-free JMX boundary for out-of-process Driver tests.
@@ -231,6 +234,17 @@ object BracketGuideDriverBridge {
     }
 
     @JvmStatic
+    fun visibleNativeIntegrationMode(): String = driverTestOnEdt(ModalityState.any()) {
+        val window = settingsWindow() ?: return@driverTestOnEdt SETTINGS_NOT_VISIBLE
+        val modeControl =
+            findShowingComponent(window, NATIVE_HIGHLIGHT_MODE_COMPONENT_NAME) as? JComboBox<*>
+                ?: return@driverTestOnEdt SETTINGS_NOT_VISIBLE
+        findShowingComponent(window, NATIVE_RESTORATION_NOTE_COMPONENT_NAME)
+            ?: return@driverTestOnEdt SETTINGS_NOT_VISIBLE
+        (modeControl.selectedItem as? NativeHighlightMode)?.name ?: SETTINGS_NOT_VISIBLE
+    }
+
+    @JvmStatic
     fun setHideNativeIndentGuides(filePathSuffix: String, hidden: Boolean): String = driverTestOnEdt {
         val current = BracketGuideSettings.getInstance().options
         BracketGuideSettingsController.getInstance().applySettings(
@@ -275,6 +289,16 @@ object BracketGuideDriverBridge {
         window.isShowing && DialogWrapper.findInstance(window)?.title == SETTINGS_TITLE
     }
 
+    private fun findShowingComponent(root: Container, name: String): Component? {
+        for (component in root.components) {
+            if (component.isShowing && component.name == name) return component
+            if (component is Container) {
+                findShowingComponent(component, name)?.let { return it }
+            }
+        }
+        return null
+    }
+
     private fun <T> driverTestOnEdt(modalityState: ModalityState = ModalityState.nonModal(), action: () -> T): T {
         check(System.getProperty(DRIVER_TEST_PROPERTY) == "true") {
             "$DRIVER_TEST_PROPERTY must be true; this API is reserved for visual tests"
@@ -301,5 +325,8 @@ object BracketGuideDriverBridge {
     private const val NEW_UI = "NEW_UI"
     private const val CLASSIC_UI = "CLASSIC_UI"
     private const val SETTINGS_TITLE = "Settings"
+    private const val SETTINGS_NOT_VISIBLE = "SETTINGS_NOT_VISIBLE"
+    private const val NATIVE_HIGHLIGHT_MODE_COMPONENT_NAME = "nativeHighlightMode"
+    private const val NATIVE_RESTORATION_NOTE_COMPONENT_NAME = "nativeVisualRestorationNote"
     private const val DRIVER_TEST_PROPERTY = "bracket.pair.guides.driver.test"
 }

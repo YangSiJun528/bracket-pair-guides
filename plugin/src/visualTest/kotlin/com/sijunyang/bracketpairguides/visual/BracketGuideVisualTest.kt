@@ -376,24 +376,13 @@ class BracketGuideVisualTest {
                                     stableUiScreenshot(this),
                                     artifacts.resolve("native-guide-conflict-review-settings.png"),
                                 )
-                                val integrationTitle = x { byVisibleText("IntelliJ Integration") }
-                                val unchangedMode = x {
-                                    byVisibleText(NATIVE_HIGHLIGHTING_UNCHANGED_TEXT)
-                                }
-                                val restorationNote = x(
-                                    "//div[contains(@visible_text, " +
-                                        "'Original IntelliJ settings are restored')]",
-                                )
                                 waitFor(
                                     30.seconds,
                                     100.milliseconds,
                                     "the notification action did not select the integration settings",
                                 ) {
-                                    integrationTitle.present() &&
-                                        integrationTitle.component.isShowing() &&
-                                        unchangedMode.present() &&
-                                        restorationNote.present() &&
-                                        restorationNote.component.isShowing()
+                                    bridge.visibleNativeIntegrationMode() ==
+                                        NATIVE_HIGHLIGHTING_UNCHANGED_MODE
                                 }
                             } finally {
                                 assertTrue(bridge.closeSettingsAfterCapture())
@@ -864,7 +853,6 @@ class BracketGuideVisualTest {
         const val NOTIFICATION_BALLOON_CLASS = "com.intellij.ui.BalloonImpl\$MyComponent"
         const val NOTIFICATION_EXPAND_ACTION_CLASS = "com.intellij.ui.components.labels.LinkLabel"
         const val NOTIFICATION_ACTION_TYPE = "com.intellij.ui.components.labels.LinkLabel"
-        const val NATIVE_HIGHLIGHTING_UNCHANGED_TEXT = "Leave IntelliJ highlighting unchanged"
         const val NATIVE_HIGHLIGHTING_UNCHANGED_MODE = "LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED"
         const val MACOS_ENVIRONMENT = "ideaIC-2024.2.6/macos-aarch64-darcula-scale1"
         const val LINUX_ENVIRONMENT = "ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1"
@@ -914,6 +902,8 @@ private interface DriverBridge {
     fun nativeVisualState(filePathSuffix: String): String
 
     fun nativeIntegrationMode(): String
+
+    fun visibleNativeIntegrationMode(): String
 
     fun setHideNativeIndentGuides(filePathSuffix: String, hidden: Boolean): String
 
