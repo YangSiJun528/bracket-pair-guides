@@ -372,10 +372,6 @@ class BracketGuideVisualTest {
                                 ) {
                                     bridge.raiseSettingsForCapture()
                                 }
-                                writePng(
-                                    stableUiScreenshot(this),
-                                    artifacts.resolve("native-guide-conflict-review-settings.png"),
-                                )
                                 waitFor(
                                     30.seconds,
                                     100.milliseconds,
@@ -384,6 +380,10 @@ class BracketGuideVisualTest {
                                     bridge.visibleNativeIntegrationMode() ==
                                         NATIVE_HIGHLIGHTING_UNCHANGED_MODE
                                 }
+                                writePng(
+                                    stableUiScreenshot(this),
+                                    artifacts.resolve("native-guide-conflict-review-settings.png"),
+                                )
                             } finally {
                                 assertTrue(bridge.closeSettingsAfterCapture())
                             }
