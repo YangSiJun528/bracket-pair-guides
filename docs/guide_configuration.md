@@ -39,12 +39,16 @@ Integration** group. The three controls work together as follows:
 | Native guide highlighting | Hide matched-brace and Current scope highlighting | Controls whether IntelliJ can emphasize an existing native indent guide |
 | Hide regular IntelliJ indent guides | Off | Removes the physical native indent-guide lines when enabled |
 
+![Default IntelliJ Integration controls in Bracket Pair Guides settings](images/intellij-integration-settings.png)
+
 **Matched brace** and **Current scope** are IntelliJ checkboxes under
 **Settings | Editor | General | Highlight on Caret Movement**. **Current scope**
 is not a separate vertical-line option. In the New UI, both settings can change
 the color or prominence of an existing indent guide. The physical line itself
 is controlled by **Show indent guides** under
 **Settings | Editor | General | Appearance**.
+
+![IntelliJ Highlight on Caret Movement settings showing Matched brace and Current scope](images/intellij-highlight-on-caret-movement-settings.png)
 
 The default keeps useful regular IntelliJ indent guides. In the New UI, a dim
 native indent guide can therefore remain beside the plugin's active vertical
@@ -70,9 +74,22 @@ native brace highlighting can instead paint a gutter-side marker even when
 regular indent guides are hidden. Use the default highlighting mode, not only
 the indent-guide option, when native emphasis should be removed in both UIs.
 
-Compare the resulting New UI editor states at the same caret position:
+The plugin exposes the three native-highlighting combinations directly:
 
-| IntelliJ emphasis enabled | Default suppression | Plugin guide only |
+![Native guide highlighting mode choices in Bracket Pair Guides settings](images/native-highlight-modes-popup.png)
+
+Compare the resulting New UI editor states at the same caret position. The
+first case deliberately keeps **Current scope** off and turns only **Matched
+brace** on, proving that Current scope is not required for the adjacent native
+emphasis:
+
+| Matched-brace emphasis, Current scope off | Default suppression | Plugin guide only |
+|---|---|---|
+| ![Enlarged adjacent emphasized IntelliJ guide and plugin guide](images/native-guide-overlap-detail.png) | ![Enlarged dim regular IntelliJ guide beside the plugin guide](images/native-guide-default-suppressed-detail.png) | ![Enlarged plugin guide with the regular IntelliJ guide hidden](images/plugin-guide-only-detail.png) |
+
+The corresponding full editor captures are:
+
+| Matched-brace emphasis, Current scope off | Default suppression | Plugin guide only |
 |---|---|---|
 | ![Existing IntelliJ indent guide emphasized beside the plugin guide](images/native-guide-overlap.png) | ![Native emphasis suppressed while the regular indent guide remains](images/native-guide-default-suppressed.png) | ![Native emphasis and the regular indent guide hidden](images/plugin-guide-only.png) |
 
