@@ -57,6 +57,7 @@ class BracketGuideVisualTest {
             "Baseline recording is forbidden when CI=true"
         }
         if (recordBaseline) baselines.createDirectories()
+        val baselineCaptures = mutableMapOf<String, BufferedImage>()
 
         val projectRoot = prepareRuntimeProject()
         val context =
@@ -156,19 +157,62 @@ class BracketGuideVisualTest {
                             ) {
                                 bridge.raiseSettingsForCapture()
                             }
+                            val integrationSettings =
+                                stableUiScreenshot(
+                                    component = this,
+                                    accept = ::isRenderableUiScreenshot,
+                                    onRejected = bridge::raiseSettingsForCapture,
+                                    transform = { screenshot ->
+                                        cropMacDialogChrome(screenshot, environment)
+                                    },
+                                )
                             writePng(
-                                stableUiScreenshot(this),
+                                integrationSettings,
                                 artifacts.resolve("intellij-integration-settings.png"),
                             )
+                            baselineCaptures["intellij-integration-settings"] = integrationSettings
                             assertTrue(
                                 bridge.showNativeHighlightModePopupForCapture() ==
                                     NATIVE_HIGHLIGHT_MODES_POPUP_STATE,
                             )
                             try {
+                                val nativeHighlightModes =
+                                    stableUiScreenshot(
+                                        component = this,
+                                        ready = {
+                                            bridge.nativeHighlightModePopupStateForCapture() ==
+                                                NATIVE_HIGHLIGHT_MODES_POPUP_STATE
+                                        },
+                                        accept = { candidate ->
+                                            isRenderableUiScreenshot(candidate) &&
+                                                ImageDiff.compare(
+                                                    integrationSettings,
+                                                    candidate,
+                                                ).metrics.changedPixels >=
+                                                MINIMUM_STATE_DIFFERENCE_PIXELS
+                                        },
+                                        onRejected = {
+                                            assertTrue(bridge.raiseSettingsForCapture())
+                                            assertTrue(
+                                                bridge.showNativeHighlightModePopupForCapture() ==
+                                                    NATIVE_HIGHLIGHT_MODES_POPUP_STATE,
+                                            )
+                                        },
+                                        transform = { screenshot ->
+                                            cropMacDialogChrome(screenshot, environment)
+                                        },
+                                    )
+                                assertMeaningfulDifference(
+                                    "closed settings and native highlighting mode popup",
+                                    integrationSettings,
+                                    nativeHighlightModes,
+                                )
                                 writePng(
-                                    stableUiScreenshot(this),
+                                    nativeHighlightModes,
                                     artifacts.resolve("native-highlight-modes-popup.png"),
                                 )
+                                baselineCaptures["native-highlight-modes-popup"] =
+                                    nativeHighlightModes
                             } finally {
                                 assertTrue(bridge.hideNativeHighlightModePopupAfterCapture())
                             }
@@ -206,12 +250,23 @@ class BracketGuideVisualTest {
                             ) {
                                 bridge.raiseSettingsForCapture()
                             }
+                            val intellijHighlightSettings =
+                                stableUiScreenshot(
+                                    component = this,
+                                    accept = ::isRenderableUiScreenshot,
+                                    onRejected = bridge::raiseSettingsForCapture,
+                                    transform = { screenshot ->
+                                        cropMacDialogChrome(screenshot, environment)
+                                    },
+                                )
                             writePng(
-                                stableUiScreenshot(this),
+                                intellijHighlightSettings,
                                 artifacts.resolve(
                                     "intellij-highlight-on-caret-movement-settings.png",
                                 ),
                             )
+                            baselineCaptures["intellij-highlight-on-caret-movement-settings"] =
+                                intellijHighlightSettings
                         } finally {
                             assertTrue(bridge.closeSettingsAfterCapture())
                         }
@@ -272,22 +327,27 @@ class BracketGuideVisualTest {
                         pluginGuideOnly,
                         artifacts.resolve("plugin-guide-only-actual.png"),
                     )
+                    baselineCaptures["native-guide-default-suppressed"] =
+                        nativeIndentGuidesVisible
+                    baselineCaptures["plugin-guide-only"] = pluginGuideOnly
                     assertVerticalGuideDifference(
                         "native indent guides visible and hidden",
                         nativeIndentGuidesVisible,
                         pluginGuideOnly,
                         nativeGuideRoi,
                     )
-                    writeGuideDetail(
-                        nativeIndentGuidesVisible,
-                        nativeGuideRoi,
-                        artifacts.resolve("native-guide-default-suppressed-detail.png"),
-                    )
-                    writeGuideDetail(
-                        pluginGuideOnly,
-                        nativeGuideRoi,
-                        artifacts.resolve("plugin-guide-only-detail.png"),
-                    )
+                    baselineCaptures["native-guide-default-suppressed-detail"] =
+                        writeGuideDetail(
+                            nativeIndentGuidesVisible,
+                            nativeGuideRoi,
+                            artifacts.resolve("native-guide-default-suppressed-detail.png"),
+                        )
+                    baselineCaptures["plugin-guide-only-detail"] =
+                        writeGuideDetail(
+                            pluginGuideOnly,
+                            nativeGuideRoi,
+                            artifacts.resolve("plugin-guide-only-detail.png"),
+                        )
                     assertTrue(bridge.activeGuideState(SAMPLE_FILE) == "VISIBLE")
                     assertTrue(bridge.setHideNativeIndentGuides(SAMPLE_FILE, false) == "true:false")
                     assertTrue(bridge.setEditorIndentGuides(SAMPLE_FILE, true) == "true:true")
@@ -328,18 +388,8 @@ class BracketGuideVisualTest {
                         artifacts = artifacts,
                     )
                     assertMeaningfulDifference("actual OFF and ON", off, on)
-                    verifyImages(
-                        actuals =
-                        listOf(
-                            NamedImage("show-active-guide-off", off),
-                            NamedImage("show-active-guide-on", on),
-                        ),
-                        artifacts = artifacts,
-                        baselines = baselines,
-                        recordBaseline = recordBaseline,
-                        forceBaselineOverwrite = forceBaselineOverwrite,
-                        environment = environment,
-                    )
+                    baselineCaptures["show-active-guide-off"] = off
+                    baselineCaptures["show-active-guide-on"] = on
 
                     assertTrue(
                         bridge.prepareNativeMatchedBraceEmphasisForCapture(SAMPLE_FILE) ==
@@ -394,6 +444,7 @@ class BracketGuideVisualTest {
                         nativeOverlap,
                         artifacts.resolve("native-guide-overlap-actual.png"),
                     )
+                    baselineCaptures["native-guide-overlap"] = nativeOverlap
                     writePng(
                         ImageDiff.compare(nativeIndentGuidesVisible, nativeOverlap).difference,
                         artifacts.resolve("native-guide-emphasis-diff.png"),
@@ -404,11 +455,12 @@ class BracketGuideVisualTest {
                         nativeOverlap,
                         nativeGuideRoi,
                     )
-                    writeGuideDetail(
-                        nativeOverlap,
-                        nativeGuideRoi,
-                        artifacts.resolve("native-guide-overlap-detail.png"),
-                    )
+                    baselineCaptures["native-guide-overlap-detail"] =
+                        writeGuideDetail(
+                            nativeOverlap,
+                            nativeGuideRoi,
+                            artifacts.resolve("native-guide-overlap-detail.png"),
+                        )
 
                     val nativeStateBeforeReview = bridge.nativeVisualState(SAMPLE_FILE)
                     val nativeModeBeforeReview = bridge.nativeIntegrationMode()
@@ -449,10 +501,25 @@ class BracketGuideVisualTest {
                                 reviewSettings.present() &&
                                 reviewSettings.component.isShowing()
                         }
+                        val conflictNotification =
+                            stableUiScreenshot(
+                                component = this,
+                                transform = { screenshot ->
+                                    cropRgb(
+                                        screenshot,
+                                        left = NOTIFICATION_CAPTURE_LEFT,
+                                        top = NOTIFICATION_CAPTURE_TOP,
+                                        width = NOTIFICATION_CAPTURE_WIDTH,
+                                        height = NOTIFICATION_CAPTURE_HEIGHT,
+                                    )
+                                },
+                            )
                         writePng(
-                            stableUiScreenshot(this),
+                            conflictNotification,
                             artifacts.resolve("native-guide-conflict-notification.png"),
                         )
+                        baselineCaptures["native-guide-conflict-notification"] =
+                            conflictNotification
                         val collapsedBalloonHeight = balloon.component.height
                         val expandNotification = balloon.x {
                             byJavaClass(NOTIFICATION_EXPAND_ACTION_CLASS)
@@ -461,7 +528,7 @@ class BracketGuideVisualTest {
                             expandNotification.present() &&
                                 expandNotification.component.isShowing(),
                         )
-                        expandNotification.click()
+                        assertTrue(bridge.expandNativeGuideConflictNotificationForCapture())
                         waitFor(
                             30.seconds,
                             100.milliseconds,
@@ -469,17 +536,20 @@ class BracketGuideVisualTest {
                         ) {
                             balloon.component.height > collapsedBalloonHeight
                         }
+                        val conflictBalloon =
+                            stableUiScreenshot(
+                                component = balloon,
+                                transform = { screenshot ->
+                                    cropMacBalloonChrome(screenshot, environment)
+                                },
+                            )
                         writePng(
-                            stableUiScreenshot(balloon),
+                            conflictBalloon,
                             artifacts.resolve("native-guide-conflict-balloon.png"),
                         )
+                        baselineCaptures["native-guide-conflict-balloon"] = conflictBalloon
 
-                        balloon.x {
-                            and(
-                                byType(NOTIFICATION_ACTION_TYPE),
-                                byVisibleText(NOTIFICATION_ACTION_TEXT),
-                            )
-                        }.click()
+                        assertTrue(bridge.openNativeGuideConflictReviewSettingsForCapture())
                         settingsDialog {
                             try {
                                 waitFor(
@@ -497,10 +567,21 @@ class BracketGuideVisualTest {
                                     bridge.visibleNativeIntegrationMode() ==
                                         NATIVE_HIGHLIGHTING_UNCHANGED_MODE
                                 }
+                                val reviewSettingsCapture =
+                                    stableUiScreenshot(
+                                        component = this,
+                                        accept = ::isRenderableUiScreenshot,
+                                        onRejected = bridge::raiseSettingsForCapture,
+                                        transform = { screenshot ->
+                                            cropMacDialogChrome(screenshot, environment)
+                                        },
+                                    )
                                 writePng(
-                                    stableUiScreenshot(this),
+                                    reviewSettingsCapture,
                                     artifacts.resolve("native-guide-conflict-review-settings.png"),
                                 )
+                                baselineCaptures["native-guide-conflict-review-settings"] =
+                                    reviewSettingsCapture
                             } finally {
                                 assertTrue(bridge.closeSettingsAfterCapture())
                             }
@@ -513,6 +594,22 @@ class BracketGuideVisualTest {
                             bridge.expireNativeGuideConflictNotificationAfterCapture()
                         }
                     }
+                    verifyImages(
+                        actuals =
+                        VISUAL_BASELINE_NAMES.map { name ->
+                            NamedImage(
+                                name,
+                                checkNotNull(baselineCaptures[name]) {
+                                    "Visual baseline capture was not produced: $name"
+                                },
+                            )
+                        },
+                        artifacts = artifacts,
+                        baselines = baselines,
+                        recordBaseline = recordBaseline,
+                        forceBaselineOverwrite = forceBaselineOverwrite,
+                        environment = environment,
+                    )
                 }
             }
 
@@ -577,17 +674,40 @@ class BracketGuideVisualTest {
         return checkNotNull(stable)
     }
 
-    private fun stableUiScreenshot(component: UiComponent): BufferedImage {
+    private fun stableUiScreenshot(
+        component: UiComponent,
+        ready: () -> Boolean = { true },
+        accept: (BufferedImage) -> Boolean = { true },
+        onRejected: () -> Unit = {},
+        transform: (BufferedImage) -> BufferedImage = { it },
+    ): BufferedImage {
         var previous: BufferedImage? = null
         var stable: BufferedImage? = null
         waitFor(30.seconds, 250.milliseconds, "UI screenshot did not stabilize") {
-            val current = component.getScreenshot()
+            if (!ready()) return@waitFor false
+            val current = transform(component.getScreenshot())
             val unchanged = previous?.let { imagesAreEqual(it, current) } == true
             previous = current
-            if (unchanged) stable = current
-            unchanged
+            val accepted = accept(current)
+            if (!accepted) onRejected()
+            if (unchanged && accepted) stable = current
+            unchanged && accepted
         }
         return checkNotNull(stable)
+    }
+
+    private fun isRenderableUiScreenshot(image: BufferedImage): Boolean {
+        var visibleSamples = 0
+        var totalSamples = 0
+        for (y in 0 until image.height step UI_SCREENSHOT_SAMPLE_STEP) {
+            for (x in 0 until image.width step UI_SCREENSHOT_SAMPLE_STEP) {
+                val rgb = image.getRGB(x, y)
+                val brightestChannel = maxOf((rgb ushr 16) and 0xff, (rgb ushr 8) and 0xff, rgb and 0xff)
+                if (brightestChannel >= UI_SCREENSHOT_MINIMUM_CHANNEL) visibleSamples += 1
+                totalSamples += 1
+            }
+        }
+        return visibleSamples * 2 >= totalSamples
     }
 
     private fun isVerticallyContained(first: UiComponent, last: UiComponent, container: UiComponent): Boolean {
@@ -611,29 +731,26 @@ class BracketGuideVisualTest {
         writeContactSheet(actuals.map(NamedImage::image), artifacts.resolve("actual.png"))
         val expectedPaths = actuals.map { named -> baselines.resolve("${named.name}.png") }
         if (recordBaseline) {
-            val existing = expectedPaths.filter(Path::exists)
-            check(forceBaselineOverwrite || existing.isEmpty()) {
-                "Refusing to overwrite ${existing.joinToString()}. Add " +
-                    "-PforceVisualBaselineOverwrite=true after reviewing the candidate."
-            }
-            actuals.zip(expectedPaths).forEach { (named, path) -> writePng(named.image, path) }
-        }
-        val missing = expectedPaths.filterNot(Path::exists)
-        if (missing.isNotEmpty()) {
-            artifacts.resolve("visual-test-metrics.json").writeText(
-                """
-                {
-                  "schemaVersion": 1,
-                  "environment": ${jsonString(environment)},
-                  "comparisons": [],
-                  "error": ${jsonString("missing baselines: ${missing.joinToString()}")}
+            actuals.zip(expectedPaths).forEach { (named, path) ->
+                if (forceBaselineOverwrite || !path.exists()) {
+                    writePng(named.image, path)
                 }
-                """.trimIndent() + "\n",
+            }
+        }
+        val missingNames =
+            actuals.zip(expectedPaths)
+                .filterNot { (_, path) -> path.exists() }
+                .map { (named, _) -> named.name }
+        if (missingNames.isNotEmpty()) {
+            writeAggregateError(
+                artifacts = artifacts,
+                environment = environment,
+                message = "missing baselines: ${missingNames.joinToString()}",
             )
         }
-        check(missing.isEmpty()) {
-            "Missing visual baselines ${missing.joinToString()}. Both actual candidates are in " +
-                "${artifacts.resolve("actual.png").toAbsolutePath()}. " +
+        check(missingNames.isEmpty()) {
+            "Missing visual baselines ${missingNames.joinToString()}. All actual candidates are in " +
+                "${artifacts.toAbsolutePath()}. " +
                 "Record it explicitly with ./gradlew :plugin:recordVisualTestBaseline"
         }
 
@@ -663,11 +780,15 @@ class BracketGuideVisualTest {
                     )
                     readPng(artifacts.resolve("${actual.name}-diff.png"))
                 } else {
-                    ImageDiff.compare(golden.image, actual.image).difference
+                    compareVisualImage(actual.name, golden.image, actual.image).difference
                 }
             }
         if (dimensionFailures.isNotEmpty()) {
-            writeContactSheet(dimensionDiffs, artifacts.resolve("diff.png"))
+            writeContactSheet(
+                dimensionDiffs.take(LEGACY_COMPARISON_COUNT),
+                artifacts.resolve("diff.png"),
+            )
+            writeContactSheet(dimensionDiffs, artifacts.resolve("diff-v2.png"))
             writeAggregateError(
                 artifacts = artifacts,
                 environment = environment,
@@ -680,14 +801,20 @@ class BracketGuideVisualTest {
         val comparisons =
             actuals.zip(expected).map { (actual, golden) ->
                 writePng(golden.image, artifacts.resolve("${actual.name}-expected.png"))
-                val result = ImageDiff.compare(golden.image, actual.image)
+                val result = compareVisualImage(actual.name, golden.image, actual.image)
                 writePng(result.difference, artifacts.resolve("${actual.name}-diff.png"))
                 artifacts.resolve("${actual.name}-metrics.json").writeText(result.metrics.toJson(environment))
                 NamedComparison(actual.name, result)
             }
         writeContactSheet(
-            comparisons.map { comparison -> comparison.result.difference },
+            comparisons.take(LEGACY_COMPARISON_COUNT).map { comparison ->
+                comparison.result.difference
+            },
             artifacts.resolve("diff.png"),
+        )
+        writeContactSheet(
+            comparisons.map { comparison -> comparison.result.difference },
+            artifacts.resolve("diff-v2.png"),
         )
         writeAggregateMetrics(artifacts, environment, comparisons)
         val failures = comparisons.filterNot { comparison -> comparison.result.metrics.isIdentical }
@@ -699,7 +826,65 @@ class BracketGuideVisualTest {
         )
     }
 
+    private fun compareVisualImage(name: String, expected: BufferedImage, actual: BufferedImage): ImageDiffResult {
+        if (
+            name != "native-guide-conflict-balloon" ||
+            actual.width < BALLOON_ACTION_MASK_LEFT + BALLOON_ACTION_MASK_WIDTH
+        ) {
+            return ImageDiff.compare(expected, actual)
+        }
+
+        // Under Xvfb, IntelliJ changes the hover alpha and antialiasing of its overflow/close
+        // controls even after the balloon contents stabilize. Those controls are IDE chrome rather
+        // than plugin evidence, so compare a copy with only that bounded area from the baseline.
+        val comparableActual =
+            BufferedImage(actual.width, actual.height, BufferedImage.TYPE_INT_ARGB).apply {
+                createGraphics().use { graphics ->
+                    graphics.drawImage(actual, 0, 0, null)
+                    val right = minOf(width, BALLOON_ACTION_MASK_LEFT + BALLOON_ACTION_MASK_WIDTH)
+                    val bottom = minOf(height, BALLOON_ACTION_MASK_TOP + BALLOON_ACTION_MASK_HEIGHT)
+                    if (BALLOON_ACTION_MASK_LEFT < right && BALLOON_ACTION_MASK_TOP < bottom) {
+                        graphics.drawImage(
+                            expected,
+                            BALLOON_ACTION_MASK_LEFT,
+                            BALLOON_ACTION_MASK_TOP,
+                            right,
+                            bottom,
+                            BALLOON_ACTION_MASK_LEFT,
+                            BALLOON_ACTION_MASK_TOP,
+                            right,
+                            bottom,
+                            null,
+                        )
+                    }
+                }
+            }
+        return ImageDiff.compare(expected, comparableActual)
+    }
+
     private fun writeAggregateMetrics(artifacts: Path, environment: String, comparisons: List<NamedComparison>) {
+        // workflow_run executes the reporter from the default branch, so keep the two-image v1
+        // artifact compatible while the fourteen-image v2 reporter is being rolled out.
+        writeAggregateMetricsFile(
+            target = artifacts.resolve("visual-test-metrics.json"),
+            schemaVersion = 1,
+            environment = environment,
+            comparisons = comparisons.take(LEGACY_COMPARISON_COUNT),
+        )
+        writeAggregateMetricsFile(
+            target = artifacts.resolve("visual-test-metrics-v2.json"),
+            schemaVersion = 2,
+            environment = environment,
+            comparisons = comparisons,
+        )
+    }
+
+    private fun writeAggregateMetricsFile(
+        target: Path,
+        schemaVersion: Int,
+        environment: String,
+        comparisons: List<NamedComparison>,
+    ) {
         val rows =
             comparisons.joinToString(",\n") { comparison ->
                 val metrics = comparison.result.metrics
@@ -715,10 +900,10 @@ class BracketGuideVisualTest {
                 }
                 """.trimIndent().prependIndent("    ")
             }
-        artifacts.resolve("visual-test-metrics.json").writeText(
+        target.writeText(
             """
             {
-              "schemaVersion": 1,
+              "schemaVersion": $schemaVersion,
               "environment": ${jsonString(environment)},
               "comparisons": [
             $rows
@@ -729,16 +914,18 @@ class BracketGuideVisualTest {
     }
 
     private fun writeAggregateError(artifacts: Path, environment: String, message: String) {
-        artifacts.resolve("visual-test-metrics.json").writeText(
+        val boundedMessage = message.take(METRICS_ERROR_MAX_LENGTH)
+        fun contents(schemaVersion: Int) =
             """
             {
-              "schemaVersion": 1,
+              "schemaVersion": $schemaVersion,
               "environment": ${jsonString(environment)},
               "comparisons": [],
-              "error": ${jsonString(message)}
+              "error": ${jsonString(boundedMessage)}
             }
-            """.trimIndent() + "\n",
-        )
+            """.trimIndent() + "\n"
+        artifacts.resolve("visual-test-metrics.json").writeText(contents(schemaVersion = 1))
+        artifacts.resolve("visual-test-metrics-v2.json").writeText(contents(schemaVersion = 2))
     }
 
     private fun writeContactSheet(images: List<BufferedImage>, target: Path) {
@@ -812,7 +999,7 @@ class BracketGuideVisualTest {
         }
     }
 
-    private fun writeGuideDetail(image: BufferedImage, region: ImageRegion, target: Path) {
+    private fun writeGuideDetail(image: BufferedImage, region: ImageRegion, target: Path): BufferedImage {
         require(region.fits(image)) { "Guide region $region is outside ${image.width}x${image.height}" }
         val left = (region.x - GUIDE_DETAIL_HORIZONTAL_PADDING).coerceAtLeast(0)
         val top = (region.y - GUIDE_DETAIL_VERTICAL_PADDING).coerceAtLeast(0)
@@ -847,6 +1034,7 @@ class BracketGuideVisualTest {
             )
         }
         writePng(detail, target)
+        return detail
     }
 
     private fun cropStableRegion(screenshot: BufferedImage): BufferedImage {
@@ -860,6 +1048,42 @@ class BracketGuideVisualTest {
             createGraphics().use { graphics -> graphics.drawImage(cropped, 0, 0, null) }
         }
     }
+
+    private fun cropRgb(image: BufferedImage, left: Int, top: Int, width: Int, height: Int): BufferedImage {
+        require(left >= 0 && top >= 0 && left + width <= image.width && top + height <= image.height) {
+            "Pinned crop ($left,$top ${width}x$height) is outside ${image.width}x${image.height}"
+        }
+        val cropped = image.getSubimage(left, top, width, height)
+        return BufferedImage(width, height, BufferedImage.TYPE_INT_RGB).apply {
+            createGraphics().use { graphics -> graphics.drawImage(cropped, 0, 0, null) }
+        }
+    }
+
+    private fun cropMacDialogChrome(image: BufferedImage, environment: String): BufferedImage =
+        if (environment == MACOS_ENVIRONMENT) {
+            cropRgb(
+                image,
+                left = MACOS_DIALOG_HORIZONTAL_INSET,
+                top = MACOS_DIALOG_TITLE_HEIGHT,
+                width = image.width - (MACOS_DIALOG_HORIZONTAL_INSET * 2),
+                height = image.height - MACOS_DIALOG_TITLE_HEIGHT - MACOS_DIALOG_BOTTOM_INSET,
+            )
+        } else {
+            image
+        }
+
+    private fun cropMacBalloonChrome(image: BufferedImage, environment: String): BufferedImage =
+        if (environment == MACOS_ENVIRONMENT) {
+            cropRgb(
+                image,
+                left = 0,
+                top = MACOS_BALLOON_VERTICAL_INSET,
+                width = image.width,
+                height = image.height - (MACOS_BALLOON_VERTICAL_INSET * 2),
+            )
+        } else {
+            image
+        }
 
     private inline fun <T : java.awt.Graphics> T.use(action: (T) -> Unit) {
         try {
@@ -1035,6 +1259,22 @@ class BracketGuideVisualTest {
         const val FRAME_Y = 100
         const val FRAME_WIDTH = 1280
         const val FRAME_HEIGHT = 900
+        const val NOTIFICATION_CAPTURE_LEFT = 800
+        const val NOTIFICATION_CAPTURE_TOP = 650
+        const val NOTIFICATION_CAPTURE_WIDTH = 480
+        const val NOTIFICATION_CAPTURE_HEIGHT = 220
+        const val MACOS_DIALOG_HORIZONTAL_INSET = 18
+        const val MACOS_DIALOG_TITLE_HEIGHT = 29
+        const val MACOS_DIALOG_BOTTOM_INSET = 18
+        const val MACOS_BALLOON_VERTICAL_INSET = 6
+        const val BALLOON_ACTION_MASK_LEFT = 350
+        const val BALLOON_ACTION_MASK_TOP = 12
+        const val BALLOON_ACTION_MASK_WIDTH = 70
+        const val BALLOON_ACTION_MASK_HEIGHT = 24
+        const val LEGACY_COMPARISON_COUNT = 2
+        const val METRICS_ERROR_MAX_LENGTH = 512
+        const val UI_SCREENSHOT_SAMPLE_STEP = 8
+        const val UI_SCREENSHOT_MINIMUM_CHANNEL = 16
 
         // Driver line numbers are one-based: this is source line 7 (`total += inner`).
         const val CARET_LINE = 7
@@ -1077,6 +1317,23 @@ class BracketGuideVisualTest {
         val MACOS_ARCHITECTURES = setOf("aarch64", "arm64")
         val LINUX_ARCHITECTURES = setOf("amd64", "x86_64")
         val SUPPORTED_ENVIRONMENTS = setOf(MACOS_ENVIRONMENT, LINUX_ENVIRONMENT)
+        val VISUAL_BASELINE_NAMES =
+            listOf(
+                "show-active-guide-off",
+                "show-active-guide-on",
+                "intellij-integration-settings",
+                "intellij-highlight-on-caret-movement-settings",
+                "native-highlight-modes-popup",
+                "native-guide-overlap",
+                "native-guide-default-suppressed",
+                "plugin-guide-only",
+                "native-guide-overlap-detail",
+                "native-guide-default-suppressed-detail",
+                "plugin-guide-only-detail",
+                "native-guide-conflict-notification",
+                "native-guide-conflict-balloon",
+                "native-guide-conflict-review-settings",
+            )
     }
 
     private data class NamedImage(val name: String, val image: BufferedImage)
@@ -1129,6 +1386,8 @@ private interface DriverBridge {
 
     fun showNativeHighlightModePopupForCapture(): String
 
+    fun nativeHighlightModePopupStateForCapture(): String
+
     fun hideNativeHighlightModePopupAfterCapture(): Boolean
 
     fun prepareNativeDefaultSuppressionForCapture(filePathSuffix: String): String
@@ -1136,6 +1395,10 @@ private interface DriverBridge {
     fun prepareNativeMatchedBraceEmphasisForCapture(filePathSuffix: String): String
 
     fun showNativeGuideConflictNotificationForCapture(filePathSuffix: String): Boolean
+
+    fun expandNativeGuideConflictNotificationForCapture(): Boolean
+
+    fun openNativeGuideConflictReviewSettingsForCapture(): Boolean
 
     fun expireNativeGuideConflictNotificationAfterCapture(): Boolean
 

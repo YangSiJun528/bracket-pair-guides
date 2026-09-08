@@ -19,6 +19,7 @@ import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.NewUI
+import com.intellij.ui.components.labels.LinkLabel
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.editor.events.BracketGuideSettingsController
 import com.sijunyang.bracketpairguides.editor.highlighting.NativeGuideConflictBalloon
@@ -37,6 +38,7 @@ import javax.swing.AbstractButton
 import javax.swing.JComboBox
 import javax.swing.JComponent
 import javax.swing.JLabel
+import javax.swing.JList
 
 /**
  * Stable, dependency-free JMX boundary for out-of-process Driver tests.
@@ -163,9 +165,12 @@ object BracketGuideDriverBridge {
     @JvmStatic
     fun raiseSettingsForCapture(): Boolean = driverTestOnEdt(ModalityState.any()) {
         val window = settingsWindow() ?: return@driverTestOnEdt false
+        window.setLocation(SETTINGS_CAPTURE_X, SETTINGS_CAPTURE_Y)
         window.isAlwaysOnTop = true
         window.toFront()
         window.requestFocus()
+        window.validate()
+        Toolkit.getDefaultToolkit().sync()
         window.isShowing && window.isAlwaysOnTop
     }
 
@@ -210,11 +215,16 @@ object BracketGuideDriverBridge {
             ) { "Native highlighting mode control is not visible" }
         modeControl.showPopup()
         Toolkit.getDefaultToolkit().sync()
-        val items =
-            (0 until modeControl.itemCount).joinToString(",") { index ->
-                (modeControl.getItemAt(index) as NativeHighlightMode).name
-            }
-        "${modeControl.isPopupVisible}:$items"
+        nativeHighlightModePopupState(modeControl)
+    }
+
+    @JvmStatic
+    fun nativeHighlightModePopupStateForCapture(): String = driverTestOnEdt(ModalityState.any()) {
+        val window = settingsWindow() ?: return@driverTestOnEdt SETTINGS_NOT_VISIBLE
+        val modeControl =
+            findShowingComponent(window, NATIVE_HIGHLIGHT_MODE_COMPONENT_NAME) as? JComboBox<*>
+                ?: return@driverTestOnEdt SETTINGS_NOT_VISIBLE
+        nativeHighlightModePopupState(modeControl)
     }
 
     @JvmStatic
@@ -302,6 +312,16 @@ object BracketGuideDriverBridge {
             notification.notify(project)
         }
         true
+    }
+
+    @JvmStatic
+    fun expandNativeGuideConflictNotificationForCapture(): Boolean = driverTestOnEdt {
+        clickNativeConflictLink(text = null)
+    }
+
+    @JvmStatic
+    fun openNativeGuideConflictReviewSettingsForCapture(): Boolean = driverTestOnEdt {
+        clickNativeConflictLink(text = NativeGuideConflictBalloon.ACTION_TEXT)
     }
 
     @JvmStatic
@@ -457,6 +477,75 @@ object BracketGuideDriverBridge {
         else -> null
     }
 
+    private fun clickNativeConflictLink(text: String?): Boolean {
+        val balloons =
+            Window.getWindows()
+                .asSequence()
+                .filter(Window::isShowing)
+                .mapNotNull { window ->
+                    findShowingComponent(window) { component ->
+                        component is Container &&
+                            component.javaClass.name == NATIVE_NOTIFICATION_BALLOON_CLASS &&
+                            findComponentWithText(component, NativeGuideConflictBalloon.TITLE)
+                                ?.isShowing == true
+                    } as? Container
+                }
+                .distinct()
+                .toList()
+        if (balloons.size != 1) return false
+        val links =
+            findShowingComponents(balloons.single()) { component ->
+                component is LinkLabel<*> &&
+                    component.text?.takeIf(String::isNotEmpty) == text
+            }.filterIsInstance<LinkLabel<*>>()
+        if (links.size != 1) return false
+        val link = links.single()
+        link.doClick()
+        Toolkit.getDefaultToolkit().sync()
+        return true
+    }
+
+    private fun nativeHighlightModePopupState(modeControl: JComboBox<*>): String {
+        val items =
+            (0 until modeControl.itemCount).map { index ->
+                (modeControl.getItemAt(index) as NativeHighlightMode).name
+            }
+        val renderedPopupIsShowing =
+            Window.getWindows()
+                .asSequence()
+                .filter(Window::isShowing)
+                .mapNotNull { window ->
+                    findShowingComponent(window) { component ->
+                        component is JList<*> &&
+                            component.isShowing &&
+                            (0 until component.model.size).map { index ->
+                                (component.model.getElementAt(index) as? NativeHighlightMode)?.name
+                            } == items
+                    }
+                }
+                .any()
+        return "${modeControl.isPopupVisible && renderedPopupIsShowing}:${items.joinToString(",")}"
+    }
+
+    private fun findShowingComponent(root: Container, matches: (Component) -> Boolean): Component? {
+        for (component in root.components) {
+            if (component.isShowing && matches(component)) return component
+            if (component is Container) {
+                findShowingComponent(component, matches)?.let { return it }
+            }
+        }
+        return null
+    }
+
+    private fun findShowingComponents(root: Container, matches: (Component) -> Boolean): List<Component> = buildList {
+        for (component in root.components) {
+            if (component.isShowing && matches(component)) add(component)
+            if (component is Container) {
+                addAll(findShowingComponents(component, matches))
+            }
+        }
+    }
+
     private fun <T> driverTestOnEdt(modalityState: ModalityState = ModalityState.nonModal(), action: () -> T): T {
         check(System.getProperty(DRIVER_TEST_PROPERTY) == "true") {
             "$DRIVER_TEST_PROPERTY must be true; this API is reserved for visual tests"
@@ -490,6 +579,9 @@ object BracketGuideDriverBridge {
     private const val CURRENT_SCOPE_TEXT = "Current scope"
     private const val NATIVE_HIGHLIGHT_MODE_COMPONENT_NAME = "nativeHighlightMode"
     private const val NATIVE_RESTORATION_NOTE_COMPONENT_NAME = "nativeVisualRestorationNote"
+    private const val NATIVE_NOTIFICATION_BALLOON_CLASS = "com.intellij.ui.BalloonImpl\$MyComponent"
+    private const val SETTINGS_CAPTURE_X = 200
+    private const val SETTINGS_CAPTURE_Y = 120
     private const val DRIVER_TEST_PROPERTY = "bracket.pair.guides.driver.test"
     private const val GUIDE_ROI_LEFT_PADDING = 3
     private const val GUIDE_ROI_RIGHT_PADDING = 1

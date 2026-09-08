@@ -33,18 +33,48 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
-            const allowedNames = new Set([
+            const requiredImageNames = [
               'show-active-guide-off-actual.png',
               'show-active-guide-on-actual.png',
-              'diff.png',
-              'visual-test-metrics.json',
+              'intellij-integration-settings.png',
+              'intellij-highlight-on-caret-movement-settings.png',
+              'native-highlight-modes-popup.png',
+              'native-guide-overlap-actual.png',
+              'native-guide-default-suppressed-actual.png',
+              'plugin-guide-only-actual.png',
+              'native-guide-overlap-detail.png',
+              'native-guide-default-suppressed-detail.png',
+              'plugin-guide-only-detail.png',
+              'native-guide-conflict-notification.png',
+              'native-guide-conflict-balloon.png',
+              'native-guide-conflict-review-settings.png',
+            ]
+            const imageNames = [
+              ...requiredImageNames,
+              'diff-v2.png',
+            ]
+            const allowedNames = new Set([
+              ...imageNames,
+              'visual-test-metrics-v2.json',
               'visual-test-diagnostics',
             ])
             const maximumSizes = new Map([
               ['show-active-guide-off-actual.png', 256 * 1024],
               ['show-active-guide-on-actual.png', 256 * 1024],
-              ['diff.png', 512 * 1024],
-              ['visual-test-metrics.json', 16 * 1024],
+              ['intellij-integration-settings.png', 512 * 1024],
+              ['intellij-highlight-on-caret-movement-settings.png', 512 * 1024],
+              ['native-highlight-modes-popup.png', 512 * 1024],
+              ['native-guide-overlap-actual.png', 256 * 1024],
+              ['native-guide-default-suppressed-actual.png', 256 * 1024],
+              ['plugin-guide-only-actual.png', 256 * 1024],
+              ['native-guide-overlap-detail.png', 128 * 1024],
+              ['native-guide-default-suppressed-detail.png', 128 * 1024],
+              ['plugin-guide-only-detail.png', 128 * 1024],
+              ['native-guide-conflict-notification.png', 512 * 1024],
+              ['native-guide-conflict-balloon.png', 256 * 1024],
+              ['native-guide-conflict-review-settings.png', 512 * 1024],
+              ['diff-v2.png', 8 * 1024 * 1024],
+              ['visual-test-metrics-v2.json', 16 * 1024],
               ['visual-test-diagnostics', 64 * 1024 * 1024],
             ])
             const runId = Number(context.payload.workflow_run.id)
@@ -158,7 +188,7 @@ jobs:
             }
 
             const metrics = selected.filter(
-              artifact => artifact.name === 'visual-test-metrics.json',
+              artifact => artifact.name === 'visual-test-metrics-v2.json',
             )
             if (metrics.length > 1) {
               throw new Error('Expected at most one metrics artifact')
@@ -169,11 +199,6 @@ jobs:
             } else {
               core.setOutput('metrics_id', '')
             }
-            const imageNames = [
-              'show-active-guide-off-actual.png',
-              'show-active-guide-on-actual.png',
-              'diff.png',
-            ]
             const imageIds = imageNames
               .map(name => selected.find(artifact => artifact.name === name)?.id)
               .filter(id => id !== undefined)
@@ -225,27 +250,156 @@ jobs:
 
             const marker = '<!-- visual-test-report:v1 -->'
             const orderPrefix = '<!-- visual-test-report-order:'
-            const imageNames = [
-              'show-active-guide-off-actual.png',
-              'show-active-guide-on-actual.png',
-              'diff.png',
+            const requiredCaptures = [
+              {
+                name: 'show-active-guide-off-actual.png',
+                metricName: 'show-active-guide-off',
+                width: 220,
+                height: 240,
+                colorType: 6,
+                channels: 4,
+                maximumSize: 256 * 1024,
+              },
+              {
+                name: 'show-active-guide-on-actual.png',
+                metricName: 'show-active-guide-on',
+                width: 220,
+                height: 240,
+                colorType: 6,
+                channels: 4,
+                maximumSize: 256 * 1024,
+              },
+              {
+                name: 'intellij-integration-settings.png',
+                metricName: 'intellij-integration-settings',
+                width: 982,
+                height: 700,
+                colorType: 2,
+                channels: 3,
+                maximumSize: 512 * 1024,
+              },
+              {
+                name: 'intellij-highlight-on-caret-movement-settings.png',
+                metricName: 'intellij-highlight-on-caret-movement-settings',
+                width: 982,
+                height: 700,
+                colorType: 2,
+                channels: 3,
+                maximumSize: 512 * 1024,
+              },
+              {
+                name: 'native-highlight-modes-popup.png',
+                metricName: 'native-highlight-modes-popup',
+                width: 982,
+                height: 700,
+                colorType: 2,
+                channels: 3,
+                maximumSize: 512 * 1024,
+              },
+              {
+                name: 'native-guide-overlap-actual.png',
+                metricName: 'native-guide-overlap',
+                width: 220,
+                height: 240,
+                colorType: 6,
+                channels: 4,
+                maximumSize: 256 * 1024,
+              },
+              {
+                name: 'native-guide-default-suppressed-actual.png',
+                metricName: 'native-guide-default-suppressed',
+                width: 220,
+                height: 240,
+                colorType: 6,
+                channels: 4,
+                maximumSize: 256 * 1024,
+              },
+              {
+                name: 'plugin-guide-only-actual.png',
+                metricName: 'plugin-guide-only',
+                width: 220,
+                height: 240,
+                colorType: 6,
+                channels: 4,
+                maximumSize: 256 * 1024,
+              },
+              {
+                name: 'native-guide-overlap-detail.png',
+                metricName: 'native-guide-overlap-detail',
+                width: 126,
+                height: 144,
+                colorType: 6,
+                channels: 4,
+                maximumSize: 128 * 1024,
+              },
+              {
+                name: 'native-guide-default-suppressed-detail.png',
+                metricName: 'native-guide-default-suppressed-detail',
+                width: 126,
+                height: 144,
+                colorType: 6,
+                channels: 4,
+                maximumSize: 128 * 1024,
+              },
+              {
+                name: 'plugin-guide-only-detail.png',
+                metricName: 'plugin-guide-only-detail',
+                width: 126,
+                height: 144,
+                colorType: 6,
+                channels: 4,
+                maximumSize: 128 * 1024,
+              },
+              {
+                name: 'native-guide-conflict-notification.png',
+                metricName: 'native-guide-conflict-notification',
+                width: 480,
+                height: 220,
+                colorType: 2,
+                channels: 3,
+                maximumSize: 512 * 1024,
+              },
+              {
+                name: 'native-guide-conflict-balloon.png',
+                metricName: 'native-guide-conflict-balloon',
+                width: 430,
+                height: 147,
+                colorType: 2,
+                channels: 3,
+                maximumSize: 256 * 1024,
+              },
+              {
+                name: 'native-guide-conflict-review-settings.png',
+                metricName: 'native-guide-conflict-review-settings',
+                width: 982,
+                height: 700,
+                colorType: 2,
+                channels: 3,
+                maximumSize: 512 * 1024,
+              },
             ]
+            const failureDiff = {
+              name: 'diff-v2.png',
+              width: 6316,
+              height: 700,
+              colorType: 6,
+              channels: 4,
+              maximumSize: 8 * 1024 * 1024,
+            }
+            const imageSchemas = new Map(
+              [...requiredCaptures, failureDiff].map(capture => [capture.name, capture]),
+            )
+            const requiredImageNames = requiredCaptures.map(capture => capture.name)
+            const imageNames = [...requiredImageNames, failureDiff.name]
             const allowedNames = [
               ...imageNames,
-              'visual-test-metrics.json',
+              'visual-test-metrics-v2.json',
               'visual-test-diagnostics',
             ]
             const maximumSizes = new Map([
-              ['show-active-guide-off-actual.png', 256 * 1024],
-              ['show-active-guide-on-actual.png', 256 * 1024],
-              ['diff.png', 512 * 1024],
-              ['visual-test-metrics.json', 16 * 1024],
+              ...[...imageSchemas].map(([name, schema]) => [name, schema.maximumSize]),
+              ['visual-test-metrics-v2.json', 16 * 1024],
               ['visual-test-diagnostics', 64 * 1024 * 1024],
-            ])
-            const expectedDimensions = new Map([
-              ['show-active-guide-off-actual.png', [220, 240]],
-              ['show-active-guide-on-actual.png', [220, 240]],
-              ['diff.png', [440, 240]],
             ])
             const expectedEnvironment =
               'ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1'
@@ -397,7 +551,7 @@ jobs:
               ) {
                 throw new Error('Invalid metrics root schema')
               }
-              if (value.schemaVersion !== 1 || value.environment !== expectedEnvironment) {
+              if (value.schemaVersion !== 2 || value.environment !== expectedEnvironment) {
                 throw new Error('Unexpected metrics version or environment')
               }
               if (!Array.isArray(value.comparisons)) {
@@ -417,8 +571,7 @@ jobs:
                 return {kind: 'error', environment: value.environment}
               }
 
-              const names = ['show-active-guide-off', 'show-active-guide-on']
-              if (value.comparisons.length !== names.length) {
+              if (value.comparisons.length !== requiredCaptures.length) {
                 throw new Error('Unexpected comparison count')
               }
               const rowKeys = [
@@ -431,12 +584,13 @@ jobs:
                 'meanAbsoluteChannelDifference',
               ]
               const comparisons = value.comparisons.map((row, index) => {
-                if (!exactKeys(row, rowKeys) || row.name !== names[index]) {
+                const expected = requiredCaptures[index]
+                if (!exactKeys(row, rowKeys) || row.name !== expected.metricName) {
                   throw new Error('Invalid comparison schema')
                 }
                 if (
-                  row.width !== 220 ||
-                  row.height !== 240 ||
+                  row.width !== expected.width ||
+                  row.height !== expected.height ||
                   !boundedInteger(row.totalPixels, 1, 4096 * 4096) ||
                   row.totalPixels !== row.width * row.height ||
                   !boundedInteger(row.changedPixels, 0, row.totalPixels) ||
@@ -463,7 +617,7 @@ jobs:
 
             let metricReport = {kind: 'missing'}
             const expectedMetricsId = Number(process.env.METRICS_ARTIFACT_ID)
-            const currentMetrics = artifactMap.get('visual-test-metrics.json')
+            const currentMetrics = artifactMap.get('visual-test-metrics-v2.json')
             if (
               positiveInteger(expectedMetricsId) &&
               expectedMetricsId === currentMetrics?.id &&
@@ -474,11 +628,11 @@ jobs:
                 const entries = fs.readdirSync(directory)
                 if (
                   entries.length !== 1 ||
-                  entries[0] !== 'visual-test-metrics.json'
+                  entries[0] !== 'visual-test-metrics-v2.json'
                 ) {
                   throw new Error('Unexpected metrics download contents')
                 }
-                const metricsPath = path.join(directory, 'visual-test-metrics.json')
+                const metricsPath = path.join(directory, 'visual-test-metrics-v2.json')
                 const stat = fs.lstatSync(metricsPath)
                 if (
                   stat.isSymbolicLink() ||
@@ -530,14 +684,24 @@ jobs:
               )
               return chunk
             }
-            const validatePng = (filePath, artifact, width, height) => {
+            const validatePng = (filePath, artifact, schema) => {
+              if (
+                schema === undefined ||
+                path.basename(filePath) !== schema.name ||
+                !(
+                  (schema.colorType === 2 && schema.channels === 3) ||
+                  (schema.colorType === 6 && schema.channels === 4)
+                )
+              ) {
+                throw new Error('Invalid capture schema')
+              }
               const stat = fs.lstatSync(filePath)
               if (
                 stat.isSymbolicLink() ||
                 !stat.isFile() ||
                 stat.size !== artifact.size ||
                 stat.size <= 0 ||
-                stat.size > maximumSizes.get(path.basename(filePath))
+                stat.size > schema.maximumSize
               ) {
                 throw new Error('Unsafe capture file')
               }
@@ -578,10 +742,10 @@ jobs:
                     throw new Error('Invalid PNG header placement')
                   }
                   if (
-                    data.readUInt32BE(0) !== width ||
-                    data.readUInt32BE(4) !== height ||
+                    data.readUInt32BE(0) !== schema.width ||
+                    data.readUInt32BE(4) !== schema.height ||
                     data[8] !== 8 ||
-                    data[9] !== 6 ||
+                    data[9] !== schema.colorType ||
                     data[10] !== 0 ||
                     data[11] !== 0 ||
                     data[12] !== 0
@@ -613,24 +777,24 @@ jobs:
                 throw new Error('Incomplete PNG')
               }
 
-              const rowSize = 1 + width * 4
-              const rawSize = rowSize * height
+              const rowSize = 1 + schema.width * schema.channels
+              const rawSize = rowSize * schema.height
               const inflated = zlib.inflateSync(Buffer.concat(compressedParts), {
                 maxOutputLength: rawSize,
               })
               if (inflated.length !== rawSize) {
                 throw new Error('Unexpected PNG pixel-data size')
               }
-              for (let row = 0; row < height; row += 1) {
+              for (let row = 0; row < schema.height; row += 1) {
                 if (inflated[row * rowSize] > 4) {
                   throw new Error('Invalid PNG row filter')
                 }
               }
               const header = Buffer.alloc(13)
-              header.writeUInt32BE(width, 0)
-              header.writeUInt32BE(height, 4)
+              header.writeUInt32BE(schema.width, 0)
+              header.writeUInt32BE(schema.height, 4)
               header[8] = 8
-              header[9] = 6
+              header[9] = schema.colorType
               return Buffer.concat([
                 signature,
                 pngChunk('IHDR', header),
@@ -666,35 +830,46 @@ jobs:
                   throw new Error('Unexpected capture download contents')
                 }
                 const files = new Map()
+                let captureRejected = false
                 for (const name of currentImageNames) {
-                  const dimensions = expectedDimensions.get(name)
-                  files.set(
-                    name,
-                    validatePng(
-                      path.join(directory, name),
-                      artifactMap.get(name),
-                      dimensions[0],
-                      dimensions[1],
-                    ),
-                  )
+                  try {
+                    files.set(
+                      name,
+                      validatePng(
+                        path.join(directory, name),
+                        artifactMap.get(name),
+                        imageSchemas.get(name),
+                      ),
+                    )
+                  } catch (_error) {
+                    captureRejected = true
+                  }
                 }
-                imageReport = {kind: 'valid', files}
+                if (captureRejected) {
+                  core.warning('One or more capture artifacts failed strict PNG validation')
+                }
+                imageReport = {
+                  kind: captureRejected
+                    ? (files.size > 0 ? 'partial' : 'invalid')
+                    : 'valid',
+                  files,
+                }
               } catch (_error) {
                 core.warning('Capture artifacts failed strict validation')
                 imageReport = {kind: 'invalid', files: new Map()}
               }
             }
 
-            let reporterFailed = imageReport.kind === 'invalid'
+            let reporterFailed =
+              imageReport.kind === 'invalid' || imageReport.kind === 'partial'
             if (
               run.conclusion === 'success' &&
               (
                 imageReport.kind !== 'valid' ||
-                !imageReport.files.has('show-active-guide-off-actual.png') ||
-                !imageReport.files.has('show-active-guide-on-actual.png')
+                requiredImageNames.some(name => !imageReport.files.has(name))
               )
             ) {
-              core.warning('A successful visual test must provide both validated captures')
+              core.warning('A successful visual test must provide every validated capture')
               reporterFailed = true
             }
             if (
@@ -707,7 +882,10 @@ jobs:
             const repositoryUrl =
               `${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}`
             const publishedImages = new Map()
-            if (imageReport.kind === 'valid' && imageReport.files.size > 0) {
+            if (
+              (imageReport.kind === 'valid' || imageReport.kind === 'partial') &&
+              imageReport.files.size > 0
+            ) {
               const resultPaths = new Map([
                 [
                   'show-active-guide-off-actual.png',
@@ -717,15 +895,71 @@ jobs:
                   'show-active-guide-on-actual.png',
                   `pull/${pullNumber}/${linkedHeadSha}/option-on.png`,
                 ],
-                ['diff.png', `pull/${pullNumber}/${linkedHeadSha}/diff.png`],
+                [
+                  'intellij-integration-settings.png',
+                  `pull/${pullNumber}/${linkedHeadSha}/native/intellij-integration-settings.png`,
+                ],
+                [
+                  'intellij-highlight-on-caret-movement-settings.png',
+                  `pull/${pullNumber}/${linkedHeadSha}/native/` +
+                    'intellij-highlight-on-caret-movement-settings.png',
+                ],
+                [
+                  'native-highlight-modes-popup.png',
+                  `pull/${pullNumber}/${linkedHeadSha}/native/native-highlight-modes-popup.png`,
+                ],
+                [
+                  'native-guide-overlap-actual.png',
+                  `pull/${pullNumber}/${linkedHeadSha}/native/native-guide-overlap-actual.png`,
+                ],
+                [
+                  'native-guide-default-suppressed-actual.png',
+                  `pull/${pullNumber}/${linkedHeadSha}/native/` +
+                    'native-guide-default-suppressed-actual.png',
+                ],
+                [
+                  'plugin-guide-only-actual.png',
+                  `pull/${pullNumber}/${linkedHeadSha}/native/plugin-guide-only-actual.png`,
+                ],
+                [
+                  'native-guide-overlap-detail.png',
+                  `pull/${pullNumber}/${linkedHeadSha}/native/native-guide-overlap-detail.png`,
+                ],
+                [
+                  'native-guide-default-suppressed-detail.png',
+                  `pull/${pullNumber}/${linkedHeadSha}/native/` +
+                    'native-guide-default-suppressed-detail.png',
+                ],
+                [
+                  'plugin-guide-only-detail.png',
+                  `pull/${pullNumber}/${linkedHeadSha}/native/plugin-guide-only-detail.png`,
+                ],
+                [
+                  'native-guide-conflict-notification.png',
+                  `pull/${pullNumber}/${linkedHeadSha}/native/` +
+                    'native-guide-conflict-notification.png',
+                ],
+                [
+                  'native-guide-conflict-balloon.png',
+                  `pull/${pullNumber}/${linkedHeadSha}/native/native-guide-conflict-balloon.png`,
+                ],
+                [
+                  'native-guide-conflict-review-settings.png',
+                  `pull/${pullNumber}/${linkedHeadSha}/native/` +
+                    'native-guide-conflict-review-settings.png',
+                ],
+                [failureDiff.name, `pull/${pullNumber}/${linkedHeadSha}/diff-v2.png`],
               ])
               const filesToPublish = [...imageReport.files.entries()].filter(
-                ([name]) => name !== 'diff.png' || run.conclusion !== 'success',
+                ([name]) => name !== failureDiff.name || run.conclusion !== 'success',
               )
               if (filesToPublish.length === 0) {
                 reporterFailed = true
               } else {
                 try {
+                  if (filesToPublish.some(([name]) => !resultPaths.has(name))) {
+                    throw new Error('Capture has no fixed publication path')
+                  }
                   const branch = 'visual-test-results'
                   let parentCommitSha = null
                   try {
@@ -824,11 +1058,11 @@ jobs:
 
             const runUrl = `${repositoryUrl}/actions/runs/${runId}`
             const artifactLabels = new Map([
-              ['visual-test-metrics.json', 'Metrics JSON'],
+              ['visual-test-metrics-v2.json', 'Metrics JSON (v2)'],
               ['visual-test-diagnostics', 'Diagnostics'],
             ])
             const supportArtifactNames = [
-              'visual-test-metrics.json',
+              'visual-test-metrics-v2.json',
               'visual-test-diagnostics',
             ]
             const artifactLinks = supportArtifactNames
@@ -846,6 +1080,25 @@ jobs:
                 .toISOString()
                 .slice(0, 10)
 
+            const metricLabels = new Map([
+              ['show-active-guide-off', 'Active guide option OFF'],
+              ['show-active-guide-on', 'Active guide option ON'],
+              ['intellij-integration-settings', 'IntelliJ Integration settings'],
+              [
+                'intellij-highlight-on-caret-movement-settings',
+                'Highlight on Caret Movement settings',
+              ],
+              ['native-highlight-modes-popup', 'Native highlight modes'],
+              ['native-guide-overlap', 'Matched-brace native emphasis'],
+              ['native-guide-default-suppressed', 'Default native suppression'],
+              ['plugin-guide-only', 'Plugin guide only'],
+              ['native-guide-overlap-detail', 'Matched-brace emphasis detail'],
+              ['native-guide-default-suppressed-detail', 'Default suppression detail'],
+              ['plugin-guide-only-detail', 'Plugin-only detail'],
+              ['native-guide-conflict-notification', 'Native-emphasis notification'],
+              ['native-guide-conflict-balloon', 'Expanded notification'],
+              ['native-guide-conflict-review-settings', 'Review settings result'],
+            ])
             const details = []
             if (metricReport.kind === 'comparisons') {
               details.push(`Environment: \`${metricReport.environment}\``)
@@ -854,7 +1107,7 @@ jobs:
               details.push('| State | Size | Changed pixels | Max channel delta | Mean absolute delta |')
               details.push('| --- | ---: | ---: | ---: | ---: |')
               for (const comparison of metricReport.comparisons) {
-                const state = comparison.name === 'show-active-guide-off' ? 'OFF' : 'ON'
+                const state = metricLabels.get(comparison.name)
                 details.push(
                   `| ${state} | ${comparison.width}×${comparison.height} | ` +
                   `${comparison.changedPixels}/${comparison.totalPixels} | ` +
@@ -871,44 +1124,126 @@ jobs:
             }
 
             const gallery = []
-            const offImage = publishedImages.get('show-active-guide-off-actual.png')
-            const onImage = publishedImages.get('show-active-guide-on-actual.png')
-            const diffImage = publishedImages.get('diff.png')
-            if (offImage || onImage || diffImage) {
+            const addGallery = (summary, captures) => {
+              const available = captures.filter(capture => publishedImages.has(capture.name))
+              if (available.length === 0) return
               gallery.push('')
               gallery.push('<details>')
-              gallery.push('<summary>Editor captures — option OFF / ON</summary>')
+              gallery.push(`<summary>${summary}</summary>`)
               gallery.push('')
-              if (offImage && onImage) {
-                gallery.push('| Option OFF | Option ON |')
-                gallery.push('| --- | --- |')
-                gallery.push(
-                  `| ![Darcula editor with the active guide disabled](${offImage}) ` +
-                  `| ![Darcula editor with the active guide enabled](${onImage}) |`,
-                )
-              } else {
-                if (offImage) {
-                  gallery.push(`Option OFF: ![Darcula editor with the active guide disabled](${offImage})`)
-                }
-                if (onImage) {
-                  gallery.push(`Option ON: ![Darcula editor with the active guide enabled](${onImage})`)
-                }
-              }
-              if (diffImage) {
-                gallery.push('')
-                gallery.push('#### Baseline diff')
-                gallery.push('')
-                gallery.push(`![Visual difference from the committed baseline](${diffImage})`)
-              }
+              gallery.push(`| ${available.map(capture => capture.label).join(' | ')} |`)
+              gallery.push(`| ${available.map(() => '---').join(' | ')} |`)
+              gallery.push(
+                `| ${available.map(capture =>
+                  `![${capture.alt}](${publishedImages.get(capture.name)})`,
+                ).join(' | ')} |`,
+              )
               gallery.push('')
               gallery.push('</details>')
-            } else if (imageReport.kind === 'invalid') {
+            }
+
+            addGallery('Active-guide option captures', [
+              {
+                name: 'show-active-guide-off-actual.png',
+                label: 'Option OFF',
+                alt: 'Darcula editor with the active guide disabled',
+              },
+              {
+                name: 'show-active-guide-on-actual.png',
+                label: 'Option ON',
+                alt: 'Darcula editor with the active guide enabled',
+              },
+            ])
+            addGallery('Native integration settings', [
+              {
+                name: 'intellij-integration-settings.png',
+                label: 'Plugin integration settings',
+                alt: 'IntelliJ Integration controls in Bracket Pair Guides settings',
+              },
+              {
+                name: 'intellij-highlight-on-caret-movement-settings.png',
+                label: 'IntelliJ caret highlighting',
+                alt: 'IntelliJ Highlight on Caret Movement settings',
+              },
+              {
+                name: 'native-highlight-modes-popup.png',
+                label: 'Highlighting modes',
+                alt: 'Native guide highlighting mode choices',
+              },
+            ])
+            addGallery('Native guide editor states', [
+              {
+                name: 'native-guide-overlap-actual.png',
+                label: 'Matched-brace emphasis',
+                alt: 'IntelliJ guide emphasized beside the plugin guide',
+              },
+              {
+                name: 'native-guide-default-suppressed-actual.png',
+                label: 'Default suppression',
+                alt: 'Native emphasis suppressed while the regular guide remains',
+              },
+              {
+                name: 'plugin-guide-only-actual.png',
+                label: 'Plugin guide only',
+                alt: 'Plugin guide with the regular IntelliJ guide hidden',
+              },
+            ])
+            addGallery('Native guide details', [
+              {
+                name: 'native-guide-overlap-detail.png',
+                label: 'Matched-brace emphasis',
+                alt: 'Enlarged emphasized IntelliJ guide and plugin guide',
+              },
+              {
+                name: 'native-guide-default-suppressed-detail.png',
+                label: 'Default suppression',
+                alt: 'Enlarged dim IntelliJ guide beside the plugin guide',
+              },
+              {
+                name: 'plugin-guide-only-detail.png',
+                label: 'Plugin guide only',
+                alt: 'Enlarged plugin guide without the regular IntelliJ guide',
+              },
+            ])
+            addGallery('Native-emphasis notification flow', [
+              {
+                name: 'native-guide-conflict-notification.png',
+                label: 'Notification',
+                alt: 'Native guide emphasis notification in the IDE',
+              },
+              {
+                name: 'native-guide-conflict-balloon.png',
+                label: 'Expanded explanation',
+                alt: 'Expanded native guide emphasis notification',
+              },
+              {
+                name: 'native-guide-conflict-review-settings.png',
+                label: 'Review settings',
+                alt: 'IntelliJ Integration settings opened from the notification',
+              },
+            ])
+
+            const diffImage = publishedImages.get(failureDiff.name)
+            if (diffImage) {
+              gallery.push('')
+              gallery.push('<details>')
+              gallery.push('<summary>Baseline diff</summary>')
+              gallery.push('')
+              gallery.push(`![Visual difference from the committed baselines](${diffImage})`)
+              gallery.push('')
+              gallery.push('</details>')
+            }
+
+            if (gallery.length === 0 && imageReport.kind === 'invalid') {
               gallery.push('')
               gallery.push('Capture gallery: rejected by strict PNG validation.')
-            } else if (imageReport.kind === 'valid') {
+            } else if (
+              gallery.length === 0 &&
+              (imageReport.kind === 'valid' || imageReport.kind === 'partial')
+            ) {
               gallery.push('')
               gallery.push('Capture gallery: validated images could not be published.')
-            } else {
+            } else if (gallery.length === 0) {
               gallery.push('')
               gallery.push('Capture gallery: no editor images were produced.')
             }
