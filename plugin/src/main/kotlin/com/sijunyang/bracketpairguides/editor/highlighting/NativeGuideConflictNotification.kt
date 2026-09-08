@@ -198,10 +198,14 @@ internal object NativeGuideConflictBalloon {
     }
 
     private fun openIntegrationSettings(project: Project) {
-        ShowSettingsUtil.getInstance().showSettingsDialog(
-            project,
-            BracketGuideSettingsPage::class.java,
-        )
+        ApplicationManager.getApplication().invokeLater {
+            if (!project.isDisposed) {
+                ShowSettingsUtil.getInstance().showSettingsDialog(
+                    project,
+                    BracketGuideSettingsPage::class.java,
+                )
+            }
+        }
     }
 
     internal const val GROUP_ID = "Bracket Pair Guides Native Visual Conflict"

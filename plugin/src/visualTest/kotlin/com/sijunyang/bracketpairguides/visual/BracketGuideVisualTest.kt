@@ -73,6 +73,7 @@ class BracketGuideVisualTest {
                 applyVMOptionsPatch {
                     addSystemProperty("idea.trust.all.projects", true)
                     addSystemProperty("bracket.pair.guides.driver.test", true)
+                    addSystemProperty("ide.native.launcher", true)
                     addSystemProperty("ide.show.tips.on.startup.default.value", false)
                     addSystemProperty("ide.mac.message.dialogs.as.sheets", false)
                     addSystemProperty("ide.mac.file.chooser.native", false)
@@ -333,12 +334,33 @@ class BracketGuideVisualTest {
                             stableUiScreenshot(this),
                             artifacts.resolve("native-guide-conflict-notification.png"),
                         )
+                        val collapsedBalloonHeight = balloon.component.height
+                        val expandNotification = balloon.x {
+                            byJavaClass(NOTIFICATION_EXPAND_ACTION_CLASS)
+                        }
+                        assertTrue(
+                            expandNotification.present() &&
+                                expandNotification.component.isShowing(),
+                        )
+                        expandNotification.click()
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "native guide conflict notification did not expand",
+                        ) {
+                            balloon.component.height > collapsedBalloonHeight
+                        }
                         writePng(
                             stableUiScreenshot(balloon),
                             artifacts.resolve("native-guide-conflict-balloon.png"),
                         )
 
-                        reviewSettings.click()
+                        balloon.x {
+                            and(
+                                byType(NOTIFICATION_ACTION_TYPE),
+                                byVisibleText(NOTIFICATION_ACTION_TEXT),
+                            )
+                        }.click()
                         settingsDialog {
                             try {
                                 val settingsContent = content { }
@@ -840,6 +862,7 @@ class BracketGuideVisualTest {
                 "Review the integration settings if this is unintended."
         const val NOTIFICATION_ACTION_TEXT = "Review settings"
         const val NOTIFICATION_BALLOON_CLASS = "com.intellij.ui.BalloonImpl\$MyComponent"
+        const val NOTIFICATION_EXPAND_ACTION_CLASS = "com.intellij.ui.components.labels.LinkLabel"
         const val NOTIFICATION_ACTION_TYPE = "com.intellij.ui.components.labels.LinkLabel"
         const val NATIVE_HIGHLIGHTING_UNCHANGED_TEXT = "Leave IntelliJ highlighting unchanged"
         const val MACOS_ENVIRONMENT = "ideaIC-2024.2.6/macos-aarch64-darcula-scale1"
