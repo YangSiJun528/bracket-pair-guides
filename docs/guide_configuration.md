@@ -63,6 +63,16 @@ even when regular indent guides are hidden. Use the default highlighting mode,
 not only the indent-guide option, when native emphasis should be removed in
 both UIs.
 
+Compare the resulting New UI editor states at the same caret position:
+
+| IntelliJ highlighting unchanged | Default suppression | Plugin guide only |
+|---|---|---|
+| ![Native highlighting visibly overlaps the plugin guide](images/native-guide-overlap.png) | ![Prominent native highlighting suppressed while regular indent guides remain](images/native-guide-default-suppressed.png) | ![Native highlighting and regular indent guides hidden](images/plugin-guide-only.png) |
+
+The first state shows the adjacent native emphasis that triggers the advisory
+notification. The middle state is the default, which keeps regular dim indent
+guides. The final state also selects **Hide regular IntelliJ indent guides**.
+
 Choose a highlighting mode according to the native behavior you want:
 
 - **Hide matched-brace and Current scope highlighting** suppresses both rendered
@@ -103,6 +113,19 @@ multiline active vertical guide and detects that native matched-brace or Current
 scope highlighting can visibly emphasize another line. Select **Review
 settings** to open the **IntelliJ Integration** group and choose the intended
 combination.
+
+The notification appears in the lower-right corner of the IDE:
+
+![Native guide overlap notification in the IDE](images/native-guide-conflict-notification.png)
+
+Expand it to read the complete explanation and select **Review settings**:
+
+![Expanded native guide overlap notification](images/native-guide-conflict-balloon.png)
+
+The action opens the relevant settings page without changing the current
+selection:
+
+![IntelliJ Integration settings opened from the notification](images/native-guide-conflict-review-settings.png)
 
 The notification is advisory. Opening or closing it does not change plugin or
 IntelliJ settings. It is published only once across IDE processes and projects.
