@@ -14,6 +14,7 @@ import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.options.ConfigurableWithId
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.wm.WindowManager
@@ -148,7 +149,11 @@ object BracketGuideDriverBridge {
             if (!project.isDisposed) {
                 ShowSettingsUtil.getInstance().showSettingsDialog(
                     project,
-                    EDITOR_CODE_EDITING_SETTINGS_ID,
+                    { configurable ->
+                        (configurable as? ConfigurableWithId)?.id ==
+                            EDITOR_CODE_EDITING_SETTINGS_ID
+                    },
+                    {},
                 )
             }
         }
@@ -167,9 +172,6 @@ object BracketGuideDriverBridge {
     @JvmStatic
     fun revealEditorHighlightSettingsForCapture(): String = driverTestOnEdt(ModalityState.any()) {
         val window = settingsWindow() ?: return@driverTestOnEdt SETTINGS_NOT_VISIBLE
-        val group =
-            findComponentWithText(window, HIGHLIGHT_ON_CARET_MOVEMENT_TEXT)
-                ?: return@driverTestOnEdt SETTINGS_NOT_VISIBLE
         val matchedBrace =
             findComponentWithText(window, MATCHED_BRACE_TEXT)
                 ?: return@driverTestOnEdt SETTINGS_NOT_VISIBLE
@@ -180,11 +182,14 @@ object BracketGuideDriverBridge {
             Rectangle(0, 0, currentScope.width.coerceAtLeast(1), currentScope.height.coerceAtLeast(1)),
         )
         window.validate()
-        group.repaint()
         matchedBrace.repaint()
         currentScope.repaint()
         Toolkit.getDefaultToolkit().sync()
-        listOf(componentText(group), componentText(matchedBrace), componentText(currentScope)).joinToString(":")
+        listOf(
+            HIGHLIGHT_ON_CARET_MOVEMENT_TEXT,
+            componentText(matchedBrace),
+            componentText(currentScope),
+        ).joinToString(":")
     }
 
     @JvmStatic

@@ -118,9 +118,9 @@ client-backed editor paths are left unchanged.
 
 Bracket Pair Guides can show one informational balloon after it displays a
 multiline active vertical guide and detects that **Matched brace** or **Current
-scope** can visibly emphasize an existing IntelliJ indent guide beside it.
-Select **Review settings** to open the **IntelliJ Integration** group and choose
-the intended combination.
+scope** can visibly emphasize an existing IntelliJ indent guide beside it in the
+New UI, or a gutter-side marker in the Classic UI. Select **Review settings** to
+open the **IntelliJ Integration** group and choose the intended combination.
 
 The notification appears in the lower-right corner of the IDE:
 

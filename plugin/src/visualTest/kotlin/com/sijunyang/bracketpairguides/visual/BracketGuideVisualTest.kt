@@ -1060,7 +1060,7 @@ class BracketGuideVisualTest {
             "$HIGHLIGHT_ON_CARET_MOVEMENT_TEXT:$MATCHED_BRACE_TEXT:$CURRENT_SCOPE_TEXT"
         const val NOTIFICATION_TITLE = "IntelliJ may emphasize an adjacent guide"
         const val NOTIFICATION_CONTENT =
-            "Matched brace or Current scope may emphasize an existing IntelliJ indent guide " +
+            "Matched brace or Current scope may emphasize a nearby IntelliJ guide or marker " +
                 "beside Bracket Pair Guides. Review the integration settings if this is unintended."
         const val NOTIFICATION_ACTION_TEXT = "Review settings"
         const val NOTIFICATION_BALLOON_CLASS = "com.intellij.ui.BalloonImpl\$MyComponent"
