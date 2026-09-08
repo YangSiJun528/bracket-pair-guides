@@ -25,8 +25,8 @@ The default active presentation uses only the vertical and horizontal guide
 segments. Enable either pair option when the two active symbols need additional
 emphasis.
 
-Use the **IntelliJ Integration** group to control native highlighting and indent
-guides that can appear beside a multiline active guide.
+Use the **IntelliJ Integration** group to control native emphasis and the
+physical indent-guide lines that can appear beside a multiline active guide.
 
 ## Adjust IntelliJ guide rendering
 
@@ -36,8 +36,15 @@ Integration** group. The three controls work together as follows:
 | Setting | Default | Effect |
 |---|---:|---|
 | Adjust IntelliJ guide rendering while Bracket Pair Guides is enabled | On | Applies the selected native highlighting and indent-guide choices |
-| Native guide highlighting | Hide matched-brace and Current scope highlighting | Reduces prominent native highlighting by suppressing IntelliJ's matched-brace processing |
+| Native guide highlighting | Hide matched-brace and Current scope highlighting | Controls whether IntelliJ can emphasize an existing native indent guide |
 | Hide regular IntelliJ indent guides | Off | Removes the physical native indent-guide lines when enabled |
+
+**Matched brace** and **Current scope** are IntelliJ checkboxes under
+**Settings | Editor | General | Highlight on Caret Movement**. **Current scope**
+is not a separate vertical-line option. In the New UI, both settings can change
+the color or prominence of an existing indent guide. The physical line itself
+is controlled by **Show indent guides** under
+**Settings | Editor | General | Appearance**.
 
 The default keeps useful regular IntelliJ indent guides. In the New UI, a dim
 native indent guide can therefore remain beside the plugin's active vertical
@@ -55,23 +62,24 @@ explicit per-editor override can continue to show indent guides; the plugin
 detects that effective value but does not overwrite the override.
 
 Hiding native highlighting and hiding regular indent guides solve different
-problems. In the New UI, matched-brace and Current scope highlighting can
-emphasize an existing indent guide; they do not create a second physical guide.
-The regular guide remains dim when its highlighting is suppressed. In the
-Classic UI, native brace highlighting can instead paint a gutter-side marker
-even when regular indent guides are hidden. Use the default highlighting mode,
-not only the indent-guide option, when native emphasis should be removed in
-both UIs.
+problems. With **Show indent guides** enabled, its physical line can sit beside
+the plugin guide. **Matched brace** and **Current scope** only emphasize that
+existing line in the New UI; they do not add another physical line. The regular
+guide remains dim when its highlighting is suppressed. In the Classic UI,
+native brace highlighting can instead paint a gutter-side marker even when
+regular indent guides are hidden. Use the default highlighting mode, not only
+the indent-guide option, when native emphasis should be removed in both UIs.
 
 Compare the resulting New UI editor states at the same caret position:
 
-| IntelliJ highlighting unchanged | Default suppression | Plugin guide only |
+| IntelliJ emphasis enabled | Default suppression | Plugin guide only |
 |---|---|---|
-| ![Native highlighting visibly overlaps the plugin guide](images/native-guide-overlap.png) | ![Prominent native highlighting suppressed while regular indent guides remain](images/native-guide-default-suppressed.png) | ![Native highlighting and regular indent guides hidden](images/plugin-guide-only.png) |
+| ![Existing IntelliJ indent guide emphasized beside the plugin guide](images/native-guide-overlap.png) | ![Native emphasis suppressed while the regular indent guide remains](images/native-guide-default-suppressed.png) | ![Native emphasis and the regular indent guide hidden](images/plugin-guide-only.png) |
 
-The first state shows the adjacent native emphasis that triggers the advisory
-notification. The middle state is the default, which keeps regular dim indent
-guides. The final state also selects **Hide regular IntelliJ indent guides**.
+In the first state, **Show indent guides** supplies the adjacent physical line;
+native highlighting only emphasizes it. That emphasis triggers the advisory
+notification. The middle state is the default, which keeps the same regular
+line dim. The final state also selects **Hide regular IntelliJ indent guides**.
 
 Choose a highlighting mode according to the native behavior you want:
 
@@ -102,25 +110,25 @@ Because these IntelliJ settings are Boolean values, another component writing
 as a separate change. The plugin retains its recorded original value in that
 case and restores it when ownership ends.
 
-Native-setting management and overlap notifications initially apply only to
-standard local editors. Remote Development, Code With Me, and other client-backed
-editor paths are left unchanged.
+Native-setting management and native-emphasis notifications initially apply
+only to standard local editors. Remote Development, Code With Me, and other
+client-backed editor paths are left unchanged.
 
-### Respond to the overlap notification
+### Respond to the native-emphasis notification
 
 Bracket Pair Guides can show one informational balloon after it displays a
-multiline active vertical guide and detects that native matched-brace or Current
-scope highlighting can visibly emphasize another line. Select **Review
-settings** to open the **IntelliJ Integration** group and choose the intended
-combination.
+multiline active vertical guide and detects that **Matched brace** or **Current
+scope** can visibly emphasize an existing IntelliJ indent guide beside it.
+Select **Review settings** to open the **IntelliJ Integration** group and choose
+the intended combination.
 
 The notification appears in the lower-right corner of the IDE:
 
-![Native guide overlap notification in the IDE](images/native-guide-conflict-notification.png)
+![Native guide emphasis notification in the IDE](images/native-guide-conflict-notification.png)
 
 Expand it to read the complete explanation and select **Review settings**:
 
-![Expanded native guide overlap notification](images/native-guide-conflict-balloon.png)
+![Expanded native guide emphasis notification](images/native-guide-conflict-balloon.png)
 
 The action opens the relevant settings page without changing the current
 selection:

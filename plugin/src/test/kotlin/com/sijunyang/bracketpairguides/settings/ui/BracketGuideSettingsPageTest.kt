@@ -272,7 +272,10 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
             val info = component.editorPane("nativeVisualCoexistenceInfo")
             val restoration = component.editorPane("nativeVisualRestorationNote")
 
-            assertThat(info.text).contains("two adjacent vertical lines")
+            assertThat(info.text)
+                .contains("emphasize an existing IntelliJ indent")
+                .contains("they do not create a line")
+                .contains("physical line beside the active bracket guide")
             assertThat(info.isVisible).isTrue()
             assertThat(restoration.text).contains("Original IntelliJ settings are restored")
             assertThat(restoration.isVisible).isTrue()

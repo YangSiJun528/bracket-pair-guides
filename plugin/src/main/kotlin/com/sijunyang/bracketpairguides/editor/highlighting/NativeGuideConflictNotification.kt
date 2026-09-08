@@ -213,9 +213,10 @@ internal object NativeGuideConflictBalloon {
     }
 
     internal const val GROUP_ID = "Bracket Pair Guides Native Visual Conflict"
-    internal const val TITLE = "IntelliJ guide highlighting may overlap"
+    internal const val TITLE = "IntelliJ may emphasize an adjacent guide"
     internal const val CONTENT =
-        "IntelliJ highlighting may draw another line beside Bracket Pair Guides. " +
+        "Matched brace or Current scope may emphasize an existing IntelliJ indent guide " +
+            "beside Bracket Pair Guides. " +
             "Review the integration settings if this is unintended."
     internal const val ACTION_TEXT = "Review settings"
 }

@@ -8,6 +8,8 @@ import com.intellij.notification.Notification
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.LogicalPosition
+import com.intellij.openapi.editor.VisualPosition
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
@@ -21,14 +23,19 @@ import com.sijunyang.bracketpairguides.editor.events.BracketGuideSettingsControl
 import com.sijunyang.bracketpairguides.editor.highlighting.NativeGuideConflictBalloon
 import com.sijunyang.bracketpairguides.editor.highlighting.NativeGuideConflictNotification
 import com.sijunyang.bracketpairguides.preferences.NativeHighlightMode
+import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPage
 import java.awt.Component
 import java.awt.Container
 import java.awt.Frame
+import java.awt.Rectangle
 import java.awt.Toolkit
 import java.awt.Window
+import javax.swing.AbstractButton
 import javax.swing.JComboBox
+import javax.swing.JComponent
+import javax.swing.JLabel
 
 /**
  * Stable, dependency-free JMX boundary for out-of-process Driver tests.
@@ -133,12 +140,51 @@ object BracketGuideDriverBridge {
     }
 
     @JvmStatic
+    fun openEditorGeneralSettingsForCapture(filePathSuffix: String): Boolean = driverTestOnEdt {
+        val project = checkNotNull(editorForFile(filePathSuffix)?.project?.takeUnless { it.isDisposed }) {
+            "No open project found for $filePathSuffix"
+        }
+        ApplicationManager.getApplication().invokeLater {
+            if (!project.isDisposed) {
+                ShowSettingsUtil.getInstance().showSettingsDialog(
+                    project,
+                    EDITOR_CODE_EDITING_SETTINGS_ID,
+                )
+            }
+        }
+        true
+    }
+
+    @JvmStatic
     fun raiseSettingsForCapture(): Boolean = driverTestOnEdt(ModalityState.any()) {
         val window = settingsWindow() ?: return@driverTestOnEdt false
         window.isAlwaysOnTop = true
         window.toFront()
         window.requestFocus()
         window.isShowing && window.isAlwaysOnTop
+    }
+
+    @JvmStatic
+    fun revealEditorHighlightSettingsForCapture(): String = driverTestOnEdt(ModalityState.any()) {
+        val window = checkNotNull(settingsWindow()) { "Settings is not visible" }
+        val group = checkNotNull(findComponentWithText(window, HIGHLIGHT_ON_CARET_MOVEMENT_TEXT)) {
+            "$HIGHLIGHT_ON_CARET_MOVEMENT_TEXT is not present"
+        }
+        val matchedBrace = checkNotNull(findComponentWithText(window, MATCHED_BRACE_TEXT)) {
+            "$MATCHED_BRACE_TEXT is not present"
+        }
+        val currentScope = checkNotNull(findComponentWithText(window, CURRENT_SCOPE_TEXT)) {
+            "$CURRENT_SCOPE_TEXT is not present"
+        }
+        currentScope.scrollRectToVisible(
+            Rectangle(0, 0, currentScope.width.coerceAtLeast(1), currentScope.height.coerceAtLeast(1)),
+        )
+        window.validate()
+        group.repaint()
+        matchedBrace.repaint()
+        currentScope.repaint()
+        Toolkit.getDefaultToolkit().sync()
+        listOf(componentText(group), componentText(matchedBrace), componentText(currentScope)).joinToString(":")
     }
 
     @JvmStatic
@@ -151,7 +197,33 @@ object BracketGuideDriverBridge {
     }
 
     @JvmStatic
-    fun prepareNativeOverlapForCapture(filePathSuffix: String): String = driverTestOnEdt {
+    fun showNativeHighlightModePopupForCapture(): String = driverTestOnEdt(ModalityState.any()) {
+        val window = checkNotNull(settingsWindow()) { "Settings is not visible" }
+        val modeControl =
+            checkNotNull(
+                findShowingComponent(window, NATIVE_HIGHLIGHT_MODE_COMPONENT_NAME) as? JComboBox<*>,
+            ) { "Native highlighting mode control is not visible" }
+        modeControl.showPopup()
+        Toolkit.getDefaultToolkit().sync()
+        val items =
+            (0 until modeControl.itemCount).joinToString(",") { index ->
+                (modeControl.getItemAt(index) as NativeHighlightMode).name
+            }
+        "${modeControl.isPopupVisible}:$items"
+    }
+
+    @JvmStatic
+    fun hideNativeHighlightModePopupAfterCapture(): Boolean = driverTestOnEdt(ModalityState.any()) {
+        val window = settingsWindow() ?: return@driverTestOnEdt false
+        val modeControl =
+            findShowingComponent(window, NATIVE_HIGHLIGHT_MODE_COMPONENT_NAME) as? JComboBox<*>
+                ?: return@driverTestOnEdt false
+        modeControl.hidePopup()
+        modeControl.isPopupVisible.not()
+    }
+
+    @JvmStatic
+    fun prepareNativeDefaultSuppressionForCapture(filePathSuffix: String): String = driverTestOnEdt {
         val editor = checkNotNull(editorForFile(filePathSuffix)) {
             "No editor found for $filePathSuffix"
         }
@@ -167,6 +239,34 @@ object BracketGuideDriverBridge {
                 intelliJIntegration =
                 current.intelliJIntegration.copy(
                     manageNativeVisuals = true,
+                    nativeHighlightMode = NativeHighlightMode.SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE,
+                    hideNativeIndentGuides = false,
+                ),
+            ),
+        )
+        CodeInsightSettings.getInstance().apply {
+            HIGHLIGHT_BRACES = false
+            HIGHLIGHT_SCOPE = false
+        }
+        EditorSettingsExternalizable.getInstance().isIndentGuidesShown = true
+        editor.settings.isIndentGuidesShown = true
+        editor.project?.takeUnless { it.isDisposed }?.let { project ->
+            DaemonCodeAnalyzer.getInstance(project).restart()
+        }
+        nativeVisualState(filePathSuffix)
+    }
+
+    @JvmStatic
+    fun prepareNativeMatchedBraceEmphasisForCapture(filePathSuffix: String): String = driverTestOnEdt {
+        val editor = checkNotNull(editorForFile(filePathSuffix)) {
+            "No editor found for $filePathSuffix"
+        }
+        val current = BracketGuideSettings.getInstance().options
+        BracketGuideSettingsController.getInstance().applySettings(
+            current.copy(
+                intelliJIntegration =
+                current.intelliJIntegration.copy(
+                    manageNativeVisuals = true,
                     nativeHighlightMode = NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED,
                     hideNativeIndentGuides = false,
                 ),
@@ -174,7 +274,9 @@ object BracketGuideDriverBridge {
         )
         CodeInsightSettings.getInstance().apply {
             HIGHLIGHT_BRACES = true
-            HIGHLIGHT_SCOPE = true
+            // This capture proves the direct matched-brace case independently
+            // of IntelliJ's Current scope setting.
+            HIGHLIGHT_SCOPE = false
         }
         EditorSettingsExternalizable.getInstance().isIndentGuidesShown = true
         editor.settings.isIndentGuidesShown = true
@@ -210,6 +312,41 @@ object BracketGuideDriverBridge {
         val editor = editorForFile(filePathSuffix) ?: return@driverTestOnEdt NO_EDITOR
         val session = EditorGuideSessions.get(editor) ?: return@driverTestOnEdt NO_SESSION
         if (session.isActiveGuideVisible) VISIBLE else HIDDEN
+    }
+
+    @JvmStatic
+    fun activeGuideBodyRoi(filePathSuffix: String): String = driverTestOnEdt {
+        val editor = checkNotNull(editorForFile(filePathSuffix)) {
+            "No editor found for $filePathSuffix"
+        }
+        val guide =
+            checkNotNull(
+                editor.markupModel.allHighlighters
+                    .asSequence()
+                    .mapNotNull { highlighter -> highlighter.customRenderer as? BracketGuideDrawing }
+                    .map(BracketGuideDrawing::guide)
+                    .firstOrNull(),
+            ) { "No active Bracket Pair Guides renderer found for $filePathSuffix" }
+        check(guide.pair.openLine < guide.pair.closeLine) {
+            "The active guide is not multiline"
+        }
+        val anchorVisualLine =
+            editor.logicalToVisualPosition(
+                LogicalPosition(
+                    guide.anchorLine.coerceIn(guide.pair.openLine, guide.pair.closeLine),
+                    0,
+                ),
+            ).line
+        val guideX =
+            editor.visualPositionToXY(
+                VisualPosition(anchorVisualLine, guide.guideColumn),
+            ).x
+        val startY = editor.offsetToXY(guide.pair.openOffset).y + editor.lineHeight
+        val endY = editor.offsetToXY(guide.pair.closeOffset).y - 1
+        check(endY >= startY) { "The active guide has no body-only visual rows" }
+        val left = (guideX - GUIDE_ROI_LEFT_PADDING).coerceAtLeast(0)
+        val right = guideX + GUIDE_ROI_RIGHT_PADDING
+        "$left:$startY:${right - left + 1}:${endY - startY + 1}"
     }
 
     @JvmStatic
@@ -299,6 +436,22 @@ object BracketGuideDriverBridge {
         return null
     }
 
+    private fun findComponentWithText(root: Container, text: String): JComponent? {
+        for (component in root.components) {
+            if (component is JComponent && componentText(component) == text) return component
+            if (component is Container) {
+                findComponentWithText(component, text)?.let { return it }
+            }
+        }
+        return null
+    }
+
+    private fun componentText(component: JComponent): String? = when (component) {
+        is AbstractButton -> component.text
+        is JLabel -> component.text
+        else -> null
+    }
+
     private fun <T> driverTestOnEdt(modalityState: ModalityState = ModalityState.nonModal(), action: () -> T): T {
         check(System.getProperty(DRIVER_TEST_PROPERTY) == "true") {
             "$DRIVER_TEST_PROPERTY must be true; this API is reserved for visual tests"
@@ -325,8 +478,14 @@ object BracketGuideDriverBridge {
     private const val NEW_UI = "NEW_UI"
     private const val CLASSIC_UI = "CLASSIC_UI"
     private const val SETTINGS_TITLE = "Settings"
+    private const val EDITOR_CODE_EDITING_SETTINGS_ID = "preferences.editor.code.editing"
     private const val SETTINGS_NOT_VISIBLE = "SETTINGS_NOT_VISIBLE"
+    private const val HIGHLIGHT_ON_CARET_MOVEMENT_TEXT = "Highlight on Caret Movement"
+    private const val MATCHED_BRACE_TEXT = "Matched brace"
+    private const val CURRENT_SCOPE_TEXT = "Current scope"
     private const val NATIVE_HIGHLIGHT_MODE_COMPONENT_NAME = "nativeHighlightMode"
     private const val NATIVE_RESTORATION_NOTE_COMPONENT_NAME = "nativeVisualRestorationNote"
     private const val DRIVER_TEST_PROPERTY = "bracket.pair.guides.driver.test"
+    private const val GUIDE_ROI_LEFT_PADDING = 3
+    private const val GUIDE_ROI_RIGHT_PADDING = 1
 }

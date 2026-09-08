@@ -237,8 +237,9 @@ internal class BracketGuideSettingsPage(
                         )
                 row {
                     comment(
-                        "IntelliJ visuals left enabled may appear beside the active bracket guide. " +
-                            "Keeping indent guides can result in two adjacent vertical lines.",
+                        "Matched brace and Current scope can emphasize an existing IntelliJ " +
+                            "indent guide; they do not create a line. Keeping indent guides can " +
+                            "place that physical line beside the active bracket guide.",
                     ).applyToComponent {
                         name = "nativeVisualCoexistenceInfo"
                     }

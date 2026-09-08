@@ -26,6 +26,7 @@ import com.intellij.ide.starter.runner.Starter
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.awt.Color
+import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.nio.file.Files
 import java.nio.file.Path
@@ -159,16 +160,76 @@ class BracketGuideVisualTest {
                                 stableUiScreenshot(this),
                                 artifacts.resolve("intellij-integration-settings.png"),
                             )
+                            assertTrue(
+                                bridge.showNativeHighlightModePopupForCapture() ==
+                                    NATIVE_HIGHLIGHT_MODES_POPUP_STATE,
+                            )
+                            try {
+                                writePng(
+                                    stableUiScreenshot(this),
+                                    artifacts.resolve("native-highlight-modes-popup.png"),
+                                )
+                            } finally {
+                                assertTrue(bridge.hideNativeHighlightModePopupAfterCapture())
+                            }
+                        } finally {
+                            assertTrue(bridge.closeSettingsAfterCapture())
+                        }
+                    }
+                    waitForNoOpenedDialogs()
+                    assertTrue(bridge.openEditorGeneralSettingsForCapture(SAMPLE_FILE))
+                    settingsDialog {
+                        try {
+                            val settingsContent = content { }
+                            val highlightGroup = x { byVisibleText(HIGHLIGHT_ON_CARET_MOVEMENT_TEXT) }
+                            val matchedBrace = x { byVisibleText(MATCHED_BRACE_TEXT) }
+                            val currentScope = x { byVisibleText(CURRENT_SCOPE_TEXT) }
+                            waitFor(
+                                30.seconds,
+                                100.milliseconds,
+                                "IntelliJ Highlight on Caret Movement settings did not become visible",
+                            ) {
+                                bridge.revealEditorHighlightSettingsForCapture() ==
+                                    HIGHLIGHT_SETTINGS_VISIBLE_STATE &&
+                                    isVerticallyContained(
+                                        highlightGroup,
+                                        currentScope,
+                                        settingsContent,
+                                    ) &&
+                                    matchedBrace.present() &&
+                                    matchedBrace.component.isShowing()
+                            }
+                            waitFor(
+                                30.seconds,
+                                100.milliseconds,
+                                "the IntelliJ Settings dialog did not become the foreground capture window",
+                            ) {
+                                bridge.raiseSettingsForCapture()
+                            }
+                            writePng(
+                                stableUiScreenshot(this),
+                                artifacts.resolve(
+                                    "intellij-highlight-on-caret-movement-settings.png",
+                                ),
+                            )
                         } finally {
                             assertTrue(bridge.closeSettingsAfterCapture())
                         }
                     }
                     waitForNoOpenedDialogs()
                     val editor = codeEditor()
-                    editor.setCaretPosition(line = CARET_LINE, column = CARET_COLUMN)
+                    assertTrue(
+                        bridge.prepareNativeDefaultSuppressionForCapture(SAMPLE_FILE) ==
+                            "false:false:true:true:NEW_UI",
+                    )
+                    editor.setCaretPosition(
+                        line = NATIVE_CONFLICT_CARET_LINE,
+                        column = NATIVE_CONFLICT_CARET_COLUMN,
+                    )
                     waitForCodeAnalysis(project, sample, 5.minutes)
                     assertTrue(
-                        bridge.prepareEditorForCapture(SAMPLE_FILE) == "$CARET_LINE:$CARET_COLUMN",
+                        bridge.prepareEditorForCapture(SAMPLE_FILE) ==
+                            "$NATIVE_CONFLICT_CARET_LINE:$NATIVE_CONFLICT_CARET_COLUMN",
                     )
                     waitFor(
                         30.seconds,
@@ -182,14 +243,17 @@ class BracketGuideVisualTest {
                         bridge.activeGuideState(SAMPLE_FILE) == "VISIBLE"
                     }
                     assertTrue(
-                        bridge.prepareEditorForCapture(SAMPLE_FILE) == "$CARET_LINE:$CARET_COLUMN",
+                        bridge.prepareEditorForCapture(SAMPLE_FILE) ==
+                            "$NATIVE_CONFLICT_CARET_LINE:$NATIVE_CONFLICT_CARET_COLUMN",
                     )
                     val nativeIndentGuidesVisible = stableScreenshot(editor)
+                    val nativeGuideRoi = ImageRegion.parse(bridge.activeGuideBodyRoi(SAMPLE_FILE))
                     assertTrue(bridge.setHideNativeIndentGuides(SAMPLE_FILE, true) == "false:true")
                     assertTrue(bridge.setEditorIndentGuides(SAMPLE_FILE, false) == "false:false")
                     waitForCodeAnalysis(project, sample, 5.minutes)
                     assertTrue(
-                        bridge.prepareEditorForCapture(SAMPLE_FILE) == "$CARET_LINE:$CARET_COLUMN",
+                        bridge.prepareEditorForCapture(SAMPLE_FILE) ==
+                            "$NATIVE_CONFLICT_CARET_LINE:$NATIVE_CONFLICT_CARET_COLUMN",
                     )
                     val pluginGuideOnly = stableScreenshot(editor)
                     writePng(
@@ -208,15 +272,30 @@ class BracketGuideVisualTest {
                         pluginGuideOnly,
                         artifacts.resolve("plugin-guide-only-actual.png"),
                     )
-                    assertMeaningfulDifference(
+                    assertVerticalGuideDifference(
                         "native indent guides visible and hidden",
                         nativeIndentGuidesVisible,
                         pluginGuideOnly,
+                        nativeGuideRoi,
+                    )
+                    writeGuideDetail(
+                        nativeIndentGuidesVisible,
+                        nativeGuideRoi,
+                        artifacts.resolve("native-guide-default-suppressed-detail.png"),
+                    )
+                    writeGuideDetail(
+                        pluginGuideOnly,
+                        nativeGuideRoi,
+                        artifacts.resolve("plugin-guide-only-detail.png"),
                     )
                     assertTrue(bridge.activeGuideState(SAMPLE_FILE) == "VISIBLE")
                     assertTrue(bridge.setHideNativeIndentGuides(SAMPLE_FILE, false) == "true:false")
                     assertTrue(bridge.setEditorIndentGuides(SAMPLE_FILE, true) == "true:true")
                     waitForCodeAnalysis(project, sample, 5.minutes)
+                    editor.setCaretPosition(line = CARET_LINE, column = CARET_COLUMN)
+                    assertTrue(
+                        bridge.prepareEditorForCapture(SAMPLE_FILE) == "$CARET_LINE:$CARET_COLUMN",
+                    )
                     writeUiGeometry(
                         artifacts = artifacts,
                         frameWidth = component.width,
@@ -262,13 +341,17 @@ class BracketGuideVisualTest {
                         environment = environment,
                     )
 
+                    assertTrue(
+                        bridge.prepareNativeMatchedBraceEmphasisForCapture(SAMPLE_FILE) ==
+                            "true:false:true:true:NEW_UI",
+                    )
+                    editor.setCaretPosition(
+                        line = NATIVE_TRIGGER_AWAY_LINE,
+                        column = NATIVE_TRIGGER_AWAY_COLUMN,
+                    )
                     editor.setCaretPosition(
                         line = NATIVE_CONFLICT_CARET_LINE,
                         column = NATIVE_CONFLICT_CARET_COLUMN,
-                    )
-                    assertTrue(
-                        bridge.prepareNativeOverlapForCapture(SAMPLE_FILE) ==
-                            "true:true:true:true:NEW_UI",
                     )
                     waitForCodeAnalysis(project, sample, 5.minutes)
                     waitFor(
@@ -282,15 +365,49 @@ class BracketGuideVisualTest {
                         bridge.prepareEditorForCapture(SAMPLE_FILE) ==
                             "$NATIVE_CONFLICT_CARET_LINE:$NATIVE_CONFLICT_CARET_COLUMN",
                     )
+                    var latestNativeEmphasisCandidate: BufferedImage? = null
+                    try {
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "matched-brace emphasis did not change the native guide body",
+                        ) {
+                            cropStableRegion(editor.getScreenshot()).let { candidate ->
+                                latestNativeEmphasisCandidate = candidate
+                                hasVerticalGuideDifference(
+                                    nativeIndentGuidesVisible,
+                                    candidate,
+                                    nativeGuideRoi,
+                                )
+                            }
+                        }
+                    } finally {
+                        latestNativeEmphasisCandidate?.let { candidate ->
+                            writePng(
+                                candidate,
+                                artifacts.resolve("native-guide-overlap-candidate.png"),
+                            )
+                        }
+                    }
                     val nativeOverlap = stableScreenshot(editor)
                     writePng(
                         nativeOverlap,
                         artifacts.resolve("native-guide-overlap-actual.png"),
                     )
-                    assertMeaningfulDifference(
-                        "native highlighted overlap and default suppression",
-                        nativeOverlap,
+                    writePng(
+                        ImageDiff.compare(nativeIndentGuidesVisible, nativeOverlap).difference,
+                        artifacts.resolve("native-guide-emphasis-diff.png"),
+                    )
+                    assertVerticalGuideDifference(
+                        "matched-brace emphasis and default suppression",
                         nativeIndentGuidesVisible,
+                        nativeOverlap,
+                        nativeGuideRoi,
+                    )
+                    writeGuideDetail(
+                        nativeOverlap,
+                        nativeGuideRoi,
+                        artifacts.resolve("native-guide-overlap-detail.png"),
                     )
 
                     val nativeStateBeforeReview = bridge.nativeVisualState(SAMPLE_FILE)
@@ -647,6 +764,91 @@ class BracketGuideVisualTest {
         )
     }
 
+    private fun assertVerticalGuideDifference(
+        description: String,
+        first: BufferedImage,
+        second: BufferedImage,
+        region: ImageRegion,
+    ) {
+        validateRegion(first, second, region)
+        val longestRun = longestChangedRunInOneColumn(first, second, region)
+        val requiredRun = maxOf(MINIMUM_VERTICAL_GUIDE_RUN, (region.height * 3 + 3) / 4)
+        assertTrue(
+            longestRun >= requiredRun,
+            "$description changed at most $longestRun consecutive pixels in one guide column; " +
+                "required $requiredRun inside $region",
+        )
+    }
+
+    private fun hasVerticalGuideDifference(first: BufferedImage, second: BufferedImage, region: ImageRegion): Boolean {
+        if (first.width != second.width || first.height != second.height) return false
+        if (!region.fits(first)) return false
+        val requiredRun = maxOf(MINIMUM_VERTICAL_GUIDE_RUN, (region.height * 3 + 3) / 4)
+        return longestChangedRunInOneColumn(first, second, region) >= requiredRun
+    }
+
+    private fun longestChangedRunInOneColumn(first: BufferedImage, second: BufferedImage, region: ImageRegion): Int {
+        var longest = 0
+        for (x in region.x until region.x + region.width) {
+            var current = 0
+            for (y in region.y until region.y + region.height) {
+                if (first.getRGB(x, y) != second.getRGB(x, y)) {
+                    current++
+                    longest = maxOf(longest, current)
+                } else {
+                    current = 0
+                }
+            }
+        }
+        return longest
+    }
+
+    private fun validateRegion(first: BufferedImage, second: BufferedImage, region: ImageRegion) {
+        require(first.width == second.width && first.height == second.height) {
+            "Image dimensions differ: ${first.width}x${first.height} and ${second.width}x${second.height}"
+        }
+        require(region.fits(first)) {
+            "Guide region $region is outside ${first.width}x${first.height}"
+        }
+    }
+
+    private fun writeGuideDetail(image: BufferedImage, region: ImageRegion, target: Path) {
+        require(region.fits(image)) { "Guide region $region is outside ${image.width}x${image.height}" }
+        val left = (region.x - GUIDE_DETAIL_HORIZONTAL_PADDING).coerceAtLeast(0)
+        val top = (region.y - GUIDE_DETAIL_VERTICAL_PADDING).coerceAtLeast(0)
+        val right =
+            (region.x + region.width + GUIDE_DETAIL_HORIZONTAL_PADDING).coerceAtMost(image.width)
+        val bottom =
+            (region.y + region.height + GUIDE_DETAIL_VERTICAL_PADDING).coerceAtMost(image.height)
+        val width = right - left
+        val height = bottom - top
+        val detail =
+            BufferedImage(
+                width * GUIDE_DETAIL_SCALE,
+                height * GUIDE_DETAIL_SCALE,
+                BufferedImage.TYPE_INT_ARGB,
+            )
+        detail.createGraphics().use { graphics ->
+            graphics.setRenderingHint(
+                RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR,
+            )
+            graphics.drawImage(
+                image,
+                0,
+                0,
+                detail.width,
+                detail.height,
+                left,
+                top,
+                right,
+                bottom,
+                null,
+            )
+        }
+        writePng(detail, target)
+    }
+
     private fun cropStableRegion(screenshot: BufferedImage): BufferedImage {
         require(screenshot.width >= CROP_WIDTH && screenshot.height >= CROP_HEIGHT) {
             "Code editor is too small for the pinned crop: ${screenshot.width}x${screenshot.height}"
@@ -839,21 +1041,35 @@ class BracketGuideVisualTest {
         const val CARET_COLUMN = 20
         const val NATIVE_CONFLICT_CARET_LINE = 6
         const val NATIVE_CONFLICT_CARET_COLUMN = 62
+        const val NATIVE_TRIGGER_AWAY_LINE = 7
+        const val NATIVE_TRIGGER_AWAY_COLUMN = 20
         const val EDITOR_FONT = "JetBrains Mono"
         const val EDITOR_FONT_SIZE = 14
         const val CROP_WIDTH = 220
         const val CROP_HEIGHT = 240
         const val MINIMUM_STATE_DIFFERENCE_PIXELS = 20L
+        const val MINIMUM_VERTICAL_GUIDE_RUN = 8
+        const val GUIDE_DETAIL_HORIZONTAL_PADDING = 8
+        const val GUIDE_DETAIL_VERTICAL_PADDING = 2
+        const val GUIDE_DETAIL_SCALE = 6
         const val THEME = "Darcula"
-        const val NOTIFICATION_TITLE = "IntelliJ guide highlighting may overlap"
+        const val HIGHLIGHT_ON_CARET_MOVEMENT_TEXT = "Highlight on Caret Movement"
+        const val MATCHED_BRACE_TEXT = "Matched brace"
+        const val CURRENT_SCOPE_TEXT = "Current scope"
+        const val HIGHLIGHT_SETTINGS_VISIBLE_STATE =
+            "$HIGHLIGHT_ON_CARET_MOVEMENT_TEXT:$MATCHED_BRACE_TEXT:$CURRENT_SCOPE_TEXT"
+        const val NOTIFICATION_TITLE = "IntelliJ may emphasize an adjacent guide"
         const val NOTIFICATION_CONTENT =
-            "IntelliJ highlighting may draw another line beside Bracket Pair Guides. " +
-                "Review the integration settings if this is unintended."
+            "Matched brace or Current scope may emphasize an existing IntelliJ indent guide " +
+                "beside Bracket Pair Guides. Review the integration settings if this is unintended."
         const val NOTIFICATION_ACTION_TEXT = "Review settings"
         const val NOTIFICATION_BALLOON_CLASS = "com.intellij.ui.BalloonImpl\$MyComponent"
         const val NOTIFICATION_EXPAND_ACTION_CLASS = "com.intellij.ui.components.labels.LinkLabel"
         const val NOTIFICATION_ACTION_TYPE = "com.intellij.ui.components.labels.LinkLabel"
         const val NATIVE_HIGHLIGHTING_UNCHANGED_MODE = "LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED"
+        const val NATIVE_HIGHLIGHT_MODES_POPUP_STATE =
+            "true:SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE,SUPPRESS_CURRENT_SCOPE_ONLY," +
+                "LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED"
         const val MACOS_ENVIRONMENT = "ideaIC-2024.2.6/macos-aarch64-darcula-scale1"
         const val LINUX_ENVIRONMENT = "ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1"
         const val MACOS_PLATFORM = "macos-aarch64"
@@ -866,6 +1082,22 @@ class BracketGuideVisualTest {
     private data class NamedImage(val name: String, val image: BufferedImage)
 
     private data class NamedComparison(val name: String, val result: ImageDiffResult)
+
+    private data class ImageRegion(val x: Int, val y: Int, val width: Int, val height: Int) {
+        init {
+            require(x >= 0 && y >= 0 && width > 0 && height > 0)
+        }
+
+        fun fits(image: BufferedImage): Boolean = x + width <= image.width && y + height <= image.height
+
+        companion object {
+            fun parse(value: String): ImageRegion {
+                val parts = value.split(':').map(String::toInt)
+                require(parts.size == 4) { "Invalid image region: $value" }
+                return ImageRegion(parts[0], parts[1], parts[2], parts[3])
+            }
+        }
+    }
 }
 
 @Remote(
@@ -887,17 +1119,29 @@ private interface DriverBridge {
 
     fun openSettingsForCapture(filePathSuffix: String): Boolean
 
+    fun openEditorGeneralSettingsForCapture(filePathSuffix: String): Boolean
+
     fun raiseSettingsForCapture(): Boolean
+
+    fun revealEditorHighlightSettingsForCapture(): String
 
     fun closeSettingsAfterCapture(): Boolean
 
-    fun prepareNativeOverlapForCapture(filePathSuffix: String): String
+    fun showNativeHighlightModePopupForCapture(): String
+
+    fun hideNativeHighlightModePopupAfterCapture(): Boolean
+
+    fun prepareNativeDefaultSuppressionForCapture(filePathSuffix: String): String
+
+    fun prepareNativeMatchedBraceEmphasisForCapture(filePathSuffix: String): String
 
     fun showNativeGuideConflictNotificationForCapture(filePathSuffix: String): Boolean
 
     fun expireNativeGuideConflictNotificationAfterCapture(): Boolean
 
     fun activeGuideState(filePathSuffix: String): String
+
+    fun activeGuideBodyRoi(filePathSuffix: String): String
 
     fun nativeVisualState(filePathSuffix: String): String
 

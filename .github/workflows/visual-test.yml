@@ -128,12 +128,20 @@ jobs:
         with:
           name: native-guide-integration-visuals
           path: |
+            plugin/build/visual-test-artifacts/intellij-integration-settings.png
+            plugin/build/visual-test-artifacts/intellij-highlight-on-caret-movement-settings.png
+            plugin/build/visual-test-artifacts/native-highlight-modes-popup.png
             plugin/build/visual-test-artifacts/native-guide-conflict-notification.png
             plugin/build/visual-test-artifacts/native-guide-conflict-balloon.png
             plugin/build/visual-test-artifacts/native-guide-conflict-review-settings.png
             plugin/build/visual-test-artifacts/native-guide-overlap-actual.png
+            plugin/build/visual-test-artifacts/native-guide-overlap-candidate.png
+            plugin/build/visual-test-artifacts/native-guide-emphasis-diff.png
+            plugin/build/visual-test-artifacts/native-guide-overlap-detail.png
             plugin/build/visual-test-artifacts/native-guide-default-suppressed-actual.png
+            plugin/build/visual-test-artifacts/native-guide-default-suppressed-detail.png
             plugin/build/visual-test-artifacts/plugin-guide-only-actual.png
+            plugin/build/visual-test-artifacts/plugin-guide-only-detail.png
           if-no-files-found: ignore
           retention-days: 14
 
