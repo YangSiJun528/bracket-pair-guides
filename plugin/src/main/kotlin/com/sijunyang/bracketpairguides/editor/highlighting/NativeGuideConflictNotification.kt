@@ -204,7 +204,7 @@ internal object NativeGuideConflictBalloon {
                 if (!project.isDisposed) {
                     ShowSettingsUtil.getInstance().showSettingsDialog(
                         project,
-                        BracketGuideSettingsPage::class.java,
+                        BracketGuideSettingsPage.DISPLAY_NAME,
                     )
                 }
             },

@@ -38,7 +38,7 @@ internal class BracketGuideSettingsPage(
     private val applySettings: (BracketGuidePreferences) -> Unit = { options ->
         BracketGuideSettingsController.getInstance().applySettings(options)
     },
-) : BoundConfigurable("Bracket Pair Guides") {
+) : BoundConfigurable(DISPLAY_NAME) {
     private var draftOptions: BracketGuidePreferences? = null
 
     @Suppress("unused")
@@ -565,6 +565,7 @@ internal class BracketGuideSettingsPage(
     }
 
     companion object {
+        internal const val DISPLAY_NAME = "Bracket Pair Guides"
         private const val CUSTOM_FILE_TYPE_LANGUAGE_ID = "TEXT"
     }
 }

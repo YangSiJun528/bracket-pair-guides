@@ -363,6 +363,17 @@ class BracketGuideVisualTest {
                         }.click()
                         settingsDialog {
                             try {
+                                waitFor(
+                                    30.seconds,
+                                    100.milliseconds,
+                                    "the notification action did not open Settings",
+                                ) {
+                                    bridge.raiseSettingsForCapture()
+                                }
+                                writePng(
+                                    stableUiScreenshot(this),
+                                    artifacts.resolve("native-guide-conflict-review-settings.png"),
+                                )
                                 val settingsContent = content { }
                                 val integrationTitle = x { byVisibleText("IntelliJ Integration") }
                                 val unchangedMode = x {
@@ -375,7 +386,7 @@ class BracketGuideVisualTest {
                                 waitFor(
                                     30.seconds,
                                     100.milliseconds,
-                                    "the notification action did not open the integration settings",
+                                    "the notification action did not select the integration settings",
                                 ) {
                                     unchangedMode.present() &&
                                         unchangedMode.component.isShowing() &&
@@ -385,17 +396,6 @@ class BracketGuideVisualTest {
                                             settingsContent,
                                         )
                                 }
-                                waitFor(
-                                    30.seconds,
-                                    100.milliseconds,
-                                    "the notification settings dialog was not ready for capture",
-                                ) {
-                                    bridge.raiseSettingsForCapture()
-                                }
-                                writePng(
-                                    stableUiScreenshot(this),
-                                    artifacts.resolve("native-guide-conflict-review-settings.png"),
-                                )
                             } finally {
                                 assertTrue(bridge.closeSettingsAfterCapture())
                             }
