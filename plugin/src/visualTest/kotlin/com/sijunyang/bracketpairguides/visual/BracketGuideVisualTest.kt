@@ -196,8 +196,16 @@ class BracketGuideVisualTest {
                         artifacts.resolve("native-indent-guides-visible-actual.png"),
                     )
                     writePng(
+                        nativeIndentGuidesVisible,
+                        artifacts.resolve("native-guide-default-suppressed-actual.png"),
+                    )
+                    writePng(
                         pluginGuideOnly,
                         artifacts.resolve("native-indent-guides-hidden-actual.png"),
+                    )
+                    writePng(
+                        pluginGuideOnly,
+                        artifacts.resolve("plugin-guide-only-actual.png"),
                     )
                     assertMeaningfulDifference(
                         "native indent guides visible and hidden",
@@ -252,6 +260,131 @@ class BracketGuideVisualTest {
                         forceBaselineOverwrite = forceBaselineOverwrite,
                         environment = environment,
                     )
+
+                    editor.setCaretPosition(
+                        line = NATIVE_CONFLICT_CARET_LINE,
+                        column = NATIVE_CONFLICT_CARET_COLUMN,
+                    )
+                    assertTrue(
+                        bridge.prepareNativeOverlapForCapture(SAMPLE_FILE) ==
+                            "true:true:true:true:NEW_UI",
+                    )
+                    waitForCodeAnalysis(project, sample, 5.minutes)
+                    waitFor(
+                        1.minutes,
+                        100.milliseconds,
+                        "active guide did not become visible for the native overlap capture",
+                    ) {
+                        bridge.activeGuideState(SAMPLE_FILE) == "VISIBLE"
+                    }
+                    assertTrue(
+                        bridge.prepareEditorForCapture(SAMPLE_FILE) ==
+                            "$NATIVE_CONFLICT_CARET_LINE:$NATIVE_CONFLICT_CARET_COLUMN",
+                    )
+                    val nativeOverlap = stableScreenshot(editor)
+                    writePng(
+                        nativeOverlap,
+                        artifacts.resolve("native-guide-overlap-actual.png"),
+                    )
+                    assertMeaningfulDifference(
+                        "native highlighted overlap and default suppression",
+                        nativeOverlap,
+                        nativeIndentGuidesVisible,
+                    )
+
+                    val nativeStateBeforeReview = bridge.nativeVisualState(SAMPLE_FILE)
+                    try {
+                        assertTrue(
+                            bridge.showNativeGuideConflictNotificationForCapture(SAMPLE_FILE),
+                        )
+                        val balloon = x {
+                            componentWithChild(
+                                byJavaClass(NOTIFICATION_BALLOON_CLASS),
+                                byAccessibleName(NOTIFICATION_TITLE),
+                            )
+                        }
+                        val notificationTitle = balloon.x {
+                            byAccessibleName(NOTIFICATION_TITLE)
+                        }
+                        val notificationContent = balloon.x {
+                            byAccessibleName(NOTIFICATION_CONTENT)
+                        }
+                        val reviewSettings = balloon.x {
+                            and(
+                                byType(NOTIFICATION_ACTION_TYPE),
+                                byVisibleText(NOTIFICATION_ACTION_TEXT),
+                            )
+                        }
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "native guide conflict notification did not become fully visible",
+                        ) {
+                            balloon.present() &&
+                                balloon.component.isShowing() &&
+                                notificationTitle.present() &&
+                                notificationTitle.component.isShowing() &&
+                                notificationContent.present() &&
+                                notificationContent.component.isShowing() &&
+                                reviewSettings.present() &&
+                                reviewSettings.component.isShowing()
+                        }
+                        writePng(
+                            stableUiScreenshot(this),
+                            artifacts.resolve("native-guide-conflict-notification.png"),
+                        )
+                        writePng(
+                            stableUiScreenshot(balloon),
+                            artifacts.resolve("native-guide-conflict-balloon.png"),
+                        )
+
+                        reviewSettings.click()
+                        settingsDialog {
+                            try {
+                                val settingsContent = content { }
+                                val integrationTitle = x { byVisibleText("IntelliJ Integration") }
+                                val unchangedMode = x {
+                                    byVisibleText(NATIVE_HIGHLIGHTING_UNCHANGED_TEXT)
+                                }
+                                val restorationNote = x(
+                                    "//div[contains(@visible_text, " +
+                                        "'Original IntelliJ settings are restored')]",
+                                )
+                                waitFor(
+                                    30.seconds,
+                                    100.milliseconds,
+                                    "the notification action did not open the integration settings",
+                                ) {
+                                    unchangedMode.present() &&
+                                        unchangedMode.component.isShowing() &&
+                                        isVerticallyContained(
+                                            integrationTitle,
+                                            restorationNote,
+                                            settingsContent,
+                                        )
+                                }
+                                waitFor(
+                                    30.seconds,
+                                    100.milliseconds,
+                                    "the notification settings dialog was not ready for capture",
+                                ) {
+                                    bridge.raiseSettingsForCapture()
+                                }
+                                writePng(
+                                    stableUiScreenshot(this),
+                                    artifacts.resolve("native-guide-conflict-review-settings.png"),
+                                )
+                            } finally {
+                                assertTrue(bridge.closeSettingsAfterCapture())
+                            }
+                        }
+                        waitForNoOpenedDialogs()
+                        assertTrue(bridge.nativeVisualState(SAMPLE_FILE) == nativeStateBeforeReview)
+                    } finally {
+                        runCatching {
+                            bridge.expireNativeGuideConflictNotificationAfterCapture()
+                        }
+                    }
                 }
             }
 
@@ -319,7 +452,7 @@ class BracketGuideVisualTest {
     private fun stableUiScreenshot(component: UiComponent): BufferedImage {
         var previous: BufferedImage? = null
         var stable: BufferedImage? = null
-        waitFor(30.seconds, 250.milliseconds, "settings screenshot did not stabilize") {
+        waitFor(30.seconds, 250.milliseconds, "UI screenshot did not stabilize") {
             val current = component.getScreenshot()
             val unchanged = previous?.let { imagesAreEqual(it, current) } == true
             previous = current
@@ -693,12 +826,22 @@ class BracketGuideVisualTest {
         // Driver line numbers are one-based: this is source line 7 (`total += inner`).
         const val CARET_LINE = 7
         const val CARET_COLUMN = 20
+        const val NATIVE_CONFLICT_CARET_LINE = 6
+        const val NATIVE_CONFLICT_CARET_COLUMN = 62
         const val EDITOR_FONT = "JetBrains Mono"
         const val EDITOR_FONT_SIZE = 14
         const val CROP_WIDTH = 220
         const val CROP_HEIGHT = 240
         const val MINIMUM_STATE_DIFFERENCE_PIXELS = 20L
         const val THEME = "Darcula"
+        const val NOTIFICATION_TITLE = "IntelliJ guide highlighting may overlap"
+        const val NOTIFICATION_CONTENT =
+            "IntelliJ highlighting may draw another line beside Bracket Pair Guides. " +
+                "Review the integration settings if this is unintended."
+        const val NOTIFICATION_ACTION_TEXT = "Review settings"
+        const val NOTIFICATION_BALLOON_CLASS = "com.intellij.ui.BalloonImpl\$MyComponent"
+        const val NOTIFICATION_ACTION_TYPE = "com.intellij.ui.components.labels.LinkLabel"
+        const val NATIVE_HIGHLIGHTING_UNCHANGED_TEXT = "Leave IntelliJ highlighting unchanged"
         const val MACOS_ENVIRONMENT = "ideaIC-2024.2.6/macos-aarch64-darcula-scale1"
         const val LINUX_ENVIRONMENT = "ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1"
         const val MACOS_PLATFORM = "macos-aarch64"
@@ -735,6 +878,12 @@ private interface DriverBridge {
     fun raiseSettingsForCapture(): Boolean
 
     fun closeSettingsAfterCapture(): Boolean
+
+    fun prepareNativeOverlapForCapture(filePathSuffix: String): String
+
+    fun showNativeGuideConflictNotificationForCapture(filePathSuffix: String): Boolean
+
+    fun expireNativeGuideConflictNotificationAfterCapture(): Boolean
 
     fun activeGuideState(filePathSuffix: String): String
 

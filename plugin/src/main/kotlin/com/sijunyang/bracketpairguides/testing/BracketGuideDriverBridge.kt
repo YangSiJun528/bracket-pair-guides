@@ -4,6 +4,7 @@ import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.codeVision.settings.CodeVisionSettings
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.ide.ui.LafManager
+import com.intellij.notification.Notification
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.editor.EditorFactory
@@ -17,6 +18,9 @@ import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.NewUI
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.editor.events.BracketGuideSettingsController
+import com.sijunyang.bracketpairguides.editor.highlighting.NativeGuideConflictBalloon
+import com.sijunyang.bracketpairguides.editor.highlighting.NativeGuideConflictNotification
+import com.sijunyang.bracketpairguides.preferences.NativeHighlightMode
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPage
 import java.awt.Frame
@@ -31,6 +35,8 @@ import java.awt.Window
  */
 @Suppress("unused") // Loaded reflectively by the out-of-process IntelliJ Driver.
 object BracketGuideDriverBridge {
+    private var nativeConflictNotificationForCapture: Notification? = null
+
     @JvmStatic
     fun setShowActiveGuide(enabled: Boolean): Boolean = driverTestOnEdt {
         val current = BracketGuideSettings.getInstance().options
@@ -138,6 +144,61 @@ object BracketGuideDriverBridge {
         val settingsDialog = DialogWrapper.findInstance(window) ?: return@driverTestOnEdt false
         window.isAlwaysOnTop = false
         settingsDialog.close(DialogWrapper.CANCEL_EXIT_CODE)
+        true
+    }
+
+    @JvmStatic
+    fun prepareNativeOverlapForCapture(filePathSuffix: String): String = driverTestOnEdt {
+        val editor = checkNotNull(editorForFile(filePathSuffix)) {
+            "No editor found for $filePathSuffix"
+        }
+        // The visual test publishes the real balloon explicitly after the
+        // overlap image is stable. Prevent the one-shot detector from racing
+        // that deterministic UI capture.
+        NativeGuideConflictNotification.getInstance().loadState(
+            NativeGuideConflictNotification.NotificationState(published = true),
+        )
+        val current = BracketGuideSettings.getInstance().options
+        BracketGuideSettingsController.getInstance().applySettings(
+            current.copy(
+                intelliJIntegration =
+                current.intelliJIntegration.copy(
+                    manageNativeVisuals = true,
+                    nativeHighlightMode = NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED,
+                    hideNativeIndentGuides = false,
+                ),
+            ),
+        )
+        CodeInsightSettings.getInstance().apply {
+            HIGHLIGHT_BRACES = true
+            HIGHLIGHT_SCOPE = true
+        }
+        EditorSettingsExternalizable.getInstance().isIndentGuidesShown = true
+        editor.settings.isIndentGuidesShown = true
+        editor.project?.takeUnless { it.isDisposed }?.let { project ->
+            DaemonCodeAnalyzer.getInstance(project).restart()
+        }
+        nativeVisualState(filePathSuffix)
+    }
+
+    @JvmStatic
+    fun showNativeGuideConflictNotificationForCapture(filePathSuffix: String): Boolean = driverTestOnEdt {
+        val project = checkNotNull(editorForFile(filePathSuffix)?.project?.takeUnless { it.isDisposed }) {
+            "No open project found for $filePathSuffix"
+        }
+        nativeConflictNotificationForCapture?.expire()
+        NativeGuideConflictBalloon.create(project).also { notification ->
+            nativeConflictNotificationForCapture = notification
+            notification.notify(project)
+        }
+        true
+    }
+
+    @JvmStatic
+    fun expireNativeGuideConflictNotificationAfterCapture(): Boolean = driverTestOnEdt(ModalityState.any()) {
+        val notification = nativeConflictNotificationForCapture ?: return@driverTestOnEdt false
+        nativeConflictNotificationForCapture = null
+        notification.expire()
         true
     }
 

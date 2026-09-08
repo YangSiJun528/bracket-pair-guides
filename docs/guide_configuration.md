@@ -31,7 +31,7 @@ guides that can appear beside a multiline active guide.
 ## Adjust IntelliJ guide rendering
 
 Open **Settings | Editor | Bracket Pair Guides**, then find the **IntelliJ
-integration** group. The three controls work together as follows:
+Integration** group. The three controls work together as follows:
 
 | Setting | Default | Effect |
 |---|---:|---|

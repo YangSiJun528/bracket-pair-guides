@@ -122,6 +122,21 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: Upload Native Integration Captures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: native-guide-integration-visuals
+          path: |
+            plugin/build/visual-test-artifacts/native-guide-conflict-notification.png
+            plugin/build/visual-test-artifacts/native-guide-conflict-balloon.png
+            plugin/build/visual-test-artifacts/native-guide-conflict-review-settings.png
+            plugin/build/visual-test-artifacts/native-guide-overlap-actual.png
+            plugin/build/visual-test-artifacts/native-guide-default-suppressed-actual.png
+            plugin/build/visual-test-artifacts/plugin-guide-only-actual.png
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Upload Diff Image
         if: ${{ always() && steps.visual-test.outcome == 'failure' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
