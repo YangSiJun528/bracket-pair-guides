@@ -108,7 +108,7 @@ dependencies {
     add(visualTestImplementation.name, "org.kodein.di:kodein-di-jvm:7.20.2")
     add(
         visualTestImplementation.name,
-        "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.1",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.11.0",
     )
     add(
         visualTestSourceSet.runtimeOnlyConfigurationName,
