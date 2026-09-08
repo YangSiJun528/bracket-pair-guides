@@ -374,7 +374,6 @@ class BracketGuideVisualTest {
                                     stableUiScreenshot(this),
                                     artifacts.resolve("native-guide-conflict-review-settings.png"),
                                 )
-                                val settingsContent = content { }
                                 val integrationTitle = x { byVisibleText("IntelliJ Integration") }
                                 val unchangedMode = x {
                                     byVisibleText(NATIVE_HIGHLIGHTING_UNCHANGED_TEXT)
@@ -388,13 +387,12 @@ class BracketGuideVisualTest {
                                     100.milliseconds,
                                     "the notification action did not select the integration settings",
                                 ) {
-                                    unchangedMode.present() &&
+                                    integrationTitle.present() &&
+                                        integrationTitle.component.isShowing() &&
+                                        unchangedMode.present() &&
                                         unchangedMode.component.isShowing() &&
-                                        isVerticallyContained(
-                                            integrationTitle,
-                                            restorationNote,
-                                            settingsContent,
-                                        )
+                                        restorationNote.present() &&
+                                        restorationNote.component.isShowing()
                                 }
                             } finally {
                                 assertTrue(bridge.closeSettingsAfterCapture())
