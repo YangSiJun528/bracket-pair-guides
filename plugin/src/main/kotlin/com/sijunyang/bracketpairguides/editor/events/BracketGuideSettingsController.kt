@@ -3,21 +3,22 @@ package com.sijunyang.bracketpairguides.editor.events
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.preferences.NativeHighlightMode
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 
 /** Commits normalized preferences and applies their effects as one EDT transaction. */
 @Service(Service.Level.APP)
 internal class BracketGuideSettingsController internal constructor(
     private val settings: () -> BracketGuideSettings,
-    private val applyNativeMatchedBraceSetting: (BracketGuidePreferences) -> BracketGuidePreferences,
+    private val applyNativeVisualSettings: (BracketGuidePreferences) -> BracketGuidePreferences,
     private val applyRuntimeChange: (BracketGuidePreferences, BracketGuidePreferences) -> Unit,
     private val runOnEdt: ((() -> Unit) -> Unit),
 ) {
     @Suppress("unused")
     constructor() : this(
         settings = { BracketGuideSettings.getInstance() },
-        applyNativeMatchedBraceSetting = {
-            NativeMatchedBraceHighlighting.getInstance().apply(it)
+        applyNativeVisualSettings = {
+            NativeVisualSettingsCoordinator.getInstance().apply(it)
         },
         applyRuntimeChange = { previous, current ->
             GuideSettingsChange(previous, current).apply()
@@ -46,12 +47,12 @@ internal class BracketGuideSettingsController internal constructor(
         }
     }
 
-    /** Records an override found while native-setting ownership is being released. */
-    internal fun nativeMatchedBraceSettingWasOverridden() {
+    /** Records lifecycle-time overrides only if the same child still owns them. */
+    internal fun nativeVisualSettingsWereOverridden(targets: Set<NativeVisualSettingTarget>) {
         runOnEdt {
             val current = settings().options
             commit(
-                current.copy(disableNativeMatchedBraceHighlighting = false),
+                current.afterExternalOverrides(targets),
                 NativeReconciliation.NONE,
             )
         }
@@ -65,7 +66,7 @@ internal class BracketGuideSettingsController internal constructor(
         if (current == previous && nativeReconciliation != NativeReconciliation.ALWAYS) return
 
         if (nativeReconciliation != NativeReconciliation.NONE) {
-            val reconciled = applyNativeMatchedBraceSetting(current)
+            val reconciled = applyNativeVisualSettings(current)
             persistedSettings.replace(reconciled)
             current = persistedSettings.options
         }
@@ -78,6 +79,45 @@ internal class BracketGuideSettingsController internal constructor(
         NONE,
         IF_CHANGED,
         ALWAYS,
+    }
+
+    private fun BracketGuidePreferences.afterExternalOverrides(
+        targets: Set<NativeVisualSettingTarget>,
+    ): BracketGuidePreferences {
+        if (!enabled || !intelliJIntegration.manageNativeVisuals) return this
+        var integration = intelliJIntegration
+        if (
+            NativeVisualSettingTarget.MATCHED_BRACES in targets &&
+            integration.nativeHighlightMode ==
+            NativeHighlightMode.SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE
+        ) {
+            integration =
+                integration.copy(
+                    nativeHighlightMode =
+                    NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED,
+                )
+        }
+        if (
+            NativeVisualSettingTarget.CURRENT_SCOPE in targets &&
+            integration.nativeHighlightMode == NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY
+        ) {
+            integration =
+                integration.copy(
+                    nativeHighlightMode =
+                    NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED,
+                )
+        }
+        if (
+            NativeVisualSettingTarget.INDENT_GUIDES in targets &&
+            integration.hideNativeIndentGuides
+        ) {
+            integration = integration.copy(hideNativeIndentGuides = false)
+        }
+        return if (integration == intelliJIntegration) {
+            this
+        } else {
+            copy(intelliJIntegration = integration)
+        }
     }
 
     companion object {

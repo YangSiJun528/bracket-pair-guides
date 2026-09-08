@@ -9,6 +9,7 @@ import com.intellij.openapi.util.TextRange
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.BraceMatcherAvailability
+import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
@@ -25,12 +26,16 @@ internal class EditorGuideSession(
     private var stickySourceRanges: (Editor) -> List<TextRange> = { emptyList() },
     private var options: BracketGuidePreferences,
     private var matcherAvailabilityChanged: (Editor) -> Unit = {},
+    private var nativeGuideConflictCandidate: (Editor, BracketGuide) -> Unit = { _, _ -> },
 ) {
     private var disposed = false
     private var analysisHighlighter = editor.highlighter
     private val analysisState = EditorAnalysisState(editor)
 
-    private val activePresentation = ActiveGuidePresentation(editor)
+    private val activePresentation =
+        ActiveGuidePresentation(editor) { candidateEditor, guide ->
+            nativeGuideConflictCandidate(candidateEditor, guide)
+        }
     private val tokenDecorations = VisibleTokenDecorations(editor)
 
     @Volatile
@@ -48,6 +53,11 @@ internal class EditorGuideSession(
     fun updateMatcherAvailabilityListener(listener: (Editor) -> Unit) {
         assertEdt()
         matcherAvailabilityChanged = listener
+    }
+
+    fun updateNativeGuideConflictListener(listener: (Editor, BracketGuide) -> Unit) {
+        assertEdt()
+        nativeGuideConflictCandidate = listener
     }
 
     fun updateDependenciesIfCurrent(

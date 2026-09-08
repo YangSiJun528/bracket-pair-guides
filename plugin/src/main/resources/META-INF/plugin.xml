@@ -45,7 +45,15 @@
                 serviceImplementation="com.sijunyang.bracketpairguides.settings.BracketGuideSettings"/>
 
         <applicationService
-                serviceImplementation="com.sijunyang.bracketpairguides.editor.events.NativeMatchedBraceHighlighting"/>
+                serviceImplementation="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinator"/>
+
+        <applicationService
+                serviceImplementation="com.sijunyang.bracketpairguides.editor.highlighting.NativeGuideConflictNotification"/>
+
+        <notificationGroup
+                id="Bracket Pair Guides Native Visual Conflict"
+                displayType="BALLOON"
+                isLogByDefault="true"/>
 
         <applicationConfigurable
                 parentId="editor"

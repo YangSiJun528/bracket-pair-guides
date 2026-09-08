@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Added an IntelliJ integration group for independently managing native guide
+  highlighting and regular indent-guide visibility.
+- Added modes to suppress matched-brace and Current scope highlighting together,
+  suppress Current scope only, or leave IntelliJ highlighting unchanged.
+- Preserved and restored each owned IntelliJ setting, while treating later
+  external changes as the user's newer choice.
+- Added a one-time informational notification for visible native highlighting
+  beside a multiline plugin guide; ordinary indent guides do not trigger it.
+
 ## 0.0.4
 
 - Preserved configured bracket colors in visible IntelliJ Sticky Lines while

@@ -7,8 +7,11 @@ import com.intellij.driver.sdk.findFile
 import com.intellij.driver.sdk.openFile
 import com.intellij.driver.sdk.singleProject
 import com.intellij.driver.sdk.ui.components.JEditorUiComponent
+import com.intellij.driver.sdk.ui.components.UiComponent
 import com.intellij.driver.sdk.ui.components.codeEditor
 import com.intellij.driver.sdk.ui.components.ideFrame
+import com.intellij.driver.sdk.ui.components.settingsDialog
+import com.intellij.driver.sdk.ui.components.waitForNoOpenedDialogs
 import com.intellij.driver.sdk.ui.remote.SwingHierarchyService
 import com.intellij.driver.sdk.waitFor
 import com.intellij.driver.sdk.waitForCodeAnalysis
@@ -112,23 +115,99 @@ class BracketGuideVisualTest {
                     "Sample file was not indexed: $SAMPLE_FILE"
                 }
                 waitForCodeAnalysis(project, sample, 5.minutes)
+                val defaultNativeVisuals = bridge.nativeVisualState(SAMPLE_FILE).split(':')
+                assertTrue(defaultNativeVisuals.size == 5)
+                assertTrue(defaultNativeVisuals[0] == "false")
+                assertTrue(defaultNativeVisuals[2] == "true")
+                assertTrue(defaultNativeVisuals[3] == "true")
+                assertTrue(defaultNativeVisuals[4] == "NEW_UI")
+                assertTrue(bridge.setHideNativeIndentGuides(SAMPLE_FILE, true) == "false:false")
+                assertTrue(bridge.setEditorIndentGuides(SAMPLE_FILE, true) == "false:true")
+                assertTrue(bridge.setHideNativeIndentGuides(SAMPLE_FILE, false) == "true:true")
 
                 ideFrame {
                     resize(FRAME_WIDTH, FRAME_HEIGHT)
                     waitFor(30.seconds, 100.milliseconds, "IDE frame did not reach the pinned size") {
                         component.width == FRAME_WIDTH && component.height == FRAME_HEIGHT
                     }
+                    bridge.prepareEditorForCapture(SAMPLE_FILE)
+                    assertTrue(bridge.openSettingsForCapture(SAMPLE_FILE))
+                    settingsDialog {
+                        try {
+                            val settingsContent = content { }
+                            val integrationTitle = x { byVisibleText("IntelliJ integration") }
+                            val restorationNote = x(
+                                "//div[contains(@visible_text, " +
+                                    "'Original IntelliJ settings are restored')]",
+                            )
+                            waitFor(
+                                30.seconds,
+                                100.milliseconds,
+                                "the complete IntelliJ integration settings group did not become visible",
+                            ) {
+                                isVerticallyContained(integrationTitle, restorationNote, settingsContent)
+                            }
+                            waitFor(
+                                30.seconds,
+                                100.milliseconds,
+                                "the Settings dialog did not become the foreground capture window",
+                            ) {
+                                bridge.raiseSettingsForCapture()
+                            }
+                            writePng(
+                                stableUiScreenshot(this),
+                                artifacts.resolve("intellij-integration-settings.png"),
+                            )
+                        } finally {
+                            assertTrue(bridge.closeSettingsAfterCapture())
+                        }
+                    }
+                    waitForNoOpenedDialogs()
                     val editor = codeEditor()
                     editor.setCaretPosition(line = CARET_LINE, column = CARET_COLUMN)
                     waitForCodeAnalysis(project, sample, 5.minutes)
                     assertTrue(
                         bridge.prepareEditorForCapture(SAMPLE_FILE) == "$CARET_LINE:$CARET_COLUMN",
                     )
+                    waitFor(
+                        30.seconds,
+                        100.milliseconds,
+                        "IDE frame and editor did not become visible capture targets",
+                    ) {
+                        component.isShowing() && editor.component.isShowing()
+                    }
                     assertTrue(bridge.setShowActiveGuide(true))
                     waitFor(1.minutes, 100.milliseconds, "active guide did not become visible for warm-up") {
                         bridge.activeGuideState(SAMPLE_FILE) == "VISIBLE"
                     }
-                    stableScreenshot(editor)
+                    assertTrue(
+                        bridge.prepareEditorForCapture(SAMPLE_FILE) == "$CARET_LINE:$CARET_COLUMN",
+                    )
+                    val nativeIndentGuidesVisible = stableScreenshot(editor)
+                    assertTrue(bridge.setHideNativeIndentGuides(SAMPLE_FILE, true) == "false:true")
+                    assertTrue(bridge.setEditorIndentGuides(SAMPLE_FILE, false) == "false:false")
+                    waitForCodeAnalysis(project, sample, 5.minutes)
+                    assertTrue(
+                        bridge.prepareEditorForCapture(SAMPLE_FILE) == "$CARET_LINE:$CARET_COLUMN",
+                    )
+                    val pluginGuideOnly = stableScreenshot(editor)
+                    writePng(
+                        nativeIndentGuidesVisible,
+                        artifacts.resolve("native-indent-guides-visible-actual.png"),
+                    )
+                    writePng(
+                        pluginGuideOnly,
+                        artifacts.resolve("native-indent-guides-hidden-actual.png"),
+                    )
+                    assertMeaningfulDifference(
+                        "native indent guides visible and hidden",
+                        nativeIndentGuidesVisible,
+                        pluginGuideOnly,
+                    )
+                    assertTrue(bridge.activeGuideState(SAMPLE_FILE) == "VISIBLE")
+                    assertTrue(bridge.setHideNativeIndentGuides(SAMPLE_FILE, false) == "true:false")
+                    assertTrue(bridge.setEditorIndentGuides(SAMPLE_FILE, true) == "true:true")
+                    waitForCodeAnalysis(project, sample, 5.minutes)
                     writeUiGeometry(
                         artifacts = artifacts,
                         frameWidth = component.width,
@@ -140,6 +219,9 @@ class BracketGuideVisualTest {
                     artifacts.resolve("ui-hierarchy.html").writeText(
                         hierarchy.getSwingHierarchyAsDOM(component, false),
                     )
+
+                    warmCaptureState(bridge, editor, enabled = false, expectedState = "HIDDEN")
+                    warmCaptureState(bridge, editor, enabled = true, expectedState = "VISIBLE")
 
                     val off = captureState(
                         bridge = bridge,
@@ -202,7 +284,26 @@ class BracketGuideVisualTest {
         return actual
     }
 
+    private fun warmCaptureState(
+        bridge: DriverBridge,
+        editor: JEditorUiComponent,
+        enabled: Boolean,
+        expectedState: String,
+    ) {
+        assertTrue(bridge.setShowActiveGuide(enabled) == enabled)
+        waitFor(1.minutes, 100.milliseconds, "warm-up guide did not become $expectedState") {
+            bridge.activeGuideState(SAMPLE_FILE) == expectedState
+        }
+        assertTrue(
+            bridge.prepareEditorForCapture(SAMPLE_FILE) == "$CARET_LINE:$CARET_COLUMN",
+        )
+        stableScreenshot(editor)
+    }
+
     private fun stableScreenshot(editor: JEditorUiComponent): BufferedImage {
+        waitFor(30.seconds, 100.milliseconds, "code editor was not visible for capture") {
+            editor.component.isShowing()
+        }
         var previous: BufferedImage? = null
         var stable: BufferedImage? = null
         waitFor(30.seconds, 250.milliseconds, "code editor screenshot did not stabilize") {
@@ -213,6 +314,29 @@ class BracketGuideVisualTest {
             unchanged
         }
         return checkNotNull(stable)
+    }
+
+    private fun stableUiScreenshot(component: UiComponent): BufferedImage {
+        var previous: BufferedImage? = null
+        var stable: BufferedImage? = null
+        waitFor(30.seconds, 250.milliseconds, "settings screenshot did not stabilize") {
+            val current = component.getScreenshot()
+            val unchanged = previous?.let { imagesAreEqual(it, current) } == true
+            previous = current
+            if (unchanged) stable = current
+            unchanged
+        }
+        return checkNotNull(stable)
+    }
+
+    private fun isVerticallyContained(first: UiComponent, last: UiComponent, container: UiComponent): Boolean {
+        if (!first.present() || !last.present()) return false
+        if (!first.component.isShowing() || !last.component.isShowing()) return false
+        val containerTop = container.component.getLocationOnScreen().y
+        val containerBottom = containerTop + container.component.height
+        val firstTop = first.component.getLocationOnScreen().y
+        val lastBottom = last.component.getLocationOnScreen().y + last.component.height
+        return firstTop >= containerTop && lastBottom <= containerBottom
     }
 
     private fun verifyImages(
@@ -606,5 +730,17 @@ private interface DriverBridge {
 
     fun prepareEditorForCapture(filePathSuffix: String): String
 
+    fun openSettingsForCapture(filePathSuffix: String): Boolean
+
+    fun raiseSettingsForCapture(): Boolean
+
+    fun closeSettingsAfterCapture(): Boolean
+
     fun activeGuideState(filePathSuffix: String): String
+
+    fun nativeVisualState(filePathSuffix: String): String
+
+    fun setHideNativeIndentGuides(filePathSuffix: String, hidden: Boolean): String
+
+    fun setEditorIndentGuides(filePathSuffix: String, shown: Boolean): String
 }
