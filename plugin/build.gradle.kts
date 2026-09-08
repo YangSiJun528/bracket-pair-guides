@@ -104,7 +104,7 @@ dependencies {
         )
     }
 
-    add(visualTestImplementation.name, "org.junit.jupiter:junit-jupiter:5.10.2")
+    add(visualTestImplementation.name, "org.junit.jupiter:junit-jupiter:6.1.3")
     add(visualTestImplementation.name, "org.kodein.di:kodein-di-jvm:7.20.2")
     add(
         visualTestImplementation.name,
