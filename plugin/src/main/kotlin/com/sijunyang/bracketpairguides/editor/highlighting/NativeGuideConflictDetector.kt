@@ -81,9 +81,7 @@ internal object NativeGuideConflictDetector {
         val currentScopeCapability =
             facts.currentScopeHighlightingEnabled &&
                 facts.currentScopeResolvesPair
-        if (!directMatchedBraceCapability && !currentScopeCapability) return false
-
-        return true
+        return directMatchedBraceCapability || currentScopeCapability
     }
 
     fun isConflict(editor: Editor, guide: BracketGuide, preferences: BracketGuidePreferences): Boolean {
@@ -103,13 +101,10 @@ internal object NativeGuideConflictDetector {
         if (!nativeSettings.HIGHLIGHT_BRACES) return false
         val uiPath = currentUiPath()
         if (uiPath == NativeGuideUiPath.UNCLASSIFIED) return false
-        val carrier = visibleNativeCarrier(editor, guide, uiPath)
-        if (carrier == null) {
-            // Brace attribution can enter a read action and scan highlighter
-            // tokens. Do none of that when this UI path cannot paint a native
-            // vertical carrier for the exact plugin guide geometry.
-            return false
-        }
+        // Brace attribution can enter a read action and scan highlighter
+        // tokens. Do none of that when this UI path cannot paint a native
+        // vertical carrier for the exact plugin guide geometry.
+        val carrier = visibleNativeCarrier(editor, guide, uiPath) ?: return false
         val markerSources =
             resolveMarkerSources(
                 editor = editor,
@@ -120,9 +115,9 @@ internal object NativeGuideConflictDetector {
             NativeGuideConflictFacts(
                 // A currently installed plugin guide already proves that the
                 // effective matcher/language capability was enabled.
-                pluginEnabledForEditor = preferences.enabled,
-                activeGuideEnabled = preferences.showActiveGuide,
-                verticalGuideEnabled = preferences.showVerticalGuide,
+                pluginEnabledForEditor = true,
+                activeGuideEnabled = true,
+                verticalGuideEnabled = true,
                 displayedMultilineVerticalGuide = guide,
                 matchedBraceHighlightingEnabled = nativeSettings.HIGHLIGHT_BRACES,
                 currentScopeHighlightingEnabled = nativeSettings.HIGHLIGHT_SCOPE,
@@ -132,7 +127,7 @@ internal object NativeGuideConflictDetector {
                 effectiveIndentGuidesShown = carrier.effectiveIndentGuidesShown,
                 lineMarkerAreaShown = carrier.lineMarkerAreaShown,
                 matchingIndentGuide = carrier.matchingIndentGuide,
-                supportedEditorPath = supportedEditorPath,
+                supportedEditorPath = true,
             ),
         )
     }
@@ -282,8 +277,9 @@ internal object NativeGuideConflictDetector {
      */
     private fun caretHasAdjacentHorizontalWhitespace(chars: CharSequence, editor: Editor): Boolean {
         val offset = editor.caretModel.primaryCaret.offset
-        if (offset < 0 || offset > chars.length) return true
-        return (offset > 0 && chars[offset - 1].isHorizontalWhitespace()) ||
+        return offset < 0 ||
+            offset > chars.length ||
+            (offset > 0 && chars[offset - 1].isHorizontalWhitespace()) ||
             (offset < chars.length && chars[offset].isHorizontalWhitespace())
     }
 
@@ -317,10 +313,9 @@ internal object NativeGuideConflictDetector {
 
         val leftStart = iterator.start
         val leftEnd = iterator.end
-        if (!BraceMatchingUtil.matchBrace(chars, fileType, iterator, true) || iterator.atEnd()) {
-            return false
-        }
-        return leftStart == pair.openOffset &&
+        return BraceMatchingUtil.matchBrace(chars, fileType, iterator, true) &&
+            !iterator.atEnd() &&
+            leftStart == pair.openOffset &&
             leftEnd.toLong() == pair.openOffset.toLong() + pair.openTokenLength &&
             iterator.start == pair.closeOffset &&
             iterator.end.toLong() == pair.closeOffset.toLong() + pair.closeTokenLength
@@ -338,8 +333,8 @@ internal object NativeGuideConflictDetector {
             }
         val (matchingStart, matchingLength) = expectedNavigationOffsets
         val matchingEnd = matchingStart.toLong() + matchingLength
-        if (navigationOffset().toLong() !in setOf(matchingStart.toLong(), matchingEnd)) return false
-        return highlighter.hasExactTokenRange(pair.openOffset, pair.openTokenLength) &&
+        return navigationOffset().toLong() in setOf(matchingStart.toLong(), matchingEnd) &&
+            highlighter.hasExactTokenRange(pair.openOffset, pair.openTokenLength) &&
             highlighter.hasExactTokenRange(pair.closeOffset, pair.closeTokenLength)
     }
 

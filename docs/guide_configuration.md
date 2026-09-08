@@ -25,7 +25,7 @@ The default active presentation uses only the vertical and horizontal guide
 segments. Enable either pair option when the two active symbols need additional
 emphasis.
 
-Use the **IntelliJ integration** group to control native highlighting and indent
+Use the **IntelliJ Integration** group to control native highlighting and indent
 guides that can appear beside a multiline active guide.
 
 ## Adjust IntelliJ guide rendering
@@ -101,7 +101,7 @@ editor paths are left unchanged.
 Bracket Pair Guides can show one informational balloon after it displays a
 multiline active vertical guide and detects that native matched-brace or Current
 scope highlighting can visibly emphasize another line. Select **Review
-settings** to open the **IntelliJ integration** group and choose the intended
+settings** to open the **IntelliJ Integration** group and choose the intended
 combination.
 
 The notification is advisory. Opening or closing it does not change plugin or
@@ -182,7 +182,7 @@ disable overlapping features or disable one of the plugins.
 
 Bracket Pair Guides removes only highlighters it created and never clears an
 editor's markup model. It changes only the native values selected in the
-**IntelliJ integration** group and restores values it still owns.
+**IntelliJ Integration** group and restores values it still owns.
 
 Language support follows the matcher selected by IntelliJ's brace-matching
 resolver, not the IDE product name. The resolver can select either a token

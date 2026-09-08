@@ -41,7 +41,7 @@ The default integration suppresses matched-brace and Current scope emphasis but
 keeps useful regular indent guides, so a dim native line can remain visible.
 
 - To show only the plugin guide in the New UI code area, select **Hide regular
-  IntelliJ indent guides** in the plugin's **IntelliJ integration** group.
+  IntelliJ indent guides** in the plugin's **IntelliJ Integration** group.
 - To retain matched-brace feedback, choose **Hide Current scope highlighting
   only** or **Leave IntelliJ highlighting unchanged**. Disabling Current scope
   alone does not remove matched-brace emphasis at a brace boundary.

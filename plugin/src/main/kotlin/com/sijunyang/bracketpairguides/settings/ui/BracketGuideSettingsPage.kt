@@ -161,7 +161,7 @@ internal class BracketGuideSettingsPage(
                 }
             }
 
-            group("IntelliJ integration") {
+            group("IntelliJ Integration") {
                 lateinit var manageNativeVisuals: Cell<JBCheckBox>
                 lateinit var nativeHighlightMode: Cell<ComboBox<NativeHighlightMode>>
                 lateinit var hideNativeIndentGuides: Cell<JBCheckBox>

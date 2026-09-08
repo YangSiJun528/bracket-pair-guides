@@ -16,7 +16,6 @@ import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.util.xmlb.annotations.Property
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
-import com.sijunyang.bracketpairguides.preferences.IntelliJIntegrationPreferences
 import com.sijunyang.bracketpairguides.preferences.NativeHighlightMode
 import java.lang.reflect.Method
 
@@ -133,7 +132,7 @@ internal class NativeVisualSettingsCoordinator internal constructor(
         }
         if (!wantsIndentGuides) {
             val release = release(NativeVisualSettingTarget.INDENT_GUIDES)
-            indentGuidesChanged = release.wroteNativeValue || indentGuidesChanged
+            indentGuidesChanged = release.wroteNativeValue
             if (release.externalOverride) {
                 effective =
                     effective.afterExternalOverride(
@@ -215,13 +214,12 @@ internal class NativeVisualSettingsCoordinator internal constructor(
             )
         }
 
-        val changed = original
-        if (changed) nativeWrite { nativeSetting.enabled = true }
+        if (original) nativeWrite { nativeSetting.enabled = true }
         clearOwnership(target)
         return OwnershipRelease(
             wasOwned = true,
             externalOverride = false,
-            wroteNativeValue = changed,
+            wroteNativeValue = original,
         )
     }
 
@@ -384,10 +382,8 @@ internal interface NativeBooleanSetting {
 
 /** Conservative process gate for settings whose service context is client-specific. */
 internal object NativeVisualEnvironment {
-    fun isStandardMonolithicApplication(): Boolean {
-        if (!isStandardLocalApplicationContext()) return false
-        return IntelliJMultiClientProbe.hasNoRemoteAppSessions()
-    }
+    fun isStandardMonolithicApplication(): Boolean =
+        isStandardLocalApplicationContext() && IntelliJMultiClientProbe.hasNoRemoteAppSessions()
 
     /**
      * A local settings context that is safe for unwinding ownership already
@@ -406,8 +402,7 @@ internal object NativeVisualEnvironment {
         val command = systemProperty(JAVA_COMMAND_PROPERTY)
             ?.takeIf(String::isNotBlank)
             ?: return false
-        if (hasExcludedLaunchToken(command)) return false
-        return true
+        return !hasExcludedLaunchToken(command)
     }
 
     fun isStandardMonolithicEditor(editor: Editor): Boolean =

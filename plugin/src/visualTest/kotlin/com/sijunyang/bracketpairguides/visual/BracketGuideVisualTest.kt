@@ -135,7 +135,7 @@ class BracketGuideVisualTest {
                     settingsDialog {
                         try {
                             val settingsContent = content { }
-                            val integrationTitle = x { byVisibleText("IntelliJ integration") }
+                            val integrationTitle = x { byVisibleText("IntelliJ Integration") }
                             val restorationNote = x(
                                 "//div[contains(@visible_text, " +
                                     "'Original IntelliJ settings are restored')]",
@@ -143,7 +143,7 @@ class BracketGuideVisualTest {
                             waitFor(
                                 30.seconds,
                                 100.milliseconds,
-                                "the complete IntelliJ integration settings group did not become visible",
+                                "the complete IntelliJ Integration settings group did not become visible",
                             ) {
                                 isVerticallyContained(integrationTitle, restorationNote, settingsContent)
                             }
