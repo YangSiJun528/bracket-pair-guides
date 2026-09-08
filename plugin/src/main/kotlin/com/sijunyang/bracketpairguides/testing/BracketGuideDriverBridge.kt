@@ -166,16 +166,16 @@ object BracketGuideDriverBridge {
 
     @JvmStatic
     fun revealEditorHighlightSettingsForCapture(): String = driverTestOnEdt(ModalityState.any()) {
-        val window = checkNotNull(settingsWindow()) { "Settings is not visible" }
-        val group = checkNotNull(findComponentWithText(window, HIGHLIGHT_ON_CARET_MOVEMENT_TEXT)) {
-            "$HIGHLIGHT_ON_CARET_MOVEMENT_TEXT is not present"
-        }
-        val matchedBrace = checkNotNull(findComponentWithText(window, MATCHED_BRACE_TEXT)) {
-            "$MATCHED_BRACE_TEXT is not present"
-        }
-        val currentScope = checkNotNull(findComponentWithText(window, CURRENT_SCOPE_TEXT)) {
-            "$CURRENT_SCOPE_TEXT is not present"
-        }
+        val window = settingsWindow() ?: return@driverTestOnEdt SETTINGS_NOT_VISIBLE
+        val group =
+            findComponentWithText(window, HIGHLIGHT_ON_CARET_MOVEMENT_TEXT)
+                ?: return@driverTestOnEdt SETTINGS_NOT_VISIBLE
+        val matchedBrace =
+            findComponentWithText(window, MATCHED_BRACE_TEXT)
+                ?: return@driverTestOnEdt SETTINGS_NOT_VISIBLE
+        val currentScope =
+            findComponentWithText(window, CURRENT_SCOPE_TEXT)
+                ?: return@driverTestOnEdt SETTINGS_NOT_VISIBLE
         currentScope.scrollRectToVisible(
             Rectangle(0, 0, currentScope.width.coerceAtLeast(1), currentScope.height.coerceAtLeast(1)),
         )
@@ -438,7 +438,7 @@ object BracketGuideDriverBridge {
 
     private fun findComponentWithText(root: Container, text: String): JComponent? {
         for (component in root.components) {
-            if (component is JComponent && componentText(component) == text) return component
+            if (component is JComponent && componentText(component)?.contains(text) == true) return component
             if (component is Container) {
                 findComponentWithText(component, text)?.let { return it }
             }
