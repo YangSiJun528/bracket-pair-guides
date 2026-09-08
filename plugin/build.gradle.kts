@@ -105,7 +105,7 @@ dependencies {
     }
 
     add(visualTestImplementation.name, "org.junit.jupiter:junit-jupiter:6.1.3")
-    add(visualTestImplementation.name, "org.kodein.di:kodein-di-jvm:7.20.2")
+    add(visualTestImplementation.name, "org.kodein.di:kodein-di-jvm:7.33.0")
     add(
         visualTestImplementation.name,
         "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.11.0",
