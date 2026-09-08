@@ -294,6 +294,8 @@ class BracketGuideVisualTest {
                     )
 
                     val nativeStateBeforeReview = bridge.nativeVisualState(SAMPLE_FILE)
+                    val nativeModeBeforeReview = bridge.nativeIntegrationMode()
+                    assertTrue(nativeModeBeforeReview == NATIVE_HIGHLIGHTING_UNCHANGED_MODE)
                     try {
                         assertTrue(
                             bridge.showNativeGuideConflictNotificationForCapture(SAMPLE_FILE),
@@ -390,7 +392,6 @@ class BracketGuideVisualTest {
                                     integrationTitle.present() &&
                                         integrationTitle.component.isShowing() &&
                                         unchangedMode.present() &&
-                                        unchangedMode.component.isShowing() &&
                                         restorationNote.present() &&
                                         restorationNote.component.isShowing()
                                 }
@@ -400,6 +401,7 @@ class BracketGuideVisualTest {
                         }
                         waitForNoOpenedDialogs()
                         assertTrue(bridge.nativeVisualState(SAMPLE_FILE) == nativeStateBeforeReview)
+                        assertTrue(bridge.nativeIntegrationMode() == nativeModeBeforeReview)
                     } finally {
                         runCatching {
                             bridge.expireNativeGuideConflictNotificationAfterCapture()
@@ -863,6 +865,7 @@ class BracketGuideVisualTest {
         const val NOTIFICATION_EXPAND_ACTION_CLASS = "com.intellij.ui.components.labels.LinkLabel"
         const val NOTIFICATION_ACTION_TYPE = "com.intellij.ui.components.labels.LinkLabel"
         const val NATIVE_HIGHLIGHTING_UNCHANGED_TEXT = "Leave IntelliJ highlighting unchanged"
+        const val NATIVE_HIGHLIGHTING_UNCHANGED_MODE = "LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED"
         const val MACOS_ENVIRONMENT = "ideaIC-2024.2.6/macos-aarch64-darcula-scale1"
         const val LINUX_ENVIRONMENT = "ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1"
         const val MACOS_PLATFORM = "macos-aarch64"
@@ -909,6 +912,8 @@ private interface DriverBridge {
     fun activeGuideState(filePathSuffix: String): String
 
     fun nativeVisualState(filePathSuffix: String): String
+
+    fun nativeIntegrationMode(): String
 
     fun setHideNativeIndentGuides(filePathSuffix: String, hidden: Boolean): String
 

@@ -226,6 +226,11 @@ object BracketGuideDriverBridge {
     }
 
     @JvmStatic
+    fun nativeIntegrationMode(): String = driverTestOnEdt {
+        BracketGuideSettings.getInstance().options.intelliJIntegration.nativeHighlightMode.name
+    }
+
+    @JvmStatic
     fun setHideNativeIndentGuides(filePathSuffix: String, hidden: Boolean): String = driverTestOnEdt {
         val current = BracketGuideSettings.getInstance().options
         BracketGuideSettingsController.getInstance().applySettings(
