@@ -247,6 +247,7 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         Notification.fire(notification, notification.actions.single(), null)
 
         assertThat(openedProject).isSameAs(project)
+        assertThat(notification.isExpired).isTrue()
         assertThat(BracketGuideSettings.getInstance().options).isEqualTo(settingsBeforeAction)
         assertThat(
             Triple(

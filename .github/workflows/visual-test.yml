@@ -167,8 +167,8 @@ jobs:
             plugin/build/test-results/visualTest
             plugin/build/visual-test-artifacts
             plugin/build/visual-test-gradle.log
-            plugin/out/perf-startup/tests/*/*/log
-            plugin/out/perf-startup/tests/*/*/reports
+            out/perf-startup/tests/*/*/log
+            out/perf-startup/tests/*/*/reports
           if-no-files-found: ignore
           retention-days: 14
 

@@ -4,6 +4,7 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.components.SerializablePersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
@@ -188,7 +189,7 @@ internal object NativeGuideConflictBalloon {
     fun create(project: Project, openSettings: (Project) -> Unit = ::openIntegrationSettings): Notification =
         Notification(GROUP_ID, TITLE, CONTENT, NotificationType.INFORMATION)
             .addAction(
-                NotificationAction.createSimple(ACTION_TEXT) {
+                NotificationAction.createSimpleExpiring(ACTION_TEXT) {
                     openSettings(project)
                 },
             )
@@ -198,14 +199,17 @@ internal object NativeGuideConflictBalloon {
     }
 
     private fun openIntegrationSettings(project: Project) {
-        ApplicationManager.getApplication().invokeLater {
-            if (!project.isDisposed) {
-                ShowSettingsUtil.getInstance().showSettingsDialog(
-                    project,
-                    BracketGuideSettingsPage::class.java,
-                )
-            }
-        }
+        ApplicationManager.getApplication().invokeLater(
+            {
+                if (!project.isDisposed) {
+                    ShowSettingsUtil.getInstance().showSettingsDialog(
+                        project,
+                        BracketGuideSettingsPage::class.java,
+                    )
+                }
+            },
+            ModalityState.nonModal(),
+        )
     }
 
     internal const val GROUP_ID = "Bracket Pair Guides Native Visual Conflict"
