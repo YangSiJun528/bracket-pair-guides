@@ -64,7 +64,13 @@ internal class EditorGuideEvents :
             .connect(this)
             .subscribe(EditorColorsManager.TOPIC, this)
         EditorSettingsExternalizable.getInstance().addPropertyChangeListener(
-            {
+            { event ->
+                if (
+                    event.propertyName ==
+                    EditorSettingsExternalizable.PropNames.PROP_IS_INDENT_GUIDES_SHOWN
+                ) {
+                    BracketGuideSettingsController.getInstance().reconcileNativeSettings()
+                }
                 requestVisibleRefreshes(EditorFactory.getInstance().allEditors.toList())
             },
             this,

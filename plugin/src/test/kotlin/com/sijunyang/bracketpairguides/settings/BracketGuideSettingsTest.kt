@@ -2,6 +2,8 @@ package com.sijunyang.bracketpairguides.settings
 
 import com.intellij.util.xmlb.XmlSerializer
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.preferences.IntelliJIntegrationPreferences
+import com.sijunyang.bracketpairguides.preferences.NativeHighlightMode
 import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
@@ -14,7 +16,10 @@ class BracketGuideSettingsTest {
 
         assertThat(state.enabled).isTrue()
         assertThat(state.disabledLanguageIds).isEmpty()
-        assertThat(state.disableNativeMatchedBraceHighlighting).isTrue()
+        assertThat(state.intelliJIntegration.manageNativeVisuals).isTrue()
+        assertThat(state.intelliJIntegration.nativeHighlightMode)
+            .isEqualTo(NativeHighlightMode.SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE)
+        assertThat(state.intelliJIntegration.hideNativeIndentGuides).isFalse()
         assertThat(state.colorBracketTokens).isTrue()
         assertThat(state.showActiveGuide).isTrue()
         assertThat(state.showVerticalGuide).isTrue()
@@ -89,7 +94,12 @@ class BracketGuideSettingsTest {
             BracketGuidePreferences(
                 enabled = false,
                 disabledLanguageIds = setOf("Rust", "JavaScript"),
-                disableNativeMatchedBraceHighlighting = false,
+                intelliJIntegration =
+                IntelliJIntegrationPreferences(
+                    manageNativeVisuals = false,
+                    nativeHighlightMode = NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY,
+                    hideNativeIndentGuides = true,
+                ),
                 colorBracketTokens = false,
                 showActiveGuide = false,
                 showVerticalGuide = false,

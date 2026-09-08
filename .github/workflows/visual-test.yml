@@ -122,6 +122,29 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: Upload Native Integration Captures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: native-guide-integration-visuals
+          path: |
+            plugin/build/visual-test-artifacts/intellij-integration-settings.png
+            plugin/build/visual-test-artifacts/intellij-highlight-on-caret-movement-settings.png
+            plugin/build/visual-test-artifacts/native-highlight-modes-popup.png
+            plugin/build/visual-test-artifacts/native-guide-conflict-notification.png
+            plugin/build/visual-test-artifacts/native-guide-conflict-balloon.png
+            plugin/build/visual-test-artifacts/native-guide-conflict-review-settings.png
+            plugin/build/visual-test-artifacts/native-guide-overlap-actual.png
+            plugin/build/visual-test-artifacts/native-guide-overlap-candidate.png
+            plugin/build/visual-test-artifacts/native-guide-emphasis-diff.png
+            plugin/build/visual-test-artifacts/native-guide-overlap-detail.png
+            plugin/build/visual-test-artifacts/native-guide-default-suppressed-actual.png
+            plugin/build/visual-test-artifacts/native-guide-default-suppressed-detail.png
+            plugin/build/visual-test-artifacts/plugin-guide-only-actual.png
+            plugin/build/visual-test-artifacts/plugin-guide-only-detail.png
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Upload Diff Image
         if: ${{ always() && steps.visual-test.outcome == 'failure' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -152,8 +175,8 @@ jobs:
             plugin/build/test-results/visualTest
             plugin/build/visual-test-artifacts
             plugin/build/visual-test-gradle.log
-            plugin/out/perf-startup/tests/*/*/log
-            plugin/out/perf-startup/tests/*/*/reports
+            out/perf-startup/tests/*/*/log
+            out/perf-startup/tests/*/*/reports
           if-no-files-found: ignore
           retention-days: 14
 

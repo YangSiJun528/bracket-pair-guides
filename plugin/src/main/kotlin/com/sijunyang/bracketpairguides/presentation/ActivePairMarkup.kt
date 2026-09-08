@@ -10,7 +10,10 @@ import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 
 /** All active-pair markup owned by one editor session. */
-internal class ActivePairMarkup(private val editor: Editor) {
+internal class ActivePairMarkup(
+    private val editor: Editor,
+    private val onDisplayedMultilineVerticalGuide: (Editor, BracketGuide) -> Unit = { _, _ -> },
+) {
     private var guideMark: RangeHighlighter? = null
 
     private var pairMarks: List<RangeHighlighter> = emptyList()
@@ -69,7 +72,13 @@ internal class ActivePairMarkup(private val editor: Editor) {
             highlighter.also {
                 val renderer = it.customRenderer as? BracketGuideDrawing
                 if (renderer == null) {
-                    it.customRenderer = BracketGuideDrawing(guide, appearance, color)
+                    it.customRenderer =
+                        BracketGuideDrawing(
+                            guide,
+                            appearance,
+                            color,
+                            onDisplayedMultilineVerticalGuide,
+                        )
                 } else {
                     renderer.update(guide, appearance, color)
                 }

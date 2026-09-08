@@ -8,7 +8,6 @@ Pair Guides**. There is no separate Color Scheme page.
 | Setting | Default | Effect |
 |---|---:|---|
 | Enabled | On | Enables or disables all plugin highlighting |
-| Disable IntelliJ matched-brace highlighting | On | Prevents IntelliJ's native endpoint foreground/background from replacing the plugin's pair colors |
 | Bracket colorization | On | Colors both symbols of every matched pair |
 | Active guide | On | Shows a guide for the innermost pair containing the primary caret |
 | Vertical | On | Shows the vertical part of a multiline guide |
@@ -26,16 +25,110 @@ The default active presentation uses only the vertical and horizontal guide
 segments. Enable either pair option when the two active symbols need additional
 emphasis.
 
-**Disable IntelliJ matched-brace highlighting** is enabled by default because
-IntelliJ normally replaces the endpoint foreground and background when the
-caret touches a brace boundary. Clear the option to restore the native setting.
-That combination is not tested and may not reproduce the intended appearance.
+Use the **IntelliJ Integration** group to control native emphasis and the
+physical indent-guide lines that can appear beside a multiline active guide.
 
-This is an IDE-wide IntelliJ setting. The plugin remembers its previous value
-before taking ownership and restores that value when the option or plugin is
-disabled, or when the plugin is dynamically unloaded. If the native setting is
-explicitly enabled elsewhere while the plugin owns it, the newer native choice
-wins and this option is cleared.
+## Adjust IntelliJ guide rendering
+
+Open **Settings | Editor | Bracket Pair Guides**, then find the **IntelliJ
+Integration** group. The three controls work together as follows:
+
+| Setting | Default | Effect |
+|---|---:|---|
+| Adjust IntelliJ guide rendering while Bracket Pair Guides is enabled | On | Applies the selected native highlighting and indent-guide choices |
+| Native guide highlighting | Hide matched-brace and Current scope highlighting | Controls whether IntelliJ can emphasize an existing native indent guide |
+| Hide regular IntelliJ indent guides | Off | Removes the physical native indent-guide lines when enabled |
+
+**Matched brace** and **Current scope** are IntelliJ checkboxes under
+**Settings | Editor | General | Highlight on Caret Movement**. **Current scope**
+is not a separate vertical-line option. In the New UI, both settings can change
+the color or prominence of an existing indent guide. The physical line itself
+is controlled by **Show indent guides** under
+**Settings | Editor | General | Appearance**.
+
+The default keeps useful regular IntelliJ indent guides. In the New UI, a dim
+native indent guide can therefore remain beside the plugin's active vertical
+guide. This is expected and does not indicate that suppression failed.
+
+To show only the plugin guide in the New UI code area:
+
+1. Keep **Adjust IntelliJ guide rendering while Bracket Pair Guides is enabled**
+   selected.
+2. Select **Hide matched-brace and Current scope highlighting**.
+3. Select **Hide regular IntelliJ indent guides**.
+
+This option changes IntelliJ's global indent-guide value. An editor with an
+explicit per-editor override can continue to show indent guides; the plugin
+detects that effective value but does not overwrite the override.
+
+Hiding native highlighting and hiding regular indent guides solve different
+problems. With **Show indent guides** enabled, its physical line can sit beside
+the plugin guide. **Matched brace** and **Current scope** only emphasize that
+existing line in the New UI; they do not add another physical line. The regular
+guide remains dim when its highlighting is suppressed. In the Classic UI,
+native brace highlighting can instead paint a gutter-side marker even when
+regular indent guides are hidden. Use the default highlighting mode, not only
+the indent-guide option, when native emphasis should be removed in both UIs.
+
+The tested New UI states use the same caret position. The native-emphasis case
+deliberately keeps **Current scope** off and turns only **Matched brace** on,
+proving that Current scope is not required for the adjacent native emphasis.
+
+In the first state, **Show indent guides** supplies the adjacent physical line;
+native highlighting only emphasizes it. That emphasis triggers the advisory
+notification. The middle state is the default, which keeps the same regular
+line dim. The final state also selects **Hide regular IntelliJ indent guides**.
+
+Choose a highlighting mode according to the native behavior you want:
+
+- **Hide matched-brace and Current scope highlighting** suppresses both rendered
+  effects by disabling IntelliJ's matched-brace processing. This is the default.
+- **Hide Current scope highlighting only** keeps matched-brace feedback and
+  suppresses Current scope. At a brace boundary, matched-brace highlighting can
+  still emphasize the native guide.
+- **Leave IntelliJ highlighting unchanged** does not take ownership of either
+  native highlighting setting.
+
+Clear the parent option to stop managing all three native settings temporarily.
+The selected mode and indent-guide option are retained but disabled in the UI,
+and any native values currently owned by the plugin are restored. Disabling
+Bracket Pair Guides has the same restoration effect.
+
+The plugin remembers each IntelliJ value before changing it. It restores that
+exact value when the integration or plugin is disabled, the selected option no
+longer needs it, the plugin is unloaded, or the IDE exits. If a managed IntelliJ
+value is explicitly turned back on elsewhere, that newer choice wins: the
+plugin releases only that value, keeps the parent integration enabled, and
+updates the corresponding child selection. Re-enabling matched-brace or Current
+scope highlighting selects **Leave IntelliJ highlighting unchanged**;
+re-enabling indent guides clears **Hide regular IntelliJ indent guides**.
+
+Because these IntelliJ settings are Boolean values, another component writing
+`false` while the plugin already owns the same `false` value cannot be detected
+as a separate change. The plugin retains its recorded original value in that
+case and restores it when ownership ends.
+
+Native-setting management and native-emphasis notifications initially apply
+only to standard local editors. Remote Development, Code With Me, and other
+client-backed editor paths are left unchanged.
+
+### Respond to the native-emphasis notification
+
+Bracket Pair Guides can show one informational balloon after it displays a
+multiline active vertical guide and detects that **Matched brace** or **Current
+scope** can visibly emphasize an existing IntelliJ indent guide beside it in the
+New UI, or a gutter-side marker in the Classic UI. Select **Review settings** to
+open the **IntelliJ Integration** group and choose the intended combination.
+
+The notification appears in the lower-right corner of the IDE. Expand it to
+read the complete explanation. The **Review settings** action opens the relevant
+settings page without changing the current selection.
+
+The notification is advisory. Opening or closing it does not change plugin or
+IntelliJ settings. It is published only once across IDE processes and projects.
+Regular dim indent guides are useful under the default configuration and never
+trigger this notification, so the absence of a notification does not mean that
+only one physical line will be shown.
 
 ## Choose languages
 
@@ -96,26 +189,7 @@ component overrides off.
 | `editorBracketHighlight.foreground1..6` | Base colors |
 | `editorBracketPairGuide.activeBackground1..6` | Guide colors with Component overrides enabled |
 
-## Adjust IntelliJ indent guides
-
-IntelliJ's built-in indent guide can appear beside the active guide. **Current
-scope** highlights the existing guide for the scope at the caret; it does not
-create the guide.
-
-Choose the preferred appearance:
-
-- To hide the built-in gray line, open **Settings | Editor | General |
-  Appearance** and clear **Show indent guides**.
-- To keep the line without highlighting the scope at the caret, open **Settings
-  | Editor | General | Code Editing** and clear **Current scope** under
-  **Highlight on Caret Movement**.
-
-Leave **Disable IntelliJ matched-brace highlighting** enabled for the tested
-appearance. Clear it only when native boundary feedback is preferred. If
-another plugin styles the same editor elements, either accept the combined
-appearance or disable the overlapping feature in one of the plugins.
-
-### Use with other highlighting plugins
+## Use with other highlighting plugins
 
 Bracket Pair Guides does not reserve a higher rendering priority than other
 plugins. When multiple plugins draw colors, backgrounds, borders, or guides on
@@ -127,8 +201,8 @@ Use the plugins together when the combined appearance is acceptable. Otherwise,
 disable overlapping features or disable one of the plugins.
 
 Bracket Pair Guides removes only highlighters it created and never clears an
-editor's markup model. The native matched-brace flag described above is the one
-IDE setting it intentionally changes and restores.
+editor's markup model. It changes only the native values selected in the
+**IntelliJ Integration** group and restores values it still owns.
 
 Language support follows the matcher selected by IntelliJ's brace-matching
 resolver, not the IDE product name. The resolver can select either a token

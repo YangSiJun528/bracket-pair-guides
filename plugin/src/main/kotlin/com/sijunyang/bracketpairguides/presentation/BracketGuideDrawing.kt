@@ -27,6 +27,7 @@ internal class BracketGuideDrawing(
     guide: BracketGuide,
     private var appearance: GuideAppearance,
     private var color: Color,
+    private val onDisplayedMultilineVerticalGuide: (Editor, BracketGuide) -> Unit = { _, _ -> },
 ) : CustomHighlighterRenderer {
     var guide: BracketGuide = guide
         private set
@@ -151,6 +152,9 @@ internal class BracketGuideDrawing(
                 guideShape.addHorizontal(guideX, closePoint.x, closeBottomY)
             }
             guideShape.paint()
+            if (guideShape.hasVerticalSegment) {
+                onDisplayedMultilineVerticalGuide(editor, guide)
+            }
         } finally {
             g.dispose()
         }
@@ -289,6 +293,9 @@ internal class BracketGuideDrawing(
                 .coerceAtLeast(PaintUtil.devPixel(graphics))
         private var isEmpty = true
 
+        var hasVerticalSegment: Boolean = false
+            private set
+
         fun addVertical(x: Int, startY: Int, endY: Int) {
             if (startY >= endY) return
 
@@ -298,6 +305,19 @@ internal class BracketGuideDrawing(
             centerLines.moveTo(centerX, top)
             centerLines.lineTo(centerX, bottom)
             isEmpty = false
+            val clip = graphics.clipBounds
+            val halfThickness = thickness / 2.0
+            if (
+                clip == null ||
+                (
+                    centerX + halfThickness >= clip.minX &&
+                        centerX - halfThickness <= clip.maxX &&
+                        bottom >= clip.minY &&
+                        top <= clip.maxY
+                    )
+            ) {
+                hasVerticalSegment = true
+            }
         }
 
         fun addHorizontal(firstX: Int, secondX: Int, y: Int) {

@@ -171,6 +171,9 @@ internal class BracketGuideHighlightingPass(
             stickySourceRanges = stickySourceRanges,
             preferences = BracketGuideSettings.getInstance().options,
             matcherAvailabilityChanged = UnsupportedBackendNotificationProvider::update,
+            nativeGuideConflictCandidate = { candidateEditor, guide ->
+                NativeGuideConflictNotification.getInstance().consider(candidateEditor, guide)
+            },
         )
     }
 }

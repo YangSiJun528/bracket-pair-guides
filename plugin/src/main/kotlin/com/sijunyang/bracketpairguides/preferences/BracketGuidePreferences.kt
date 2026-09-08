@@ -6,7 +6,8 @@ import com.intellij.util.xmlb.annotations.Property
 internal data class BracketGuidePreferences(
     @JvmField @field:Property val enabled: Boolean = true,
     @JvmField @field:Property val disabledLanguageIds: Set<String> = emptySet(),
-    @JvmField @field:Property val disableNativeMatchedBraceHighlighting: Boolean = true,
+    @JvmField @field:Property val intelliJIntegration: IntelliJIntegrationPreferences =
+        IntelliJIntegrationPreferences(),
     @JvmField @field:Property val colorBracketTokens: Boolean = true,
     @JvmField @field:Property val showActiveGuide: Boolean = true,
     @JvmField @field:Property val showVerticalGuide: Boolean = true,
@@ -50,4 +51,19 @@ internal data class BracketGuidePreferences(
         const val MAX_PAIR_BACKGROUND_OPACITY_PERCENT: Int = 100
         private const val DEFAULT_PAIR_BACKGROUND_OPACITY_PERCENT: Int = 22
     }
+}
+
+/** IntelliJ-owned editor visuals coordinated while the plugin is enabled. */
+internal data class IntelliJIntegrationPreferences(
+    @JvmField @field:Property val manageNativeVisuals: Boolean = true,
+    @JvmField @field:Property val nativeHighlightMode: NativeHighlightMode =
+        NativeHighlightMode.SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE,
+    @JvmField @field:Property val hideNativeIndentGuides: Boolean = false,
+)
+
+/** Native highlight effects that may remain beside the plugin's active guide. */
+internal enum class NativeHighlightMode {
+    SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE,
+    SUPPRESS_CURRENT_SCOPE_ONLY,
+    LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED,
 }

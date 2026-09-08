@@ -6,9 +6,12 @@ import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 
 /** Tracked active-pair state and its editor markup for one editor session. */
-internal class ActiveGuidePresentation(private val editor: Editor) {
+internal class ActiveGuidePresentation(
+    private val editor: Editor,
+    onDisplayedMultilineVerticalGuide: (Editor, BracketGuide) -> Unit = { _, _ -> },
+) {
     private val trackedPair = TrackedBracketPair(editor)
-    private val markup = ActivePairMarkup(editor)
+    private val markup = ActivePairMarkup(editor, onDisplayedMultilineVerticalGuide)
 
     val currentPair: BracketPair?
         get() = trackedPair.current
