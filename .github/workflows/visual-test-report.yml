@@ -3,7 +3,7 @@
 name: Visual Test Report
 on:
   workflow_run:
-    workflows: [ Visual Test ]
+    workflows: [ Visual Test Scenarios ]
     types: [ completed ]
 
 permissions:
@@ -18,6 +18,8 @@ jobs:
     if: >-
       github.event.workflow_run.conclusion != 'skipped' &&
       github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.name == 'Visual Test Scenarios' &&
+      github.event.workflow_run.path == '.github/workflows/visual-test.yml' &&
       github.event.workflow_run.head_repository.full_name == github.repository &&
       github.event.workflow_run.pull_requests[0].number > 0 &&
       github.event.workflow_run.pull_requests[1] == null
@@ -33,67 +35,59 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
-            const requiredImageNames = [
-              'show-active-guide-off-actual.png',
-              'show-active-guide-on-actual.png',
-              'intellij-integration-settings.png',
-              'intellij-highlight-on-caret-movement-settings.png',
-              'native-highlight-modes-popup.png',
-              'native-guide-overlap-actual.png',
-              'native-guide-default-suppressed-actual.png',
-              'plugin-guide-only-actual.png',
-              'native-guide-overlap-detail.png',
-              'native-guide-default-suppressed-detail.png',
-              'plugin-guide-only-detail.png',
-              'native-guide-conflict-notification.png',
-              'native-guide-conflict-balloon.png',
-              'native-guide-conflict-review-settings.png',
+            const scenarios = [
+              'horizontal-only',
+              'vertical-only',
+              'pair-border-only',
+              'pair-background-only',
+              'all-components',
+              'bracket-colorization-off',
+              'plugin-disabled',
+              'native-visuals-unmanaged',
+              'native-highlight-suppressed',
+              'native-indent-hidden',
+              'default-palette',
+              'custom-palette',
             ]
-            const imageNames = [
-              ...requiredImageNames,
-              'diff-v2.png',
-            ]
+            const imageNames = scenarios.flatMap(name => [
+              `${name}-actual.png`,
+              `${name}-baseline.png`,
+            ])
             const allowedNames = new Set([
               ...imageNames,
-              'visual-test-metrics-v2.json',
               'visual-test-diagnostics',
             ])
             const maximumSizes = new Map([
-              ['show-active-guide-off-actual.png', 256 * 1024],
-              ['show-active-guide-on-actual.png', 256 * 1024],
-              ['intellij-integration-settings.png', 512 * 1024],
-              ['intellij-highlight-on-caret-movement-settings.png', 512 * 1024],
-              ['native-highlight-modes-popup.png', 512 * 1024],
-              ['native-guide-overlap-actual.png', 256 * 1024],
-              ['native-guide-default-suppressed-actual.png', 256 * 1024],
-              ['plugin-guide-only-actual.png', 256 * 1024],
-              ['native-guide-overlap-detail.png', 128 * 1024],
-              ['native-guide-default-suppressed-detail.png', 128 * 1024],
-              ['plugin-guide-only-detail.png', 128 * 1024],
-              ['native-guide-conflict-notification.png', 512 * 1024],
-              ['native-guide-conflict-balloon.png', 256 * 1024],
-              ['native-guide-conflict-review-settings.png', 512 * 1024],
-              ['diff-v2.png', 8 * 1024 * 1024],
-              ['visual-test-metrics-v2.json', 16 * 1024],
+              ...imageNames.map(name => [name, 256 * 1024]),
               ['visual-test-diagnostics', 64 * 1024 * 1024],
             ])
-            const runId = Number(context.payload.workflow_run.id)
-            const runAttempt = Number(context.payload.workflow_run.run_attempt)
-            if (
-              !Number.isSafeInteger(runId) ||
-              runId <= 0 ||
-              !Number.isSafeInteger(runAttempt) ||
-              runAttempt <= 0
-            ) {
-              throw new Error('Invalid workflow run metadata')
+            const positiveInteger = value =>
+              Number.isSafeInteger(value) && value > 0
+            const skip = message => {
+              core.info(message)
+              core.setOutput('should_report', 'false')
+              core.setOutput('image_ids', '')
             }
 
             const run = context.payload.workflow_run
+            const runId = Number(run.id)
+            const runAttempt = Number(run.run_attempt)
             const linkedPullRequest = run.pull_requests?.[0]
             const pullNumber = Number(linkedPullRequest?.number)
-            if (!Number.isSafeInteger(pullNumber) || pullNumber <= 0) {
-              throw new Error('Invalid pull-request association')
+            if (
+              !positiveInteger(runId) ||
+              !positiveInteger(runAttempt) ||
+              !positiveInteger(pullNumber) ||
+              !Array.isArray(run.pull_requests) ||
+              run.pull_requests.length !== 1 ||
+              run.event !== 'pull_request' ||
+              run.name !== 'Visual Test Scenarios' ||
+              run.path !== '.github/workflows/visual-test.yml' ||
+              run.head_repository?.full_name !== `${context.repo.owner}/${context.repo.repo}`
+            ) {
+              throw new Error('Invalid trusted workflow metadata')
             }
+
             const pull = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -103,10 +97,8 @@ jobs:
             const stackIsValid = stack == null || (
               stack !== null &&
               typeof stack === 'object' &&
-              Number.isSafeInteger(stack.position) &&
-              stack.position > 0 &&
-              Number.isSafeInteger(stack.size) &&
-              stack.size > 0 &&
+              positiveInteger(stack.position) &&
+              positiveInteger(stack.size) &&
               stack.position === stack.size &&
               stack.base?.ref === 'main'
             )
@@ -128,42 +120,8 @@ jobs:
               run.head_sha !== linkedHeadSha ||
               pull.data.head.sha !== linkedHeadSha
             ) {
-              core.info('Skipping a pull request that is no longer eligible')
-              core.setOutput('should_report', 'false')
-              core.setOutput('metrics_id', '')
-              core.setOutput('image_ids', '')
+              skip('Skipping a pull request that is no longer eligible')
               return
-            }
-
-            const artifacts = await github.paginate(
-              github.rest.actions.listWorkflowRunArtifacts,
-              {
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                run_id: runId,
-                per_page: 100,
-              },
-            )
-            const selected = artifacts.filter(
-              artifact => allowedNames.has(artifact.name) && !artifact.expired,
-            )
-            const counts = new Map()
-            for (const artifact of selected) {
-              counts.set(artifact.name, (counts.get(artifact.name) || 0) + 1)
-            }
-            if ([...counts.values()].some(count => count !== 1)) {
-              throw new Error('Duplicate allowlisted artifact name')
-            }
-            for (const artifact of selected) {
-              if (
-                !Number.isSafeInteger(artifact.id) ||
-                artifact.id <= 0 ||
-                !Number.isSafeInteger(artifact.size_in_bytes) ||
-                artifact.size_in_bytes <= 0 ||
-                artifact.size_in_bytes > maximumSizes.get(artifact.name)
-              ) {
-                throw new Error(`Artifact metadata failed validation: ${artifact.name}`)
-              }
             }
 
             const jobs = await github.paginate(
@@ -176,47 +134,84 @@ jobs:
                 per_page: 100,
               },
             )
-            const visualJobs = jobs.filter(job => job.name === 'Visual Test')
-            if (visualJobs.length > 1) {
+            const requestedVisualJobs = jobs.filter(job => job.name === 'Visual Test')
+            const notRequestedVisualJobs = jobs.filter(
+              job => job.name === 'Visual Test (not requested)',
+            )
+            if (requestedVisualJobs.length + notRequestedVisualJobs.length > 1) {
               throw new Error('Expected exactly one visual-test job')
             }
-            if (visualJobs.length === 0 || visualJobs[0].conclusion === 'skipped') {
-              core.setOutput('should_report', 'false')
-              core.setOutput('metrics_id', '')
-              core.setOutput('image_ids', '')
+            if (notRequestedVisualJobs.length === 1) {
+              if (notRequestedVisualJobs[0].conclusion !== 'skipped') {
+                throw new Error('A not-requested visual-test job was not skipped')
+              }
+              skip('The visual-test job was not requested')
               return
             }
+            const visualJob = requestedVisualJobs[0]
+            if (visualJob?.conclusion === 'skipped') {
+              skip('The visual-test job was not requested')
+              return
+            }
+            if (visualJob === undefined && run.conclusion === 'success') {
+              throw new Error('A successful run has no visual-test job')
+            }
+            const jobStartedAt = Date.parse(visualJob?.started_at || '')
+            const jobCompletedAt = Date.parse(visualJob?.completed_at || '')
+            const hasAttemptWindow =
+              Number.isFinite(jobStartedAt) &&
+              Number.isFinite(jobCompletedAt) &&
+              jobStartedAt <= jobCompletedAt
+            if (visualJob !== undefined && !hasAttemptWindow) {
+              if (run.conclusion === 'success') {
+                throw new Error('A successful visual-test job has no valid time window')
+              }
+              core.warning('The failed visual-test job has no artifact time window')
+            }
 
-            const metrics = selected.filter(
-              artifact => artifact.name === 'visual-test-metrics-v2.json',
+            // The workflow-run artifact endpoint returns artifacts from every rerun
+            // attempt. Restrict names to artifacts created while this attempt's one
+            // visual-test job was running before checking for duplicates.
+            const artifacts = await github.paginate(
+              github.rest.actions.listWorkflowRunArtifacts,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: runId,
+                per_page: 100,
+              },
             )
-            if (metrics.length > 1) {
-              throw new Error('Expected at most one metrics artifact')
+            const selected = artifacts.filter(artifact => {
+              if (!hasAttemptWindow) return false
+              const createdAt = Date.parse(artifact.created_at || '')
+              return Number.isFinite(createdAt) &&
+                createdAt >= jobStartedAt &&
+                createdAt <= jobCompletedAt &&
+                allowedNames.has(artifact.name) &&
+                !artifact.expired
+            })
+            const counts = new Map()
+            for (const artifact of selected) {
+              counts.set(artifact.name, (counts.get(artifact.name) || 0) + 1)
             }
-            if (metrics.length === 1) {
-              const metric = metrics[0]
-              core.setOutput('metrics_id', String(metric.id))
-            } else {
-              core.setOutput('metrics_id', '')
+            if ([...counts.values()].some(count => count !== 1)) {
+              throw new Error('Duplicate allowlisted artifact name in this run attempt')
             }
+            for (const artifact of selected) {
+              if (
+                !positiveInteger(artifact.id) ||
+                !positiveInteger(artifact.size_in_bytes) ||
+                artifact.size_in_bytes > maximumSizes.get(artifact.name)
+              ) {
+                throw new Error(`Artifact metadata failed validation: ${artifact.name}`)
+              }
+            }
+
             const imageIds = imageNames
               .map(name => selected.find(artifact => artifact.name === name)?.id)
               .filter(id => id !== undefined)
             core.setOutput('image_ids', imageIds.join(','))
             core.setOutput('should_report', 'true')
-
-      - name: Download Metrics Without Extraction
-        id: download-metrics
-        if: ${{ steps.inspect.outputs.metrics_id != '' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-        with:
-          artifact-ids: ${{ steps.inspect.outputs.metrics_id }}
-          path: ${{ runner.temp }}/visual-test-report
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          run-id: ${{ github.event.workflow_run.id }}
-          skip-decompress: true
-          digest-mismatch: error
 
       - name: Download Captures Without Extraction
         id: download-images
@@ -232,13 +227,10 @@ jobs:
           skip-decompress: true
           digest-mismatch: error
 
-      - name: Validate Metrics and Update Pull Request
+      - name: Validate Captures and Update Pull Request
         if: ${{ always() && steps.inspect.outputs.should_report == 'true' }}
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
-          DOWNLOAD_OUTCOME: ${{ steps.download-metrics.outcome }}
-          METRICS_ARTIFACT_ID: ${{ steps.inspect.outputs.metrics_id }}
-          METRICS_DIRECTORY: ${{ runner.temp }}/visual-test-report
           IMAGES_DOWNLOAD_OUTCOME: ${{ steps.download-images.outcome }}
           IMAGE_ARTIFACT_IDS: ${{ steps.inspect.outputs.image_ids }}
           IMAGES_DIRECTORY: ${{ runner.temp }}/visual-test-images
@@ -248,227 +240,124 @@ jobs:
             const path = require('path')
             const zlib = require('zlib')
 
-            const marker = '<!-- visual-test-report:v1 -->'
-            const orderPrefix = '<!-- visual-test-report-order:'
-            const requiredCaptures = [
+            const marker = '<!-- visual-test-report:v2 -->'
+            const legacyMarker = '<!-- visual-test-report:v1 -->'
+            const orderPrefix = '<!-- visual-test-report-order-v2:'
+            const groups = [
               {
-                name: 'show-active-guide-off-actual.png',
-                metricName: 'show-active-guide-off',
-                width: 220,
-                height: 240,
-                colorType: 6,
-                channels: 4,
-                maximumSize: 256 * 1024,
+                label: 'Rendering components',
+                scenarios: [
+                  ['horizontal-only', 'Horizontal guide only'],
+                  ['vertical-only', 'Vertical guide only'],
+                  ['pair-border-only', 'Pair border only'],
+                  ['pair-background-only', 'Pair background only'],
+                  ['all-components', 'All components'],
+                  ['bracket-colorization-off', 'Bracket colorization off'],
+                ],
               },
               {
-                name: 'show-active-guide-on-actual.png',
-                metricName: 'show-active-guide-on',
-                width: 220,
-                height: 240,
-                colorType: 6,
-                channels: 4,
-                maximumSize: 256 * 1024,
+                label: 'Settings application and native visuals',
+                scenarios: [
+                  ['plugin-disabled', 'Plugin disabled'],
+                  ['native-visuals-unmanaged', 'Native visuals unmanaged'],
+                  ['native-highlight-suppressed', 'Native highlight suppressed'],
+                  ['native-indent-hidden', 'Native indent guides hidden'],
+                ],
               },
               {
-                name: 'intellij-integration-settings.png',
-                metricName: 'intellij-integration-settings',
-                width: 982,
-                height: 700,
-                colorType: 2,
-                channels: 3,
-                maximumSize: 512 * 1024,
-              },
-              {
-                name: 'intellij-highlight-on-caret-movement-settings.png',
-                metricName: 'intellij-highlight-on-caret-movement-settings',
-                width: 982,
-                height: 700,
-                colorType: 2,
-                channels: 3,
-                maximumSize: 512 * 1024,
-              },
-              {
-                name: 'native-highlight-modes-popup.png',
-                metricName: 'native-highlight-modes-popup',
-                width: 982,
-                height: 700,
-                colorType: 2,
-                channels: 3,
-                maximumSize: 512 * 1024,
-              },
-              {
-                name: 'native-guide-overlap-actual.png',
-                metricName: 'native-guide-overlap',
-                width: 220,
-                height: 240,
-                colorType: 6,
-                channels: 4,
-                maximumSize: 256 * 1024,
-              },
-              {
-                name: 'native-guide-default-suppressed-actual.png',
-                metricName: 'native-guide-default-suppressed',
-                width: 220,
-                height: 240,
-                colorType: 6,
-                channels: 4,
-                maximumSize: 256 * 1024,
-              },
-              {
-                name: 'plugin-guide-only-actual.png',
-                metricName: 'plugin-guide-only',
-                width: 220,
-                height: 240,
-                colorType: 6,
-                channels: 4,
-                maximumSize: 256 * 1024,
-              },
-              {
-                name: 'native-guide-overlap-detail.png',
-                metricName: 'native-guide-overlap-detail',
-                width: 126,
-                height: 144,
-                colorType: 6,
-                channels: 4,
-                maximumSize: 128 * 1024,
-              },
-              {
-                name: 'native-guide-default-suppressed-detail.png',
-                metricName: 'native-guide-default-suppressed-detail',
-                width: 126,
-                height: 144,
-                colorType: 6,
-                channels: 4,
-                maximumSize: 128 * 1024,
-              },
-              {
-                name: 'plugin-guide-only-detail.png',
-                metricName: 'plugin-guide-only-detail',
-                width: 126,
-                height: 144,
-                colorType: 6,
-                channels: 4,
-                maximumSize: 128 * 1024,
-              },
-              {
-                name: 'native-guide-conflict-notification.png',
-                metricName: 'native-guide-conflict-notification',
-                width: 480,
-                height: 220,
-                colorType: 2,
-                channels: 3,
-                maximumSize: 512 * 1024,
-              },
-              {
-                name: 'native-guide-conflict-balloon.png',
-                metricName: 'native-guide-conflict-balloon',
-                width: 430,
-                height: 147,
-                colorType: 2,
-                channels: 3,
-                maximumSize: 256 * 1024,
-              },
-              {
-                name: 'native-guide-conflict-review-settings.png',
-                metricName: 'native-guide-conflict-review-settings',
-                width: 982,
-                height: 700,
-                colorType: 2,
-                channels: 3,
-                maximumSize: 512 * 1024,
+                label: 'Colors',
+                scenarios: [
+                  ['default-palette', 'Default palette'],
+                  ['custom-palette', 'Custom palette'],
+                ],
               },
             ]
-            const failureDiff = {
-              name: 'diff-v2.png',
-              width: 6316,
-              height: 700,
-              colorType: 6,
-              channels: 4,
-              maximumSize: 8 * 1024 * 1024,
-            }
-            const imageSchemas = new Map(
-              [...requiredCaptures, failureDiff].map(capture => [capture.name, capture]),
+            const scenarios = groups.flatMap(group =>
+              group.scenarios.map(([name, label]) => ({name, label})),
             )
-            const requiredImageNames = requiredCaptures.map(capture => capture.name)
-            const imageNames = [...requiredImageNames, failureDiff.name]
+            const imageNames = scenarios.flatMap(scenario => [
+              `${scenario.name}-actual.png`,
+              `${scenario.name}-baseline.png`,
+            ])
             const allowedNames = [
               ...imageNames,
-              'visual-test-metrics-v2.json',
               'visual-test-diagnostics',
             ]
             const maximumSizes = new Map([
-              ...[...imageSchemas].map(([name, schema]) => [name, schema.maximumSize]),
-              ['visual-test-metrics-v2.json', 16 * 1024],
+              ...imageNames.map(name => [name, 256 * 1024]),
               ['visual-test-diagnostics', 64 * 1024 * 1024],
             ])
-            const expectedEnvironment =
-              'ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1'
+            const positiveInteger = value =>
+              Number.isSafeInteger(value) && value > 0
+
             const run = context.payload.workflow_run
             const runId = Number(run.id)
             const runNumber = Number(run.run_number)
             const runAttempt = Number(run.run_attempt)
             const linkedPullRequest = run.pull_requests?.[0]
             const pullNumber = Number(linkedPullRequest?.number)
-            const positiveInteger = value =>
-              Number.isSafeInteger(value) && value > 0
             if (
               !positiveInteger(runId) ||
               !positiveInteger(runNumber) ||
               !positiveInteger(runAttempt) ||
               !positiveInteger(pullNumber) ||
               !Array.isArray(run.pull_requests) ||
-              run.pull_requests.length !== 1
+              run.pull_requests.length !== 1 ||
+              run.event !== 'pull_request' ||
+              run.name !== 'Visual Test Scenarios' ||
+              run.path !== '.github/workflows/visual-test.yml' ||
+              run.head_repository?.full_name !== `${context.repo.owner}/${context.repo.repo}`
             ) {
               throw new Error('Invalid trusted workflow metadata')
             }
-            if (run.head_repository?.full_name !== `${context.repo.owner}/${context.repo.repo}`) {
-              throw new Error('Refusing to report a cross-repository run')
+
+            const linkedHeadSha = linkedPullRequest?.head?.sha
+            const readEligiblePull = async () => {
+              const response = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pullNumber,
+              })
+              const pull = response.data
+              if (pull.head.repo?.full_name !== `${context.repo.owner}/${context.repo.repo}`) {
+                throw new Error('Refusing to report to a cross-repository pull request')
+              }
+              const labels = Array.isArray(pull.labels)
+                ? pull.labels.map(label => label.name)
+                : []
+              const stack = pull.stack
+              const stackIsValid = stack == null || (
+                stack !== null &&
+                typeof stack === 'object' &&
+                positiveInteger(stack.position) &&
+                positiveInteger(stack.size) &&
+                stack.position === stack.size &&
+                stack.base?.ref === 'main'
+              )
+              const targetsMain = stack == null
+                ? pull.base?.ref === 'main'
+                : stackIsValid
+              if (
+                pull.state !== 'open' ||
+                pull.draft !== false ||
+                !labels.includes('visual-test') ||
+                !targetsMain ||
+                !stackIsValid ||
+                !/^[0-9a-f]{40}$/u.test(linkedHeadSha || '') ||
+                run.head_sha !== linkedHeadSha ||
+                pull.head.sha !== linkedHeadSha
+              ) {
+                return null
+              }
+              return pull
             }
 
-            const pull = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pullNumber,
-            })
-            if (pull.data.head.repo?.full_name !== `${context.repo.owner}/${context.repo.repo}`) {
-              throw new Error('Refusing to report to a cross-repository pull request')
-            }
-            const pullLabels = Array.isArray(pull.data.labels)
-              ? pull.data.labels.map(label => label.name)
-              : []
-            const stack = pull.data.stack
-            const stackIsValid = stack == null || (
-              stack !== null &&
-              typeof stack === 'object' &&
-              positiveInteger(stack.position) &&
-              positiveInteger(stack.size) &&
-              stack.position === stack.size &&
-              stack.base?.ref === 'main'
-            )
-            const targetsMain = stack == null
-              ? pull.data.base?.ref === 'main'
-              : stackIsValid
-            if (
-              pull.data.state !== 'open' ||
-              pull.data.draft !== false ||
-              !pullLabels.includes('visual-test') ||
-              !targetsMain ||
-              !stackIsValid
-            ) {
+            if (await readEligiblePull() === null) {
               core.info('Skipping a pull request that is no longer eligible')
               return
             }
-            const linkedHeadSha = linkedPullRequest?.head?.sha
-            if (
-              !/^[0-9a-f]{40}$/u.test(linkedHeadSha || '') ||
-              run.head_sha !== linkedHeadSha ||
-              pull.data.head.sha !== linkedHeadSha
-            ) {
-              core.info('Skipping a stale or mismatched pull-request association')
-              return
-            }
 
-            const comments = await github.paginate(
+            const commentsForPull = async () => github.paginate(
               github.rest.issues.listComments,
               {
                 owner: context.repo.owner,
@@ -477,27 +366,71 @@ jobs:
                 per_page: 100,
               },
             )
-            const existing = comments
+            const newestExistingReport = comments => comments
               .filter(comment =>
                 comment.user?.login === 'github-actions[bot]' &&
-                comment.body?.includes(marker),
+                (
+                  comment.body?.includes(marker) ||
+                  comment.body?.includes(legacyMarker)
+                ),
               )
               .sort((left, right) => right.id - left.id)[0]
-            if (existing) {
-              const orderMatch = existing.body.match(
-                /<!-- visual-test-report-order:(\d+):(\d+) -->/u,
+            const isNewerReport = comment => {
+              if (!comment?.body?.includes(marker)) return false
+              const orderMatch = comment?.body?.match(
+                /<!-- visual-test-report-order-v2:(\d+):(\d+) -->/u,
               )
-              if (orderMatch) {
-                const existingRun = Number(orderMatch[1])
-                const existingAttempt = Number(orderMatch[2])
-                if (
-                  existingRun > runNumber ||
-                  (existingRun === runNumber && existingAttempt > runAttempt)
-                ) {
-                  core.info('A newer visual-test report already exists')
-                  return
-                }
+              if (!orderMatch) return false
+              const existingRunId = Number(orderMatch[1])
+              const existingAttempt = Number(orderMatch[2])
+              return existingRunId > runId ||
+                (existingRunId === runId && existingAttempt > runAttempt)
+            }
+            if (isNewerReport(newestExistingReport(await commentsForPull()))) {
+              core.info('A newer visual-test report already exists')
+              return
+            }
+
+            const jobs = await github.paginate(
+              github.rest.actions.listJobsForWorkflowRunAttempt,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: runId,
+                attempt_number: runAttempt,
+                per_page: 100,
+              },
+            )
+            const requestedVisualJobs = jobs.filter(job => job.name === 'Visual Test')
+            const notRequestedVisualJobs = jobs.filter(
+              job => job.name === 'Visual Test (not requested)',
+            )
+            if (requestedVisualJobs.length + notRequestedVisualJobs.length > 1) {
+              throw new Error('Visual-test job metadata changed during reporting')
+            }
+            if (notRequestedVisualJobs.length === 1) {
+              if (notRequestedVisualJobs[0].conclusion !== 'skipped') {
+                throw new Error('A not-requested visual-test job was not skipped')
               }
+              core.info('The visual-test job was not requested')
+              return
+            }
+            const visualJob = requestedVisualJobs[0]
+            if (visualJob?.conclusion === 'skipped') {
+              core.info('The visual-test job was not requested')
+              return
+            }
+            if (visualJob === undefined && run.conclusion === 'success') {
+              throw new Error('A successful run has no visual-test job')
+            }
+            const jobStartedAt = Date.parse(visualJob?.started_at || '')
+            const jobCompletedAt = Date.parse(visualJob?.completed_at || '')
+            const hasAttemptWindow =
+              Number.isFinite(jobStartedAt) &&
+              Number.isFinite(jobCompletedAt) &&
+              jobStartedAt <= jobCompletedAt
+            if (visualJob !== undefined && !hasAttemptWindow && run.conclusion === 'success') {
+              throw new Error('A successful visual-test job has no valid time window')
             }
 
             const artifacts = await github.paginate(
@@ -509,13 +442,20 @@ jobs:
                 per_page: 100,
               },
             )
+            const attemptArtifacts = artifacts.filter(artifact => {
+              if (!hasAttemptWindow) return false
+              const createdAt = Date.parse(artifact.created_at || '')
+              return Number.isFinite(createdAt) &&
+                createdAt >= jobStartedAt &&
+                createdAt <= jobCompletedAt
+            })
             const artifactMap = new Map()
             for (const name of allowedNames) {
-              const matches = artifacts.filter(
+              const matches = attemptArtifacts.filter(
                 artifact => artifact.name === name && !artifact.expired,
               )
               if (matches.length > 1) {
-                throw new Error('Duplicate allowlisted artifact name')
+                throw new Error('Duplicate allowlisted artifact name in this run attempt')
               }
               if (matches.length === 1) {
                 const artifact = matches[0]
@@ -531,128 +471,6 @@ jobs:
                   size: artifact.size_in_bytes,
                 })
               }
-            }
-
-            const exactKeys = (value, expected) => {
-              if (value === null || typeof value !== 'object' || Array.isArray(value)) {
-                return false
-              }
-              const actual = Object.keys(value).sort()
-              return actual.length === expected.length &&
-                actual.every((key, index) => key === [...expected].sort()[index])
-            }
-            const boundedInteger = (value, minimum, maximum) =>
-              Number.isSafeInteger(value) && value >= minimum && value <= maximum
-            const parseMetrics = value => {
-              const baseKeys = ['schemaVersion', 'environment', 'comparisons']
-              if (
-                !exactKeys(value, baseKeys) &&
-                !exactKeys(value, [...baseKeys, 'error'])
-              ) {
-                throw new Error('Invalid metrics root schema')
-              }
-              if (value.schemaVersion !== 2 || value.environment !== expectedEnvironment) {
-                throw new Error('Unexpected metrics version or environment')
-              }
-              if (!Array.isArray(value.comparisons)) {
-                throw new Error('Invalid comparisons value')
-              }
-
-              if (Object.hasOwn(value, 'error')) {
-                if (
-                  value.comparisons.length !== 0 ||
-                  typeof value.error !== 'string' ||
-                  value.error.length < 1 ||
-                  value.error.length > 512 ||
-                  /[\u0000-\u001f\u007f]/u.test(value.error)
-                ) {
-                  throw new Error('Unsafe metrics error value')
-                }
-                return {kind: 'error', environment: value.environment}
-              }
-
-              if (value.comparisons.length !== requiredCaptures.length) {
-                throw new Error('Unexpected comparison count')
-              }
-              const rowKeys = [
-                'name',
-                'width',
-                'height',
-                'changedPixels',
-                'totalPixels',
-                'maximumChannelDifference',
-                'meanAbsoluteChannelDifference',
-              ]
-              const comparisons = value.comparisons.map((row, index) => {
-                const expected = requiredCaptures[index]
-                if (!exactKeys(row, rowKeys) || row.name !== expected.metricName) {
-                  throw new Error('Invalid comparison schema')
-                }
-                if (
-                  row.width !== expected.width ||
-                  row.height !== expected.height ||
-                  !boundedInteger(row.totalPixels, 1, 4096 * 4096) ||
-                  row.totalPixels !== row.width * row.height ||
-                  !boundedInteger(row.changedPixels, 0, row.totalPixels) ||
-                  !boundedInteger(row.maximumChannelDifference, 0, 255) ||
-                  typeof row.meanAbsoluteChannelDifference !== 'number' ||
-                  !Number.isFinite(row.meanAbsoluteChannelDifference) ||
-                  row.meanAbsoluteChannelDifference < 0 ||
-                  row.meanAbsoluteChannelDifference > 255
-                ) {
-                  throw new Error('Comparison metrics are out of range')
-                }
-                return {
-                  name: row.name,
-                  width: row.width,
-                  height: row.height,
-                  changedPixels: row.changedPixels,
-                  totalPixels: row.totalPixels,
-                  maximumChannelDifference: row.maximumChannelDifference,
-                  meanAbsoluteChannelDifference: row.meanAbsoluteChannelDifference,
-                }
-              })
-              return {kind: 'comparisons', environment: value.environment, comparisons}
-            }
-
-            let metricReport = {kind: 'missing'}
-            const expectedMetricsId = Number(process.env.METRICS_ARTIFACT_ID)
-            const currentMetrics = artifactMap.get('visual-test-metrics-v2.json')
-            if (
-              positiveInteger(expectedMetricsId) &&
-              expectedMetricsId === currentMetrics?.id &&
-              process.env.DOWNLOAD_OUTCOME === 'success'
-            ) {
-              try {
-                const directory = path.resolve(process.env.METRICS_DIRECTORY)
-                const entries = fs.readdirSync(directory)
-                if (
-                  entries.length !== 1 ||
-                  entries[0] !== 'visual-test-metrics-v2.json'
-                ) {
-                  throw new Error('Unexpected metrics download contents')
-                }
-                const metricsPath = path.join(directory, 'visual-test-metrics-v2.json')
-                const stat = fs.lstatSync(metricsPath)
-                if (
-                  stat.isSymbolicLink() ||
-                  !stat.isFile() ||
-                  stat.size <= 0 ||
-                  stat.size > 16 * 1024 ||
-                  stat.size !== currentMetrics.size
-                ) {
-                  throw new Error('Unsafe metrics file')
-                }
-                metricReport = parseMetrics(
-                  JSON.parse(fs.readFileSync(metricsPath, 'utf8')),
-                )
-              } catch (_error) {
-                core.warning('Metrics artifact failed strict validation')
-                metricReport = {kind: 'invalid'}
-              }
-            } else if (positiveInteger(expectedMetricsId) || currentMetrics) {
-              core.warning('Metrics artifact could not be downloaded safely')
-              metricReport = {kind: 'invalid'}
             }
 
             const crcTable = new Uint32Array(256)
@@ -684,16 +502,15 @@ jobs:
               )
               return chunk
             }
-            const validatePng = (filePath, artifact, schema) => {
+            const validatePng = (filePath, artifact, expectedName) => {
+              const width = 220
+              const height = 240
+              const channels = 4
               if (
-                schema === undefined ||
-                path.basename(filePath) !== schema.name ||
-                !(
-                  (schema.colorType === 2 && schema.channels === 3) ||
-                  (schema.colorType === 6 && schema.channels === 4)
-                )
+                path.basename(filePath) !== expectedName ||
+                !imageNames.includes(expectedName)
               ) {
-                throw new Error('Invalid capture schema')
+                throw new Error('Invalid capture association')
               }
               const stat = fs.lstatSync(filePath)
               if (
@@ -701,7 +518,7 @@ jobs:
                 !stat.isFile() ||
                 stat.size !== artifact.size ||
                 stat.size <= 0 ||
-                stat.size > schema.maximumSize
+                stat.size > 256 * 1024
               ) {
                 throw new Error('Unsafe capture file')
               }
@@ -731,9 +548,10 @@ jobs:
                   throw new Error('Invalid PNG chunk boundary')
                 }
                 const data = png.subarray(dataStart, dataEnd)
-                const expectedCrc = png.readUInt32BE(dataEnd)
-                const actualCrc = pngCrc32(Buffer.concat([typeBytes, data]))
-                if (expectedCrc !== actualCrc) {
+                if (
+                  png.readUInt32BE(dataEnd) !==
+                  pngCrc32(Buffer.concat([typeBytes, data]))
+                ) {
                   throw new Error('Invalid PNG chunk checksum')
                 }
 
@@ -742,10 +560,10 @@ jobs:
                     throw new Error('Invalid PNG header placement')
                   }
                   if (
-                    data.readUInt32BE(0) !== schema.width ||
-                    data.readUInt32BE(4) !== schema.height ||
+                    data.readUInt32BE(0) !== width ||
+                    data.readUInt32BE(4) !== height ||
                     data[8] !== 8 ||
-                    data[9] !== schema.colorType ||
+                    data[9] !== 6 ||
                     data[10] !== 0 ||
                     data[11] !== 0 ||
                     data[12] !== 0
@@ -777,24 +595,24 @@ jobs:
                 throw new Error('Incomplete PNG')
               }
 
-              const rowSize = 1 + schema.width * schema.channels
-              const rawSize = rowSize * schema.height
+              const rowSize = 1 + width * channels
+              const rawSize = rowSize * height
               const inflated = zlib.inflateSync(Buffer.concat(compressedParts), {
                 maxOutputLength: rawSize,
               })
               if (inflated.length !== rawSize) {
                 throw new Error('Unexpected PNG pixel-data size')
               }
-              for (let row = 0; row < schema.height; row += 1) {
+              for (let row = 0; row < height; row += 1) {
                 if (inflated[row * rowSize] > 4) {
                   throw new Error('Invalid PNG row filter')
                 }
               }
               const header = Buffer.alloc(13)
-              header.writeUInt32BE(schema.width, 0)
-              header.writeUInt32BE(schema.height, 4)
+              header.writeUInt32BE(width, 0)
+              header.writeUInt32BE(height, 4)
               header[8] = 8
-              header[9] = schema.colorType
+              header[9] = 6
               return Buffer.concat([
                 signature,
                 pngChunk('IHDR', header),
@@ -809,7 +627,8 @@ jobs:
               : rawExpectedImageIds.split(',').map(value => Number(value))
             const currentImageNames = imageNames.filter(name => artifactMap.has(name))
             const currentImageIds = currentImageNames.map(name => artifactMap.get(name).id)
-            let imageReport = {kind: 'missing', files: new Map()}
+            const validatedFiles = new Map()
+            let reporterFailed = false
             if (expectedImageIds.length > 0 || currentImageIds.length > 0) {
               try {
                 if (
@@ -829,218 +648,204 @@ jobs:
                 ) {
                   throw new Error('Unexpected capture download contents')
                 }
-                const files = new Map()
-                let captureRejected = false
                 for (const name of currentImageNames) {
                   try {
-                    files.set(
+                    validatedFiles.set(
                       name,
                       validatePng(
                         path.join(directory, name),
                         artifactMap.get(name),
-                        imageSchemas.get(name),
+                        name,
                       ),
                     )
                   } catch (_error) {
-                    captureRejected = true
+                    reporterFailed = true
+                    core.warning(`Capture failed strict PNG validation: ${name}`)
                   }
                 }
-                if (captureRejected) {
-                  core.warning('One or more capture artifacts failed strict PNG validation')
-                }
-                imageReport = {
-                  kind: captureRejected
-                    ? (files.size > 0 ? 'partial' : 'invalid')
-                    : 'valid',
-                  files,
-                }
               } catch (_error) {
+                reporterFailed = true
                 core.warning('Capture artifacts failed strict validation')
-                imageReport = {kind: 'invalid', files: new Map()}
               }
             }
 
-            let reporterFailed =
-              imageReport.kind === 'invalid' || imageReport.kind === 'partial'
-            if (
-              run.conclusion === 'success' &&
-              (
-                imageReport.kind !== 'valid' ||
-                requiredImageNames.some(name => !imageReport.files.has(name))
-              )
-            ) {
-              core.warning('A successful visual test must provide every validated capture')
-              reporterFailed = true
+            for (const scenario of scenarios) {
+              const actualName = `${scenario.name}-actual.png`
+              const baselineName = `${scenario.name}-baseline.png`
+              if (artifactMap.has(baselineName) && !artifactMap.has(actualName)) {
+                reporterFailed = true
+                core.warning(`Baseline has no current capture: ${scenario.name}`)
+              }
             }
-            if (
-              metricReport.kind === 'invalid' ||
-              (run.conclusion === 'success' && metricReport.kind !== 'comparisons')
-            ) {
+            const completeActualSet = scenarios.every(scenario =>
+              validatedFiles.has(`${scenario.name}-actual.png`),
+            )
+            const hasAnyBaseline = scenarios.some(scenario =>
+              artifactMap.has(`${scenario.name}-baseline.png`),
+            )
+            const successContractValid =
+              run.conclusion === 'success' && completeActualSet && !hasAnyBaseline
+            if (run.conclusion === 'success' && !successContractValid) {
               reporterFailed = true
+              core.warning('A successful visual test must provide all current captures and no baselines')
+            }
+
+            const displayFileNames = []
+            if (successContractValid) {
+              for (const scenario of scenarios) {
+                displayFileNames.push(`${scenario.name}-actual.png`)
+              }
+            } else if (run.conclusion === 'failure' && completeActualSet) {
+              for (const scenario of scenarios) {
+                displayFileNames.push(`${scenario.name}-actual.png`)
+                const baselineName = `${scenario.name}-baseline.png`
+                if (validatedFiles.has(baselineName)) {
+                  displayFileNames.push(baselineName)
+                }
+              }
+            } else if (run.conclusion !== 'success') {
+              for (const scenario of scenarios) {
+                const actualName = `${scenario.name}-actual.png`
+                const baselineName = `${scenario.name}-baseline.png`
+                if (
+                  validatedFiles.has(actualName) &&
+                  validatedFiles.has(baselineName)
+                ) {
+                  displayFileNames.push(baselineName, actualName)
+                }
+              }
             }
 
             const repositoryUrl =
               `${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}`
             const publishedImages = new Map()
-            if (
-              (imageReport.kind === 'valid' || imageReport.kind === 'partial') &&
-              imageReport.files.size > 0
-            ) {
-              const resultPaths = new Map([
-                [
-                  'show-active-guide-off-actual.png',
-                  `pull/${pullNumber}/${linkedHeadSha}/option-off.png`,
-                ],
-                [
-                  'show-active-guide-on-actual.png',
-                  `pull/${pullNumber}/${linkedHeadSha}/option-on.png`,
-                ],
-                [
-                  'intellij-integration-settings.png',
-                  `pull/${pullNumber}/${linkedHeadSha}/native/intellij-integration-settings.png`,
-                ],
-                [
-                  'intellij-highlight-on-caret-movement-settings.png',
-                  `pull/${pullNumber}/${linkedHeadSha}/native/` +
-                    'intellij-highlight-on-caret-movement-settings.png',
-                ],
-                [
-                  'native-highlight-modes-popup.png',
-                  `pull/${pullNumber}/${linkedHeadSha}/native/native-highlight-modes-popup.png`,
-                ],
-                [
-                  'native-guide-overlap-actual.png',
-                  `pull/${pullNumber}/${linkedHeadSha}/native/native-guide-overlap-actual.png`,
-                ],
-                [
-                  'native-guide-default-suppressed-actual.png',
-                  `pull/${pullNumber}/${linkedHeadSha}/native/` +
-                    'native-guide-default-suppressed-actual.png',
-                ],
-                [
-                  'plugin-guide-only-actual.png',
-                  `pull/${pullNumber}/${linkedHeadSha}/native/plugin-guide-only-actual.png`,
-                ],
-                [
-                  'native-guide-overlap-detail.png',
-                  `pull/${pullNumber}/${linkedHeadSha}/native/native-guide-overlap-detail.png`,
-                ],
-                [
-                  'native-guide-default-suppressed-detail.png',
-                  `pull/${pullNumber}/${linkedHeadSha}/native/` +
-                    'native-guide-default-suppressed-detail.png',
-                ],
-                [
-                  'plugin-guide-only-detail.png',
-                  `pull/${pullNumber}/${linkedHeadSha}/native/plugin-guide-only-detail.png`,
-                ],
-                [
-                  'native-guide-conflict-notification.png',
-                  `pull/${pullNumber}/${linkedHeadSha}/native/` +
-                    'native-guide-conflict-notification.png',
-                ],
-                [
-                  'native-guide-conflict-balloon.png',
-                  `pull/${pullNumber}/${linkedHeadSha}/native/native-guide-conflict-balloon.png`,
-                ],
-                [
-                  'native-guide-conflict-review-settings.png',
-                  `pull/${pullNumber}/${linkedHeadSha}/native/` +
-                    'native-guide-conflict-review-settings.png',
-                ],
-                [failureDiff.name, `pull/${pullNumber}/${linkedHeadSha}/diff-v2.png`],
-              ])
-              const filesToPublish = [...imageReport.files.entries()].filter(
-                ([name]) => name !== failureDiff.name || run.conclusion !== 'success',
-              )
-              if (filesToPublish.length === 0) {
-                reporterFailed = true
-              } else {
-                try {
-                  if (filesToPublish.some(([name]) => !resultPaths.has(name))) {
-                    throw new Error('Capture has no fixed publication path')
-                  }
-                  const branch = 'visual-test-results'
-                  let parentCommitSha = null
-                  try {
-                    const currentRef = await github.rest.git.getRef({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      ref: `heads/${branch}`,
-                    })
-                    parentCommitSha = currentRef.data.object.sha
-                    if (
-                      currentRef.data.object.type !== 'commit' ||
-                      !/^[0-9a-f]{40}$/u.test(parentCommitSha || '')
-                    ) {
-                      throw new Error('Invalid result branch head')
-                    }
-                  } catch (error) {
-                    if (error.status !== 404) {
-                      throw error
-                    }
-                  }
-
-                  const tree = []
-                  for (const [name, contents] of filesToPublish) {
-                    const blob = await github.rest.git.createBlob({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      content: contents.toString('base64'),
-                      encoding: 'base64',
-                    })
-                    tree.push({
-                      path: resultPaths.get(name),
-                      mode: '100644',
-                      type: 'blob',
-                      sha: blob.data.sha,
-                    })
-                  }
-                  const resultTree = await github.rest.git.createTree({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    tree,
-                  })
-                  const resultCommit = await github.rest.git.createCommit({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    message:
-                      `Publish visual test captures for PR #${pullNumber} at ` +
-                      linkedHeadSha.slice(0, 12),
-                    tree: resultTree.data.sha,
-                    parents: parentCommitSha === null ? [] : [parentCommitSha],
-                  })
-                  const resultCommitSha = resultCommit.data.sha
-                  if (!/^[0-9a-f]{40}$/u.test(resultCommitSha || '')) {
-                    throw new Error('Invalid result commit SHA')
-                  }
-                  if (parentCommitSha === null) {
-                    await github.rest.git.createRef({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      ref: `refs/heads/${branch}`,
-                      sha: resultCommitSha,
-                    })
-                  } else {
-                    await github.rest.git.updateRef({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      ref: `heads/${branch}`,
-                      sha: resultCommitSha,
-                      force: false,
-                    })
-                  }
-                  for (const [name] of filesToPublish) {
-                    publishedImages.set(
-                      name,
-                      `${repositoryUrl}/blob/${resultCommitSha}/${resultPaths.get(name)}?raw=true`,
-                    )
-                  }
-                } catch (_error) {
-                  core.warning('Validated captures could not be published')
-                  reporterFailed = true
+            const filesToPublish = displayFileNames.map(name => [
+              name,
+              validatedFiles.get(name),
+            ])
+            if (filesToPublish.length > 0) {
+              try {
+                if (await readEligiblePull() === null) {
+                  core.info('Pull request changed before image publication')
+                  return
                 }
+                const resultPaths = new Map()
+                for (const scenario of scenarios) {
+                  resultPaths.set(
+                    `${scenario.name}-actual.png`,
+                    `pull/${pullNumber}/${linkedHeadSha}/scenarios/${scenario.name}/current.png`,
+                  )
+                  resultPaths.set(
+                    `${scenario.name}-baseline.png`,
+                    `pull/${pullNumber}/${linkedHeadSha}/scenarios/${scenario.name}/baseline.png`,
+                  )
+                }
+                if (
+                  filesToPublish.some(([name, contents]) =>
+                    !resultPaths.has(name) || !Buffer.isBuffer(contents),
+                  )
+                ) {
+                  throw new Error('Capture is not safe to publish')
+                }
+
+                const branch = 'visual-test-results'
+                let parentCommitSha = null
+                try {
+                  const currentRef = await github.rest.git.getRef({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    ref: `heads/${branch}`,
+                  })
+                  parentCommitSha = currentRef.data.object.sha
+                  if (
+                    currentRef.data.object.type !== 'commit' ||
+                    !/^[0-9a-f]{40}$/u.test(parentCommitSha || '')
+                  ) {
+                    throw new Error('Invalid result branch head')
+                  }
+                } catch (error) {
+                  if (error.status !== 404) throw error
+                }
+
+                const tree = []
+                for (const [name, contents] of filesToPublish) {
+                  const blob = await github.rest.git.createBlob({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    content: contents.toString('base64'),
+                    encoding: 'base64',
+                  })
+                  tree.push({
+                    path: resultPaths.get(name),
+                    mode: '100644',
+                    type: 'blob',
+                    sha: blob.data.sha,
+                  })
+                }
+                const resultTree = await github.rest.git.createTree({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  tree,
+                })
+                const resultCommit = await github.rest.git.createCommit({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  message:
+                    `Publish visual test captures for PR #${pullNumber} at ` +
+                    linkedHeadSha.slice(0, 12),
+                  tree: resultTree.data.sha,
+                  parents: parentCommitSha === null ? [] : [parentCommitSha],
+                })
+                const resultCommitSha = resultCommit.data.sha
+                if (!/^[0-9a-f]{40}$/u.test(resultCommitSha || '')) {
+                  throw new Error('Invalid result commit SHA')
+                }
+
+                // Revalidate immediately before advancing the public result ref. Blobs
+                // and an unreachable commit may have been created, but stale PR output
+                // is never published through the result branch.
+                if (await readEligiblePull() === null) {
+                  core.info('Pull request changed before result ref publication')
+                  return
+                }
+                if (parentCommitSha === null) {
+                  await github.rest.git.createRef({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    ref: `refs/heads/${branch}`,
+                    sha: resultCommitSha,
+                  })
+                } else {
+                  await github.rest.git.updateRef({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    ref: `heads/${branch}`,
+                    sha: resultCommitSha,
+                    force: false,
+                  })
+                }
+                for (const [name] of filesToPublish) {
+                  publishedImages.set(
+                    name,
+                    `${repositoryUrl}/blob/${resultCommitSha}/` +
+                      `${resultPaths.get(name)}?raw=true`,
+                  )
+                }
+              } catch (_error) {
+                reporterFailed = true
+                core.warning('Validated captures could not be published')
               }
+            }
+
+            if (await readEligiblePull() === null) {
+              core.info('Pull request changed before report publication')
+              return
+            }
+            const comments = await commentsForPull()
+            const existing = newestExistingReport(comments)
+            if (isNewerReport(existing)) {
+              core.info('A newer visual-test report already exists')
+              return
             }
 
             const conclusionLabels = new Map([
@@ -1055,21 +860,7 @@ jobs:
               ['startup_failure', '❌ Startup failure'],
             ])
             const status = conclusionLabels.get(run.conclusion) || '⚠️ Completed'
-
             const runUrl = `${repositoryUrl}/actions/runs/${runId}`
-            const artifactLabels = new Map([
-              ['visual-test-metrics-v2.json', 'Metrics JSON (v2)'],
-              ['visual-test-diagnostics', 'Diagnostics'],
-            ])
-            const supportArtifactNames = [
-              'visual-test-metrics-v2.json',
-              'visual-test-diagnostics',
-            ]
-            const artifactLinks = supportArtifactNames
-              .filter(name => artifactMap.has(name))
-              .map(name =>
-                `[${artifactLabels.get(name)}](${runUrl}/artifacts/${artifactMap.get(name).id})`,
-              )
             const commitLine =
               `Tested commit: [\`${linkedHeadSha.slice(0, 12)}\`]` +
               `(${repositoryUrl}/commit/${linkedHeadSha})`
@@ -1079,178 +870,95 @@ jobs:
               : new Date(createdAt.getTime() + 14 * 24 * 60 * 60 * 1000)
                 .toISOString()
                 .slice(0, 10)
+            const declaredMismatches = scenarios.filter(scenario =>
+              artifactMap.has(`${scenario.name}-baseline.png`),
+            )
 
-            const metricLabels = new Map([
-              ['show-active-guide-off', 'Active guide option OFF'],
-              ['show-active-guide-on', 'Active guide option ON'],
-              ['intellij-integration-settings', 'IntelliJ Integration settings'],
-              [
-                'intellij-highlight-on-caret-movement-settings',
-                'Highlight on Caret Movement settings',
-              ],
-              ['native-highlight-modes-popup', 'Native highlight modes'],
-              ['native-guide-overlap', 'Matched-brace native emphasis'],
-              ['native-guide-default-suppressed', 'Default native suppression'],
-              ['plugin-guide-only', 'Plugin guide only'],
-              ['native-guide-overlap-detail', 'Matched-brace emphasis detail'],
-              ['native-guide-default-suppressed-detail', 'Default suppression detail'],
-              ['plugin-guide-only-detail', 'Plugin-only detail'],
-              ['native-guide-conflict-notification', 'Native-emphasis notification'],
-              ['native-guide-conflict-balloon', 'Expanded notification'],
-              ['native-guide-conflict-review-settings', 'Review settings result'],
-            ])
-            const details = []
-            if (metricReport.kind === 'comparisons') {
-              details.push(`Environment: \`${metricReport.environment}\``)
-              details.push('Baseline: screenshots committed in the tested revision; CI never updates them.')
-              details.push('')
-              details.push('| State | Size | Changed pixels | Max channel delta | Mean absolute delta |')
-              details.push('| --- | ---: | ---: | ---: | ---: |')
-              for (const comparison of metricReport.comparisons) {
-                const state = metricLabels.get(comparison.name)
-                details.push(
-                  `| ${state} | ${comparison.width}×${comparison.height} | ` +
-                  `${comparison.changedPixels}/${comparison.totalPixels} | ` +
-                  `${comparison.maximumChannelDifference} | ` +
-                  `${comparison.meanAbsoluteChannelDifference.toFixed(4)} |`,
-                )
-              }
-            } else if (metricReport.kind === 'error') {
-              details.push(`Environment: \`${metricReport.environment}\``)
-              details.push('')
-              details.push('The harness reported a bounded setup or baseline error. See diagnostics.')
+            const details = [
+              'Baselines are committed review artifacts; CI never records, overwrites, or accepts them.',
+            ]
+            if (successContractValid) {
+              details.push('All 12 scenarios matched their committed baselines.')
+            } else if (run.conclusion === 'success') {
+              details.push('The successful run did not satisfy the strict capture contract.')
+            } else if (!completeActualSet) {
+              details.push(
+                'The run ended before producing a complete scenario set; only validated ' +
+                'baseline/current mismatch pairs are shown.',
+              )
+            } else if (declaredMismatches.length > 0) {
+              details.push(
+                `${declaredMismatches.length} scenario` +
+                `${declaredMismatches.length === 1 ? '' : 's'} did not match the baseline.`,
+              )
+            } else if (run.conclusion === 'failure') {
+              details.push(
+                'All scenario captures completed without a declared baseline mismatch; ' +
+                'see diagnostics for the remaining contract failure.',
+              )
             } else {
-              details.push('The metrics artifact was absent or rejected by strict validation.')
+              details.push('No baseline mismatch pair was produced; see diagnostics for the run result.')
+            }
+            if (reporterFailed) {
+              details.push('One or more report artifacts were missing, inconsistent, or rejected.')
             }
 
             const gallery = []
-            const addGallery = (summary, captures) => {
-              const available = captures.filter(capture => publishedImages.has(capture.name))
-              if (available.length === 0) return
+            const showPassingCurrents = successContractValid || (
+              run.conclusion === 'failure' &&
+              completeActualSet
+            )
+            for (const group of groups) {
+              const groupLines = []
+              for (const [name, label] of group.scenarios) {
+                const actualName = `${name}-actual.png`
+                const baselineName = `${name}-baseline.png`
+                const actualUrl = publishedImages.get(actualName)
+                const baselineUrl = publishedImages.get(baselineName)
+                const mismatchDeclared = artifactMap.has(baselineName)
+                if (mismatchDeclared && baselineUrl && actualUrl) {
+                  groupLines.push(`#### ❌ ${label}`)
+                  groupLines.push('')
+                  groupLines.push('| Baseline | Current |')
+                  groupLines.push('| --- | --- |')
+                  groupLines.push(
+                    `| ![${label} baseline](${baselineUrl}) | ` +
+                    `![${label} current](${actualUrl}) |`,
+                  )
+                  groupLines.push('')
+                } else if (mismatchDeclared && (baselineUrl || actualUrl)) {
+                  groupLines.push(`#### ❌ ${label}`)
+                  groupLines.push('')
+                  groupLines.push('The baseline/current pair was rejected or could not be published.')
+                  groupLines.push('')
+                } else if (!mismatchDeclared && showPassingCurrents && actualUrl) {
+                  groupLines.push(`#### ✅ ${label}`)
+                  groupLines.push('')
+                  groupLines.push(`![${label} current](${actualUrl})`)
+                  groupLines.push('')
+                }
+              }
+              if (groupLines.length > 0) {
+                gallery.push('')
+                gallery.push('<details>')
+                gallery.push(`<summary>${group.label}</summary>`)
+                gallery.push('')
+                gallery.push(...groupLines)
+                gallery.push('</details>')
+              }
+            }
+            if (gallery.length === 0) {
               gallery.push('')
-              gallery.push('<details>')
-              gallery.push(`<summary>${summary}</summary>`)
-              gallery.push('')
-              gallery.push(`| ${available.map(capture => capture.label).join(' | ')} |`)
-              gallery.push(`| ${available.map(() => '---').join(' | ')} |`)
-              gallery.push(
-                `| ${available.map(capture =>
-                  `![${capture.alt}](${publishedImages.get(capture.name)})`,
-                ).join(' | ')} |`,
-              )
-              gallery.push('')
-              gallery.push('</details>')
+              gallery.push('Capture gallery: no validated scenario images were available to publish.')
             }
 
-            addGallery('Active-guide option captures', [
-              {
-                name: 'show-active-guide-off-actual.png',
-                label: 'Option OFF',
-                alt: 'Darcula editor with the active guide disabled',
-              },
-              {
-                name: 'show-active-guide-on-actual.png',
-                label: 'Option ON',
-                alt: 'Darcula editor with the active guide enabled',
-              },
-            ])
-            addGallery('Native integration settings', [
-              {
-                name: 'intellij-integration-settings.png',
-                label: 'Plugin integration settings',
-                alt: 'IntelliJ Integration controls in Bracket Pair Guides settings',
-              },
-              {
-                name: 'intellij-highlight-on-caret-movement-settings.png',
-                label: 'IntelliJ caret highlighting',
-                alt: 'IntelliJ Highlight on Caret Movement settings',
-              },
-              {
-                name: 'native-highlight-modes-popup.png',
-                label: 'Highlighting modes',
-                alt: 'Native guide highlighting mode choices',
-              },
-            ])
-            addGallery('Native guide editor states', [
-              {
-                name: 'native-guide-overlap-actual.png',
-                label: 'Matched-brace emphasis',
-                alt: 'IntelliJ guide emphasized beside the plugin guide',
-              },
-              {
-                name: 'native-guide-default-suppressed-actual.png',
-                label: 'Default suppression',
-                alt: 'Native emphasis suppressed while the regular guide remains',
-              },
-              {
-                name: 'plugin-guide-only-actual.png',
-                label: 'Plugin guide only',
-                alt: 'Plugin guide with the regular IntelliJ guide hidden',
-              },
-            ])
-            addGallery('Native guide details', [
-              {
-                name: 'native-guide-overlap-detail.png',
-                label: 'Matched-brace emphasis',
-                alt: 'Enlarged emphasized IntelliJ guide and plugin guide',
-              },
-              {
-                name: 'native-guide-default-suppressed-detail.png',
-                label: 'Default suppression',
-                alt: 'Enlarged dim IntelliJ guide beside the plugin guide',
-              },
-              {
-                name: 'plugin-guide-only-detail.png',
-                label: 'Plugin guide only',
-                alt: 'Enlarged plugin guide without the regular IntelliJ guide',
-              },
-            ])
-            addGallery('Native-emphasis notification flow', [
-              {
-                name: 'native-guide-conflict-notification.png',
-                label: 'Notification',
-                alt: 'Native guide emphasis notification in the IDE',
-              },
-              {
-                name: 'native-guide-conflict-balloon.png',
-                label: 'Expanded explanation',
-                alt: 'Expanded native guide emphasis notification',
-              },
-              {
-                name: 'native-guide-conflict-review-settings.png',
-                label: 'Review settings',
-                alt: 'IntelliJ Integration settings opened from the notification',
-              },
-            ])
-
-            const diffImage = publishedImages.get(failureDiff.name)
-            if (diffImage) {
-              gallery.push('')
-              gallery.push('<details>')
-              gallery.push('<summary>Baseline diff</summary>')
-              gallery.push('')
-              gallery.push(`![Visual difference from the committed baselines](${diffImage})`)
-              gallery.push('')
-              gallery.push('</details>')
-            }
-
-            if (gallery.length === 0 && imageReport.kind === 'invalid') {
-              gallery.push('')
-              gallery.push('Capture gallery: rejected by strict PNG validation.')
-            } else if (
-              gallery.length === 0 &&
-              (imageReport.kind === 'valid' || imageReport.kind === 'partial')
-            ) {
-              gallery.push('')
-              gallery.push('Capture gallery: validated images could not be published.')
-            } else if (gallery.length === 0) {
-              gallery.push('')
-              gallery.push('Capture gallery: no editor images were produced.')
-            }
-
+            const diagnostics = artifactMap.get('visual-test-diagnostics')
+            const supportArtifacts = diagnostics
+              ? `[Diagnostics](${runUrl}/artifacts/${diagnostics.id})`
+              : 'none available'
             const body = [
               marker,
-              `${orderPrefix}${runNumber}:${runAttempt} -->`,
+              `${orderPrefix}${runId}:${runAttempt} -->`,
               '## Visual test',
               '',
               status,
@@ -1260,12 +968,17 @@ jobs:
               ...details,
               ...gallery,
               '',
-              artifactLinks.length > 0
-                ? `Support artifacts: ${artifactLinks.join(' · ')}`
-                : 'Support artifacts: none available',
+              `Support artifacts: ${supportArtifacts}`,
               `Support artifacts are retained through ${expiry} (14 days).`,
             ].join('\n')
 
+            // Keep the eligibility check immediately adjacent to the final
+            // write. Earlier reads and image publication may have taken long
+            // enough for the label, head, draft state, or Stack position to change.
+            if (await readEligiblePull() === null) {
+              core.info('Pull request changed immediately before comment publication')
+              return
+            }
             if (existing) {
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,

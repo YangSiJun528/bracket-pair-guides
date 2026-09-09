@@ -1,6 +1,9 @@
-# Run the deterministic IntelliJ Driver visual regression test on demand.
+# Run the deterministic IntelliJ Driver visual regression scenarios on demand.
 
-name: Visual Test
+# This workflow name intentionally differs from the previous "Visual Test" producer.
+# workflow_run uses the reporter from the default branch, so the new artifact contract
+# must not be handed to the legacy reporter while this workflow is being rolled out.
+name: Visual Test Scenarios
 on:
   workflow_dispatch:
     inputs:
@@ -102,184 +105,247 @@ jobs:
             ./gradlew --no-daemon visualTest --stacktrace \
             2>&1 | tee plugin/build/visual-test-gradle.log
 
-      - name: Upload Option OFF Capture
+      - name: Upload Horizontal Only Current
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: show-active-guide-off-actual.png
-          path: plugin/build/visual-test-artifacts/show-active-guide-off-actual.png
+          name: horizontal-only-actual.png
+          path: plugin/build/visual-test-artifacts/horizontal-only-actual.png
           archive: false
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Option ON Capture
+      - name: Upload Vertical Only Current
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: show-active-guide-on-actual.png
-          path: plugin/build/visual-test-artifacts/show-active-guide-on-actual.png
+          name: vertical-only-actual.png
+          path: plugin/build/visual-test-artifacts/vertical-only-actual.png
           archive: false
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload IntelliJ Integration Settings Capture
+      - name: Upload Pair Border Only Current
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: intellij-integration-settings.png
-          path: plugin/build/visual-test-artifacts/intellij-integration-settings.png
+          name: pair-border-only-actual.png
+          path: plugin/build/visual-test-artifacts/pair-border-only-actual.png
           archive: false
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload IntelliJ Highlight Settings Capture
+      - name: Upload Pair Background Only Current
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: intellij-highlight-on-caret-movement-settings.png
-          path: plugin/build/visual-test-artifacts/intellij-highlight-on-caret-movement-settings.png
+          name: pair-background-only-actual.png
+          path: plugin/build/visual-test-artifacts/pair-background-only-actual.png
           archive: false
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Native Highlight Modes Capture
+      - name: Upload All Components Current
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: native-highlight-modes-popup.png
-          path: plugin/build/visual-test-artifacts/native-highlight-modes-popup.png
+          name: all-components-actual.png
+          path: plugin/build/visual-test-artifacts/all-components-actual.png
           archive: false
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Native Guide Overlap Capture
+      - name: Upload Bracket Colorization Off Current
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: native-guide-overlap-actual.png
-          path: plugin/build/visual-test-artifacts/native-guide-overlap-actual.png
+          name: bracket-colorization-off-actual.png
+          path: plugin/build/visual-test-artifacts/bracket-colorization-off-actual.png
           archive: false
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Default Native Guide Suppression Capture
+      - name: Upload Plugin Disabled Current
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: native-guide-default-suppressed-actual.png
-          path: plugin/build/visual-test-artifacts/native-guide-default-suppressed-actual.png
+          name: plugin-disabled-actual.png
+          path: plugin/build/visual-test-artifacts/plugin-disabled-actual.png
           archive: false
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Plugin Guide Only Capture
+      - name: Upload Native Visuals Unmanaged Current
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: plugin-guide-only-actual.png
-          path: plugin/build/visual-test-artifacts/plugin-guide-only-actual.png
+          name: native-visuals-unmanaged-actual.png
+          path: plugin/build/visual-test-artifacts/native-visuals-unmanaged-actual.png
           archive: false
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Native Guide Overlap Detail
+      - name: Upload Native Highlight Suppressed Current
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: native-guide-overlap-detail.png
-          path: plugin/build/visual-test-artifacts/native-guide-overlap-detail.png
+          name: native-highlight-suppressed-actual.png
+          path: plugin/build/visual-test-artifacts/native-highlight-suppressed-actual.png
           archive: false
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Default Native Guide Suppression Detail
+      - name: Upload Native Indent Hidden Current
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: native-guide-default-suppressed-detail.png
-          path: plugin/build/visual-test-artifacts/native-guide-default-suppressed-detail.png
+          name: native-indent-hidden-actual.png
+          path: plugin/build/visual-test-artifacts/native-indent-hidden-actual.png
           archive: false
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Plugin Guide Only Detail
+      - name: Upload Default Palette Current
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: plugin-guide-only-detail.png
-          path: plugin/build/visual-test-artifacts/plugin-guide-only-detail.png
+          name: default-palette-actual.png
+          path: plugin/build/visual-test-artifacts/default-palette-actual.png
           archive: false
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Native Guide Conflict Notification
+      - name: Upload Custom Palette Current
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: native-guide-conflict-notification.png
-          path: plugin/build/visual-test-artifacts/native-guide-conflict-notification.png
+          name: custom-palette-actual.png
+          path: plugin/build/visual-test-artifacts/custom-palette-actual.png
           archive: false
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Expanded Native Guide Conflict Notification
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: native-guide-conflict-balloon.png
-          path: plugin/build/visual-test-artifacts/native-guide-conflict-balloon.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Native Guide Conflict Review Settings
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: native-guide-conflict-review-settings.png
-          path: plugin/build/visual-test-artifacts/native-guide-conflict-review-settings.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Legacy Diff Image
+      # Baselines are emitted by the harness only for mismatched scenarios. They are
+      # uploaded only after a failing run so a successful report has no redundant
+      # copies of committed baseline images.
+      - name: Upload Horizontal Only Baseline
         if: ${{ always() && steps.visual-test.outcome == 'failure' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: diff.png
-          path: plugin/build/visual-test-artifacts/diff.png
+          name: horizontal-only-baseline.png
+          path: plugin/build/visual-test-artifacts/horizontal-only-baseline.png
           archive: false
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Full Diff Image
+      - name: Upload Vertical Only Baseline
         if: ${{ always() && steps.visual-test.outcome == 'failure' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: diff-v2.png
-          path: plugin/build/visual-test-artifacts/diff-v2.png
+          name: vertical-only-baseline.png
+          path: plugin/build/visual-test-artifacts/vertical-only-baseline.png
           archive: false
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Legacy Metrics
-        if: ${{ always() }}
+      - name: Upload Pair Border Only Baseline
+        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: visual-test-metrics.json
-          path: plugin/build/visual-test-artifacts/visual-test-metrics.json
+          name: pair-border-only-baseline.png
+          path: plugin/build/visual-test-artifacts/pair-border-only-baseline.png
           archive: false
-          if-no-files-found: error
+          if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Metrics V2
-        if: ${{ always() }}
+      - name: Upload Pair Background Only Baseline
+        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: visual-test-metrics-v2.json
-          path: plugin/build/visual-test-artifacts/visual-test-metrics-v2.json
+          name: pair-background-only-baseline.png
+          path: plugin/build/visual-test-artifacts/pair-background-only-baseline.png
           archive: false
-          if-no-files-found: error
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload All Components Baseline
+        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: all-components-baseline.png
+          path: plugin/build/visual-test-artifacts/all-components-baseline.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Bracket Colorization Off Baseline
+        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: bracket-colorization-off-baseline.png
+          path: plugin/build/visual-test-artifacts/bracket-colorization-off-baseline.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Plugin Disabled Baseline
+        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: plugin-disabled-baseline.png
+          path: plugin/build/visual-test-artifacts/plugin-disabled-baseline.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Native Visuals Unmanaged Baseline
+        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: native-visuals-unmanaged-baseline.png
+          path: plugin/build/visual-test-artifacts/native-visuals-unmanaged-baseline.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Native Highlight Suppressed Baseline
+        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: native-highlight-suppressed-baseline.png
+          path: plugin/build/visual-test-artifacts/native-highlight-suppressed-baseline.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Native Indent Hidden Baseline
+        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: native-indent-hidden-baseline.png
+          path: plugin/build/visual-test-artifacts/native-indent-hidden-baseline.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Default Palette Baseline
+        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: default-palette-baseline.png
+          path: plugin/build/visual-test-artifacts/default-palette-baseline.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Custom Palette Baseline
+        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: custom-palette-baseline.png
+          path: plugin/build/visual-test-artifacts/custom-palette-baseline.png
+          archive: false
+          if-no-files-found: ignore
           retention-days: 14
 
       - name: Upload Diagnostics
@@ -291,6 +357,8 @@ jobs:
             plugin/build/reports/tests/visualTest
             plugin/build/test-results/visualTest
             plugin/build/visual-test-artifacts
+            !plugin/build/visual-test-artifacts/*.png
+            !plugin/build/visual-test-artifacts/*metrics*.json
             plugin/build/visual-test-gradle.log
             out/perf-startup/tests/*/*/log
             out/perf-startup/tests/*/*/reports

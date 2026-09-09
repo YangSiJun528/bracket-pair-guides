@@ -5,19 +5,32 @@ description: Add or maintain IntelliJ IDEA Driver visual UI tests for this repos
 
 # Driver UI Tests
 
-Use the `visualTest` source set for UI Driver and screenshot coverage. Keep ordinary tests on the existing IntelliJ Community 2024.1.7/JUnit 4 stack; visual tests run with JUnit 5 against IntelliJ Community 2024.2.6 (build 242.26775.15).
-
-Run the visual test process on Java 21 while keeping the production compile target/toolchain at Java 17. Pin Darcula and select only the baseline matching the actual supported OS and architecture.
+Use the `visualTest` source set for end-to-end editor rendering. Read the
+[visual testing reference](../../../docs/reference_visual_testing.md) before
+changing the harness, baselines, artifact producer, or trusted reporter. It is
+the source of truth for coverage, deterministic pins, scenario taxonomy,
+security boundaries, and baseline policy. Follow the
+[maintenance guide](../../../docs/guide_visual_testing.md) for the full change,
+recording, and validation procedure.
 
 ## Local workflow
 
-- Inspect the existing visual harness and nearby tests before extending it.
-- Run visual tests from the repository root with `./gradlew visualTest`.
-- Open fixtures directly with `openFile`; do not navigate through dialogs or keyboard search when a direct open is available.
-- Synchronize on project/index readiness and observable UI conditions. Use Driver waits and bounded polling; never use `Thread.sleep()` or coroutine `delay()`.
-- Exercise the production rendering primitive through the narrow remote bridge. Do not reimplement production drawing or layout logic in test code.
-- Make assertions on stable UI state and capture screenshot artifacts that make failures diagnosable. Verify a new assertion fails when the behavior under test is removed or disabled.
-- Treat baseline changes as reviewed local artifacts. CI must compare existing baselines and must never update or accept them.
+1. Inspect the existing scenario and its nearest ordinary tests. Add screenshot
+   coverage only for a distinct user-visible result; avoid preference Cartesian
+   products and duplicate images.
+2. Keep all scenarios in the existing one-session `visualTest` harness. Reset
+   scenario state, apply plugin preferences through production
+   `applySettings(...)`, and use the bridge only for deterministic setup,
+   primitive transport, and observable queries.
+3. Open fixtures directly and use bounded Driver waits for readiness, applied
+   state, and stable screenshots. Do not use fixed sleeps or timing-only delays.
+4. Run `./gradlew visualTest` from the repository root. Confirm a new visual
+   assertion fails when its production rendering is removed or disabled.
+5. Record locally with `./gradlew :plugin:recordVisualTestBaseline` only for an
+   intentional change. Review both supported OS baselines; CI never records or
+   accepts them.
+6. When the scenario set changes, update the harness, both baseline sets,
+   producer, reporter, reference, and baseline README together.
 
 ## Upstream reference
 
