@@ -20,8 +20,11 @@ theme, DPI, or scale never falls back to another baseline.
 The visual test process uses Java 21. The plugin's production compile target and
 toolchain remain Java 17.
 
-`visualTest` never updates these files. It captures both candidates before it
-fails with a recording command when either baseline is missing.
+`visualTest` never updates these files. It captures every candidate before it
+fails with a recording command when any baseline is missing. The baseline set
+covers the active-guide OFF/ON pair plus the IntelliJ integration settings,
+native-guide states, and notification flow published by the pull-request
+visual report.
 
 Recording is refused in CI and will not replace an existing PNG unless the
 operator explicitly adds `-PforceVisualBaselineOverwrite=true`.

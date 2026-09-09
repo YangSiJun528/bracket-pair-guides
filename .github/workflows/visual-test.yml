@@ -122,30 +122,127 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Native Integration Captures
+      - name: Upload IntelliJ Integration Settings Capture
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: native-guide-integration-visuals
-          path: |
-            plugin/build/visual-test-artifacts/intellij-integration-settings.png
-            plugin/build/visual-test-artifacts/intellij-highlight-on-caret-movement-settings.png
-            plugin/build/visual-test-artifacts/native-highlight-modes-popup.png
-            plugin/build/visual-test-artifacts/native-guide-conflict-notification.png
-            plugin/build/visual-test-artifacts/native-guide-conflict-balloon.png
-            plugin/build/visual-test-artifacts/native-guide-conflict-review-settings.png
-            plugin/build/visual-test-artifacts/native-guide-overlap-actual.png
-            plugin/build/visual-test-artifacts/native-guide-overlap-candidate.png
-            plugin/build/visual-test-artifacts/native-guide-emphasis-diff.png
-            plugin/build/visual-test-artifacts/native-guide-overlap-detail.png
-            plugin/build/visual-test-artifacts/native-guide-default-suppressed-actual.png
-            plugin/build/visual-test-artifacts/native-guide-default-suppressed-detail.png
-            plugin/build/visual-test-artifacts/plugin-guide-only-actual.png
-            plugin/build/visual-test-artifacts/plugin-guide-only-detail.png
+          name: intellij-integration-settings.png
+          path: plugin/build/visual-test-artifacts/intellij-integration-settings.png
+          archive: false
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Diff Image
+      - name: Upload IntelliJ Highlight Settings Capture
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: intellij-highlight-on-caret-movement-settings.png
+          path: plugin/build/visual-test-artifacts/intellij-highlight-on-caret-movement-settings.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Native Highlight Modes Capture
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: native-highlight-modes-popup.png
+          path: plugin/build/visual-test-artifacts/native-highlight-modes-popup.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Native Guide Overlap Capture
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: native-guide-overlap-actual.png
+          path: plugin/build/visual-test-artifacts/native-guide-overlap-actual.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Default Native Guide Suppression Capture
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: native-guide-default-suppressed-actual.png
+          path: plugin/build/visual-test-artifacts/native-guide-default-suppressed-actual.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Plugin Guide Only Capture
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: plugin-guide-only-actual.png
+          path: plugin/build/visual-test-artifacts/plugin-guide-only-actual.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Native Guide Overlap Detail
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: native-guide-overlap-detail.png
+          path: plugin/build/visual-test-artifacts/native-guide-overlap-detail.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Default Native Guide Suppression Detail
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: native-guide-default-suppressed-detail.png
+          path: plugin/build/visual-test-artifacts/native-guide-default-suppressed-detail.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Plugin Guide Only Detail
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: plugin-guide-only-detail.png
+          path: plugin/build/visual-test-artifacts/plugin-guide-only-detail.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Native Guide Conflict Notification
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: native-guide-conflict-notification.png
+          path: plugin/build/visual-test-artifacts/native-guide-conflict-notification.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Expanded Native Guide Conflict Notification
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: native-guide-conflict-balloon.png
+          path: plugin/build/visual-test-artifacts/native-guide-conflict-balloon.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Native Guide Conflict Review Settings
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: native-guide-conflict-review-settings.png
+          path: plugin/build/visual-test-artifacts/native-guide-conflict-review-settings.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Legacy Diff Image
         if: ${{ always() && steps.visual-test.outcome == 'failure' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
@@ -155,12 +252,32 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Metrics
+      - name: Upload Full Diff Image
+        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: diff-v2.png
+          path: plugin/build/visual-test-artifacts/diff-v2.png
+          archive: false
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Legacy Metrics
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: visual-test-metrics.json
           path: plugin/build/visual-test-artifacts/visual-test-metrics.json
+          archive: false
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Metrics V2
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: visual-test-metrics-v2.json
+          path: plugin/build/visual-test-artifacts/visual-test-metrics-v2.json
           archive: false
           if-no-files-found: error
           retention-days: 14
