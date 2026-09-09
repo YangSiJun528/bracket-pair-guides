@@ -351,7 +351,13 @@ object BracketGuideDriverBridge {
         val editorIndent: Boolean,
     ) {
         companion object {
-            val ALL_ENABLED = NativeVisuals(true, true, true, true)
+            val ALL_ENABLED =
+                NativeVisuals(
+                    matchedBrace = true,
+                    currentScope = true,
+                    globalIndent = true,
+                    editorIndent = true,
+                )
         }
     }
 

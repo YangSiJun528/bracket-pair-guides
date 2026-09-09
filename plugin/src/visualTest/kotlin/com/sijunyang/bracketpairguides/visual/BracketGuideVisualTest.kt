@@ -625,10 +625,34 @@ class BracketGuideVisualTest {
         const val DEFAULT_PALETTE = "default-palette"
         const val CUSTOM_PALETTE = "custom-palette"
 
-        val ALL_NATIVE_ENABLED = NativeState(true, true, true, true)
-        val CURRENT_SCOPE_AND_INDENT_SUPPRESSED = NativeState(true, false, false, false)
-        val MATCHED_BRACE_SUPPRESSED = NativeState(false, true, true, true)
-        val MATCHED_BRACE_AND_INDENT_SUPPRESSED = NativeState(false, true, false, false)
+        val ALL_NATIVE_ENABLED =
+            NativeState(
+                matchedBrace = true,
+                currentScope = true,
+                globalIndent = true,
+                editorIndent = true,
+            )
+        val CURRENT_SCOPE_AND_INDENT_SUPPRESSED =
+            NativeState(
+                matchedBrace = true,
+                currentScope = false,
+                globalIndent = false,
+                editorIndent = false,
+            )
+        val MATCHED_BRACE_SUPPRESSED =
+            NativeState(
+                matchedBrace = false,
+                currentScope = true,
+                globalIndent = true,
+                editorIndent = true,
+            )
+        val MATCHED_BRACE_AND_INDENT_SUPPRESSED =
+            NativeState(
+                matchedBrace = false,
+                currentScope = true,
+                globalIndent = false,
+                editorIndent = false,
+            )
 
         val RENDERING_BASE =
             PreferenceSnapshot(

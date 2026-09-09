@@ -22,9 +22,6 @@ internal class ActiveGuidePresentation(
     val isVisible: Boolean
         get() = markup.isVisible
 
-    val isGuideVisible: Boolean
-        get() = markup.guide != null
-
     fun replace(
         pair: BracketPair?,
         indexedGuide: BracketGuide?,
