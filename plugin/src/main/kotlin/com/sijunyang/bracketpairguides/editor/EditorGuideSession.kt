@@ -46,10 +46,6 @@ internal class EditorGuideSession(
     val hasCappedTokenDecorations: Boolean
         get() = tokenDecorations.isCapped
 
-    /** Synchronous presentation state exposed to deterministic Driver tests. */
-    internal val isActiveGuideVisible: Boolean
-        get() = activePresentation.isGuideVisible
-
     fun updateMatcherAvailabilityListener(listener: (Editor) -> Unit) {
         assertEdt()
         matcherAvailabilityChanged = listener
