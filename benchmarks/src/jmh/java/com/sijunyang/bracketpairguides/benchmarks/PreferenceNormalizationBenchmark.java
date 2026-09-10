@@ -1,5 +1,6 @@
 package com.sijunyang.bracketpairguides.benchmarks;
 
+//noinspection KotlinInternalInJava -- Intentional benchmark-only production probe.
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences;
 import com.sijunyang.bracketpairguides.settings.BracketGuidePreferenceNormalizationKt;
 import java.util.concurrent.TimeUnit;
@@ -15,6 +16,7 @@ import org.openjdk.jmh.annotations.State;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @State(Scope.Thread)
+@SuppressWarnings("KotlinInternalInJava") // Intentional benchmark-only production probe.
 public class PreferenceNormalizationBenchmark {
     private BracketGuidePreferences requested;
     private BracketGuidePreferences current;
@@ -26,13 +28,11 @@ public class PreferenceNormalizationBenchmark {
     }
 
     @Benchmark
-    @SuppressWarnings("KotlinInternalInJava") // Intentional benchmark-only production probe.
     public BracketGuidePreferences reusePersistedSnapshot() {
         return BracketGuidePreferenceNormalizationKt.normalizedForStorage(requested, current);
     }
 
     @Benchmark
-    @SuppressWarnings("KotlinInternalInJava") // Intentional benchmark-only production probe.
     public BracketGuidePreferences normalizeDefaultSnapshot() {
         return BracketGuidePreferenceNormalizationKt.normalizedForStorage(requested, null);
     }
