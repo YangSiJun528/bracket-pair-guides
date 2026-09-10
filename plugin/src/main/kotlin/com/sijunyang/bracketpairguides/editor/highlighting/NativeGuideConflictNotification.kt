@@ -1,5 +1,6 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
+import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
@@ -30,6 +31,7 @@ internal class NativeGuideConflictNotification internal constructor(
     private val isConflict: (Editor, BracketGuide, BracketGuidePreferences) -> Boolean,
     private val publish: (Project) -> Unit,
     private val schedule: (() -> Unit) -> Unit,
+    private val nativeHighlightingEnabled: () -> Boolean = { true },
 ) : SerializablePersistentStateComponent<NativeGuideConflictNotification.NotificationState>(
     NotificationState(),
 ) {
@@ -39,9 +41,14 @@ internal class NativeGuideConflictNotification internal constructor(
         isConflict = NativeGuideConflictDetector::isConflict,
         publish = NativeGuideConflictBalloon::publish,
         schedule = { task -> ApplicationManager.getApplication().invokeLater { task() } },
+        nativeHighlightingEnabled = { CodeInsightSettings.getInstance().HIGHLIGHT_BRACES },
     )
 
     fun consider(editor: Editor, guide: BracketGuide) {
+        // This callback runs from editor painting. The persisted one-shot and
+        // the default suppressed native-highlight state must stay allocation-
+        // free instead of constructing and scheduling a candidate per repaint.
+        if (state.published || !shouldInspectNativeHighlighting()) return
         if (editor.isDisposed) return
         val project = editor.project?.takeUnless(Project::isDisposed) ?: return
         val candidate =
@@ -70,6 +77,15 @@ internal class NativeGuideConflictNotification internal constructor(
                 }
             }
         if (shouldSchedule) dispatch()
+    }
+
+    private fun shouldInspectNativeHighlighting(): Boolean = try {
+        nativeHighlightingEnabled()
+    } catch (error: ProcessCanceledException) {
+        throw error
+    } catch (error: RuntimeException) {
+        LOG.warn("Could not inspect the native highlighting state", error)
+        false
     }
 
     private fun dispatch() {

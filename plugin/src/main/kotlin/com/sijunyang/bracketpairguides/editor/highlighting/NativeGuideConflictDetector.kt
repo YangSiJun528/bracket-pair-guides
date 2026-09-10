@@ -86,9 +86,7 @@ internal object NativeGuideConflictDetector {
 
     fun isConflict(editor: Editor, guide: BracketGuide, preferences: BracketGuidePreferences): Boolean {
         val pair = guide.pair
-        val supportedEditorPath = isSupportedEditor(editor)
         if (
-            !supportedEditorPath ||
             !preferences.enabled ||
             !preferences.showActiveGuide ||
             !preferences.showVerticalGuide ||
@@ -99,6 +97,7 @@ internal object NativeGuideConflictDetector {
 
         val nativeSettings = CodeInsightSettings.getInstance()
         if (!nativeSettings.HIGHLIGHT_BRACES) return false
+        if (!isSupportedEditor(editor)) return false
         val uiPath = currentUiPath()
         if (uiPath == NativeGuideUiPath.UNCLASSIFIED) return false
         // Brace attribution can enter a read action and scan highlighter
@@ -333,7 +332,8 @@ internal object NativeGuideConflictDetector {
             }
         val (matchingStart, matchingLength) = expectedNavigationOffsets
         val matchingEnd = matchingStart.toLong() + matchingLength
-        return navigationOffset().toLong() in setOf(matchingStart.toLong(), matchingEnd) &&
+        val navigationOffset = navigationOffset().toLong()
+        return (navigationOffset == matchingStart.toLong() || navigationOffset == matchingEnd) &&
             highlighter.hasExactTokenRange(pair.openOffset, pair.openTokenLength) &&
             highlighter.hasExactTokenRange(pair.closeOffset, pair.closeTokenLength)
     }

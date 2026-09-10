@@ -33,7 +33,6 @@ val benchmarkInclude = providers.gradleProperty("benchmarkInclude")
 jmh {
     jmhVersion = "1.37"
     benchmarkMode = listOf("avgt")
-    timeUnit = "ms"
     warmupIterations = 2
     warmup = "1s"
     iterations = 3

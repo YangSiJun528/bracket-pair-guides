@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.0.5
 
 - Added an IntelliJ Integration group for independently managing native guide
   highlighting and regular indent-guide visibility.
@@ -10,6 +10,8 @@
   external changes as the user's newer choice.
 - Added a one-time informational notification for visible native highlighting
   beside a multiline plugin guide; ordinary indent guides do not trigger it.
+- Removed repeated preference normalization from caret moves and skipped native
+  guide-conflict work when highlighting is suppressed or the notice was shown.
 
 ## 0.0.4
 
