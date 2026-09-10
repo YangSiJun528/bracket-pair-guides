@@ -1,6 +1,6 @@
 package com.sijunyang.bracketpairguides.benchmarks;
 
-//noinspection KotlinInternalInJava -- Intentional benchmark-only production probe.
+//noinspection KotlinInternalInJava
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences;
 import com.sijunyang.bracketpairguides.settings.BracketGuidePreferenceNormalizationKt;
 import java.util.concurrent.TimeUnit;
