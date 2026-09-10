@@ -393,16 +393,7 @@ internal object NativeVisualEnvironment {
         val application = ApplicationManager.getApplication()
         if (application.isUnitTestMode || application.isHeadlessEnvironment) return false
         if (!isCurrentlyUnderLocalClientId()) return false
-
-        val platformPrefix = systemProperty(PLATFORM_PREFIX_PROPERTY)
-            ?.takeIf(String::isNotBlank)
-            ?: return false
-        if (platformPrefix in EXCLUDED_PLATFORM_PREFIXES) return false
-
-        val command = systemProperty(JAVA_COMMAND_PROPERTY)
-            ?.takeIf(String::isNotBlank)
-            ?: return false
-        return !hasExcludedLaunchToken(command)
+        return isStandardLocalLaunch
     }
 
     fun isStandardMonolithicEditor(editor: Editor): Boolean =
@@ -423,6 +414,19 @@ internal object NativeVisualEnvironment {
         System.getProperty(name)
     } catch (_: SecurityException) {
         null
+    }
+
+    /** Platform prefix and Java command are immutable launch identity. */
+    private val isStandardLocalLaunch: Boolean by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        val platformPrefix = systemProperty(PLATFORM_PREFIX_PROPERTY)
+            ?.takeIf(String::isNotBlank)
+            ?: return@lazy false
+        if (platformPrefix in EXCLUDED_PLATFORM_PREFIXES) return@lazy false
+
+        val command = systemProperty(JAVA_COMMAND_PROPERTY)
+            ?.takeIf(String::isNotBlank)
+            ?: return@lazy false
+        !hasExcludedLaunchToken(command)
     }
 
     private const val PLATFORM_PREFIX_PROPERTY = "idea.platform.prefix"

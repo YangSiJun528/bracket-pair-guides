@@ -72,6 +72,9 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
                 isConflict = { _, _, _ -> true },
                 publish = { restoredPublications++ },
                 schedule = restoredScheduler::schedule,
+                nativeHighlightingEnabled = {
+                    error("A published notification must skip native-state inspection")
+                },
             )
         val serialized = XmlSerializer.serialize(notification.state)
         restored.loadState(
@@ -86,6 +89,52 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         assertThat(restored.state.published).isTrue()
         assertThat(restoredPublications).isZero()
         assertThat(restoredScheduler.pendingCount).isZero()
+    }
+
+    fun testSuppressedNativeHighlightSkipsCandidateWorkUntilItIsEnabled() {
+        val scheduler = ManualScheduler()
+        var nativeHighlightingEnabled = false
+        var conflictChecks = 0
+        val notification =
+            NativeGuideConflictNotification(
+                preferences = { BracketGuidePreferences() },
+                isConflict = { _, _, _ ->
+                    conflictChecks++
+                    false
+                },
+                publish = { error("A non-conflict must not publish") },
+                schedule = scheduler::schedule,
+                nativeHighlightingEnabled = { nativeHighlightingEnabled },
+            )
+
+        notification.consider(myFixture.editor, MULTILINE_GUIDE)
+
+        assertThat(scheduler.pendingCount).isZero()
+        assertThat(conflictChecks).isZero()
+
+        nativeHighlightingEnabled = true
+        notification.consider(myFixture.editor, MULTILINE_GUIDE)
+
+        assertThat(scheduler.pendingCount).isEqualTo(1)
+        scheduler.runNext()
+        assertThat(conflictChecks).isEqualTo(1)
+    }
+
+    fun testNativeHighlightPreflightFailureDoesNotEscapeThePaintCallback() {
+        val scheduler = ManualScheduler()
+        val notification =
+            NativeGuideConflictNotification(
+                preferences = { BracketGuidePreferences() },
+                isConflict = { _, _, _ -> error("Preflight failure must skip detection") },
+                publish = { error("Preflight failure must not publish") },
+                schedule = scheduler::schedule,
+                nativeHighlightingEnabled = { error("synthetic native-state failure") },
+            )
+
+        notification.consider(myFixture.editor, MULTILINE_GUIDE)
+
+        assertThat(scheduler.pendingCount).isZero()
+        assertThat(notification.state.published).isFalse()
     }
 
     fun testConflictIsNotLostWhenAnotherEditorReportsNonConflictInTheSameTick() {

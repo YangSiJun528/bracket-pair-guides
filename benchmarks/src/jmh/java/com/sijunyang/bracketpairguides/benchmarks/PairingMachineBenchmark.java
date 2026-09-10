@@ -5,12 +5,15 @@ import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable;
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachine;
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairingRules;
 import com.sijunyang.bracketpairguides.analysis.pairing.core.StructuralRole;
+import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 
+@OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)
 public class PairingMachineBenchmark {
     @Param({"32768", "100000", "200000"})

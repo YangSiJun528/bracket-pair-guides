@@ -15,15 +15,16 @@ for the current production boundaries and memory rationale.
 - The same JDK, heap settings, and power mode for every comparison
 
 The module depends on the compiled `plugin` project and invokes the production
-`PairingMachine` and `CancellableLongArraySort.kt` implementations. It neither
-copies those implementations nor registers production source directories as
-benchmark roots, so a benchmark cannot drift from the shipped classes or
-confuse IDE module ownership.
+pairing, cancellable sorting, and persisted-preference normalization
+implementations. It neither copies those implementations nor registers
+production source directories as benchmark roots, so a benchmark cannot drift
+from the shipped classes or confuse IDE module ownership.
 
-This is an intentional privileged implementation probe. The sort remains Kotlin
-`internal`, but the Java JMH harness can call its JVM method from the
-benchmark-only module. This JVM visibility is not a supported product API.
-`:benchmarks:jmhJar` in CI detects changes that break the probe.
+This is an intentional privileged implementation probe. The sort and preference
+normalization helper remain Kotlin `internal`, but the Java JMH harness can call
+their JVM methods from the benchmark-only module. This JVM visibility is not a
+supported product API. `:benchmarks:jmhJar` in CI detects changes that break the
+probe.
 
 ## Run a smoke benchmark
 
@@ -48,7 +49,9 @@ The complete run covers:
 - JDK `Arrays.sort(long[])` with the production cancellable sort;
 - realistic encoded pair events, random input, and ordered inputs;
 - 32,768 through 2,000,000 endpoints, with two endpoints per bracket pair;
-- normal completion and a cancellation request issued after 1 ms.
+- normal completion and a cancellation request issued after 1 ms;
+- full persisted-preference normalization and reuse of the identical immutable
+  snapshot passed by caret-time native-setting reconciliation.
 
 JMH writes readable output to `benchmarks/build/reports/jmh/human.txt` and
 machine-readable results to `benchmarks/build/reports/jmh/results.json`.
@@ -66,7 +69,8 @@ Pass a regular expression matching the benchmark class:
   -PbenchmarkInclude='.*LongArraySortCancellationBenchmark'
 ```
 
-Use `.*PairingMachineBenchmark` to isolate the pairing state machine.
+Use `.*PairingMachineBenchmark` to isolate the pairing state machine or
+`.*PreferenceNormalizationBenchmark` to isolate settings normalization.
 
 ## Interpret the results
 
@@ -84,6 +88,12 @@ the production pending-opener limit and are isolated core scalability probes;
 the 200,000-pair cases also exceed the completed-pair limit. The GC profiler's
 bytes per operation are temporary allocations made during analysis, not the
 retained size of the resulting pair and query indexes.
+
+For `PreferenceNormalizationBenchmark`, `reusePersistedSnapshot` isolates the
+preference-normalization portion of the steady-state caret path. It should return
+the persisted object without rebuilding the default language set or four color
+lists. `normalizeDefaultSnapshot` keeps the full default storage boundary visible
+as a comparison workload; it is not the caret-path target.
 
 Keep a custom implementation only when repeated runs show a relevant benefit at
 realistic input sizes or a material reduction in cancellation delay. Validate
