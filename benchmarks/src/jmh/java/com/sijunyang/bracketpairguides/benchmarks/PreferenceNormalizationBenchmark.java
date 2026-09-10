@@ -1,7 +1,5 @@
 package com.sijunyang.bracketpairguides.benchmarks;
 
-//noinspection KotlinInternalInJava
-import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences;
 import com.sijunyang.bracketpairguides.settings.BracketGuidePreferenceNormalizationKt;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -18,22 +16,24 @@ import org.openjdk.jmh.annotations.State;
 @State(Scope.Thread)
 @SuppressWarnings("KotlinInternalInJava") // Intentional benchmark-only production probe.
 public class PreferenceNormalizationBenchmark {
-    private BracketGuidePreferences requested;
-    private BracketGuidePreferences current;
+    private com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences requested;
+    private com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences current;
 
     @Setup
     public void setup() {
-        current = new BracketGuidePreferences();
+        current = new com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences();
         requested = current;
     }
 
     @Benchmark
-    public BracketGuidePreferences reusePersistedSnapshot() {
+    public com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+            reusePersistedSnapshot() {
         return BracketGuidePreferenceNormalizationKt.normalizedForStorage(requested, current);
     }
 
     @Benchmark
-    public BracketGuidePreferences normalizeDefaultSnapshot() {
+    public com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+            normalizeDefaultSnapshot() {
         return BracketGuidePreferenceNormalizationKt.normalizedForStorage(requested, null);
     }
 }
