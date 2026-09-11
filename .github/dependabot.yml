@@ -8,6 +8,11 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    ignore:
+      # Kotlin 2.4+ no longer supports the Kotlin 1.9 language version used by
+      # the minimum supported IntelliJ Platform.
+      - dependency-name: "org.jetbrains.kotlin.jvm"
+        versions: ["[2.4,)"]
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
