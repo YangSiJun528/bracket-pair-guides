@@ -65,8 +65,7 @@ internal object NativeBraceHighlightingRefresh {
         try {
             method.invoke(caretModel, CaretEvent(caret, position, position))
         } catch (error: InvocationTargetException) {
-            val cause = error.targetException
-            when (cause) {
+            when (val cause = error.targetException) {
                 is RuntimeException -> throw cause
                 is Error -> throw cause
                 else -> throw IllegalStateException("Could not refresh native brace highlighting", cause)
