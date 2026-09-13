@@ -12,7 +12,10 @@ import com.intellij.driver.sdk.ui.components.codeEditor
 import com.intellij.driver.sdk.ui.components.ideFrame
 import com.intellij.driver.sdk.ui.components.settingsDialog
 import com.intellij.driver.sdk.ui.components.showSettings
+import com.intellij.driver.sdk.ui.components.textField
+import com.intellij.driver.sdk.ui.components.tree
 import com.intellij.driver.sdk.ui.remote.SwingHierarchyService
+import com.intellij.driver.sdk.ui.ui
 import com.intellij.driver.sdk.waitFor
 import com.intellij.driver.sdk.waitForCodeAnalysis
 import com.intellij.driver.sdk.waitForIndicators
@@ -102,6 +105,7 @@ class BracketGuideVisualTest {
                 waitForIndicators(project, 5.minutes)
                 val bridge = utility<DriverBridge>()
                 val hierarchy = service<SwingHierarchyService>()
+                val rootUi = this.ui
                 assertTrue(bridge.applyDarculaTheme() == THEME)
                 assertTrue(
                     bridge.configureEditorAppearance(EDITOR_FONT, EDITOR_FONT_SIZE) ==
@@ -209,14 +213,38 @@ class BracketGuideVisualTest {
                     recordScenario(NATIVE_HIGHLIGHT_SUPPRESSED)
                     val unmanagedSpec = SCENARIO_SPECS.getValue(NATIVE_VISUALS_UNMANAGED)
                     showSettings()
-                    settingsDialog {
-                        x { byClass("SearchTextField") }.apply {
-                            click()
-                            keyboard { enterText("Bracket Pair Guides") }
+                    rootUi.settingsDialog().apply {
+                        val searchField = textField("//div[@class='TextFieldWithProcessing']")
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "Settings search field was not ready",
+                        ) {
+                            searchField.isVisible() && searchField.isEnabled()
                         }
-                        settingsTree.x { byVisibleText("Bracket Pair Guides") }.click()
+                        searchField.text = "Bracket Pair Guides"
+
+                        val categories = tree("//div[@accessiblename='Settings categories']")
+                        var pluginSettingsRow = -1
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "Bracket Pair Guides settings category was not found",
+                        ) {
+                            pluginSettingsRow =
+                                categories.collectExpandedPaths()
+                                    .singleOrNull {
+                                        it.path.lastOrNull() == "Bracket Pair Guides"
+                                    }?.row ?: -1
+                            pluginSettingsRow >= 0
+                        }
+                        categories.clickRow(pluginSettingsRow)
+
                         val manageNativeVisuals = checkBox {
-                            byVisibleText(MANAGE_NATIVE_VISUALS_LABEL)
+                            and(
+                                byClass("JBCheckBox"),
+                                byAccessibleName(MANAGE_NATIVE_VISUALS_LABEL),
+                            )
                         }
                         waitFor(
                             30.seconds,
@@ -227,7 +255,22 @@ class BracketGuideVisualTest {
                                 manageNativeVisuals.isEnabled() &&
                                 manageNativeVisuals.isSelected()
                         }
-                        manageNativeVisuals.uncheck()
+                        manageNativeVisuals.setFocus()
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "IntelliJ Integration control did not receive focus",
+                        ) {
+                            manageNativeVisuals.hasFocus()
+                        }
+                        manageNativeVisuals.keyboard { space() }
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "IntelliJ Integration control was not cleared",
+                        ) {
+                            !manageNativeVisuals.isSelected()
+                        }
 
                         val applyButton = x { byAccessibleName("Apply") }
                         waitFor(
