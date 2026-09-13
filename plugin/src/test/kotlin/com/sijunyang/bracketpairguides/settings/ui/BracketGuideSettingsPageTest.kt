@@ -2,7 +2,6 @@ package com.sijunyang.bracketpairguides.settings.ui
 
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -26,18 +25,18 @@ import javax.swing.JEditorPane
 import javax.swing.JLabel
 import javax.swing.JList
 import javax.swing.JTextField
+import javax.swing.text.StyleConstants
+import javax.swing.text.StyledDocument
 
 class BracketGuideSettingsPageTest : BasePlatformTestCase() {
     private var originalMatchedBraceHighlighting = true
     private var originalCurrentScopeHighlighting = true
-    private var originalIndentGuides = true
 
     override fun setUp() {
         super.setUp()
         val codeInsightSettings = CodeInsightSettings.getInstance()
         originalMatchedBraceHighlighting = codeInsightSettings.HIGHLIGHT_BRACES
         originalCurrentScopeHighlighting = codeInsightSettings.HIGHLIGHT_SCOPE
-        originalIndentGuides = EditorSettingsExternalizable.getInstance().isIndentGuidesShown
         BracketGuideSettings.getInstance().loadState(BracketGuidePreferences())
     }
 
@@ -47,7 +46,6 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
                 HIGHLIGHT_BRACES = originalMatchedBraceHighlighting
                 HIGHLIGHT_SCOPE = originalCurrentScopeHighlighting
             }
-            EditorSettingsExternalizable.getInstance().isIndentGuidesShown = originalIndentGuides
         } finally {
             super.tearDown()
         }
@@ -65,7 +63,6 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
             assertThat(checkBoxes).contains(
                 "Enabled",
                 "Adjust IntelliJ guide rendering while Bracket Pair Guides is enabled",
-                "Hide regular IntelliJ indent guides",
                 "Bracket colorization",
                 "Active guide",
                 "Horizontal",
@@ -74,6 +71,7 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
                 "Pair background",
                 "Component overrides",
             )
+            assertThat(checkBoxes).doesNotContain("Hide regular IntelliJ indent guides")
             assertThat(
                 component.descendants().filterIsInstance<ColorPanel>().size,
             ).isEqualTo(StoredColorFormat.COLOR_COUNT * 4)
@@ -133,7 +131,6 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
             component.checkBox("Bracket colorization").doClick()
             component.comboBox("nativeHighlightMode").selectedItem =
                 NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY
-            component.checkBox("Hide regular IntelliJ indent guides").doClick()
             component.checkBox("Horizontal").doClick()
             component.checkBox("Vertical").doClick()
             component.spinner("guideLineWidth").value = 3
@@ -154,7 +151,6 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
             assertThat(applied.intelliJIntegration.nativeHighlightMode).isEqualTo(
                 NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY,
             )
-            assertThat(applied.intelliJIntegration.hideNativeIndentGuides).isTrue()
             assertThat(applied.colorBracketTokens).isFalse()
             assertThat(applied.showActiveGuide).isFalse()
             assertThat(applied.showHorizontalGuides).isFalse()
@@ -227,26 +223,22 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
             .isEqualTo(BracketGuidePreferences())
     }
 
-    fun testIntegrationParentDisablesChildrenWithoutClearingTheirValues() {
+    fun testIntegrationParentDisablesHighlightModeWithoutClearingItsValue() {
         withConfigurable(emptyList()) { configurable, component ->
             val parent =
                 component.checkBox(
                     "Adjust IntelliJ guide rendering while Bracket Pair Guides is enabled",
                 )
             val mode = component.comboBox("nativeHighlightMode")
-            val hideIndent = component.checkBox("Hide regular IntelliJ indent guides")
             mode.selectedItem = NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY
-            hideIndent.doClick()
 
             parent.doClick()
 
             assertThat(parent.isSelected).isFalse()
             assertThat(mode.isEnabled).isFalse()
-            assertThat(hideIndent.isEnabled).isFalse()
             assertThat(mode.selectedItem).isEqualTo(
                 NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY,
             )
-            assertThat(hideIndent.isSelected).isTrue()
 
             configurable.apply()
             val applied = BracketGuideSettings.getInstance().options.intelliJIntegration
@@ -254,7 +246,6 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
             assertThat(applied.nativeHighlightMode).isEqualTo(
                 NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY,
             )
-            assertThat(applied.hideNativeIndentGuides).isTrue()
         }
     }
 
@@ -268,28 +259,37 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
                     "Adjust IntelliJ guide rendering while Bracket Pair Guides is enabled",
                 )
             val mode = component.comboBox("nativeHighlightMode")
-            val hideIndent = component.checkBox("Hide regular IntelliJ indent guides")
             val info = component.editorPane("nativeVisualCoexistenceInfo")
             val restoration = component.editorPane("nativeVisualRestorationNote")
+            val infoDocument = info.document as StyledDocument
+            val infoText = infoDocument.getText(0, infoDocument.length)
+            val restorationText =
+                restoration.document.getText(0, restoration.document.length)
 
-            assertThat(info.text)
-                .contains("In the New UI")
-                .contains("Matched brace and Current scope emphasize")
-                .contains("IntelliJ indent guide; they do not create a line")
-                .contains("physical line beside the active bracket guide")
+            assertThat(infoText.replace(Regex("\\s+"), " ").trim()).isEqualTo(
+                "In the New UI, an IntelliJ indent guide may appear beside the plugin’s " +
+                    "vertical guide. Matched brace or Current scope can emphasize it.",
+            )
+            for (label in listOf("Matched brace", "Current scope")) {
+                assertThat(
+                    StyleConstants.isItalic(
+                        infoDocument.getCharacterElement(infoText.indexOf(label)).attributes,
+                    ),
+                ).isTrue()
+            }
             assertThat(info.isVisible).isTrue()
-            assertThat(restoration.text).contains("Original IntelliJ settings are restored")
+            assertThat(restorationText.replace(Regex("\\s+"), " ").trim()).isEqualTo(
+                "Original highlighting settings are restored when the integration or plugin " +
+                    "is disabled.",
+            )
             assertThat(restoration.isVisible).isTrue()
-
-            hideIndent.doClick()
-            assertThat(info.isVisible).isFalse()
 
             mode.selectedItem = NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY
             assertThat(info.isVisible).isTrue()
 
             mode.selectedItem =
                 NativeHighlightMode.SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE
-            assertThat(info.isVisible).isFalse()
+            assertThat(info.isVisible).isTrue()
 
             parent.doClick()
             assertThat(info.isVisible).isTrue()

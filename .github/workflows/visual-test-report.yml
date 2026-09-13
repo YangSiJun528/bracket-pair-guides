@@ -45,7 +45,6 @@ jobs:
               'plugin-disabled',
               'native-visuals-unmanaged',
               'native-highlight-suppressed',
-              'native-indent-hidden',
               'default-palette',
               'custom-palette',
             ]
@@ -261,7 +260,6 @@ jobs:
                   ['plugin-disabled', 'Plugin disabled'],
                   ['native-visuals-unmanaged', 'Native visuals unmanaged'],
                   ['native-highlight-suppressed', 'Native highlight suppressed'],
-                  ['native-indent-hidden', 'Native indent guides hidden'],
                 ],
               },
               {
@@ -878,7 +876,7 @@ jobs:
               'Baselines are committed review artifacts; CI never records, overwrites, or accepts them.',
             ]
             if (successContractValid) {
-              details.push('All 12 scenarios matched their committed baselines.')
+              details.push('All 11 scenarios matched their committed baselines.')
             } else if (run.conclusion === 'success') {
               details.push('The successful run did not satisfy the strict capture contract.')
             } else if (!completeActualSet) {

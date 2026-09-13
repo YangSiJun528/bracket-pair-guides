@@ -16,9 +16,12 @@ import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.NativeHighlightMode
 
 /**
- * Temporarily owns the three IntelliJ Boolean settings that can render native
+ * Temporarily owns the IntelliJ Boolean settings that can highlight native
  * editor guides. Ownership is value based: an external write of `false` while
  * a slot already owns `false` cannot be distinguished from the plugin's value.
+ *
+ * [legacyIndentGuidesSetting] is retained only to restore ownership persisted
+ * by versions that could hide regular indent guides. It is never acquired.
  */
 @State(
     // Keep the original component identity so an owned HIGHLIGHT_BRACES value
@@ -29,7 +32,7 @@ import com.sijunyang.bracketpairguides.preferences.NativeHighlightMode
 internal class NativeVisualSettingsCoordinator internal constructor(
     private val matchedBraceSetting: NativeBooleanSetting,
     private val currentScopeSetting: NativeBooleanSetting,
-    private val indentGuidesSetting: NativeBooleanSetting,
+    private val legacyIndentGuidesSetting: NativeBooleanSetting,
     private val onExternalOverrides: (Set<NativeVisualSettingTarget>) -> Unit,
     private val mayMutate: () -> Boolean,
     private val mayRestoreOwned: () -> Boolean = mayMutate,
@@ -49,7 +52,7 @@ internal class NativeVisualSettingsCoordinator internal constructor(
     constructor() : this(
         matchedBraceSetting = IntelliJMatchedBraceSetting,
         currentScopeSetting = IntelliJCurrentScopeSetting,
-        indentGuidesSetting = IntelliJIndentGuidesSetting,
+        legacyIndentGuidesSetting = IntelliJIndentGuidesSetting,
         onExternalOverrides = ::recordExternalOverrides,
         mayMutate = NativeVisualEnvironment::canManageNativeSettings,
         refreshNativeSettings = NativeEditorSettingsRefresh::request,
@@ -99,19 +102,13 @@ internal class NativeVisualSettingsCoordinator internal constructor(
 
         val desiredHighlight = desiredHighlightTarget(effective)
         var highlightChanged = false
-        var indentGuidesChanged = false
+        val legacyIndentGuidesChanged = releaseLegacyIndentGuidesOwnership().wroteNativeValue
 
         // Acquire the new suppressing slot before releasing the old one. This
         // keeps at least one native highlight gate closed throughout B <-> S.
         if (desiredHighlight != null) {
             highlightChanged = acquire(desiredHighlight) || highlightChanged
         }
-        val wantsIndentGuides = wantsIndentGuideOwnership(effective)
-        if (wantsIndentGuides) {
-            indentGuidesChanged =
-                acquire(NativeVisualSettingTarget.INDENT_GUIDES) || indentGuidesChanged
-        }
-
         for (target in HIGHLIGHT_TARGETS) {
             if (target != desiredHighlight) {
                 val release = release(target)
@@ -121,18 +118,7 @@ internal class NativeVisualSettingsCoordinator internal constructor(
                 }
             }
         }
-        if (!wantsIndentGuides) {
-            val release = release(NativeVisualSettingTarget.INDENT_GUIDES)
-            indentGuidesChanged = release.wroteNativeValue
-            if (release.externalOverride) {
-                effective =
-                    effective.afterExternalOverride(
-                        NativeVisualSettingTarget.INDENT_GUIDES,
-                    )
-            }
-        }
-
-        refreshAfterWrites(highlightChanged, indentGuidesChanged)
+        refreshAfterWrites(highlightChanged, legacyIndentGuidesChanged)
         return effective
     }
 
@@ -160,21 +146,18 @@ internal class NativeVisualSettingsCoordinator internal constructor(
     ): Set<NativeVisualSettingTarget> {
         if (!mayRestoreOwned()) return emptySet()
         val overrides = linkedSetOf<NativeVisualSettingTarget>()
-        var hadOwnership = false
         var highlightChanged = false
-        var indentGuidesChanged = false
+        val legacyIndentRelease = releaseLegacyIndentGuidesOwnership()
+        var hadOwnership = legacyIndentRelease.wasOwned
+        val legacyIndentGuidesChanged = legacyIndentRelease.wroteNativeValue
         for (target in NativeVisualSettingTarget.entries) {
             val release = release(target)
             hadOwnership = release.wasOwned || hadOwnership
             if (release.externalOverride) overrides += target
-            if (target == NativeVisualSettingTarget.INDENT_GUIDES) {
-                indentGuidesChanged = release.wroteNativeValue || indentGuidesChanged
-            } else {
-                highlightChanged = release.wroteNativeValue || highlightChanged
-            }
+            highlightChanged = release.wroteNativeValue || highlightChanged
         }
         if (reportExternalOverrides && overrides.isNotEmpty()) onExternalOverrides(overrides)
-        if (refreshNative) refreshAfterWrites(highlightChanged, indentGuidesChanged)
+        if (refreshNative) refreshAfterWrites(highlightChanged, legacyIndentGuidesChanged)
         if (persist && hadOwnership) {
             // IntelliJ saves application state before appWillBeClosed, while
             // dynamic unload does not save this service after disposal.
@@ -214,6 +197,31 @@ internal class NativeVisualSettingsCoordinator internal constructor(
         )
     }
 
+    /** Restores and forgets the removed indent-guide option's persisted ownership once. */
+    private fun releaseLegacyIndentGuidesOwnership(): OwnershipRelease {
+        val original = state.indentGuidesRestoreValue ?: return OwnershipRelease.NONE
+        if (legacyIndentGuidesSetting.enabled) {
+            clearLegacyIndentGuidesOwnership()
+            return OwnershipRelease(
+                wasOwned = true,
+                externalOverride = true,
+                wroteNativeValue = false,
+            )
+        }
+
+        if (original) nativeWrite { legacyIndentGuidesSetting.enabled = true }
+        clearLegacyIndentGuidesOwnership()
+        return OwnershipRelease(
+            wasOwned = true,
+            externalOverride = false,
+            wroteNativeValue = original,
+        )
+    }
+
+    private fun clearLegacyIndentGuidesOwnership() {
+        updateState { current -> current.copy(indentGuidesRestoreValue = null) }
+    }
+
     private fun refreshAfterWrites(highlightChanged: Boolean, indentGuidesChanged: Boolean) {
         if (highlightChanged || indentGuidesChanged) refreshNativeSettings()
     }
@@ -230,13 +238,11 @@ internal class NativeVisualSettingsCoordinator internal constructor(
     private fun setting(target: NativeVisualSettingTarget): NativeBooleanSetting = when (target) {
         NativeVisualSettingTarget.MATCHED_BRACES -> matchedBraceSetting
         NativeVisualSettingTarget.CURRENT_SCOPE -> currentScopeSetting
-        NativeVisualSettingTarget.INDENT_GUIDES -> indentGuidesSetting
     }
 
     private fun restoreValue(target: NativeVisualSettingTarget): Boolean? = when (target) {
         NativeVisualSettingTarget.MATCHED_BRACES -> state.restoreValue
         NativeVisualSettingTarget.CURRENT_SCOPE -> state.currentScopeRestoreValue
-        NativeVisualSettingTarget.INDENT_GUIDES -> state.indentGuidesRestoreValue
     }
 
     private fun setRestoreValue(target: NativeVisualSettingTarget, value: Boolean) {
@@ -244,7 +250,6 @@ internal class NativeVisualSettingsCoordinator internal constructor(
             when (target) {
                 NativeVisualSettingTarget.MATCHED_BRACES -> current.copy(restoreValue = value)
                 NativeVisualSettingTarget.CURRENT_SCOPE -> current.copy(currentScopeRestoreValue = value)
-                NativeVisualSettingTarget.INDENT_GUIDES -> current.copy(indentGuidesRestoreValue = value)
             }
         }
     }
@@ -254,7 +259,6 @@ internal class NativeVisualSettingsCoordinator internal constructor(
             when (target) {
                 NativeVisualSettingTarget.MATCHED_BRACES -> current.copy(restoreValue = null)
                 NativeVisualSettingTarget.CURRENT_SCOPE -> current.copy(currentScopeRestoreValue = null)
-                NativeVisualSettingTarget.INDENT_GUIDES -> current.copy(indentGuidesRestoreValue = null)
             }
         }
     }
@@ -263,6 +267,7 @@ internal class NativeVisualSettingsCoordinator internal constructor(
         /** Legacy field name retained for persisted HIGHLIGHT_BRACES ownership. */
         @JvmField @field:Property val restoreValue: Boolean? = null,
         @JvmField @field:Property val currentScopeRestoreValue: Boolean? = null,
+        /** Legacy field retained until removed indent-guide ownership has been restored. */
         @JvmField @field:Property val indentGuidesRestoreValue: Boolean? = null,
     )
 
@@ -306,10 +311,6 @@ internal class NativeVisualSettingsCoordinator internal constructor(
             }
         }
 
-        private fun wantsIndentGuideOwnership(preferences: BracketGuidePreferences): Boolean = preferences.enabled &&
-            preferences.intelliJIntegration.manageNativeVisuals &&
-            preferences.intelliJIntegration.hideNativeIndentGuides
-
         private fun BracketGuidePreferences.afterExternalOverride(
             target: NativeVisualSettingTarget,
         ): BracketGuidePreferences {
@@ -342,13 +343,6 @@ internal class NativeVisualSettingsCoordinator internal constructor(
                         } else {
                             integration
                         }
-
-                    NativeVisualSettingTarget.INDENT_GUIDES ->
-                        if (integration.hideNativeIndentGuides) {
-                            integration.copy(hideNativeIndentGuides = false)
-                        } else {
-                            integration
-                        }
                 }
             return if (corrected == integration) this else copy(intelliJIntegration = corrected)
         }
@@ -363,7 +357,6 @@ internal class NativeVisualSettingsCoordinator internal constructor(
 internal enum class NativeVisualSettingTarget {
     MATCHED_BRACES,
     CURRENT_SCOPE,
-    INDENT_GUIDES,
 }
 
 internal interface NativeBooleanSetting {

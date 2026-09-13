@@ -109,12 +109,6 @@ internal class BracketGuideSettingsController internal constructor(
                     NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED,
                 )
         }
-        if (
-            NativeVisualSettingTarget.INDENT_GUIDES in targets &&
-            integration.hideNativeIndentGuides
-        ) {
-            integration = integration.copy(hideNativeIndentGuides = false)
-        }
         return if (integration == intelliJIntegration) {
             this
         } else {

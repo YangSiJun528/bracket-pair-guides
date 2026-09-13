@@ -47,17 +47,16 @@ Scenarios are grouped by the feature a reviewer is evaluating.
 | Settings application and native visuals | `plugin-disabled` | A previously decorated editor loses plugin-owned rendering after the plugin is disabled through production settings application. |
 | Settings application and native visuals | `native-visuals-unmanaged` | Matched-brace highlighting, Current scope, and regular indent guides coexist visibly with the plugin guide while the integration gate leaves them unmanaged. |
 | Settings application and native visuals | `native-highlight-suppressed` | The default native-highlight suppression is applied while the regular IntelliJ indent guide remains visible. |
-| Settings application and native visuals | `native-indent-hidden` | Native highlighting is suppressed and the regular IntelliJ indent guide is hidden, leaving only the plugin guide in the code area. |
 | Colors | `default-palette` | Several nesting levels use the built-in palette. |
 | Colors | `custom-palette` | Clearly distinct bracket, guide, border, and background colors update the live editor. |
 
-Transition assertions deliberately reuse existing baselines. Disabling the
-plugin after a decorated, native-managed state must restore the original native
-values and produce `plugin-disabled`; re-enabling it must exactly reproduce
-`all-components`. Disabling only the integration gate after it has managed
-native settings must restore the original values and exactly reproduce
-`native-visuals-unmanaged`. These checks do not create additional captures for
-the pull-request gallery.
+Transition assertions do not create additional captures for the pull-request
+gallery. Disabling the plugin after a decorated, native-managed state must
+restore the original native values and produce `plugin-disabled`; the harness
+keeps the pre-disable decorated capture in memory, and re-enabling must exactly
+reproduce it. Disabling only the integration gate after it has managed native
+settings must restore the original values and exactly reproduce
+`native-visuals-unmanaged`.
 
 ## Pinned rendering environment
 
@@ -108,19 +107,24 @@ state. The Gradle task has one test fork and must not parallelize scenarios.
 Before every scenario, the harness restores a complete deterministic boundary.
 It first disables the plugin through production `applySettings(...)` so that
 plugin rendering and native-setting ownership are released. It then restores
-matched-brace highlighting, Current scope, and the global regular-indent-guide
-preference to enabled, refreshes open editors, and verifies that the fixture's
-effective indent guides are enabled. Finally, it removes secondary carets and
-selections, places the primary caret at the scenario's pinned position, expands
-all folds, and scrolls the viewport to horizontal and vertical offset zero
-before applying the scenario preferences.
+matched-brace highlighting and Current scope, sets the global regular-indent-
+guide preference to the scenario's initial fixture value, refreshes open
+editors, and verifies the effective value. Rendering and color scenarios start
+with regular indent guides disabled so their captures isolate plugin-owned
+pixels; native-coexistence scenarios and `plugin-disabled` start with them
+enabled. This is deterministic IntelliJ fixture setup, not a plugin preference.
+Finally, the harness removes secondary carets and selections, places the primary
+caret at the scenario's pinned position, expands all folds, and scrolls the
+viewport to horizontal and vertical offset zero before applying the scenario
+preferences.
 
 It then applies a complete preference value derived from the scenario group's
 explicit base snapshot, with only the intended scenario delta inside that
 group. The `plugin-disabled` scenario must first reach a decorated state and
 then disable the plugin; a fresh disabled startup does not satisfy the
-contract. Native restoration scenarios likewise start with matched-brace
-highlighting, Current scope, and regular indent guides enabled.
+contract. Its pre-disable decorated capture and the native-coexistence scenarios
+start with matched-brace highlighting, Current scope, and regular indent guides
+enabled.
 
 A baseline mismatch is collected instead of aborting the session. The harness
 continues capturing later scenarios and reports all mismatches after the final
@@ -172,8 +176,8 @@ than accepting the last frame.
 | Replace intentionally | add `-PforceVisualBaselineOverwrite=true` to the record task | Replaces existing files only for an intentional visual or pinned-environment change. |
 | Record on Linux | set the Linux environment key and run the record task under the pinned 96 DPI Xvfb command | Rejects an absent or mismatched platform key. |
 
-Each environment contains exactly one reviewed PNG for each catalog entry: 12
-macOS images and 12 Linux images. Recording is rejected when `CI=true`; CI
+Each environment contains exactly one reviewed PNG for each catalog entry: 11
+macOS images and 11 Linux images. Recording is rejected when `CI=true`; CI
 cannot create, overwrite, accept, or download a replacement baseline. The
 [visual-test maintenance guide](guide_visual_testing.md) defines the recording,
 review, negative-proof, and replacement procedure.

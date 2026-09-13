@@ -129,7 +129,12 @@ class BracketGuideVisualTest {
                     }
 
                     fun resetScenario(spec: ScenarioSpec) {
-                        bridge.resetVisualScenario(SAMPLE_FILE, spec.caretLine, spec.caretColumn)
+                        bridge.resetVisualScenario(
+                            SAMPLE_FILE,
+                            spec.caretLine,
+                            spec.caretColumn,
+                            spec.initialIndentGuidesShown,
+                        )
                         waitFor(
                             30.seconds,
                             100.milliseconds,
@@ -140,11 +145,12 @@ class BracketGuideVisualTest {
                                 SAMPLE_FILE,
                                 spec.caretLine,
                                 spec.caretColumn,
+                                spec.initialIndentGuidesShown,
                             )
                         }
                     }
 
-                    fun applyAndWait(scenario: String) {
+                    fun applyAndWait(scenario: String, expectedNative: NativeState? = null) {
                         val spec = SCENARIO_SPECS.getValue(scenario)
                         bridge.prepareEditorForApply(SAMPLE_FILE)
                         val expectedPreferences = bridge.apply(spec.preferences)
@@ -158,7 +164,7 @@ class BracketGuideVisualTest {
                             bridge.currentVisualPreferences() == expectedPreferences &&
                                 visualStateIsReady(
                                     bridge.visualScenarioState(SAMPLE_FILE),
-                                    spec,
+                                    expectedNative?.let { native -> spec.copy(native = native) } ?: spec,
                                 )
                         }
                     }
@@ -184,17 +190,23 @@ class BracketGuideVisualTest {
 
                     RENDERING_SCENARIOS.forEach { scenario -> recordScenario(scenario) }
 
-                    recordScenario(PLUGIN_DISABLED, warmState = ALL_COMPONENTS)
-                    applyAndWait(ALL_COMPONENTS)
+                    val pluginDisabledSpec = SCENARIO_SPECS.getValue(PLUGIN_DISABLED)
+                    resetScenario(pluginDisabledSpec)
+                    applyAndWait(ALL_COMPONENTS, CURRENT_SCOPE_SUPPRESSED_INDENT_ENABLED)
+                    val enabledBeforeDisable = screenshot(SCENARIO_SPECS.getValue(ALL_COMPONENTS))
+                    applyAndWait(PLUGIN_DISABLED)
+                    val pluginDisabled = screenshot(pluginDisabledSpec)
+                    writePng(pluginDisabled, artifacts.resolve("$PLUGIN_DISABLED-actual.png"))
+                    captures[PLUGIN_DISABLED] = pluginDisabled
+                    applyAndWait(ALL_COMPONENTS, CURRENT_SCOPE_SUPPRESSED_INDENT_ENABLED)
                     val reenabled = screenshot(SCENARIO_SPECS.getValue(ALL_COMPONENTS))
-                    if (!ExactImageComparison.matches(captures.getValue(ALL_COMPONENTS), reenabled)) {
+                    if (!ExactImageComparison.matches(enabledBeforeDisable, reenabled)) {
                         contractFailures +=
-                            "re-enabling the plugin did not reproduce the all-components capture"
+                            "re-enabling the plugin did not reproduce the pre-disable all-components capture"
                     }
 
                     recordScenario(NATIVE_VISUALS_UNMANAGED)
                     recordScenario(NATIVE_HIGHLIGHT_SUPPRESSED)
-                    recordScenario(NATIVE_INDENT_HIDDEN)
                     val unmanagedSpec = SCENARIO_SPECS.getValue(NATIVE_VISUALS_UNMANAGED)
                     showSettings()
                     settingsDialog {
@@ -338,7 +350,6 @@ class BracketGuideVisualTest {
         enabled = preferences.enabled,
         manageNativeVisuals = preferences.manageNativeVisuals,
         nativeHighlightMode = preferences.nativeHighlightMode,
-        hideNativeIndentGuides = preferences.hideNativeIndentGuides,
         colorBracketTokens = preferences.colorBracketTokens,
         showActiveGuide = preferences.showActiveGuide,
         showVerticalGuide = preferences.showVerticalGuide,
@@ -604,7 +615,6 @@ class BracketGuideVisualTest {
         val enabled: Boolean = true,
         val manageNativeVisuals: Boolean = true,
         val nativeHighlightMode: String = SUPPRESS_CURRENT_SCOPE_ONLY,
-        val hideNativeIndentGuides: Boolean = true,
         val colorBracketTokens: Boolean = true,
         val showActiveGuide: Boolean = true,
         val showVerticalGuide: Boolean = true,
@@ -628,6 +638,7 @@ class BracketGuideVisualTest {
         val caretLine: Int = CARET_LINE,
         val caretColumn: Int = CARET_COLUMN,
         val verifyPairComponents: Boolean = true,
+        val initialIndentGuidesShown: Boolean = false,
     ) {
         val expectsGuide: Boolean
             get() =
@@ -687,7 +698,6 @@ class BracketGuideVisualTest {
         const val PLUGIN_DISABLED = "plugin-disabled"
         const val NATIVE_VISUALS_UNMANAGED = "native-visuals-unmanaged"
         const val NATIVE_HIGHLIGHT_SUPPRESSED = "native-highlight-suppressed"
-        const val NATIVE_INDENT_HIDDEN = "native-indent-hidden"
         const val DEFAULT_PALETTE = "default-palette"
         const val CUSTOM_PALETTE = "custom-palette"
 
@@ -698,12 +708,19 @@ class BracketGuideVisualTest {
                 globalIndent = true,
                 editorIndent = true,
             )
-        val CURRENT_SCOPE_AND_INDENT_SUPPRESSED =
+        val CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED =
             NativeState(
                 matchedBrace = true,
                 currentScope = false,
                 globalIndent = false,
                 editorIndent = false,
+            )
+        val CURRENT_SCOPE_SUPPRESSED_INDENT_ENABLED =
+            NativeState(
+                matchedBrace = true,
+                currentScope = false,
+                globalIndent = true,
+                editorIndent = true,
             )
         val MATCHED_BRACE_SUPPRESSED =
             NativeState(
@@ -712,18 +729,9 @@ class BracketGuideVisualTest {
                 globalIndent = true,
                 editorIndent = true,
             )
-        val MATCHED_BRACE_AND_INDENT_SUPPRESSED =
-            NativeState(
-                matchedBrace = false,
-                currentScope = true,
-                globalIndent = false,
-                editorIndent = false,
-            )
-
         val RENDERING_BASE =
             PreferenceSnapshot(
                 nativeHighlightMode = SUPPRESS_CURRENT_SCOPE_ONLY,
-                hideNativeIndentGuides = true,
                 showVerticalGuide = false,
                 showHorizontalGuides = false,
             )
@@ -737,7 +745,6 @@ class BracketGuideVisualTest {
         val NATIVE_RENDERING_BASE =
             PreferenceSnapshot(
                 nativeHighlightMode = SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE,
-                hideNativeIndentGuides = false,
             )
         val PALETTE_PREFERENCES =
             ALL_COMPONENT_PREFERENCES.copy(
@@ -750,70 +757,65 @@ class BracketGuideVisualTest {
                 ScenarioSpec(
                     HORIZONTAL_ONLY,
                     RENDERING_BASE.copy(showHorizontalGuides = true),
-                    CURRENT_SCOPE_AND_INDENT_SUPPRESSED,
+                    CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED,
                 ),
                 ScenarioSpec(
                     VERTICAL_ONLY,
                     RENDERING_BASE.copy(showVerticalGuide = true),
-                    CURRENT_SCOPE_AND_INDENT_SUPPRESSED,
+                    CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED,
                 ),
                 ScenarioSpec(
                     PAIR_BORDER_ONLY,
                     RENDERING_BASE.copy(
                         showActivePairBorder = true,
                     ),
-                    CURRENT_SCOPE_AND_INDENT_SUPPRESSED,
+                    CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED,
                 ),
                 ScenarioSpec(
                     PAIR_BACKGROUND_ONLY,
                     RENDERING_BASE.copy(
                         showActivePairBackground = true,
                     ),
-                    CURRENT_SCOPE_AND_INDENT_SUPPRESSED,
+                    CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED,
                 ),
                 ScenarioSpec(
                     ALL_COMPONENTS,
                     ALL_COMPONENT_PREFERENCES,
-                    CURRENT_SCOPE_AND_INDENT_SUPPRESSED,
+                    CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED,
                 ),
                 ScenarioSpec(
                     BRACKET_COLORIZATION_OFF,
                     ALL_COMPONENT_PREFERENCES.copy(colorBracketTokens = false),
-                    CURRENT_SCOPE_AND_INDENT_SUPPRESSED,
+                    CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED,
                 ),
                 ScenarioSpec(
                     PLUGIN_DISABLED,
                     ALL_COMPONENT_PREFERENCES.copy(enabled = false),
                     ALL_NATIVE_ENABLED,
+                    initialIndentGuidesShown = true,
                 ),
                 ScenarioSpec(
                     NATIVE_VISUALS_UNMANAGED,
                     NATIVE_RENDERING_BASE.copy(manageNativeVisuals = false),
                     ALL_NATIVE_ENABLED,
-                    NATIVE_CARET_LINE,
-                    NATIVE_CARET_COLUMN,
-                    false,
+                    caretLine = NATIVE_CARET_LINE,
+                    caretColumn = NATIVE_CARET_COLUMN,
+                    verifyPairComponents = false,
+                    initialIndentGuidesShown = true,
                 ),
                 ScenarioSpec(
                     NATIVE_HIGHLIGHT_SUPPRESSED,
                     NATIVE_RENDERING_BASE,
                     MATCHED_BRACE_SUPPRESSED,
-                    NATIVE_CARET_LINE,
-                    NATIVE_CARET_COLUMN,
-                    false,
-                ),
-                ScenarioSpec(
-                    NATIVE_INDENT_HIDDEN,
-                    NATIVE_RENDERING_BASE.copy(hideNativeIndentGuides = true),
-                    MATCHED_BRACE_AND_INDENT_SUPPRESSED,
-                    NATIVE_CARET_LINE,
-                    NATIVE_CARET_COLUMN,
-                    false,
+                    caretLine = NATIVE_CARET_LINE,
+                    caretColumn = NATIVE_CARET_COLUMN,
+                    verifyPairComponents = false,
+                    initialIndentGuidesShown = true,
                 ),
                 ScenarioSpec(
                     DEFAULT_PALETTE,
                     PALETTE_PREFERENCES,
-                    CURRENT_SCOPE_AND_INDENT_SUPPRESSED,
+                    CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED,
                 ),
                 ScenarioSpec(
                     CUSTOM_PALETTE,
@@ -824,7 +826,7 @@ class BracketGuideVisualTest {
                         pairBorderColors = CUSTOM_BORDER_COLORS,
                         pairBackgroundColors = CUSTOM_BACKGROUND_COLORS,
                     ),
-                    CURRENT_SCOPE_AND_INDENT_SUPPRESSED,
+                    CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED,
                 ),
             )
         val SCENARIO_SPECS = SCENARIO_SPECS_IN_ORDER.associateBy(ScenarioSpec::name)
@@ -844,7 +846,6 @@ class BracketGuideVisualTest {
                     PLUGIN_DISABLED,
                     NATIVE_VISUALS_UNMANAGED,
                     NATIVE_HIGHLIGHT_SUPPRESSED,
-                    NATIVE_INDENT_HIDDEN,
                     DEFAULT_PALETTE,
                     CUSTOM_PALETTE,
                 )
@@ -872,16 +873,25 @@ private interface DriverBridge {
 
     fun configureEditorAppearance(fontName: String, fontSize: Int): String
 
-    fun resetVisualScenario(filePathSuffix: String, caretLine: Int, caretColumn: Int): String
+    fun resetVisualScenario(
+        filePathSuffix: String,
+        caretLine: Int,
+        caretColumn: Int,
+        initialIndentGuidesShown: Boolean,
+    ): String
 
-    fun isVisualScenarioReset(filePathSuffix: String, caretLine: Int, caretColumn: Int): Boolean
+    fun isVisualScenarioReset(
+        filePathSuffix: String,
+        caretLine: Int,
+        caretColumn: Int,
+        initialIndentGuidesShown: Boolean,
+    ): Boolean
 
     @Suppress("LongParameterList")
     fun applyVisualPreferences(
         enabled: Boolean,
         manageNativeVisuals: Boolean,
         nativeHighlightMode: String,
-        hideNativeIndentGuides: Boolean,
         colorBracketTokens: Boolean,
         showActiveGuide: Boolean,
         showVerticalGuide: Boolean,

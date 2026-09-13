@@ -87,18 +87,14 @@ class BracketGuideSettingsControllerTest {
     }
 
     @Test
-    fun `ownership callback updates only its still owning children`() {
-        val initial =
-            BracketGuidePreferences(
-                intelliJIntegration =
-                IntelliJIntegrationPreferences(hideNativeIndentGuides = true),
-            )
+    fun `ownership callback updates only its still owning highlight`() {
+        val initial = BracketGuidePreferences()
         val fixture = fixture(initialOptions = initial)
 
         fixture.controller.nativeVisualSettingsWereOverridden(
             setOf(
                 NativeVisualSettingTarget.MATCHED_BRACES,
-                NativeVisualSettingTarget.INDENT_GUIDES,
+                NativeVisualSettingTarget.CURRENT_SCOPE,
             ),
         )
 
@@ -107,7 +103,6 @@ class BracketGuideSettingsControllerTest {
         assertThat(effective.intelliJIntegration.manageNativeVisuals).isTrue()
         assertThat(effective.intelliJIntegration.nativeHighlightMode)
             .isEqualTo(LEAVE_UNCHANGED)
-        assertThat(effective.intelliJIntegration.hideNativeIndentGuides).isFalse()
         assertThat(fixture.nativeSnapshots).isEmpty()
         assertThat(fixture.runtimeChanges).containsExactly(
             SettingsTransition(initial, effective),
@@ -146,7 +141,6 @@ class BracketGuideSettingsControllerTest {
         val parentOff =
             preferences(
                 mode = NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY,
-                hideIndentGuides = true,
                 manageNativeVisuals = false,
             )
         val fixture = fixture(initialOptions = parentOff)
@@ -205,18 +199,14 @@ class BracketGuideSettingsControllerTest {
         )
     }
 
-    private fun preferences(
-        mode: NativeHighlightMode,
-        hideIndentGuides: Boolean = false,
-        manageNativeVisuals: Boolean = true,
-    ): BracketGuidePreferences = BracketGuidePreferences(
-        intelliJIntegration =
-        IntelliJIntegrationPreferences(
-            manageNativeVisuals = manageNativeVisuals,
-            nativeHighlightMode = mode,
-            hideNativeIndentGuides = hideIndentGuides,
-        ),
-    )
+    private fun preferences(mode: NativeHighlightMode, manageNativeVisuals: Boolean = true): BracketGuidePreferences =
+        BracketGuidePreferences(
+            intelliJIntegration =
+            IntelliJIntegrationPreferences(
+                manageNativeVisuals = manageNativeVisuals,
+                nativeHighlightMode = mode,
+            ),
+        )
 
     private fun BracketGuidePreferences.withMode(mode: NativeHighlightMode): BracketGuidePreferences = copy(
         intelliJIntegration = intelliJIntegration.copy(nativeHighlightMode = mode),

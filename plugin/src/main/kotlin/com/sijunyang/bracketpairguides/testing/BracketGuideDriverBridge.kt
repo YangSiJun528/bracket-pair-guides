@@ -82,7 +82,12 @@ object BracketGuideDriverBridge {
      * editor state that could leak from a preceding scenario.
      */
     @JvmStatic
-    fun resetVisualScenario(filePathSuffix: String, caretLine: Int, caretColumn: Int): String = driverTestOnEdt {
+    fun resetVisualScenario(
+        filePathSuffix: String,
+        caretLine: Int,
+        caretColumn: Int,
+        initialIndentGuidesShown: Boolean,
+    ): String = driverTestOnEdt {
         require(caretLine > 0 && caretColumn > 0)
         val editor = requiredEditor(filePathSuffix)
 
@@ -91,7 +96,7 @@ object BracketGuideDriverBridge {
             HIGHLIGHT_BRACES = true
             HIGHLIGHT_SCOPE = true
         }
-        EditorSettingsExternalizable.getInstance().isIndentGuidesShown = true
+        EditorSettingsExternalizable.getInstance().isIndentGuidesShown = initialIndentGuidesShown
         EditorFactory.getInstance().refreshAllEditors()
 
         // Prevent the one-shot #30 advisory from obscuring editor-only scenario captures.
@@ -109,10 +114,15 @@ object BracketGuideDriverBridge {
     }
 
     @JvmStatic
-    fun isVisualScenarioReset(filePathSuffix: String, caretLine: Int, caretColumn: Int): Boolean = driverTestOnEdt {
+    fun isVisualScenarioReset(
+        filePathSuffix: String,
+        caretLine: Int,
+        caretColumn: Int,
+        initialIndentGuidesShown: Boolean,
+    ): Boolean = driverTestOnEdt {
         val editor = requiredEditor(filePathSuffix)
         BracketGuideSettings.getInstance().options == RESET_PREFERENCES &&
-            nativeVisuals(editor) == NativeVisuals.ALL_ENABLED &&
+            nativeVisuals(editor) == NativeVisuals.initial(initialIndentGuidesShown) &&
             editor.caretModel.logicalPosition == logicalPosition(editor, caretLine, caretColumn) &&
             !editor.selectionModel.hasSelection() &&
             editor.foldingModel.allFoldRegions.none { region -> !region.isExpanded } &&
@@ -127,7 +137,6 @@ object BracketGuideDriverBridge {
         enabled: Boolean,
         manageNativeVisuals: Boolean,
         nativeHighlightMode: String,
-        hideNativeIndentGuides: Boolean,
         colorBracketTokens: Boolean,
         showActiveGuide: Boolean,
         showVerticalGuide: Boolean,
@@ -151,7 +160,6 @@ object BracketGuideDriverBridge {
                 IntelliJIntegrationPreferences(
                     manageNativeVisuals = manageNativeVisuals,
                     nativeHighlightMode = NativeHighlightMode.valueOf(nativeHighlightMode),
-                    hideNativeIndentGuides = hideNativeIndentGuides,
                 ),
                 colorBracketTokens = colorBracketTokens,
                 showActiveGuide = showActiveGuide,
@@ -287,7 +295,6 @@ object BracketGuideDriverBridge {
         preferences.enabled,
         preferences.intelliJIntegration.manageNativeVisuals,
         preferences.intelliJIntegration.nativeHighlightMode.name,
-        preferences.intelliJIntegration.hideNativeIndentGuides,
         preferences.colorBracketTokens,
         preferences.showActiveGuide,
         preferences.showVerticalGuide,
@@ -354,13 +361,12 @@ object BracketGuideDriverBridge {
         val editorIndent: Boolean,
     ) {
         companion object {
-            val ALL_ENABLED =
-                NativeVisuals(
-                    matchedBrace = true,
-                    currentScope = true,
-                    globalIndent = true,
-                    editorIndent = true,
-                )
+            fun initial(indentGuidesShown: Boolean) = NativeVisuals(
+                matchedBrace = true,
+                currentScope = true,
+                globalIndent = indentGuidesShown,
+                editorIndent = indentGuidesShown,
+            )
         }
     }
 

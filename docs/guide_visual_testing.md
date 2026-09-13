@@ -55,7 +55,7 @@ VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1 \
 
 Use `-PforceVisualBaselineOverwrite=true` only when an intentional visual or
 pinned-environment change must replace existing files. Inspect every changed
-macOS and Linux PNG, verify the directory contains exactly the catalog's 12
+macOS and Linux PNG, verify the directory contains exactly the catalog's 11
 files, and rerun the comparison task on both platforms. Never record or accept
 a baseline in CI.
 

@@ -2,8 +2,8 @@
 
 ## 0.0.5
 
-- Added an IntelliJ Integration group for independently managing native guide
-  highlighting and regular indent-guide visibility.
+- Added an IntelliJ Integration group for managing native guide highlighting
+  while leaving regular indent-guide visibility to IntelliJ.
 - Added modes to suppress matched-brace and Current scope highlighting together,
   suppress Current scope only, or leave IntelliJ highlighting unchanged.
 - Preserved and restored each owned IntelliJ setting, while treating later

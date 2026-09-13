@@ -24,7 +24,7 @@
     <change-notes><![CDATA[
         <p><b>0.0.5</b></p>
         <ul>
-            <li>Manage matched-brace, Current scope, and regular indent-guide visibility independently.</li>
+            <li>Manage matched-brace and Current scope highlighting while leaving regular indent-guide visibility to IntelliJ.</li>
             <li>Preserve owned IntelliJ settings without overwriting newer external changes.</li>
             <li>Show a one-time notice when native highlighting remains visible beside a multiline guide.</li>
             <li>Reduce caret and repaint overhead by reusing persisted preferences and skipping suppressed conflict checks.</li>

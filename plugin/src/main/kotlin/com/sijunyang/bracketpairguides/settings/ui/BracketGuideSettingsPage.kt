@@ -8,7 +8,6 @@ import com.sijunyang.bracketpairguides.preferences.NativeHighlightMode
 import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.intellij.openapi.options.BoundConfigurable
-import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.ColorPanel
 import com.intellij.ui.JBIntSpinner
@@ -24,9 +23,7 @@ import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.builder.selected
 import com.intellij.ui.layout.ComponentPredicate
 import com.intellij.ui.layout.and
-import com.intellij.ui.layout.not
 import com.intellij.ui.layout.or
-import com.intellij.ui.layout.selectedValueMatches
 import java.awt.Color
 import java.util.Locale
 import javax.swing.JList
@@ -163,8 +160,6 @@ internal class BracketGuideSettingsPage(
 
             group("IntelliJ Integration") {
                 lateinit var manageNativeVisuals: Cell<JBCheckBox>
-                lateinit var nativeHighlightMode: Cell<ComboBox<NativeHighlightMode>>
-                lateinit var hideNativeIndentGuides: Cell<JBCheckBox>
                 row {
                     manageNativeVisuals = boundCheckBox(
                         settings,
@@ -179,7 +174,7 @@ internal class BracketGuideSettingsPage(
                         .enabledIf(enabled.selected)
                 }
                 row("Native guide highlighting:") {
-                    nativeHighlightMode =
+                    val nativeHighlightMode =
                         comboBox(
                             NativeHighlightMode.entries,
                             object : SimpleListCellRenderer<NativeHighlightMode>() {
@@ -193,7 +188,9 @@ internal class BracketGuideSettingsPage(
                                     text = nativeHighlightModeLabel(value)
                                 }
                             },
-                        ).bindItem(
+                        )
+                    nativeHighlightMode
+                        .bindItem(
                             { settings.options.intelliJIntegration.nativeHighlightMode },
                             { value ->
                                 if (value != null) {
@@ -212,47 +209,22 @@ internal class BracketGuideSettingsPage(
                         }
                 }.enabledIf(enabled.selected.and(manageNativeVisuals.selected))
                 row {
-                    hideNativeIndentGuides = boundCheckBox(
-                        settings,
-                        "Hide regular IntelliJ indent guides",
-                        { options -> options.intelliJIntegration.hideNativeIndentGuides },
-                    ) { options, value ->
-                        options.copy(
-                            intelliJIntegration =
-                            options.intelliJIntegration.copy(
-                                hideNativeIndentGuides = value,
-                            ),
-                        )
-                    }
-                }.enabledIf(enabled.selected.and(manageNativeVisuals.selected))
-
-                val potentialNativeVisualRemains =
-                    manageNativeVisuals.selected.not()
-                        .or(hideNativeIndentGuides.selected.not())
-                        .or(
-                            nativeHighlightMode.component.selectedValueMatches { mode ->
-                                mode !=
-                                    NativeHighlightMode.SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE
-                            },
-                        )
-                row {
                     comment(
-                        "In the New UI, Matched brace and Current scope emphasize an existing " +
-                            "IntelliJ indent guide; they do not create a line. Keeping indent " +
-                            "guides can place that physical line beside the active bracket guide.",
+                        "In the New UI, an IntelliJ indent guide may appear beside the plugin’s " +
+                            "vertical guide. <i>Matched brace</i> or <i>Current scope</i> can " +
+                            "emphasize it.",
                     ).applyToComponent {
                         name = "nativeVisualCoexistenceInfo"
                     }
                 }.visibleIf(
                     enabled.selected
                         .and(activeGuide.selected)
-                        .and(verticalGuide.selected)
-                        .and(potentialNativeVisualRemains),
+                        .and(verticalGuide.selected),
                 )
                 row {
                     comment(
-                        "Original IntelliJ settings are restored when this integration or " +
-                            "Bracket Pair Guides is disabled.",
+                        "Original highlighting settings are restored when the integration or " +
+                            "plugin is disabled.",
                     ).applyToComponent {
                         name = "nativeVisualRestorationNote"
                     }
