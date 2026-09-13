@@ -36,7 +36,10 @@ internal class BracketGuideSettingsController internal constructor(
     /** The single production entry point for a committed preference snapshot. */
     fun applySettings(options: BracketGuidePreferences) {
         runOnEdt {
-            commit(options, NativeReconciliation.IF_CHANGED)
+            // Apply is also the user's explicit request to reconcile IntelliJ's
+            // native editor settings. Do this even when our persisted snapshot
+            // is unchanged so a missed startup write or external drift recovers.
+            commit(options, NativeReconciliation.ALWAYS)
         }
     }
 
@@ -77,7 +80,6 @@ internal class BracketGuideSettingsController internal constructor(
 
     private enum class NativeReconciliation {
         NONE,
-        IF_CHANGED,
         ALWAYS,
     }
 

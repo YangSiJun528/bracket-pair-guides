@@ -57,6 +57,9 @@ object BracketGuideDriverBridge {
         val frame = checkNotNull(WindowManager.getInstance().findVisibleFrame()) {
             "No visible IDE frame"
         }
+        // Driver captures screen pixels. Keep the isolated test IDE visible if
+        // another desktop app receives focus while the suite is running.
+        frame.isAlwaysOnTop = true
         frame.setBounds(x, y, width, height)
         "${frame.x}:${frame.y}:${frame.width}:${frame.height}"
     }
@@ -174,14 +177,14 @@ object BracketGuideDriverBridge {
         preferencesState(BracketGuideSettings.getInstance().options)
     }
 
-    /** Re-emits the caret event after a native setting changes so IntelliJ refreshes its emphasis. */
+    /** Restores the normal caret state after screenshot-only suppression, without moving it. */
     @JvmStatic
-    fun retriggerCaretForVisualState(filePathSuffix: String, caretLine: Int, caretColumn: Int): String =
-        driverTestOnEdt {
-            val editor = requiredEditor(filePathSuffix)
-            positionCaret(editor, caretLine, caretColumn)
-            visualScenarioState(filePathSuffix)
-        }
+    fun prepareEditorForApply(filePathSuffix: String): String = driverTestOnEdt {
+        val editor = requiredEditor(filePathSuffix)
+        editor.setCaretEnabled(true)
+        editor.setCaretVisible(true)
+        visualScenarioState(filePathSuffix)
+    }
 
     /** Makes caret and paint state deterministic immediately before Driver takes a screenshot. */
     @JvmStatic

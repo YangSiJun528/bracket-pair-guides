@@ -25,8 +25,7 @@ class NativeVisualSettingsCoordinatorTest {
         assertThat(fixture.coordinator.state).isEqualTo(
             NativeVisualSettingsCoordinator.OwnershipState(restoreValue = true),
         )
-        assertThat(fixture.highlightRefreshes).hasSize(1)
-        assertThat(fixture.indentRefreshes).isEmpty()
+        assertThat(fixture.nativeRefreshes).hasSize(1)
     }
 
     @Test
@@ -232,15 +231,14 @@ class NativeVisualSettingsCoordinatorTest {
     }
 
     @Test
-    fun `native writes refresh only their corresponding editor surfaces`() {
+    fun `native writes refresh all editor settings once per transaction`() {
         val fixture = fixture(NativeValues(braces = true, scope = true, indent = true))
         val requested = preferences(hideIndentGuides = true)
 
         fixture.coordinator.apply(requested)
         fixture.coordinator.apply(requested)
 
-        assertThat(fixture.highlightRefreshes).hasSize(1)
-        assertThat(fixture.indentRefreshes).hasSize(1)
+        assertThat(fixture.nativeRefreshes).hasSize(1)
 
         fixture.coordinator.apply(
             requested.copy(
@@ -249,8 +247,7 @@ class NativeVisualSettingsCoordinatorTest {
             ),
         )
 
-        assertThat(fixture.highlightRefreshes).hasSize(2)
-        assertThat(fixture.indentRefreshes).hasSize(2)
+        assertThat(fixture.nativeRefreshes).hasSize(2)
     }
 
     @Test
@@ -373,7 +370,7 @@ class NativeVisualSettingsCoordinatorTest {
     }
 
     @Test
-    fun `becoming multi-client unwinds local ownership without clearing child selections`() {
+    fun `an unavailable editor environment unwinds ownership without clearing child selections`() {
         var mayMutate = true
         val requested = preferences(hideIndentGuides = true)
         val fixture =
@@ -429,7 +426,7 @@ class NativeVisualSettingsCoordinatorTest {
     }
 
     @Test
-    fun `shutdown can restore local ownership after a remote session begins`() {
+    fun `shutdown can restore ownership after mutation becomes unavailable`() {
         var mayMutate = true
         val fixture =
             fixture(
@@ -449,33 +446,6 @@ class NativeVisualSettingsCoordinatorTest {
         assertThat(fixture.persistedSnapshots.single().ownership).isEqualTo(
             NativeVisualSettingsCoordinator.OwnershipState(),
         )
-    }
-
-    @Test
-    fun `remote launch modes are matched as exact command tokens`() {
-        for (
-        token in listOf(
-            "remoteDevHost",
-            "remoteDevMode",
-            "cwmHost",
-            "cwmHostNoLobby",
-            "serverMode",
-            "splitMode",
-        )
-        ) {
-            assertThat(
-                NativeVisualEnvironment.hasExcludedLaunchToken("com.intellij.idea.Main $token project"),
-            ).describedAs("launch token %s", token).isTrue()
-        }
-    }
-
-    @Test
-    fun `remote launch substrings do not exclude a standard command`() {
-        assertThat(
-            NativeVisualEnvironment.hasExcludedLaunchToken(
-                "com.example.remoteDevHostTools /projects/serverModeDemo",
-            ),
-        ).isFalse()
     }
 
     private fun assertExactRestoration(original: Boolean) {
@@ -525,8 +495,7 @@ class NativeVisualSettingsCoordinatorTest {
         val scope = FakeNativeSetting("scope", initialValues.scope, writeLog)
         val indent = FakeNativeSetting("indent", initialValues.indent, writeLog)
         val externalOverrides = mutableListOf<Set<NativeVisualSettingTarget>>()
-        val highlightRefreshes = mutableListOf<Unit>()
-        val indentRefreshes = mutableListOf<Unit>()
+        val nativeRefreshes = mutableListOf<Unit>()
         val persistedSnapshots = mutableListOf<PersistedSnapshot>()
         lateinit var pluginListener: DynamicPluginListener
         lateinit var coordinator: NativeVisualSettingsCoordinator
@@ -538,8 +507,7 @@ class NativeVisualSettingsCoordinatorTest {
                 onExternalOverrides = externalOverrides::add,
                 mayMutate = mayMutate,
                 mayRestoreOwned = mayRestoreOwned,
-                refreshHighlights = { highlightRefreshes += Unit },
-                refreshIndentGuides = { indentRefreshes += Unit },
+                refreshNativeSettings = { nativeRefreshes += Unit },
                 persistSettings = {
                     persistedSnapshots +=
                         PersistedSnapshot(
@@ -557,8 +525,7 @@ class NativeVisualSettingsCoordinatorTest {
             indent = indent,
             writeLog = writeLog,
             externalOverrides = externalOverrides,
-            highlightRefreshes = highlightRefreshes,
-            indentRefreshes = indentRefreshes,
+            nativeRefreshes = nativeRefreshes,
             persistedSnapshots = persistedSnapshots,
         )
     }
@@ -571,8 +538,7 @@ class NativeVisualSettingsCoordinatorTest {
         val indent: FakeNativeSetting,
         val writeLog: MutableList<String>,
         val externalOverrides: List<Set<NativeVisualSettingTarget>>,
-        val highlightRefreshes: List<Unit>,
-        val indentRefreshes: List<Unit>,
+        val nativeRefreshes: List<Unit>,
         val persistedSnapshots: List<PersistedSnapshot>,
     ) {
         fun values(): NativeValues = NativeValues(braces.enabled, scope.enabled, indent.enabled)

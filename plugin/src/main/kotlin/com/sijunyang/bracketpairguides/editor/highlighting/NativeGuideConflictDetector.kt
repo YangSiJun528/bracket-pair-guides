@@ -197,7 +197,7 @@ internal object NativeGuideConflictDetector {
 
     private fun isSupportedEditor(editor: Editor): Boolean {
         val project = editor.project ?: return false
-        return NativeVisualEnvironment.isStandardMonolithicEditor(editor) &&
+        return NativeVisualEnvironment.canManageNativeSettings() &&
             !project.isDisposed &&
             !editor.isDisposed &&
             !editor.isViewer &&

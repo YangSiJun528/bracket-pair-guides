@@ -7,8 +7,11 @@ import com.intellij.driver.sdk.findFile
 import com.intellij.driver.sdk.openFile
 import com.intellij.driver.sdk.singleProject
 import com.intellij.driver.sdk.ui.components.JEditorUiComponent
+import com.intellij.driver.sdk.ui.components.checkBox
 import com.intellij.driver.sdk.ui.components.codeEditor
 import com.intellij.driver.sdk.ui.components.ideFrame
+import com.intellij.driver.sdk.ui.components.settingsDialog
+import com.intellij.driver.sdk.ui.components.showSettings
 import com.intellij.driver.sdk.ui.remote.SwingHierarchyService
 import com.intellij.driver.sdk.waitFor
 import com.intellij.driver.sdk.waitForCodeAnalysis
@@ -143,12 +146,8 @@ class BracketGuideVisualTest {
 
                     fun applyAndWait(scenario: String) {
                         val spec = SCENARIO_SPECS.getValue(scenario)
+                        bridge.prepareEditorForApply(SAMPLE_FILE)
                         val expectedPreferences = bridge.apply(spec.preferences)
-                        bridge.retriggerCaretForVisualState(
-                            SAMPLE_FILE,
-                            spec.caretLine,
-                            spec.caretColumn,
-                        )
                         waitForCodeAnalysis(project, sample, 5.minutes)
                         waitFor(
                             1.minutes,
@@ -196,17 +195,63 @@ class BracketGuideVisualTest {
                     recordScenario(NATIVE_VISUALS_UNMANAGED)
                     recordScenario(NATIVE_HIGHLIGHT_SUPPRESSED)
                     recordScenario(NATIVE_INDENT_HIDDEN)
-                    applyAndWait(NATIVE_VISUALS_UNMANAGED)
-                    val restoredNativeVisuals =
-                        screenshot(SCENARIO_SPECS.getValue(NATIVE_VISUALS_UNMANAGED))
-                    if (
-                        !ExactImageComparison.matches(
-                            captures.getValue(NATIVE_VISUALS_UNMANAGED),
-                            restoredNativeVisuals,
-                        )
-                    ) {
+                    val unmanagedSpec = SCENARIO_SPECS.getValue(NATIVE_VISUALS_UNMANAGED)
+                    showSettings()
+                    settingsDialog {
+                        x { byClass("SearchTextField") }.apply {
+                            click()
+                            keyboard { enterText("Bracket Pair Guides") }
+                        }
+                        settingsTree.x { byVisibleText("Bracket Pair Guides") }.click()
+                        val manageNativeVisuals = checkBox {
+                            byVisibleText(MANAGE_NATIVE_VISUALS_LABEL)
+                        }
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "IntelliJ Integration control was not ready",
+                        ) {
+                            manageNativeVisuals.isVisible() &&
+                                manageNativeVisuals.isEnabled() &&
+                                manageNativeVisuals.isSelected()
+                        }
+                        manageNativeVisuals.uncheck()
+
+                        val applyButton = x { byAccessibleName("Apply") }
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "Settings Apply button was not enabled",
+                        ) {
+                            applyButton.isEnabled()
+                        }
+                        applyButton.click()
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "Settings Apply did not finish",
+                        ) {
+                            !applyButton.isEnabled()
+                        }
+                        x { byAccessibleName("Cancel") }.click()
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "Settings dialog did not close",
+                        ) {
+                            notPresent()
+                        }
+                    }
+
+                    waitForExactStableScreenshot(
+                        editor = editor,
+                        expected = captures.getValue(NATIVE_VISUALS_UNMANAGED),
+                        failureMessage =
+                        "Settings Apply did not restore native visuals without editor interaction",
+                    )
+                    if (!visualStateIsReady(bridge.visualScenarioState(SAMPLE_FILE), unmanagedSpec)) {
                         contractFailures +=
-                            "disabling native integration did not reproduce the unmanaged capture"
+                            "Settings Apply restored pixels but not the unmanaged editor state"
                     }
 
                     recordScenario(DEFAULT_PALETTE)
@@ -268,6 +313,25 @@ class BracketGuideVisualTest {
             unchanged
         }
         return checkNotNull(stable)
+    }
+
+    /** Waits for an exact editor result without focusing, repainting, or otherwise touching it. */
+    private fun waitForExactStableScreenshot(
+        editor: JEditorUiComponent,
+        expected: BufferedImage,
+        failureMessage: String,
+    ) {
+        var previousMatch: BufferedImage? = null
+        waitFor(1.minutes, 250.milliseconds, failureMessage) {
+            val current = cropStableRegion(editor.getScreenshot())
+            val matchesExpected = ExactImageComparison.matches(expected, current)
+            val stable = matchesExpected &&
+                previousMatch?.let { previous ->
+                    ExactImageComparison.matches(previous, current)
+                } == true
+            previousMatch = if (matchesExpected) current else null
+            stable
+        }
     }
 
     private fun DriverBridge.apply(preferences: PreferenceSnapshot): String = applyVisualPreferences(
@@ -602,6 +666,8 @@ class BracketGuideVisualTest {
         const val THEME = "Darcula"
         const val VISUAL_STATE_FIELD_COUNT = 14
         const val EXPECTED_PAIR_DECORATIONS = 2
+        const val MANAGE_NATIVE_VISUALS_LABEL =
+            "Adjust IntelliJ guide rendering while Bracket Pair Guides is enabled"
 
         const val SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE =
             "SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE"
@@ -834,7 +900,7 @@ private interface DriverBridge {
 
     fun currentVisualPreferences(): String
 
-    fun retriggerCaretForVisualState(filePathSuffix: String, caretLine: Int, caretColumn: Int): String
+    fun prepareEditorForApply(filePathSuffix: String): String
 
     fun prepareEditorForCapture(filePathSuffix: String): String
 

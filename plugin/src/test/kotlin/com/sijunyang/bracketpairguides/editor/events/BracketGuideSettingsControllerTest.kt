@@ -35,14 +35,14 @@ class BracketGuideSettingsControllerTest {
     }
 
     @Test
-    fun `no-op apply has no native editor or daemon effects`() {
+    fun `no-op apply still reconciles native settings without runtime effects`() {
         val fixture = fixture()
         val modificationCount = fixture.settings.stateModificationCount
 
         fixture.controller.applySettings(BracketGuidePreferences())
 
         assertThat(fixture.settings.stateModificationCount).isEqualTo(modificationCount)
-        assertThat(fixture.nativeSnapshots).isEmpty()
+        assertThat(fixture.nativeSnapshots).containsExactly(BracketGuidePreferences())
         assertThat(fixture.runtimeChanges).isEmpty()
         assertThat(fixture.edtTransactions).hasSize(1)
     }

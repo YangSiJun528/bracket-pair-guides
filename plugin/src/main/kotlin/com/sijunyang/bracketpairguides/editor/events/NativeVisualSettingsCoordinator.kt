@@ -1,7 +1,6 @@
 package com.sijunyang.bracketpairguides.editor.events
 
 import com.intellij.codeInsight.CodeInsightSettings
-import com.intellij.codeWithMe.ClientId
 import com.intellij.ide.AppLifecycleListener
 import com.intellij.ide.plugins.DynamicPluginListener
 import com.intellij.ide.plugins.IdeaPluginDescriptor
@@ -10,14 +9,11 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.SerializablePersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.util.xmlb.annotations.Property
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.NativeHighlightMode
-import java.lang.reflect.Method
 
 /**
  * Temporarily owns the three IntelliJ Boolean settings that can render native
@@ -37,8 +33,7 @@ internal class NativeVisualSettingsCoordinator internal constructor(
     private val onExternalOverrides: (Set<NativeVisualSettingTarget>) -> Unit,
     private val mayMutate: () -> Boolean,
     private val mayRestoreOwned: () -> Boolean = mayMutate,
-    private val refreshHighlights: () -> Unit,
-    private val refreshIndentGuides: () -> Unit,
+    private val refreshNativeSettings: () -> Unit,
     private val persistSettings: () -> Unit,
     subscribeToLifecycle: (
         AppLifecycleListener,
@@ -56,10 +51,8 @@ internal class NativeVisualSettingsCoordinator internal constructor(
         currentScopeSetting = IntelliJCurrentScopeSetting,
         indentGuidesSetting = IntelliJIndentGuidesSetting,
         onExternalOverrides = ::recordExternalOverrides,
-        mayMutate = NativeVisualEnvironment::isStandardMonolithicApplication,
-        mayRestoreOwned = NativeVisualEnvironment::isStandardLocalApplicationContext,
-        refreshHighlights = DaemonRefresh::request,
-        refreshIndentGuides = { EditorFactory.getInstance().refreshAllEditors() },
+        mayMutate = NativeVisualEnvironment::canManageNativeSettings,
+        refreshNativeSettings = NativeEditorSettingsRefresh::request,
         persistSettings = { ApplicationManager.getApplication().saveSettings() },
         subscribeToLifecycle = { appListener, pluginListener, parentDisposable ->
             ApplicationManager.getApplication().messageBus.connect(parentDisposable).apply {
@@ -84,9 +77,7 @@ internal class NativeVisualSettingsCoordinator internal constructor(
     fun apply(preferences: BracketGuidePreferences): BracketGuidePreferences {
         if (nativeWriteDepth > 0) return preferences
         if (!mayMutate()) {
-            // A standard local process can become multi-client after ownership
-            // was acquired. Stop owning its local values without touching a
-            // remote client's settings or clearing the selected preferences.
+            // Do not retain ownership if this process can no longer host editor UI.
             val overrides =
                 releaseAll(
                     refreshNative = true,
@@ -224,8 +215,7 @@ internal class NativeVisualSettingsCoordinator internal constructor(
     }
 
     private fun refreshAfterWrites(highlightChanged: Boolean, indentGuidesChanged: Boolean) {
-        if (highlightChanged) refreshHighlights()
-        if (indentGuidesChanged) refreshIndentGuides()
+        if (highlightChanged || indentGuidesChanged) refreshNativeSettings()
     }
 
     private inline fun nativeWrite(action: () -> Unit) {
@@ -380,146 +370,12 @@ internal interface NativeBooleanSetting {
     var enabled: Boolean
 }
 
-/** Conservative process gate for settings whose service context is client-specific. */
+/** Native editor settings are meaningful only in an interactive IDE process. */
 internal object NativeVisualEnvironment {
-    fun isStandardMonolithicApplication(): Boolean =
-        isStandardLocalApplicationContext() && IntelliJMultiClientProbe.hasNoRemoteAppSessions()
-
-    /**
-     * A local settings context that is safe for unwinding ownership already
-     * acquired by this process, even after a CWM session has begun.
-     */
-    fun isStandardLocalApplicationContext(): Boolean {
+    fun canManageNativeSettings(): Boolean {
         val application = ApplicationManager.getApplication()
-        if (application.isUnitTestMode || application.isHeadlessEnvironment) return false
-        if (!isCurrentlyUnderLocalClientId()) return false
-        return isStandardLocalLaunch
+        return !application.isUnitTestMode && !application.isHeadlessEnvironment
     }
-
-    fun isStandardMonolithicEditor(editor: Editor): Boolean =
-        isStandardMonolithicApplication() && IntelliJMultiClientProbe.isLocalEditor(editor)
-
-    internal fun hasExcludedLaunchToken(command: String): Boolean = command
-        .splitToSequence(WHITESPACE)
-        .filter(String::isNotEmpty)
-        .any(EXCLUDED_COMMANDS::contains)
-
-    private fun isCurrentlyUnderLocalClientId(): Boolean = try {
-        ClientId.isCurrentlyUnderLocalId
-    } catch (_: LinkageError) {
-        false
-    }
-
-    private fun systemProperty(name: String): String? = try {
-        System.getProperty(name)
-    } catch (_: SecurityException) {
-        null
-    }
-
-    /** Platform prefix and Java command are immutable launch identity. */
-    private val isStandardLocalLaunch: Boolean by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        val platformPrefix = systemProperty(PLATFORM_PREFIX_PROPERTY)
-            ?.takeIf(String::isNotBlank)
-            ?: return@lazy false
-        if (platformPrefix in EXCLUDED_PLATFORM_PREFIXES) return@lazy false
-
-        val command = systemProperty(JAVA_COMMAND_PROPERTY)
-            ?.takeIf(String::isNotBlank)
-            ?: return@lazy false
-        !hasExcludedLaunchToken(command)
-    }
-
-    private const val PLATFORM_PREFIX_PROPERTY = "idea.platform.prefix"
-    private const val JAVA_COMMAND_PROPERTY = "sun.java.command"
-    private val WHITESPACE = Regex("\\s+")
-    private val EXCLUDED_PLATFORM_PREFIXES =
-        setOf("JetBrainsClient", "CodeWithMeGuest", "Gateway")
-    private val EXCLUDED_COMMANDS =
-        setOf(
-            "remoteDevHost",
-            "remoteDevMode",
-            "cwmHost",
-            "cwmHostNoLobby",
-            "serverMode",
-            "splitMode",
-        )
-}
-
-/**
- * IntelliJ 2024.1 exposes no supported public API for positive monolith/editor
- * classification. These read-only probes isolate the Internal/Experimental
- * multi-client APIs behind reflection. Missing or changed API, failed service
- * lookup, and unknown return types all fail closed before any setting write.
- * A remote session can still begin after this instantaneous check; callers must
- * never use the result as an authorization or security boundary.
- */
-private object IntelliJMultiClientProbe {
-    fun hasNoRemoteAppSessions(): Boolean {
-        val access = reflectionAccess ?: return false
-        return try {
-            val sessions = access.getAppSessions.invoke(null, access.remoteClientKind)
-                as? Collection<*>
-                ?: return false
-            sessions.isEmpty()
-        } catch (_: ReflectiveOperationException) {
-            false
-        } catch (_: LinkageError) {
-            false
-        } catch (_: SecurityException) {
-            false
-        }
-    }
-
-    fun isLocalEditor(editor: Editor): Boolean {
-        val access = reflectionAccess ?: return false
-        return try {
-            val clientId = access.getEditorClientId.invoke(null, editor)
-            access.isLocalClientId.invoke(null, clientId) == true
-        } catch (_: ReflectiveOperationException) {
-            false
-        } catch (_: LinkageError) {
-            false
-        } catch (_: SecurityException) {
-            false
-        }
-    }
-
-    private val reflectionAccess: ReflectionAccess? by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        try {
-            val clientKindClass = Class.forName(CLIENT_KIND_CLASS)
-            val sessionsManagerClass = Class.forName(CLIENT_SESSIONS_MANAGER_CLASS)
-            val clientIdClass = Class.forName(CLIENT_ID_CLASS)
-            val editorManagerClass = Class.forName(CLIENT_EDITOR_MANAGER_CLASS)
-            ReflectionAccess(
-                getAppSessions =
-                sessionsManagerClass.getMethod("getAppSessions", clientKindClass),
-                remoteClientKind = clientKindClass.getField("REMOTE").get(null),
-                getEditorClientId =
-                editorManagerClass.getMethod("getClientId", Editor::class.java),
-                isLocalClientId = clientIdClass.getMethod("isLocal", clientIdClass),
-            )
-        } catch (_: ReflectiveOperationException) {
-            null
-        } catch (_: LinkageError) {
-            null
-        } catch (_: SecurityException) {
-            null
-        }
-    }
-
-    private data class ReflectionAccess(
-        val getAppSessions: Method,
-        val remoteClientKind: Any,
-        val getEditorClientId: Method,
-        val isLocalClientId: Method,
-    )
-
-    private const val CLIENT_KIND_CLASS = "com.intellij.openapi.client.ClientKind"
-    private const val CLIENT_SESSIONS_MANAGER_CLASS =
-        "com.intellij.openapi.client.ClientSessionsManager"
-    private const val CLIENT_ID_CLASS = "com.intellij.codeWithMe.ClientId"
-    private const val CLIENT_EDITOR_MANAGER_CLASS =
-        "com.intellij.openapi.editor.ClientEditorManager"
 }
 
 private object IntelliJMatchedBraceSetting : NativeBooleanSetting {
