@@ -58,7 +58,6 @@ internal data class IntelliJIntegrationPreferences(
     @JvmField @field:Property val manageNativeVisuals: Boolean = true,
     @JvmField @field:Property val nativeHighlightMode: NativeHighlightMode =
         NativeHighlightMode.SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE,
-    @JvmField @field:Property val hideNativeIndentGuides: Boolean = false,
 )
 
 /** Native highlight effects that may remain beside the plugin's active guide. */

@@ -25,19 +25,18 @@ The default active presentation uses only the vertical and horizontal guide
 segments. Enable either pair option when the two active symbols need additional
 emphasis.
 
-Use the **IntelliJ Integration** group to control native emphasis and the
-physical indent-guide lines that can appear beside a multiline active guide.
+Use the **IntelliJ Integration** group to control native emphasis that can
+appear beside a multiline active guide.
 
 ## Adjust IntelliJ guide rendering
 
 Open **Settings | Editor | Bracket Pair Guides**, then find the **IntelliJ
-Integration** group. The three controls work together as follows:
+Integration** group. The two controls work together as follows:
 
 | Setting | Default | Effect |
 |---|---:|---|
-| Adjust IntelliJ guide rendering while Bracket Pair Guides is enabled | On | Applies the selected native highlighting and indent-guide choices |
+| Adjust IntelliJ guide rendering while Bracket Pair Guides is enabled | On | Applies the selected native highlighting choice |
 | Native guide highlighting | Hide matched-brace and Current scope highlighting | Controls whether IntelliJ can emphasize an existing native indent guide |
-| Hide regular IntelliJ indent guides | Off | Removes the physical native indent-guide lines when enabled |
 
 **Matched brace** and **Current scope** are IntelliJ checkboxes under
 **Settings | Editor | General | Highlight on Caret Movement**. **Current scope**
@@ -46,29 +45,15 @@ the color or prominence of an existing indent guide. The physical line itself
 is controlled by **Show indent guides** under
 **Settings | Editor | General | Appearance**.
 
-The default keeps useful regular IntelliJ indent guides. In the New UI, a dim
-native indent guide can therefore remain beside the plugin's active vertical
-guide. This is expected and does not indicate that suppression failed.
-
-To show only the plugin guide in the New UI code area:
-
-1. Keep **Adjust IntelliJ guide rendering while Bracket Pair Guides is enabled**
-   selected.
-2. Select **Hide matched-brace and Current scope highlighting**.
-3. Select **Hide regular IntelliJ indent guides**.
-
-This option changes IntelliJ's global indent-guide value. An editor with an
-explicit per-editor override can continue to show indent guides; the plugin
-detects that effective value but does not overwrite the override.
-
-Hiding native highlighting and hiding regular indent guides solve different
-problems. With **Show indent guides** enabled, its physical line can sit beside
-the plugin guide. **Matched brace** and **Current scope** only emphasize that
-existing line in the New UI; they do not add another physical line. The regular
-guide remains dim when its highlighting is suppressed. In the Classic UI,
-native brace highlighting can instead paint a gutter-side marker even when
-regular indent guides are hidden. Use the default highlighting mode, not only
-the indent-guide option, when native emphasis should be removed in both UIs.
+The plugin does not change IntelliJ's regular indent-guide visibility. With
+**Show indent guides** enabled, its physical line can sit beside the plugin
+guide. **Matched brace** and **Current scope** only emphasize that existing line
+in the New UI; they do not add another physical line. The regular guide remains
+dim when its highlighting is suppressed. To hide those physical lines globally,
+clear **Show indent guides** under **Settings | Editor | General | Appearance**.
+In the Classic UI, native brace highlighting can instead paint a gutter-side
+marker even when regular indent guides are hidden, so use the default plugin
+highlighting mode when native emphasis should be removed in both UIs.
 
 The tested New UI states use the same caret position. The native-emphasis case
 deliberately keeps **Current scope** off and turns only **Matched brace** on,
@@ -76,8 +61,7 @@ proving that Current scope is not required for the adjacent native emphasis.
 
 In the first state, **Show indent guides** supplies the adjacent physical line;
 native highlighting only emphasizes it. That emphasis triggers the advisory
-notification. The middle state is the default, which keeps the same regular
-line dim. The final state also selects **Hide regular IntelliJ indent guides**.
+notification. The default state keeps the same regular line dim.
 
 Choose a highlighting mode according to the native behavior you want:
 
@@ -89,19 +73,17 @@ Choose a highlighting mode according to the native behavior you want:
 - **Leave IntelliJ highlighting unchanged** does not take ownership of either
   native highlighting setting.
 
-Clear the parent option to stop managing all three native settings temporarily.
-The selected mode and indent-guide option are retained but disabled in the UI,
-and any native values currently owned by the plugin are restored. Disabling
-Bracket Pair Guides has the same restoration effect.
+Clear the parent option to stop managing both native highlighting settings
+temporarily. The selected mode is retained but disabled in the UI, and any
+native values currently owned by the plugin are restored. Disabling Bracket
+Pair Guides has the same restoration effect.
 
-The plugin remembers each IntelliJ value before changing it. It restores that
-exact value when the integration or plugin is disabled, the selected option no
-longer needs it, the plugin is unloaded, or the IDE exits. If a managed IntelliJ
-value is explicitly turned back on elsewhere, that newer choice wins: the
-plugin releases only that value, keeps the parent integration enabled, and
-updates the corresponding child selection. Re-enabling matched-brace or Current
-scope highlighting selects **Leave IntelliJ highlighting unchanged**;
-re-enabling indent guides clears **Hide regular IntelliJ indent guides**.
+The plugin remembers each IntelliJ highlighting value before changing it. It
+restores that exact value when the integration or plugin is disabled, the
+selected mode no longer needs it, the plugin is unloaded, or the IDE exits. If
+a managed IntelliJ value is explicitly turned back on elsewhere, that newer
+choice wins: the plugin releases only that value, keeps the parent integration
+enabled, and selects **Leave IntelliJ highlighting unchanged** when applicable.
 
 Because these IntelliJ settings are Boolean values, another component writing
 `false` while the plugin already owns the same `false` value cannot be detected
@@ -121,14 +103,20 @@ New UI, or a gutter-side marker in the Classic UI. Select **Review settings** to
 open the **IntelliJ Integration** group and choose the intended combination.
 
 The notification appears in the lower-right corner of the IDE. Expand it to
-read the complete explanation. The **Review settings** action opens the relevant
-settings page without changing the current selection.
+read the complete explanation. **Review settings** opens the relevant settings
+page without changing the current selection. **Don't warn again for this
+conflict** suppresses the advisory while that same conflict remains active.
 
-The notification is advisory. Opening or closing it does not change plugin or
-IntelliJ settings. It is published only once across IDE processes and projects.
-Regular dim indent guides are useful under the default configuration and never
-trigger this notification, so the absence of a notification does not mean that
-only one physical line will be shown.
+The notification is advisory. Opening, reviewing, suppressing, or closing it
+does not change plugin or IntelliJ settings. Without explicit suppression, it
+can appear once per IDE session while the conflict remains. Explicit suppression
+survives an IDE restart, but ends after the configuration becomes safe and later
+allows the conflict again. Disabling and re-enabling the plugin's active vertical
+guide or native matched-brace highlighting therefore starts a new warning
+episode; moving the caret, changing files, or temporarily lacking a matching
+guide does not. Regular dim indent guides are useful under the default
+configuration and never trigger this notification, so the absence of a
+notification does not mean that only one physical line will be shown.
 
 ## Choose languages
 

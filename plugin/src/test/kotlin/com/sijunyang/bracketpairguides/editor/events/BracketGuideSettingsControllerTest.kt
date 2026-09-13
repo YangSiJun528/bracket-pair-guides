@@ -31,19 +31,25 @@ class BracketGuideSettingsControllerTest {
         assertThat(fixture.runtimeChanges).containsExactly(
             SettingsTransition(BracketGuidePreferences(), normalized),
         )
+        assertThat(fixture.nativeConflictSettings).containsExactly(
+            SettingsTransition(BracketGuidePreferences(), normalized),
+        )
         assertThat(fixture.edtTransactions).hasSize(1)
     }
 
     @Test
-    fun `no-op apply has no native editor or daemon effects`() {
+    fun `no-op apply still reconciles native settings without runtime effects`() {
         val fixture = fixture()
         val modificationCount = fixture.settings.stateModificationCount
 
         fixture.controller.applySettings(BracketGuidePreferences())
 
         assertThat(fixture.settings.stateModificationCount).isEqualTo(modificationCount)
-        assertThat(fixture.nativeSnapshots).isEmpty()
+        assertThat(fixture.nativeSnapshots).containsExactly(BracketGuidePreferences())
         assertThat(fixture.runtimeChanges).isEmpty()
+        assertThat(fixture.nativeConflictSettings).containsExactly(
+            SettingsTransition(BracketGuidePreferences(), BracketGuidePreferences()),
+        )
         assertThat(fixture.edtTransactions).hasSize(1)
     }
 
@@ -67,6 +73,9 @@ class BracketGuideSettingsControllerTest {
         assertThat(fixture.runtimeChanges).containsExactly(
             SettingsTransition(BracketGuidePreferences(), effective),
         )
+        assertThat(fixture.nativeConflictSettings).containsExactly(
+            SettingsTransition(BracketGuidePreferences(), effective),
+        )
     }
 
     @Test
@@ -87,18 +96,14 @@ class BracketGuideSettingsControllerTest {
     }
 
     @Test
-    fun `ownership callback updates only its still owning children`() {
-        val initial =
-            BracketGuidePreferences(
-                intelliJIntegration =
-                IntelliJIntegrationPreferences(hideNativeIndentGuides = true),
-            )
+    fun `ownership callback updates only its still owning highlight`() {
+        val initial = BracketGuidePreferences()
         val fixture = fixture(initialOptions = initial)
 
         fixture.controller.nativeVisualSettingsWereOverridden(
             setOf(
                 NativeVisualSettingTarget.MATCHED_BRACES,
-                NativeVisualSettingTarget.INDENT_GUIDES,
+                NativeVisualSettingTarget.CURRENT_SCOPE,
             ),
         )
 
@@ -107,7 +112,6 @@ class BracketGuideSettingsControllerTest {
         assertThat(effective.intelliJIntegration.manageNativeVisuals).isTrue()
         assertThat(effective.intelliJIntegration.nativeHighlightMode)
             .isEqualTo(LEAVE_UNCHANGED)
-        assertThat(effective.intelliJIntegration.hideNativeIndentGuides).isFalse()
         assertThat(fixture.nativeSnapshots).isEmpty()
         assertThat(fixture.runtimeChanges).containsExactly(
             SettingsTransition(initial, effective),
@@ -146,7 +150,6 @@ class BracketGuideSettingsControllerTest {
         val parentOff =
             preferences(
                 mode = NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY,
-                hideIndentGuides = true,
                 manageNativeVisuals = false,
             )
         val fixture = fixture(initialOptions = parentOff)
@@ -180,6 +183,7 @@ class BracketGuideSettingsControllerTest {
         val settings = BracketGuideSettings().apply { loadState(initialOptions) }
         val nativeSnapshots = mutableListOf<BracketGuidePreferences>()
         val runtimeChanges = mutableListOf<SettingsTransition>()
+        val nativeConflictSettings = mutableListOf<SettingsTransition>()
         val edtTransactions = mutableListOf<Unit>()
         val controller =
             BracketGuideSettingsController(
@@ -195,28 +199,28 @@ class BracketGuideSettingsControllerTest {
                     edtTransactions += Unit
                     action()
                 },
+                reportNativeGuideConflictSettings = { previous, current ->
+                    nativeConflictSettings += SettingsTransition(previous, current)
+                },
             )
         return Fixture(
             controller = controller,
             settings = settings,
             nativeSnapshots = nativeSnapshots,
             runtimeChanges = runtimeChanges,
+            nativeConflictSettings = nativeConflictSettings,
             edtTransactions = edtTransactions,
         )
     }
 
-    private fun preferences(
-        mode: NativeHighlightMode,
-        hideIndentGuides: Boolean = false,
-        manageNativeVisuals: Boolean = true,
-    ): BracketGuidePreferences = BracketGuidePreferences(
-        intelliJIntegration =
-        IntelliJIntegrationPreferences(
-            manageNativeVisuals = manageNativeVisuals,
-            nativeHighlightMode = mode,
-            hideNativeIndentGuides = hideIndentGuides,
-        ),
-    )
+    private fun preferences(mode: NativeHighlightMode, manageNativeVisuals: Boolean = true): BracketGuidePreferences =
+        BracketGuidePreferences(
+            intelliJIntegration =
+            IntelliJIntegrationPreferences(
+                manageNativeVisuals = manageNativeVisuals,
+                nativeHighlightMode = mode,
+            ),
+        )
 
     private fun BracketGuidePreferences.withMode(mode: NativeHighlightMode): BracketGuidePreferences = copy(
         intelliJIntegration = intelliJIntegration.copy(nativeHighlightMode = mode),
@@ -227,6 +231,7 @@ class BracketGuideSettingsControllerTest {
         val settings: BracketGuideSettings,
         val nativeSnapshots: List<BracketGuidePreferences>,
         val runtimeChanges: List<SettingsTransition>,
+        val nativeConflictSettings: List<SettingsTransition>,
         val edtTransactions: List<Unit>,
     )
 

@@ -5,6 +5,7 @@ import com.intellij.openapi.components.Service
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.NativeHighlightMode
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
+import com.sijunyang.bracketpairguides.settings.NativeGuideConflictSettingsListener
 
 /** Commits normalized preferences and applies their effects as one EDT transaction. */
 @Service(Service.Level.APP)
@@ -13,6 +14,10 @@ internal class BracketGuideSettingsController internal constructor(
     private val applyNativeVisualSettings: (BracketGuidePreferences) -> BracketGuidePreferences,
     private val applyRuntimeChange: (BracketGuidePreferences, BracketGuidePreferences) -> Unit,
     private val runOnEdt: ((() -> Unit) -> Unit),
+    private val reportNativeGuideConflictSettings: (
+        BracketGuidePreferences,
+        BracketGuidePreferences,
+    ) -> Unit = { _, _ -> },
 ) {
     @Suppress("unused")
     constructor() : this(
@@ -31,12 +36,16 @@ internal class BracketGuideSettingsController internal constructor(
                 application.invokeAndWait { action() }
             }
         },
+        reportNativeGuideConflictSettings = nativeGuideConflictSettingsReporter(),
     )
 
     /** The single production entry point for a committed preference snapshot. */
     fun applySettings(options: BracketGuidePreferences) {
         runOnEdt {
-            commit(options, NativeReconciliation.IF_CHANGED)
+            // Apply is also the user's explicit request to reconcile IntelliJ's
+            // native editor settings. Do this even when our persisted snapshot
+            // is unchanged so a missed startup write or external drift recovers.
+            commit(options, NativeReconciliation.ALWAYS)
         }
     }
 
@@ -70,6 +79,7 @@ internal class BracketGuideSettingsController internal constructor(
             persistedSettings.replace(reconciled)
             current = persistedSettings.options
         }
+        reportNativeGuideConflictSettings(previous, current)
         if (current == previous) return
 
         applyRuntimeChange(previous, current)
@@ -77,7 +87,6 @@ internal class BracketGuideSettingsController internal constructor(
 
     private enum class NativeReconciliation {
         NONE,
-        IF_CHANGED,
         ALWAYS,
     }
 
@@ -107,12 +116,6 @@ internal class BracketGuideSettingsController internal constructor(
                     NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED,
                 )
         }
-        if (
-            NativeVisualSettingTarget.INDENT_GUIDES in targets &&
-            integration.hideNativeIndentGuides
-        ) {
-            integration = integration.copy(hideNativeIndentGuides = false)
-        }
         return if (integration == intelliJIntegration) {
             this
         } else {
@@ -121,6 +124,17 @@ internal class BracketGuideSettingsController internal constructor(
     }
 
     companion object {
+        private fun nativeGuideConflictSettingsReporter(): (
+            BracketGuidePreferences,
+            BracketGuidePreferences,
+        ) -> Unit {
+            val listener by lazy(LazyThreadSafetyMode.NONE) {
+                ApplicationManager.getApplication()
+                    .getService(NativeGuideConflictSettingsListener::class.java)
+            }
+            return { previous, current -> listener.settingsChanged(previous, current) }
+        }
+
         @JvmStatic
         fun getInstance(): BracketGuideSettingsController =
             ApplicationManager.getApplication().getService(BracketGuideSettingsController::class.java)

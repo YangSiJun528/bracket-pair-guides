@@ -1,6 +1,6 @@
 # Visual test baselines
 
-This directory contains the reviewed PNG oracle for the 12 scenarios defined in
+This directory contains the reviewed PNG oracle for the 11 scenarios defined in
 the [visual testing reference](../../../../../docs/reference_visual_testing.md).
 Each supported environment directory must contain exactly one
 `<scenario>.png` for every name below.
@@ -8,7 +8,7 @@ Each supported environment directory must contain exactly one
 | Group | Baseline names |
 |---|---|
 | Rendering components | `horizontal-only`, `vertical-only`, `pair-border-only`, `pair-background-only`, `all-components`, `bracket-colorization-off` |
-| Settings application and native visuals | `plugin-disabled`, `native-visuals-unmanaged`, `native-highlight-suppressed`, `native-indent-hidden` |
+| Settings application and native visuals | `plugin-disabled`, `native-visuals-unmanaged`, `native-highlight-suppressed` |
 | Colors | `default-palette`, `custom-palette` |
 
 The two supported rendering environments are:

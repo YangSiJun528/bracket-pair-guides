@@ -7,9 +7,15 @@ import com.intellij.driver.sdk.findFile
 import com.intellij.driver.sdk.openFile
 import com.intellij.driver.sdk.singleProject
 import com.intellij.driver.sdk.ui.components.JEditorUiComponent
+import com.intellij.driver.sdk.ui.components.checkBox
 import com.intellij.driver.sdk.ui.components.codeEditor
 import com.intellij.driver.sdk.ui.components.ideFrame
+import com.intellij.driver.sdk.ui.components.settingsDialog
+import com.intellij.driver.sdk.ui.components.showSettings
+import com.intellij.driver.sdk.ui.components.textField
+import com.intellij.driver.sdk.ui.components.tree
 import com.intellij.driver.sdk.ui.remote.SwingHierarchyService
+import com.intellij.driver.sdk.ui.ui
 import com.intellij.driver.sdk.waitFor
 import com.intellij.driver.sdk.waitForCodeAnalysis
 import com.intellij.driver.sdk.waitForIndicators
@@ -99,6 +105,7 @@ class BracketGuideVisualTest {
                 waitForIndicators(project, 5.minutes)
                 val bridge = utility<DriverBridge>()
                 val hierarchy = service<SwingHierarchyService>()
+                val rootUi = this.ui
                 assertTrue(bridge.applyDarculaTheme() == THEME)
                 assertTrue(
                     bridge.configureEditorAppearance(EDITOR_FONT, EDITOR_FONT_SIZE) ==
@@ -126,7 +133,12 @@ class BracketGuideVisualTest {
                     }
 
                     fun resetScenario(spec: ScenarioSpec) {
-                        bridge.resetVisualScenario(SAMPLE_FILE, spec.caretLine, spec.caretColumn)
+                        bridge.resetVisualScenario(
+                            SAMPLE_FILE,
+                            spec.caretLine,
+                            spec.caretColumn,
+                            spec.initialIndentGuidesShown,
+                        )
                         waitFor(
                             30.seconds,
                             100.milliseconds,
@@ -137,18 +149,15 @@ class BracketGuideVisualTest {
                                 SAMPLE_FILE,
                                 spec.caretLine,
                                 spec.caretColumn,
+                                spec.initialIndentGuidesShown,
                             )
                         }
                     }
 
-                    fun applyAndWait(scenario: String) {
+                    fun applyAndWait(scenario: String, expectedNative: NativeState? = null) {
                         val spec = SCENARIO_SPECS.getValue(scenario)
+                        bridge.prepareEditorForApply(SAMPLE_FILE)
                         val expectedPreferences = bridge.apply(spec.preferences)
-                        bridge.retriggerCaretForVisualState(
-                            SAMPLE_FILE,
-                            spec.caretLine,
-                            spec.caretColumn,
-                        )
                         waitForCodeAnalysis(project, sample, 5.minutes)
                         waitFor(
                             1.minutes,
@@ -159,7 +168,7 @@ class BracketGuideVisualTest {
                             bridge.currentVisualPreferences() == expectedPreferences &&
                                 visualStateIsReady(
                                     bridge.visualScenarioState(SAMPLE_FILE),
-                                    spec,
+                                    expectedNative?.let { native -> spec.copy(native = native) } ?: spec,
                                 )
                         }
                     }
@@ -185,28 +194,119 @@ class BracketGuideVisualTest {
 
                     RENDERING_SCENARIOS.forEach { scenario -> recordScenario(scenario) }
 
-                    recordScenario(PLUGIN_DISABLED, warmState = ALL_COMPONENTS)
-                    applyAndWait(ALL_COMPONENTS)
+                    val pluginDisabledSpec = SCENARIO_SPECS.getValue(PLUGIN_DISABLED)
+                    resetScenario(pluginDisabledSpec)
+                    applyAndWait(ALL_COMPONENTS, CURRENT_SCOPE_SUPPRESSED_INDENT_ENABLED)
+                    val enabledBeforeDisable = screenshot(SCENARIO_SPECS.getValue(ALL_COMPONENTS))
+                    applyAndWait(PLUGIN_DISABLED)
+                    val pluginDisabled = screenshot(pluginDisabledSpec)
+                    writePng(pluginDisabled, artifacts.resolve("$PLUGIN_DISABLED-actual.png"))
+                    captures[PLUGIN_DISABLED] = pluginDisabled
+                    applyAndWait(ALL_COMPONENTS, CURRENT_SCOPE_SUPPRESSED_INDENT_ENABLED)
                     val reenabled = screenshot(SCENARIO_SPECS.getValue(ALL_COMPONENTS))
-                    if (!ExactImageComparison.matches(captures.getValue(ALL_COMPONENTS), reenabled)) {
+                    if (!ExactImageComparison.matches(enabledBeforeDisable, reenabled)) {
                         contractFailures +=
-                            "re-enabling the plugin did not reproduce the all-components capture"
+                            "re-enabling the plugin did not reproduce the pre-disable all-components capture"
                     }
 
                     recordScenario(NATIVE_VISUALS_UNMANAGED)
                     recordScenario(NATIVE_HIGHLIGHT_SUPPRESSED)
-                    recordScenario(NATIVE_INDENT_HIDDEN)
-                    applyAndWait(NATIVE_VISUALS_UNMANAGED)
-                    val restoredNativeVisuals =
-                        screenshot(SCENARIO_SPECS.getValue(NATIVE_VISUALS_UNMANAGED))
-                    if (
-                        !ExactImageComparison.matches(
-                            captures.getValue(NATIVE_VISUALS_UNMANAGED),
-                            restoredNativeVisuals,
-                        )
-                    ) {
+                    val unmanagedSpec = SCENARIO_SPECS.getValue(NATIVE_VISUALS_UNMANAGED)
+                    showSettings()
+                    rootUi.settingsDialog().apply {
+                        val searchField = textField("//div[@class='TextFieldWithProcessing']")
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "Settings search field was not ready",
+                        ) {
+                            searchField.isVisible() && searchField.isEnabled()
+                        }
+                        searchField.text = "Bracket Pair Guides"
+
+                        val categories = tree("//div[@accessiblename='Settings categories']")
+                        var pluginSettingsRow = -1
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "Bracket Pair Guides settings category was not found",
+                        ) {
+                            pluginSettingsRow =
+                                categories.collectExpandedPaths()
+                                    .singleOrNull {
+                                        it.path.lastOrNull() == "Bracket Pair Guides"
+                                    }?.row ?: -1
+                            pluginSettingsRow >= 0
+                        }
+                        categories.clickRow(pluginSettingsRow)
+
+                        val manageNativeVisuals = checkBox {
+                            and(
+                                byClass("JBCheckBox"),
+                                byAccessibleName(MANAGE_NATIVE_VISUALS_LABEL),
+                            )
+                        }
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "IntelliJ Integration control was not ready",
+                        ) {
+                            manageNativeVisuals.isVisible() &&
+                                manageNativeVisuals.isEnabled() &&
+                                manageNativeVisuals.isSelected()
+                        }
+                        manageNativeVisuals.setFocus()
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "IntelliJ Integration control did not receive focus",
+                        ) {
+                            manageNativeVisuals.hasFocus()
+                        }
+                        manageNativeVisuals.keyboard { space() }
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "IntelliJ Integration control was not cleared",
+                        ) {
+                            !manageNativeVisuals.isSelected()
+                        }
+
+                        val applyButton = x { byAccessibleName("Apply") }
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "Settings Apply button was not enabled",
+                        ) {
+                            applyButton.isEnabled()
+                        }
+                        applyButton.click()
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "Settings Apply did not finish",
+                        ) {
+                            !applyButton.isEnabled()
+                        }
+                        x { byAccessibleName("Cancel") }.click()
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "Settings dialog did not close",
+                        ) {
+                            notPresent()
+                        }
+                    }
+
+                    waitForExactStableScreenshot(
+                        editor = editor,
+                        expected = captures.getValue(NATIVE_VISUALS_UNMANAGED),
+                        failureMessage =
+                        "Settings Apply did not restore native visuals without editor interaction",
+                    )
+                    if (!visualStateIsReady(bridge.visualScenarioState(SAMPLE_FILE), unmanagedSpec)) {
                         contractFailures +=
-                            "disabling native integration did not reproduce the unmanaged capture"
+                            "Settings Apply restored pixels but not the unmanaged editor state"
                     }
 
                     recordScenario(DEFAULT_PALETTE)
@@ -270,11 +370,29 @@ class BracketGuideVisualTest {
         return checkNotNull(stable)
     }
 
+    /** Waits for an exact editor result without focusing, repainting, or otherwise touching it. */
+    private fun waitForExactStableScreenshot(
+        editor: JEditorUiComponent,
+        expected: BufferedImage,
+        failureMessage: String,
+    ) {
+        var previousMatch: BufferedImage? = null
+        waitFor(1.minutes, 250.milliseconds, failureMessage) {
+            val current = cropStableRegion(editor.getScreenshot())
+            val matchesExpected = ExactImageComparison.matches(expected, current)
+            val stable = matchesExpected &&
+                previousMatch?.let { previous ->
+                    ExactImageComparison.matches(previous, current)
+                } == true
+            previousMatch = if (matchesExpected) current else null
+            stable
+        }
+    }
+
     private fun DriverBridge.apply(preferences: PreferenceSnapshot): String = applyVisualPreferences(
         enabled = preferences.enabled,
         manageNativeVisuals = preferences.manageNativeVisuals,
         nativeHighlightMode = preferences.nativeHighlightMode,
-        hideNativeIndentGuides = preferences.hideNativeIndentGuides,
         colorBracketTokens = preferences.colorBracketTokens,
         showActiveGuide = preferences.showActiveGuide,
         showVerticalGuide = preferences.showVerticalGuide,
@@ -540,7 +658,6 @@ class BracketGuideVisualTest {
         val enabled: Boolean = true,
         val manageNativeVisuals: Boolean = true,
         val nativeHighlightMode: String = SUPPRESS_CURRENT_SCOPE_ONLY,
-        val hideNativeIndentGuides: Boolean = true,
         val colorBracketTokens: Boolean = true,
         val showActiveGuide: Boolean = true,
         val showVerticalGuide: Boolean = true,
@@ -564,6 +681,7 @@ class BracketGuideVisualTest {
         val caretLine: Int = CARET_LINE,
         val caretColumn: Int = CARET_COLUMN,
         val verifyPairComponents: Boolean = true,
+        val initialIndentGuidesShown: Boolean = false,
     ) {
         val expectsGuide: Boolean
             get() =
@@ -602,6 +720,8 @@ class BracketGuideVisualTest {
         const val THEME = "Darcula"
         const val VISUAL_STATE_FIELD_COUNT = 14
         const val EXPECTED_PAIR_DECORATIONS = 2
+        const val MANAGE_NATIVE_VISUALS_LABEL =
+            "Adjust IntelliJ guide rendering while Bracket Pair Guides is enabled"
 
         const val SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE =
             "SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE"
@@ -621,7 +741,6 @@ class BracketGuideVisualTest {
         const val PLUGIN_DISABLED = "plugin-disabled"
         const val NATIVE_VISUALS_UNMANAGED = "native-visuals-unmanaged"
         const val NATIVE_HIGHLIGHT_SUPPRESSED = "native-highlight-suppressed"
-        const val NATIVE_INDENT_HIDDEN = "native-indent-hidden"
         const val DEFAULT_PALETTE = "default-palette"
         const val CUSTOM_PALETTE = "custom-palette"
 
@@ -632,12 +751,19 @@ class BracketGuideVisualTest {
                 globalIndent = true,
                 editorIndent = true,
             )
-        val CURRENT_SCOPE_AND_INDENT_SUPPRESSED =
+        val CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED =
             NativeState(
                 matchedBrace = true,
                 currentScope = false,
                 globalIndent = false,
                 editorIndent = false,
+            )
+        val CURRENT_SCOPE_SUPPRESSED_INDENT_ENABLED =
+            NativeState(
+                matchedBrace = true,
+                currentScope = false,
+                globalIndent = true,
+                editorIndent = true,
             )
         val MATCHED_BRACE_SUPPRESSED =
             NativeState(
@@ -646,18 +772,9 @@ class BracketGuideVisualTest {
                 globalIndent = true,
                 editorIndent = true,
             )
-        val MATCHED_BRACE_AND_INDENT_SUPPRESSED =
-            NativeState(
-                matchedBrace = false,
-                currentScope = true,
-                globalIndent = false,
-                editorIndent = false,
-            )
-
         val RENDERING_BASE =
             PreferenceSnapshot(
                 nativeHighlightMode = SUPPRESS_CURRENT_SCOPE_ONLY,
-                hideNativeIndentGuides = true,
                 showVerticalGuide = false,
                 showHorizontalGuides = false,
             )
@@ -671,7 +788,6 @@ class BracketGuideVisualTest {
         val NATIVE_RENDERING_BASE =
             PreferenceSnapshot(
                 nativeHighlightMode = SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE,
-                hideNativeIndentGuides = false,
             )
         val PALETTE_PREFERENCES =
             ALL_COMPONENT_PREFERENCES.copy(
@@ -684,70 +800,65 @@ class BracketGuideVisualTest {
                 ScenarioSpec(
                     HORIZONTAL_ONLY,
                     RENDERING_BASE.copy(showHorizontalGuides = true),
-                    CURRENT_SCOPE_AND_INDENT_SUPPRESSED,
+                    CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED,
                 ),
                 ScenarioSpec(
                     VERTICAL_ONLY,
                     RENDERING_BASE.copy(showVerticalGuide = true),
-                    CURRENT_SCOPE_AND_INDENT_SUPPRESSED,
+                    CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED,
                 ),
                 ScenarioSpec(
                     PAIR_BORDER_ONLY,
                     RENDERING_BASE.copy(
                         showActivePairBorder = true,
                     ),
-                    CURRENT_SCOPE_AND_INDENT_SUPPRESSED,
+                    CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED,
                 ),
                 ScenarioSpec(
                     PAIR_BACKGROUND_ONLY,
                     RENDERING_BASE.copy(
                         showActivePairBackground = true,
                     ),
-                    CURRENT_SCOPE_AND_INDENT_SUPPRESSED,
+                    CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED,
                 ),
                 ScenarioSpec(
                     ALL_COMPONENTS,
                     ALL_COMPONENT_PREFERENCES,
-                    CURRENT_SCOPE_AND_INDENT_SUPPRESSED,
+                    CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED,
                 ),
                 ScenarioSpec(
                     BRACKET_COLORIZATION_OFF,
                     ALL_COMPONENT_PREFERENCES.copy(colorBracketTokens = false),
-                    CURRENT_SCOPE_AND_INDENT_SUPPRESSED,
+                    CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED,
                 ),
                 ScenarioSpec(
                     PLUGIN_DISABLED,
                     ALL_COMPONENT_PREFERENCES.copy(enabled = false),
                     ALL_NATIVE_ENABLED,
+                    initialIndentGuidesShown = true,
                 ),
                 ScenarioSpec(
                     NATIVE_VISUALS_UNMANAGED,
                     NATIVE_RENDERING_BASE.copy(manageNativeVisuals = false),
                     ALL_NATIVE_ENABLED,
-                    NATIVE_CARET_LINE,
-                    NATIVE_CARET_COLUMN,
-                    false,
+                    caretLine = NATIVE_CARET_LINE,
+                    caretColumn = NATIVE_CARET_COLUMN,
+                    verifyPairComponents = false,
+                    initialIndentGuidesShown = true,
                 ),
                 ScenarioSpec(
                     NATIVE_HIGHLIGHT_SUPPRESSED,
                     NATIVE_RENDERING_BASE,
                     MATCHED_BRACE_SUPPRESSED,
-                    NATIVE_CARET_LINE,
-                    NATIVE_CARET_COLUMN,
-                    false,
-                ),
-                ScenarioSpec(
-                    NATIVE_INDENT_HIDDEN,
-                    NATIVE_RENDERING_BASE.copy(hideNativeIndentGuides = true),
-                    MATCHED_BRACE_AND_INDENT_SUPPRESSED,
-                    NATIVE_CARET_LINE,
-                    NATIVE_CARET_COLUMN,
-                    false,
+                    caretLine = NATIVE_CARET_LINE,
+                    caretColumn = NATIVE_CARET_COLUMN,
+                    verifyPairComponents = false,
+                    initialIndentGuidesShown = true,
                 ),
                 ScenarioSpec(
                     DEFAULT_PALETTE,
                     PALETTE_PREFERENCES,
-                    CURRENT_SCOPE_AND_INDENT_SUPPRESSED,
+                    CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED,
                 ),
                 ScenarioSpec(
                     CUSTOM_PALETTE,
@@ -758,7 +869,7 @@ class BracketGuideVisualTest {
                         pairBorderColors = CUSTOM_BORDER_COLORS,
                         pairBackgroundColors = CUSTOM_BACKGROUND_COLORS,
                     ),
-                    CURRENT_SCOPE_AND_INDENT_SUPPRESSED,
+                    CURRENT_SCOPE_SUPPRESSED_INDENT_DISABLED,
                 ),
             )
         val SCENARIO_SPECS = SCENARIO_SPECS_IN_ORDER.associateBy(ScenarioSpec::name)
@@ -778,7 +889,6 @@ class BracketGuideVisualTest {
                     PLUGIN_DISABLED,
                     NATIVE_VISUALS_UNMANAGED,
                     NATIVE_HIGHLIGHT_SUPPRESSED,
-                    NATIVE_INDENT_HIDDEN,
                     DEFAULT_PALETTE,
                     CUSTOM_PALETTE,
                 )
@@ -806,16 +916,25 @@ private interface DriverBridge {
 
     fun configureEditorAppearance(fontName: String, fontSize: Int): String
 
-    fun resetVisualScenario(filePathSuffix: String, caretLine: Int, caretColumn: Int): String
+    fun resetVisualScenario(
+        filePathSuffix: String,
+        caretLine: Int,
+        caretColumn: Int,
+        initialIndentGuidesShown: Boolean,
+    ): String
 
-    fun isVisualScenarioReset(filePathSuffix: String, caretLine: Int, caretColumn: Int): Boolean
+    fun isVisualScenarioReset(
+        filePathSuffix: String,
+        caretLine: Int,
+        caretColumn: Int,
+        initialIndentGuidesShown: Boolean,
+    ): Boolean
 
     @Suppress("LongParameterList")
     fun applyVisualPreferences(
         enabled: Boolean,
         manageNativeVisuals: Boolean,
         nativeHighlightMode: String,
-        hideNativeIndentGuides: Boolean,
         colorBracketTokens: Boolean,
         showActiveGuide: Boolean,
         showVerticalGuide: Boolean,
@@ -834,7 +953,7 @@ private interface DriverBridge {
 
     fun currentVisualPreferences(): String
 
-    fun retriggerCaretForVisualState(filePathSuffix: String, caretLine: Int, caretColumn: Int): String
+    fun prepareEditorForApply(filePathSuffix: String): String
 
     fun prepareEditorForCapture(filePathSuffix: String): String
 

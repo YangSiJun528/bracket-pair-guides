@@ -19,7 +19,6 @@ class BracketGuideSettingsTest {
         assertThat(state.intelliJIntegration.manageNativeVisuals).isTrue()
         assertThat(state.intelliJIntegration.nativeHighlightMode)
             .isEqualTo(NativeHighlightMode.SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE)
-        assertThat(state.intelliJIntegration.hideNativeIndentGuides).isFalse()
         assertThat(state.colorBracketTokens).isTrue()
         assertThat(state.showActiveGuide).isTrue()
         assertThat(state.showVerticalGuide).isTrue()
@@ -98,7 +97,6 @@ class BracketGuideSettingsTest {
                 IntelliJIntegrationPreferences(
                     manageNativeVisuals = false,
                     nativeHighlightMode = NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY,
-                    hideNativeIndentGuides = true,
                 ),
                 colorBracketTokens = false,
                 showActiveGuide = false,

@@ -195,16 +195,6 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Native Indent Hidden Current
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: native-indent-hidden-actual.png
-          path: plugin/build/visual-test-artifacts/native-indent-hidden-actual.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
       - name: Upload Default Palette Current
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -314,16 +304,6 @@ jobs:
         with:
           name: native-highlight-suppressed-baseline.png
           path: plugin/build/visual-test-artifacts/native-highlight-suppressed-baseline.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Native Indent Hidden Baseline
-        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: native-indent-hidden-baseline.png
-          path: plugin/build/visual-test-artifacts/native-indent-hidden-baseline.png
           archive: false
           if-no-files-found: ignore
           retention-days: 14

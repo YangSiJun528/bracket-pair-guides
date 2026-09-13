@@ -32,19 +32,20 @@ In **Settings | Editor | Bracket Pair Guides**, you can configure:
 - guide width and opacity;
 - optional border or background emphasis on the active endpoints;
 - separate guide, border, and background colors;
-- IntelliJ native highlighting and regular indent-guide integration.
+- IntelliJ native guide-highlighting integration.
 
-## IntelliJ indent guides
+## IntelliJ guide rendering
 
 IntelliJ's built-in indent guide can appear beside the plugin's active guide.
 The default integration suppresses matched-brace and Current scope emphasis but
-keeps useful regular indent guides, so a dim native line can remain visible.
+leaves regular indent-guide visibility under IntelliJ's own **Show indent
+guides** setting, so a dim native line can remain visible.
 
-- To show only the plugin guide in the New UI code area, select **Hide regular
-  IntelliJ indent guides** in the plugin's **IntelliJ Integration** group.
 - To retain matched-brace feedback, choose **Hide Current scope highlighting
   only** or **Leave IntelliJ highlighting unchanged**. Disabling Current scope
   alone does not remove matched-brace emphasis at a brace boundary.
+- To hide regular indent guides globally, use IntelliJ's **Settings | Editor |
+  General | Appearance | Show indent guides** setting.
 
 See the [configuration guide](docs/guide_configuration.md#adjust-intellij-guide-rendering)
 for the available modes, restoration behavior, and overlap notification.

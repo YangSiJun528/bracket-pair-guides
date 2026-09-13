@@ -25,8 +25,7 @@ class NativeVisualSettingsCoordinatorTest {
         assertThat(fixture.coordinator.state).isEqualTo(
             NativeVisualSettingsCoordinator.OwnershipState(restoreValue = true),
         )
-        assertThat(fixture.highlightRefreshes).hasSize(1)
-        assertThat(fixture.indentRefreshes).isEmpty()
+        assertThat(fixture.nativeRefreshes).hasSize(1)
     }
 
     @Test
@@ -87,13 +86,9 @@ class NativeVisualSettingsCoordinatorTest {
     }
 
     @Test
-    fun `parent and plugin gates release everything without clearing child selections`() {
+    fun `parent and plugin gates release highlighting without changing indent guides`() {
         val fixture = fixture(NativeValues(braces = true, scope = true, indent = true))
-        val selected =
-            preferences(
-                mode = NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY,
-                hideIndentGuides = true,
-            )
+        val selected = preferences(mode = NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY)
         fixture.coordinator.apply(selected)
 
         val parentOff =
@@ -119,41 +114,19 @@ class NativeVisualSettingsCoordinatorTest {
     }
 
     @Test
-    fun `all three slots restore exact original true values`() {
+    fun `both highlight slots restore exact original true values`() {
         assertExactRestoration(original = true)
     }
 
     @Test
-    fun `all three slots restore exact original false values`() {
+    fun `both highlight slots restore exact original false values`() {
         assertExactRestoration(original = false)
     }
 
     @Test
-    fun `external brace and indent enablement updates only owning children`() {
+    fun `external matched brace enablement updates only the owning highlight`() {
         val fixture = fixture(NativeValues(braces = true, scope = false, indent = true))
-        val requested = preferences(hideIndentGuides = true)
-        fixture.coordinator.apply(requested)
-        fixture.braces.enabled = true
-        fixture.indent.enabled = true
-
-        val effective = fixture.coordinator.apply(requested)
-
-        assertThat(effective.enabled).isTrue()
-        assertThat(effective.intelliJIntegration.manageNativeVisuals).isTrue()
-        assertThat(effective.intelliJIntegration.nativeHighlightMode).isEqualTo(
-            NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED,
-        )
-        assertThat(effective.intelliJIntegration.hideNativeIndentGuides).isFalse()
-        assertThat(fixture.scope.enabled).isFalse()
-        assertThat(fixture.coordinator.state).isEqualTo(
-            NativeVisualSettingsCoordinator.OwnershipState(),
-        )
-    }
-
-    @Test
-    fun `external matched brace enablement preserves the indent child and parent`() {
-        val fixture = fixture(NativeValues(braces = true, scope = false, indent = true))
-        val requested = preferences(hideIndentGuides = true)
+        val requested = preferences()
         fixture.coordinator.apply(requested)
         fixture.braces.enabled = true
 
@@ -163,31 +136,12 @@ class NativeVisualSettingsCoordinatorTest {
             IntelliJIntegrationPreferences(
                 nativeHighlightMode =
                 NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED,
-                hideNativeIndentGuides = true,
             ),
         )
-        assertThat(fixture.indent.enabled).isFalse()
-        assertThat(fixture.coordinator.state.indentGuidesRestoreValue).isTrue()
-    }
-
-    @Test
-    fun `external indent enablement preserves the highlight child and parent`() {
-        val fixture = fixture(NativeValues(braces = true, scope = false, indent = true))
-        val requested = preferences(hideIndentGuides = true)
-        fixture.coordinator.apply(requested)
-        fixture.indent.enabled = true
-
-        val effective = fixture.coordinator.apply(requested)
-
-        assertThat(effective.intelliJIntegration).isEqualTo(
-            IntelliJIntegrationPreferences(
-                nativeHighlightMode =
-                NativeHighlightMode.SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE,
-                hideNativeIndentGuides = false,
-            ),
+        assertThat(fixture.indent.enabled).isTrue()
+        assertThat(fixture.coordinator.state).isEqualTo(
+            NativeVisualSettingsCoordinator.OwnershipState(),
         )
-        assertThat(fixture.braces.enabled).isFalse()
-        assertThat(fixture.coordinator.state.restoreValue).isTrue()
     }
 
     @Test
@@ -196,7 +150,6 @@ class NativeVisualSettingsCoordinatorTest {
         val requested =
             preferences(
                 mode = NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY,
-                hideIndentGuides = true,
             )
         fixture.coordinator.apply(requested)
         fixture.scope.enabled = true
@@ -207,40 +160,132 @@ class NativeVisualSettingsCoordinatorTest {
             IntelliJIntegrationPreferences(
                 nativeHighlightMode =
                 NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED,
-                hideNativeIndentGuides = true,
             ),
         )
         assertThat(fixture.braces.enabled).isFalse()
         assertThat(fixture.indent.enabled).isFalse()
-        assertThat(fixture.coordinator.state.indentGuidesRestoreValue).isFalse()
+        assertThat(fixture.coordinator.state).isEqualTo(
+            NativeVisualSettingsCoordinator.OwnershipState(),
+        )
+    }
+
+    @Test
+    fun `ordinary apply never owns or writes regular indent guides`() {
+        for (indentGuidesEnabled in listOf(false, true)) {
+            val fixture =
+                fixture(
+                    NativeValues(
+                        braces = false,
+                        scope = false,
+                        indent = indentGuidesEnabled,
+                    ),
+                )
+
+            fixture.coordinator.apply(
+                preferences(mode = NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED),
+            )
+
+            assertThat(fixture.indent.enabled).isEqualTo(indentGuidesEnabled)
+            assertThat(fixture.writeLog).isEmpty()
+            assertThat(fixture.coordinator.state).isEqualTo(
+                NativeVisualSettingsCoordinator.OwnershipState(),
+            )
+        }
+    }
+
+    @Test
+    fun `apply restores and clears legacy true indent ownership exactly once`() {
+        val fixture = fixture(NativeValues(braces = false, scope = false, indent = false))
+        fixture.coordinator.loadState(
+            NativeVisualSettingsCoordinator.OwnershipState(
+                indentGuidesRestoreValue = true,
+            ),
+        )
+        val requested =
+            preferences(mode = NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED)
+
+        assertThat(fixture.coordinator.apply(requested)).isEqualTo(requested)
+
+        assertThat(fixture.indent.enabled).isTrue()
+        assertThat(fixture.writeLog).containsExactly("indent=true")
+        assertThat(fixture.coordinator.state).isEqualTo(
+            NativeVisualSettingsCoordinator.OwnershipState(),
+        )
+        assertThat(fixture.nativeRefreshes).hasSize(1)
+
+        fixture.coordinator.apply(requested)
+
+        assertThat(fixture.writeLog).containsExactly("indent=true")
+        assertThat(fixture.nativeRefreshes).hasSize(1)
+    }
+
+    @Test
+    fun `apply clears legacy false indent ownership without changing the native value`() {
+        val fixture = fixture(NativeValues(braces = false, scope = false, indent = false))
+        fixture.coordinator.loadState(
+            NativeVisualSettingsCoordinator.OwnershipState(
+                indentGuidesRestoreValue = false,
+            ),
+        )
+
+        fixture.coordinator.apply(
+            preferences(mode = NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED),
+        )
+
+        assertThat(fixture.indent.enabled).isFalse()
+        assertThat(fixture.writeLog).isEmpty()
+        assertThat(fixture.coordinator.state).isEqualTo(
+            NativeVisualSettingsCoordinator.OwnershipState(),
+        )
+        assertThat(fixture.nativeRefreshes).isEmpty()
+    }
+
+    @Test
+    fun `apply keeps a newer enabled indent value while clearing legacy ownership`() {
+        val fixture = fixture(NativeValues(braces = false, scope = false, indent = true))
+        fixture.coordinator.loadState(
+            NativeVisualSettingsCoordinator.OwnershipState(
+                indentGuidesRestoreValue = true,
+            ),
+        )
+
+        fixture.coordinator.apply(
+            preferences(mode = NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED),
+        )
+
+        assertThat(fixture.indent.enabled).isTrue()
+        assertThat(fixture.writeLog).isEmpty()
+        assertThat(fixture.coordinator.state).isEqualTo(
+            NativeVisualSettingsCoordinator.OwnershipState(),
+        )
+        assertThat(fixture.externalOverrides).isEmpty()
     }
 
     @Test
     fun `plugin writes are ignored by a synchronous reentrant reconciliation`() {
         val fixture = fixture(NativeValues(braces = true, scope = true, indent = true))
-        val requested = preferences(hideIndentGuides = true)
+        val requested = preferences()
         val reentrantResults = mutableListOf<BracketGuidePreferences>()
-        fixture.indent.afterWrite = {
+        fixture.braces.afterWrite = {
             reentrantResults += fixture.coordinator.apply(requested)
         }
 
         fixture.coordinator.apply(requested)
 
         assertThat(reentrantResults).containsExactly(requested)
-        assertThat(fixture.coordinator.state.indentGuidesRestoreValue).isTrue()
+        assertThat(fixture.coordinator.state.restoreValue).isTrue()
         assertThat(fixture.externalOverrides).isEmpty()
     }
 
     @Test
-    fun `native writes refresh only their corresponding editor surfaces`() {
+    fun `native writes refresh all editor settings once per transaction`() {
         val fixture = fixture(NativeValues(braces = true, scope = true, indent = true))
-        val requested = preferences(hideIndentGuides = true)
+        val requested = preferences()
 
         fixture.coordinator.apply(requested)
         fixture.coordinator.apply(requested)
 
-        assertThat(fixture.highlightRefreshes).hasSize(1)
-        assertThat(fixture.indentRefreshes).hasSize(1)
+        assertThat(fixture.nativeRefreshes).hasSize(1)
 
         fixture.coordinator.apply(
             requested.copy(
@@ -249,18 +294,14 @@ class NativeVisualSettingsCoordinatorTest {
             ),
         )
 
-        assertThat(fixture.highlightRefreshes).hasSize(2)
-        assertThat(fixture.indentRefreshes).hasSize(2)
+        assertThat(fixture.nativeRefreshes).hasSize(2)
     }
 
     @Test
-    fun `shutdown restores all slots and persists exactly once after clearing ownership`() {
+    fun `shutdown restores highlighting and persists exactly once after clearing ownership`() {
         val fixture = fixture(NativeValues(braces = true, scope = true, indent = true))
         fixture.coordinator.apply(
-            preferences(
-                mode = NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY,
-                hideIndentGuides = true,
-            ),
+            preferences(mode = NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY),
         )
 
         fixture.coordinator.appWillBeClosed(false)
@@ -278,12 +319,37 @@ class NativeVisualSettingsCoordinatorTest {
     }
 
     @Test
+    fun `shutdown restores legacy indent ownership and persists its removal`() {
+        val fixture = fixture(NativeValues(braces = false, scope = false, indent = false))
+        fixture.coordinator.loadState(
+            NativeVisualSettingsCoordinator.OwnershipState(
+                currentScopeRestoreValue = true,
+                indentGuidesRestoreValue = true,
+            ),
+        )
+
+        fixture.coordinator.appWillBeClosed(false)
+        fixture.coordinator.dispose()
+
+        assertThat(fixture.values()).isEqualTo(
+            NativeValues(braces = false, scope = true, indent = true),
+        )
+        assertThat(fixture.nativeRefreshes).isEmpty()
+        assertThat(fixture.persistedSnapshots).containsExactly(
+            PersistedSnapshot(
+                values = NativeValues(braces = false, scope = true, indent = true),
+                ownership = NativeVisualSettingsCoordinator.OwnershipState(),
+            ),
+        )
+    }
+
+    @Test
     fun `shutdown persists cleared ownership even when every original was false`() {
         val fixture = fixture(NativeValues(braces = false, scope = false, indent = false))
-        fixture.coordinator.apply(
-            preferences(
-                mode = NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY,
-                hideIndentGuides = true,
+        fixture.coordinator.loadState(
+            NativeVisualSettingsCoordinator.OwnershipState(
+                currentScopeRestoreValue = false,
+                indentGuidesRestoreValue = false,
             ),
         )
 
@@ -300,7 +366,7 @@ class NativeVisualSettingsCoordinatorTest {
     @Test
     fun `dynamic unload ignores other plugins and persists this plugin once`() {
         val fixture = fixture(NativeValues(braces = true, scope = true, indent = true))
-        fixture.coordinator.apply(preferences(hideIndentGuides = true))
+        fixture.coordinator.apply(preferences())
 
         fixture.pluginListener.beforePluginUnload(pluginDescriptor("unrelated.plugin"), false)
         assertThat(fixture.persistedSnapshots).isEmpty()
@@ -324,7 +390,7 @@ class NativeVisualSettingsCoordinatorTest {
     @Test
     fun `lifecycle release reports only externally enabled owned slots`() {
         val fixture = fixture(NativeValues(braces = true, scope = true, indent = true))
-        fixture.coordinator.apply(preferences(hideIndentGuides = true))
+        fixture.coordinator.apply(preferences())
         fixture.braces.enabled = true
 
         fixture.coordinator.appWillBeClosed(false)
@@ -361,7 +427,7 @@ class NativeVisualSettingsCoordinatorTest {
                 mayMutate = { false },
             )
 
-        fixture.coordinator.apply(preferences(hideIndentGuides = true))
+        fixture.coordinator.apply(preferences())
         fixture.coordinator.appWillBeClosed(false)
         fixture.coordinator.dispose()
 
@@ -373,9 +439,9 @@ class NativeVisualSettingsCoordinatorTest {
     }
 
     @Test
-    fun `becoming multi-client unwinds local ownership without clearing child selections`() {
+    fun `an unavailable editor environment unwinds ownership without clearing child selections`() {
         var mayMutate = true
-        val requested = preferences(hideIndentGuides = true)
+        val requested = preferences()
         val fixture =
             fixture(
                 NativeValues(braces = true, scope = true, indent = true),
@@ -399,7 +465,7 @@ class NativeVisualSettingsCoordinatorTest {
     @Test
     fun `environment transition returns CAS correction for an external override`() {
         var mayMutate = true
-        val requested = preferences(hideIndentGuides = true)
+        val requested = preferences()
         val fixture =
             fixture(
                 NativeValues(braces = true, scope = false, indent = true),
@@ -416,7 +482,6 @@ class NativeVisualSettingsCoordinatorTest {
             IntelliJIntegrationPreferences(
                 nativeHighlightMode =
                 NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED,
-                hideNativeIndentGuides = true,
             ),
         )
         assertThat(fixture.values()).isEqualTo(
@@ -429,7 +494,7 @@ class NativeVisualSettingsCoordinatorTest {
     }
 
     @Test
-    fun `shutdown can restore local ownership after a remote session begins`() {
+    fun `shutdown can restore ownership after mutation becomes unavailable`() {
         var mayMutate = true
         val fixture =
             fixture(
@@ -437,7 +502,7 @@ class NativeVisualSettingsCoordinatorTest {
                 mayMutate = { mayMutate },
                 mayRestoreOwned = { true },
             )
-        fixture.coordinator.apply(preferences(hideIndentGuides = true))
+        fixture.coordinator.apply(preferences())
 
         mayMutate = false
         fixture.coordinator.appWillBeClosed(false)
@@ -451,45 +516,14 @@ class NativeVisualSettingsCoordinatorTest {
         )
     }
 
-    @Test
-    fun `remote launch modes are matched as exact command tokens`() {
-        for (
-        token in listOf(
-            "remoteDevHost",
-            "remoteDevMode",
-            "cwmHost",
-            "cwmHostNoLobby",
-            "serverMode",
-            "splitMode",
-        )
-        ) {
-            assertThat(
-                NativeVisualEnvironment.hasExcludedLaunchToken("com.intellij.idea.Main $token project"),
-            ).describedAs("launch token %s", token).isTrue()
-        }
-    }
-
-    @Test
-    fun `remote launch substrings do not exclude a standard command`() {
-        assertThat(
-            NativeVisualEnvironment.hasExcludedLaunchToken(
-                "com.example.remoteDevHostTools /projects/serverModeDemo",
-            ),
-        ).isFalse()
-    }
-
     private fun assertExactRestoration(original: Boolean) {
         val fixture =
             fixture(
                 NativeValues(braces = original, scope = original, indent = original),
             )
-        val scopeAndIndent =
-            preferences(
-                mode = NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY,
-                hideIndentGuides = true,
-            )
-        fixture.coordinator.apply(scopeAndIndent)
-        fixture.coordinator.apply(preferences(hideIndentGuides = true))
+        val currentScope = preferences(mode = NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY)
+        fixture.coordinator.apply(currentScope)
+        fixture.coordinator.apply(preferences())
         fixture.coordinator.apply(
             preferences(
                 mode = NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED,
@@ -506,12 +540,10 @@ class NativeVisualSettingsCoordinatorTest {
 
     private fun preferences(
         mode: NativeHighlightMode = NativeHighlightMode.SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE,
-        hideIndentGuides: Boolean = false,
     ): BracketGuidePreferences = BracketGuidePreferences(
         intelliJIntegration =
         IntelliJIntegrationPreferences(
             nativeHighlightMode = mode,
-            hideNativeIndentGuides = hideIndentGuides,
         ),
     )
 
@@ -525,8 +557,7 @@ class NativeVisualSettingsCoordinatorTest {
         val scope = FakeNativeSetting("scope", initialValues.scope, writeLog)
         val indent = FakeNativeSetting("indent", initialValues.indent, writeLog)
         val externalOverrides = mutableListOf<Set<NativeVisualSettingTarget>>()
-        val highlightRefreshes = mutableListOf<Unit>()
-        val indentRefreshes = mutableListOf<Unit>()
+        val nativeRefreshes = mutableListOf<Unit>()
         val persistedSnapshots = mutableListOf<PersistedSnapshot>()
         lateinit var pluginListener: DynamicPluginListener
         lateinit var coordinator: NativeVisualSettingsCoordinator
@@ -534,12 +565,11 @@ class NativeVisualSettingsCoordinatorTest {
             NativeVisualSettingsCoordinator(
                 matchedBraceSetting = braces,
                 currentScopeSetting = scope,
-                indentGuidesSetting = indent,
+                legacyIndentGuidesSetting = indent,
                 onExternalOverrides = externalOverrides::add,
                 mayMutate = mayMutate,
                 mayRestoreOwned = mayRestoreOwned,
-                refreshHighlights = { highlightRefreshes += Unit },
-                refreshIndentGuides = { indentRefreshes += Unit },
+                refreshNativeSettings = { nativeRefreshes += Unit },
                 persistSettings = {
                     persistedSnapshots +=
                         PersistedSnapshot(
@@ -557,8 +587,7 @@ class NativeVisualSettingsCoordinatorTest {
             indent = indent,
             writeLog = writeLog,
             externalOverrides = externalOverrides,
-            highlightRefreshes = highlightRefreshes,
-            indentRefreshes = indentRefreshes,
+            nativeRefreshes = nativeRefreshes,
             persistedSnapshots = persistedSnapshots,
         )
     }
@@ -571,8 +600,7 @@ class NativeVisualSettingsCoordinatorTest {
         val indent: FakeNativeSetting,
         val writeLog: MutableList<String>,
         val externalOverrides: List<Set<NativeVisualSettingTarget>>,
-        val highlightRefreshes: List<Unit>,
-        val indentRefreshes: List<Unit>,
+        val nativeRefreshes: List<Unit>,
         val persistedSnapshots: List<PersistedSnapshot>,
     ) {
         fun values(): NativeValues = NativeValues(braces.enabled, scope.enabled, indent.enabled)
