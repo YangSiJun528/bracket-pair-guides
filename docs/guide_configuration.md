@@ -103,14 +103,20 @@ New UI, or a gutter-side marker in the Classic UI. Select **Review settings** to
 open the **IntelliJ Integration** group and choose the intended combination.
 
 The notification appears in the lower-right corner of the IDE. Expand it to
-read the complete explanation. The **Review settings** action opens the relevant
-settings page without changing the current selection.
+read the complete explanation. **Review settings** opens the relevant settings
+page without changing the current selection. **Don't warn again for this
+conflict** suppresses the advisory while that same conflict remains active.
 
-The notification is advisory. Opening or closing it does not change plugin or
-IntelliJ settings. It is published only once across IDE processes and projects.
-Regular dim indent guides are useful under the default configuration and never
-trigger this notification, so the absence of a notification does not mean that
-only one physical line will be shown.
+The notification is advisory. Opening, reviewing, suppressing, or closing it
+does not change plugin or IntelliJ settings. Without explicit suppression, it
+can appear once per IDE session while the conflict remains. Explicit suppression
+survives an IDE restart, but ends after the configuration becomes safe and later
+allows the conflict again. Disabling and re-enabling the plugin's active vertical
+guide or native matched-brace highlighting therefore starts a new warning
+episode; moving the caret, changing files, or temporarily lacking a matching
+guide does not. Regular dim indent guides are useful under the default
+configuration and never trigger this notification, so the absence of a
+notification does not mean that only one physical line will be shown.
 
 ## Choose languages
 

@@ -5,6 +5,7 @@ import com.intellij.openapi.components.Service
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.NativeHighlightMode
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
+import com.sijunyang.bracketpairguides.settings.NativeGuideConflictSettingsListener
 
 /** Commits normalized preferences and applies their effects as one EDT transaction. */
 @Service(Service.Level.APP)
@@ -13,6 +14,10 @@ internal class BracketGuideSettingsController internal constructor(
     private val applyNativeVisualSettings: (BracketGuidePreferences) -> BracketGuidePreferences,
     private val applyRuntimeChange: (BracketGuidePreferences, BracketGuidePreferences) -> Unit,
     private val runOnEdt: ((() -> Unit) -> Unit),
+    private val reportNativeGuideConflictSettings: (
+        BracketGuidePreferences,
+        BracketGuidePreferences,
+    ) -> Unit = { _, _ -> },
 ) {
     @Suppress("unused")
     constructor() : this(
@@ -31,6 +36,7 @@ internal class BracketGuideSettingsController internal constructor(
                 application.invokeAndWait { action() }
             }
         },
+        reportNativeGuideConflictSettings = nativeGuideConflictSettingsReporter(),
     )
 
     /** The single production entry point for a committed preference snapshot. */
@@ -73,6 +79,7 @@ internal class BracketGuideSettingsController internal constructor(
             persistedSettings.replace(reconciled)
             current = persistedSettings.options
         }
+        reportNativeGuideConflictSettings(previous, current)
         if (current == previous) return
 
         applyRuntimeChange(previous, current)
@@ -117,6 +124,17 @@ internal class BracketGuideSettingsController internal constructor(
     }
 
     companion object {
+        private fun nativeGuideConflictSettingsReporter(): (
+            BracketGuidePreferences,
+            BracketGuidePreferences,
+        ) -> Unit {
+            val listener by lazy(LazyThreadSafetyMode.NONE) {
+                ApplicationManager.getApplication()
+                    .getService(NativeGuideConflictSettingsListener::class.java)
+            }
+            return { previous, current -> listener.settingsChanged(previous, current) }
+        }
+
         @JvmStatic
         fun getInstance(): BracketGuideSettingsController =
             ApplicationManager.getApplication().getService(BracketGuideSettingsController::class.java)

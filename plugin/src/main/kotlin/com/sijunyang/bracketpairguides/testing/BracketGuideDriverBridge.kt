@@ -99,10 +99,9 @@ object BracketGuideDriverBridge {
         EditorSettingsExternalizable.getInstance().isIndentGuidesShown = initialIndentGuidesShown
         EditorFactory.getInstance().refreshAllEditors()
 
-        // Prevent the one-shot #30 advisory from obscuring editor-only scenario captures.
-        NativeGuideConflictNotification.getInstance().loadState(
-            NativeGuideConflictNotification.NotificationState(published = true),
-        )
+        // Prevent the #30 advisory from obscuring editor-only scenario captures
+        // without persisting a real user's conflict suppression choice.
+        NativeGuideConflictNotification.getInstance().muteForDriverSession()
 
         editor.caretModel.removeSecondaryCarets()
         editor.selectionModel.removeSelection()

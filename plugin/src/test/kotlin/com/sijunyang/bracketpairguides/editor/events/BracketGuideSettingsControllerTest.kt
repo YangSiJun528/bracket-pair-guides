@@ -31,6 +31,9 @@ class BracketGuideSettingsControllerTest {
         assertThat(fixture.runtimeChanges).containsExactly(
             SettingsTransition(BracketGuidePreferences(), normalized),
         )
+        assertThat(fixture.nativeConflictSettings).containsExactly(
+            SettingsTransition(BracketGuidePreferences(), normalized),
+        )
         assertThat(fixture.edtTransactions).hasSize(1)
     }
 
@@ -44,6 +47,9 @@ class BracketGuideSettingsControllerTest {
         assertThat(fixture.settings.stateModificationCount).isEqualTo(modificationCount)
         assertThat(fixture.nativeSnapshots).containsExactly(BracketGuidePreferences())
         assertThat(fixture.runtimeChanges).isEmpty()
+        assertThat(fixture.nativeConflictSettings).containsExactly(
+            SettingsTransition(BracketGuidePreferences(), BracketGuidePreferences()),
+        )
         assertThat(fixture.edtTransactions).hasSize(1)
     }
 
@@ -65,6 +71,9 @@ class BracketGuideSettingsControllerTest {
             BracketGuidePreferences(colorBracketTokens = false),
         )
         assertThat(fixture.runtimeChanges).containsExactly(
+            SettingsTransition(BracketGuidePreferences(), effective),
+        )
+        assertThat(fixture.nativeConflictSettings).containsExactly(
             SettingsTransition(BracketGuidePreferences(), effective),
         )
     }
@@ -174,6 +183,7 @@ class BracketGuideSettingsControllerTest {
         val settings = BracketGuideSettings().apply { loadState(initialOptions) }
         val nativeSnapshots = mutableListOf<BracketGuidePreferences>()
         val runtimeChanges = mutableListOf<SettingsTransition>()
+        val nativeConflictSettings = mutableListOf<SettingsTransition>()
         val edtTransactions = mutableListOf<Unit>()
         val controller =
             BracketGuideSettingsController(
@@ -189,12 +199,16 @@ class BracketGuideSettingsControllerTest {
                     edtTransactions += Unit
                     action()
                 },
+                reportNativeGuideConflictSettings = { previous, current ->
+                    nativeConflictSettings += SettingsTransition(previous, current)
+                },
             )
         return Fixture(
             controller = controller,
             settings = settings,
             nativeSnapshots = nativeSnapshots,
             runtimeChanges = runtimeChanges,
+            nativeConflictSettings = nativeConflictSettings,
             edtTransactions = edtTransactions,
         )
     }
@@ -217,6 +231,7 @@ class BracketGuideSettingsControllerTest {
         val settings: BracketGuideSettings,
         val nativeSnapshots: List<BracketGuidePreferences>,
         val runtimeChanges: List<SettingsTransition>,
+        val nativeConflictSettings: List<SettingsTransition>,
         val edtTransactions: List<Unit>,
     )
 

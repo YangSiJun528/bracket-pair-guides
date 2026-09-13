@@ -8,10 +8,12 @@
   suppress Current scope only, or leave IntelliJ highlighting unchanged.
 - Preserved and restored each owned IntelliJ setting, while treating later
   external changes as the user's newer choice.
-- Added a one-time informational notification for visible native highlighting
-  beside a multiline plugin guide; ordinary indent guides do not trigger it.
+- Added an informational notification for visible native highlighting beside a
+  multiline plugin guide, shown once per IDE session and each newly enabled
+  conflict, with an option to suppress only the current conflict episode.
 - Removed repeated preference normalization from caret moves and skipped native
-  guide-conflict work when highlighting is suppressed or the notice was shown.
+  guide-conflict work when highlighting is suppressed, the notice was already
+  shown in the session, or the current conflict was explicitly suppressed.
 
 ## 0.0.4
 
