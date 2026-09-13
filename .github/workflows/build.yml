@@ -5,7 +5,10 @@ on:
   push:
     branches: [ main ]
   pull_request:
-    types: [ opened, synchronize, reopened, ready_for_review, converted_to_draft ]
+    # GitHub cannot filter pull_request events by label name. Non-skip label
+    # changes intentionally rerun the real CI so no-op runs cannot replace the
+    # required checks below.
+    types: [ opened, synchronize, reopened, ready_for_review, converted_to_draft, labeled, unlabeled ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -16,7 +19,8 @@ jobs:
     name: Build
     if: >-
       github.event_name == 'push' ||
-      github.event.pull_request.draft == false
+      (github.event.pull_request.draft == false &&
+      !contains(github.event.pull_request.labels.*.name, 'skip-ci'))
     runs-on: ubuntu-latest
     steps:
       - name: Maximize Build Space
