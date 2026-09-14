@@ -133,6 +133,16 @@ Start a sandboxed IntelliJ IDEA with the plugin installed:
 Use the sandbox for behavior that tests cannot establish reliably, including
 painting, theme changes, scrolling, split editors, and large-file interaction.
 
+For native highlighting and warning checks with IntelliJ's native settings
+enabled, open the visual-test fixture for manual QA:
+
+```shell
+./gradlew :plugin:runManualQa
+```
+
+See [the manual QA guide](docs/guide_manual_qa.md) for its starting state and
+minimum checklist.
+
 ## Review implementation visibility
 
 The plugin is not a library and does not maintain a supported public API or ABI

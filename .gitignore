@@ -7,3 +7,5 @@
 build
 out
 allure-results
+/outputs/manual-qa/
+/outputs/manual-qa-starter/

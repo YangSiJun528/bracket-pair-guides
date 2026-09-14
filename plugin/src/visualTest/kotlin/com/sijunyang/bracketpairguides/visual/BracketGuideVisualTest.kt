@@ -3,10 +3,10 @@ package com.sijunyang.bracketpairguides.visual
 import com.intellij.driver.client.Remote
 import com.intellij.driver.client.service
 import com.intellij.driver.client.utility
+import com.intellij.driver.model.OnDispatcher
 import com.intellij.driver.sdk.findFile
-import com.intellij.driver.sdk.openFile
-import com.intellij.driver.sdk.singleProject
 import com.intellij.driver.sdk.ui.components.JEditorUiComponent
+import com.intellij.driver.sdk.ui.components.UiComponent
 import com.intellij.driver.sdk.ui.components.checkBox
 import com.intellij.driver.sdk.ui.components.codeEditor
 import com.intellij.driver.sdk.ui.components.ideFrame
@@ -18,23 +18,16 @@ import com.intellij.driver.sdk.ui.remote.SwingHierarchyService
 import com.intellij.driver.sdk.ui.ui
 import com.intellij.driver.sdk.waitFor
 import com.intellij.driver.sdk.waitForCodeAnalysis
-import com.intellij.driver.sdk.waitForIndicators
-import com.intellij.driver.sdk.waitForProjectOpen
 import com.intellij.ide.starter.driver.engine.runIdeWithDriver
-import com.intellij.ide.starter.ide.IdeProductProvider
-import com.intellij.ide.starter.models.TestCase
-import com.intellij.ide.starter.plugins.PluginConfigurator
-import com.intellij.ide.starter.project.LocalProjectInfo
-import com.intellij.ide.starter.runner.Starter
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.awt.event.MouseEvent
 import java.awt.image.BufferedImage
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import javax.imageio.ImageIO
 import kotlin.io.path.Path
-import kotlin.io.path.absolute
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.writeText
@@ -61,35 +54,11 @@ class BracketGuideVisualTest {
 
         val captures = linkedMapOf<String, BufferedImage>()
         val contractFailures = mutableListOf<String>()
-        val projectRoot = prepareRuntimeProject()
-        val context =
-            Starter.newContext(
-                testName = "bracket-guide-visual",
-                testCase =
-                TestCase(
-                    IdeProductProvider.IC,
-                    LocalProjectInfo(projectRoot),
-                ).withVersion(IDE_VERSION),
-            ).apply {
-                val pluginArchive = requiredPath("path.to.build.plugin")
-                PluginConfigurator(this).installPluginFromPath(pluginArchive)
-                disableStickyLines()
-                applyVMOptionsPatch {
-                    addSystemProperty("idea.trust.all.projects", true)
-                    addSystemProperty("bracket.pair.guides.driver.test", true)
-                    addSystemProperty("ide.native.launcher", true)
-                    addSystemProperty("ide.show.tips.on.startup.default.value", false)
-                    addSystemProperty("ide.mac.message.dialogs.as.sheets", false)
-                    addSystemProperty("ide.mac.file.chooser.native", false)
-                    addSystemProperty("sun.java2d.uiScale", "1")
-                    addSystemProperty("ide.ui.scale", "1")
-                    addSystemProperty("awt.useSystemAAFontSettings", "on")
-                    addSystemProperty("swing.aatext", true)
-                    addSystemProperty("user.language", "en")
-                    addSystemProperty("user.country", "US")
-                    addSystemProperty("user.timezone", "UTC")
-                }
-            }
+        val context = visualIdeContext(
+            testName = "bracket-guide-visual",
+            projectRoot = requiredPath("visual.test.project.dir"),
+            pluginArchive = requiredPath("path.to.build.plugin"),
+        )
 
         writeStarterPaths(
             artifacts = artifacts,
@@ -100,37 +69,13 @@ class BracketGuideVisualTest {
         )
         val result =
             context.runIdeWithDriver().useDriverAndCloseIde {
-                waitForProjectOpen(2.minutes)
-                val project = singleProject()
-                waitForIndicators(project, 5.minutes)
+                val project = openVisualFixture()
+                val sample = checkNotNull(findFile(SAMPLE_FILE, project))
                 val bridge = utility<DriverBridge>()
                 val hierarchy = service<SwingHierarchyService>()
                 val rootUi = this.ui
-                assertTrue(bridge.applyDarculaTheme() == THEME)
-                assertTrue(
-                    bridge.configureEditorAppearance(EDITOR_FONT, EDITOR_FONT_SIZE) ==
-                        "$EDITOR_FONT:$EDITOR_FONT_SIZE:1.0",
-                )
-                assertTrue(
-                    bridge.configureIdeFrame(FRAME_X, FRAME_Y, FRAME_WIDTH, FRAME_HEIGHT) ==
-                        "$FRAME_X:$FRAME_Y:$FRAME_WIDTH:$FRAME_HEIGHT",
-                )
-
-                openFile(SAMPLE_FILE, project)
-                val sample = checkNotNull(findFile(SAMPLE_FILE, project)) {
-                    "Sample file was not indexed: $SAMPLE_FILE"
-                }
-                waitForCodeAnalysis(project, sample, 5.minutes)
-
                 ideFrame {
-                    resize(FRAME_WIDTH, FRAME_HEIGHT)
-                    waitFor(30.seconds, 100.milliseconds, "IDE frame did not reach the pinned size") {
-                        component.width == FRAME_WIDTH && component.height == FRAME_HEIGHT
-                    }
                     val editor = codeEditor()
-                    waitFor(30.seconds, 100.milliseconds, "code editor was not visible") {
-                        component.isShowing() && editor.component.isShowing()
-                    }
 
                     fun resetScenario(spec: ScenarioSpec) {
                         bridge.resetVisualScenario(
@@ -138,6 +83,7 @@ class BracketGuideVisualTest {
                             spec.caretLine,
                             spec.caretColumn,
                             spec.initialIndentGuidesShown,
+                            muteNotifications = true,
                         )
                         waitFor(
                             30.seconds,
@@ -178,6 +124,7 @@ class BracketGuideVisualTest {
                             bridge.prepareEditorForCapture(SAMPLE_FILE) ==
                                 "${spec.caretLine}:${spec.caretColumn}:false:0:0:0",
                         )
+                        bridge.waitForEditorFocus()
                         return stableScreenshot(editor)
                     }
 
@@ -238,7 +185,15 @@ class BracketGuideVisualTest {
                                     }?.row ?: -1
                             pluginSettingsRow >= 0
                         }
-                        categories.clickRow(pluginSettingsRow)
+                        // Native macOS window focus is not guaranteed in a background test.
+                        // Select the real Swing control on the EDT, as the search field does.
+                        driver.withContext(OnDispatcher.EDT) {
+                            cast(categories.component, SettingsTree::class).setSelectionRow(pluginSettingsRow)
+                        }
+                        waitFor(30.seconds, 100.milliseconds, "Bracket Pair Guides settings were not selected") {
+                            categories.collectSelectedPaths().singleOrNull()?.path?.lastOrNull() ==
+                                "Bracket Pair Guides"
+                        }
 
                         val manageNativeVisuals = checkBox {
                             and(
@@ -251,19 +206,12 @@ class BracketGuideVisualTest {
                             100.milliseconds,
                             "IntelliJ Integration control was not ready",
                         ) {
-                            manageNativeVisuals.isVisible() &&
+                            manageNativeVisuals.present() &&
+                                manageNativeVisuals.isVisible() &&
                                 manageNativeVisuals.isEnabled() &&
                                 manageNativeVisuals.isSelected()
                         }
-                        manageNativeVisuals.setFocus()
-                        waitFor(
-                            30.seconds,
-                            100.milliseconds,
-                            "IntelliJ Integration control did not receive focus",
-                        ) {
-                            manageNativeVisuals.hasFocus()
-                        }
-                        manageNativeVisuals.keyboard { space() }
+                        manageNativeVisuals.activateSettingsControl()
                         waitFor(
                             30.seconds,
                             100.milliseconds,
@@ -280,7 +228,7 @@ class BracketGuideVisualTest {
                         ) {
                             applyButton.isEnabled()
                         }
-                        applyButton.click()
+                        applyButton.activateSettingsControl()
                         waitFor(
                             30.seconds,
                             100.milliseconds,
@@ -288,7 +236,7 @@ class BracketGuideVisualTest {
                         ) {
                             !applyButton.isEnabled()
                         }
-                        x { byAccessibleName("Cancel") }.click()
+                        x { byAccessibleName("Cancel") }.activateSettingsControl()
                         waitFor(
                             30.seconds,
                             100.milliseconds,
@@ -354,6 +302,31 @@ class BracketGuideVisualTest {
         )
     }
 
+    /**
+     * Dispatch real mouse events on the EDT without depending on OS window focus.
+     * AbstractButton.doClick alone misses IntelliJ's AWT-based Settings dirty tracking.
+     */
+    private fun UiComponent.activateSettingsControl() {
+        driver.withContext(OnDispatcher.EDT) {
+            val button = cast(component, SettingsButton::class)
+            for (eventId in listOf(MouseEvent.MOUSE_PRESSED, MouseEvent.MOUSE_RELEASED)) {
+                val event = new(
+                    SettingsMouseEvent::class,
+                    component,
+                    eventId,
+                    System.currentTimeMillis(),
+                    0,
+                    component.width / 2,
+                    component.height / 2,
+                    1,
+                    false,
+                    MouseEvent.BUTTON1,
+                )
+                button.dispatchEvent(event)
+            }
+        }
+    }
+
     private fun stableScreenshot(editor: JEditorUiComponent): BufferedImage {
         waitFor(30.seconds, 100.milliseconds, "code editor was not visible for capture") {
             editor.component.isShowing()
@@ -388,26 +361,6 @@ class BracketGuideVisualTest {
             stable
         }
     }
-
-    private fun DriverBridge.apply(preferences: PreferenceSnapshot): String = applyVisualPreferences(
-        enabled = preferences.enabled,
-        manageNativeVisuals = preferences.manageNativeVisuals,
-        nativeHighlightMode = preferences.nativeHighlightMode,
-        colorBracketTokens = preferences.colorBracketTokens,
-        showActiveGuide = preferences.showActiveGuide,
-        showVerticalGuide = preferences.showVerticalGuide,
-        showHorizontalGuides = preferences.showHorizontalGuides,
-        guideLineWidth = preferences.guideLineWidth,
-        guideOpacityPercent = preferences.guideOpacityPercent,
-        showActivePairBorder = preferences.showActivePairBorder,
-        showActivePairBackground = preferences.showActivePairBackground,
-        pairBackgroundOpacityPercent = preferences.pairBackgroundOpacityPercent,
-        useIndependentComponentColors = preferences.useIndependentComponentColors,
-        levelBaseColors = preferences.levelBaseColors,
-        guideLineColors = preferences.guideLineColors,
-        pairBorderColors = preferences.pairBorderColors,
-        pairBackgroundColors = preferences.pairBackgroundColors,
-    )
 
     private fun visualStateIsReady(state: String, spec: ScenarioSpec): Boolean {
         val fields = state.split(':')
@@ -616,15 +569,6 @@ class BracketGuideVisualTest {
         )
     }
 
-    private fun prepareRuntimeProject(): Path {
-        val projectRoot = requiredPath("visual.test.project.dir")
-        val fixture = Path("src/visualTest/testData/guide-project/src/Sample.java").absolute().normalize()
-        val target = projectRoot.resolve(SAMPLE_FILE)
-        target.parent.createDirectories()
-        Files.copy(fixture, target, StandardCopyOption.REPLACE_EXISTING)
-        return projectRoot
-    }
-
     private fun requiredPath(property: String): Path =
         Path(checkNotNull(System.getProperty(property)) { "Missing system property $property" })
 
@@ -652,26 +596,6 @@ class BracketGuideVisualTest {
         val currentScope: Boolean,
         val globalIndent: Boolean,
         val editorIndent: Boolean,
-    )
-
-    private data class PreferenceSnapshot(
-        val enabled: Boolean = true,
-        val manageNativeVisuals: Boolean = true,
-        val nativeHighlightMode: String = SUPPRESS_CURRENT_SCOPE_ONLY,
-        val colorBracketTokens: Boolean = true,
-        val showActiveGuide: Boolean = true,
-        val showVerticalGuide: Boolean = true,
-        val showHorizontalGuides: Boolean = true,
-        val guideLineWidth: Int = 1,
-        val guideOpacityPercent: Int = 100,
-        val showActivePairBorder: Boolean = false,
-        val showActivePairBackground: Boolean = false,
-        val pairBackgroundOpacityPercent: Int = 22,
-        val useIndependentComponentColors: Boolean = false,
-        val levelBaseColors: String = DEFAULT_COLORS,
-        val guideLineColors: String = DEFAULT_COLORS,
-        val pairBorderColors: String = DEFAULT_COLORS,
-        val pairBackgroundColors: String = DEFAULT_COLORS,
     )
 
     private data class ScenarioSpec(
@@ -703,30 +627,13 @@ class BracketGuideVisualTest {
     }
 
     private companion object {
-        const val IDE_VERSION = "2024.2.6"
-        const val SAMPLE_FILE = "src/Sample.java"
-        const val FRAME_X = 100
-        const val FRAME_Y = 100
-        const val FRAME_WIDTH = 1280
-        const val FRAME_HEIGHT = 900
-        const val CARET_LINE = 7
-        const val CARET_COLUMN = 20
-        const val NATIVE_CARET_LINE = 6
-        const val NATIVE_CARET_COLUMN = 62
-        const val EDITOR_FONT = "JetBrains Mono"
-        const val EDITOR_FONT_SIZE = 14
         const val CROP_WIDTH = 220
         const val CROP_HEIGHT = 240
-        const val THEME = "Darcula"
         const val VISUAL_STATE_FIELD_COUNT = 14
         const val EXPECTED_PAIR_DECORATIONS = 2
         const val MANAGE_NATIVE_VISUALS_LABEL =
             "Adjust IntelliJ guide rendering while Bracket Pair Guides is enabled"
 
-        const val SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE =
-            "SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE"
-        const val SUPPRESS_CURRENT_SCOPE_ONLY = "SUPPRESS_CURRENT_SCOPE_ONLY"
-        const val DEFAULT_COLORS = "16766720,14315734,1548287,52346,16739179,13404211"
         const val CUSTOM_BRACKET_COLORS = "65535,16732120,8191744,16747008,10980346,16726832"
         const val CUSTOM_GUIDE_COLORS = "16726832,16726832,16726832,16726832,16726832,16726832"
         const val CUSTOM_BORDER_COLORS = "3331915,3331915,3331915,3331915,3331915,3331915"
@@ -903,59 +810,15 @@ class BracketGuideVisualTest {
     }
 }
 
-@Remote(
-    "com.sijunyang.bracketpairguides.testing.BracketGuideDriverBridge",
-    plugin = "com.sijunyang.bracketpairguides",
-)
-private interface DriverBridge {
-    fun applyDarculaTheme(): String
-
-    fun currentTheme(): String
-
-    fun configureIdeFrame(x: Int, y: Int, width: Int, height: Int): String
-
-    fun configureEditorAppearance(fontName: String, fontSize: Int): String
-
-    fun resetVisualScenario(
-        filePathSuffix: String,
-        caretLine: Int,
-        caretColumn: Int,
-        initialIndentGuidesShown: Boolean,
-    ): String
-
-    fun isVisualScenarioReset(
-        filePathSuffix: String,
-        caretLine: Int,
-        caretColumn: Int,
-        initialIndentGuidesShown: Boolean,
-    ): Boolean
-
-    @Suppress("LongParameterList")
-    fun applyVisualPreferences(
-        enabled: Boolean,
-        manageNativeVisuals: Boolean,
-        nativeHighlightMode: String,
-        colorBracketTokens: Boolean,
-        showActiveGuide: Boolean,
-        showVerticalGuide: Boolean,
-        showHorizontalGuides: Boolean,
-        guideLineWidth: Int,
-        guideOpacityPercent: Int,
-        showActivePairBorder: Boolean,
-        showActivePairBackground: Boolean,
-        pairBackgroundOpacityPercent: Int,
-        useIndependentComponentColors: Boolean,
-        levelBaseColors: String,
-        guideLineColors: String,
-        pairBorderColors: String,
-        pairBackgroundColors: String,
-    ): String
-
-    fun currentVisualPreferences(): String
-
-    fun prepareEditorForApply(filePathSuffix: String): String
-
-    fun prepareEditorForCapture(filePathSuffix: String): String
-
-    fun visualScenarioState(filePathSuffix: String): String
+@Remote("javax.swing.JTree")
+private interface SettingsTree {
+    fun setSelectionRow(row: Int)
 }
+
+@Remote("javax.swing.AbstractButton")
+private interface SettingsButton {
+    fun dispatchEvent(event: SettingsMouseEvent)
+}
+
+@Remote("java.awt.event.MouseEvent")
+private interface SettingsMouseEvent

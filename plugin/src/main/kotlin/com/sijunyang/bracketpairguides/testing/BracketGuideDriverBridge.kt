@@ -14,6 +14,7 @@ import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.wm.WindowManager
+import com.intellij.ui.AppIcon
 import com.sijunyang.bracketpairguides.editor.events.BracketGuideSettingsController
 import com.sijunyang.bracketpairguides.editor.highlighting.NativeGuideConflictNotification
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
@@ -87,6 +88,7 @@ object BracketGuideDriverBridge {
         caretLine: Int,
         caretColumn: Int,
         initialIndentGuidesShown: Boolean,
+        muteNotifications: Boolean,
     ): String = driverTestOnEdt {
         require(caretLine > 0 && caretColumn > 0)
         val editor = requiredEditor(filePathSuffix)
@@ -101,7 +103,9 @@ object BracketGuideDriverBridge {
 
         // Prevent the #30 advisory from obscuring editor-only scenario captures
         // without persisting a real user's conflict suppression choice.
-        NativeGuideConflictNotification.getInstance().muteForDriverSession()
+        if (muteNotifications) {
+            NativeGuideConflictNotification.getInstance().muteForDriverSession()
+        }
 
         editor.caretModel.removeSecondaryCarets()
         editor.selectionModel.removeSelection()
@@ -200,6 +204,7 @@ object BracketGuideDriverBridge {
             "No visible IDE frame"
         }
         frame.extendedState = Frame.NORMAL
+        AppIcon.getInstance().requestFocus()
         frame.toFront()
         frame.requestFocus()
         val editor = requiredEditor(filePathSuffix)
@@ -217,6 +222,13 @@ object BracketGuideDriverBridge {
             editor.scrollingModel.horizontalScrollOffset,
             editor.scrollingModel.verticalScrollOffset,
         ).joinToString(":")
+    }
+
+    @JvmStatic
+    fun isEditorWindowFocused(filePathSuffix: String): Boolean = driverTestOnEdt {
+        val editor = requiredEditor(filePathSuffix)
+        WindowManager.getInstance().findVisibleFrame()?.isFocused == true &&
+            editor.contentComponent.hasFocus()
     }
 
     /** Native values and rendered markup, exposed as primitive text for bounded Driver polling. */
