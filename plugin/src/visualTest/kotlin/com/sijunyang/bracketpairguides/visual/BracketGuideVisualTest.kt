@@ -119,13 +119,13 @@ class BracketGuideVisualTest {
                         }
                     }
 
-                    fun screenshot(spec: ScenarioSpec): BufferedImage {
+                    fun screenshot(spec: ScenarioSpec, rawCapture: Path? = null): BufferedImage {
                         assertTrue(
                             bridge.prepareEditorForCapture(SAMPLE_FILE) ==
                                 "${spec.caretLine}:${spec.caretColumn}:false:0:0:0",
                         )
                         bridge.waitForEditorFocus()
-                        return stableScreenshot(editor)
+                        return stableScreenshot(editor, rawCapture)
                     }
 
                     fun recordScenario(scenario: String, warmState: String? = null): BufferedImage {
@@ -133,7 +133,7 @@ class BracketGuideVisualTest {
                         resetScenario(spec)
                         warmState?.let(::applyAndWait)
                         applyAndWait(scenario)
-                        val actual = screenshot(spec)
+                        val actual = screenshot(spec, artifacts.resolve("$scenario-editor.png"))
                         writePng(actual, artifacts.resolve("$scenario-actual.png"))
                         captures[scenario] = actual
                         return actual
@@ -146,7 +146,8 @@ class BracketGuideVisualTest {
                     applyAndWait(ALL_COMPONENTS, CURRENT_SCOPE_SUPPRESSED_INDENT_ENABLED)
                     val enabledBeforeDisable = screenshot(SCENARIO_SPECS.getValue(ALL_COMPONENTS))
                     applyAndWait(PLUGIN_DISABLED)
-                    val pluginDisabled = screenshot(pluginDisabledSpec)
+                    val pluginDisabled =
+                        screenshot(pluginDisabledSpec, artifacts.resolve("$PLUGIN_DISABLED-editor.png"))
                     writePng(pluginDisabled, artifacts.resolve("$PLUGIN_DISABLED-actual.png"))
                     captures[PLUGIN_DISABLED] = pluginDisabled
                     applyAndWait(ALL_COMPONENTS, CURRENT_SCOPE_SUPPRESSED_INDENT_ENABLED)
@@ -327,19 +328,25 @@ class BracketGuideVisualTest {
         }
     }
 
-    private fun stableScreenshot(editor: JEditorUiComponent): BufferedImage {
+    private fun stableScreenshot(editor: JEditorUiComponent, rawCapture: Path?): BufferedImage {
         waitFor(30.seconds, 100.milliseconds, "code editor was not visible for capture") {
             editor.component.isShowing()
         }
         var previous: BufferedImage? = null
         var stable: BufferedImage? = null
+        var stableRaw: BufferedImage? = null
         waitFor(30.seconds, 250.milliseconds, "code editor screenshot did not stabilize") {
-            val current = cropStableRegion(editor.getScreenshot())
+            val raw = editor.getScreenshot()
+            val current = EditorScreenshotRegion.crop(raw)
             val unchanged = previous?.let { ExactImageComparison.matches(it, current) } == true
             previous = current
-            if (unchanged) stable = current
+            if (unchanged) {
+                stable = current
+                stableRaw = raw
+            }
             unchanged
         }
+        if (rawCapture != null) writePng(checkNotNull(stableRaw), rawCapture)
         return checkNotNull(stable)
     }
 
@@ -351,7 +358,7 @@ class BracketGuideVisualTest {
     ) {
         var previousMatch: BufferedImage? = null
         waitFor(1.minutes, 250.milliseconds, failureMessage) {
-            val current = cropStableRegion(editor.getScreenshot())
+            val current = EditorScreenshotRegion.crop(editor.getScreenshot())
             val matchesExpected = ExactImageComparison.matches(expected, current)
             val stable = matchesExpected &&
                 previousMatch?.let { previous ->
@@ -463,16 +470,6 @@ class BracketGuideVisualTest {
         )
     }
 
-    private fun cropStableRegion(screenshot: BufferedImage): BufferedImage {
-        require(screenshot.width >= CROP_WIDTH && screenshot.height >= CROP_HEIGHT) {
-            "Code editor is too small for the pinned crop: ${screenshot.width}x${screenshot.height}"
-        }
-        val cropped = screenshot.getSubimage(0, 0, CROP_WIDTH, CROP_HEIGHT)
-        return BufferedImage(CROP_WIDTH, CROP_HEIGHT, BufferedImage.TYPE_INT_ARGB).apply {
-            createGraphics().use { graphics -> graphics.drawImage(cropped, 0, 0, null) }
-        }
-    }
-
     private fun readPng(path: Path): BufferedImage = checkNotNull(ImageIO.read(path.toFile())) {
         "Could not decode PNG: $path"
     }
@@ -497,6 +494,12 @@ class BracketGuideVisualTest {
               "environment": ${jsonString(environment)},
               "theme": ${jsonString(theme)},
               "testRuntime": ${jsonString(Runtime.version().toString())},
+              "crop": {
+                "x": ${EditorScreenshotRegion.X},
+                "y": ${EditorScreenshotRegion.Y},
+                "width": ${EditorScreenshotRegion.WIDTH},
+                "height": ${EditorScreenshotRegion.HEIGHT}
+              },
               "root": {
                 "role": "ideFrame",
                 "width": $frameWidth,
@@ -581,14 +584,6 @@ class BracketGuideVisualTest {
             "\""
     } ?: "null"
 
-    private inline fun <T : java.awt.Graphics> T.use(action: (T) -> Unit) {
-        try {
-            action(this)
-        } finally {
-            dispose()
-        }
-    }
-
     private data class NamedImage(val name: String, val image: BufferedImage)
 
     private data class NativeState(
@@ -627,8 +622,6 @@ class BracketGuideVisualTest {
     }
 
     private companion object {
-        const val CROP_WIDTH = 220
-        const val CROP_HEIGHT = 240
         const val VISUAL_STATE_FIELD_COUNT = 14
         const val EXPECTED_PAIR_DECORATIONS = 2
         const val MANAGE_NATIVE_VISUALS_LABEL =

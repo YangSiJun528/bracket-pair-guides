@@ -59,6 +59,32 @@ macOS and Linux PNG, verify the directory contains exactly the catalog's 11
 files, and rerun the comparison task on both platforms. Never record or accept
 a baseline in CI.
 
+For a crop-only contract change, crop the committed baselines on both operating
+systems with the same fixed rectangle used by the harness. Verify that every
+retained decoded pixel matches the original baseline and that only pixels
+outside the visual contract were removed. For the current contract, the source
+rectangle is `(0, 1, 220, 239)` within the former `220 x 240` crop. Update the
+trusted reporter's required image dimensions in the same change, inspect the
+full editor screenshots in diagnostics for clipping, and rerun comparison on
+both platforms. Mechanical migration preserves prior rendering expectations;
+it does not replace a successful comparison run.
+
+When the image schema changes, give the producer a new workflow name and update
+the reporter's `workflow_run` subscription and name validations in the same
+change. Preserve the producer path checks and require only the new dimensions.
+For the current `Visual Test Scenarios v2` rollout, inspect the introducing pull
+request's uploaded captures and diagnostics directly: its producer runs, but
+the previous default-branch reporter does not consume v2 runs. The updated
+reporter handles eligible v2 completions after merge. Do not record baselines
+in CI or loosen the reporter to accept both schemas during the transition.
+
+When comparison fails, inspect the baseline/current pair and full editor
+screenshot before identifying a product regression. A mismatch reports
+different pixels and still fails the exact assertion; its cause may also be an
+intended change or a difference in the pinned rendering environment. Keep the
+comparison strict within the fixed crop instead of adding a whole-image
+tolerance.
+
 ## Prove failure sensitivity
 
 Temporarily remove or disable the corresponding production rendering behavior,
@@ -68,6 +94,10 @@ baseline assertion fails. A mutation that reaches a valid capture must also
 emit its baseline/current pair. Revert the temporary mutation completely,
 rerun the exact comparison, and retain no sabotage code or generated mismatch
 artifact.
+
+For a crop change, also verify that removing a guide or shifting it by one pixel
+inside the retained area still fails exact comparison. Excluding the editor tab
+boundary must not reduce sensitivity to plugin rendering.
 
 ## Validate the complete change
 

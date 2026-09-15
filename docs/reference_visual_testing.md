@@ -28,6 +28,9 @@ cover the state in an ordinary test; do not add a duplicate gallery image.
 
 Exact equality with the committed baseline is the only visual pass/fail oracle.
 There are no tolerances, numerical pixel deltas, or previous-run comparisons.
+A mismatch establishes a change in the captured pixels; review the capture and
+diagnostics to determine whether the cause is a product regression, an intended
+change, or a rendering-environment difference.
 
 ## Scenario catalog
 
@@ -76,7 +79,7 @@ pins requires intentional baseline review on both supported operating systems.
 | Text antialiasing | `awt.useSystemAAFontSettings=on` and `swing.aatext=true` |
 | UI scale | `sun.java2d.uiScale=1` and `ide.ui.scale=1` |
 | IDE frame | origin `(100, 100)`, size `1280 x 900` |
-| Stable editor crop | top-left `220 x 240` pixels, excluding the scrollbar |
+| Stable editor crop | source rectangle `(x=0, y=1, width=220, height=239)` in the editor screenshot, excluding the top tab boundary and scrollbar |
 | Fixture source | `plugin/src/visualTest/testData/guide-project/src/Sample.java` |
 | Runtime fixture | `src/Sample.java` in the generated visual-test project |
 | Rendering, palette, and plugin-disabled caret | one-based line 7, column 20 (`total += inner`) |
@@ -167,6 +170,14 @@ The screenshot is stable only after two consecutive cropped images are exactly
 equal. Screenshot stabilization is bounded; failure produces diagnostics rather
 than accepting the last frame.
 
+The fixed crop excludes source row 0, where the selected editor tab's border can
+appear and change with IDE focus. Source rows 1 through 239 and columns 0 through
+219 remain subject to exact equality, including every guide and bracket pixel
+in that area. The crop does not depend on image contents or automatically trim
+other differences. Each scenario's full editor screenshot is retained as
+`<scenario>-editor.png` in diagnostics so the excluded boundary and surrounding
+content can still be inspected; it is not a gallery image or comparison input.
+
 ## Baseline task contract
 
 | Operation | Invocation | Contract |
@@ -186,7 +197,7 @@ review, negative-proof, and replacement procedure.
 
 ### Untrusted producer
 
-`Visual Test Scenarios` runs pull-request code with read-only repository
+`Visual Test Scenarios v2` runs pull-request code with read-only repository
 permission. It validates and checks out the exact requested head SHA without
 persisting credentials, executes the visual test under the pinned Linux Xvfb
 environment, and uploads captures plus bounded diagnostics. It cannot write
@@ -210,7 +221,7 @@ pull-request report because they have no trusted pull-request association.
 
 ### Trusted reporter
 
-`Visual Test Report` subscribes to `Visual Test Scenarios` through
+`Visual Test Report` subscribes to `Visual Test Scenarios v2` through
 `workflow_run` and executes only trusted default-branch workflow code. It has
 the write permissions needed to publish images and update the pull request, but
 it never checks out, imports, or executes pull-request code.
@@ -226,12 +237,27 @@ Reporter publication is serialized without cancelling an older publication in
 progress. The sticky-comment run/attempt marker prevents an older completed run
 from replacing a newer report.
 
+### Image-contract rollout
+
+The producer workflow name versions the image contract. `Visual Test Scenarios
+v2` produces `220 x 239` images; the previous `Visual Test Scenarios` producer
+used `220 x 240`. The workflow paths stay unchanged, and the reporter validates
+the v2 name, the existing producer path, and only the v2 image dimensions.
+
+During the pull request that introduces v2, the producer can run and upload its
+captures and diagnostics. The reporter on the default branch still subscribes
+to the previous name, so it does not consume those v2 runs or post their
+gallery. Once the change reaches the default branch, the updated reporter
+handles eligible v2 completions. Review the introducing pull request's workflow
+artifacts directly; absence of a gallery during this transition does not imply
+that the test passed. CI remains compare-only throughout the rollout.
+
 ## Artifact and report contract
 
 Producer artifacts are untrusted input. The reporter accepts only allowlisted
 artifact names, rejects duplicates and oversized artifacts, verifies the
 scenario association and fixed workflow/image schema, and validates downloaded
-files as regular, bounded `220 x 240` RGBA PNGs. Unexpected paths, symbolic
+files as regular, bounded `220 x 239` RGBA PNGs. Unexpected paths, symbolic
 links, malformed images, and inconsistent artifact IDs fail reporter
 validation. On a rerun, artifacts are restricted to the current attempt's
 validated visual-test job time window before names or IDs are accepted. The
@@ -255,12 +281,13 @@ report does not contain changed-pixel counts, channel deltas, mean deltas, a
 diff image, or Metrics JSON.
 
 Bounded diagnostics include the Gradle log, JUnit reports and results, Driver
-artifacts, UI hierarchy, geometry, and available Starter diagnostics. They are
-linked from the sticky comment and retained for 14 days. A successful run with
-missing required captures, a baseline without its current capture, rejected or
-inconsistent supplied artifacts, or failed image publication makes the
-reporting job fail. A producer run that already failed during setup may report
-validated mismatch pairs if any exist, but normally links diagnostics only; the
+artifacts, full editor screenshots, UI hierarchy, geometry, and available
+Starter diagnostics. They are linked from the sticky comment and retained for
+14 days. A successful run with missing required captures, a baseline without its
+current capture, rejected or inconsistent supplied artifacts, or failed image
+publication makes the reporting job fail. A producer run that already failed
+during setup may report validated mismatch pairs if any exist, but normally
+links diagnostics only; the
 absence of a complete capture set does not add a second reporter failure.
 
 ## Scenario maintenance contract
@@ -272,8 +299,13 @@ a behavior-based kebab-case name, an existing feature group, and negative proof
 that the corresponding production behavior affects the exact assertion.
 
 A baseline may be replaced only for an intentional rendering or pinned-
-environment change. A scenario may be removed only when its user-visible
-behavior no longer exists or another named scenario proves the same contract;
-distinct transition assertions remain even when they reuse a gallery baseline.
+environment change. A crop-only contract change may mechanically crop the
+committed images on both platforms, provided every retained decoded pixel is
+unchanged and the removed area is outside the visual contract. This does not
+establish that a fresh capture passes on either platform; each platform still
+requires comparison under its pinned environment. A scenario may be removed
+only when its user-visible behavior no longer exists or another named scenario
+proves the same contract; distinct transition assertions remain even when they
+reuse a gallery baseline.
 The [visual-test maintenance guide](guide_visual_testing.md) gives the complete
 add, replace, and remove procedure.

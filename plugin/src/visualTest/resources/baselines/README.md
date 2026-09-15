@@ -21,6 +21,13 @@ Darcula theme, DPI where applicable, and scale. A mismatch never falls back to
 another directory. Linux recording is valid only under the pinned 96 DPI Xvfb
 environment with `VISUAL_TEST_ENVIRONMENT` set to the Linux key.
 
+Every baseline is a `220 x 239` PNG from the fixed editor source rectangle
+`(x=0, y=1, width=220, height=239)`. The crop omits only the former top boundary
+row, where the selected tab border can vary with IDE focus. Every retained
+pixel is compared exactly. Both environment sets were migrated by cropping the
+committed `220 x 240` images without changing their remaining decoded pixels;
+this migration does not replace comparison on the corresponding platform.
+
 Generate missing IntelliJ IDEA 2024.2.6 baselines explicitly from the repository
 root with:
 
@@ -41,5 +48,7 @@ compare committed baselines. Restoration and re-enable transitions reuse
 duplicate PNGs.
 
 The test writes `ui-geometry.json` and the complete Driver Swing hierarchy as
-`plugin/build/visual-test-artifacts/ui-hierarchy.html`. Starter also retains its
+`plugin/build/visual-test-artifacts/ui-hierarchy.html`. Each scenario's full
+editor screenshot is retained as `<scenario>-editor.png` in the same directory
+for diagnostics, outside the comparison and gallery. Starter also retains its
 own diagnostics when a UI operation fails.

@@ -3,7 +3,7 @@
 name: Visual Test Report
 on:
   workflow_run:
-    workflows: [ Visual Test Scenarios ]
+    workflows: [ Visual Test Scenarios v2 ]
     types: [ completed ]
 
 permissions:
@@ -18,7 +18,7 @@ jobs:
     if: >-
       github.event.workflow_run.conclusion != 'skipped' &&
       github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.name == 'Visual Test Scenarios' &&
+      github.event.workflow_run.name == 'Visual Test Scenarios v2' &&
       github.event.workflow_run.path == '.github/workflows/visual-test.yml' &&
       github.event.workflow_run.head_repository.full_name == github.repository &&
       github.event.workflow_run.pull_requests[0].number > 0 &&
@@ -80,7 +80,7 @@ jobs:
               !Array.isArray(run.pull_requests) ||
               run.pull_requests.length !== 1 ||
               run.event !== 'pull_request' ||
-              run.name !== 'Visual Test Scenarios' ||
+              run.name !== 'Visual Test Scenarios v2' ||
               run.path !== '.github/workflows/visual-test.yml' ||
               run.head_repository?.full_name !== `${context.repo.owner}/${context.repo.repo}`
             ) {
@@ -302,7 +302,7 @@ jobs:
               !Array.isArray(run.pull_requests) ||
               run.pull_requests.length !== 1 ||
               run.event !== 'pull_request' ||
-              run.name !== 'Visual Test Scenarios' ||
+              run.name !== 'Visual Test Scenarios v2' ||
               run.path !== '.github/workflows/visual-test.yml' ||
               run.head_repository?.full_name !== `${context.repo.owner}/${context.repo.repo}`
             ) {
@@ -502,7 +502,7 @@ jobs:
             }
             const validatePng = (filePath, artifact, expectedName) => {
               const width = 220
-              const height = 240
+              const height = 239
               const channels = 4
               if (
                 path.basename(filePath) !== expectedName ||
@@ -888,6 +888,10 @@ jobs:
               details.push(
                 `${declaredMismatches.length} scenario` +
                 `${declaredMismatches.length === 1 ? '' : 's'} did not match the baseline.`,
+              )
+              details.push(
+                'Review the captures and diagnostics to distinguish a product regression ' +
+                'from an intended change or rendering-environment difference.',
               )
             } else if (run.conclusion === 'failure') {
               details.push(
