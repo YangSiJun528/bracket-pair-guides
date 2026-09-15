@@ -41,6 +41,9 @@ val buildVisualTestPlugin = tasks.register<Zip>("buildVisualTestPlugin") {
         into(releasePlugin.flatMap { it.archiveBaseName }.map { "$it/lib" })
     }
 }
+// Gradle plugin 2.18.1 marks its UI-test task API incubating. This test-only
+// configuration selects the bridge archive and does not enter the release plugin.
+@Suppress("UnstableApiUsage")
 tasks.withType<TestIdeUiTask>().configureEach {
     archiveFile.set(buildVisualTestPlugin.flatMap { it.archiveFile })
 }
