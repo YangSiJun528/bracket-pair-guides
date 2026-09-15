@@ -39,15 +39,18 @@ Smoke results are not suitable for making implementation decisions.
 ## Run the complete benchmark
 
 ```shell
-./gradlew :benchmarks:jmh
+./gradlew :benchmarks:jmh --rerun
 ```
+
+Use the Gradle task option `--rerun` for each fresh measurement, including repeat
+runs, to prevent reuse of `UP-TO-DATE` benchmark results.
 
 The complete run covers:
 
 - platform-neutral fully nested and sequential-token pairing with primitive
   `PairTable` construction;
 - JDK `Arrays.sort(long[])` with the production cancellable sort;
-- realistic encoded pair events, random input, and ordered inputs;
+- synthetic fully nested pair events, random input, and ordered inputs;
 - 32,768 through 2,000,000 endpoints, with two endpoints per bracket pair;
 - normal completion and a cancellation request issued after 1 ms;
 - full persisted-preference normalization and reuse of the identical immutable
@@ -65,7 +68,7 @@ sort's isolated payload.
 Pass a regular expression matching the benchmark class:
 
 ```shell
-./gradlew :benchmarks:jmh \
+./gradlew :benchmarks:jmh --rerun \
   -PbenchmarkInclude='.*LongArraySortCancellationBenchmark'
 ```
 
@@ -77,10 +80,16 @@ Use `.*PairingMachineBenchmark` to isolate the pairing state machine or
 Use `LongArraySortBenchmark` to compare completed-sort time. Its input clone is
 performed in invocation setup and is not included in the measured operation.
 
-Use `LongArraySortCancellationBenchmark` to compare the time until the call
-returns after a cancellation request. The canceller and scheduling overhead are
-present in both alternatives. Treat the result as a relative comparison, not as
-an exact IDE input-latency measurement.
+The `pair-events` generator encodes fully nested pairs and also supplies the
+cancellation benchmark. At 200,000 endpoints, its 100,000 pairs meet the
+completed-pair limit but exceed the 50,000 pending-opener limit. Use these results
+to compare primitive-array sorting; they do not measure full analysis of a file
+accepted by the production limits.
+
+Use `LongArraySortCancellationBenchmark` to compare the full benchmark-call
+time, including the 1 ms delay before cancellation and canceller/scheduling
+overhead. It does not isolate request-to-return latency or measure IDE input
+latency.
 
 For `PairingMachineBenchmark`, the sequential 100,000-pair case stays within
 both production pairing limits. Fully nested inputs above 50,000 pairs exceed
