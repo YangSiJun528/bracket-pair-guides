@@ -1,9 +1,9 @@
 # Run the deterministic IntelliJ Driver visual regression scenarios on demand.
 
-# This workflow name intentionally differs from the previous "Visual Test" producer.
-# workflow_run uses the reporter from the default branch, so the new artifact contract
-# must not be handed to the legacy reporter while this workflow is being rolled out.
-name: Visual Test Scenarios
+# Version the workflow name with the image contract. workflow_run uses the reporter
+# from the default branch: the 220 x 239 v2 captures must not reach the previous
+# "Visual Test Scenarios" reporter, which requires 220 x 240 images.
+name: Visual Test Scenarios v2
 on:
   workflow_dispatch:
     inputs:
@@ -337,7 +337,8 @@ jobs:
             plugin/build/reports/tests/visualTest
             plugin/build/test-results/visualTest
             plugin/build/visual-test-artifacts
-            !plugin/build/visual-test-artifacts/*.png
+            !plugin/build/visual-test-artifacts/*-actual.png
+            !plugin/build/visual-test-artifacts/*-baseline.png
             !plugin/build/visual-test-artifacts/*metrics*.json
             plugin/build/visual-test-gradle.log
             out/perf-startup/tests/*/*/log
