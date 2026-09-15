@@ -35,7 +35,7 @@ import java.awt.Toolkit
 @Suppress("unused") // Loaded reflectively by the out-of-process IntelliJ Driver.
 object BracketGuideDriverBridge {
     @JvmStatic
-    @Suppress("UnstableApiUsage") // The visual runtime is pinned; verifier covers supported IDEs.
+    @Suppress("UnstableApiUsage") // Used only in the pinned visual runtime; excluded from releases.
     fun applyDarculaTheme(): String = driverTestOnEdt {
         val manager = LafManager.getInstance()
         manager.autodetect = false
@@ -265,14 +265,14 @@ object BracketGuideDriverBridge {
             if (!highlighter.isValid || highlighter.layer != HighlighterLayer.ELEMENT_UNDER_CARET) {
                 return@count false
             }
-            val attributes = highlighter.textAttributes ?: return@count false
+            val attributes = highlighter.getTextAttributes(editor.colorsScheme) ?: return@count false
             attributes.effectType == EffectType.BOXED && attributes.effectColor != null
         }
         val pairBackgroundCount = highlighters.count { highlighter ->
             if (!highlighter.isValid || highlighter.layer != HighlighterLayer.ELEMENT_UNDER_CARET) {
                 return@count false
             }
-            highlighter.textAttributes?.backgroundColor != null
+            highlighter.getTextAttributes(editor.colorsScheme)?.backgroundColor != null
         }
         val tokenDecorationCount = highlighters.count { highlighter ->
             highlighter.isValid &&

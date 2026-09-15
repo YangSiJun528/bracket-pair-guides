@@ -136,6 +136,15 @@ bounded diagnostics.
 
 ## Production and test-only boundaries
 
+The Driver bridge lives in `plugin/src/test/kotlin`. `buildPlugin` produces the
+release ZIP without it. `buildVisualTestPlugin` copies the release ZIP contents
+and adds a bridge-only JAR under the same plugin's `lib` directory, so Driver can
+resolve the bridge through the plugin classloader. This augmented ZIP is stored
+in `plugin/build/visual-test-distributions`, separate from release artifacts.
+`visualTest`, `recordVisualTestBaseline`, and `runManualQa` all use it. Only the
+pinned visual runtime uses the bridge's experimental theme APIs; release
+verification rejects deprecated and experimental API usages.
+
 Every committed plugin preference, including enabled state, component flags,
 native-integration choices, and palette values, passes through
 `BracketGuideSettingsController.applySettings(...)`. This is the same
