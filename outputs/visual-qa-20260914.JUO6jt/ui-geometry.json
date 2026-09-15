@@ -1,0 +1,21 @@
+{
+  "environment": "ideaIC-2024.2.6/macos-aarch64-darcula-scale1",
+  "theme": "Darcula",
+  "testRuntime": "21.0.10+7-LTS",
+  "root": {
+    "role": "ideFrame",
+    "width": 1280,
+    "height": 900,
+    "children": [
+      {
+        "role": "codeEditor",
+        "x": 0,
+        "y": 0,
+        "width": 662,
+        "height": 788,
+        "visible": true,
+        "showing": true
+      }
+    ]
+  }
+}

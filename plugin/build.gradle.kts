@@ -126,6 +126,7 @@ intellijPlatformTesting.testIdeUi.register("visualTest") {
         testClassesDirs = visualTestSourceSet.output.classesDirs
         classpath = visualTestSourceSet.runtimeClasspath
         useJUnitPlatform()
+        filter { excludeTestsMatching("*.ManualQaLauncher") }
         javaLauncher.set(visualTestJavaLauncher)
         maxParallelForks = 1
         systemProperty(
@@ -156,6 +157,7 @@ intellijPlatformTesting.testIdeUi.register("recordVisualTestBaseline") {
         testClassesDirs = visualTestSourceSet.output.classesDirs
         classpath = visualTestSourceSet.runtimeClasspath
         useJUnitPlatform()
+        filter { excludeTestsMatching("*.ManualQaLauncher") }
         javaLauncher.set(visualTestJavaLauncher)
         maxParallelForks = 1
         systemProperty("visual.test.record-baseline", true)
@@ -177,5 +179,28 @@ intellijPlatformTesting.testIdeUi.register("recordVisualTestBaseline") {
         )
         outputs.upToDateWhen { false }
         dependsOn(cleanRecordedVisualTestArtifacts)
+    }
+}
+
+// Use the same Gradle UI-test runtime and Starter setup as visualTest.
+intellijPlatformTesting.testIdeUi.register("runManualQa") {
+    type = IntelliJPlatformType.IntellijIdeaCommunity
+    version = "2024.2.6"
+
+    task {
+        description = "Opens the visual-test environment for manual QA, without running scenarios."
+        group = "verification"
+        testClassesDirs = visualTestSourceSet.output.classesDirs
+        classpath = visualTestSourceSet.runtimeClasspath
+        useJUnitPlatform()
+        filter { includeTestsMatching("*.ManualQaLauncher") }
+        javaLauncher.set(visualTestJavaLauncher)
+        maxParallelForks = 1
+        outputs.upToDateWhen { false }
+        testLogging.showStandardStreams = true
+        systemProperty(
+            "manual.qa.root",
+            rootProject.layout.projectDirectory.dir("outputs/manual-qa-starter").asFile.absolutePath,
+        )
     }
 }
