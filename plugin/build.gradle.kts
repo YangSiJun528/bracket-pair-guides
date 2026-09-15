@@ -1,8 +1,12 @@
 import org.gradle.api.tasks.Delete
+import org.gradle.api.tasks.bundling.Jar
+import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+import org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask
+import org.jetbrains.intellij.platform.gradle.tasks.TestIdeUiTask
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
@@ -19,6 +23,30 @@ val visualTestSourceSet = sourceSets.create("visualTest") {
 val visualTestImplementation = configurations.getByName(
     visualTestSourceSet.implementationConfigurationName,
 )
+
+// The Driver bridge needs the plugin classloader, but belongs only in UI-test archives.
+val visualTestBridgeJar = tasks.register<Jar>("visualTestBridgeJar") {
+    archiveClassifier.set("visual-test-bridge")
+    from(sourceSets.test.get().output) {
+        include("com/sijunyang/bracketpairguides/testing/**")
+    }
+}
+val releasePlugin = tasks.named<BuildPluginTask>("buildPlugin")
+val buildVisualTestPlugin = tasks.register<Zip>("buildVisualTestPlugin") {
+    description = "Adds the Driver bridge to the release plugin for visual tests and manual QA."
+    archiveClassifier.set("visual-test")
+    destinationDirectory.set(layout.buildDirectory.dir("visual-test-distributions"))
+    from(zipTree(releasePlugin.flatMap { it.archiveFile }))
+    from(visualTestBridgeJar) {
+        into(releasePlugin.flatMap { it.archiveBaseName }.map { "$it/lib" })
+    }
+}
+// Gradle plugin 2.18.1 marks its UI-test task API incubating. This test-only
+// configuration selects the bridge archive and does not enter the release plugin.
+@Suppress("UnstableApiUsage")
+tasks.withType<TestIdeUiTask>().configureEach {
+    archiveFile.set(buildVisualTestPlugin.flatMap { it.archiveFile })
+}
 
 val visualTestArtifactsDirectory = layout.buildDirectory.dir("visual-test-artifacts")
 val visualTestBaselinesDirectory = layout.projectDirectory.dir("src/visualTest/resources/baselines")
@@ -66,10 +94,14 @@ intellijPlatform {
             create(IntelliJPlatformType.IntellijIdea, "2025.3")
             create(IntelliJPlatformType.IntellijIdea, "2026.1")
             create(IntelliJPlatformType.IntellijIdea, "2026.2")
+            // Include the EAP build that reported the deprecated/experimental usages.
+            create(IntelliJPlatformType.IntellijIdea, "263.4732.28")
         }
         failureLevel.set(
             listOf(
                 FailureLevel.COMPATIBILITY_PROBLEMS,
+                FailureLevel.DEPRECATED_API_USAGES,
+                FailureLevel.EXPERIMENTAL_API_USAGES,
                 FailureLevel.INTERNAL_API_USAGES,
                 FailureLevel.OVERRIDE_ONLY_API_USAGES,
                 FailureLevel.NON_EXTENDABLE_API_USAGES,
