@@ -1,10 +1,33 @@
-# Maintain Visual-Test Scenarios
+# Run and Maintain Visual-Test Scenarios
 
-Use this guide to add, replace, remove, or intentionally re-record an IntelliJ
-Driver visual scenario. Read the
+Use this guide to run IntelliJ Driver visual checks, or add, replace, remove,
+or intentionally re-record a scenario. Read the
 [visual-testing reference](reference_visual_testing.md) first; it defines the
 supported coverage boundary, exact scenario catalog, deterministic pins, and
 security contract.
+
+## Choose when and what to validate
+
+Run the visual suite before a release. During development, run it when a
+developer or assisting agent needs to check a visible change or investigate a
+possible regression. The existing scenarios and exact image comparisons run
+without model calls; no AI-driven screen interaction is needed.
+
+1. Choose the commit or working-tree change to test. For a release, record the
+   candidate's full commit SHA and test that exact candidate.
+2. On GitHub, manually run **Visual Test Scenarios v2** with the candidate SHA
+   in its `commit_sha` input. During PR development, the existing `visual-test`
+   label also requests a run. For a local run, use the Docker command below;
+   release validation requires a clean checkout at the candidate SHA because
+   the runner includes uncommitted changes.
+3. Check the run result and reports. Record the tested SHA, pass/fail result,
+   and workflow run link or local results directory in the PR or release
+   validation notes. For development runs with uncommitted changes, also
+   identify those changes; the SHA alone does not describe the tested source.
+
+These GitHub and Docker runs compare Linux baselines. Run the native macOS
+comparison separately when macOS validation is needed. A failure requires
+investigation; comparison runs never update baselines automatically.
 
 ## Prepare the change
 
