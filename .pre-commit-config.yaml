@@ -1,0 +1,37 @@
+default_install_hook_types: [pre-commit, pre-push]
+
+repos:
+  - repo: local
+    hooks:
+      - id: spotless
+        name: Spotless
+        entry: ./gradlew spotlessCheck
+        language: system
+        stages: [pre-commit]
+        pass_filenames: false
+        require_serial: true
+        # Match the existing targets in build.gradle.kts, not regression fixtures.
+        files: >-
+          (?x)^(
+            plugin/src/(main|test|visualTest)/(kotlin/.*\.kt|java/.*\.java)|
+            benchmarks/src/jmh/java/.*\.java|
+            ([^/]+|(plugin|benchmarks)/[^/]+)\.gradle\.kts|
+            \.editorconfig|\.gitignore|[^/]+\.(properties|yml)|\.github/.*\.yml
+          )$
+
+      - id: gradle-check
+        name: Gradle check
+        entry: ./gradlew check
+        language: system
+        stages: [pre-push]
+        pass_filenames: false
+        require_serial: true
+        # Keep source, resources, and regression fixtures eligible for tests.
+        exclude: >-
+          (?x)^(
+            docs/|marketplace-media/|
+            [^/]+\.md$|LICENSE$|
+            benchmarks/guide_benchmarking\.md$|
+            plugin/src/test/testData/real-world/README\.md$|
+            plugin/src/visualTest/resources/baselines/README\.md$
+          )

@@ -15,6 +15,45 @@ Production bytecode targets Java 17. Kotlin source uses language and API version
 Changing the Gradle runtime, JVM toolchain, Kotlin version, or minimum IDE build
 is one compatibility change and must be reviewed together.
 
+## Enable local checks
+
+Install [prek](https://prek.j178.dev/installation/), then enable the repository's
+pre-commit and pre-push hooks from the repository root:
+
+```shell
+prek install
+```
+
+The committed `.pre-commit-config.yaml` installs both hook stages. Keep JDK 21
+available to Git's environment, including when committing or pushing from an IDE.
+
+| Stage | Command | When it runs |
+|---|---|---|
+| Pre-commit | `./gradlew spotlessCheck` | Staged files include a configured Spotless target |
+| Pre-push | `./gradlew check` | Pushed changes include files outside the configured documentation and media exclusions |
+
+Each hook runs its Gradle command once for the whole project; the file filters
+only decide whether to start it. Documentation-only changes in the excluded
+paths skip both hooks. Regression fixtures remain eligible for pre-push tests,
+even though Spotless does not format them.
+
+Run either stage without committing or pushing:
+
+```shell
+prek run --all-files
+prek run --stage pre-push --all-files
+```
+
+The hooks report failures without applying fixes. For a formatting failure,
+run `./gradlew spotlessApply`, review and stage the changes, then retry the
+commit. For a test failure, fix the reported issue and rerun the pre-push stage.
+With partially staged files, prek temporarily hides unstaged changes during
+pre-commit and restores them afterward. Pre-push checks the current working
+tree; the required CI jobs remain the verification of the pushed revision.
+
+Qodana, Plugin Verifier, and visual tests run separately from these hooks.
+Use the existing CI jobs and the verification procedures below for those checks.
+
 ## Choose a source area
 
 The repository has one deployable production module. Package boundaries inside
@@ -210,3 +249,9 @@ them with the corresponding IntelliJ inspection when possible.
 2. Run `./gradlew :plugin:buildPlugin` when production code or resources changed.
 3. Run the relevant Plugin Verifier tasks for platform or descriptor changes.
 4. Confirm the CI **Inspect Code** job passes.
+
+Before a release, run the visual suite against the release candidate. During
+development, run it when a developer or coding agent judges that a change or
+suspected regression needs visual verification. Follow the
+[visual testing guide](docs/guide_visual_testing.md#choose-when-and-what-to-validate) for
+execution and result recording.
