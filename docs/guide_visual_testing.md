@@ -30,6 +30,30 @@ security contract.
    the identifier. Preserve any distinct transition assertion that reused the
    removed image.
 
+## Run without interrupting the desktop
+
+Start Docker, then run from the repository root:
+
+```bash
+./scripts/visual-test-background.sh
+```
+
+The runner tests the current working tree, including uncommitted changes, in a
+Linux container with its own Xvfb display. IDE focus and mouse actions stay
+inside that display. The terminal remains attached to show progress; here,
+"background" means that the test does not take over the host desktop.
+
+Read the log and reports in the printed
+`build/visual-test-background/run.XXXXXX` directory, where the suffix is unique
+to each run. This command compares the existing Linux baselines only. Run the
+native macOS comparison separately when macOS validation is required.
+
+The first run downloads the container image, IDE, and build dependencies and
+can require several gigabytes. The runner reuses
+`build/visual-test-background/cache`; set `VISUAL_TEST_CACHE_DIR` to an absolute
+directory to use another dedicated Linux cache. Apple silicon runs the x86-64
+container through emulation, so it can take longer than native tests.
+
 ## Record and review baselines
 
 Run the exact comparison first:

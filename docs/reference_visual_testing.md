@@ -101,6 +101,26 @@ of `1920x1080x24` at 96 DPI. A missing or mismatched key fails; the harness
 never falls back to another operating system, architecture, theme, DPI, or
 scale.
 
+### Local background runner
+
+`scripts/visual-test-background.sh` runs the comparison suite in Docker on
+Ubuntu 24.04 for `linux/amd64`, with Java 21 for the visual runtime and Java 17
+for compilation. It uses the Linux environment key and Xvfb screen defined
+above. Its display is isolated from the host cursor and window focus. The
+terminal remains attached for logs and the test exit status.
+
+The runner requires a running Docker daemon. It mounts the source read-only
+and copies the current working tree, including uncommitted changes and
+excluding generated directories, into the container's workspace. Test output
+is written to a unique `build/visual-test-background/run.XXXXXX` directory.
+The persistent Linux Gradle and IDE download cache defaults to
+`build/visual-test-background/cache`; `VISUAL_TEST_CACHE_DIR` accepts an
+absolute directory override.
+
+This runner is compare-only and uses the existing Linux baselines. It does
+not validate macOS rendering or change the CI execution contract. Usage is
+documented in the [maintenance guide](guide_visual_testing.md#run-without-interrupting-the-desktop).
+
 ## Harness execution model
 
 `visualTest` starts the IDE once. All scenarios run sequentially in that one
