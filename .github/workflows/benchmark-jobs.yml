@@ -21,6 +21,11 @@ on:
       - 'gradlew*'
       - '.github/workflows/benchmark-jobs.yml'
   workflow_dispatch:
+    inputs:
+      seed_main_baseline:
+        description: Measure the current default branch before the integration is merged
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -43,11 +48,34 @@ jobs:
       jobs: ${{ steps.prepare.outputs.jobs }}
       bencher: ${{ steps.bencher.outputs.bencher || 'false' }}
       project: ${{ steps.bencher.outputs.project }}
+      hash: ${{ steps.source.outputs.hash }}
+      branch: ${{ steps.source.outputs.branch }}
     steps:
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+      - name: Fetch baseline source
+        if: ${{ inputs.seed_main_baseline }}
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: baseline-source
+          persist-credentials: false
+      - name: Identify measured source
+        id: source
+        env:
+          SEED_MAIN_BASELINE: ${{ inputs.seed_main_baseline }}
+          MEASURED_BRANCH: ${{ inputs.seed_main_baseline && github.event.repository.default_branch || github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.ref_name }}
+        shell: bash
+        run: |
+          directory=.
+          if [ "$SEED_MAIN_BASELINE" = true ]; then
+            directory=baseline-source
+          fi
+          echo "directory=$directory" >> "$GITHUB_OUTPUT"
+          echo "hash=$(git -C "$directory" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "branch=$MEASURED_BRANCH" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-java@v6.0.1
         with:
           distribution: zulu
@@ -62,8 +90,14 @@ jobs:
           BENCHER_PROJECT: ${{ vars.BENCHER_PROJECT }}
           BENCHER_API_KEY: ${{ secrets.BENCHER_API_KEY }}
         run: python3 benchmarks/bencher/resolve_project.py
+      - name: Require Bencher for baseline seeding
+        if: ${{ inputs.seed_main_baseline && steps.bencher.outputs.bencher != 'true' }}
+        run: |
+          echo 'Connect Bencher before seeding the main baseline.' >&2
+          exit 1
       - name: Prepare all measurement jobs
         id: prepare
+        working-directory: ${{ steps.source.outputs.directory }}
         shell: bash
         run: |
           jobs=$(./gradlew -q :benchmarks:listBenchmarkJobs)
@@ -78,12 +112,12 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: benchmark-job-bundles
-          path: benchmarks/build/benchmark-jobs/
+          path: ${{ steps.source.outputs.directory }}/benchmarks/build/benchmark-jobs/
           retention-days: 3
       - uses: actions/upload-artifact@v7
         with:
           name: benchmark-job-reference
-          path: benchmarks/build/job-reference/
+          path: ${{ steps.source.outputs.directory }}/benchmarks/build/job-reference/
           retention-days: 3
 
   measure:
@@ -135,8 +169,8 @@ jobs:
       pull-requests: write
     env:
       BENCHER_PROJECT: ${{ needs.prepare.outputs.project }}
-      BENCHER_HASH: ${{ github.event.pull_request.head.sha || github.sha }}
-      BENCHER_BRANCH: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.ref_name }}
+      BENCHER_HASH: ${{ needs.prepare.outputs.hash }}
+      BENCHER_BRANCH: ${{ needs.prepare.outputs.branch }}
       BENCHER_BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
       BENCHER_BASE_SHA: ${{ github.event.pull_request.base.sha }}
       BENCHER_PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -178,7 +212,7 @@ jobs:
       - name: Measure seven jobs sequentially
         env:
           BENCHER_API_KEY: ${{ secrets.BENCHER_API_KEY }}
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ !inputs.seed_main_baseline && github.token || '' }}
         run: python3 benchmarks/bencher/run_jobs.py reference/jobs.json results
       - name: Collect remote measurement results
         if: ${{ always() }}

@@ -26,11 +26,16 @@ and a 240-second Java limit; compilation happens beforehand on GitHub Actions.
    its project through Bencher's authenticated API. Optionally set repository
    variable `BENCHER_PROJECT` to the slug to require an explicit match. See the
    [Bencher GitHub Actions guide](https://bencher.dev/docs/how-to/github-actions/).
-3. After the workflow change is merged, check the first **Benchmark Jobs** run
-   on `main` to establish the initial baseline. Use **Actions → Benchmark Jobs →
-   Run workflow** on `main` if another run is needed. Subsequent matching pushes
-   to `main` and eligible PR updates run automatically.
-4. Check all seven reports and the coverage check before relying on alerts.
+3. Establish a baseline before reviewing the integration PR. Run **Actions →
+   Benchmark Jobs → Run workflow** using the integration branch and enable
+   `seed_main_baseline`. This builds the current default branch in a separate
+   checkout and records its actual commit hash under that branch. It does not
+   merge the integration or attach baseline checks to the PR commit.
+4. After all seven baseline jobs and coverage pass, mark the integration PR
+   ready for review. Its PR workflow measures the PR head against that baseline.
+   Subsequent matching PR creation, commit updates, and ready-for-review events
+   run the comparison before merge; matching pushes to `main` refresh the baseline.
+5. Check all seven PR reports and the coverage check before relying on alerts.
    Leave the Bencher checks optional until enough runs establish stable results.
 
 Setting `BENCHER_API_KEY` switches same-repository PRs, main pushes, and manual
