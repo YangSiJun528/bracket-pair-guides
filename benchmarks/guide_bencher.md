@@ -66,8 +66,10 @@ docker run --rm --platform linux/amd64 --network none -e BENCHMARK_JOB=preferenc
   bracket-pair-guides-benchmarks
 ```
 
-The image includes JDK 17, Python, and prebuilt bundles; its measurement command
-needs no network. Linux AMD64 emulation on an ARM Mac can exceed the local time
+The image includes JDK 17, Python, and prebuilt bundles. Its entrypoint brings up
+the guest loopback interface when needed and binds JMH's fork communication to
+`127.0.0.1`; it needs no external network. Both JVM forks remain enabled. Linux
+AMD64 emulation on an ARM Mac can exceed the local time
 limit. Use this run to validate packaging, not as the remote performance baseline.
 See [Bencher image requirements](https://bencher.dev/docs/explanation/images/).
 

@@ -2,7 +2,7 @@
 FROM eclipse-temurin:17-jdk-jammy@sha256:51d32af96fb8a13ffbc96c719d7b05447a04ca69f314627d64050a64ecd13057
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends python3 \
+    && apt-get install -y --no-install-recommends python3 iproute2 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /bench
