@@ -34,7 +34,8 @@ Use a short run to verify that JMH compiles and starts:
 ./gradlew :benchmarks:jmh -PbenchmarkSmoke=true
 ```
 
-Smoke results are not suitable for making implementation decisions.
+The smoke run covers the whole suite, or the selected job/class when a filter
+is supplied. Smoke results are not suitable for making implementation decisions.
 
 ## Run the complete benchmark
 
@@ -74,6 +75,73 @@ Pass a regular expression matching the benchmark class:
 
 Use `.*PairingMachineBenchmark` to isolate the pairing state machine or
 `.*PreferenceNormalizationBenchmark` to isolate settings normalization.
+
+## Run one bounded benchmark job
+
+Select a stable job name instead of writing a benchmark regular expression:
+
+```shell
+./gradlew :benchmarks:jmh --rerun -PbenchmarkJob=sort-random
+```
+
+| Job | Workload | Cases | Nominal measurement time |
+|---|---|---:|---:|
+| `sort-pair-events` | Both sorts, fully nested pair events, all sizes | 8 | 80 s |
+| `sort-random` | Both sorts, random input, all sizes | 8 | 80 s |
+| `sort-ascending` | Both sorts, ascending input, all sizes | 8 | 80 s |
+| `sort-descending` | Both sorts, descending input, all sizes | 8 | 80 s |
+| `cancellation` | Both cancellation methods, all sizes | 6 | 60 s |
+| `pairing` | Nested and sequential pairing, all pair counts | 6 | 60 s |
+| `preferences` | Full normalization and persisted-snapshot reuse | 2 | 20 s |
+
+The jobs partition all 46 cases without changing their input values, two forks,
+two one-second warmup iterations, or three one-second measurement iterations.
+Nominal times exclude JVM startup, setup, GC, and teardown. Actual time depends
+on the runner. Each job keeps both implementations in the same invocation where
+there is a baseline/candidate comparison.
+
+Results go to `benchmarks/build/reports/jmh/<job>/` so jobs do not overwrite one
+another. `benchmarkJob` and `benchmarkInclude` are mutually exclusive; invalid
+job names fail the build. Add `-PbenchmarkSmoke=true` for a short selected-job
+check. List available jobs as JSON with:
+
+```shell
+./gradlew -q :benchmarks:listBenchmarkJobs
+```
+
+## Prepare a job for an offline runner
+
+Build and package before submitting a time-limited measurement job:
+
+```shell
+./gradlew :benchmarks:prepareBenchmarkJob -PbenchmarkJob=sort-random
+cd benchmarks/build/benchmark-jobs/sort-random
+java @run.args
+```
+
+The bundle contains `benchmarks.jar` and `run.args`. Copy both files to the same
+directory on a runner with JDK 17 and execute the last command there. It needs
+neither Gradle nor dependency downloads. `human.txt` and `results.json` are
+written in that directory. Run jobs sequentially on a shared machine to avoid
+measurement interference.
+
+The argument file is generated from the same JMH configuration used by Gradle,
+including the selected job's parameter filter. It uses relative paths so the
+bundle can move between build and measurement machines. If preparing a smoke
+bundle, pass `-PbenchmarkSmoke=true`; prepare it again without that property
+before taking performance measurements.
+
+This separation leaves room for
+[Bencher's five-minute Free job limit](https://bencher.dev/docs/explanation/images/).
+Bencher execution still requires an account and a self-contained OCI image with
+the JDK and bundle; this repository change prepares the jobs, not that service
+connection.
+
+The `Benchmark Jobs` GitHub workflow builds all bundles once, executes each
+full-length job on a separate runner with a four-minute execution limit, and
+checks that their combined results cover the unfiltered smoke suite exactly
+once. These runs validate packaging, coverage, and duration; they do not enforce
+performance regression thresholds on shared GitHub runners.
 
 ## Interpret the results
 
@@ -116,3 +184,6 @@ model the daemon read-action lifecycle or event-dispatch-thread contention.
 2. Add a benchmark method using the existing input state.
 3. Preserve identical setup, parameters, forks, and JVM options.
 4. Run the baseline and candidate in the same JMH invocation.
+5. Assign new cases to a job in `benchmarks/build.gradle.kts` and keep its
+   measured duration below the four-minute CI limit. The coverage check fails
+   if any case is omitted or appears in more than one job.

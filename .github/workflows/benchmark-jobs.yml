@@ -1,0 +1,113 @@
+name: Benchmark Jobs
+on:
+  pull_request:
+    types: [ opened, synchronize, reopened, ready_for_review ]
+    paths:
+      - 'benchmarks/**'
+      - 'plugin/src/main/**'
+      - '**/*.gradle.kts'
+      - 'gradle/**'
+      - 'gradle.properties'
+      - 'gradlew*'
+      - '.github/workflows/benchmark-jobs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prepare:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.draft == false &&
+      !contains(github.event.pull_request.labels.*.name, 'skip-ci'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    outputs:
+      jobs: ${{ steps.prepare.outputs.jobs }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6.0.1
+        with:
+          distribution: zulu
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Prepare all measurement jobs
+        id: prepare
+        shell: bash
+        run: |
+          jobs=$(./gradlew -q :benchmarks:listBenchmarkJobs)
+          echo "jobs=$jobs" >> "$GITHUB_OUTPUT"
+          mkdir -p benchmarks/build/job-reference
+          printf '%s\n' "$jobs" > benchmarks/build/job-reference/jobs.json
+          ./gradlew :benchmarks:jmh --rerun -PbenchmarkSmoke=true
+          cp benchmarks/build/reports/jmh/results.json benchmarks/build/job-reference/reference.json
+          while IFS= read -r job; do
+            ./gradlew :benchmarks:prepareBenchmarkJob -PbenchmarkJob="$job"
+          done < <(printf '%s' "$jobs" | jq -r '.[]')
+      - uses: actions/upload-artifact@v7
+        with:
+          name: benchmark-job-bundles
+          path: benchmarks/build/benchmark-jobs/
+          retention-days: 3
+      - uses: actions/upload-artifact@v7
+        with:
+          name: benchmark-job-reference
+          path: benchmarks/build/job-reference/
+          retention-days: 3
+
+  measure:
+    needs: prepare
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        job: ${{ fromJSON(needs.prepare.outputs.jobs) }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: benchmark-job-bundles
+          path: jobs
+      - uses: actions/setup-java@v6.0.1
+        with:
+          distribution: zulu
+          java-version: 17
+      - name: Measure prebuilt job within four minutes
+        working-directory: jobs/${{ matrix.job }}
+        # Leave a minute of headroom below a five-minute remote execution limit.
+        run: timeout --signal=TERM --kill-after=10s 240s java @run.args
+      - uses: actions/upload-artifact@v7
+        if: ${{ always() }}
+        with:
+          name: benchmark-results-${{ matrix.job }}
+          path: |
+            jobs/${{ matrix.job }}/results.json
+            jobs/${{ matrix.job }}/human.txt
+          retention-days: 3
+
+  coverage:
+    name: Benchmark Job Coverage
+    needs: [ prepare, measure ]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: benchmark-job-reference
+          path: reference
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: benchmark-results-*
+          path: results
+      - name: Check complete and disjoint coverage
+        shell: bash
+        run: |
+          for directory in results/benchmark-results-*; do
+            mv "$directory" "results/${directory##*/benchmark-results-}"
+          done
+          python3 benchmarks/check_job_results.py reference/reference.json results reference/jobs.json
