@@ -131,17 +131,14 @@ bundle can move between build and measurement machines. If preparing a smoke
 bundle, pass `-PbenchmarkSmoke=true`; prepare it again without that property
 before taking performance measurements.
 
-This separation leaves room for
-[Bencher's five-minute Free job limit](https://bencher.dev/docs/explanation/images/).
-Bencher execution still requires an account and a self-contained OCI image with
-the JDK and bundle; this repository change prepares the jobs, not that service
-connection.
-
-The `Benchmark Jobs` GitHub workflow builds all bundles once, executes each
-full-length job on a separate runner with a four-minute execution limit, and
-checks that their combined results cover the unfiltered smoke suite exactly
-once. These runs validate packaging, coverage, and duration; they do not enforce
-performance regression thresholds on shared GitHub runners.
+The `Benchmark Jobs` GitHub workflow builds all bundles once and checks that
+their combined results cover the unfiltered smoke suite exactly once. With a
+configured public Bencher project, it runs the seven jobs sequentially on
+Bencher Bare Metal with performance regression checks. Unconfigured runs, fork
+PRs, and Dependabot PRs use separate GitHub runners for packaging, coverage, and
+duration validation. Both paths keep a four-minute Java execution limit. Follow
+[Enable Bencher performance checks](guide_bencher.md) to connect the Free plan,
+establish a main-branch baseline, and validate the image locally.
 
 ## Interpret the results
 

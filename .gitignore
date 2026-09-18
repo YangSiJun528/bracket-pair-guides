@@ -4,6 +4,7 @@
 .intellijPlatform
 .kotlin
 .qodana
+__pycache__/
 build
 out
 allure-results
