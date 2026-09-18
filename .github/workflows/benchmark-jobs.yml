@@ -1,5 +1,15 @@
 name: Benchmark Jobs
 on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'benchmarks/**'
+      - 'plugin/src/main/**'
+      - '**/*.gradle.kts'
+      - 'gradle/**'
+      - 'gradle.properties'
+      - 'gradlew*'
+      - '.github/workflows/benchmark-jobs.yml'
   pull_request:
     types: [ opened, synchronize, reopened, ready_for_review ]
     paths:
@@ -16,26 +26,36 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # The Free Bencher organization allows one remote job at a time. Cancelling
+  # the CLI does not cancel that job, so serialize configured runs across PRs.
+  group: ${{ vars.BENCHER_PROJECT != '' && format('bencher-{0}', github.repository) || format('{0}-{1}', github.workflow, github.event.pull_request.number || github.ref) }}
+  # Keep queued PR measurements instead of replacing the single pending run.
+  queue: max
+  cancel-in-progress: false
 
 jobs:
   prepare:
     if: >-
-      github.event_name == 'workflow_dispatch' ||
+      github.event_name != 'pull_request' ||
       (github.event.pull_request.draft == false &&
       !contains(github.event.pull_request.labels.*.name, 'skip-ci'))
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     outputs:
       jobs: ${{ steps.prepare.outputs.jobs }}
+      bencher: ${{ vars.BENCHER_PROJECT != '' && github.actor != 'dependabot[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-java@v6.0.1
         with:
           distribution: zulu
           java-version: 21
       - uses: gradle/actions/setup-gradle@v6
+      - name: Test Bencher result handling
+        run: python3 -B -m unittest discover -s benchmarks/bencher -p 'test_*.py'
       - name: Prepare all measurement jobs
         id: prepare
         shell: bash
@@ -62,6 +82,7 @@ jobs:
 
   measure:
     needs: prepare
+    if: ${{ needs.prepare.outputs.bencher != 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     strategy:
@@ -90,24 +111,107 @@ jobs:
             jobs/${{ matrix.job }}/human.txt
           retention-days: 3
 
+  bencher:
+    name: Bencher bare metal
+    needs: prepare
+    if: ${{ needs.prepare.outputs.bencher == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    env:
+      BENCHER_PROJECT: ${{ vars.BENCHER_PROJECT }}
+      BENCHER_HASH: ${{ github.event.pull_request.head.sha || github.sha }}
+      BENCHER_BRANCH: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.ref_name }}
+      BENCHER_BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
+      BENCHER_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      BENCHER_PR_NUMBER: ${{ github.event.pull_request.number }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: benchmark-job-bundles
+          path: benchmarks/build/benchmark-jobs
+      - uses: actions/download-artifact@v8
+        with:
+          name: benchmark-job-reference
+          path: reference
+      - uses: bencherdev/bencher@8d75325c3bc59403a2186a056b472c4f49d42838 # v0.6.12
+        with:
+          version: 0.6.12
+      - name: Build offline measurement image
+        shell: bash
+        run: |
+          image="$BENCHER_PROJECT:$BENCHER_HASH-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "BENCHER_IMAGE=$image" >> "$GITHUB_ENV"
+          docker build --platform linux/amd64 -f benchmarks/bencher/Dockerfile \
+            -t "registry.bencher.dev/$image" .
+      - name: Push measurement image
+        env:
+          BENCHER_API_KEY: ${{ secrets.BENCHER_API_KEY }}
+        shell: bash
+        run: |
+          if [ -z "$BENCHER_API_KEY" ]; then
+            echo 'Set the BENCHER_API_KEY repository secret before enabling BENCHER_PROJECT.' >&2
+            exit 1
+          fi
+          printf '%s' "$BENCHER_API_KEY" | docker login registry.bencher.dev \
+            --username "$BENCHER_PROJECT" --password-stdin
+          docker push "registry.bencher.dev/$BENCHER_IMAGE"
+      - name: Measure seven jobs sequentially
+        env:
+          BENCHER_API_KEY: ${{ secrets.BENCHER_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 benchmarks/bencher/run_jobs.py reference/jobs.json results
+      - name: Collect remote measurement results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: bencher-results
+          path: results/
+          if-no-files-found: ignore
+          retention-days: 3
+      - name: Remove registry credentials
+        if: ${{ always() }}
+        run: docker logout registry.bencher.dev
+
   coverage:
     name: Benchmark Job Coverage
-    needs: [ prepare, measure ]
+    needs: [ prepare, measure, bencher ]
+    if: ${{ always() && !cancelled() && needs.prepare.result == 'success' }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: actions/download-artifact@v8
         with:
           name: benchmark-job-reference
           path: reference
       - uses: actions/download-artifact@v8
+        if: ${{ needs.prepare.outputs.bencher != 'true' }}
         with:
           pattern: benchmark-results-*
           path: results
-      - name: Check complete and disjoint coverage
+      - uses: actions/download-artifact@v8
+        if: ${{ needs.prepare.outputs.bencher == 'true' }}
+        with:
+          name: bencher-results
+          path: results
+      - name: Normalize local artifact directories
+        if: ${{ needs.prepare.outputs.bencher != 'true' }}
         shell: bash
         run: |
           for directory in results/benchmark-results-*; do
             mv "$directory" "results/${directory##*/benchmark-results-}"
           done
+      - name: Check complete and disjoint coverage
+        shell: bash
+        run: |
           python3 benchmarks/check_job_results.py reference/reference.json results reference/jobs.json

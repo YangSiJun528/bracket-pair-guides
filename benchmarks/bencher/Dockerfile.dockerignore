@@ -1,0 +1,8 @@
+**
+!benchmarks/
+!benchmarks/build/
+!benchmarks/build/benchmark-jobs/
+!benchmarks/build/benchmark-jobs/**
+!benchmarks/bencher/
+!benchmarks/bencher/run.sh
+!benchmarks/bencher/normalize_results.py
