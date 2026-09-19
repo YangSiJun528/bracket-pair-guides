@@ -68,7 +68,7 @@ class BracketGuideVisualTest {
             snapshots = context.paths.testHome.resolve("snapshots"),
         )
         val result =
-            context.runIdeWithDriver().useDriverAndCloseIde {
+            context.runIdeWithDriver().useDriverAndCloseIdePreservingFailure {
                 val project = openVisualFixture()
                 val sample = checkNotNull(findFile(SAMPLE_FILE, project))
                 val bridge = utility<DriverBridge>()
@@ -170,30 +170,41 @@ class BracketGuideVisualTest {
                         ) {
                             searchField.isVisible() && searchField.isEnabled()
                         }
-                        searchField.text = "Bracket Pair Guides"
-
                         val categories = tree("//div[@accessiblename='Settings categories']")
-                        var pluginSettingsRow = -1
+                        val categoryName = "Bracket Pair Guides"
+                        var observedQuery = ""
+                        var observedCategories = emptyList<String>()
+                        var selectedCategory: String? = null
                         waitFor(
                             30.seconds,
                             100.milliseconds,
-                            "Bracket Pair Guides settings category was not found",
+                            errorMessage = {
+                                "$categoryName settings were not selected; query='$observedQuery', " +
+                                    "selected='$selectedCategory', visible=$observedCategories"
+                            },
                         ) {
-                            pluginSettingsRow =
-                                categories.collectExpandedPaths()
-                                    .singleOrNull {
-                                        it.path.lastOrNull() == "Bracket Pair Guides"
-                                    }?.row ?: -1
-                            pluginSettingsRow >= 0
-                        }
-                        // Native macOS window focus is not guaranteed in a background test.
-                        // Select the real Swing control on the EDT, as the search field does.
-                        driver.withContext(OnDispatcher.EDT) {
-                            cast(categories.component, SettingsTree::class).setSelectionRow(pluginSettingsRow)
-                        }
-                        waitFor(30.seconds, 100.milliseconds, "Bracket Pair Guides settings were not selected") {
-                            categories.collectSelectedPaths().singleOrNull()?.path?.lastOrNull() ==
-                                "Bracket Pair Guides"
+                            observedQuery = searchField.text
+                            // Settings initialization can clear a query after the field becomes visible.
+                            // Restore it only when changed, so polling does not restart search filtering.
+                            if (observedQuery != categoryName) {
+                                searchField.text = categoryName
+                                return@waitFor false
+                            }
+                            val paths = categories.collectExpandedPaths()
+                            observedCategories = paths.map { it.path.joinToString(" / ") }
+                            val row = paths.singleOrNull { it.path.lastOrNull() == categoryName }?.row
+                                ?: return@waitFor false
+                            selectedCategory = categories.collectSelectedPaths().singleOrNull()?.path?.lastOrNull()
+                            if (selectedCategory != categoryName) {
+                                // Select the real Swing control without requiring native window focus.
+                                driver.withContext(OnDispatcher.EDT) {
+                                    cast(categories.component, SettingsTree::class).setSelectionRow(row)
+                                }
+                            }
+                            // Reject stale rows if initialization reset the filter during selection.
+                            observedQuery = searchField.text
+                            selectedCategory = categories.collectSelectedPaths().singleOrNull()?.path?.lastOrNull()
+                            observedQuery == categoryName && selectedCategory == categoryName
                         }
 
                         val manageNativeVisuals = checkBox {
