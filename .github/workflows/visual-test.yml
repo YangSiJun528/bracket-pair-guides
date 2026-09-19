@@ -1,4 +1,4 @@
-# Run the deterministic IntelliJ Driver visual regression scenarios on demand.
+# Run the deterministic IntelliJ Driver visual regression scenarios for pull requests.
 
 # Version the workflow name with the image contract. workflow_run uses the reporter
 # from the default branch: the 220 x 239 v2 captures must not reach the previous
@@ -13,38 +13,30 @@ on:
         type: string
   pull_request:
     branches: [ main ]
-    types: [ labeled, synchronize, reopened, ready_for_review ]
+    # Reevaluate skip-ci on label changes, just like the regular Build workflow.
+    types: [ opened, synchronize, reopened, ready_for_review, converted_to_draft, labeled, unlabeled ]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'LICENSE'
 
 permissions:
   contents: read
 
 concurrency:
-  group: >-
-    visual-test-${{ github.event_name == 'pull_request' &&
-    github.event.pull_request.number || github.run_id }}-${{
-    (github.event_name == 'pull_request' && github.event.action == 'labeled' &&
-    github.event.label.name != 'visual-test') && github.run_id || 'ci' }}
+  group: visual-test-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
 jobs:
   visualTest:
-    name: >-
-      ${{ (github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'pull_request' &&
-      github.event.pull_request.draft == false &&
-      contains(github.event.pull_request.labels.*.name, 'visual-test') &&
-      (github.event.pull_request.stack == null ||
-      github.event.pull_request.stack.position == github.event.pull_request.stack.size) &&
-      (github.event.action != 'labeled' || github.event.label.name == 'visual-test'))) &&
-      'Visual Test' || 'Visual Test (not requested)' }}
+    name: Visual Test
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'pull_request' &&
       github.event.pull_request.draft == false &&
-      contains(github.event.pull_request.labels.*.name, 'visual-test') &&
+      !contains(github.event.pull_request.labels.*.name, 'skip-ci') &&
       (github.event.pull_request.stack == null ||
-      github.event.pull_request.stack.position == github.event.pull_request.stack.size) &&
-      (github.event.action != 'labeled' || github.event.label.name == 'visual-test'))
+      github.event.pull_request.stack.position == github.event.pull_request.stack.size))
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:

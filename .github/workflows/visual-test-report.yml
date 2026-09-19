@@ -14,7 +14,7 @@ permissions:
 jobs:
   report:
     name: Report Visual Test
-    # A non-requested visual test has no artifacts to inspect or report.
+    # A skipped visual test has no artifacts to inspect or report.
     if: >-
       github.event.workflow_run.conclusion != 'skipped' &&
       github.event.workflow_run.event == 'pull_request' &&
@@ -112,7 +112,7 @@ jobs:
               pull.data.state !== 'open' ||
               pull.data.draft !== false ||
               pull.data.head.repo?.full_name !== `${context.repo.owner}/${context.repo.repo}` ||
-              !labels.includes('visual-test') ||
+              labels.includes('skip-ci') ||
               !targetsMain ||
               !stackIsValid ||
               !/^[0-9a-f]{40}$/u.test(linkedHeadSha || '') ||
@@ -133,23 +133,13 @@ jobs:
                 per_page: 100,
               },
             )
-            const requestedVisualJobs = jobs.filter(job => job.name === 'Visual Test')
-            const notRequestedVisualJobs = jobs.filter(
-              job => job.name === 'Visual Test (not requested)',
-            )
-            if (requestedVisualJobs.length + notRequestedVisualJobs.length > 1) {
+            const visualJobs = jobs.filter(job => job.name === 'Visual Test')
+            if (visualJobs.length > 1) {
               throw new Error('Expected exactly one visual-test job')
             }
-            if (notRequestedVisualJobs.length === 1) {
-              if (notRequestedVisualJobs[0].conclusion !== 'skipped') {
-                throw new Error('A not-requested visual-test job was not skipped')
-              }
-              skip('The visual-test job was not requested')
-              return
-            }
-            const visualJob = requestedVisualJobs[0]
+            const visualJob = visualJobs[0]
             if (visualJob?.conclusion === 'skipped') {
-              skip('The visual-test job was not requested')
+              skip('The visual-test job was skipped')
               return
             }
             if (visualJob === undefined && run.conclusion === 'success') {
@@ -338,7 +328,7 @@ jobs:
               if (
                 pull.state !== 'open' ||
                 pull.draft !== false ||
-                !labels.includes('visual-test') ||
+                labels.includes('skip-ci') ||
                 !targetsMain ||
                 !stackIsValid ||
                 !/^[0-9a-f]{40}$/u.test(linkedHeadSha || '') ||
@@ -399,23 +389,13 @@ jobs:
                 per_page: 100,
               },
             )
-            const requestedVisualJobs = jobs.filter(job => job.name === 'Visual Test')
-            const notRequestedVisualJobs = jobs.filter(
-              job => job.name === 'Visual Test (not requested)',
-            )
-            if (requestedVisualJobs.length + notRequestedVisualJobs.length > 1) {
+            const visualJobs = jobs.filter(job => job.name === 'Visual Test')
+            if (visualJobs.length > 1) {
               throw new Error('Visual-test job metadata changed during reporting')
             }
-            if (notRequestedVisualJobs.length === 1) {
-              if (notRequestedVisualJobs[0].conclusion !== 'skipped') {
-                throw new Error('A not-requested visual-test job was not skipped')
-              }
-              core.info('The visual-test job was not requested')
-              return
-            }
-            const visualJob = requestedVisualJobs[0]
+            const visualJob = visualJobs[0]
             if (visualJob?.conclusion === 'skipped') {
-              core.info('The visual-test job was not requested')
+              core.info('The visual-test job was skipped')
               return
             }
             if (visualJob === undefined && run.conclusion === 'success') {
@@ -976,7 +956,7 @@ jobs:
 
             // Keep the eligibility check immediately adjacent to the final
             // write. Earlier reads and image publication may have taken long
-            // enough for the label, head, draft state, or Stack position to change.
+            // enough for skip-ci, the head, draft state, or Stack position to change.
             if (await readEligiblePull() === null) {
               core.info('Pull request changed immediately before comment publication')
               return

@@ -250,8 +250,10 @@ them with the corresponding IntelliJ inspection when possible.
 3. Run the relevant Plugin Verifier tasks for platform or descriptor changes.
 4. Confirm the CI **Inspect Code** job passes.
 
-Before a release, run the visual suite against the release candidate. During
-development, run it when a developer or coding agent judges that a change or
-suspected regression needs visual verification. Follow the
+The visual suite runs automatically for non-draft pull requests to `main`
+without `skip-ci`, except for documentation-only changes. Official GitHub
+Stacks run it on the top pull request. Review its CI result before merging.
+Before a release, run the visual suite against the exact release candidate.
+Follow the
 [visual testing guide](docs/guide_visual_testing.md#choose-when-and-what-to-validate) for
 execution and result recording.
