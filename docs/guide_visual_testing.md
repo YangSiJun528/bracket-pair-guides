@@ -8,16 +8,18 @@ security contract.
 
 ## Choose when and what to validate
 
-Run the visual suite before a release. During development, run it when a
-developer or assisting agent needs to check a visible change or investigate a
-possible regression. The existing scenarios and exact image comparisons run
-without model calls; no AI-driven screen interaction is needed.
+The visual suite runs automatically for non-draft pull requests to `main`
+without `skip-ci`, except when every changed path is Markdown, under `docs/`,
+or `LICENSE`. Official GitHub Stacks run it on the top pull request. Review the
+**Visual Test** result before merging; no opt-in label is needed. The existing
+scenarios and exact image comparisons run without model calls.
+
+For release validation or a local regression investigation:
 
 1. Choose the commit or working-tree change to test. For a release, record the
    candidate's full commit SHA and test that exact candidate.
 2. On GitHub, manually run **Visual Test Scenarios v2** with the candidate SHA
-   in its `commit_sha` input. During PR development, the existing `visual-test`
-   label also requests a run. For a local run, use the Docker command below;
+   in its `commit_sha` input. For a local run, use the Docker command below;
    release validation requires a clean checkout at the candidate SHA because
    the runner includes uncommitted changes.
 3. Check the run result and reports. Record the tested SHA, pass/fail result,

@@ -235,14 +235,19 @@ repository contents or pull-request comments.
 For pull requests, the producer runs only when all of these conditions hold:
 
 - the pull request is open for testing and is not a draft;
-- it has the `visual-test` label;
+- it does not have the `skip-ci` label;
 - it either targets `main` directly or is the top pull request in an official
-  GitHub Stack rooted at `main`; and
-- the event is the qualifying label addition, synchronization, reopening, or
-  transition to ready for review.
+  GitHub Stack rooted at `main`;
+- at least one changed path is outside Markdown files (`**/*.md`), `docs/**`,
+  and `LICENSE`; and
+- the event is opening, synchronization, reopening, transition to ready for
+  review, or a label change. Conversion to draft also triggers the workflow,
+  but skips the test and cancels any older run.
 
-Adding an unrelated label does not run the suite. Producer concurrency is per
-pull request and cancels an older in-progress run when a newer head is queued.
+No opt-in label is required. Label changes reevaluate `skip-ci`; other label
+changes rerun the test, matching the regular Build workflow. Producer
+concurrency is per pull request and cancels an older in-progress run when a
+newer event is queued. Manual dispatch bypasses the pull-request path filter.
 
 Manual dispatch accepts a full 40-character lowercase commit SHA and tests that
 exact commit. Manual runs have independent concurrency and do not create a
@@ -257,7 +262,7 @@ it never checks out, imports, or executes pull-request code.
 
 Before any publication, the reporter fetches current GitHub state and
 revalidates that there is exactly one associated same-repository pull request,
-it is open and non-draft, the `visual-test` label remains present, the tested
+it is open and non-draft, the `skip-ci` label is absent, the tested
 SHA is still the current head, and it targets `main` directly or is still the
 top of an official Stack rooted at `main`. Stale or ineligible runs are not
 published.
