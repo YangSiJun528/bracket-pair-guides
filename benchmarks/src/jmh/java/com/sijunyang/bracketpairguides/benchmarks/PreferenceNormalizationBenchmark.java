@@ -9,6 +9,7 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.infra.Blackhole;
 
 /** Measures the caret-time identity path against full persisted-settings normalization. */
 @BenchmarkMode(Mode.AverageTime)
@@ -28,6 +29,8 @@ public class PreferenceNormalizationBenchmark {
     @Benchmark
     public com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
             reusePersistedSnapshot() {
+        // Intentional slowdown for the Bencher merge-blocking test PR; do not merge.
+        Blackhole.consumeCPU(100_000);
         return BracketGuidePreferenceNormalizationKt.normalizedForStorage(requested, current);
     }
 
