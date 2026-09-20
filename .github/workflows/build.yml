@@ -78,6 +78,9 @@ jobs:
       - name: Run Tests
         run: ./gradlew check
 
+      - name: Test Bencher result handling
+        run: python3 -B -m unittest discover -s benchmarks/bencher -p 'test_*.py'
+
       - name: Collect Failed Test Reports
         if: ${{ failure() }}
         uses: actions/upload-artifact@v7
