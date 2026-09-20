@@ -2,24 +2,10 @@ name: Benchmark Jobs
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'benchmarks/**'
-      - 'plugin/src/main/**'
-      - '**/*.gradle.kts'
-      - 'gradle/**'
-      - 'gradle.properties'
-      - 'gradlew*'
-      - '.github/workflows/benchmark-jobs.yml'
   pull_request:
-    types: [ opened, synchronize, reopened, ready_for_review ]
-    paths:
-      - 'benchmarks/**'
-      - 'plugin/src/main/**'
-      - '**/*.gradle.kts'
-      - 'gradle/**'
-      - 'gradle.properties'
-      - 'gradlew*'
-      - '.github/workflows/benchmark-jobs.yml'
+    # Always report Benchmark Gate. Path filtering happens inside the workflow.
+    # Reevaluate labels and draft state so they cannot leave a stale gate result.
+    types: [ opened, synchronize, reopened, ready_for_review, converted_to_draft, labeled, unlabeled ]
   workflow_dispatch:
     inputs:
       seed_main_baseline:
@@ -37,11 +23,25 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  changes:
+    name: Benchmark Changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      required: ${{ steps.changes.outputs.required }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Detect changes to measured inputs
+        id: changes
+        run: python3 benchmarks/bencher/benchmark_gate.py changes
+
   prepare:
-    if: >-
-      github.event_name != 'pull_request' ||
-      (github.event.pull_request.draft == false &&
-      !contains(github.event.pull_request.labels.*.name, 'skip-ci'))
+    needs: changes
+    if: ${{ needs.changes.outputs.required == 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     outputs:
@@ -81,8 +81,6 @@ jobs:
           distribution: zulu
           java-version: 21
       - uses: gradle/actions/setup-gradle@v6
-      - name: Test Bencher result handling
-        run: python3 -B -m unittest discover -s benchmarks/bencher -p 'test_*.py'
       - name: Resolve Bencher project
         id: bencher
         if: ${{ github.actor != 'dependabot[bot]' && github.event.pull_request.user.login != 'dependabot[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
@@ -122,7 +120,7 @@ jobs:
 
   measure:
     needs: prepare
-    if: ${{ needs.prepare.outputs.bencher != 'true' }}
+    if: ${{ needs.prepare.result == 'success' && needs.prepare.outputs.bencher != 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     strategy:
@@ -154,7 +152,7 @@ jobs:
   bencher:
     name: Bencher bare metal
     needs: prepare
-    if: ${{ needs.prepare.outputs.bencher == 'true' }}
+    if: ${{ needs.prepare.result == 'success' && needs.prepare.outputs.bencher == 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     concurrency:
@@ -261,3 +259,19 @@ jobs:
         shell: bash
         run: |
           python3 benchmarks/check_job_results.py reference/reference.json results reference/jobs.json
+
+  gate:
+    name: Benchmark Gate
+    needs: [ changes, prepare, measure, bencher, coverage ]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Enforce benchmark results
+        env:
+          BENCHMARK_NEEDS: ${{ toJSON(needs) }}
+        run: python3 benchmarks/bencher/benchmark_gate.py check

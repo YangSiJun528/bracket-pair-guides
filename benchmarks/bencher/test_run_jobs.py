@@ -31,8 +31,8 @@ class RunJobsTest(unittest.TestCase):
         }
 
     @staticmethod
-    def report(job="remote-job", report="remote-report"):
-        return {"uuid": report, "job": job}
+    def report(job="remote-job", report="remote-report", alerts=None):
+        return {"uuid": report, "job": job, "alerts": [] if alerts is None else alerts}
 
     @staticmethod
     def job_output(status="processed", exit_code=0):
@@ -105,6 +105,28 @@ class RunJobsTest(unittest.TestCase):
         self.assertEqual(process.call_count, 2)
         self.assertTrue((self.results / "pairing" / "results.json").exists())
         self.assertFalse((self.results / "preferences").exists())
+
+    def test_alerts_fail_after_all_jobs_and_artifacts_are_collected(self):
+        responses = [
+            (self.report(alerts=[{"uuid": "regression"}]), 0), (self.job_output(), 0),
+            (self.report(), 0), (self.job_output(), 0),
+        ]
+        with self.run_with(responses) as process:
+            with self.assertRaisesRegex(RuntimeError, r"performance alerts in: pairing \(1\)"):
+                run_jobs.run_jobs(self.jobs_path, self.results, self.environment)
+        self.assertEqual(process.call_count, 4)
+        for job in ("pairing", "preferences"):
+            self.assertTrue((self.results / job / "results.json").exists())
+            self.assertTrue((self.results / job / "report.json").exists())
+
+    def test_missing_or_malformed_alerts_fail_closed(self):
+        for alerts in (None, {}, "", False):
+            with self.subTest(alerts=alerts):
+                report = self.report()
+                report["alerts"] = alerts
+                with self.run_with([(report, 0), (self.job_output(), 0)]):
+                    with self.assertRaisesRegex(RuntimeError, "no valid alerts list"):
+                        run_jobs.run_jobs(self.jobs_path, self.results, self.environment)
 
     def test_missing_report_stops_without_starting_another_job(self):
         with self.run_with([("", 1)]) as process:
