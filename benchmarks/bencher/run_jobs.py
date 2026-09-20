@@ -130,6 +130,7 @@ def run_jobs(jobs_path, results_directory, environment=None):
     jobs = read_jobs(jobs_path)
     # Validate all metadata before submitting any remote work.
     commands = [command_for_job(job, environment, index == 0) for index, job in enumerate(jobs)]
+    alerted_jobs = []
     for job, command in zip(jobs, commands):
         destination = results_directory / job
         destination.mkdir(parents=True, exist_ok=True)
@@ -157,9 +158,21 @@ def run_jobs(jobs_path, results_directory, environment=None):
             raise RuntimeError(f"{job}: invalid remote artifacts: {error}") from error
         if exit_code != 0:
             raise RuntimeError(f"{job}: Bencher failed (exit {exit_code}); artifacts were retained")
+        alerts = report.get("alerts")
+        if not isinstance(alerts, list):
+            raise RuntimeError(f"{job}: Bencher report has no valid alerts list; artifacts were retained")
+        if alerts:
+            alerted_jobs.append(f"{job} ({len(alerts)})")
         report_uuid = report.get("uuid")
         if report_uuid:
             print(f"Report: https://bencher.dev/perf/{project}/reports/{report_uuid}", flush=True)
+    # Finish the partition and retain every artifact before failing on regressions.
+    # The CLI normally exits successfully even when its GitHub report check fails.
+    if alerted_jobs:
+        raise RuntimeError(
+            f"Bencher reported performance alerts in: {', '.join(alerted_jobs)}; "
+            "all job artifacts were retained"
+        )
 
 
 if __name__ == "__main__":

@@ -36,7 +36,10 @@ and a 240-second Java limit; compilation happens beforehand on GitHub Actions.
    Subsequent matching PR creation, commit updates, and ready-for-review events
    run the comparison before merge; matching pushes to `main` refresh the baseline.
 5. Check all seven PR reports and the coverage check before relying on alerts.
-   Leave the Bencher checks optional until enough runs establish stable results.
+   In the `main` branch ruleset, require **Benchmark Gate** from **GitHub Actions**
+   alongside the existing build checks. The aggregate check fails on measurement
+   errors, performance alerts, and missing coverage. For changes outside the
+   measured dependencies, it succeeds without submitting measurement jobs.
 
 Setting `BENCHER_API_KEY` switches same-repository PRs, main pushes, and manual
 runs to Bencher. Project discovery rejects private projects, mismatched slugs,
@@ -53,8 +56,42 @@ first suite resets that start point, so later suites retain reports already
 collected for the PR. The initial threshold flags latency
 more than 20% above the latest historical result for each benchmark, using one
 previous sample. This is a starting threshold to tune after observing variation.
-Suite checks and PR comments report alerts; a performance alert does not prevent
-the remaining suites from running.
+Suite checks and PR comments report alerts. A performance alert does not prevent
+the remaining suites from running; after collecting all seven jobs, the runner
+fails if any report contains an alert, and **Benchmark Gate** blocks merging.
+
+## Maintain the automatic-run filter
+
+When adding a benchmark or changing its production dependencies, update
+[`benchmark_gate.py`](bencher/benchmark_gate.py). Include every
+production dependency reached by the benchmark, including shared helpers:
+
+- Pairing: the Java `analysis.pairing.core` package.
+- Sorting and cancellation: the Kotlin `analysis.sorting` package.
+- Preferences: `BracketGuidePreferenceNormalization.kt`,
+  `BracketGuidePreferences.kt`, and `StoredColorFormat.kt`.
+
+The filter also includes benchmark sources, Bencher's Python and shell runtime
+scripts, its Dockerfile and Docker ignore file, the result coverage checker, and
+the workflow itself. The root, plugin, and benchmark Gradle build files, Gradle
+settings/properties, and Unix wrapper inputs trigger measurements because they
+can change compilation or the measurement environment.
+
+Changes confined to editor integration, presentation, settings UI, other analysis
+code, plugin resources, documentation, or plugin tests skip automatic measurement.
+Bencher's `test_*.py` files also skip measurement; the `Build` workflow's `Test`
+job runs those tests independently of the benchmark path filter.
+
+The workflow always reports **Benchmark Gate**; its lightweight change-detection
+job decides whether measurements are needed. Keep path filtering inside the
+workflow so unrelated PRs can complete the required check. Detection failures,
+cancelled measurements, and missing results fail the gate.
+
+Every matching run still measures all seven jobs and checks all 46 cases.
+Use **Run workflow** to measure any revision manually regardless of changed paths.
+For PRs, GitHub evaluates the entire PR diff, so a later documentation-only commit
+can rerun a PR that already changes a measured dependency. See
+[GitHub's diff comparisons](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#git-diff-comparisons).
 
 ## Validate the image and result adapter locally
 
