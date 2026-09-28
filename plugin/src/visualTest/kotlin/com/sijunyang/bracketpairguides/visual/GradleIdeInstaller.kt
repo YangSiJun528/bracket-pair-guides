@@ -5,6 +5,8 @@ import com.intellij.ide.starter.ide.IdeInstaller
 import com.intellij.ide.starter.ide.InstalledIde
 import com.intellij.ide.starter.models.IdeInfo
 import com.intellij.openapi.util.SystemInfo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -17,7 +19,7 @@ internal class GradleIdeInstaller(
         },
     ),
 ) : IdeInstaller {
-    override suspend fun install(ideInfo: IdeInfo): Pair<String, InstalledIde> {
+    override suspend fun install(ideInfo: IdeInfo): Pair<String, InstalledIde> = withContext(Dispatchers.IO) {
         check(Files.isDirectory(platformPath)) { "Gradle IDE directory is missing: $platformPath" }
         val distributionRoot = distributionRoot()
         val ide = IdeDistributionFactory.installIDE(distributionRoot.toFile(), ideInfo.executableFileName)
@@ -28,7 +30,7 @@ internal class GradleIdeInstaller(
             "Starter resolved a different IDE: ${ide.installationPath}; expected $platformPath"
         }
         println("Reusing Gradle IDE: ${ide.installationPath}")
-        return ide.build to ide
+        ide.build to ide
     }
 
     private fun distributionRoot(): Path {
