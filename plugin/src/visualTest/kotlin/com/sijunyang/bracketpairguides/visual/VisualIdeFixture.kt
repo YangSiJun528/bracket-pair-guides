@@ -54,11 +54,17 @@ internal fun visualIdeContext(testName: String, projectRoot: Path, pluginArchive
     Files.copy(fixture, target, StandardCopyOption.REPLACE_EXISTING)
     return Starter.newContext(
         testName = testName,
-        testCase = TestCase(IdeProductProvider.IC, LocalProjectInfo(projectRoot)).withVersion(IDE_VERSION),
+        testCase = TestCase(
+            IdeProductProvider.IC.copy(version = IDE_VERSION, getInstaller = { GradleIdeInstaller() }),
+            LocalProjectInfo(projectRoot),
+        ),
     ).apply {
         PluginConfigurator(this).installPluginFromPath(pluginArchive)
         disableStickyLines()
+        val vmOptionsFile = checkNotNull(ide.patchedVMOptionsFile)
         applyVMOptionsPatch {
+            // The launcher resolves IDE symlinks, so pass the per-run options explicitly.
+            withEnv("IDEA_VM_OPTIONS", vmOptionsFile.toString())
             addSystemProperty("idea.trust.all.projects", true)
             addSystemProperty("bracket.pair.guides.driver.test", true)
             addSystemProperty("ide.experimental.ui", true)

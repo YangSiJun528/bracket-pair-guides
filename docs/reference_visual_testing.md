@@ -118,6 +118,11 @@ The persistent Linux Gradle and IDE download cache defaults to
 `build/visual-test-background/cache`; `VISUAL_TEST_CACHE_DIR` accepts an
 absolute directory override.
 
+Gradle downloads and extracts the pinned IDE. All three UI-test tasks pass its
+resolved path to Starter, which uses that installation directly after checking
+the product and build. Starter does not download or copy a second IDE. Its test
+configurations, projects, and logs remain separate from the Gradle installation.
+
 This runner is compare-only and uses the same Linux baselines as CI. Usage is
 documented in the [maintenance guide](guide_visual_testing.md#run-without-interrupting-the-desktop).
 

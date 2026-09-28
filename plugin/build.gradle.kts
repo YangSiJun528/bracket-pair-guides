@@ -46,6 +46,9 @@ val buildVisualTestPlugin = tasks.register<Zip>("buildVisualTestPlugin") {
 @Suppress("UnstableApiUsage")
 tasks.withType<TestIdeUiTask>().configureEach {
     archiveFile.set(buildVisualTestPlugin.flatMap { it.archiveFile })
+    doFirst {
+        systemProperty("visual.test.ide.path", platformPath.toString())
+    }
 }
 
 val visualTestArtifactsDirectory = layout.buildDirectory.dir("visual-test-artifacts")

@@ -41,11 +41,8 @@ tar -C /source \
   --exclude=out --exclude=outputs --exclude=allure-results \
   -cf - . | tar -C /workspace -xf -
 
-# Starter has its own IDE download cache outside GRADLE_USER_HOME. Preserve
-# installers and extracted IDEs, but keep test config, projects and logs fresh.
-mkdir -p /cache/starter/installers /cache/starter/cache /workspace/plugin/out/perf-startup
-ln -s /cache/starter/installers /workspace/plugin/out/perf-startup/installers
-ln -s /cache/starter/cache /workspace/plugin/out/perf-startup/cache
+# Starter reuses Gradle's extracted IDE. Test config, projects and logs remain
+# in this fresh workspace; no second persistent IDE cache is needed.
 
 {
   uname -a
