@@ -555,32 +555,15 @@ class BracketGuideVisualTest {
         val explicit = System.getenv("VISUAL_TEST_ENVIRONMENT")
         val os = System.getProperty("os.name").lowercase()
         val architecture = System.getProperty("os.arch").lowercase()
-        val actualPlatform =
-            when {
-                os.contains("mac") && architecture in MACOS_ARCHITECTURES -> MACOS_PLATFORM
-                os.contains("linux") && architecture in LINUX_ARCHITECTURES -> LINUX_PLATFORM
-                else -> error("Unsupported visual environment $os/$architecture")
-            }
-        if (explicit != null) {
-            require(explicit in SUPPORTED_ENVIRONMENTS) {
-                "Unsupported VISUAL_TEST_ENVIRONMENT: $explicit"
-            }
-            val expectedPlatform =
-                when (explicit) {
-                    MACOS_ENVIRONMENT -> MACOS_PLATFORM
-                    LINUX_ENVIRONMENT -> LINUX_PLATFORM
-                    else -> error("Unreachable visual environment: $explicit")
-                }
-            require(expectedPlatform == actualPlatform) {
-                "VISUAL_TEST_ENVIRONMENT $explicit does not match actual platform $os/$architecture"
-            }
-            return explicit
+        check(os.contains("linux") && architecture in LINUX_ARCHITECTURES) {
+            "Visual tests require Linux x86-64 under pinned Xvfb, got $os/$architecture. " +
+                "Use ./scripts/visual-test-background.sh for local comparison."
         }
-        if (actualPlatform == MACOS_PLATFORM) return MACOS_ENVIRONMENT
-        error(
-            "Unsupported visual environment $os/$architecture. Linux must run in pinned Xvfb with " +
-                "VISUAL_TEST_ENVIRONMENT=$LINUX_ENVIRONMENT",
-        )
+        require(explicit == LINUX_ENVIRONMENT) {
+            "Unsupported VISUAL_TEST_ENVIRONMENT: $explicit. Run in pinned Xvfb with " +
+                "VISUAL_TEST_ENVIRONMENT=$LINUX_ENVIRONMENT"
+        }
+        return LINUX_ENVIRONMENT
     }
 
     private fun requiredPath(property: String): Path =
@@ -804,13 +787,8 @@ class BracketGuideVisualTest {
                     CUSTOM_PALETTE,
                 )
 
-        const val MACOS_ENVIRONMENT = "ideaIC-2024.2.6/macos-aarch64-darcula-scale1"
         const val LINUX_ENVIRONMENT = "ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1"
-        const val MACOS_PLATFORM = "macos-aarch64"
-        const val LINUX_PLATFORM = "linux-x64"
-        val MACOS_ARCHITECTURES = setOf("aarch64", "arm64")
         val LINUX_ARCHITECTURES = setOf("amd64", "x86_64")
-        val SUPPORTED_ENVIRONMENTS = setOf(MACOS_ENVIRONMENT, LINUX_ENVIRONMENT)
     }
 }
 

@@ -27,9 +27,10 @@ For release validation or a local regression investigation:
    validation notes. For development runs with uncommitted changes, also
    identify those changes; the SHA alone does not describe the tested source.
 
-These GitHub and Docker runs compare Linux baselines. Run the native macOS
-comparison separately when macOS validation is needed. A failure requires
-investigation; comparison runs never update baselines automatically.
+Automated visual checks use the pinned Linux environment only. A failure
+requires investigation; comparison runs never update baselines automatically.
+For OS-specific rendering investigations, use the
+[manual QA sandbox](guide_manual_qa.md).
 
 ## Prepare the change
 
@@ -49,9 +50,9 @@ investigation; comparison runs never update baselines automatically.
    caret refresh, and observable queries.
 3. Add the capture to the end-of-session mismatch collection. Use bounded
    readiness polling and two consecutive exact stable crops.
-4. Update the producer uploads, reporter allowlists and galleries, both baseline
-   catalogs, and the reference in the same change.
-5. For removal, delete both operating-system baselines and every consumer of
+4. Update the producer uploads, reporter allowlists and galleries, the Linux
+   baseline catalog, and the reference in the same change.
+5. For removal, delete the Linux baseline and every consumer of
    the identifier. Preserve any distinct transition assertion that reused the
    removed image.
 
@@ -70,8 +71,8 @@ inside that display. The terminal remains attached to show progress; here,
 
 Read the log and reports in the printed
 `build/visual-test-background/run.XXXXXX` directory, where the suffix is unique
-to each run. This command compares the existing Linux baselines only. Run the
-native macOS comparison separately when macOS validation is required.
+to each run. This command compares the existing Linux baselines only. Native
+macOS screenshot comparison and recording are not supported.
 
 The first run downloads the container image, IDE, and build dependencies and
 can require several gigabytes. The runner reuses
@@ -81,19 +82,10 @@ container through emulation, so it can take longer than native tests.
 
 ## Record and review baselines
 
-Run the exact comparison first:
+Run the exact comparison first with `./scripts/visual-test-background.sh`.
 
-```bash
-./gradlew visualTest
-```
-
-Create only missing baselines after the behavior and pins are stable:
-
-```bash
-./gradlew :plugin:recordVisualTestBaseline
-```
-
-On Linux, use the required environment and display:
+Create only missing baselines after the behavior and pins are stable. On a
+Linux x86-64 host, use the required environment and display:
 
 ```bash
 VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1 \
@@ -104,19 +96,19 @@ VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1 \
 
 Use `-PforceVisualBaselineOverwrite=true` only when an intentional visual or
 pinned-environment change must replace existing files. Inspect every changed
-macOS and Linux PNG, verify the directory contains exactly the catalog's 11
-files, and rerun the comparison task on both platforms. Never record or accept
+Linux PNG, verify the directory contains exactly the catalog's 11 files, and
+rerun the comparison under the pinned Linux environment. Never record or accept
 a baseline in CI.
 
-For a crop-only contract change, crop the committed baselines on both operating
-systems with the same fixed rectangle used by the harness. Verify that every
+For a crop-only contract change, crop the committed Linux baselines with the
+same fixed rectangle used by the harness. Verify that every
 retained decoded pixel matches the original baseline and that only pixels
 outside the visual contract were removed. For the current contract, the source
 rectangle is `(0, 1, 220, 239)` within the former `220 x 240` crop. Update the
 trusted reporter's required image dimensions in the same change, inspect the
-full editor screenshots in diagnostics for clipping, and rerun comparison on
-both platforms. Mechanical migration preserves prior rendering expectations;
-it does not replace a successful comparison run.
+full editor screenshots in diagnostics for clipping, and rerun comparison under
+the pinned Linux environment. Mechanical migration preserves prior rendering
+expectations; it does not replace a successful comparison run.
 
 When the image schema changes, give the producer a new workflow name and update
 the reporter's `workflow_run` subscription and name validations in the same
@@ -138,8 +130,8 @@ tolerance.
 
 Temporarily remove or disable the corresponding production rendering behavior,
 or invert the scenario's requested visual state while keeping readiness valid.
-Run `./gradlew visualTest` and confirm that the named readiness or exact-
-baseline assertion fails. A mutation that reaches a valid capture must also
+Run `./scripts/visual-test-background.sh` and confirm that the named readiness
+or exact-baseline assertion fails. A mutation that reaches a valid capture must also
 emit its baseline/current pair. Revert the temporary mutation completely,
 rerun the exact comparison, and retain no sabotage code or generated mismatch
 artifact.
