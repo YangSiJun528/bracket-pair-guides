@@ -24,12 +24,14 @@ recording, and validation procedure.
    primitive transport, and observable queries.
 3. Open fixtures directly and use bounded Driver waits for readiness, applied
    state, and stable screenshots. Do not use fixed sleeps or timing-only delays.
-4. Run `./gradlew visualTest` from the repository root. Confirm a new visual
+4. Run `./scripts/visual-test-background.sh` from the repository root, or run
+   `./gradlew visualTest` on Linux x86-64 with the pinned Xvfb display and
+   explicit environment key from the maintenance guide. Confirm a new visual
    assertion fails when its production rendering is removed or disabled.
-5. Record locally with `./gradlew :plugin:recordVisualTestBaseline` only for an
-   intentional change. Review both supported OS baselines; CI never records or
-   accepts them.
-6. When the scenario set changes, update the harness, both baseline sets,
+5. Record with `./gradlew :plugin:recordVisualTestBaseline` in the pinned Linux
+   environment only for an intentional change. Review the Linux baselines; CI
+   never records or accepts them. Native macOS screenshot tests are unsupported.
+6. When the scenario set changes, update the harness, the Linux baseline set,
    producer, reporter, reference, and baseline README together.
 
 ## Upstream reference

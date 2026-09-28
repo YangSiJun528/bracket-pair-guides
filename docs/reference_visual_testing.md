@@ -64,7 +64,9 @@ settings must restore the original values and exactly reproduce
 ## Pinned rendering environment
 
 Every value below is part of the baseline identity. A change to one of these
-pins requires intentional baseline review on both supported operating systems.
+pins requires intentional review of the Linux baselines. Automated screenshot
+coverage is limited to Linux; OS-specific rendering issues are investigated
+with the [manual QA sandbox](guide_manual_qa.md).
 
 | Property | Pinned value |
 |---|---|
@@ -88,11 +90,10 @@ pins requires intentional baseline review on both supported operating systems.
 
 The committed baseline path is
 `plugin/src/visualTest/resources/baselines/<environment>/<scenario>.png`.
-Exactly two environment keys are supported:
+The only supported environment key is:
 
 | Environment key | Required host |
 |---|---|
-| `ideaIC-2024.2.6/macos-aarch64-darcula-scale1` | macOS on Apple silicon |
 | `ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1` | Linux x86-64 under the pinned 96 DPI Xvfb display |
 
 The environment key must match the actual operating system and architecture.
@@ -117,8 +118,7 @@ The persistent Linux Gradle and IDE download cache defaults to
 `build/visual-test-background/cache`; `VISUAL_TEST_CACHE_DIR` accepts an
 absolute directory override.
 
-This runner is compare-only and uses the existing Linux baselines. It does
-not validate macOS rendering or change the CI execution contract. Usage is
+This runner is compare-only and uses the same Linux baselines as CI. Usage is
 documented in the [maintenance guide](guide_visual_testing.md#run-without-interrupting-the-desktop).
 
 ## Harness execution model
@@ -214,10 +214,14 @@ content can still be inspected; it is not a gallery image or comparison input.
 | Compare | `./gradlew visualTest` | Captures every scenario and compares decoded pixels exactly; never modifies baselines. |
 | Record missing | `./gradlew :plugin:recordVisualTestBaseline` | Creates missing files after a complete capture; existing files remain immutable. |
 | Replace intentionally | add `-PforceVisualBaselineOverwrite=true` to the record task | Replaces existing files only for an intentional visual or pinned-environment change. |
-| Record on Linux | set the Linux environment key and run the record task under the pinned 96 DPI Xvfb command | Rejects an absent or mismatched platform key. |
 
-Each environment contains exactly one reviewed PNG for each catalog entry: 11
-macOS images and 11 Linux images. Recording is rejected when `CI=true`; CI
+All direct Gradle invocations above require Linux x86-64, the explicit Linux
+environment key, and the pinned 96 DPI Xvfb display. Other hosts use
+`./scripts/visual-test-background.sh` for comparison; native macOS comparison
+and recording are rejected.
+
+The Linux baseline directory contains exactly one reviewed PNG for each
+catalog entry: 11 images. Recording is rejected when `CI=true`; CI
 cannot create, overwrite, accept, or download a replacement baseline. The
 [visual-test maintenance guide](guide_visual_testing.md) defines the recording,
 review, negative-proof, and replacement procedure.
@@ -326,7 +330,7 @@ absence of a complete capture set does not add a second reporter failure.
 
 ## Scenario maintenance contract
 
-Catalog changes are atomic across the harness, both baseline directories,
+Catalog changes are atomic across the harness, the Linux baseline directory,
 producer uploads, reporter validation and galleries, this reference, and the
 baseline README. An addition requires a distinct user-visible responsibility,
 a behavior-based kebab-case name, an existing feature group, and negative proof
@@ -334,11 +338,11 @@ that the corresponding production behavior affects the exact assertion.
 
 A baseline may be replaced only for an intentional rendering or pinned-
 environment change. A crop-only contract change may mechanically crop the
-committed images on both platforms, provided every retained decoded pixel is
-unchanged and the removed area is outside the visual contract. This does not
-establish that a fresh capture passes on either platform; each platform still
-requires comparison under its pinned environment. A scenario may be removed
-only when its user-visible behavior no longer exists or another named scenario
+committed Linux images, provided every retained decoded pixel is unchanged and
+the removed area is outside the visual contract. This does not
+establish that a fresh capture passes; comparison under the pinned Linux
+environment is still required. A scenario may be removed only when its
+user-visible behavior no longer exists or another named scenario
 proves the same contract; distinct transition assertions remain even when they
 reuse a gallery baseline.
 The [visual-test maintenance guide](guide_visual_testing.md) gives the complete

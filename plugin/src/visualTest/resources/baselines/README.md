@@ -2,7 +2,7 @@
 
 This directory contains the reviewed PNG oracle for the 11 scenarios defined in
 the [visual testing reference](../../../../../docs/reference_visual_testing.md).
-Each supported environment directory must contain exactly one
+The Linux environment directory must contain exactly one
 `<scenario>.png` for every name below.
 
 | Group | Baseline names |
@@ -11,34 +11,35 @@ Each supported environment directory must contain exactly one
 | Settings application and native visuals | `plugin-disabled`, `native-visuals-unmanaged`, `native-highlight-suppressed` |
 | Colors | `default-palette`, `custom-palette` |
 
-The two supported rendering environments are:
+The supported rendering environment is:
 
-- `ideaIC-2024.2.6/macos-aarch64-darcula-scale1`
 - `ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1`
 
 The environment key includes the pinned IDE, operating system, architecture,
-Darcula theme, DPI where applicable, and scale. A mismatch never falls back to
-another directory. Linux recording is valid only under the pinned 96 DPI Xvfb
+Darcula theme, DPI, and scale. A mismatch never falls back to another directory. Linux recording is valid only under the pinned 96 DPI Xvfb
 environment with `VISUAL_TEST_ENVIRONMENT` set to the Linux key.
 
 Every baseline is a `220 x 239` PNG from the fixed editor source rectangle
 `(x=0, y=1, width=220, height=239)`. The crop omits only the former top boundary
 row, where the selected tab border can vary with IDE focus. Every retained
-pixel is compared exactly. Both environment sets were migrated by cropping the
-committed `220 x 240` images without changing their remaining decoded pixels;
-this migration does not replace comparison on the corresponding platform.
+pixel is compared exactly. The Linux set was migrated by cropping the committed
+`220 x 240` images without changing their remaining decoded pixels; this
+migration does not replace comparison under the pinned Linux environment.
 
 Generate missing IntelliJ IDEA 2024.2.6 baselines explicitly from the repository
-root with:
+root on Linux x86-64 with:
 
 ```bash
-./gradlew :plugin:recordVisualTestBaseline
+VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1 \
+  xvfb-run --auto-servernum \
+  --server-args="-screen 0 1920x1080x24 -dpi 96 -nolisten tcp -ac" \
+  ./gradlew :plugin:recordVisualTestBaseline
 ```
 
 Recording creates missing files and refuses to replace an existing PNG. For an
 intentional user-visible or pinned-environment change, explicitly add
-`-PforceVisualBaselineOverwrite=true`, then inspect every changed image on both
-operating systems and rerun `./gradlew visualTest`. Never overwrite a baseline
+`-PforceVisualBaselineOverwrite=true`, then inspect every changed Linux image
+and rerun `./scripts/visual-test-background.sh`. Never overwrite a baseline
 only to clear an unexplained failure.
 
 `visualTest` captures all later scenarios even after a mismatch and never
