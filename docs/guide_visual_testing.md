@@ -80,6 +80,12 @@ can require several gigabytes. The runner reuses
 directory to use another dedicated Linux cache. Apple silicon runs the x86-64
 container through emulation, so it can take longer than native tests.
 
+Starter reuses the IDE extracted in the Gradle cache. Older runner versions also
+created a `starter` directory inside the cache with a duplicate installer and
+extracted IDE. Once no test container is running, that old `starter` directory
+can be removed. Keep the `gradle` directory to avoid downloading dependencies
+again.
+
 ## Record and review baselines
 
 Run the exact comparison first with `./scripts/visual-test-background.sh`.
