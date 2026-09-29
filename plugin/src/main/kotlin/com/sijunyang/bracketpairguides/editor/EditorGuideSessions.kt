@@ -6,6 +6,8 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
+import com.sijunyang.bracketpairguides.editor.policy.EditorActivity
+import com.sijunyang.bracketpairguides.editor.policy.EditorCapabilities
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 
 /** Editor-owned session registry and lifecycle boundary. */
@@ -17,12 +19,15 @@ internal object EditorGuideSessions {
         visibleRange: (Editor) -> TextRange,
         stickySourceRanges: (Editor) -> List<TextRange> = { emptyList() },
         preferences: BracketGuidePreferences,
+        capabilities: EditorCapabilities = EditorSurfaceClassifier.capabilities(editor),
+        activity: EditorActivity = EditorActivity.INACTIVE,
         matcherAvailabilityChanged: (Editor) -> Unit = {},
         nativeGuideConflictCandidate: (Editor, BracketGuide) -> Unit = { _, _ -> },
     ): EditorGuideSession {
         assertEdt()
         val existing = editor.getUserData(KEY)
         if (existing != null) {
+            existing.updateSurface(capabilities, activity)
             existing.updateMatcherAvailabilityListener(matcherAvailabilityChanged)
             existing.updateNativeGuideConflictListener(nativeGuideConflictCandidate)
             return existing
@@ -32,6 +37,8 @@ internal object EditorGuideSessions {
             visibleRange,
             stickySourceRanges,
             preferences,
+            capabilities,
+            activity,
             matcherAvailabilityChanged,
             nativeGuideConflictCandidate,
         ).also {

@@ -21,6 +21,11 @@ surrounding scope.
 - **Preserves syntax highlighting.** Bracket colors and guides are added
   without recoloring variables, tags, or the surrounding scope.
 
+Active guides and endpoint emphasis follow the focused main editor. Other
+visible editors retain bracket colors; supported preview, diff, and console
+editors use colors without custom guides. Read-only main editors can still show
+guides when focused.
+
 ## Customization
 
 ![Bracket Pair Guides settings](docs/images/settings.png)
@@ -68,6 +73,7 @@ network requests. All analysis and settings remain inside the IDE.
 
 - [Configuration guide](docs/guide_configuration.md)
 - [IDE, language support, and limitations](docs/reference_language_support.md)
+- [How editor presentation policy works](docs/explanation_editor_presentation_policy.md)
 - [Changelog](CHANGELOG.md)
 - [Contributing](CONTRIBUTING.md)
 

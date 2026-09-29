@@ -380,7 +380,7 @@ internal class VisibleTokenWindowTest : BracketGuideHighlightingFixture() {
                     ?.let { it > initialLastOffset } == true &&
                     viewportRequests == initialViewportRequests + 1
             },
-            10_000,
+            10,
         )
         assertThat(bracketColorHighlighters()).hasSize(decorationLimit)
         assertThat(viewportRequests).isEqualTo(initialViewportRequests + 1)

@@ -5,7 +5,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -15,11 +14,17 @@ import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
+import com.sijunyang.bracketpairguides.editor.EditorActivitySource
+import com.sijunyang.bracketpairguides.editor.EditorEffectGuard
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
+import com.sijunyang.bracketpairguides.editor.EditorSurfaceClassifier
 import com.sijunyang.bracketpairguides.editor.events.EditorGuideEvents
 import com.sijunyang.bracketpairguides.editor.events.StickyLineSourceRanges
-import com.sijunyang.bracketpairguides.preferences.analysisCoverage
+import com.sijunyang.bracketpairguides.editor.policy.EditorActivity
+import com.sijunyang.bracketpairguides.editor.policy.EditorCapabilities
+import com.sijunyang.bracketpairguides.editor.policy.EditorPresentationPolicy
+import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 
 /**
@@ -34,6 +39,8 @@ internal class BracketGuideHighlightingPass(
     private val fileType: FileType,
     private val sourceFile: VirtualFile?,
     private val analyze: (AnalysisInput, ProgressIndicator) -> AnalysisOutcome,
+    private val capabilities: (Editor) -> EditorCapabilities = EditorSurfaceClassifier::capabilities,
+    private val activity: (Editor) -> EditorActivity = EditorActivitySource::capture,
     private val visibleRange: (Editor) -> TextRange = Editor::calculateVisibleRange,
     private val stickySourceRanges: (Editor) -> List<TextRange> =
         StickyLineSourceRanges::calculate,
@@ -42,7 +49,9 @@ internal class BracketGuideHighlightingPass(
     private var collectedStamp: AnalysisStamp? = null
 
     init {
-        if (ApplicationManager.getApplication().isDispatchThread && !editor.isDisposed) {
+        if (EditorEffectGuard.allowsEffects() && ApplicationManager.getApplication().isDispatchThread &&
+            !editor.isDisposed
+        ) {
             installSession()
         }
     }
@@ -50,6 +59,11 @@ internal class BracketGuideHighlightingPass(
     override fun doCollectInformation(progress: ProgressIndicator) {
         collected = null
         collectedStamp = null
+        if (!EditorEffectGuard.allowsEffects() || editor.isDisposed ||
+            capabilities(editor) == EditorCapabilities.NONE
+        ) {
+            return
+        }
         val input = currentInput()
         collectedStamp = input.stamp
         if (sourceIsTooLarge()) {
@@ -71,14 +85,15 @@ internal class BracketGuideHighlightingPass(
         val passStamp = collectedStamp
         collected = null
         collectedStamp = null
+        if (!EditorEffectGuard.allowsEffects() || editor.isDisposed) return
         val ideCodeInsightLimitApplies = sourceIsTooLarge()
         if (ideCodeInsightLimitApplies) {
             if (editor.isDisposed) return
-            val currentStamp = currentInput(editorFileType(editor)).stamp
+            val currentStamp = currentInput(EditorSurfaceClassifier.fileType(editor)).stamp
             val session = installSession() ?: return
             session.updateDependenciesIfCurrent(
                 visibleRange = visibleRange,
-                stickySourceRanges = stickySourceRanges,
+                stickySourceRanges = supportedStickySourceRanges(),
                 passStamp = currentStamp,
             )
             session.accept(
@@ -110,7 +125,7 @@ internal class BracketGuideHighlightingPass(
         if (passStamp != null) {
             session.updateDependenciesIfCurrent(
                 visibleRange = visibleRange,
-                stickySourceRanges = stickySourceRanges,
+                stickySourceRanges = supportedStickySourceRanges(),
                 passStamp = passStamp,
             )
         }
@@ -122,7 +137,7 @@ internal class BracketGuideHighlightingPass(
         return AnalysisInput(
             editor = editor,
             fileType = currentFileType,
-            coverage = options.analysisCoverage(),
+            coverage = coverage(options),
             disabledLanguageIds = options.disabledLanguageIds,
         )
     }
@@ -131,19 +146,19 @@ internal class BracketGuideHighlightingPass(
         val options = BracketGuideSettings.getInstance().options
         return passStamp.matchesCurrent(
             editor,
-            editorFileType(editor),
-            options.analysisCoverage(),
+            EditorSurfaceClassifier.fileType(editor),
+            coverage(options),
             options.disabledLanguageIds,
         )
     }
 
     private fun isExactCurrent(passStamp: AnalysisStamp): Boolean {
         val options = BracketGuideSettings.getInstance().options
-        val requiredCoverage = options.analysisCoverage()
+        val requiredCoverage = coverage(options)
         return passStamp.coverage == requiredCoverage &&
             passStamp.matchesCurrent(
                 editor,
-                editorFileType(editor),
+                EditorSurfaceClassifier.fileType(editor),
                 requiredCoverage,
                 options.disabledLanguageIds,
             )
@@ -162,14 +177,29 @@ internal class BracketGuideHighlightingPass(
         }
     } == true
 
+    private fun coverage(options: BracketGuidePreferences) = EditorPresentationPolicy.resolve(
+        capabilities(editor),
+        options,
+        EditorActivity.INACTIVE,
+    ).analysis
+
+    private fun supportedStickySourceRanges(): (Editor) -> List<TextRange> =
+        if (capabilities(editor).activePair) stickySourceRanges else { _ -> emptyList() }
+
     private fun installSession(): EditorGuideSession? {
-        if (editor.isDisposed) return null
-        EditorGuideEvents.ensureInitialized(editor)
+        if (!EditorEffectGuard.allowsEffects() || editor.isDisposed ||
+            capabilities(editor) == EditorCapabilities.NONE
+        ) {
+            return null
+        }
+        EditorGuideEvents.ensureInitialized(editor, observeStickyLines = capabilities(editor).activePair)
         return EditorGuideSessions.install(
             editor = editor,
             visibleRange = visibleRange,
-            stickySourceRanges = stickySourceRanges,
+            stickySourceRanges = supportedStickySourceRanges(),
             preferences = BracketGuideSettings.getInstance().options,
+            activity = activity(editor),
+            capabilities = capabilities(editor),
             matcherAvailabilityChanged = UnsupportedBackendNotificationProvider::update,
             nativeGuideConflictCandidate = { candidateEditor, guide ->
                 NativeGuideConflictNotification.getInstance().consider(candidateEditor, guide)
@@ -177,7 +207,3 @@ internal class BracketGuideHighlightingPass(
         )
     }
 }
-
-private fun editorFileType(editor: Editor): FileType =
-    FileDocumentManager.getInstance().getFile(editor.document)?.fileType
-        ?: PlainTextFileType.INSTANCE

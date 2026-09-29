@@ -10,6 +10,8 @@ import com.intellij.openapi.util.TextRange
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
+import com.sijunyang.bracketpairguides.editor.policy.EditorActivity
+import com.sijunyang.bracketpairguides.editor.policy.EditorCapabilities
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.presentation.BracketColorPalette
 import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
@@ -395,6 +397,8 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
         var visibleRangeRequests = 0
         applyPass(
             BracketGuideHighlightingPass(
+                activity = { EditorActivity.ACTIVE },
+                capabilities = { EditorCapabilities.MAIN },
                 project = project,
                 editor = myFixture.editor,
                 fileType = myFixture.file.fileType,
