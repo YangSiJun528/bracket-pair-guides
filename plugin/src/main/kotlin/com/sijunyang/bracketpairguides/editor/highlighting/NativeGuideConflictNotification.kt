@@ -18,6 +18,8 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.Property
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
+import com.sijunyang.bracketpairguides.editor.EditorEffectGuard
+import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.NativeHighlightMode
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
@@ -47,7 +49,10 @@ internal class NativeGuideConflictNotification internal constructor(
     @Suppress("unused")
     constructor() : this(
         preferences = { BracketGuideSettings.getInstance().options },
-        isConflict = NativeGuideConflictDetector::isConflict,
+        isConflict = { editor, guide, preferences ->
+            EditorGuideSessions.get(editor)?.drawsGuides == true &&
+                NativeGuideConflictDetector.isConflict(editor, guide, preferences)
+        },
         createNotification = { project, suppressCurrentConflict ->
             NativeGuideConflictBalloon.create(project, suppressCurrentConflict)
         },
@@ -114,6 +119,7 @@ internal class NativeGuideConflictNotification internal constructor(
     }
 
     fun consider(editor: Editor, guide: BracketGuide) {
+        if (!EditorEffectGuard.allowsEffects()) return
         // This callback runs from editor painting. The common suppressed and
         // already-shown states must stay allocation-free instead of constructing
         // and scheduling a candidate per repaint.

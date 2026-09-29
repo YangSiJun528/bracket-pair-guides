@@ -19,6 +19,8 @@ import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.editor.EditorGuideSession
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
+import com.sijunyang.bracketpairguides.editor.policy.EditorActivity
+import com.sijunyang.bracketpairguides.editor.policy.EditorCapabilities
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
@@ -39,6 +41,8 @@ internal abstract class BracketGuideHighlightingFixture : BasePlatformTestCase()
         val pass =
             if (pairs == null) {
                 BracketGuideHighlightingPass(
+                    activity = { EditorActivity.ACTIVE },
+                    capabilities = { EditorCapabilities.MAIN },
                     project = project,
                     editor = myFixture.editor,
                     fileType = myFixture.file.fileType,
@@ -65,6 +69,8 @@ internal abstract class BracketGuideHighlightingFixture : BasePlatformTestCase()
         stickySourceRanges: (Editor) -> List<TextRange> = { emptyList() },
         fileType: FileType = myFixture.file.fileType,
     ): BracketGuideHighlightingPass = BracketGuideHighlightingPass(
+        activity = { EditorActivity.ACTIVE },
+        capabilities = { EditorCapabilities.MAIN },
         project = project,
         editor = editor,
         analyze = { input, _ ->

@@ -2,9 +2,6 @@ package com.sijunyang.bracketpairguides.editor
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.util.TextRange
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
@@ -13,8 +10,10 @@ import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
+import com.sijunyang.bracketpairguides.editor.policy.EditorActivity
+import com.sijunyang.bracketpairguides.editor.policy.EditorCapabilities
+import com.sijunyang.bracketpairguides.editor.policy.EditorPresentationPolicy
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
-import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 import com.sijunyang.bracketpairguides.presentation.ActiveGuidePresentation
 import com.sijunyang.bracketpairguides.presentation.DocumentChange
 import com.sijunyang.bracketpairguides.presentation.VisibleTokenDecorations
@@ -25,9 +24,14 @@ internal class EditorGuideSession(
     private var visibleRange: (Editor) -> TextRange,
     private var stickySourceRanges: (Editor) -> List<TextRange> = { emptyList() },
     private var options: BracketGuidePreferences,
+    private var capabilities: EditorCapabilities,
+    @Volatile private var activity: EditorActivity,
     private var matcherAvailabilityChanged: (Editor) -> Unit = {},
     private var nativeGuideConflictCandidate: (Editor, BracketGuide) -> Unit = { _, _ -> },
 ) {
+    private var plan = EditorPresentationPolicy.resolve(capabilities, options, activity)
+    private var displayOptions = plan.presentation.applyTo(options)
+    private var analysisRefreshRequested: () -> Unit = {}
     private var disposed = false
     private var analysisHighlighter = editor.highlighter
     private val analysisState = EditorAnalysisState(editor)
@@ -62,11 +66,11 @@ internal class EditorGuideSession(
         passStamp: AnalysisStamp,
     ): Boolean {
         assertEdt()
-        val requiredCoverage = options.analysisCoverage()
+        val requiredCoverage = plan.analysis
         if (disposed || editor.isDisposed ||
             !passStamp.matchesCurrent(
                 editor,
-                editorFileType(editor),
+                EditorSurfaceClassifier.fileType(editor),
                 requiredCoverage,
                 options.disabledLanguageIds,
             )
@@ -92,8 +96,8 @@ internal class EditorGuideSession(
     private fun acceptComplete(nextAnalysis: BracketSnapshot) {
         assertEdt()
         if (disposed || editor.isDisposed) return
-        val requiredCoverage = options.analysisCoverage()
-        val currentFileType = editorFileType(editor)
+        val requiredCoverage = plan.analysis
+        val currentFileType = EditorSurfaceClassifier.fileType(editor)
         if (!nextAnalysis.stamp.matchesCurrent(
                 editor,
                 currentFileType,
@@ -128,25 +132,25 @@ internal class EditorGuideSession(
                     compactAnalysis,
                     visibleRange(editor),
                     stickySourceRanges(editor),
-                    options,
+                    displayOptions,
                 )
                 repaintVisibleContent()
                 return
             }
         }
 
-        val pair = nextAnalysis.activePairAt(caretOffset())
+        val pair = activePair(nextAnalysis)
         activePresentation.replace(
             pair = pair,
             indexedGuide = pair?.let(nextAnalysis::guideFor),
             allowGuideFallback = false,
-            preferences = options,
+            preferences = displayOptions,
         )
         tokenDecorations.replace(
             nextAnalysis,
             visibleRange(editor),
             stickySourceRanges(editor),
-            options,
+            displayOptions,
         )
         if (shouldReleasePairGraph(
                 requiredCoverage,
@@ -166,9 +170,9 @@ internal class EditorGuideSession(
         if (disposed || editor.isDisposed) return
         val nextAnalysis = outcome.snapshot
         val attemptedStamp = outcome.stamp
-        val requiredCoverage = options.analysisCoverage()
+        val requiredCoverage = plan.analysis
         val completedCoverage = requiredCoverage.copy(guidePosition = false)
-        val currentFileType = editorFileType(editor)
+        val currentFileType = EditorSurfaceClassifier.fileType(editor)
         if (attemptedStamp.coverage != requiredCoverage ||
             !attemptedStamp.matchesCurrent(
                 editor,
@@ -190,18 +194,18 @@ internal class EditorGuideSession(
 
         publishMatcherAvailability(nextAnalysis.matcherAvailability)
 
-        val pair = nextAnalysis.activePairAt(caretOffset())
+        val pair = activePair(nextAnalysis)
         activePresentation.replace(
             pair = pair,
             indexedGuide = null,
             allowGuideFallback = false,
-            preferences = options,
+            preferences = displayOptions,
         )
         tokenDecorations.replace(
             nextAnalysis,
             visibleRange(editor),
             stickySourceRanges(editor),
-            options,
+            displayOptions,
         )
         analysisState.publishLimited(
             snapshot = nextAnalysis,
@@ -216,11 +220,11 @@ internal class EditorGuideSession(
         if (disposed || editor.isDisposed) return
         val stamp = outcome.stamp
         val limit = outcome.limit
-        val requiredCoverage = options.analysisCoverage()
+        val requiredCoverage = plan.analysis
         if (stamp.coverage != requiredCoverage ||
             !stamp.matchesCurrent(
                 editor,
-                editorFileType(editor),
+                EditorSurfaceClassifier.fileType(editor),
                 requiredCoverage,
                 options.disabledLanguageIds,
             )
@@ -240,20 +244,20 @@ internal class EditorGuideSession(
     fun caretMoved() {
         assertEdt()
         if (disposed || editor.isDisposed) return
-        if (!options.analysisCoverage().activePair) return
+        if (!showsActivePresentation()) return
         val currentAnalysis = analysisState.snapshot
         if (currentAnalysis == null || !hasCurrentActivePair(currentAnalysis)) {
             updateProvisional()
             return
         }
 
-        val pair = currentAnalysis.activePairAt(caretOffset())
+        val pair = activePair(currentAnalysis)
         if (pair == activePresentation.currentPair) return
         activePresentation.replace(
             pair = pair,
             indexedGuide = pair?.let(currentAnalysis::guideFor),
             allowGuideFallback = allowsProvisionalGuide(currentAnalysis),
-            preferences = options,
+            preferences = displayOptions,
         )
         repaintVisibleContent()
     }
@@ -269,6 +273,7 @@ internal class EditorGuideSession(
         discardStaleAnalysis()
         tokenDecorations.documentChanged()
         updateProvisional(change)
+        requestAnalysis()
     }
 
     fun visibleAreaChanged() {
@@ -282,7 +287,7 @@ internal class EditorGuideSession(
                 currentAnalysis,
                 visibleRange(editor),
                 stickySourceRanges(editor),
-                options,
+                displayOptions,
             )
         if (!presentationChanged) return
         repaintVisibleContent()
@@ -291,12 +296,16 @@ internal class EditorGuideSession(
     fun updateOptions(nextOptions: BracketGuidePreferences, refreshColors: Boolean) {
         assertEdt()
         if (disposed || editor.isDisposed) return
-        val previousOptions = options
+        val previousOptions = displayOptions
+        val previousAnalysis = plan.analysis
         val languagesChanged =
-            previousOptions.disabledLanguageIds != nextOptions.disabledLanguageIds
+            options.disabledLanguageIds != nextOptions.disabledLanguageIds
         options = nextOptions
+        plan = EditorPresentationPolicy.resolve(capabilities, options, activity)
+        displayOptions = plan.presentation.applyTo(options)
+        if (previousAnalysis != plan.analysis || languagesChanged) requestAnalysis()
         if (discardPresentationFromReplacedHighlighter()) return
-        if (!nextOptions.analysisCoverage().pairs) {
+        if (!plan.analysis.pairs) {
             clearPresentation()
             analysisState.publishComplete(currentStamp())
             publishMatcherAvailability(BraceMatcherAvailability.UNDETERMINED)
@@ -308,8 +317,8 @@ internal class EditorGuideSession(
             updateProvisional()
             return
         }
-        val requiredCoverage = options.analysisCoverage()
-        val currentFileType = editorFileType(editor)
+        val requiredCoverage = plan.analysis
+        val currentFileType = EditorSurfaceClassifier.fileType(editor)
         val currentAnalysis =
             analysisState.snapshot?.takeIf { candidate ->
                 candidate.stamp.matchesCurrent(
@@ -331,22 +340,22 @@ internal class EditorGuideSession(
 
         val currentPairAnalysis =
             currentAnalysis
-                ?.takeIf { requiredCoverage.activePair && it.stamp.coverage.activePair }
+                ?.takeIf { showsActivePresentation() && it.stamp.coverage.activePair }
         val pair =
             currentPairAnalysis
                 ?.activePairAt(caretOffset())
-                ?: activePresentation.adjustedPair
+                ?: activePresentation.adjustedPair.takeIf { showsActivePresentation() }
         activePresentation.replace(
             pair = pair,
             indexedGuide = pair?.let { currentPairAnalysis?.guideFor(it) },
             allowGuideFallback =
             currentPairAnalysis == null ||
                 allowsProvisionalGuide(currentPairAnalysis),
-            preferences = options,
+            preferences = displayOptions,
         )
         if (pair == null &&
             currentAnalysis == null &&
-            options.analysisCoverage().activePair
+            plan.analysis.activePair
         ) {
             updateProvisional()
             return
@@ -371,10 +380,10 @@ internal class EditorGuideSession(
         refreshColors: Boolean,
     ) {
         val wasVisible = previousOptions.enabled && previousOptions.colorBracketTokens
-        val isVisible = options.enabled && options.colorBracketTokens
+        val isVisible = displayOptions.enabled && displayOptions.colorBracketTokens
         when {
             wasVisible && !isVisible -> {
-                tokenDecorations.updateAttributes(options)
+                tokenDecorations.updateAttributes(displayOptions)
             }
 
             !wasVisible && isVisible && currentAnalysis != null -> {
@@ -382,13 +391,13 @@ internal class EditorGuideSession(
                     currentAnalysis,
                     visibleRange(editor),
                     stickySourceRanges(editor),
-                    options,
+                    displayOptions,
                 )
             }
 
             isVisible &&
                 (refreshColors || previousOptions.levelBaseColors != options.levelBaseColors) -> {
-                tokenDecorations.updateAttributes(options)
+                tokenDecorations.updateAttributes(displayOptions)
             }
         }
     }
@@ -397,6 +406,7 @@ internal class EditorGuideSession(
         assertEdt()
         if (disposed) return
         disposed = true
+        analysisRefreshRequested = {}
         clear()
     }
 
@@ -428,7 +438,7 @@ internal class EditorGuideSession(
     }
 
     private fun updateProvisional(change: DocumentChange? = null) {
-        if (!options.analysisCoverage().activePair) {
+        if (!showsActivePresentation()) {
             val hadActivePresentation = activePresentation.isVisible
             activePresentation.clear(preserveGuide = false)
             if (hadActivePresentation) repaintVisibleContent()
@@ -436,12 +446,12 @@ internal class EditorGuideSession(
         }
         if (discardPresentationFromReplacedHighlighter()) return
         if (change == null) {
-            activePresentation.refreshProvisional(caretOffset(), options)
+            activePresentation.refreshProvisional(caretOffset(), displayOptions)
         } else {
             activePresentation.refreshAfterDocumentChange(
                 change = change,
                 caretOffset = caretOffset(),
-                preferences = options,
+                preferences = displayOptions,
             )
         }
         repaintVisibleContent()
@@ -452,6 +462,7 @@ internal class EditorGuideSession(
             return false
         }
         clear()
+        requestAnalysis()
         repaintVisibleContent()
         return true
     }
@@ -459,28 +470,28 @@ internal class EditorGuideSession(
     /** Releases proportional-size indexes while their RangeMarkers stay visible. */
     private fun discardStaleAnalysis() {
         analysisState.discardStale(
-            editorFileType(editor),
-            options.analysisCoverage(),
+            EditorSurfaceClassifier.fileType(editor),
+            plan.analysis,
             options.disabledLanguageIds,
         )
     }
 
     private fun currentStamp(): AnalysisStamp = analysisState.currentStamp(
-        editorFileType(editor),
-        options.analysisCoverage(),
+        EditorSurfaceClassifier.fileType(editor),
+        plan.analysis,
         options.disabledLanguageIds,
     )
 
     private fun hasCurrentActivePair(candidate: BracketSnapshot): Boolean = analysisState.hasCurrentActivePair(
         candidate,
-        editorFileType(editor),
+        EditorSurfaceClassifier.fileType(editor),
         options.disabledLanguageIds,
     )
 
-    private fun hasCurrentTokenAnalysis(candidate: BracketSnapshot): Boolean = options.analysisCoverage().tokens &&
+    private fun hasCurrentTokenAnalysis(candidate: BracketSnapshot): Boolean = plan.analysis.tokens &&
         analysisState.hasCurrentTokens(
             candidate,
-            editorFileType(editor),
+            EditorSurfaceClassifier.fileType(editor),
             options.disabledLanguageIds,
         )
 
@@ -492,6 +503,39 @@ internal class EditorGuideSession(
 
     private fun shouldReleasePairGraph(required: AnalysisCoverage, provided: AnalysisCoverage): Boolean =
         analysisState.shouldReleasePairGraph(required, provided)
+
+    private fun activePair(snapshot: BracketSnapshot) =
+        if (showsActivePresentation()) snapshot.activePairAt(caretOffset()) else null
+
+    private fun showsActivePresentation(): Boolean = displayOptions.enabled &&
+        (displayOptions.showsActivePair || displayOptions.showsGuide)
+
+    val drawsGuides: Boolean
+        get() = displayOptions.enabled && displayOptions.showsGuide
+
+    val isVisible: Boolean
+        get() = activity.visible
+
+    fun setAnalysisRefreshRequester(request: () -> Unit) {
+        assertEdt()
+        analysisRefreshRequested = request
+    }
+
+    fun requestAnalysis() {
+        assertEdt()
+        if (!disposed && activity.visible) analysisRefreshRequested()
+    }
+
+    fun updateSurface(nextCapabilities: EditorCapabilities, nextActivity: EditorActivity) {
+        assertEdt()
+        if (disposed || editor.isDisposed) return
+        if (capabilities == nextCapabilities && activity == nextActivity) return
+        val becameVisible = !activity.visible && nextActivity.visible
+        capabilities = nextCapabilities
+        activity = nextActivity
+        updateOptions(options, refreshColors = false)
+        if (becameVisible) requestAnalysis()
+    }
 
     private fun caretOffset(): Int = editor.caretModel.primaryCaret.offset
 
@@ -512,7 +556,3 @@ internal class EditorGuideSession(
         }
     }
 }
-
-private fun editorFileType(editor: Editor): FileType =
-    FileDocumentManager.getInstance().getFile(editor.document)?.fileType
-        ?: PlainTextFileType.INSTANCE

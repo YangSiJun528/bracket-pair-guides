@@ -170,6 +170,16 @@ class BracketGuideVisualTest {
                         ) {
                             searchField.isVisible() && searchField.isEnabled()
                         }
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "Settings focus did not hide active guides while preserving token colors",
+                        ) {
+                            val fields = bridge.visualScenarioState(SAMPLE_FILE).split(':')
+                            fields.size == VISUAL_STATE_FIELD_COUNT &&
+                                fields[4] == "false" && fields[5] == "0" && fields[6] == "0" &&
+                                (fields[7].toIntOrNull() ?: 0) > 0
+                        }
                         val categories = tree("//div[@accessiblename='Settings categories']")
                         val categoryName = "Bracket Pair Guides"
                         var observedQuery = ""
@@ -258,11 +268,16 @@ class BracketGuideVisualTest {
                         }
                     }
 
+                    // Closing a dialog on bare Xvfb need not return focus to the
+                    // editor. Restore real focus without moving the caret or
+                    // asking the plugin to refresh its presentation directly.
+                    bridge.prepareEditorForCapture(SAMPLE_FILE)
+                    bridge.waitForEditorFocus()
                     waitForExactStableScreenshot(
                         editor = editor,
                         expected = captures.getValue(NATIVE_VISUALS_UNMANAGED),
                         failureMessage =
-                        "Settings Apply did not restore native visuals without editor interaction",
+                        "Returning editor focus did not restore native visuals and guides without a caret move",
                     )
                     if (!visualStateIsReady(bridge.visualScenarioState(SAMPLE_FILE), unmanagedSpec)) {
                         contractFailures +=
