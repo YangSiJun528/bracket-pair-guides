@@ -7,6 +7,8 @@ import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.bracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
+import com.sijunyang.bracketpairguides.editor.policy.EditorActivity
+import com.sijunyang.bracketpairguides.editor.policy.EditorCapabilities
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
@@ -52,6 +54,8 @@ class EditorGuideFallbackIntegrationTest : BasePlatformTestCase() {
         EditorGuideSessions.dispose(editor)
         val session =
             EditorGuideSessions.install(
+                activity = EditorActivity.ACTIVE,
+                capabilities = EditorCapabilities.MAIN,
                 editor = editor,
                 visibleRange = { TextRange(0, editor.document.textLength) },
                 preferences = initialOptions,

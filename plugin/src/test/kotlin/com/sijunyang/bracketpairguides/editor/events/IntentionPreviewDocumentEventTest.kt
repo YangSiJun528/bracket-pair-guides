@@ -11,7 +11,9 @@ import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiJavaFile
 import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.editor.EditorEffectGuard
 import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingFixture
+import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuidePassRegistration
 import org.assertj.core.api.Assertions.assertThat
 
 internal class IntentionPreviewDocumentEventTest : BracketGuideHighlightingFixture() {
@@ -70,6 +72,9 @@ internal class IntentionPreviewDocumentEventTest : BracketGuideHighlightingFixtu
             assertThat(IntentionPreviewUtils.isIntentionPreviewActive()).isTrue()
             assertThat(ApplicationManager.getApplication().isDispatchThread).isFalse()
             assertThat(file.isPhysical).isFalse()
+            assertThat(EditorEffectGuard.allowsEffects()).isFalse()
+            assertThat(BracketGuidePassRegistration().createHighlightingPass(file, editor)).isNull()
+            EditorGuideEvents.ensureInitialized(editor)
             val document = checkNotNull(file.viewProvider.document)
             assertThat(EditorFactory.getInstance().getEditors(document)).isEmpty()
             if (editPsi) {

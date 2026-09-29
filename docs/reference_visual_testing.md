@@ -159,6 +159,14 @@ continues capturing later scenarios and reports all mismatches after the final
 comparison. A setup failure that prevents a valid capture still fails with
 bounded diagnostics.
 
+The Settings transition also checks editor activity policy: while Settings owns
+focus, the source editor retains token colors but has no active guide or endpoint
+emphasis. After closing Settings, the harness explicitly returns real focus to
+the editor because bare Xvfb does not guarantee dialog focus restoration. The
+existing native-coexistence baseline must return without a caret move or a
+direct plugin refresh. This transition reuses the existing scenario and does
+not add a baseline image.
+
 ## Production and test-only boundaries
 
 The Driver bridge lives in `plugin/src/test/kotlin`. `buildPlugin` produces the

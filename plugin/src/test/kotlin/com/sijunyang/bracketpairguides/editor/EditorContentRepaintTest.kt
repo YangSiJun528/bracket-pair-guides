@@ -9,6 +9,8 @@ import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.bracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
+import com.sijunyang.bracketpairguides.editor.policy.EditorActivity
+import com.sijunyang.bracketpairguides.editor.policy.EditorCapabilities
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
@@ -127,6 +129,8 @@ class EditorContentRepaintTest : BasePlatformTestCase() {
         delegate.caretModel.moveToOffset(source.indexOf("inner"))
         val session =
             EditorGuideSession(
+                capabilities = EditorCapabilities.MAIN,
+                activity = EditorActivity.ACTIVE,
                 editor = editor,
                 visibleRange = { TextRange(0, it.document.textLength) },
                 options = options,
@@ -176,6 +180,8 @@ class EditorContentRepaintTest : BasePlatformTestCase() {
         val candidates = mutableListOf<BracketGuide>()
         val session =
             EditorGuideSession(
+                capabilities = EditorCapabilities.MAIN,
+                activity = EditorActivity.ACTIVE,
                 editor = editor,
                 visibleRange = { TextRange(0, it.document.textLength) },
                 options = options,

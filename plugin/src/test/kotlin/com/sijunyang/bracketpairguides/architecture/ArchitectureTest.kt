@@ -53,7 +53,7 @@ internal class ArchitectureTest {
                 ).layer(STATE)
                 .definedBy("$ROOT.preferences..", "$ROOT.settings")
                 .layer(WORKBENCH)
-                .definedBy("$ROOT.presentation..", "$ROOT.editor")
+                .definedBy("$ROOT.presentation..", "$ROOT.editor", "$ROOT.editor.policy..")
                 .layer(HOST)
                 .definedBy(
                     "$ROOT.analysis.intellij..",
@@ -91,6 +91,7 @@ internal class ArchitectureTest {
                     "$ROOT.analysis.guide",
                     "$ROOT.analysis.sorting",
                     "$ROOT.analysis.token",
+                    "$ROOT.editor.policy",
                 ).should()
                 .dependOnClassesThat()
                 .resideInAnyPackage("com.intellij..")

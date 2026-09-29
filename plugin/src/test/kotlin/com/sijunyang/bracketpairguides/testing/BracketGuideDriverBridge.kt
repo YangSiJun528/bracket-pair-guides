@@ -233,7 +233,7 @@ object BracketGuideDriverBridge {
 
     /** Native values and rendered markup, exposed as primitive text for bounded Driver polling. */
     @JvmStatic
-    fun visualScenarioState(filePathSuffix: String): String = driverTestOnEdt {
+    fun visualScenarioState(filePathSuffix: String): String = driverTestOnEdt(ModalityState.any()) {
         val editor = requiredEditor(filePathSuffix)
         val position = editor.caretModel.logicalPosition
         val native = nativeVisuals(editor)

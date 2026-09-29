@@ -9,6 +9,8 @@ import com.sijunyang.bracketpairguides.analysis.bracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
+import com.sijunyang.bracketpairguides.editor.policy.EditorActivity
+import com.sijunyang.bracketpairguides.editor.policy.EditorCapabilities
 import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import org.assertj.core.api.Assertions.assertThat
@@ -21,6 +23,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         var analysisCount = 0
         val pass =
             BracketGuideHighlightingPass(
+                activity = { EditorActivity.ACTIVE },
+                capabilities = { EditorCapabilities.MAIN },
                 project = project,
                 editor = editor,
                 fileType = myFixture.file.fileType,
@@ -103,6 +107,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         val sourceFile = MutableLengthVirtualFile("Large.java", reportedLength = 0L)
         val pass =
             BracketGuideHighlightingPass(
+                activity = { EditorActivity.ACTIVE },
+                capabilities = { EditorCapabilities.MAIN },
                 project = project,
                 editor = editor,
                 fileType = myFixture.file.fileType,
@@ -140,6 +146,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         var analysisCount = 0
 
         fun pass(): BracketGuideHighlightingPass = BracketGuideHighlightingPass(
+            activity = { EditorActivity.ACTIVE },
+            capabilities = { EditorCapabilities.MAIN },
             project = project,
             editor = editor,
             fileType = myFixture.file.fileType,
@@ -235,6 +243,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
                 myFixture.file.fileType,
                 sourceFile,
                 analysis,
+                activity = { EditorActivity.ACTIVE },
+                capabilities = { EditorCapabilities.MAIN },
             ),
         )
         assertThat(analysisCount).isEqualTo(1)
@@ -249,6 +259,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
                 myFixture.file.fileType,
                 sourceFile,
                 analysis,
+                activity = { EditorActivity.ACTIVE },
+                capabilities = { EditorCapabilities.MAIN },
             ),
         )
         assertThat(analysisCount).isEqualTo(1)
@@ -256,6 +268,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
 
         applyPass(
             BracketGuideHighlightingPass(
+                activity = { EditorActivity.ACTIVE },
+                capabilities = { EditorCapabilities.MAIN },
                 project = project,
                 editor = editor,
                 fileType = myFixture.file.fileType,
@@ -284,6 +298,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
             )
         val lateLimited =
             BracketGuideHighlightingPass(
+                activity = { EditorActivity.ACTIVE },
+                capabilities = { EditorCapabilities.MAIN },
                 project = project,
                 editor = editor,
                 fileType = myFixture.file.fileType,
@@ -308,6 +324,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         }
         val complete =
             BracketGuideHighlightingPass(
+                activity = { EditorActivity.ACTIVE },
+                capabilities = { EditorCapabilities.MAIN },
                 project = project,
                 editor = editor,
                 fileType = myFixture.file.fileType,
@@ -356,6 +374,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         var analysisCount = 0
         val pass =
             BracketGuideHighlightingPass(
+                activity = { EditorActivity.ACTIVE },
+                capabilities = { EditorCapabilities.MAIN },
                 project = project,
                 editor = editor,
                 fileType = myFixture.file.fileType,
@@ -414,6 +434,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         var analysisCount = 0
         val pass =
             BracketGuideHighlightingPass(
+                activity = { EditorActivity.ACTIVE },
+                capabilities = { EditorCapabilities.MAIN },
                 project = project,
                 editor = editor,
                 fileType = myFixture.file.fileType,
@@ -485,6 +507,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         val fullStamp = stampFor(editor, fullOptions)
         val lateUnavailable =
             BracketGuideHighlightingPass(
+                activity = { EditorActivity.ACTIVE },
+                capabilities = { EditorCapabilities.MAIN },
                 project = project,
                 editor = editor,
                 fileType = myFixture.file.fileType,
@@ -535,6 +559,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         val options = BracketGuideSettings.getInstance().options
         val lateUnavailable =
             BracketGuideHighlightingPass(
+                activity = { EditorActivity.ACTIVE },
+                capabilities = { EditorCapabilities.MAIN },
                 project = project,
                 editor = editor,
                 fileType = myFixture.file.fileType,
