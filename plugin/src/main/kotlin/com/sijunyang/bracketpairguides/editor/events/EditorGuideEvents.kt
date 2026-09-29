@@ -1,5 +1,6 @@
 package com.sijunyang.bracketpairguides.editor.events
 
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
@@ -95,6 +96,10 @@ internal class EditorGuideEvents :
      * write path with invokeAndWait can deadlock the IDE.
      */
     override fun documentChanged(event: DocumentEvent) {
+        // Preview copies have no guides to update, and their background edits
+        // must not schedule EDT work. Check the preview context on this thread.
+        if (IntentionPreviewUtils.isIntentionPreviewActive()) return
+
         val change =
             DocumentChange(
                 offset = event.offset,
