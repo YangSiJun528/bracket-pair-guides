@@ -12,17 +12,32 @@ internal data class EditorCapabilities(
     val verticalGuide: Boolean,
 ) {
     companion object {
-        val NONE = EditorCapabilities(false, false, false, false)
-        val COLORS_ONLY = EditorCapabilities(true, false, false, false)
-        val MAIN = EditorCapabilities(true, true, true, true)
+        val NONE = EditorCapabilities(
+            colorTokens = false,
+            activePair = false,
+            horizontalGuides = false,
+            verticalGuide = false,
+        )
+        val COLORS_ONLY = EditorCapabilities(
+            colorTokens = true,
+            activePair = false,
+            horizontalGuides = false,
+            verticalGuide = false,
+        )
+        val MAIN = EditorCapabilities(
+            colorTokens = true,
+            activePair = true,
+            horizontalGuides = true,
+            verticalGuide = true,
+        )
         val ONE_LINE = MAIN.copy(verticalGuide = false)
     }
 }
 
 internal data class EditorActivity(val visible: Boolean, val active: Boolean) {
     companion object {
-        val INACTIVE = EditorActivity(false, false)
-        val ACTIVE = EditorActivity(true, true)
+        val INACTIVE = EditorActivity(visible = false, active = false)
+        val ACTIVE = EditorActivity(visible = true, active = true)
     }
 }
 

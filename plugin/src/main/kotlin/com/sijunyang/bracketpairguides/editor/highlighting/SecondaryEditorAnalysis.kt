@@ -36,12 +36,13 @@ internal class SecondaryEditorAnalysis internal constructor(
     private val visibleRange: (Editor) -> TextRange,
 ) : Disposable,
     EditorFactoryListener {
+    @Suppress("unused")
     constructor() : this(EditorActivitySource::capture, Editor::calculateVisibleRange)
 
     private val managedEditors = java.util.Collections.newSetFromMap(IdentityHashMap<Editor, Boolean>())
     private val alarm = Alarm(Alarm.ThreadToUse.SWING_THREAD, this)
     private val running = IdentityHashMap<Editor, CancellablePromise<*>>()
-    private val pending = IdentityEventBatch<Editor>(
+    private val pending = IdentityEventBatch(
         schedule = { action -> alarm.addRequest(action, REFRESH_DELAY_MILLIS, ModalityState.any()) },
         consume = ::analyze,
     )
