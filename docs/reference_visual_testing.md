@@ -161,9 +161,11 @@ bounded diagnostics.
 
 The Settings transition also checks editor activity policy: while Settings owns
 focus, the source editor retains token colors but has no active guide or endpoint
-emphasis. Returning from Settings must restore the existing native-coexistence
-baseline without a caret move. This transition reuses the existing scenario and
-does not add a baseline image.
+emphasis. After closing Settings, the harness explicitly returns real focus to
+the editor because bare Xvfb does not guarantee dialog focus restoration. The
+existing native-coexistence baseline must return without a caret move or a
+direct plugin refresh. This transition reuses the existing scenario and does
+not add a baseline image.
 
 ## Production and test-only boundaries
 

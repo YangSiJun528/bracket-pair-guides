@@ -268,11 +268,16 @@ class BracketGuideVisualTest {
                         }
                     }
 
+                    // Closing a dialog on bare Xvfb need not return focus to the
+                    // editor. Restore real focus without moving the caret or
+                    // asking the plugin to refresh its presentation directly.
+                    bridge.prepareEditorForCapture(SAMPLE_FILE)
+                    bridge.waitForEditorFocus()
                     waitForExactStableScreenshot(
                         editor = editor,
                         expected = captures.getValue(NATIVE_VISUALS_UNMANAGED),
                         failureMessage =
-                        "Settings Apply did not restore native visuals without editor interaction",
+                        "Returning editor focus did not restore native visuals and guides without a caret move",
                     )
                     if (!visualStateIsReady(bridge.visualScenarioState(SAMPLE_FILE), unmanagedSpec)) {
                         contractFailures +=
