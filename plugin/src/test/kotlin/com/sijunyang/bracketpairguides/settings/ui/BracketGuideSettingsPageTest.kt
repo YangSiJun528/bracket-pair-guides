@@ -11,6 +11,8 @@ import com.intellij.ui.TitledSeparator
 import com.intellij.ui.components.JBCheckBox
 import com.sijunyang.bracketpairguides.analysis.BraceLanguageFamily
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
+import com.sijunyang.bracketpairguides.editor.policy.EditorActivity
+import com.sijunyang.bracketpairguides.editor.policy.EditorCapabilities
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.NativeHighlightMode
 import com.sijunyang.bracketpairguides.preferences.StoredColorFormat
@@ -520,11 +522,15 @@ class BracketGuideSettingsPageTest : BasePlatformTestCase() {
         val secondEditor = editorFactory.createEditor(document, project)
         try {
             EditorGuideSessions.install(
+                activity = EditorActivity.ACTIVE,
+                capabilities = EditorCapabilities.MAIN,
                 editor = firstEditor,
                 visibleRange = { TextRange(0, document.textLength) },
                 preferences = BracketGuideSettings.getInstance().options,
             )
             EditorGuideSessions.install(
+                activity = EditorActivity.ACTIVE,
+                capabilities = EditorCapabilities.MAIN,
                 editor = secondEditor,
                 visibleRange = { TextRange(0, document.textLength) },
                 preferences = BracketGuideSettings.getInstance().options,

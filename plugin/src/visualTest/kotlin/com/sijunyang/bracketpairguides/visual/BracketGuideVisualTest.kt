@@ -170,6 +170,16 @@ class BracketGuideVisualTest {
                         ) {
                             searchField.isVisible() && searchField.isEnabled()
                         }
+                        waitFor(
+                            30.seconds,
+                            100.milliseconds,
+                            "Settings focus did not hide active guides while preserving token colors",
+                        ) {
+                            val fields = bridge.visualScenarioState(SAMPLE_FILE).split(':')
+                            fields.size == VISUAL_STATE_FIELD_COUNT &&
+                                fields[4] == "false" && fields[5] == "0" && fields[6] == "0" &&
+                                (fields[7].toIntOrNull() ?: 0) > 0
+                        }
                         val categories = tree("//div[@accessiblename='Settings categories']")
                         val categoryName = "Bracket Pair Guides"
                         var observedQuery = ""

@@ -1,6 +1,7 @@
 package com.sijunyang.bracketpairguides.editor.events
 
 import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.EditorKind
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
 import com.intellij.openapi.editor.impl.DocumentMarkupModel
@@ -39,7 +40,7 @@ internal class StickyLineRefreshEventTest : BracketGuideHighlightingFixture() {
             PlatformTestUtil.waitWithEventsDispatching(
                 "disabling sticky lines clears token decorations",
                 { bracketColorHighlighters().isEmpty() },
-                10_000,
+                10,
             )
             assertThat(stickyMarks).allMatch { !it.isValid }
         } finally {
@@ -50,8 +51,8 @@ internal class StickyLineRefreshEventTest : BracketGuideHighlightingFixture() {
     fun testStickyMarkupObservationEndsWithTheLastEditorForADocument() {
         val factory = EditorFactory.getInstance()
         val document = factory.createDocument("scope")
-        val firstEditor = factory.createEditor(document, project)
-        val secondEditor = factory.createEditor(document, project)
+        val firstEditor = factory.createEditor(document, project, EditorKind.MAIN_EDITOR)
+        val secondEditor = factory.createEditor(document, project, EditorKind.MAIN_EDITOR)
         try {
             EditorGuideEvents.ensureInitialized(firstEditor)
             EditorGuideEvents.ensureInitialized(secondEditor)
@@ -99,7 +100,7 @@ internal class StickyLineRefreshEventTest : BracketGuideHighlightingFixture() {
             PlatformTestUtil.waitWithEventsDispatching(
                 "sticky marker addition refreshes token decorations",
                 { bracketColorHighlighters().size == 2 },
-                10_000,
+                10,
             )
             val stickyMarks = bracketColorHighlighters()
 
@@ -109,7 +110,7 @@ internal class StickyLineRefreshEventTest : BracketGuideHighlightingFixture() {
             PlatformTestUtil.waitWithEventsDispatching(
                 "sticky marker removal clears token decorations",
                 { bracketColorHighlighters().isEmpty() },
-                10_000,
+                10,
             )
             assertThat(stickyMarks).allMatch { !it.isValid }
         } finally {

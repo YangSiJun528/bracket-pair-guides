@@ -38,6 +38,9 @@
         <postStartupActivity
                 implementation="com.sijunyang.bracketpairguides.editor.events.NativeMatchedBraceStartupActivity"/>
 
+        <postStartupActivity
+                implementation="com.sijunyang.bracketpairguides.editor.highlighting.EditorSurfaceStartupActivity"/>
+
         <highlightingPassFactory
                 implementation="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuidePassRegistration"/>
 

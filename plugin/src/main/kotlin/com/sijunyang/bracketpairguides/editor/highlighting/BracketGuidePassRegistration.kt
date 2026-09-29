@@ -10,6 +10,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
+import com.sijunyang.bracketpairguides.editor.EditorEffectGuard
 
 /** IntelliJ registration and composition root for the highlighting pass. */
 internal class BracketGuidePassRegistration :
@@ -20,12 +21,16 @@ internal class BracketGuidePassRegistration :
         registrar.registerTextEditorHighlightingPass(this, null, null, false, -1)
     }
 
-    override fun createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass =
-        BracketGuideHighlightingPass(
-            project = file.project,
-            editor = editor,
-            fileType = file.fileType,
-            sourceFile = file.virtualFile,
-            analyze = service<BracketAnalysis>()::analyze,
-        )
+    override fun createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass? =
+        if (!EditorEffectGuard.allowsEffects()) {
+            null
+        } else {
+            BracketGuideHighlightingPass(
+                project = file.project,
+                editor = editor,
+                fileType = file.fileType,
+                sourceFile = file.virtualFile,
+                analyze = service<BracketAnalysis>()::analyze,
+            )
+        }
 }

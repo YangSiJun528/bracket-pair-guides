@@ -12,6 +12,8 @@ import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.bracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
+import com.sijunyang.bracketpairguides.editor.policy.EditorActivity
+import com.sijunyang.bracketpairguides.editor.policy.EditorCapabilities
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import org.assertj.core.api.Assertions.assertThat
 import java.util.concurrent.CountDownLatch
@@ -96,7 +98,7 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
             PlatformTestUtil.waitWithEventsDispatching(
                 "background guide collection",
                 { collection.isDone },
-                10_000,
+                10,
             )
             return collection.get()
         }
@@ -155,6 +157,8 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
         }
         val pass =
             BracketGuideHighlightingPass(
+                activity = { EditorActivity.ACTIVE },
+                capabilities = { EditorCapabilities.MAIN },
                 project = project,
                 editor = editor,
                 fileType = myFixture.file.fileType,
@@ -172,7 +176,7 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
             PlatformTestUtil.waitWithEventsDispatching(
                 "background pairs entry",
                 { providerEntered.count == 0L },
-                10_000,
+                10,
             )
             BracketGuideSettings.getInstance().replace(
                 initialOptions.copy(disabledLanguageIds = disabledDuringCollection),
@@ -181,7 +185,7 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
             PlatformTestUtil.waitWithEventsDispatching(
                 "stamped language collection",
                 { collection.isDone },
-                10_000,
+                10,
             )
             collection.get()
             BracketGuideSettings.getInstance().replace(initialOptions)
@@ -232,7 +236,7 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
         PlatformTestUtil.waitWithEventsDispatching(
             "stale background collection",
             { staleCollection.isDone },
-            10_000,
+            10,
         )
         val stalePass = staleCollection.get()
         assertThat(EditorGuideSessions.get(editor)).isNull()

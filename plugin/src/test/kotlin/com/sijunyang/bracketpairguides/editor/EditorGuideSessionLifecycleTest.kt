@@ -16,6 +16,8 @@ import com.sijunyang.bracketpairguides.analysis.bracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.editor.events.EditorGuideEvents
 import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPass
+import com.sijunyang.bracketpairguides.editor.policy.EditorActivity
+import com.sijunyang.bracketpairguides.editor.policy.EditorCapabilities
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.preferences.analysisCoverage
 import com.sijunyang.bracketpairguides.presentation.BracketGuideDrawing
@@ -46,6 +48,8 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         editor.caretModel.moveToOffset(source.indexOf("content"))
         val pass =
             BracketGuideHighlightingPass(
+                activity = { EditorActivity.ACTIVE },
+                capabilities = { EditorCapabilities.MAIN },
                 project = project,
                 editor = editor,
                 fileType = myFixture.file.fileType,
@@ -86,6 +90,8 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         EditorGuideEvents.ensureInitialized()
         EditorGuideSessions.dispose(editor)
         EditorGuideSessions.install(
+            activity = EditorActivity.ACTIVE,
+            capabilities = EditorCapabilities.MAIN,
             editor = editor,
             visibleRange = { TextRange(0, editor.document.textLength) },
             preferences = BracketGuideSettings.getInstance().options,
@@ -117,6 +123,8 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
                     editor.caretModel.moveToOffset(3)
                     val session =
                         EditorGuideSessions.install(
+                            activity = EditorActivity.ACTIVE,
+                            capabilities = EditorCapabilities.MAIN,
                             editor = editor,
                             visibleRange = { TextRange(0, document.textLength) },
                             preferences = options,
@@ -188,6 +196,8 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
                 editor.caretModel.moveToOffset(source.indexOf("value"))
                 val session =
                     EditorGuideSessions.install(
+                        activity = EditorActivity.ACTIVE,
+                        capabilities = EditorCapabilities.MAIN,
                         editor = editor,
                         visibleRange = { TextRange(0, document.textLength) },
                         preferences = options,
@@ -242,6 +252,8 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         val pair = BracketPair(0, 1, source.lastIndex, 1, 0, 0, 0)
         val pass =
             BracketGuideHighlightingPass(
+                activity = { EditorActivity.ACTIVE },
+                capabilities = { EditorCapabilities.MAIN },
                 project = project,
                 editor = editor,
                 fileType = myFixture.file.fileType,

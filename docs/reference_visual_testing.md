@@ -159,6 +159,12 @@ continues capturing later scenarios and reports all mismatches after the final
 comparison. A setup failure that prevents a valid capture still fails with
 bounded diagnostics.
 
+The Settings transition also checks editor activity policy: while Settings owns
+focus, the source editor retains token colors but has no active guide or endpoint
+emphasis. Returning from Settings must restore the existing native-coexistence
+baseline without a caret move. This transition reuses the existing scenario and
+does not add a baseline image.
+
 ## Production and test-only boundaries
 
 The Driver bridge lives in `plugin/src/test/kotlin`. `buildPlugin` produces the
