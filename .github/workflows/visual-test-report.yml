@@ -66,6 +66,7 @@ jobs:
               core.info(message)
               core.setOutput('should_report', 'false')
               core.setOutput('image_ids', '')
+              core.setOutput('image_artifacts', '[]')
             }
 
             const run = context.payload.workflow_run
@@ -196,25 +197,79 @@ jobs:
               }
             }
 
-            const imageIds = imageNames
-              .map(name => selected.find(artifact => artifact.name === name)?.id)
-              .filter(id => id !== undefined)
-            core.setOutput('image_ids', imageIds.join(','))
+            const images = imageNames
+              .map(name => selected.find(artifact => artifact.name === name))
+              .filter(artifact => artifact !== undefined)
+              .map(artifact => ({
+                id: artifact.id,
+                name: artifact.name,
+                size: artifact.size_in_bytes,
+                digest: artifact.digest,
+              }))
+            core.setOutput('image_ids', images.map(artifact => artifact.id).join(','))
+            core.setOutput('image_artifacts', JSON.stringify(images))
             core.setOutput('should_report', 'true')
 
       - name: Download Captures Without Extraction
         id: download-images
         if: ${{ steps.inspect.outputs.image_ids != '' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          IMAGE_ARTIFACTS: ${{ steps.inspect.outputs.image_artifacts }}
+          IMAGES_DIRECTORY: ${{ runner.temp }}/visual-test-images
         with:
-          artifact-ids: ${{ steps.inspect.outputs.image_ids }}
-          path: ${{ runner.temp }}/visual-test-images
-          merge-multiple: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          run-id: ${{ github.event.workflow_run.id }}
-          skip-decompress: true
-          digest-mismatch: error
+          script: |
+            const fs = require('fs')
+            const path = require('path')
+            const crypto = require('crypto')
+
+            const images = JSON.parse(process.env.IMAGE_ARTIFACTS)
+            const directory = path.resolve(process.env.IMAGES_DIRECTORY)
+            fs.mkdirSync(directory, {recursive: true})
+
+            // Download the exact IDs selected for this attempt. Name-based "latest"
+            // filtering can discard rerun artifacts whose IDs are numerically smaller.
+            for (const artifact of images) {
+              const download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id,
+                archive_format: 'zip',
+                request: {redirect: 'manual'},
+              })
+              if (download.status !== 302 || !download.headers.location) {
+                throw new Error(`No download redirect for artifact ${artifact.id}`)
+              }
+              const url = new URL(download.headers.location)
+              if (url.protocol !== 'https:') {
+                throw new Error('Invalid artifact download protocol')
+              }
+              const response = await fetch(url, {signal: AbortSignal.timeout(30_000)})
+              if (!response.ok || !response.body) {
+                throw new Error(`Artifact download failed: ${artifact.name}`)
+              }
+              const chunks = []
+              let size = 0
+              for await (const chunk of response.body) {
+                size += chunk.length
+                if (size > artifact.size || size > 256 * 1024) {
+                  throw new Error(`Artifact exceeded its validated size: ${artifact.name}`)
+                }
+                chunks.push(Buffer.from(chunk))
+              }
+              if (size !== artifact.size) {
+                throw new Error(`Artifact size changed: ${artifact.name}`)
+              }
+              const contents = Buffer.concat(chunks, size)
+              const digest = `sha256:${crypto.createHash('sha256').update(contents).digest('hex')}`
+              if (artifact.digest && artifact.digest !== digest) {
+                throw new Error(`Artifact digest mismatch: ${artifact.name}`)
+              }
+              // Producer images are raw PNG artifacts. Never extract downloaded data
+              // or use server-provided filenames in this privileged workflow.
+              fs.writeFileSync(path.join(directory, artifact.name), contents, {flag: 'wx'})
+              core.info(`Downloaded ${artifact.name} (ID: ${artifact.id})`)
+            }
 
       - name: Validate Captures and Update Pull Request
         if: ${{ always() && steps.inspect.outputs.should_report == 'true' }}
