@@ -118,6 +118,8 @@ class BenchmarkChangesTest(unittest.TestCase):
                 return execute(["git", *arguments], cwd=directory, check=True, capture_output=True).stdout.decode().strip()
 
             git("init", "-q")
+            # Detached maintenance can outlive a commit and race temporary-directory cleanup.
+            git("config", "maintenance.auto", "false")
             git("config", "user.name", "Benchmark Gate Test")
             git("config", "user.email", "benchmark-gate@example.invalid")
             measured = Path(directory) / "benchmarks/src/input.txt"
