@@ -3,6 +3,8 @@
 ## 0.0.6
 
 - Fixed editor-update failures while IntelliJ computes context-action previews.
+- Fixed UI-thread access exceptions when opening refactoring previews or other
+  secondary editors.
 - Restricted active guides and bracket endpoint emphasis to visible main editors
   that own focus, while preserving bracket colors when focus moves away and
   restoring active presentation when focus returns.

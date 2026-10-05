@@ -25,6 +25,7 @@
         <p><b>0.0.6</b></p>
         <ul>
             <li>Prevent editor-update failures while IntelliJ computes context-action previews.</li>
+            <li>Prevent UI-thread access exceptions when opening refactoring previews or other secondary editors.</li>
             <li>Show active guides and bracket endpoint emphasis only in focused, visible main editors, while preserving bracket colors when focus moves away.</li>
             <li>Refresh bracket colors in supported preview, diff, and console editors, including viewers without regular highlighting passes.</li>
             <li>Use horizontal guides only in one-line main editors and remove plugin markup from hidden editors.</li>
