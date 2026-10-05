@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.0.6
+
+- Fixed editor-update failures while IntelliJ computes context-action previews.
+- Restricted active guides and bracket endpoint emphasis to visible main editors
+  that own focus, while preserving bracket colors when focus moves away and
+  restoring active presentation when focus returns.
+- Added automatic refresh of bracket colors in supported preview, diff, and
+  console editors, including viewers without regular highlighting passes.
+- Limited one-line main editors to horizontal guides and removed plugin markup
+  from hidden editors.
+- Stabilized temporary Git repository cleanup in benchmark tests and visual-test
+  artifact downloads after reruns.
+
 ## 0.0.5
 
 - Added an IntelliJ Integration group for managing native guide highlighting
