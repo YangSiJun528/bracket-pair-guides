@@ -13,6 +13,7 @@ import com.intellij.openapi.editor.event.EditorFactoryEvent
 import com.intellij.openapi.editor.event.EditorFactoryListener
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.util.Alarm
@@ -34,6 +35,18 @@ import java.util.IdentityHashMap
 internal class SecondaryEditorAnalysis internal constructor(
     private val activity: (Editor) -> EditorActivity,
     private val visibleRange: (Editor) -> TextRange,
+    private val createPass: (Project, Editor) -> BracketGuideHighlightingPass = { project, editor ->
+        BracketGuideHighlightingPass(
+            project = project,
+            editor = editor,
+            fileType = EditorSurfaceClassifier.fileType(editor),
+            sourceFile = EditorSurfaceClassifier.sourceFile(editor),
+            analyze = service<BracketAnalysis>()::analyze,
+            activity = activity,
+            visibleRange = visibleRange,
+            stickySourceRanges = { emptyList() },
+        )
+    },
 ) : Disposable,
     EditorFactoryListener {
     @Suppress("unused")
@@ -96,18 +109,10 @@ internal class SecondaryEditorAnalysis internal constructor(
         }
         val project = editor.project ?: ProjectManager.getInstance().defaultProject
         if (project.isDisposed) return
-        val pass = BracketGuideHighlightingPass(
-            project = project,
-            editor = editor,
-            fileType = EditorSurfaceClassifier.fileType(editor),
-            sourceFile = EditorSurfaceClassifier.sourceFile(editor),
-            analyze = service<BracketAnalysis>()::analyze,
-            activity = activity,
-            visibleRange = visibleRange,
-            stickySourceRanges = { emptyList() },
-        )
         running.remove(editor)?.cancel()
         running[editor] = ReadAction.nonBlocking<BracketGuideHighlightingPass> {
+            // Recent platform versions require the pass constructor itself to run off EDT.
+            val pass = createPass(project, editor)
             pass.doCollectInformation(
                 ProgressManager.getInstance().progressIndicator ?: EmptyProgressIndicator(),
             )
