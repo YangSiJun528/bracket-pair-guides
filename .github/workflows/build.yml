@@ -81,6 +81,9 @@ jobs:
       - name: Test Bencher result handling
         run: python3 -B -m unittest discover -s benchmarks/bencher -p 'test_*.py'
 
+      - name: Test Visual Test Artifact Downloads
+        run: node --test .github/tests/visual-test-report.test.cjs
+
       - name: Collect Failed Test Reports
         if: ${{ failure() }}
         uses: actions/upload-artifact@v7
