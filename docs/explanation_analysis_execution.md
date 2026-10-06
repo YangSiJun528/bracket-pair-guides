@@ -7,6 +7,66 @@ sizes, iterate tokens, build indexes, or publish partially assembled results.
 This module keeps execution details local while the calculation seam remains
 immutable and platform-free.
 
+## Physical production modules
+
+Production sources have five owners. Their compile dependencies form this DAG;
+each row lists direct production dependencies:
+
+| Module | Responsibility | Compile dependencies |
+|---|---|---|
+| `analysis-model` | Platform-free values, captured identity, outcomes, and read-only result contracts | None |
+| `analysis-core` | Pairing, recognition, indexing, and guide calculation | `analysis-model` |
+| `editor-ui` | Editor sessions, presentation policy, markup, settings, and request interfaces | `analysis-model` |
+| `analysis-runtime` | IntelliJ capture, execution, cancellation, source validation, and publication | `analysis-model`, `analysis-core`, `editor-ui` |
+| `plugin` | Descriptor registration and packaging of the production modules | `analysis-model`, `editor-ui`, `analysis-runtime` |
+
+`editor-ui` has no compile access to core or runtime implementation. The plugin
+assembly also has no core compile access. Runtime keeps its core dependency as
+an implementation dependency, so packaging the core does not export it to the
+assembly's compiler. Production source roots and outputs belong to one module;
+shared directories, production friend paths, and Kotlin `internal` visibility
+are not substitutes for this dependency structure.
+
+The model's abstract `BracketSnapshot` exposes stamped active-pair, guide, and
+bounded token-window queries. Offset ranges and immutable values cross this
+seam; IntelliJ ranges and index builders do not. Core's
+`IndexedBracketSnapshot` implements those queries and owns each editor's
+active-pair memo. Runtime canonicalizes equivalent immutable index storage and
+calls `BracketIndexes.newSnapshot` to create that implementation directly,
+without a separate result wrapper allocation.
+
+UI adapters request or cancel editor analysis through `EditorAnalysisRequests`.
+Runtime's `EditorAnalysisExecution` implements that small interface and retains
+scheduling, admission, calculation, and EDT publication. Settings obtains
+installed matcher capability families through `InstalledBraceLanguages`;
+runtime implements the listing while retaining matcher resolution and pairing
+adapters. The plugin descriptor registers both interfaces with their runtime
+implementations. Guide repair retains the session-owned scheduler, cancellation
+job, and publication callbacks. Native inspection and notification execution
+also belong to runtime.
+
+`AnalysisStamp` holds platform-free revision, facet, language, and opaque source
+identities. Lightweight editor-ui adapters capture those identity facts and
+compare current editor state; they do not capture calculation input.
+`AnalysisInput`, token/text capture, read epochs, and matcher interaction remain
+runtime-owned. Captured language IDs are copied once, with an empty-set fast
+path; narrowed stamps and their input share that immutable set. Current-source
+checks read tab layout only when guide coverage requires it.
+
+The production module verification audits the actual Java and Kotlin compile
+classpaths, compiler options, source ownership, and outputs, then compiles
+negative Java and Kotlin visibility probes. It checks that the declared DAG is
+also enforced by compiler visibility. The pure-build profile includes only
+`analysis-model` and `analysis-core`, allowing their builds and the applicable
+module audit to run without configuring the IntelliJ host modules. These checks
+do not establish algorithm correctness or thread-lifecycle correctness; their
+fixtures and execution contracts remain separate verification.
+
+Plugin fixture tests intentionally compose the modules with a test-only direct
+core dependency and Kotlin friend paths to implementation owners. Those
+privileges do not enter production compile tasks. Benchmarks likewise depend
+directly on model, core, and UI owners to probe their shipped implementations.
+
 ## Host adapters and pure calculation
 
 `BracketAnalysis.analyzeInBackground(AnalysisInput)` is the host analysis entry

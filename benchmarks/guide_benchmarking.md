@@ -14,17 +14,54 @@ for the current production boundaries and memory rationale.
 - An otherwise idle machine
 - The same JDK, heap settings, and power mode for every comparison
 
-The module depends on the compiled `plugin` project and invokes the production
-pairing, cancellable sorting, and persisted-preference normalization
-implementations. It neither copies those implementations nor registers
-production source directories as benchmark roots, so a benchmark cannot drift
-from the shipped classes or confuse IDE module ownership.
+The benchmark module depends directly on the compiled `analysis-model`,
+`analysis-core`, and `editor-ui` projects. It invokes core's production pairing
+and cancellable sorting and UI's persisted-preference normalization. It neither
+copies those implementations nor registers production source directories as
+benchmark roots, so each benchmark uses the shipped class from its physical
+owner.
+
+Production sources have five owners: platform-free values and read-only result
+contracts in `analysis-model`; computation in `analysis-core`; sessions,
+presentation, settings, and request interfaces in `editor-ui`; IntelliJ capture,
+execution, cancellation, validation, and publication in `analysis-runtime`; and
+descriptor registration and packaging in `plugin`. Core and UI compile against
+model; runtime also compiles against core and UI; plugin compiles against model,
+UI, and runtime. UI has no core or runtime compile access, and plugin has no core
+compile access. See [Analysis execution](../docs/explanation_analysis_execution.md)
+for the result and host seams.
 
 This is an intentional privileged implementation probe. The sort and preference
 normalization helper remain Kotlin `internal`, but the Java JMH harness can call
 their JVM methods from the benchmark-only module. This JVM visibility is not a
 supported product API. `:benchmarks:jmhJar` in CI detects changes that break the
 probe.
+
+## Verify production module visibility
+
+Build the platform-free modules and audit their physical ownership and compiler
+visibility without configuring the IntelliJ host modules:
+
+```shell
+./gradlew -PpureBuild=true :analysis-model:build :analysis-core:build verifyProductionModules
+```
+
+Run the audit with all five production modules included when checking the UI and
+plugin compile barriers:
+
+```shell
+./gradlew verifyProductionModules
+```
+
+The audit reads actual Java and Kotlin compile classpaths, source ownership,
+outputs, and compiler options, and compiles negative Java and Kotlin visibility
+probes. A successful audit establishes the checked module visibility; it does
+not establish algorithm correctness or thread-lifecycle correctness.
+
+Plugin fixture tests retain a test-only direct core dependency and Kotlin friend
+paths so they can compose host and implementation seams. Production compilation
+receives neither privilege. Benchmarks are separate privileged probes with the
+direct dependencies described above.
 
 ## Run a smoke benchmark
 
