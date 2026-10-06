@@ -56,14 +56,19 @@ Use the existing CI jobs and the verification procedures below for those checks.
 
 ## Choose a source area
 
-The repository has one deployable production module. Package boundaries inside
-`plugin` preserve separate reasons to change without creating artifacts that
-have no independent consumer.
+The repository ships one plugin assembled from five production modules.
+`analysis-model` and `analysis-core` have no IntelliJ SDK dependency. UI compiles
+against model contracts; runtime composes UI and core; plugin registers and
+packages the modules. See [Analysis execution](docs/explanation_analysis_execution.md)
+for the module dependencies and result contracts.
 
 | Change | Source area | Primary verification |
 |---|---|---|
-| Recognition, snapshot, indexes, or analysis values | `plugin/src/main/.../analysis` | `./gradlew :plugin:check` |
-| Editor lifetime, highlighting, presentation, settings, or compatibility | Other `plugin/src/main` packages | `./gradlew :plugin:check` |
+| Platform-free values and read-only result contracts | `analysis-model/src/main` | `./gradlew -PpureBuild=true :analysis-model:check` |
+| Pairing, indexes, and guide calculation | `analysis-core/src/main` | `./gradlew -PpureBuild=true :analysis-core:check` |
+| Editor lifetime, presentation, settings, and work requests | `editor-ui/src/main` | `./gradlew :plugin:check verifyProductionModules` |
+| IntelliJ capture, execution, cancellation, and publication | `analysis-runtime/src/main` | `./gradlew :plugin:check verifyProductionModules` |
+| Registration and release packaging | `plugin/src/main/resources` | `./gradlew verifyPluginPackaging :plugin:verifyPluginStructure` |
 | Pairing or sorting measurement | `benchmarks/src/jmh` | `./gradlew :benchmarks:jmhJar` |
 | Build coordination or CI | Repository root | `./gradlew check` |
 
@@ -71,10 +76,18 @@ Keep one implementation of bracket semantics in production source. Editor and
 settings code should consume analysis outcomes and queries instead of
 reimplementing recognition or index behavior.
 
-## Change a package boundary
+## Change a module or package boundary
 
-Production code is grouped into four broad zones: IntelliJ host adapters, the
-editor workbench, configuration state, and analysis policy. Dependencies point
+Run `./gradlew verifyProductionModules` for a module change. The audit checks
+actual Java and Kotlin compiler inputs, source and output ownership, and negative
+compilation probes. It rejects core/runtime visibility in UI, core visibility in
+plugin, production friend paths, and alternate compiler visibility options.
+`./gradlew -PpureBuild=true :analysis-model:build :analysis-core:build verifyProductionModules`
+checks the two pure modules without configuring IntelliJ host modules.
+
+Within those physical owners, production code is grouped into four broad zones:
+IntelliJ host adapters, the editor workbench, configuration state, and analysis
+policy. Dependencies point
 inward in that order and may skip an intermediate zone. Packages inside a zone
 may cooperate, but the complete production package graph must remain acyclic.
 
@@ -105,8 +118,8 @@ rule rejects IntelliJ dependencies in the packages named by that rule. A separat
 dependency rule keeps editor event adapters unaware of analysis types. A
 method-call rule also checks return descriptors, which ArchUnit's class dependency
 set does not model for every Kotlin call shape. The test is the authoritative
-boundary definition; documentation deliberately does not copy package-level
-edges.
+package boundary definition; the physical module audit separately enforces
+compiler visibility. Documentation deliberately does not copy package-level edges.
 
 ## Run tests
 
@@ -116,16 +129,17 @@ Java and Kotlin test plugins. Keep JUnit annotations, runners, rules, and
 `BasePlatformTestCase`; do not use `org.junit.Assert` or inherited JUnit
 assertion helpers.
 
-Run formatting checks, the production suite, and compile the benchmark harness:
+Run formatting, module and packaging audits, the production suite, and benchmark
+harness compilation:
 
 ```shell
 ./gradlew check
 ```
 
-Run only the production suite:
+Run the pure and IntelliJ fixture suites:
 
 ```shell
-./gradlew :plugin:check
+./gradlew :analysis-model:test :analysis-core:test :plugin:test
 ```
 
 Run one test class or method:
@@ -138,9 +152,14 @@ Run one test class or method:
   --tests '<fully-qualified-test>.<method-name>'
 ```
 
+Use `:analysis-model:test` or `:analysis-core:test` for a test owned by a pure
+module. IntelliJ integration fixtures remain in `plugin`. Their direct core
+dependency and Kotlin friend paths apply only to test compilation.
+
 Test observable behavior through product inputs and outcomes. Reuse production
 snapshot and policy objects from the same module when their internal visibility
-is sufficient. Keep scenario setup and call recording under `plugin/src/test`.
+is sufficient. Keep pure scenario setup in its owning module's test sources and
+IntelliJ integration setup and call recording under `plugin/src/test`.
 Do not add a production getter, convenience overload, fake hierarchy, or
 `@TestOnly` declaration solely to expose implementation state.
 
