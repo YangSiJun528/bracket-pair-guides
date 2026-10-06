@@ -19,10 +19,12 @@ import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.matchesCapturedSource
 import com.sijunyang.bracketpairguides.analysis.reference.SynchronousAnalysisReference
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.snapshot.CalculatedAnalysis
+import com.sijunyang.bracketpairguides.analysis.snapshot.visibleTokens
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -89,7 +91,7 @@ class IncrementalAnalysisTest : BasePlatformTestCase() {
             assertThat(available.canonicalPairs.isEmpty).isFalse()
             assertThat(available.limit).isNull()
             assertThat(available.coverage).isEqualTo(input.coverage)
-            val actual = BracketSnapshot(input.stamp, available.matcherAvailability, available.indexes)
+            val actual = available.indexes.newSnapshot(input.stamp, available.matcherAvailability)
             assertSnapshotParity(expected, actual, source.length)
         }
     }
@@ -121,7 +123,7 @@ class IncrementalAnalysisTest : BasePlatformTestCase() {
         val available = result as CalculatedAnalysis.Available
         assertSnapshotParity(
             expected,
-            BracketSnapshot(input.stamp, available.matcherAvailability, available.indexes),
+            available.indexes.newSnapshot(input.stamp, available.matcherAvailability),
             input.editor.document.textLength,
         )
     }
@@ -167,7 +169,7 @@ class IncrementalAnalysisTest : BasePlatformTestCase() {
         val available = result as CalculatedAnalysis.Available
         assertSnapshotParity(
             expected,
-            BracketSnapshot(request.stamp, available.matcherAvailability, available.indexes),
+            available.indexes.newSnapshot(request.stamp, available.matcherAvailability),
             request.editor.document.textLength,
         )
     }

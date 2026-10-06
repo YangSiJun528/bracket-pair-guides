@@ -2,7 +2,10 @@ import org.jetbrains.intellij.platform.gradle.extensions.intellijPlatform
 
 rootProject.name = "bracket-pair-guides"
 
-include("plugin", "benchmarks")
+include("analysis-model", "analysis-core")
+if (!providers.gradleProperty("pureBuild").map(String::toBoolean).getOrElse(false)) {
+    include("editor-ui", "analysis-runtime", "plugin", "benchmarks")
+}
 
 pluginManagement {
     plugins {

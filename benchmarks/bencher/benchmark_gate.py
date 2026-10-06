@@ -10,18 +10,23 @@ from pathlib import Path
 
 MEASURED_PREFIXES = (
     "benchmarks/src/",
-    "plugin/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/",
-    "plugin/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/sorting/",
+    "analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/sorting/",
     "gradle/",
+    "analysis-model/src/main/",
 )
 MEASURED_FILES = {
-    "plugin/src/main/kotlin/com/sijunyang/bracketpairguides/preferences/BracketGuidePreferences.kt",
-    "plugin/src/main/kotlin/com/sijunyang/bracketpairguides/preferences/StoredColorFormat.kt",
-    "plugin/src/main/kotlin/com/sijunyang/bracketpairguides/settings/BracketGuidePreferenceNormalization.kt",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/preferences/BracketGuidePreferences.kt",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/preferences/StoredColorFormat.kt",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/settings/BracketGuidePreferenceNormalization.kt",
     "benchmarks/check_job_results.py",
     "build.gradle.kts",
     "settings.gradle.kts",
     "plugin/build.gradle.kts",
+    "analysis-model/build.gradle.kts",
+    "analysis-core/build.gradle.kts",
+    "editor-ui/build.gradle.kts",
+    "analysis-runtime/build.gradle.kts",
     "benchmarks/build.gradle.kts",
     "gradle.properties",
     "gradlew",

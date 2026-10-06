@@ -13,9 +13,9 @@ repos:
         # Match the existing targets in build.gradle.kts, not regression fixtures.
         files: >-
           (?x)^(
-            plugin/src/(main|test|visualTest)/(kotlin/.*\.kt|java/.*\.java)|
+            (analysis-model|analysis-core|editor-ui|analysis-runtime|plugin)/src/(main|test|visualTest)/(kotlin/.*\.kt|java/.*\.java)|
             benchmarks/src/jmh/java/.*\.java|
-            ([^/]+|(plugin|benchmarks)/[^/]+)\.gradle\.kts|
+            ([^/]+|(analysis-model|analysis-core|editor-ui|analysis-runtime|plugin|benchmarks)/[^/]+)\.gradle\.kts|
             \.editorconfig|\.gitignore|[^/]+\.(properties|yml)|\.github/.*\.yml
           )$
 

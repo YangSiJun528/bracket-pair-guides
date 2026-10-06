@@ -138,7 +138,7 @@ class AnalysisPayloadMeasurementTest : BasePlatformTestCase() {
             "Payload measurement requires complete outcome, got ${outcome?.javaClass?.name}"
         }
         holder.set(outcome)
-        val field = BracketSnapshot::class.java.getDeclaredField("indexes").apply { isAccessible = true }
+        val field = outcome.snapshot.javaClass.getDeclaredField("indexes").apply { isAccessible = true }
         val indexes = field.get(outcome.snapshot) as BracketIndexes
         return inspect(indexes, outcome)
     }

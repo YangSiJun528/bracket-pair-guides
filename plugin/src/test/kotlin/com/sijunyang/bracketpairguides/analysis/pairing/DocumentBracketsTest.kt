@@ -32,6 +32,7 @@ import com.sijunyang.bracketpairguides.analysis.BraceMatcherAvailability
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalog
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
+import com.sijunyang.bracketpairguides.analysis.snapshot.visibleTokens
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import kotlin.system.measureTimeMillis

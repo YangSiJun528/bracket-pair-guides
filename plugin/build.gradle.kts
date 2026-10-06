@@ -1,3 +1,4 @@
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
@@ -9,6 +10,7 @@ import org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask
 import org.jetbrains.intellij.platform.gradle.tasks.TestIdeUiTask
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
@@ -127,6 +129,11 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 dependencies {
+    implementation(project(":analysis-model"))
+    implementation(project(":editor-ui"))
+    implementation(project(":analysis-runtime"))
+    // Integration fixtures deliberately exercise the implementation behind the production seam.
+    testImplementation(project(":analysis-core"))
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.assertj:assertj-core:3.27.7")
     testImplementation("com.tngtech.archunit:archunit-junit4:1.5.1")
@@ -245,4 +252,23 @@ intellijPlatformTesting.testIdeUi.register("runManualQa") {
             rootProject.layout.projectDirectory.dir("outputs/manual-qa-starter").asFile.absolutePath,
         )
     }
+}
+
+// Fixture tests compose all modules and intentionally exercise internal implementation seams.
+// Production compile tasks never receive these friends.
+val fixtureOwners = setOf(":analysis-model", ":analysis-core", ":editor-ui", ":analysis-runtime")
+val fixtureFriendArtifacts = configurations.testCompileClasspath.get().incoming.artifactView {
+    componentFilter { identifier ->
+        identifier is ProjectComponentIdentifier && identifier.projectPath in fixtureOwners
+    }
+}.files
+
+tasks.named<KotlinCompile>("compileTestKotlin") {
+    dependsOn(fixtureFriendArtifacts)
+    compilerOptions.freeCompilerArgs.add(
+        fixtureFriendArtifacts.elements.map { locations ->
+            check(locations.isNotEmpty()) { "Fixture friend artifacts must not be empty" }
+            "-Xfriend-paths=" + locations.joinToString(",") { it.asFile.absolutePath }
+        },
+    )
 }

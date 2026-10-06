@@ -7,8 +7,8 @@ plugins {
 spotless {
     kotlin {
         target(
-            "plugin/src/main/kotlin/**/*.kt",
-            "plugin/src/test/kotlin/**/*.kt",
+            "*/src/main/kotlin/**/*.kt",
+            "*/src/test/kotlin/**/*.kt",
             "plugin/src/visualTest/kotlin/**/*.kt",
         )
         targetExclude("plugin/src/test/testData/**")
@@ -26,8 +26,7 @@ spotless {
     kotlinGradle {
         target(
             "*.gradle.kts",
-            "plugin/*.gradle.kts",
-            "benchmarks/*.gradle.kts",
+            "*/build.gradle.kts",
         )
         targetExclude("plugin/src/test/testData/**")
         ktlint("1.8.0")
@@ -35,8 +34,8 @@ spotless {
 
     java {
         target(
-            "plugin/src/main/java/**/*.java",
-            "plugin/src/test/java/**/*.java",
+            "*/src/main/java/**/*.java",
+            "*/src/test/java/**/*.java",
             "plugin/src/visualTest/java/**/*.java",
             "benchmarks/src/jmh/java/**/*.java",
         )
@@ -59,5 +58,16 @@ spotless {
 }
 
 tasks.named("check") {
-    dependsOn("spotlessCheck", ":plugin:check", ":benchmarks:jmhJar")
+    dependsOn(
+        "spotlessCheck",
+        ":analysis-model:check",
+        ":analysis-core:check",
+        "verifyProductionModules",
+        "testProductionModuleVerification",
+    )
+    if (findProject(":plugin") != null) {
+        dependsOn(":editor-ui:check", ":analysis-runtime:check", ":plugin:check", ":benchmarks:jmhJar")
+    }
 }
+
+apply(from = "gradle/production-modules.gradle")

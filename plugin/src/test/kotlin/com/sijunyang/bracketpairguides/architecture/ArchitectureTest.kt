@@ -107,7 +107,7 @@ internal class ArchitectureTest {
                         type.packageName.startsWith("$ROOT.analysis") && simpleName in setOf(
                             "TokenKind", "BracketGroupId", "CapturedBracketToken", "CapturedBracketTokens",
                             "DocumentBracketRecognition", "BracketRecognitionRefusal", "SnapshotCalculation",
-                            "PreparedSnapshot", "CalculatedAnalysis", "BracketIndexes", "IndexLayout",
+                            "PreparedSnapshot", "CalculatedAnalysis", "IndexLayout",
                             "TokenStorage", "AnalysisLimit",
                         )
                     },
@@ -127,6 +127,31 @@ internal class ArchitectureTest {
                     },
                 )
                 .because("capture facts and calculation must stay usable without editor or publication identity")
+
+        @ArchTest
+        @JvmField
+        val sharedIndexesAndQueriesDoNotDependOnHostImplementations: ArchRule =
+            noClasses()
+                .that(
+                    describe<JavaClass>("are shared indexes or their read-only query implementation") { type ->
+                        type.name.substringAfterLast('.').substringBefore('$') in setOf(
+                            "BracketIndexes",
+                            "IndexedBracketSnapshot",
+                            "IndexedTokenWindow",
+                        )
+                    },
+                )
+                .should()
+                .dependOnClassesThat(
+                    describe<JavaClass>("are platform, editor, capture, or execution implementations") { type ->
+                        type.packageName.startsWith("com.intellij") ||
+                            type.packageName.startsWith("$ROOT.analysis.intellij") ||
+                            type.packageName.startsWith("$ROOT.editor") ||
+                            type.packageName.startsWith("$ROOT.presentation") ||
+                            type.name == "$ROOT.analysis.AnalysisInput"
+                    },
+                )
+                .because("the core may return model snapshots but must not capture host responsibilities")
 
         @ArchTest
         @JvmField

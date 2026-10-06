@@ -49,9 +49,10 @@ dependencies {
     // standalone benchmark process needs its own runtime on the JMH classpath.
     implementation(kotlin("stdlib"))
 
-    // Benchmark the compiled analysis implementation without duplicating it in
-    // a separate production module.
-    jmhImplementation(project(":plugin"))
+    // Privileged implementation probes use each production owner directly.
+    jmhImplementation(project(":analysis-model"))
+    jmhImplementation(project(":analysis-core"))
+    jmhImplementation(project(":editor-ui"))
 }
 
 val smokeRun =

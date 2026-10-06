@@ -8,6 +8,7 @@ import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.requireSnapshot
 import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.snapshot.TokenWindow
+import com.sijunyang.bracketpairguides.analysis.snapshot.visibleTokens
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingFixture
 import com.sijunyang.bracketpairguides.editor.policy.EditorActivity

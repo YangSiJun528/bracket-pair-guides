@@ -1,0 +1,79 @@
+package com.sijunyang.bracketpairguides.analysis.guide
+
+import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.pairing.toPairTable
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.Test
+import java.util.concurrent.CancellationException
+
+class GuideLineEnvelopeTest {
+    @Test
+    fun `finds the minimum multiline guide query envelope`() {
+        assertThat(
+            GuideLineEnvelope.from(
+                listOf(pair(openLine = 3, closeLine = 3)).toPairTable(),
+                documentLength = 100,
+                documentLineCount = 20,
+                checkCanceled = {},
+            ),
+        ).isNull()
+        assertThat(
+            GuideLineEnvelope
+                .from(
+                    listOf(
+                        pair(openLine = 3, closeLine = 4),
+                        pair(openLine = 9, closeLine = 12),
+                    ).toPairTable(),
+                    documentLength = 100,
+                    documentLineCount = 20,
+                    checkCanceled = {},
+                )?.lines,
+        ).isEqualTo(4..12)
+        assertThat(
+            GuideLineEnvelope
+                .from(
+                    listOf(
+                        pair(openLine = 3, closeLine = 4),
+                        pair(openLine = 0, closeLine = 1).copy(
+                            openOffset = 0,
+                            closeOffset = 10,
+                            openLine = Int.MIN_VALUE,
+                            closeLine = Int.MAX_VALUE,
+                        ),
+                    ).toPairTable(),
+                    documentLength = 100,
+                    documentLineCount = 20,
+                    checkCanceled = {},
+                )?.lines,
+        ).isEqualTo(4..4)
+    }
+
+    @Test
+    fun `multiline probe honors cancellation on a large single-line result`() {
+        val pairs = List(2_000) { pair(openLine = it, closeLine = it) }
+        var cancellationChecks = 0
+
+        assertThatThrownBy {
+            GuideLineEnvelope.from(
+                pairs.toPairTable(),
+                documentLength = 3_000,
+                documentLineCount = 2_001,
+            ) {
+                cancellationChecks++
+                if (cancellationChecks == 3) throw CancellationException()
+            }
+        }.isInstanceOf(CancellationException::class.java)
+        assertThat(cancellationChecks).isEqualTo(3)
+    }
+
+    private fun pair(openLine: Int, closeLine: Int): BracketPair = BracketPair(
+        openOffset = openLine,
+        openTokenLength = 1,
+        closeOffset = closeLine + 1,
+        closeTokenLength = 1,
+        depth = 0,
+        openLine = openLine,
+        closeLine = closeLine,
+    )
+}

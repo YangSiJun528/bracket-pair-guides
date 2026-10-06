@@ -1,0 +1,168 @@
+import groovy.json.JsonOutput
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier
+
+// Resolve only verification tooling, never add it to a production classpath.
+def probeCompiler = configurations.create('productionProbeCompiler')
+dependencies.add(probeCompiler.name, 'org.jetbrains.kotlin:kotlin-compiler-embeddable:2.3.21')
+
+def productionNames = ['analysis-model', 'analysis-core', 'editor-ui', 'analysis-runtime', 'plugin']
+def owners = productionNames.findAll { findProject(":${it}") != null }
+// Capture project/path handles during configuration; the intentionally non-cacheable
+// audit must not invoke Task.project while its action executes.
+def ownerProjects = owners.collectEntries { [(it): project(":${it}")] }
+def verificationScript = file('tools/verify_production_modules.py').absolutePath
+def verificationManifest = layout.buildDirectory.file('module-verification/classpaths.json')
+def verificationRoot = rootDir
+// Inspect only the exact zero-argument Kotlin JVM getter. Fail closed if a future
+// compiler version removes or ambiguously changes it; never silently omit audit data.
+def readCompilerProperty = { compileTask, getterName ->
+    def candidates = compileTask.class.methods.findAll {
+        it.parameterCount == 0 && (it.name == getterName || it.name.startsWith(getterName + '$'))
+    }
+    if (candidates.size() != 1) {
+        throw new GradleException("Expected one Kotlin compiler getter ${getterName}, found ${candidates*.name}")
+    }
+    candidates[0].invoke(compileTask)
+}
+
+tasks.register('verifyProductionModules') {
+    group = 'verification'
+    description = 'Audits physical module ownership and actual Java/Kotlin compiler visibility.'
+    dependsOn(owners.collect { ":${it}:classes" })
+    notCompatibleWithConfigurationCache('Verification exports resolved compiler classpaths for external probes.')
+    doLast {
+        def modules = owners.collectEntries { name ->
+            def owner = ownerProjects[name]
+            def main = owner.sourceSets.main
+            def javaTask = owner.tasks.named('compileJava').get()
+            def kotlinTask = owner.tasks.named('compileKotlin').get()
+            // Kotlin 2.3 exposes these through mangled JVM getters; read the effective values,
+            // including friend source sets/compiler plugins that freeCompilerArgs alone misses.
+            def friendProvider = readCompilerProperty(kotlinTask, 'getFriendPathsSet')
+            if (friendProvider == null) throw new GradleException('Kotlin compiler friend-path provider is missing')
+            def friends = friendProvider.get()
+            def compilerSources = readCompilerProperty(kotlinTask, 'getSourceFiles')
+            if (compilerSources == null) throw new GradleException('Kotlin compiler source files are missing')
+            // A task without compiler subplugins returns a null Provider in Kotlin 2.3.
+            // A present Provider may itself have no value. Both mean no compiler plugin.
+            def compilerPluginProvider = readCompilerProperty(kotlinTask, 'getKotlinPluginData')
+            def compilerPlugin = compilerPluginProvider == null ? null : compilerPluginProvider.orNull
+            [(name): [
+                projectDirectory: owner.projectDir.canonicalPath,
+                sourceFiles: (javaTask.source.files + compilerSources.files).collect { it.canonicalPath },
+                compilerArguments: kotlinTask.compilerOptions.freeCompilerArgs.get(),
+                javaCompilerArguments: javaTask.options.compilerArgs,
+                friendPaths: friends.toList(),
+                compilerPlugins: compilerPlugin == null ? [] : compilerPlugin.classpath.files.collect { it.canonicalPath },
+                sources: main.allSource.srcDirs.collect { it.canonicalPath },
+                outputs: main.output.classesDirs.files.collect { it.canonicalPath },
+                javaClasspath: javaTask.classpath.files.collect { it.canonicalPath },
+                kotlinClasspath: kotlinTask.libraries.files.collect { it.canonicalPath },
+                projects: owner.configurations.compileClasspath.incoming.resolutionResult.allComponents
+                    .findAll { it.id instanceof ProjectComponentIdentifier }
+                    .collect { it.id.projectPath.substring(1) },
+            ]]
+        }
+        def manifest = [
+            modules: modules,
+            compilerClasspath: probeCompiler.files.collect { it.canonicalPath },
+            java: new File(System.getProperty('java.home'), 'bin/java').absolutePath,
+            javac: new File(System.getProperty('java.home'), 'bin/javac').absolutePath,
+        ]
+        def manifestFile = verificationManifest.get().asFile
+        manifestFile.parentFile.mkdirs()
+        manifestFile.text = JsonOutput.prettyPrint(JsonOutput.toJson(manifest))
+        def process = new ProcessBuilder('python3', '-B', verificationScript,
+            manifestFile.absolutePath).redirectErrorStream(true).start()
+        def processOutput = process.inputStream.getText('UTF-8')
+        def processExit = process.waitFor()
+        logger.lifecycle(processOutput.trim())
+        if (processExit != 0) throw new GradleException('Production module verification failed')
+    }
+}
+
+
+tasks.register('testProductionModuleVerification') {
+    group = 'verification'
+    description = 'Tests module leak, ownership and compiler-option rejection.'
+    notCompatibleWithConfigurationCache('Runs standalone Python verification tests.')
+    doLast {
+        def process = new ProcessBuilder('python3', '-B', '-m', 'unittest', 'discover', '-s', 'tools',
+            '-p', 'test_verify_*.py').directory(verificationRoot).redirectErrorStream(true).start()
+        def processOutput = process.inputStream.getText('UTF-8')
+        def processExit = process.waitFor()
+        logger.lifecycle(processOutput.trim())
+        if (processExit != 0) throw new GradleException('Production verification tooling tests failed')
+    }
+}
+
+abstract class VerifyPluginPackagingTask extends DefaultTask {
+    @InputFile
+    @PathSensitive(PathSensitivity.NONE)
+    abstract RegularFileProperty getPluginArchive()
+
+    @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
+    abstract ConfigurableFileCollection getProductionClasses()
+
+    @Input
+    abstract MapProperty<String, List<String>> getOwnerOutputs()
+
+    @InputFile
+    @PathSensitive(PathSensitivity.NONE)
+    abstract RegularFileProperty getVerifierScript()
+
+    @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
+    abstract DirectoryProperty getLicensesDirectory()
+
+    @OutputFile
+    abstract RegularFileProperty getEvidenceFile()
+
+    @javax.inject.Inject
+    abstract org.gradle.process.ExecOperations getExecOperations()
+
+    @TaskAction
+    void verifyRelease() {
+        def manifest = new File(temporaryDir, 'packaging-manifest.json')
+        manifest.text = JsonOutput.toJson([
+            archive: pluginArchive.get().asFile.absolutePath,
+            ownerOutputs: ownerOutputs.get(),
+            licensesDirectory: licensesDirectory.get().asFile.absolutePath,
+            evidenceFile: evidenceFile.get().asFile.absolutePath,
+        ])
+        def output = new ByteArrayOutputStream()
+        def result = execOperations.exec {
+            commandLine('python3', '-B', verifierScript.get().asFile.absolutePath, manifest.absolutePath)
+            standardOutput = output
+            errorOutput = output
+            ignoreExitValue = true
+        }
+        logger.lifecycle(output.toString('UTF-8').trim())
+        result.assertNormalExitValue()
+    }
+}
+
+if (findProject(':plugin') != null) {
+    def packagingTask = tasks.register('verifyPluginPackaging', VerifyPluginPackagingTask) {
+        group = 'verification'
+        description = 'Checks ordinary lib owner jars, release class ownership and resource/runtime contamination.'
+        verifierScript.set(layout.projectDirectory.file('tools/verify_plugin_packaging.py'))
+        licensesDirectory.set(layout.projectDirectory.dir('licenses'))
+        evidenceFile.set(layout.buildDirectory.file('module-verification/packaging.json'))
+        dependsOn(owners.collect { ":${it}:classes" })
+    }
+    gradle.projectsEvaluated {
+        def pluginArchiveTask = ownerProjects['plugin'].tasks.named('buildPlugin')
+        def outputPaths = ownerProjects.collectEntries { name, owner ->
+            [(name): owner.sourceSets.main.output.classesDirs.files.collect { it.canonicalPath }]
+        }
+        def outputFiles = ownerProjects.values().collect { it.sourceSets.main.output.classesDirs }
+        packagingTask.configure {
+            pluginArchive.set(pluginArchiveTask.flatMap { it.archiveFile })
+            ownerOutputs.set(outputPaths)
+            productionClasses.from(outputFiles)
+        }
+    }
+    tasks.named('check') { dependsOn(packagingTask) }
+}

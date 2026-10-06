@@ -67,8 +67,7 @@ class BracketSnapshotTest : BasePlatformTestCase() {
     private fun snapshot(pairs: List<BracketPair>): BracketSnapshot {
         myFixture.configureByText("Snapshot.txt", " ".repeat(128))
         val pairTable = pairs.toPairTable()
-        return BracketSnapshot(
-            stamp =
+        val stamp =
             AnalysisInput(
                 editor = myFixture.editor,
                 fileType = myFixture.file.fileType,
@@ -79,16 +78,13 @@ class BracketSnapshotTest : BasePlatformTestCase() {
                     guidePosition = false,
                 ),
                 disabledLanguageIds = emptySet(),
-            ).stamp,
-            matcherAvailability = BraceMatcherAvailability.AVAILABLE,
-            indexes =
-            BracketIndexes(
-                pairs = pairTable,
-                tokens = BracketTokenIndex.build(pairTable, NO_CANCELLATION),
-                activePairs = ActiveBracketPairIndex.build(pairTable, NO_CANCELLATION),
-                guidePositions = null,
-            ),
-        )
+            ).stamp
+        return BracketIndexes(
+            pairs = pairTable,
+            tokens = BracketTokenIndex.build(pairTable, NO_CANCELLATION),
+            activePairs = ActiveBracketPairIndex.build(pairTable, NO_CANCELLATION),
+            guidePositions = null,
+        ).newSnapshot(stamp, BraceMatcherAvailability.AVAILABLE)
     }
 
     private fun pair(open: Int, close: Int, depth: Int): BracketPair = BracketPair(

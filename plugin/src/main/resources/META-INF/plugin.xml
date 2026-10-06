@@ -52,6 +52,14 @@
                 serviceImplementation="com.sijunyang.bracketpairguides.settings.BracketGuideSettings"/>
 
         <applicationService
+                serviceInterface="com.sijunyang.bracketpairguides.editor.highlighting.EditorAnalysisRequests"
+                serviceImplementation="com.sijunyang.bracketpairguides.editor.highlighting.EditorAnalysisExecution"/>
+
+        <applicationService
+                serviceInterface="com.sijunyang.bracketpairguides.settings.InstalledBraceLanguages"
+                serviceImplementation="com.sijunyang.bracketpairguides.analysis.intellij.InstalledBraceLanguageCatalog"/>
+
+        <applicationService
                 serviceImplementation="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinator"/>
 
         <applicationService
