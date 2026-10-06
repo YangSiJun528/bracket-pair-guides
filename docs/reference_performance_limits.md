@@ -19,12 +19,20 @@ changes.
 
 | Boundary | Current value | Result when crossed | Owner |
 |---|---:|---|---|
-| Host code-insight file size | IntelliJ's configured `idea.max.intellisense.filesize`; default 2,500 KiB | `Unavailable(IDE_CODE_INSIGHT_FILE_SIZE)` | `BracketGuideHighlightingPass` via `SingleRootFileViewProvider` |
+| Host code-insight file size | IntelliJ's configured `idea.max.intellisense.filesize`; default 2,500 KiB | `Unavailable(IDE_CODE_INSIGHT_FILE_SIZE)` | `EditorAnalysisExecution` via `SingleRootFileViewProvider` |
 | Completed pairs | 100,000 | `Unavailable(PAIR_CAPACITY)` with no pair prefix | `BracketRecognitionLimits.completedPairs` |
 | Pending openers | 50,000 | `Unavailable(PENDING_OPEN_CAPACITY)` before the next stack node is allocated | `BracketRecognitionLimits.MAXIMUM_PENDING_OPENS` |
 | Retained exact guide payload | 4 MiB | `Limited(GUIDE_CAPACITY)` with exact token and active-pair facets but no guide | `GuideIndexShape` |
 | Exact guide span under that payload | 1,032,192 lines | Same guide-only limitation | `GuideIndexShape` |
-| Synchronous document-edit guide scan | 256 lines and 32,768 inspected line-prefix characters, including each content terminator | Remove the stale guide immediately; wait for exact background analysis | `GuidePositionFallback` |
+| Background post-edit guide repair | 256 lines and 32,768 consumed prefix characters, including the first non-whitespace character of each nonblank line | Leave the synchronously hidden guide hidden on exact repair refusal | `GuideRepairCalculation` |
+| Token capture chunk | 512 visited lexer tokens | Resume at the next exact token boundary in another read action | `BracketTokenCapture` |
+| Captured-token storage seed | Initially 32 entries; then adapt to the previous successful chunk's captured-token density, within the 512-token visit bound | Grow admitted storage when the seed is insufficient; this is not a recognition limit | `BracketTokenCapture` |
+| Native traversal body | 8,192 owned state-machine operations and a cooperative 2 ms deadline, checked every 32 operations | Yield and restore the exact token cursor in another validated read action; callbacks and preparation can exceed the deadline | `NativeMarkerInspection` / `NativeBraceMatching.WorkBudget` |
+| Initial full-analysis guide capture | Up to 128 lines, each with at most 128 characters | Continue unresolved whitespace prefixes separately | `IncrementalAnalysis` |
+| Whitespace continuation capture | 4,096 characters per read action | Continue until indentation is resolved or repair admission refuses it | `DocumentTextCapture` callers |
+| Cached demanded matcher rules | 2,048 answers per recognition attempt | Evict the oldest cached answer; recompute if demanded again | `IncrementalAnalysis` |
+| Strongly cached platform token kinds | 1,024 kinds per capture adapter | Evict the oldest cache entry; live pure identities remain resolvable | `BracketTokenCapture` |
+| Secondary-editor full-analysis debounce | 75 ms | Combine compatible pending requests; cancel semantic supersession immediately | `EditorAnalysisExecution` |
 | Token highlighters per editor presentation | 2,048 | Reserve displayed Sticky Lines tokens, then publish a focused ordinary-viewport slice from the remaining shared budget | `VisibleTokenDecorations` |
 | Reported viewport normalization | 16,384 characters | Center a bounded reported range on the caret or viewport midpoint | `VisibleTokenDecorations` |
 | Token-window padding | 256 to 4,096 characters | Clamp padding to the range | `VisibleTokenDecorations` |
@@ -41,7 +49,7 @@ another byte-size setting.
 |---|---:|---|
 | Default IDE code-insight size | 2,500 KiB | Ordinary large source usually stops before recognition |
 | Completed-pair limit | 200,002 one-character brace tokens, about 195 KiB | A minified or generated file can cross the structural limit below the byte-size limit |
-| Pending-open limit | 50,000 one-character openers, about 49 KiB | Pathological nesting can grow the object-backed stack below the byte-size limit |
+| Pending-open limit | 50,001 one-character openers, about 49 KiB | Pathological nesting can grow the object-backed stack below the byte-size limit |
 | Exact guide payload | 1,032,192 indexed lines | Reachable near 1 MiB only with almost empty LF lines; at 40 bytes per line the source is about 39 MiB and normally fails the IDE gate first |
 
 ## Host file-size policy
@@ -80,8 +88,8 @@ inside a third-party matcher.
 | Caret movement with a current snapshot | `O(log P)` active-pair lookup; moving to another pair replaces at most one guide and two active-symbol ranges |
 | Caret movement without a current snapshot | Range-marker adjustment and interval containment only; no token iteration or matcher callback on the EDT |
 | Ordinary viewport or displayed Sticky Lines change | Query bounded token ranges from the current snapshot, deduplicate overlaps, and reuse matching highlighters; no recognition or matcher callback |
-| Document insertion, replacement, or deletion | Adjust tracked endpoints, remove bounded Sticky-only token decorations, and perform at most the bounded exact indentation-prefix scan; no token-index iteration or matcher callback on the EDT |
-| Enable a guide while exact guide coverage is pending | Bounded provisional whitespace scan for the already tracked pair; no token or matcher work |
+| Document insertion, replacement, or deletion | Adjust tracked endpoints, remove bounded Sticky-only token decorations, hide affected guide geometry, and request immediate background repair; no text scan, token-index iteration, or matcher callback on the EDT |
+| Enable a guide while exact guide coverage is pending | Geometry-only reuse or immediate bounded provisional repair for the already tracked pair; indentation scanning runs in the background |
 | Theme or palette change | Refresh explicit palette attributes and theme-dependent background blending; no pair recognition |
 | Global disable | Skip recognition and clear plugin-owned markup |
 
@@ -112,10 +120,10 @@ positions before the opener and after the closer.
 - The guide indentation value saturates at `Int.MAX_VALUE - 1`; `Int.MAX_VALUE`
   remains the blank-line sentinel.
 
-After an edit, stale proportional pair and index structures are released. Each
-surviving tracked pair is synchronously recomputed against the current document,
-or its stale guide is removed before the EDT update returns. Replacement
-analysis may later discover a different pair. When every pair-dependent feature
+After an edit, stale proportional pair and index structures are released.
+Affected guide geometry is removed before the EDT update returns. A separate
+immediate repair job computes indentation for the surviving tracked pair;
+replacement full analysis may later discover a different pair. When every pair-dependent feature
 is disabled, the session retains a compact accepted stamp rather than
 proportional indexes.
 
@@ -126,13 +134,51 @@ transient index construction are not single-flight.
 
 ## Cancellation and matcher behavior
 
-Recognition and index construction call the pass-provided
-`ProgressIndicator`. Cancellation can be observed between token, sorting,
-copying, and line-scanning operations.
+The shared execution module launches independent background jobs. Recognition,
+index construction, and repair check coroutine cancellation and platform
+cancellation between token, sorting, copying, and line-scanning operations.
+Read actions capture bounded immutable data; pairing, sorting, and indentation
+calculation run without read access. No synchronous production analysis API is
+retained. The token-kind cache bound is not a cap on all live kind identities:
+identities needed by an in-progress pairing operation remain resolvable.
+
+Capture bounds limit visits or copied characters, not wall-clock duration. A
+lexer or matcher callback can do additional work. Repair admission counts
+characters consumed through the first non-whitespace character, or the complete
+length of a blank line; it does not charge the unused suffix of a captured
+prefix. Captured strings are owned copies from a reusable bounded character
+scratch buffer. Full analysis builds active indexes before detached token
+metadata and allocates final guide storage only after guide admission; it does
+not retain a second document-sized indentation array.
+
+Native brace-context resolution uses separate background read actions for
+admission, lazy-source preparation, direct classification/traversal, optional
+current-scope classification and structural/forward traversal, and final
+validation. Each traversal body admits at most 8,192 owned state-machine
+operations. Cancellation and a cooperative 2 ms deadline are checked every
+32 operations; unfinished traversal yields after read access is released.
+These are operation/deadline admission bounds, not verified native p95 latency
+or a hard read-lock hold-time guarantee.
+
+The host continuation retains matcher stacks and exact token bookmarks, not
+live iterators or document text. Every resumed cursor checks token range and
+token-type identity, including before-first/after-last boundaries. Each read
+body validates the document/highlighter/read epoch, captured caret and block
+cursor, and editor/project lifetime. A source change or retried read body
+invalidates the entire proof instead of replaying partially mutated state;
+no partial marker evidence is accepted. The pure native-conflict decision runs
+after all required capture phases release read access.
+
+Lazy syntax factory work, copying the lazy source range, and lexer `setText`
+remain together in a separate preparation body. Their cost is not bounded by
+the traversal budget. Classification and individual extension callbacks can
+also exceed the cooperative deadline. `NativeCaptureObserver` reports phases
+and owned operations separately so preparation/callback floors are not hidden
+inside traversal measurements.
 
 A third-party brace matcher is ordinary JVM code. One callback cannot be
 preempted safely while it runs, so no per-callback time limit is claimed. The
-plugin confines callbacks to the cancellable background pass and never invokes
+plugin confines callbacks to the cancellable background capture and never invokes
 them in caret, document, viewport, or paint handlers.
 
 ## Validating changes
