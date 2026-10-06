@@ -18,8 +18,11 @@ fun AnalysisStamp(
     highlighter = editor.highlighter,
 )
 
-fun AnalysisStamp.matchesCapturedSource(editor: Editor, requiredFileType: FileType): Boolean =
-    matchesCapturedSource(editor.document.modificationStamp, editor.highlighter, requiredFileType)
+fun AnalysisStamp.matchesCapturedSource(editor: Editor, requiredFileType: FileType): Boolean {
+    val currentDocumentStamp = editor.document.modificationStamp
+    if (documentStamp != currentDocumentStamp) return false
+    return matchesCapturedSource(currentDocumentStamp, editor.highlighter, requiredFileType)
+}
 
 fun AnalysisStamp.matchesCurrent(
     editor: Editor,
@@ -28,6 +31,7 @@ fun AnalysisStamp.matchesCurrent(
     requiredDisabledLanguageIds: Set<String>,
 ): Boolean {
     val documentStamp = editor.document.modificationStamp
+    if (this.documentStamp != documentStamp) return false
     val highlighter = editor.highlighter
     if (!matchesCapturedSource(documentStamp, highlighter, requiredFileType)) return false
     val currentTabSize = if (requiredCoverage.guidePosition) {
