@@ -20,8 +20,8 @@ fun AnalysisStamp(
 
 fun AnalysisStamp.matchesCapturedSource(editor: Editor, requiredFileType: FileType): Boolean {
     val currentDocumentStamp = editor.document.modificationStamp
-    if (documentStamp != currentDocumentStamp) return false
-    return matchesCapturedSource(currentDocumentStamp, editor.highlighter, requiredFileType)
+    return documentStamp == currentDocumentStamp &&
+        matchesCapturedSource(currentDocumentStamp, editor.highlighter, requiredFileType)
 }
 
 fun AnalysisStamp.matchesCurrent(
