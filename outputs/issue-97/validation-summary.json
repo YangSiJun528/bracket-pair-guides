@@ -1,0 +1,3810 @@
+{
+  "status": "Implementation and requested comparative assessment complete; observed latency regressions remain unresolved.",
+  "generatedUTC": "2026-10-06T22:34:38.468382+00:00",
+  "source": {
+    "baseline": "84d1a43141b1933c81e027ef01d1579fc4679e6e",
+    "implementation": "c918a9657843fbcdb0c944f674c4706908987511",
+    "branch": "codex/issue-97-physical-modules",
+    "fingerprints": {
+      "baseline": "7f275d88edb4a0cc7accc44672ba57c1ad9f6f6cdc54fab0e492c7a00e507142",
+      "candidate": "c22e8f613a5888c0cc286905dfc3c6915b485511884baa05da7106564e9b1132"
+    }
+  },
+  "archive": {
+    "path": "plugin/build/distributions/bracket-pair-guides-0.0.6.zip",
+    "sha256": "c5e5a1f2c60564af6aa9c0e01cd843cf73a224cd73dd73b8aa3a629663ab4db0",
+    "classes": 517,
+    "ownerJars": 5
+  },
+  "deterministicValidation": {
+    "fullTests": 516,
+    "modelTests": 6,
+    "coreTests": 99,
+    "pluginTests": 411,
+    "compileProbes": 44,
+    "sdkFreeTests": 105,
+    "sdkFreeCompileProbes": 8,
+    "rejectedContaminationCases": 8,
+    "cleanContaminationPass": true,
+    "toolPythonTests": 20,
+    "bencherPythonTests": 52,
+    "visualReporterNodeTests": 5,
+    "verifierTargets": [
+      "IC-2025.2.6.3",
+      "IC-2025.1.7.2",
+      "IC-2024.3.7.1",
+      "IC-2024.2.6",
+      "IC-2024.1.7",
+      "IU-263.6259.32",
+      "IU-2026.2.3",
+      "IU-2026.1.5",
+      "IU-2025.3.6.1",
+      "IU-2025.3",
+      "IU-2026.1",
+      "IU-2026.2",
+      "IU-263.4732.28"
+    ],
+    "verifierFailureLevels": 8,
+    "latestRuntimeTests": 411,
+    "driverTests": 13,
+    "driverScreenshots": 11,
+    "qodanaFindings": 0,
+    "testFailuresErrorsSkips": 0
+  },
+  "performance": {
+    "assessment": "Repeated ordinary/nested writer p95 increases and nested/close-only analysis slowdowns remain. Selected native writer tails increase with order heterogeneity. No overall no-regression or equivalence established; no thresholds changed.",
+    "finalJvmPairsPerWorkload": 6,
+    "pairOrder": {
+      "1": [
+        "candidate",
+        "baseline"
+      ],
+      "2": [
+        "baseline",
+        "candidate"
+      ],
+      "3": [
+        "candidate",
+        "baseline"
+      ],
+      "4": [
+        "baseline",
+        "candidate"
+      ],
+      "5": [
+        "candidate",
+        "baseline"
+      ],
+      "6": [
+        "baseline",
+        "candidate"
+      ]
+    },
+    "method": "Per-JVM median and nearest-rank p95; across-JVM summaries retain every run; no sample pooling.",
+    "analysis": {
+      "ordinary": {
+        "wallNs": {
+          "acrossJvmMedians": {
+            "baseline": 3892719.0,
+            "candidate": 3924145.75,
+            "absoluteDelta": 31426.75,
+            "percentDelta": 0.80732130934702
+          },
+          "acrossJvmP95s": {
+            "baseline": 4483229.5,
+            "candidate": 4967438.0,
+            "absoluteDelta": 484208.5,
+            "percentDelta": 10.80043972765614
+          }
+        },
+        "directCoroutineAllocatedBytes": {
+          "acrossJvmMedians": {
+            "baseline": 2613384.0,
+            "candidate": 2564762.0,
+            "absoluteDelta": -48622.0,
+            "percentDelta": -1.8604996433742582
+          },
+          "acrossJvmP95s": {
+            "baseline": 2622824.0,
+            "candidate": 2622792.0,
+            "absoluteDelta": -32.0,
+            "percentDelta": -0.0012200589898481162
+          }
+        },
+        "cancellation": {
+          "baseline": {
+            "perJvmAttempts": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmCanceled": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmRequestAfterReturn": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "perJvmSuccessfulUnwindMedianNs": [
+              138313.0,
+              125312.5,
+              142666.5,
+              159812.5,
+              136687.5,
+              135020.5
+            ],
+            "perJvmSuccessfulUnwindP95Ns": [
+              382292,
+              308333,
+              319042,
+              361125,
+              445500,
+              465209
+            ]
+          },
+          "candidate": {
+            "perJvmAttempts": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmCanceled": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmRequestAfterReturn": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "perJvmSuccessfulUnwindMedianNs": [
+              153437.5,
+              121646.5,
+              156729.0,
+              122125.0,
+              158062.5,
+              153375.0
+            ],
+            "perJvmSuccessfulUnwindP95Ns": [
+              403042,
+              492250,
+              355875,
+              352375,
+              404458,
+              394958
+            ]
+          }
+        }
+      },
+      "nested": {
+        "wallNs": {
+          "acrossJvmMedians": {
+            "baseline": 9112583.5,
+            "candidate": 9693302.25,
+            "absoluteDelta": 580718.75,
+            "percentDelta": 6.372712524390045
+          },
+          "acrossJvmP95s": {
+            "baseline": 9472479.0,
+            "candidate": 10031833.5,
+            "absoluteDelta": 559354.5,
+            "percentDelta": 5.905048720614747
+          }
+        },
+        "directCoroutineAllocatedBytes": {
+          "acrossJvmMedians": {
+            "baseline": 7693528.0,
+            "candidate": 7693200.0,
+            "absoluteDelta": -328.0,
+            "percentDelta": -0.00426332366633142
+          },
+          "acrossJvmP95s": {
+            "baseline": 7695856.0,
+            "candidate": 7694004.0,
+            "absoluteDelta": -1852.0,
+            "percentDelta": -0.024064899343234636
+          }
+        },
+        "cancellation": {
+          "baseline": {
+            "perJvmAttempts": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmCanceled": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmRequestAfterReturn": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "perJvmSuccessfulUnwindMedianNs": [
+              125604.0,
+              112666.5,
+              104229.5,
+              85895.5,
+              115854.0,
+              103750.0
+            ],
+            "perJvmSuccessfulUnwindP95Ns": [
+              224000,
+              215792,
+              175459,
+              183209,
+              271541,
+              261625
+            ]
+          },
+          "candidate": {
+            "perJvmAttempts": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmCanceled": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmRequestAfterReturn": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "perJvmSuccessfulUnwindMedianNs": [
+              105583.0,
+              90292.0,
+              108354.0,
+              99333.5,
+              96604.0,
+              106062.5
+            ],
+            "perJvmSuccessfulUnwindP95Ns": [
+              186333,
+              172792,
+              237625,
+              166208,
+              140959,
+              176583
+            ]
+          }
+        }
+      },
+      "close-only": {
+        "wallNs": {
+          "acrossJvmMedians": {
+            "baseline": 14957906.25,
+            "candidate": 15802291.75,
+            "absoluteDelta": 844385.5,
+            "percentDelta": 5.645078167273576
+          },
+          "acrossJvmP95s": {
+            "baseline": 15419292.0,
+            "candidate": 16271437.5,
+            "absoluteDelta": 852145.5,
+            "percentDelta": 5.52648915397671
+          }
+        },
+        "directCoroutineAllocatedBytes": {
+          "acrossJvmMedians": {
+            "baseline": 3644904.0,
+            "candidate": 3642288.0,
+            "absoluteDelta": -2616.0,
+            "percentDelta": -0.07177143760165317
+          },
+          "acrossJvmP95s": {
+            "baseline": 3645000.0,
+            "candidate": 3642384.0,
+            "absoluteDelta": -2616.0,
+            "percentDelta": -0.07176954732510676
+          }
+        },
+        "cancellation": {
+          "baseline": {
+            "perJvmAttempts": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmCanceled": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmRequestAfterReturn": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "perJvmSuccessfulUnwindMedianNs": [
+              109312.0,
+              100854.0,
+              99750.5,
+              95750.0,
+              91479.5,
+              97583.5
+            ],
+            "perJvmSuccessfulUnwindP95Ns": [
+              156583,
+              245833,
+              206042,
+              248125,
+              240333,
+              151792
+            ]
+          },
+          "candidate": {
+            "perJvmAttempts": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmCanceled": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmRequestAfterReturn": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "perJvmSuccessfulUnwindMedianNs": [
+              100604.0,
+              113395.5,
+              94854.0,
+              120896.0,
+              84062.5,
+              102375.0
+            ],
+            "perJvmSuccessfulUnwindP95Ns": [
+              295417,
+              228000,
+              257916,
+              236584,
+              158792,
+              189875
+            ]
+          }
+        }
+      },
+      "large-whitespace": {
+        "wallNs": {
+          "acrossJvmMedians": {
+            "baseline": 1745656.0,
+            "candidate": 1831187.75,
+            "absoluteDelta": 85531.75,
+            "percentDelta": 4.899691004413231
+          },
+          "acrossJvmP95s": {
+            "baseline": 1856437.5,
+            "candidate": 1925208.5,
+            "absoluteDelta": 68771.0,
+            "percentDelta": 3.7044608288725023
+          }
+        },
+        "directCoroutineAllocatedBytes": {
+          "acrossJvmMedians": {
+            "baseline": 682120.0,
+            "candidate": 680408.0,
+            "absoluteDelta": -1712.0,
+            "percentDelta": -0.25098223186535984
+          },
+          "acrossJvmP95s": {
+            "baseline": 682156.0,
+            "candidate": 682468.0,
+            "absoluteDelta": 312.0,
+            "percentDelta": 0.045737338673257355
+          }
+        },
+        "cancellation": {
+          "baseline": {
+            "perJvmAttempts": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmCanceled": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmRequestAfterReturn": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "perJvmSuccessfulUnwindMedianNs": [
+              52854.0,
+              50375.0,
+              49395.5,
+              43958.5,
+              53166.5,
+              53895.5
+            ],
+            "perJvmSuccessfulUnwindP95Ns": [
+              145000,
+              155958,
+              158208,
+              74916,
+              134125,
+              85041
+            ]
+          },
+          "candidate": {
+            "perJvmAttempts": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmCanceled": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmRequestAfterReturn": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "perJvmSuccessfulUnwindMedianNs": [
+              51917.0,
+              53292.0,
+              56187.5,
+              45250.5,
+              62812.5,
+              46625.0
+            ],
+            "perJvmSuccessfulUnwindP95Ns": [
+              173042,
+              151583,
+              133166,
+              84541,
+              148000,
+              76916
+            ]
+          }
+        }
+      },
+      "xml": {
+        "wallNs": {
+          "acrossJvmMedians": {
+            "baseline": 9793698.0,
+            "candidate": 9933781.25,
+            "absoluteDelta": 140083.25,
+            "percentDelta": 1.430340715018974
+          },
+          "acrossJvmP95s": {
+            "baseline": 10103083.5,
+            "candidate": 10246042.0,
+            "absoluteDelta": 142958.5,
+            "percentDelta": 1.4149986981697227
+          }
+        },
+        "directCoroutineAllocatedBytes": {
+          "acrossJvmMedians": {
+            "baseline": 7568576.0,
+            "candidate": 7569664.0,
+            "absoluteDelta": 1088.0,
+            "percentDelta": 0.014375227255425393
+          },
+          "acrossJvmP95s": {
+            "baseline": 7568720.0,
+            "candidate": 7569760.0,
+            "absoluteDelta": 1040.0,
+            "percentDelta": 0.013740764620706614
+          }
+        },
+        "cancellation": {
+          "baseline": {
+            "perJvmAttempts": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmCanceled": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmRequestAfterReturn": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "perJvmSuccessfulUnwindMedianNs": [
+              79563.0,
+              76250.0,
+              66312.5,
+              79145.5,
+              77458.5,
+              81229.5
+            ],
+            "perJvmSuccessfulUnwindP95Ns": [
+              144125,
+              116333,
+              83791,
+              204542,
+              175458,
+              274167
+            ]
+          },
+          "candidate": {
+            "perJvmAttempts": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmCanceled": [
+              30,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            "perJvmRequestAfterReturn": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "perJvmSuccessfulUnwindMedianNs": [
+              81562.0,
+              85438.0,
+              81104.5,
+              74895.5,
+              65917.0,
+              81875.5
+            ],
+            "perJvmSuccessfulUnwindP95Ns": [
+              211667,
+              164958,
+              145667,
+              152042,
+              137666,
+              145541
+            ]
+          }
+        }
+      }
+    },
+    "writeWait": {
+      "ordinary": {
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              46771.0,
+              53875.0,
+              57187.5,
+              58375.5,
+              55750.0,
+              78666.5
+            ],
+            "candidatePerJvm": [
+              77229.0,
+              60791.5,
+              61708.5,
+              60146.0,
+              67750.0,
+              74958.5
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 56468.75,
+              "p95": 78666.5,
+              "min": 46771.0,
+              "max": 78666.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 64729.25,
+              "p95": 77229.0,
+              "min": 60146.0,
+              "max": 77229.0
+            },
+            "delta": 8260.5,
+            "percentDelta": 14.628444936358598
+          },
+          "p95": {
+            "baselinePerJvm": [
+              131000,
+              125000,
+              152250,
+              177625,
+              153417,
+              166916
+            ],
+            "candidatePerJvm": [
+              193834,
+              138375,
+              666125,
+              125834,
+              226708,
+              219791
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 152833.5,
+              "p95": 177625,
+              "min": 125000,
+              "max": 177625
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 206812.5,
+              "p95": 666125,
+              "min": 125834,
+              "max": 666125
+            },
+            "delta": 53979.0,
+            "percentDelta": 35.31882735133331
+          }
+        },
+        "writeWaitReadBodyOverlapNs": {
+          "median": {
+            "baselinePerJvm": [
+              14750.5,
+              23104.0,
+              26041.5,
+              28583.0,
+              20354.0,
+              29375.0
+            ],
+            "candidatePerJvm": [
+              50250.5,
+              25958.5,
+              11167.0,
+              33709.0,
+              47666.5,
+              56541.5
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 24572.75,
+              "p95": 29375.0,
+              "min": 14750.5,
+              "max": 29375.0
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 40687.75,
+              "p95": 56541.5,
+              "min": 11167.0,
+              "max": 56541.5
+            },
+            "delta": 16115.0,
+            "percentDelta": 65.58077545248292
+          },
+          "p95": {
+            "baselinePerJvm": [
+              66459,
+              84375,
+              137167,
+              104125,
+              91041,
+              109875
+            ],
+            "candidatePerJvm": [
+              100625,
+              66959,
+              117084,
+              90875,
+              203458,
+              167208
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 97583.0,
+              "p95": 137167,
+              "min": 66459,
+              "max": 137167
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 108854.5,
+              "p95": 203458,
+              "min": 66959,
+              "max": 203458
+            },
+            "delta": 11271.5,
+            "percentDelta": 11.550679934004894
+          }
+        },
+        "analysisWallNs": {
+          "median": {
+            "baselinePerJvm": [
+              4478750.0,
+              4791208.0,
+              4673354.0,
+              5422500.0,
+              4652750.0,
+              4752521.0
+            ],
+            "candidatePerJvm": [
+              5633479.0,
+              4869604.0,
+              5546771.5,
+              4832291.5,
+              5242708.5,
+              6726521.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 4712937.5,
+              "p95": 5422500.0,
+              "min": 4478750.0,
+              "max": 5422500.0
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 5394740.0,
+              "p95": 6726521.0,
+              "min": 4832291.5,
+              "max": 6726521.0
+            },
+            "delta": 681802.5,
+            "percentDelta": 14.466614505284658
+          },
+          "p95": {
+            "baselinePerJvm": [
+              6211792,
+              6866375,
+              7032584,
+              7211292,
+              7899542,
+              6993708
+            ],
+            "candidatePerJvm": [
+              8389417,
+              6915125,
+              8520250,
+              6448375,
+              8088958,
+              12804000
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 7013146.0,
+              "p95": 7899542,
+              "min": 6211792,
+              "max": 7899542
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 8239187.5,
+              "p95": 12804000,
+              "min": 6448375,
+              "max": 12804000
+            },
+            "delta": 1226041.5,
+            "percentDelta": 17.48204728662428
+          }
+        }
+      },
+      "nested": {
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              48875.5,
+              39312.5,
+              61583.5,
+              45291.0,
+              46500.0,
+              39062.5
+            ],
+            "candidatePerJvm": [
+              47896.0,
+              57396.0,
+              45021.0,
+              50083.5,
+              58042.0,
+              60625.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 45895.5,
+              "p95": 61583.5,
+              "min": 39062.5,
+              "max": 61583.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 53739.75,
+              "p95": 60625.0,
+              "min": 45021.0,
+              "max": 60625.0
+            },
+            "delta": 7844.25,
+            "percentDelta": 17.091544922704838
+          },
+          "p95": {
+            "baselinePerJvm": [
+              91167,
+              72667,
+              91875,
+              80416,
+              77459,
+              65083
+            ],
+            "candidatePerJvm": [
+              92250,
+              80083,
+              101459,
+              83875,
+              102708,
+              103791
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 78937.5,
+              "p95": 91875,
+              "min": 65083,
+              "max": 91875
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 96854.5,
+              "p95": 103791,
+              "min": 80083,
+              "max": 103791
+            },
+            "delta": 17917.0,
+            "percentDelta": 22.69770387965162
+          }
+        },
+        "writeWaitReadBodyOverlapNs": {
+          "median": {
+            "baselinePerJvm": [
+              4916.5,
+              4937.5,
+              27666.5,
+              11250.0,
+              12750.0,
+              1333.0
+            ],
+            "candidatePerJvm": [
+              7895.5,
+              27146.0,
+              13875.0,
+              9437.5,
+              18562.0,
+              31750.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 8093.75,
+              "p95": 27666.5,
+              "min": 1333.0,
+              "max": 27666.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 16218.5,
+              "p95": 31750.0,
+              "min": 7895.5,
+              "max": 31750.0
+            },
+            "delta": 8124.75,
+            "percentDelta": 100.3830115830116
+          },
+          "p95": {
+            "baselinePerJvm": [
+              69750,
+              56334,
+              67458,
+              52875,
+              51334,
+              48417
+            ],
+            "candidatePerJvm": [
+              56000,
+              57167,
+              61291,
+              59042,
+              86000,
+              80459
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 54604.5,
+              "p95": 69750,
+              "min": 48417,
+              "max": 69750
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 60166.5,
+              "p95": 86000,
+              "min": 56000,
+              "max": 86000
+            },
+            "delta": 5562.0,
+            "percentDelta": 10.185973683487614
+          }
+        },
+        "analysisWallNs": {
+          "median": {
+            "baselinePerJvm": [
+              10598500.0,
+              10529437.5,
+              9833792.0,
+              10383125.0,
+              8780958.0,
+              10740208.0
+            ],
+            "candidatePerJvm": [
+              10659791.5,
+              10079562.0,
+              10816312.5,
+              10591604.0,
+              10031979.0,
+              10727729.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 10456281.25,
+              "p95": 10740208.0,
+              "min": 8780958.0,
+              "max": 10740208.0
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 10625697.75,
+              "p95": 10816312.5,
+              "min": 10031979.0,
+              "max": 10816312.5
+            },
+            "delta": 169416.5,
+            "percentDelta": 1.6202366400578594
+          },
+          "p95": {
+            "baselinePerJvm": [
+              11117750,
+              10768916,
+              10178708,
+              12774708,
+              9097958,
+              11592000
+            ],
+            "candidatePerJvm": [
+              13477833,
+              10431625,
+              11257167,
+              11224708,
+              11235917,
+              11103958
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 10943333.0,
+              "p95": 12774708,
+              "min": 9097958,
+              "max": 12774708
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 11230312.5,
+              "p95": 13477833,
+              "min": 10431625,
+              "max": 13477833
+            },
+            "delta": 286979.5,
+            "percentDelta": 2.622414030533471
+          }
+        }
+      },
+      "close-only": {
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              65104.5,
+              68104.5,
+              71042.0,
+              59771.0,
+              66562.5,
+              72125.5
+            ],
+            "candidatePerJvm": [
+              75208.5,
+              69417.0,
+              70062.5,
+              76604.5,
+              76687.0,
+              88354.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 67333.5,
+              "p95": 72125.5,
+              "min": 59771.0,
+              "max": 72125.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 75906.5,
+              "p95": 88354.0,
+              "min": 69417.0,
+              "max": 88354.0
+            },
+            "delta": 8573.0,
+            "percentDelta": 12.73214670260716
+          },
+          "p95": {
+            "baselinePerJvm": [
+              93875,
+              109875,
+              95917,
+              169709,
+              103083,
+              85334
+            ],
+            "candidatePerJvm": [
+              99250,
+              89417,
+              93542,
+              99917,
+              135250,
+              115667
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 99500.0,
+              "p95": 169709,
+              "min": 85334,
+              "max": 169709
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 99583.5,
+              "p95": 135250,
+              "min": 89417,
+              "max": 135250
+            },
+            "delta": 83.5,
+            "percentDelta": 0.08391959798994542
+          }
+        },
+        "writeWaitReadBodyOverlapNs": {
+          "median": {
+            "baselinePerJvm": [
+              41270.5,
+              51083.5,
+              39916.5,
+              30937.5,
+              41333.5,
+              42395.5
+            ],
+            "candidatePerJvm": [
+              41250.5,
+              34792.0,
+              28604.0,
+              57438.0,
+              36042.0,
+              68291.5
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 41302.0,
+              "p95": 51083.5,
+              "min": 30937.5,
+              "max": 51083.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 38646.25,
+              "p95": 68291.5,
+              "min": 28604.0,
+              "max": 68291.5
+            },
+            "delta": -2655.75,
+            "percentDelta": -6.430076025374076
+          },
+          "p95": {
+            "baselinePerJvm": [
+              77042,
+              92958,
+              78875,
+              124375,
+              77791,
+              68042
+            ],
+            "candidatePerJvm": [
+              72541,
+              69542,
+              69875,
+              78750,
+              99042,
+              87209
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 78333.0,
+              "p95": 124375,
+              "min": 68042,
+              "max": 124375
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 75645.5,
+              "p95": 99042,
+              "min": 69542,
+              "max": 99042
+            },
+            "delta": -2687.5,
+            "percentDelta": -3.4308656632581425
+          }
+        },
+        "analysisWallNs": {
+          "median": {
+            "baselinePerJvm": [
+              16586479.5,
+              17441583.5,
+              18327229.0,
+              17156104.5,
+              15988000.5,
+              16063833.0
+            ],
+            "candidatePerJvm": [
+              17304146.0,
+              15739000.0,
+              16049500.0,
+              17630812.5,
+              16014312.5,
+              19412604.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 16871292.0,
+              "p95": 18327229.0,
+              "min": 15988000.5,
+              "max": 18327229.0
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 16676823.0,
+              "p95": 19412604.0,
+              "min": 15739000.0,
+              "max": 19412604.0
+            },
+            "delta": -194469.0,
+            "percentDelta": -1.152662167189089
+          },
+          "p95": {
+            "baselinePerJvm": [
+              17032417,
+              17828167,
+              18680000,
+              17672667,
+              16956792,
+              16489458
+            ],
+            "candidatePerJvm": [
+              17805666,
+              16054500,
+              16496291,
+              17852875,
+              16341583,
+              19904250
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 17352542.0,
+              "p95": 18680000,
+              "min": 16489458,
+              "max": 18680000
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 17150978.5,
+              "p95": 19904250,
+              "min": 16054500,
+              "max": 19904250
+            },
+            "delta": -201563.5,
+            "percentDelta": -1.1615790931380543
+          }
+        }
+      },
+      "large-whitespace": {
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              29791.5,
+              31354.0,
+              31896.0,
+              30250.0,
+              37979.0,
+              52375.0
+            ],
+            "candidatePerJvm": [
+              34937.5,
+              31188.0,
+              34833.5,
+              40333.0,
+              35021.0,
+              36354.5
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 31625.0,
+              "p95": 52375.0,
+              "min": 29791.5,
+              "max": 52375.0
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 34979.25,
+              "p95": 40333.0,
+              "min": 31188.0,
+              "max": 40333.0
+            },
+            "delta": 3354.25,
+            "percentDelta": 10.606324110671927
+          },
+          "p95": {
+            "baselinePerJvm": [
+              49458,
+              60834,
+              47792,
+              47542,
+              75083,
+              94916
+            ],
+            "candidatePerJvm": [
+              101459,
+              42458,
+              70042,
+              52750,
+              51667,
+              79125
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 55146.0,
+              "p95": 94916,
+              "min": 47542,
+              "max": 94916
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 61396.0,
+              "p95": 101459,
+              "min": 42458,
+              "max": 101459
+            },
+            "delta": 6250.0,
+            "percentDelta": 11.333550937511339
+          }
+        },
+        "writeWaitReadBodyOverlapNs": {
+          "median": {
+            "baselinePerJvm": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1708.5
+            ],
+            "candidatePerJvm": [
+              1125.0,
+              0.0,
+              437.5,
+              0.0,
+              896.0,
+              1000.5
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 0.0,
+              "p95": 1708.5,
+              "min": 0.0,
+              "max": 1708.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 666.75,
+              "p95": 1125.0,
+              "min": 0.0,
+              "max": 1125.0
+            },
+            "delta": 666.75,
+            "percentDelta": null
+          },
+          "p95": {
+            "baselinePerJvm": [
+              2333,
+              2041,
+              1833,
+              2292,
+              58542,
+              62167
+            ],
+            "candidatePerJvm": [
+              50792,
+              15958,
+              25666,
+              14042,
+              30334,
+              31542
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 2312.5,
+              "p95": 62167,
+              "min": 1833,
+              "max": 62167
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 28000.0,
+              "p95": 50792,
+              "min": 14042,
+              "max": 50792
+            },
+            "delta": 25687.5,
+            "percentDelta": 1110.8108108108108
+          }
+        },
+        "analysisWallNs": {
+          "median": {
+            "baselinePerJvm": [
+              2214479.0,
+              2228625.5,
+              2197520.5,
+              2085541.5,
+              2251417.0,
+              2379520.5
+            ],
+            "candidatePerJvm": [
+              3111916.5,
+              2207875.0,
+              2300958.0,
+              3299895.5,
+              2206375.0,
+              2255812.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 2221552.25,
+              "p95": 2379520.5,
+              "min": 2085541.5,
+              "max": 2379520.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 2278385.0,
+              "p95": 3299895.5,
+              "min": 2206375.0,
+              "max": 3299895.5
+            },
+            "delta": 56832.75,
+            "percentDelta": 2.558245028898143
+          },
+          "p95": {
+            "baselinePerJvm": [
+              2352625,
+              2344708,
+              2272000,
+              2255417,
+              2508959,
+              2550917
+            ],
+            "candidatePerJvm": [
+              3529541,
+              2402916,
+              2660375,
+              3488333,
+              2522667,
+              2435667
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 2348666.5,
+              "p95": 2550917,
+              "min": 2255417,
+              "max": 2550917
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 2591521.0,
+              "p95": 3529541,
+              "min": 2402916,
+              "max": 3529541
+            },
+            "delta": 242854.5,
+            "percentDelta": 10.340101500149125
+          }
+        }
+      },
+      "xml": {
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              57979.0,
+              50417.0,
+              41104.5,
+              46750.0,
+              52770.5,
+              54542.0
+            ],
+            "candidatePerJvm": [
+              63750.0,
+              61062.5,
+              53708.0,
+              61687.5,
+              56458.5,
+              68166.5
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 51593.75,
+              "p95": 57979.0,
+              "min": 41104.5,
+              "max": 57979.0
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 61375.0,
+              "p95": 68166.5,
+              "min": 53708.0,
+              "max": 68166.5
+            },
+            "delta": 9781.25,
+            "percentDelta": 18.958207147183526
+          },
+          "p95": {
+            "baselinePerJvm": [
+              89000,
+              98209,
+              93500,
+              86667,
+              89334,
+              87458
+            ],
+            "candidatePerJvm": [
+              99333,
+              94917,
+              85084,
+              102958,
+              107375,
+              105584
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 89167.0,
+              "p95": 98209,
+              "min": 86667,
+              "max": 98209
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 101145.5,
+              "p95": 107375,
+              "min": 85084,
+              "max": 107375
+            },
+            "delta": 11978.5,
+            "percentDelta": 13.433781555956802
+          }
+        },
+        "writeWaitReadBodyOverlapNs": {
+          "median": {
+            "baselinePerJvm": [
+              19437.0,
+              17167.0,
+              9562.5,
+              8208.5,
+              16416.5,
+              14833.5
+            ],
+            "candidatePerJvm": [
+              26062.0,
+              30791.5,
+              34646.0,
+              33708.0,
+              18167.0,
+              31833.5
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 15625.0,
+              "p95": 19437.0,
+              "min": 8208.5,
+              "max": 19437.0
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 31312.5,
+              "p95": 34646.0,
+              "min": 18167.0,
+              "max": 34646.0
+            },
+            "delta": 15687.5,
+            "percentDelta": 100.4
+          },
+          "p95": {
+            "baselinePerJvm": [
+              68334,
+              77542,
+              67250,
+              64708,
+              69250,
+              68583
+            ],
+            "candidatePerJvm": [
+              80417,
+              70917,
+              64458,
+              81500,
+              82959,
+              83000
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 68458.5,
+              "p95": 77542,
+              "min": 64708,
+              "max": 77542
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 80958.5,
+              "p95": 83000,
+              "min": 64458,
+              "max": 83000
+            },
+            "delta": 12500.0,
+            "percentDelta": 18.25923734817445
+          }
+        },
+        "analysisWallNs": {
+          "median": {
+            "baselinePerJvm": [
+              10810188.0,
+              10638354.5,
+              10825749.5,
+              10811083.5,
+              9827312.5,
+              10525958.0
+            ],
+            "candidatePerJvm": [
+              10160042.0,
+              10335562.5,
+              10289958.0,
+              11114104.0,
+              10545708.5,
+              11274604.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 10724271.25,
+              "p95": 10825749.5,
+              "min": 9827312.5,
+              "max": 10825749.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 10440635.5,
+              "p95": 11274604.0,
+              "min": 10160042.0,
+              "max": 11274604.0
+            },
+            "delta": -283635.75,
+            "percentDelta": -2.6448020885335266
+          },
+          "p95": {
+            "baselinePerJvm": [
+              11058208,
+              11172708,
+              11255375,
+              16756625,
+              10422791,
+              11020416
+            ],
+            "candidatePerJvm": [
+              10371959,
+              10646125,
+              17286167,
+              11203875,
+              16979500,
+              11475292
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 11115458.0,
+              "p95": 16756625,
+              "min": 10422791,
+              "max": 16756625
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 11339583.5,
+              "p95": 17286167,
+              "min": 10371959,
+              "max": 17286167
+            },
+            "delta": 224125.5,
+            "percentDelta": 2.016340667204175
+          }
+        }
+      }
+    },
+    "native": [
+      {
+        "group": {
+          "corpus": "large-java",
+          "kind": "sample",
+          "mode": "direct",
+          "writerMode": "none"
+        },
+        "resolutionNs": {
+          "median": {
+            "baselinePerJvm": [
+              12065437.0,
+              12277708.5,
+              12085938.0,
+              12304667.0,
+              11778062.5,
+              11624937.5
+            ],
+            "candidatePerJvm": [
+              12152125.0,
+              9286895.5,
+              12288041.5,
+              9178500.5,
+              9007771.0,
+              11483708.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 12075687.5,
+              "p95": 12304667.0,
+              "min": 11624937.5,
+              "max": 12304667.0
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 10385301.75,
+              "p95": 12288041.5,
+              "min": 9007771.0,
+              "max": 12288041.5
+            },
+            "delta": -1690385.75,
+            "percentDelta": -13.998256828027388
+          },
+          "p95": {
+            "baselinePerJvm": [
+              12731292,
+              13298125,
+              14312834,
+              12858750,
+              14841125,
+              12172666
+            ],
+            "candidatePerJvm": [
+              19410958,
+              14039250,
+              12978334,
+              9561875,
+              28039875,
+              14676750
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 13078437.5,
+              "p95": 14841125,
+              "min": 12172666,
+              "max": 14841125
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 14358000.0,
+              "p95": 28039875,
+              "min": 9561875,
+              "max": 28039875
+            },
+            "delta": 1279562.5,
+            "percentDelta": 9.783756660533793
+          }
+        },
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "candidatePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "baselineAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "candidateAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "delta": null,
+            "percentDelta": null
+          },
+          "p95": {
+            "baselinePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "candidatePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "baselineAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "candidateAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "delta": null,
+            "percentDelta": null
+          }
+        }
+      },
+      {
+        "group": {
+          "corpus": "large-java",
+          "kind": "sample",
+          "mode": "direct",
+          "writerMode": "late-traversal"
+        },
+        "resolutionNs": {
+          "median": {
+            "baselinePerJvm": [
+              2526812.5,
+              2528458.0,
+              2505916.5,
+              2691833.5,
+              2519854.0,
+              2387750.0
+            ],
+            "candidatePerJvm": [
+              2545916.5,
+              1918208.0,
+              2530875.0,
+              1989750.0,
+              3635354.0,
+              2662187.5
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 2523333.25,
+              "p95": 2691833.5,
+              "min": 2387750.0,
+              "max": 2691833.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 2538395.75,
+              "p95": 3635354.0,
+              "min": 1918208.0,
+              "max": 3635354.0
+            },
+            "delta": 15062.5,
+            "percentDelta": 0.5969286854996314
+          },
+          "p95": {
+            "baselinePerJvm": [
+              4489459,
+              3722291,
+              3658916,
+              4197000,
+              3136250,
+              2745209
+            ],
+            "candidatePerJvm": [
+              3804834,
+              2768750,
+              3726208,
+              2833041,
+              3968375,
+              3520542
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 3690603.5,
+              "p95": 4489459,
+              "min": 2745209,
+              "max": 4489459
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 3623375.0,
+              "p95": 3968375,
+              "min": 2768750,
+              "max": 3968375
+            },
+            "delta": -67228.5,
+            "percentDelta": -1.8216126441109148
+          }
+        },
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              55562.5,
+              58083.0,
+              51583.5,
+              57666.5,
+              54875.0,
+              52292.0
+            ],
+            "candidatePerJvm": [
+              51625.0,
+              48917.0,
+              57583.0,
+              50208.5,
+              60271.0,
+              57624.5
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 55218.75,
+              "p95": 58083.0,
+              "min": 51583.5,
+              "max": 58083.0
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 54604.0,
+              "p95": 60271.0,
+              "min": 48917.0,
+              "max": 60271.0
+            },
+            "delta": -614.75,
+            "percentDelta": -1.1132993774759514
+          },
+          "p95": {
+            "baselinePerJvm": [
+              148083,
+              219250,
+              160000,
+              228500,
+              103583,
+              88125
+            ],
+            "candidatePerJvm": [
+              221792,
+              101667,
+              207750,
+              77625,
+              177250,
+              303459
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 154041.5,
+              "p95": 228500,
+              "min": 88125,
+              "max": 228500
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 192500.0,
+              "p95": 303459,
+              "min": 77625,
+              "max": 303459
+            },
+            "delta": 38458.5,
+            "percentDelta": 24.96632401008818
+          }
+        }
+      },
+      {
+        "group": {
+          "corpus": "large-java",
+          "kind": "sample",
+          "mode": "scope",
+          "writerMode": "none"
+        },
+        "resolutionNs": {
+          "median": {
+            "baselinePerJvm": [
+              19949750.0,
+              20739000.0,
+              19056603.5,
+              19343916.5,
+              19524125.0,
+              18089520.5
+            ],
+            "candidatePerJvm": [
+              19991750.0,
+              17484291.5,
+              19344625.0,
+              16632770.5,
+              14751125.0,
+              18972521.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 19434020.75,
+              "p95": 20739000.0,
+              "min": 18089520.5,
+              "max": 20739000.0
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 18228406.25,
+              "p95": 19991750.0,
+              "min": 14751125.0,
+              "max": 19991750.0
+            },
+            "delta": -1205614.5,
+            "percentDelta": -6.20362875757452
+          },
+          "p95": {
+            "baselinePerJvm": [
+              56136708,
+              25322584,
+              19649042,
+              57095584,
+              52502250,
+              55446042
+            ],
+            "candidatePerJvm": [
+              32644750,
+              27579750,
+              19920458,
+              36294792,
+              15052209,
+              56502167
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 53974146.0,
+              "p95": 57095584,
+              "min": 19649042,
+              "max": 57095584
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 30112250.0,
+              "p95": 56502167,
+              "min": 15052209,
+              "max": 56502167
+            },
+            "delta": -23861896.0,
+            "percentDelta": -44.20986299625751
+          }
+        },
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "candidatePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "baselineAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "candidateAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "delta": null,
+            "percentDelta": null
+          },
+          "p95": {
+            "baselinePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "candidatePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "baselineAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "candidateAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "delta": null,
+            "percentDelta": null
+          }
+        }
+      },
+      {
+        "group": {
+          "corpus": "large-java",
+          "kind": "sample",
+          "mode": "scope",
+          "writerMode": "late-traversal"
+        },
+        "resolutionNs": {
+          "median": {
+            "baselinePerJvm": [
+              2904000.0,
+              3077708.5,
+              2925770.5,
+              2763417.0,
+              2967896.0,
+              2801937.5
+            ],
+            "candidatePerJvm": [
+              3115562.5,
+              2467562.5,
+              2892437.5,
+              2575166.5,
+              2285416.5,
+              2828062.5
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 2914885.25,
+              "p95": 3077708.5,
+              "min": 2763417.0,
+              "max": 3077708.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 2701614.5,
+              "p95": 3115562.5,
+              "min": 2285416.5,
+              "max": 3115562.5
+            },
+            "delta": -213270.75,
+            "percentDelta": -7.316608775594169
+          },
+          "p95": {
+            "baselinePerJvm": [
+              3001833,
+              3309125,
+              3324333,
+              3032834,
+              3171833,
+              3282584
+            ],
+            "candidatePerJvm": [
+              3690458,
+              2706167,
+              3086375,
+              2717292,
+              2841500,
+              3007125
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 3227208.5,
+              "p95": 3324333,
+              "min": 3001833,
+              "max": 3324333
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 2924312.5,
+              "p95": 3690458,
+              "min": 2706167,
+              "max": 3690458
+            },
+            "delta": -302896.0,
+            "percentDelta": -9.385696647737507
+          }
+        },
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              38124.5,
+              45708.5,
+              44104.5,
+              37562.5,
+              49187.5,
+              46250.5
+            ],
+            "candidatePerJvm": [
+              53604.5,
+              42166.5,
+              45187.5,
+              42792.0,
+              42375.0,
+              47583.5
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 44906.5,
+              "p95": 49187.5,
+              "min": 37562.5,
+              "max": 49187.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 43989.75,
+              "p95": 53604.5,
+              "min": 42166.5,
+              "max": 53604.5
+            },
+            "delta": -916.75,
+            "percentDelta": -2.041463930611387
+          },
+          "p95": {
+            "baselinePerJvm": [
+              67041,
+              63625,
+              90750,
+              129792,
+              123000,
+              105333
+            ],
+            "candidatePerJvm": [
+              107500,
+              89792,
+              62917,
+              118209,
+              77459,
+              80542
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 98041.5,
+              "p95": 129792,
+              "min": 63625,
+              "max": 129792
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 85167.0,
+              "p95": 118209,
+              "min": 62917,
+              "max": 118209
+            },
+            "delta": -12874.5,
+            "percentDelta": -13.13168403176206
+          }
+        }
+      },
+      {
+        "group": {
+          "corpus": "large-java-lazy",
+          "kind": "sample",
+          "mode": "direct",
+          "writerMode": "none"
+        },
+        "resolutionNs": {
+          "median": {
+            "baselinePerJvm": [
+              18034729.0,
+              17571562.5,
+              17293541.5,
+              17482542.0,
+              17287646.0,
+              17076000.5
+            ],
+            "candidatePerJvm": [
+              17521708.5,
+              17068291.5,
+              17539437.5,
+              17594146.0,
+              16618271.0,
+              17138416.5
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 17388041.75,
+              "p95": 18034729.0,
+              "min": 17076000.5,
+              "max": 18034729.0
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 17330062.5,
+              "p95": 17594146.0,
+              "min": 16618271.0,
+              "max": 17594146.0
+            },
+            "delta": -57979.25,
+            "percentDelta": -0.3334432412436583
+          },
+          "p95": {
+            "baselinePerJvm": [
+              19171250,
+              18052250,
+              20293458,
+              17893750,
+              19624292,
+              18013833
+            ],
+            "candidatePerJvm": [
+              18682167,
+              18075166,
+              17949208,
+              20242333,
+              19311084,
+              21072958
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 18611750.0,
+              "p95": 20293458,
+              "min": 17893750,
+              "max": 20293458
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 18996625.5,
+              "p95": 21072958,
+              "min": 17949208,
+              "max": 21072958
+            },
+            "delta": 384875.5,
+            "percentDelta": 2.0679167730063064
+          }
+        },
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "candidatePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "baselineAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "candidateAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "delta": null,
+            "percentDelta": null
+          },
+          "p95": {
+            "baselinePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "candidatePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "baselineAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "candidateAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "delta": null,
+            "percentDelta": null
+          }
+        }
+      },
+      {
+        "group": {
+          "corpus": "large-java-lazy",
+          "kind": "sample",
+          "mode": "direct",
+          "writerMode": "late-traversal"
+        },
+        "resolutionNs": {
+          "median": {
+            "baselinePerJvm": [
+              7435708.5,
+              7113792.0,
+              7070167.0,
+              7269354.5,
+              7345770.5,
+              6949145.5
+            ],
+            "candidatePerJvm": [
+              7018270.5,
+              7259667.0,
+              6940041.5,
+              7303313.0,
+              7047416.5,
+              7760062.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 7191573.25,
+              "p95": 7435708.5,
+              "min": 6949145.5,
+              "max": 7435708.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 7153541.75,
+              "p95": 7760062.0,
+              "min": 6940041.5,
+              "max": 7760062.0
+            },
+            "delta": -38031.5,
+            "percentDelta": -0.5288342157955483
+          },
+          "p95": {
+            "baselinePerJvm": [
+              8521625,
+              7553042,
+              8172959,
+              7836084,
+              9354375,
+              8039083
+            ],
+            "candidatePerJvm": [
+              7976292,
+              8234875,
+              7438333,
+              7603500,
+              8765833,
+              10018417
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 8106021.0,
+              "p95": 9354375,
+              "min": 7553042,
+              "max": 9354375
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 8105583.5,
+              "p95": 10018417,
+              "min": 7438333,
+              "max": 10018417
+            },
+            "delta": -437.5,
+            "percentDelta": -0.005397222632408383
+          }
+        },
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              61104.0,
+              53729.5,
+              60354.5,
+              64271.0,
+              66771.0,
+              63021.0
+            ],
+            "candidatePerJvm": [
+              67687.5,
+              63833.5,
+              58708.5,
+              66688.0,
+              64979.0,
+              87791.5
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 62062.5,
+              "p95": 66771.0,
+              "min": 53729.5,
+              "max": 66771.0
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 65833.5,
+              "p95": 87791.5,
+              "min": 58708.5,
+              "max": 87791.5
+            },
+            "delta": 3771.0,
+            "percentDelta": 6.076132930513589
+          },
+          "p95": {
+            "baselinePerJvm": [
+              99042,
+              111292,
+              100166,
+              150083,
+              123917,
+              95250
+            ],
+            "candidatePerJvm": [
+              116542,
+              103459,
+              101459,
+              99583,
+              135875,
+              111917
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 105729.0,
+              "p95": 150083,
+              "min": 95250,
+              "max": 150083
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 107688.0,
+              "p95": 135875,
+              "min": 99583,
+              "max": 135875
+            },
+            "delta": 1959.0,
+            "percentDelta": 1.8528502113895007
+          }
+        }
+      },
+      {
+        "group": {
+          "corpus": "large-java-lazy",
+          "kind": "sample",
+          "mode": "direct",
+          "writerMode": "late-lazy-lexer"
+        },
+        "resolutionNs": {
+          "median": {
+            "baselinePerJvm": [
+              5237374.5,
+              4749708.0,
+              4703521.0,
+              4969687.5,
+              4647791.5,
+              4781083.0
+            ],
+            "candidatePerJvm": [
+              4799854.5,
+              5000583.0,
+              4682583.5,
+              4623250.0,
+              4498125.0,
+              4968187.5
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 4765395.5,
+              "p95": 5237374.5,
+              "min": 4647791.5,
+              "max": 5237374.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 4741219.0,
+              "p95": 5000583.0,
+              "min": 4498125.0,
+              "max": 5000583.0
+            },
+            "delta": -24176.5,
+            "percentDelta": -0.5073345958378495
+          },
+          "p95": {
+            "baselinePerJvm": [
+              6101208,
+              7017792,
+              7770958,
+              6156250,
+              8098458,
+              6883667
+            ],
+            "candidatePerJvm": [
+              6635000,
+              8734750,
+              5925334,
+              7006166,
+              6901375,
+              9161166
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 6950729.5,
+              "p95": 8098458,
+              "min": 6101208,
+              "max": 8098458
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 6953770.5,
+              "p95": 9161166,
+              "min": 5925334,
+              "max": 9161166
+            },
+            "delta": 3041.0,
+            "percentDelta": 0.04375080342287063
+          }
+        },
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              95146.0,
+              83645.5,
+              72021.0,
+              91792.0,
+              79416.5,
+              84021.0
+            ],
+            "candidatePerJvm": [
+              100646.0,
+              95792.0,
+              85208.0,
+              75958.5,
+              78187.5,
+              82104.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 83833.25,
+              "p95": 95146.0,
+              "min": 72021.0,
+              "max": 95146.0
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 83656.0,
+              "p95": 100646.0,
+              "min": 75958.5,
+              "max": 100646.0
+            },
+            "delta": -177.25,
+            "percentDelta": -0.21143162170140783
+          },
+          "p95": {
+            "baselinePerJvm": [
+              168084,
+              138042,
+              120625,
+              200375,
+              146333,
+              164334
+            ],
+            "candidatePerJvm": [
+              222083,
+              250958,
+              177458,
+              208708,
+              107208,
+              275583
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 155333.5,
+              "p95": 200375,
+              "min": 120625,
+              "max": 200375
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 215395.5,
+              "p95": 275583,
+              "min": 107208,
+              "max": 275583
+            },
+            "delta": 60062.0,
+            "percentDelta": 38.66648211750845
+          }
+        }
+      },
+      {
+        "group": {
+          "corpus": "large-java-lazy",
+          "kind": "sample",
+          "mode": "scope",
+          "writerMode": "none"
+        },
+        "resolutionNs": {
+          "median": {
+            "baselinePerJvm": [
+              26801229.0,
+              25946834.0,
+              25567604.0,
+              25064562.5,
+              24774395.5,
+              24359958.5
+            ],
+            "candidatePerJvm": [
+              25698124.5,
+              22468333.0,
+              25219791.5,
+              23241958.5,
+              21297312.5,
+              24959042.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 25316083.25,
+              "p95": 26801229.0,
+              "min": 24359958.5,
+              "max": 26801229.0
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 24100500.25,
+              "p95": 25698124.5,
+              "min": 21297312.5,
+              "max": 25698124.5
+            },
+            "delta": -1215583.0,
+            "percentDelta": -4.80162348968417
+          },
+          "p95": {
+            "baselinePerJvm": [
+              27602583,
+              26790334,
+              26623291,
+              25781208,
+              25697459,
+              25364250
+            ],
+            "candidatePerJvm": [
+              26997083,
+              23463625,
+              25638417,
+              26882750,
+              23817584,
+              27593709
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 26202249.5,
+              "p95": 27602583,
+              "min": 25364250,
+              "max": 27602583
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 26260583.5,
+              "p95": 27593709,
+              "min": 23463625,
+              "max": 27593709
+            },
+            "delta": 58334.0,
+            "percentDelta": 0.2226297402442512
+          }
+        },
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "candidatePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "baselineAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "candidateAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "delta": null,
+            "percentDelta": null
+          },
+          "p95": {
+            "baselinePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "candidatePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "baselineAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "candidateAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "delta": null,
+            "percentDelta": null
+          }
+        }
+      },
+      {
+        "group": {
+          "corpus": "large-java-lazy",
+          "kind": "sample",
+          "mode": "scope",
+          "writerMode": "late-traversal"
+        },
+        "resolutionNs": {
+          "median": {
+            "baselinePerJvm": [
+              7850041.5,
+              7822687.5,
+              7904854.5,
+              7545208.5,
+              7639270.5,
+              7426416.5
+            ],
+            "candidatePerJvm": [
+              7442708.0,
+              7518896.0,
+              7600187.5,
+              7382687.5,
+              7243187.5,
+              7605666.5
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 7730979.0,
+              "p95": 7904854.5,
+              "min": 7426416.5,
+              "max": 7904854.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 7480802.0,
+              "p95": 7605666.5,
+              "min": 7243187.5,
+              "max": 7605666.5
+            },
+            "delta": -250177.0,
+            "percentDelta": -3.236032590439064
+          },
+          "p95": {
+            "baselinePerJvm": [
+              8249916,
+              8144458,
+              9729958,
+              7901459,
+              8663375,
+              8576708
+            ],
+            "candidatePerJvm": [
+              8371125,
+              8517916,
+              7872875,
+              8665209,
+              9359958,
+              8928667
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 8413312.0,
+              "p95": 9729958,
+              "min": 7901459,
+              "max": 9729958
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 8591562.5,
+              "p95": 9359958,
+              "min": 7872875,
+              "max": 9359958
+            },
+            "delta": 178250.5,
+            "percentDelta": 2.118672170959557
+          }
+        },
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              49562.0,
+              48896.0,
+              58896.0,
+              52792.0,
+              57041.5,
+              53083.5
+            ],
+            "candidatePerJvm": [
+              50062.5,
+              52145.5,
+              51854.0,
+              54187.5,
+              61792.0,
+              51750.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 52937.75,
+              "p95": 58896.0,
+              "min": 48896.0,
+              "max": 58896.0
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 51999.75,
+              "p95": 61792.0,
+              "min": 50062.5,
+              "max": 61792.0
+            },
+            "delta": -938.0,
+            "percentDelta": -1.7718924585952367
+          },
+          "p95": {
+            "baselinePerJvm": [
+              68500,
+              74916,
+              104875,
+              90625,
+              99500,
+              76000
+            ],
+            "candidatePerJvm": [
+              80041,
+              101000,
+              71500,
+              87250,
+              100875,
+              101667
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 83312.5,
+              "p95": 104875,
+              "min": 68500,
+              "max": 104875
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 94062.5,
+              "p95": 101667,
+              "min": 71500,
+              "max": 101667
+            },
+            "delta": 10750.0,
+            "percentDelta": 12.903225806451623
+          }
+        }
+      },
+      {
+        "group": {
+          "corpus": "large-java-lazy",
+          "kind": "sample",
+          "mode": "scope",
+          "writerMode": "late-lazy-lexer"
+        },
+        "resolutionNs": {
+          "median": {
+            "baselinePerJvm": [
+              4692041.5,
+              4559833.0,
+              4609687.0,
+              4591645.5,
+              4482354.0,
+              4464625.0
+            ],
+            "candidatePerJvm": [
+              4361916.5,
+              4658437.5,
+              4510708.5,
+              4479166.5,
+              4858417.0,
+              4676604.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 4575739.25,
+              "p95": 4692041.5,
+              "min": 4464625.0,
+              "max": 4692041.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 4584573.0,
+              "p95": 4858417.0,
+              "min": 4361916.5,
+              "max": 4858417.0
+            },
+            "delta": 8833.75,
+            "percentDelta": 0.19305623676000305
+          },
+          "p95": {
+            "baselinePerJvm": [
+              4975583,
+              4684334,
+              5070125,
+              4877083,
+              4604875,
+              4843875
+            ],
+            "candidatePerJvm": [
+              4546209,
+              5002959,
+              4879417,
+              4683250,
+              5191875,
+              6720750
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 4860479.0,
+              "p95": 5070125,
+              "min": 4604875,
+              "max": 5070125
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 4941188.0,
+              "p95": 6720750,
+              "min": 4546209,
+              "max": 6720750
+            },
+            "delta": 80709.0,
+            "percentDelta": 1.6605153524992033
+          }
+        },
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              67083.5,
+              79249.5,
+              73271.0,
+              69958.0,
+              85104.0,
+              80542.0
+            ],
+            "candidatePerJvm": [
+              73854.5,
+              62979.5,
+              67437.5,
+              68687.5,
+              88021.0,
+              87021.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 76260.25,
+              "p95": 85104.0,
+              "min": 67083.5,
+              "max": 85104.0
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 71271.0,
+              "p95": 88021.0,
+              "min": 62979.5,
+              "max": 88021.0
+            },
+            "delta": -4989.25,
+            "percentDelta": -6.542399218465711
+          },
+          "p95": {
+            "baselinePerJvm": [
+              158541,
+              152167,
+              108042,
+              133833,
+              182666,
+              171959
+            ],
+            "candidatePerJvm": [
+              124959,
+              103709,
+              99209,
+              103000,
+              175625,
+              137541
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 155354.0,
+              "p95": 182666,
+              "min": 108042,
+              "max": 182666
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 114334.0,
+              "p95": 175625,
+              "min": 99209,
+              "max": 175625
+            },
+            "delta": -41020.0,
+            "percentDelta": -26.404212315099706
+          }
+        }
+      },
+      {
+        "group": {
+          "corpus": "large-xml",
+          "kind": "sample",
+          "mode": "direct",
+          "writerMode": "none"
+        },
+        "resolutionNs": {
+          "median": {
+            "baselinePerJvm": [
+              22081500.0,
+              21998145.5,
+              22855770.5,
+              23508104.5,
+              21454333.5,
+              23212479.0
+            ],
+            "candidatePerJvm": [
+              23109187.5,
+              22460458.5,
+              22805395.5,
+              23577354.5,
+              20999771.0,
+              20978854.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 22468635.25,
+              "p95": 23508104.5,
+              "min": 21454333.5,
+              "max": 23508104.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 22632927.0,
+              "p95": 23577354.5,
+              "min": 20978854.0,
+              "max": 23577354.5
+            },
+            "delta": 164291.75,
+            "percentDelta": 0.7312048469877652
+          },
+          "p95": {
+            "baselinePerJvm": [
+              22607792,
+              22619667,
+              23614666,
+              24542750,
+              22507000,
+              23868125
+            ],
+            "candidatePerJvm": [
+              23888709,
+              23076500,
+              23439083,
+              24041541,
+              21447208,
+              21237417
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 23117166.5,
+              "p95": 24542750,
+              "min": 22507000,
+              "max": 24542750
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 23257791.5,
+              "p95": 24041541,
+              "min": 21237417,
+              "max": 24041541
+            },
+            "delta": 140625.0,
+            "percentDelta": 0.6083141720677476
+          }
+        },
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "candidatePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "baselineAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "candidateAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "delta": null,
+            "percentDelta": null
+          },
+          "p95": {
+            "baselinePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "candidatePerJvm": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "baselineAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "candidateAcrossJvm": {
+              "count": 0,
+              "median": null,
+              "p95": null,
+              "min": null,
+              "max": null
+            },
+            "delta": null,
+            "percentDelta": null
+          }
+        }
+      },
+      {
+        "group": {
+          "corpus": "large-xml",
+          "kind": "sample",
+          "mode": "direct",
+          "writerMode": "late-traversal"
+        },
+        "resolutionNs": {
+          "median": {
+            "baselinePerJvm": [
+              4997020.5,
+              4867000.0,
+              5156374.5,
+              5252188.0,
+              4884458.5,
+              5298874.5
+            ],
+            "candidatePerJvm": [
+              5198646.0,
+              5110187.0,
+              5175500.0,
+              5301479.0,
+              4749438.0,
+              4720000.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 5076697.5,
+              "p95": 5298874.5,
+              "min": 4867000.0,
+              "max": 5298874.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 5142843.5,
+              "p95": 5301479.0,
+              "min": 4720000.0,
+              "max": 5301479.0
+            },
+            "delta": 66146.0,
+            "percentDelta": 1.302933649286775
+          },
+          "p95": {
+            "baselinePerJvm": [
+              5125167,
+              5183042,
+              5406167,
+              5669625,
+              5099792,
+              5511625
+            ],
+            "candidatePerJvm": [
+              5614292,
+              5234750,
+              5414375,
+              5548750,
+              4975709,
+              4933375
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 5294604.5,
+              "p95": 5669625,
+              "min": 5099792,
+              "max": 5669625
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 5324562.5,
+              "p95": 5614292,
+              "min": 4933375,
+              "max": 5614292
+            },
+            "delta": 29958.0,
+            "percentDelta": 0.5658212997779133
+          }
+        },
+        "writeWaitNs": {
+          "median": {
+            "baselinePerJvm": [
+              35312.5,
+              30708.5,
+              30500.5,
+              40208.5,
+              37625.5,
+              53833.5
+            ],
+            "candidatePerJvm": [
+              45666.5,
+              36333.5,
+              45729.0,
+              37208.5,
+              36770.5,
+              36958.0
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 36469.0,
+              "p95": 53833.5,
+              "min": 30500.5,
+              "max": 53833.5
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 37083.25,
+              "p95": 45729.0,
+              "min": 36333.5,
+              "max": 45729.0
+            },
+            "delta": 614.25,
+            "percentDelta": 1.6843072198305498
+          },
+          "p95": {
+            "baselinePerJvm": [
+              76791,
+              63583,
+              77084,
+              153875,
+              63375,
+              111792
+            ],
+            "candidatePerJvm": [
+              79583,
+              69792,
+              72292,
+              101542,
+              76750,
+              68125
+            ],
+            "baselineAcrossJvm": {
+              "count": 6,
+              "median": 76937.5,
+              "p95": 153875,
+              "min": 63375,
+              "max": 153875
+            },
+            "candidateAcrossJvm": {
+              "count": 6,
+              "median": 74521.0,
+              "p95": 101542,
+              "min": 68125,
+              "max": 101542
+            },
+            "delta": -2416.5,
+            "percentDelta": -3.1408610885458987
+          }
+        }
+      }
+    ],
+    "earlierCampaigns": [
+      {
+        "candidate": "75ef1e3",
+        "commands": 42,
+        "scope": "analysis/write-wait/execution/repair/native/payload/capture-release",
+        "rawState": "performance-run-state.json"
+      },
+      {
+        "candidate": "75ef1e3",
+        "commands": 18,
+        "scope": "analysis/write-wait/native; reversed order",
+        "rawState": "performance-confirmation-state.json"
+      }
+    ],
+    "jmh": {
+      "measuredCandidate": "75ef1e3",
+      "casesPerSide": 46,
+      "reusedScope": "26 benchmark production dependency classes byte-identical in current release; no final-revision JMH execution or overall equivalence claim",
+      "provenance": "release-jmh-provenance.json"
+    },
+    "setupLimitation": "Idle task-owned daemon at0.0%CPU was retired during first analysis baseline command, after candidate1 completed. All observations retained; first-pair-excluded sensitivity reviewed separately.",
+    "finalCommands": 36,
+    "finalCandidateCommands": 18,
+    "finalBaselineCommands": 18,
+    "allocationScope": "Direct coroutine allocated bytes cover measured active coroutine segments and trace overhead; exclude EDT, sampler and independent platform/dispatcher work outside those activations. Not total IDE/JVM allocation, retained heap, or an exact identity claim.",
+    "reviews": [
+      "performance-release-analysis-review.json",
+      "performance-release-write-native-review.json",
+      "performance-release-provenance-review.json"
+    ],
+    "firstPairExcludedSensitivity": {
+      "scope": "Diagnostic only; all6 pairs remain primary. Excluding first pair yields5 pairs with unequal order split.",
+      "analysisWallMedianPercent": {
+        "ordinary": -1.7,
+        "nested": 4.96,
+        "close-only": 3.52,
+        "large-whitespace": 5.94,
+        "xml": 1.77
+      }
+    },
+    "finalRawInvariants": {
+      "analysis": {
+        "baseline": {
+          "rawRows": 1926,
+          "analysisSamples": 900,
+          "cancellationTrials": 900,
+          "canceled": 900,
+          "requestAfterReturn": 0,
+          "nonCancellationExceptions": 0
+        },
+        "candidate": {
+          "rawRows": 1926,
+          "analysisSamples": 900,
+          "cancellationTrials": 900,
+          "canceled": 900,
+          "requestAfterReturn": 0,
+          "nonCancellationExceptions": 0
+        }
+      },
+      "write-wait": {
+        "baseline": {
+          "rawRows": 291979,
+          "samples": 900,
+          "complete": 900,
+          "requestedDuringAnalysis": 900,
+          "waitIdentityFailures": 0,
+          "overlapExceedsWait": 0
+        },
+        "candidate": {
+          "rawRows": 291382,
+          "samples": 900,
+          "complete": 900,
+          "requestedDuringAnalysis": 900,
+          "waitIdentityFailures": 0,
+          "overlapExceedsWait": 0
+        }
+      },
+      "native": {
+        "baseline": {
+          "rawRows": 78700,
+          "samples": 2160,
+          "completed": 900,
+          "emptyOrInvalidated": 1260,
+          "resolutionFailures": 0,
+          "writerFailures": 0,
+          "writerSamples": 1260,
+          "writerTriggered": 1260,
+          "resolutionFinishedAtWriterRequest": 0,
+          "writerRequestedInsideAnyBody": 1259,
+          "noWriterMetricsNonNull": 0
+        },
+        "candidate": {
+          "rawRows": 78697,
+          "samples": 2160,
+          "completed": 900,
+          "emptyOrInvalidated": 1260,
+          "resolutionFailures": 0,
+          "writerFailures": 0,
+          "writerSamples": 1260,
+          "writerTriggered": 1260,
+          "resolutionFinishedAtWriterRequest": 0,
+          "writerRequestedInsideAnyBody": 1259,
+          "noWriterMetricsNonNull": 0
+        }
+      }
+    },
+    "analysisCancellationUnwindOrdinary": {
+      "baselineMedianMicroseconds": 137.5,
+      "candidateMedianMicroseconds": 153.4,
+      "medianPercentDelta": 11.57,
+      "p95PercentDelta": 7.34,
+      "scope": "Observed scheduled request to unwind, not isolated Job cancellation-check latency."
+    },
+    "latencyRegressionSignalsResolved": false,
+    "noRegressionProven": false,
+    "equivalenceProven": false,
+    "causalityEstablished": false
+  },
+  "remainingLimits": [
+    "Observed latency increases with unresolved cause; no overall performance equivalence established.",
+    "One final XML context remained live at5-second timeout in both historical baseline/candidate capture-release observations; later release unverified.",
+    "Native fixture has no allocation metric.",
+    "Compile visibility and passing tests do not prove absence of all threading or algorithm bugs.",
+    "Remote Bencher submission, push, PR creation and uploads were not performed."
+  ],
+  "evidence": {
+    "check-4-evidence/summary.json": {
+      "sha256": "5f0de4c2ab612568ad55542562bd626339654f16f3229bd047c54499fe48eabc",
+      "bytes": 719
+    },
+    "check-4-evidence/results.json": {
+      "sha256": "bd8587feba178d7a3e4fbbaad0c132aa3f56188464017351493996ef7e181975",
+      "bytes": 56508
+    },
+    "check-4-evidence/classpaths.json": {
+      "sha256": "2570a6dd07c4783745d535931aef39dbdbdec41bb3613612ee9007e00dd80066",
+      "bytes": 61613
+    },
+    "sdk-free/results.json": {
+      "sha256": "c72c431f58be9dbe96f65f5d51843518269cafe84fce9d30e04c3a5663483112",
+      "bytes": 8481
+    },
+    "sdk-free/classpaths.json": {
+      "sha256": "93afd51091872eef93342d10efb3620d0a710c957d9e6f9fc32828fdc10a0758",
+      "bytes": 12715
+    },
+    "contamination-2/results.json": {
+      "sha256": "3519b63bc1c9d919c3841e32453cd866cc7804cd627d94f17e5371be50b525a8",
+      "bytes": 7903
+    },
+    "verifier-release-result.json": {
+      "sha256": "5c8dd7f05cd1510c7f509c71f12e93dcb69f3c6dd009dbabaae9298212c8fd27",
+      "bytes": 66671
+    },
+    "release-verifier-review.json": {
+      "sha256": "50eadf48ce5c476c740768fb40f87318b07c7867e9349cb65e94c84f4079b2e9",
+      "bytes": 13779
+    },
+    "latest-runtime-release-result.json": {
+      "sha256": "f0f365822973670a99970d10d4ad3a2e11b9c7078878667dbb60eca1d0ce8090",
+      "bytes": 2038
+    },
+    "driver-release-result.json": {
+      "sha256": "0bcb140ef464a84fadacbd3277dec0a3be9dcd52aa5c33850d5a06c6af46fe76",
+      "bytes": 2656
+    },
+    "qodana-release-result.json": {
+      "sha256": "44cf3f5e8bde73e015a5f1e98059002968835e0fac47a0372d9ecd233c8c6413",
+      "bytes": 745
+    },
+    "release-packaging/review.json": {
+      "sha256": "5ce3802996de640877114bbe7b3e26fe367c3bafd03c67e749648ee996997d64",
+      "bytes": 3596
+    },
+    "release-jmh-provenance.json": {
+      "sha256": "b39379d70d77b42bb2b467580e5865aedac70e4a6f6dbde398c01124ebac1a04",
+      "bytes": 24302
+    },
+    "jmh-1/summary.json": {
+      "sha256": "6ec8e1113c9b586ccc64c33df8d21bc5f9f3d66aa8b0a3ae7d765ea774e80974",
+      "bytes": 127576
+    },
+    "jmh-review.json": {
+      "sha256": "119dc98340bbb54fdc9a1c594761653b520d01fd1982aa6e2e378291020502bb",
+      "bytes": 7064
+    },
+    "analysis-final-comparison.json": {
+      "sha256": "8a5534a8fb2f237236e01bff731375fcd1b50581c9ba8c68ef96e21b9f07afcb",
+      "bytes": 1773421
+    },
+    "execution-final-comparison.json": {
+      "sha256": "1793228a0b62942983e784ff4f8365284d40a8ddb4d76e5f35b2f1c6bb602e62",
+      "bytes": 3256431
+    },
+    "performance-final-state.json": {
+      "sha256": "63f90e27d8960a3e5d60a174477400411ee96c241d61ca4e8bee64ac3b6c2d2f",
+      "bytes": 1002653
+    },
+    "performance-release-preparation-cleanup.json": {
+      "sha256": "b3bcdd2fbe9468343f70cc971b15b230151f94d04698039d5f89a6975c4ad952",
+      "bytes": 1309
+    },
+    "performance-release-analysis-review.json": {
+      "sha256": "ceebe0deda3f30acc9ab1a49ed0bed8e5374b96b61e71924942d5a4c25c594bd",
+      "bytes": 143887
+    },
+    "performance-release-write-native-review.json": {
+      "sha256": "10430bb7c6b382ac15d816604a52c9a56c93155462a781b5acafe4164ec96c4c",
+      "bytes": 866128
+    },
+    "performance-release-provenance-review.json": {
+      "sha256": "34db7bf2d2720e0e0395aff811c9054b0011befe530ca523cc8522f9d84756dd",
+      "bytes": 41254
+    },
+    "performance-ui-initial-review.json": {
+      "sha256": "32921197aa1255fea7a8634d4d5f20c99dd5ee2e7eee4705e764beb395109fac",
+      "bytes": 21306
+    },
+    "performance-memory-native-review.json": {
+      "sha256": "776d7dea15b3a155fc1bceeab3b7394c00b40c9a4bb60918ebc71733bfe271b5",
+      "bytes": 13647
+    },
+    "release-inputs.json": {
+      "sha256": "284157055e8a553073393af978ea11528094d4eed08c3a2c308a2648523f9716",
+      "bytes": 2491
+    },
+    "release-packaging/packaging.json": {
+      "sha256": "e2d36c386cbd4149954a70213fe38f33ab512ce02c6d09b9d24ce433008a3d8b",
+      "bytes": 896
+    },
+    "release-packaging/packaging-manifest.json": {
+      "sha256": "928cb2ac5cca87d98a6207c55ba5858a3f6c38ef3bac9faa1567b1a0fc79bf05",
+      "bytes": 1708
+    },
+    "stale-source-red-result.json": {
+      "sha256": "7e80d6c800a773fc37bbbd4429ae2d1e9414c6aa317a387c3a8c830a744c3ede",
+      "bytes": 573
+    },
+    "final-style-bytecode-review.json": {
+      "sha256": "b0e2a261da2caf170c59fbc84bc12a4057fec4dbedd8172d5beebb441154fb29",
+      "bytes": 19164
+    },
+    "release-requirement-audit.json": {
+      "sha256": "4d43ef6920762668f0d1eb85e4a5996f0bf03bd604b1b78d1fee093880d4d7df",
+      "bytes": 20316
+    },
+    "performance-run-state.json": {
+      "sha256": "3b5cc8225eefa1195d34123a5f65754cc6ff7b10c93f588d9a3c2e2f7b4c4f68",
+      "bytes": 1104281
+    },
+    "performance-confirmation-state.json": {
+      "sha256": "a7e9cb59e45204a2fb2f0be5da687e51cd7fd0b7b406854c0b8e8f2fc9c92b77",
+      "bytes": 468343
+    },
+    "performance-plan.json": {
+      "sha256": "2faa44a6231f8a2c066e9c40aef8643fef9429ef1514d8bcc73c9c99ea4d5d1d",
+      "bytes": 51045
+    },
+    "run_performance.py": {
+      "sha256": "c8cd9055dae1e7aa0054b726a4af9a97d5e152dc2192a37fae510daa74302deb",
+      "bytes": 20348
+    },
+    "run_performance_confirmation.py": {
+      "sha256": "7e6c28ee68cabe907115fb93437a51ea1419bcee6469f13c0b5fba8c41836827",
+      "bytes": 21239
+    },
+    "run_performance_final.py": {
+      "sha256": "46c9d7aef37cb03294d517c4d59ac434647d566e0ad4b3a68f6a6d316758ec19",
+      "bytes": 22538
+    },
+    "compare_analysis.py": {
+      "sha256": "99a73a237f2df3033027b4f7a5d316ff2a296a473c4a026cacd42f3a529424b0",
+      "bytes": 14950
+    },
+    "compare_execution.py": {
+      "sha256": "9e968e7f9bfcfb6016d19adbd506276b6a7449c17a72ebabbb0e0528f2bcd0d6",
+      "bytes": 18672
+    },
+    "measure.init.gradle": {
+      "sha256": "dc8403fcaa4c8be5ca71be8ad0059aa4daf62019f83c7b3daf3bcd2a206cfc2d",
+      "bytes": 1557
+    },
+    "run_jmh.py": {
+      "sha256": "b9df3918bef07795dfb7bcc0bd3c5d6f993b78fd98283e2c4249f5014a501366",
+      "bytes": 29239
+    },
+    "run_contamination_checks.py": {
+      "sha256": "92e2a9320084ebac838527a31574ad2d795f9f11263d8d688e1f76b1a18b450e",
+      "bytes": 7374
+    },
+    "verification-plan/run-final-serial-verifiers.py": {
+      "sha256": "80483d5477f869fe001e3809990211965cca432829283bd184cd13b14236612e",
+      "bytes": 21754
+    }
+  },
+  "evidenceRetention": "Only reference_validation.md and this compact summary are included in the final evidence commit. Detailed reviews/runners/raw artifacts remain local untracked files in this worktree; a Git-only checkout does not include them.",
+  "updatedUTC": "2026-10-06T22:39:04.165691+00:00",
+  "requirementsAudit": "release-requirement-audit.json",
+  "originalCheckout": {
+    "path": "/Users/sijun-yang/Documents/GitHub/bracket-pair-guides",
+    "branch": "main",
+    "head": "516d4edda86a987aad66a3be9227fca67dd4f1f2",
+    "cleanAtFinalInspection": true
+  }
+}
