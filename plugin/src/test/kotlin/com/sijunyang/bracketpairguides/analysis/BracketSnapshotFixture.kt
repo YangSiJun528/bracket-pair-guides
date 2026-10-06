@@ -1,39 +1,36 @@
 package com.sijunyang.bracketpairguides.analysis
 
-import com.sijunyang.bracketpairguides.analysis.intellij.DocumentGuidePositions
+import com.sijunyang.bracketpairguides.analysis.guide.GuidePositionTestAdapter
 import com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketRecognition
 import com.sijunyang.bracketpairguides.analysis.pairing.toPairTable
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
-import com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotAssembly
+import com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculation
+import com.sijunyang.bracketpairguides.analysis.snapshot.stampedOutcome
 
-/** Builds a test result through the production snapshot assembly and indexes. */
+/** Builds supplied fixture pairs through production pure calculation and stamped publication. */
 internal fun AnalysisInput.bracketSnapshot(
     pairs: Iterable<BracketPair>,
     matcherAvailability: BraceMatcherAvailability = BraceMatcherAvailability.AVAILABLE,
 ): BracketSnapshot {
     val document = editor.document
     val guidePositions =
-        DocumentGuidePositions(
+        GuidePositionTestAdapter(
             document = document,
             tabSize = stamp.tabSize,
             checkCanceled = {},
         )
-    val outcome =
-        SnapshotAssembly(
-            input = this,
-            recognize = {
-                DocumentBracketRecognition.Complete(
-                    pairs.toPairTable(),
-                    matcherAvailability,
-                )
-            },
-            checkCanceled = {},
-            documentLength = document.textLength,
-            documentLineCount = document.lineCount,
-            guidePositions = guidePositions::index,
-            canonicalIndexes = { _, _, _, indexes -> indexes },
-        ).outcome()
+    val prepared = SnapshotCalculation.prepare(
+        coverage = coverage,
+        recognition = DocumentBracketRecognition.Complete(pairs.toPairTable(), matcherAvailability),
+        checkCanceled = {},
+        documentLength = document.textLength,
+        documentLineCount = document.lineCount,
+    )
+    val outcome = stampedOutcome(
+        this,
+        prepared.finish(prepared.guideLines?.let(guidePositions::index)),
+    ) { _, _, _, indexes -> indexes }
     return (outcome as? AnalysisOutcome.Complete)?.snapshot
         ?: error("Expected complete fixture analysis, got ${outcome::class.java.simpleName}")
 }

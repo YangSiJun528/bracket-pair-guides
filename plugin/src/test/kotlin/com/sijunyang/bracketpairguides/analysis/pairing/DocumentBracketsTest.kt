@@ -21,17 +21,37 @@ import com.intellij.openapi.fileTypes.impl.AbstractFileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IElementType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
+import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.BackgroundAnalysisTestScope
 import com.sijunyang.bracketpairguides.analysis.BraceMatcherAvailability
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalog
+import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import kotlin.system.measureTimeMillis
 
 class DocumentBracketsTest : BasePlatformTestCase() {
+    private lateinit var background: BackgroundAnalysisTestScope
+
+    override fun setUp() {
+        super.setUp()
+        background = BackgroundAnalysisTestScope()
+    }
+
+    override fun tearDown() {
+        try {
+            background.close()
+        } finally {
+            super.tearDown()
+        }
+    }
+
     fun testUsesJavaLexerAndBraceDefinitions() {
         val source =
             """
@@ -46,7 +66,7 @@ class DocumentBracketsTest : BasePlatformTestCase() {
             """.trimIndent()
         myFixture.configureByText("Sample.java", source)
 
-        val pairs = analyze(EmptyProgressIndicator())
+        val pairs = analyze()
         val stringBraceOffset = source.indexOf("\"}\"") + 1
 
         assertThat(pairs).isNotEmpty()
@@ -71,9 +91,9 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         lateinit var first: List<BracketPair>
         val firstElapsedMillis =
             measureTimeMillis {
-                first = analyze(EmptyProgressIndicator())
+                first = analyze()
             }
-        val second = analyze(EmptyProgressIndicator())
+        val second = analyze()
 
         assertThat(first).hasSize(methodCount * PAIRS_PER_GENERATED_METHOD + 1)
         assertThat(second).containsExactlyElementsOf(first)
@@ -93,7 +113,7 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         val source = "(".repeat(depth) + "]".repeat(depth) + ")".repeat(depth)
         myFixture.configureByText("Malformed.java", source)
 
-        val pairs = analyze(EmptyProgressIndicator())
+        val pairs = analyze()
 
         assertThat(pairs).hasSize(depth)
         val pairsByOpenOffset = pairs.associateBy(BracketPair::openOffset)
@@ -115,14 +135,14 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         val source = "class Broken ( { ) }"
         myFixture.configureByText("Structural.java", source)
 
-        val pairs = analyze(EmptyProgressIndicator())
+        val pairs = analyze()
 
         assertThat(pairs).hasSize(1)
         assertThat(pairs.single().openOffset).isEqualTo(source.indexOf('{'))
         assertThat(pairs.single().closeOffset).isEqualTo(source.indexOf('}'))
     }
 
-    fun testLongAnalysisHonorsCancellationDuringTokenTraversal() {
+    fun testGrammarTraversalAdapterChecksItsCancellationCheckpoint() {
         myFixture.configureByText("Canceled.java", largeJavaSource(1_000))
         val delegate = EmptyProgressIndicator()
         var cancellationChecks = 0
@@ -136,7 +156,10 @@ class DocumentBracketsTest : BasePlatformTestCase() {
             }
 
         assertThatThrownBy {
-            analyze(indicator)
+            ReadAction.compute<DocumentBracketRecognition, RuntimeException> {
+                TokenGrammarTestAdapter(myFixture.editor, myFixture.file.fileType, BraceLanguageCatalog()) { true }
+                    .recognize(indicator)
+            }
         }.isInstanceOf(ProcessCanceledException::class.java)
         assertThat(cancellationChecks).isEqualTo(3)
     }
@@ -144,7 +167,7 @@ class DocumentBracketsTest : BasePlatformTestCase() {
     fun testUsesLegacyFileTypeMatcherForRecognition() {
         myFixture.configureByText("Supported.xml", "<root><child/></root>")
 
-        assertThat(analyze(EmptyProgressIndicator())).isNotEmpty()
+        assertThat(analyze()).isNotEmpty()
     }
 
     fun testUsesPlatformHostLanguageFallbackForRawCharacters() {
@@ -221,12 +244,7 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         )
 
         val pairs =
-            ReadAction.compute<List<BracketPair>, RuntimeException> {
-                documentBrackets(customFileType)
-                    .recognize(EmptyProgressIndicator())
-                    .completeTable()
-                    .toBracketPairs()
-            }
+            recognize(customFileType).pairs.toBracketPairs()
 
         assertThat(pairs).hasSize(3)
         assertThat(
@@ -253,12 +271,7 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         )
 
         val recognition =
-            ReadAction.compute<DocumentBracketRecognition.Complete, RuntimeException> {
-                documentBrackets(
-                    fileType = customFileType,
-                    isLanguageEnabled = { capabilityId -> capabilityId != "TEXT" },
-                ).recognize(EmptyProgressIndicator()) as DocumentBracketRecognition.Complete
-            }
+            recognize(fileType = customFileType, disabledLanguageIds = setOf("TEXT"))
 
         assertThat(recognition.pairs.isEmpty).isTrue()
     }
@@ -274,11 +287,7 @@ class DocumentBracketsTest : BasePlatformTestCase() {
             )
 
         val recognition =
-            ReadAction.compute<DocumentBracketRecognition.Complete, RuntimeException> {
-                documentBrackets(
-                    isLanguageEnabled = { id -> id != capabilityId },
-                ).recognize(EmptyProgressIndicator()) as DocumentBracketRecognition.Complete
-            }
+            recognize(disabledLanguageIds = setOf(capabilityId))
 
         assertThat(recognition.pairs.isEmpty).isTrue()
         assertThat(recognition.matcherAvailability)
@@ -306,7 +315,7 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         LanguageBraceMatching.INSTANCE.addExplicitExtension(DYNAMIC_LANGUAGE, matcher)
 
         try {
-            val pairs = analyze(EmptyProgressIndicator())
+            val pairs = analyze()
             val supportedOpen = source.lastIndexOf('<')
 
             assertThat(pairs).hasSize(1)
@@ -321,26 +330,25 @@ class DocumentBracketsTest : BasePlatformTestCase() {
         }
     }
 
-    private fun analyze(indicator: ProgressIndicator): List<BracketPair> =
-        ReadAction.compute<List<BracketPair>, RuntimeException> {
-            documentBrackets().recognize(indicator).completeTable().toBracketPairs()
-        }
+    private fun analyze(): List<BracketPair> = recognize().pairs.toBracketPairs()
 
-    private fun recognize(fileType: FileType = myFixture.file.fileType): DocumentBracketRecognition.Complete =
-        ReadAction.compute<DocumentBracketRecognition.Complete, RuntimeException> {
-            documentBrackets(fileType).recognize(EmptyProgressIndicator())
-                as DocumentBracketRecognition.Complete
-        }
-
-    private fun documentBrackets(
+    /** Recovers every canonical pair through its closing token's public active-pair query. */
+    private fun recognize(
         fileType: FileType = myFixture.file.fileType,
-        isLanguageEnabled: (String) -> Boolean = { true },
-    ): DocumentBrackets = DocumentBrackets(
-        editor = myFixture.editor,
-        fileType = fileType,
-        languages = BraceLanguageCatalog(),
-        isLanguageEnabled = isLanguageEnabled,
-    )
+        disabledLanguageIds: Set<String> = emptySet(),
+    ): DocumentBracketRecognition.Complete {
+        val input = AnalysisInput(myFixture.editor, fileType, AnalysisCoverage(true, true, false), disabledLanguageIds)
+        val outcome = background.analyze(input)
+        assertThat(outcome).isInstanceOf(AnalysisOutcome.Complete::class.java)
+        val snapshot = (outcome as AnalysisOutcome.Complete).snapshot
+        val tokens = snapshot.visibleTokens(TextRange(0, myFixture.editor.document.textLength), 0, Int.MAX_VALUE)
+        val pairs = (0 until tokens.size)
+            .mapNotNull { snapshot.activePairAt(tokens.offsetAt(it)) }
+            .distinctBy(BracketPair::openOffset)
+            .sortedBy(BracketPair::openOffset)
+        assertThat(tokens.size).isEqualTo(pairs.size * 2)
+        return DocumentBracketRecognition.Complete(pairs.toPairTable(), snapshot.matcherAvailability)
+    }
 
     private fun largeJavaSource(methodCount: Int): String = buildString {
         append("class Large {\n")

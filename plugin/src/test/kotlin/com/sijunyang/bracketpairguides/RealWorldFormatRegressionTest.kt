@@ -1,20 +1,15 @@
 package com.sijunyang.bracketpairguides
 
-import com.intellij.openapi.application.ReadAction
-import com.intellij.openapi.components.service
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.PlainTextFileType
-import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
-import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
-import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
 import com.sijunyang.bracketpairguides.analysis.requireSnapshot
 import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.snapshot.TokenWindow
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
-import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPass
+import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingFixture
 import com.sijunyang.bracketpairguides.editor.policy.EditorActivity
 import com.sijunyang.bracketpairguides.editor.policy.EditorCapabilities
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
@@ -23,7 +18,7 @@ import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import org.assertj.core.api.Assertions.assertThat
 
-class RealWorldFormatRegressionTest : BasePlatformTestCase() {
+internal class RealWorldFormatRegressionTest : BracketGuideHighlightingFixture() {
     override fun setUp() {
         super.setUp()
         BracketGuideSettings.getInstance().loadState(BracketGuidePreferences())
@@ -56,9 +51,8 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
             .describedAs("$fileName must be recognized by its bundled language plugin")
             .isNotSameAs(PlainTextFileType.INSTANCE)
 
-        val analysis = service<BracketAnalysis>()
-        val first = analyze(analysis, file.fileType)
-        val second = analyze(analysis, file.fileType)
+        val first = analyze(file.fileType)
+        val second = analyze(file.fileType)
         val fullRange = TextRange(0, document.textLength)
         val firstTokens = first.visibleTokens(fullRange, focusOffset = 0, limit = Int.MAX_VALUE)
         val secondTokens = second.visibleTokens(fullRange, focusOffset = 0, limit = Int.MAX_VALUE)
@@ -95,20 +89,17 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         }
 
         val pass =
-            BracketGuideHighlightingPass(
+            createPass(
                 activity = { EditorActivity.ACTIVE },
                 capabilities = { EditorCapabilities.MAIN },
                 project = project,
                 editor = editor,
                 fileType = file.fileType,
                 sourceFile = file.virtualFile,
-                analyze = service<BracketAnalysis>()::analyze,
             )
         editor.caretModel.moveToOffset(firstTokens.offsetAt(0) + 1)
-        inReadAction {
-            pass.doCollectInformation(EmptyProgressIndicator())
-        }
-        pass.doApplyInformationToEditor()
+        collectPass(pass)
+        publishPass(pass)
 
         val session = checkNotNull(EditorGuideSessions.get(editor))
         val coloredTokenCount = editor.observedBracketMarkup().tokenMarks.size
@@ -164,23 +155,14 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
         }
     }
 
-    private fun analyze(analysis: BracketAnalysis, fileType: FileType): BracketSnapshot = inReadAction {
-        analysis
-            .analyze(
-                AnalysisInput(
-                    editor = myFixture.editor,
-                    fileType = fileType,
-                    coverage =
-                    AnalysisCoverage(
-                        tokens = true,
-                        activePair = true,
-                        guidePosition = true,
-                    ),
-                    disabledLanguageIds = emptySet(),
-                ),
-                EmptyProgressIndicator(),
-            ).requireSnapshot()
-    }
+    private fun analyze(fileType: FileType): BracketSnapshot = analyzeInBackground(
+        AnalysisInput(
+            editor = myFixture.editor,
+            fileType = fileType,
+            coverage = AnalysisCoverage(tokens = true, activePair = true, guidePosition = true),
+            disabledLanguageIds = emptySet(),
+        ),
+    ).requireSnapshot()
 
     private fun TokenWindow.toValues(): List<TokenValue> = List(size) { index ->
         TokenValue(
@@ -189,8 +171,6 @@ class RealWorldFormatRegressionTest : BasePlatformTestCase() {
             depth = depthAt(index),
         )
     }
-
-    private fun <T> inReadAction(action: () -> T): T = ReadAction.compute<T, RuntimeException>(action)
 
     private data class TokenValue(val offset: Int, val length: Int, val depth: Int)
 

@@ -22,7 +22,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         val fullOptions = BracketGuideSettings.getInstance().options
         var analysisCount = 0
         val pass =
-            BracketGuideHighlightingPass(
+            createPass(
                 activity = { EditorActivity.ACTIVE },
                 capabilities = { EditorCapabilities.MAIN },
                 project = project,
@@ -106,7 +106,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         var analysisCount = 0
         val sourceFile = MutableLengthVirtualFile("Large.java", reportedLength = 0L)
         val pass =
-            BracketGuideHighlightingPass(
+            createPass(
                 activity = { EditorActivity.ACTIVE },
                 capabilities = { EditorCapabilities.MAIN },
                 project = project,
@@ -145,7 +145,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         val sourceFile = MutableLengthVirtualFile("Mutable.java", 0L)
         var analysisCount = 0
 
-        fun pass(): BracketGuideHighlightingPass = BracketGuideHighlightingPass(
+        fun pass(): BracketGuideHighlightingPass = createPass(
             activity = { EditorActivity.ACTIVE },
             capabilities = { EditorCapabilities.MAIN },
             project = project,
@@ -166,9 +166,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         assertThat(completedMarks).isNotEmpty()
 
         val staleSmallPass = pass()
-        inReadAction {
-            staleSmallPass.doCollectInformation(EmptyProgressIndicator())
-        }
+        collectPass(staleSmallPass)
         val tokenOnlyOptions =
             BracketGuideSettings.getInstance().options.copy(
                 showActiveGuide = false,
@@ -181,7 +179,8 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         val codeInsightBoundary = FileUtilRt.getUserFileSizeLimit()
         resizeDocument(codeInsightBoundary + 1)
 
-        staleSmallPass.doApplyInformationToEditor()
+        // The cache hit already completed; a fresh request observes the current size policy.
+        applyPass(staleSmallPass)
 
         assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
 
@@ -190,11 +189,9 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
 
         val staleLargeRefusal = pass()
-        inReadAction {
-            staleLargeRefusal.doCollectInformation(EmptyProgressIndicator())
-        }
+        collectPass(staleLargeRefusal)
         resizeDocument(source.length)
-        staleLargeRefusal.doApplyInformationToEditor()
+        publishPass(staleLargeRefusal)
 
         assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
         applyPass(pass())
@@ -237,7 +234,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
 
         resizeDocument(exactBoundary.toInt())
         applyPass(
-            BracketGuideHighlightingPass(
+            createPass(
                 project,
                 editor,
                 myFixture.file.fileType,
@@ -253,7 +250,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         sourceFile.reportedLength = 0L
         resizeDocument(exactBoundary.toInt() + 1)
         applyPass(
-            BracketGuideHighlightingPass(
+            createPass(
                 project,
                 editor,
                 myFixture.file.fileType,
@@ -267,7 +264,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         assertThat(editor.observedBracketMarkup().allMarks).isEmpty()
 
         applyPass(
-            BracketGuideHighlightingPass(
+            createPass(
                 activity = { EditorActivity.ACTIVE },
                 capabilities = { EditorCapabilities.MAIN },
                 project = project,
@@ -297,7 +294,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
                 closeLine = 2,
             )
         val lateLimited =
-            BracketGuideHighlightingPass(
+            createPass(
                 activity = { EditorActivity.ACTIVE },
                 capabilities = { EditorCapabilities.MAIN },
                 project = project,
@@ -319,11 +316,9 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
                     )
                 },
             )
-        inReadAction {
-            lateLimited.doCollectInformation(EmptyProgressIndicator())
-        }
+        collectPass(lateLimited)
         val complete =
-            BracketGuideHighlightingPass(
+            createPass(
                 activity = { EditorActivity.ACTIVE },
                 capabilities = { EditorCapabilities.MAIN },
                 project = project,
@@ -340,7 +335,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         val completedGuideMarks = editor.observedBracketMarkup().guideMarks.toSet()
         assertThat(completedGuideMarks).isNotEmpty()
 
-        lateLimited.doApplyInformationToEditor()
+        publishPass(lateLimited)
 
         assertThat(editor.observedBracketMarkup().guideMarks.toSet()).isEqualTo(completedGuideMarks)
         assertThat(
@@ -373,7 +368,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
             )
         var analysisCount = 0
         val pass =
-            BracketGuideHighlightingPass(
+            createPass(
                 activity = { EditorActivity.ACTIVE },
                 capabilities = { EditorCapabilities.MAIN },
                 project = project,
@@ -433,7 +428,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
             )
         var analysisCount = 0
         val pass =
-            BracketGuideHighlightingPass(
+            createPass(
                 activity = { EditorActivity.ACTIVE },
                 capabilities = { EditorCapabilities.MAIN },
                 project = project,
@@ -506,7 +501,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         val fullOptions = BracketGuideSettings.getInstance().options
         val fullStamp = stampFor(editor, fullOptions)
         val lateUnavailable =
-            BracketGuideHighlightingPass(
+            createPass(
                 activity = { EditorActivity.ACTIVE },
                 capabilities = { EditorCapabilities.MAIN },
                 project = project,
@@ -517,9 +512,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
                     AnalysisOutcome.Unavailable(input.stamp, AnalysisLimit.PAIR_CAPACITY)
                 },
             )
-        inReadAction {
-            lateUnavailable.doCollectInformation(EmptyProgressIndicator())
-        }
+        collectPass(lateUnavailable)
 
         val tokenOnlyOptions =
             fullOptions.copy(
@@ -545,7 +538,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         assertThat(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp)).isTrue()
         assertThat(completedMarks).isNotEmpty()
 
-        lateUnavailable.doApplyInformationToEditor()
+        publishPass(lateUnavailable)
         session().accept(AnalysisOutcome.Unavailable(fullStamp, AnalysisLimit.PAIR_CAPACITY))
 
         assertThat(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp)).isTrue()
@@ -558,7 +551,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         val editor = myFixture.editor
         val options = BracketGuideSettings.getInstance().options
         val lateUnavailable =
-            BracketGuideHighlightingPass(
+            createPass(
                 activity = { EditorActivity.ACTIVE },
                 capabilities = { EditorCapabilities.MAIN },
                 project = project,
@@ -569,9 +562,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
                     AnalysisOutcome.Unavailable(input.stamp, AnalysisLimit.PAIR_CAPACITY)
                 },
             )
-        inReadAction {
-            lateUnavailable.doCollectInformation(EmptyProgressIndicator())
-        }
+        collectPass(lateUnavailable)
 
         val pair =
             BracketPair(
@@ -586,7 +577,7 @@ internal class AnalysisOutcomePublicationTest : BracketGuideHighlightingFixture(
         applyPass(pairs = { listOf(pair) })
         val completedMarks = editor.observedBracketMarkup().allMarks.toSet()
 
-        lateUnavailable.doApplyInformationToEditor()
+        publishPass(lateUnavailable)
 
         assertThat(EditorGuideSessions.canSkipAnalysis(editor, stampFor(editor, options))).isTrue()
         assertThat(editor.observedBracketMarkup().allMarks.toSet()).isEqualTo(completedMarks)

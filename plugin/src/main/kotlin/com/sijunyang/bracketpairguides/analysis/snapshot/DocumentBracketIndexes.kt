@@ -28,7 +28,8 @@ internal class DocumentBracketIndexes {
     ): BracketIndexes {
         checkCanceled()
         val document = input.editor.document
-        val revision = document.modificationStamp
+        // Computation may finish after a newer document revision has been installed.
+        val revision = input.stamp.documentStamp
         val generation = synchronized(generations) {
             generations[document]
                 ?.takeIf { current -> current.revision == revision }

@@ -61,296 +61,124 @@ internal class BackgroundAnalysisLifecycleTest : BracketGuideHighlightingFixture
         assertThat(activeGuideState()?.guide?.pair).isEqualTo(pair)
     }
 
-    fun testBackgroundPassConstructionAndDedupDoNotReadPresentationState() {
+    fun testDaemonRequestReturnsBeforeUnlockedCalculationAndPublishesOnEdt() {
         val source = "x { content } y"
-        myFixture.configureByText("BackgroundDedup.txt", source)
-        val pair =
-            BracketPair(
-                source.indexOf('{'),
-                1,
-                source.indexOf('}'),
-                1,
-                0,
-                0,
-                0,
-            )
+        myFixture.configureByText("IndependentRequest.txt", source)
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("content"))
-        val collections = AtomicInteger()
-        val pairs = {
-            collections.incrementAndGet()
-            listOf(pair)
-        }
-        EditorGuideSessions.dispose(editor)
-        assertThat(EditorGuideSessions.get(editor)).isNull()
-
-        fun collectInBackground(): BracketGuideHighlightingPass {
-            val collection =
-                AppExecutorUtil
-                    .getAppExecutorService()
-                    .submit<BracketGuideHighlightingPass> {
-                        inReadAction {
-                            testPass(project, editor, pairs).also { pass ->
-                                pass.doCollectInformation(EmptyProgressIndicator())
-                            }
-                        }
-                    }
-            PlatformTestUtil.waitWithEventsDispatching(
-                "background guide collection",
-                { collection.isDone },
-                10,
-            )
-            return collection.get()
-        }
-
-        val initialPass = collectInBackground()
-        assertThat(EditorGuideSessions.get(editor)).isNull()
-        assertThat(collections.get()).isEqualTo(1)
-        initialPass.doApplyInformationToEditor()
-        val acceptedSession = session()
-        assertThat(activeGuideState()?.guide?.pair).isEqualTo(pair)
-
-        val deduplicatedPass = collectInBackground()
-
-        assertThat(session()).isSameAs(acceptedSession)
-        assertThat(collections.get()).isEqualTo(1)
-        deduplicatedPass.doApplyInformationToEditor()
-        assertThat(session()).isSameAs(acceptedSession)
-        assertThat(activeGuideState()?.guide?.pair).isEqualTo(pair)
-    }
-
-    fun testBackgroundAnalysisUsesStampedLanguageSelectionAcrossAbaChange() {
-        val source = "x { content } y"
-        myFixture.configureByText("LanguageSelectionSnapshot.txt", source)
-        val editor = myFixture.editor
-        val pair =
-            BracketPair(
-                source.indexOf('{'),
-                1,
-                source.indexOf('}'),
-                1,
-                0,
-                0,
-                0,
-            )
-        editor.caretModel.moveToOffset(source.indexOf("content"))
-        val initialOptions = BracketGuideSettings.getInstance().options
-        val disabledDuringCollection = setOf("test.matcher.family")
-        val providerEntered = CountDownLatch(1)
-        val continueCollection = CountDownLatch(1)
-        val capturedDisabledLanguageIds = AtomicReference<Set<String>>()
-        val observedGlobalLanguageIds = AtomicReference<Set<String>>()
-        val analysis: (AnalysisInput, ProgressIndicator) -> AnalysisOutcome = { input, _ ->
-            capturedDisabledLanguageIds.set(input.disabledLanguageIds)
-            providerEntered.countDown()
-            check(continueCollection.await(10, TimeUnit.SECONDS))
-            observedGlobalLanguageIds.set(
-                BracketGuideSettings.getInstance().options.disabledLanguageIds,
-            )
-            val pairs =
-                if (disabledDuringCollection.single() in input.disabledLanguageIds) {
-                    emptyList()
-                } else {
-                    listOf(pair)
+        val pair = BracketPair(2, 1, 12, 1, 0, 0, 0)
+        val entered = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        var calculationUnderRead = true
+        var calculationOnEdt = true
+        var publishedOnEdt = false
+        val execution = createExecution(
+            analyze = { input ->
+                val app = com.intellij.openapi.application.ApplicationManager.getApplication()
+                calculationUnderRead = app.isReadAccessAllowed
+                calculationOnEdt = app.isDispatchThread
+                entered.complete(Unit)
+                release.await()
+                com.intellij.openapi.application.readAction {
+                    AnalysisOutcome.Complete(input.bracketSnapshot(listOf(pair)))
                 }
-            AnalysisOutcome.Complete(input.bracketSnapshot(pairs))
-        }
-        val pass =
-            BracketGuideHighlightingPass(
-                activity = { EditorActivity.ACTIVE },
-                capabilities = { EditorCapabilities.MAIN },
-                project = project,
-                editor = editor,
-                fileType = myFixture.file.fileType,
-                sourceFile = myFixture.file.virtualFile,
-                analyze = analysis,
-            )
-        val collection =
-            AppExecutorUtil.getAppExecutorService().submit<Unit> {
-                inReadAction {
-                    pass.doCollectInformation(EmptyProgressIndicator())
-                }
-            }
-
-        try {
-            PlatformTestUtil.waitWithEventsDispatching(
-                "background pairs entry",
-                { providerEntered.count == 0L },
-                10,
-            )
-            BracketGuideSettings.getInstance().replace(
-                initialOptions.copy(disabledLanguageIds = disabledDuringCollection),
-            )
-            continueCollection.countDown()
-            PlatformTestUtil.waitWithEventsDispatching(
-                "stamped language collection",
-                { collection.isDone },
-                10,
-            )
-            collection.get()
-            BracketGuideSettings.getInstance().replace(initialOptions)
-
-            pass.doApplyInformationToEditor()
-
-            assertThat(capturedDisabledLanguageIds.get()).isEqualTo(initialOptions.disabledLanguageIds)
-            assertThat(observedGlobalLanguageIds.get()).isEqualTo(disabledDuringCollection)
-            assertThat(activeGuideState()?.guide?.pair).isEqualTo(pair)
-        } finally {
-            continueCollection.countDown()
-            BracketGuideSettings.getInstance().replace(initialOptions)
-            collection.cancel(true)
-        }
-    }
-
-    fun testStaleBackgroundPassDoesNotInstallItsDependenciesIntoANewSession() {
-        val source = "x { content } y"
-        myFixture.configureByText("StaleBackgroundInstall.txt", source)
-        val editor = myFixture.editor
-        val pair =
-            BracketPair(
-                source.indexOf('{'),
-                1,
-                source.indexOf('}'),
-                1,
-                0,
-                0,
-                0,
-            )
-        editor.caretModel.moveToOffset(source.indexOf("content"))
-        EditorGuideSessions.dispose(editor)
-        assertThat(EditorGuideSessions.get(editor)).isNull()
-        val staleCollection =
-            AppExecutorUtil
-                .getAppExecutorService()
-                .submit<BracketGuideHighlightingPass> {
-                    inReadAction {
-                        testPass(
-                            project = project,
-                            editor = editor,
-                            pairs = { listOf(pair) },
-                        ).also { pass ->
-                            pass.doCollectInformation(EmptyProgressIndicator())
-                        }
-                    }
-                }
-        PlatformTestUtil.waitWithEventsDispatching(
-            "stale background collection",
-            { staleCollection.isDone },
-            10,
+            },
+            capabilities = { EditorCapabilities.MAIN },
+            visibleRange = {
+                publishedOnEdt = com.intellij.openapi.application.ApplicationManager.getApplication().isDispatchThread
+                TextRange(0, it.document.textLength)
+            },
         )
-        val stalePass = staleCollection.get()
+        val pass = inBackgroundReadAction {
+            BracketGuideHighlightingPass(project, editor, execution::request)
+        }
+        inBackgroundReadAction { pass.doCollectInformation(EmptyProgressIndicator()) }
+        PlatformTestUtil.waitWithEventsDispatching("independent calculation entered", { entered.isCompleted }, 10)
+        assertThat(calculationUnderRead).isFalse()
+        assertThat(calculationOnEdt).isFalse()
         assertThat(EditorGuideSessions.get(editor)).isNull()
-
-        WriteCommandAction.runWriteCommandAction(project) {
-            editor.document.insertString(editor.document.textLength, "z")
-        }
-        stalePass.doApplyInformationToEditor()
-
-        assertThat(EditorGuideSessions.get(editor)).isNull()
-    }
-
-    fun testStalePassFromAnotherFileTypeCannotReplaceCurrentDependencies() {
-        val source = "class FileTypeChange { Object content; }"
-        myFixture.configureByText("FileTypeChange.java", source)
-        val editor = myFixture.editor
-        val highlighter = editor.highlighter
-        val pair =
-            BracketPair(
-                source.indexOf('{'),
-                1,
-                source.indexOf('}'),
-                1,
-                0,
-                0,
-                0,
-            )
-        editor.caretModel.moveToOffset(source.indexOf("content"))
-        EditorGuideSessions.dispose(editor)
-        val stalePass =
-            testPass(
-                project = project,
-                editor = editor,
-                pairs = { listOf(pair) },
-                fileType = PlainTextFileType.INSTANCE,
-            )
-        inReadAction {
-            stalePass.doCollectInformation(EmptyProgressIndicator())
-        }
-        val currentPass =
-            testPass(
-                project = project,
-                editor = editor,
-                pairs = { listOf(pair) },
-                fileType = myFixture.file.fileType,
-            )
-        applyPass(currentPass)
-
-        stalePass.doApplyInformationToEditor()
-        assertThat(editor.highlighter).isSameAs(highlighter)
-        assertThat(activeGuideState()?.guide?.pair).isEqualTo(pair)
-        WriteCommandAction.runWriteCommandAction(project) {
-            editor.document.insertString(editor.document.textLength, " ")
-        }
-
+        release.complete(Unit)
+        awaitAnalysis()
+        assertThat(publishedOnEdt).isTrue()
         assertThat(activeGuideState()?.guide?.pair).isEqualTo(pair)
     }
 
-    fun testRejectedStalePassDoesNotReplaceCurrentSessionDependencies() {
-        val source = "x { content } y"
-        myFixture.configureByText("DependencyOrder.txt", source)
-        val editor = myFixture.editor
-        val pair =
-            BracketPair(
-                source.indexOf('{'),
-                1,
-                source.indexOf('}'),
-                1,
-                0,
-                0,
-                0,
-            )
-        editor.caretModel.moveToOffset(source.indexOf("content"))
-        var staleVisibleRangeCalls = 0
-        var currentVisibleRangeCalls = 0
-        val stalePass =
-            testPass(
-                project = project,
-                editor = editor,
-                pairs = { listOf(pair) },
-                visibleRange = {
-                    staleVisibleRangeCalls++
-                    TextRange(0, it.document.textLength)
-                },
-            )
-        inReadAction {
-            stalePass.doCollectInformation(EmptyProgressIndicator())
-        }
+    fun testRequestsForTheSameCapturedInputCoalesce() {
+        myFixture.configureByText("Coalesce.java", "class Coalesce { }")
+        val entered = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val calls = AtomicInteger()
+        val execution = createExecution(analyze = { input ->
+            calls.incrementAndGet()
+            entered.complete(Unit)
+            release.await()
+            com.intellij.openapi.application.readAction { AnalysisOutcome.Complete(input.bracketSnapshot(emptyList())) }
+        })
+        execution.request(myFixture.editor)
+        PlatformTestUtil.waitWithEventsDispatching("coalesced calculation entered", { entered.isCompleted }, 10)
+        repeat(20) { execution.request(myFixture.editor) }
+        release.complete(Unit)
+        awaitAnalysis()
+        assertThat(calls.get()).isEqualTo(1)
+    }
 
+    fun testStaleResultDoesNotInstallItsDependenciesIntoANewSession() {
+        myFixture.configureByText("StaleRequest.java", "class StaleRequest { }")
+        val pass = testPass(project, myFixture.editor, { emptyList() })
+        EditorGuideSessions.dispose(myFixture.editor)
+        collectPass(pass)
+        assertThat(EditorGuideSessions.get(myFixture.editor)).isNull()
         WriteCommandAction.runWriteCommandAction(project) {
-            editor.document.insertString(editor.document.textLength, "z")
+            myFixture.editor.document.insertString(0, " ")
         }
-        val currentPass =
-            testPass(
-                project = project,
-                editor = editor,
-                pairs = { listOf(pair) },
-                visibleRange = {
-                    currentVisibleRangeCalls++
-                    TextRange(0, it.document.textLength)
-                },
-            )
-        applyPass(currentPass)
+        publishPass(pass)
+        assertThat(EditorGuideSessions.get(myFixture.editor)).isNull()
+    }
 
-        stalePass.doApplyInformationToEditor()
-        staleVisibleRangeCalls = 0
-        currentVisibleRangeCalls = 0
+    fun testCapturedLanguageSelectionSurvivesAnAbaSettingsChange() {
+        myFixture.configureByText("LanguageAba.java", "class LanguageAba { }")
+        val initial = BracketGuideSettings.getInstance().options
+        val captured = AtomicReference<Set<String>>()
+        val pass = createPass(
+            project,
+            myFixture.editor,
+            myFixture.file.fileType,
+            myFixture.file.virtualFile,
+            capabilities = { EditorCapabilities.MAIN },
+            analyze = { input, _ ->
+                captured.set(input.disabledLanguageIds)
+                AnalysisOutcome.Complete(input.bracketSnapshot(emptyList()))
+            },
+        )
+        collectPass(pass)
+        BracketGuideSettings.getInstance().replace(initial.copy(disabledLanguageIds = setOf("temporary")))
+        BracketGuideSettings.getInstance().replace(initial)
+        publishPass(pass)
+        assertThat(captured.get()).isEqualTo(initial.disabledLanguageIds)
+        assertThat(EditorGuideSessions.canSkipAnalysis(myFixture.editor, stampFor(myFixture.editor, initial))).isTrue()
+    }
 
+    fun testRejectedStaleResultCannotReplaceCurrentSessionDependencies() {
+        myFixture.configureByText("DependencyOrder.java", "class DependencyOrder { }")
+        var staleCalls = 0
+        var currentCalls = 0
+        val stale = testPass(project, myFixture.editor, { emptyList() }, visibleRange = {
+            staleCalls++
+            TextRange(0, it.document.textLength)
+        })
+        collectPass(stale)
+        WriteCommandAction.runWriteCommandAction(project) { myFixture.editor.document.insertString(0, " ") }
+        val current = testPass(project, myFixture.editor, { emptyList() }, visibleRange = {
+            currentCalls++
+            TextRange(0, it.document.textLength)
+        })
+        // The older request is held while the current request publishes.
+        applyPass(current)
+        publishPass(stale)
+        staleCalls = 0
+        currentCalls = 0
         session().visibleAreaChanged()
-        WriteCommandAction.runWriteCommandAction(project) {
-            editor.document.insertString(editor.document.textLength, "z")
-        }
-
-        assertThat(staleVisibleRangeCalls).isEqualTo(0)
-        assertThat(currentVisibleRangeCalls).isEqualTo(1)
+        assertThat(staleCalls).isZero()
+        assertThat(currentCalls).isEqualTo(1)
     }
 }

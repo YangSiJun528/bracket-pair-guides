@@ -396,14 +396,14 @@ internal class GuidePresentationTest : BracketGuideHighlightingFixture() {
         myFixture.configureByText("GuideOnlyOptions.java", source)
         var visibleRangeRequests = 0
         applyPass(
-            BracketGuideHighlightingPass(
+            createPass(
                 activity = { EditorActivity.ACTIVE },
                 capabilities = { EditorCapabilities.MAIN },
                 project = project,
                 editor = myFixture.editor,
                 fileType = myFixture.file.fileType,
                 sourceFile = myFixture.file.virtualFile,
-                analyze = service<BracketAnalysis>()::analyze,
+                backgroundAnalyze = service<BracketAnalysis>()::analyzeInBackground,
                 visibleRange = {
                     visibleRangeRequests++
                     TextRange(0, source.length)

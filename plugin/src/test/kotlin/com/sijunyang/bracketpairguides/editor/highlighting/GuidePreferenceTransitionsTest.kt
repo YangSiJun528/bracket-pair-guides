@@ -170,14 +170,12 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
         val editor = myFixture.editor
         val enabled = BracketGuideSettings.getInstance().options
         val latePass = testPass(project, editor, pairs)
-        inReadAction {
-            latePass.doCollectInformation(EmptyProgressIndicator())
-        }
+        collectPass(latePass)
         val fullStamp = stampFor(editor, enabled)
 
         val disabled = enabled.copy(enabled = false)
         applyOptions(disabled)
-        latePass.doApplyInformationToEditor()
+        publishPass(latePass)
         val disabledStamp = stampFor(editor, disabled)
 
         assertThat(EditorGuideSessions.canSkipAnalysis(editor, fullStamp)).isFalse()
@@ -212,9 +210,7 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
         val editor = myFixture.editor
         val fullOptions = BracketGuideSettings.getInstance().options
         val latePass = testPass(project, editor, pairs)
-        inReadAction {
-            latePass.doCollectInformation(EmptyProgressIndicator())
-        }
+        collectPass(latePass)
 
         val tokenOnlyOptions =
             fullOptions.copy(
@@ -224,7 +220,7 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
             )
         applyOptions(tokenOnlyOptions)
         val tokenOnlyStamp = stampFor(editor, tokenOnlyOptions)
-        latePass.doApplyInformationToEditor()
+        publishPass(latePass)
 
         assertThat(collections).isEqualTo(1)
         assertThat(bracketColorHighlighters()).isNotEmpty()
@@ -258,9 +254,7 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
                 pairs = pairs,
                 visibleRange = { visibleRange },
             )
-        inReadAction {
-            lateFullPass.doCollectInformation(EmptyProgressIndicator())
-        }
+        collectPass(lateFullPass)
 
         val tokenOnlyOptions =
             fullOptions.copy(
@@ -274,7 +268,7 @@ internal class GuidePreferenceTransitionsTest : BracketGuideHighlightingFixture(
         assertThat(collections).isEqualTo(2)
         assertThat(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp)).isTrue()
 
-        lateFullPass.doApplyInformationToEditor()
+        publishPass(lateFullPass)
 
         assertThat(EditorGuideSessions.canSkipAnalysis(editor, tokenOnlyStamp)).isTrue()
         visibleRange = TextRange(50_000, 50_256)
