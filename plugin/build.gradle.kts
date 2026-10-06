@@ -115,6 +115,13 @@ intellijPlatform {
     }
 }
 
+// Distribute the attribution and license for the cancellation-aware native brace scan.
+tasks.processResources {
+    from(rootProject.layout.projectDirectory.dir("licenses")) {
+        into("META-INF/licenses")
+    }
+}
+
 tasks.withType<JavaCompile>().configureEach {
     options.release.set(17)
 }

@@ -8,9 +8,12 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
+import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.xmlb.XmlSerializer
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
@@ -20,12 +23,36 @@ import com.sijunyang.bracketpairguides.preferences.IntelliJIntegrationPreference
 import com.sijunyang.bracketpairguides.preferences.NativeHighlightMode
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.sijunyang.bracketpairguides.settings.NativeGuideConflictSettingsListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import org.assertj.core.api.Assertions.assertThat
 import java.util.ArrayDeque
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
+    private lateinit var testScope: CoroutineScope
+
+    override fun tearDown() {
+        try {
+            testScope.cancel()
+            awaitWorkers()
+        } finally {
+            super.tearDown()
+        }
+    }
+
+    private fun awaitWorkers() {
+        PlatformTestUtil.waitWithEventsDispatching("Native conflict workers did not finish", {
+            testScope.coroutineContext[Job]!!.children.all { ownedRoot -> ownedRoot.children.none() }
+        }, 10)
+    }
     override fun setUp() {
         super.setUp()
+        testScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         BracketGuideSettings.getInstance().loadState(BracketGuidePreferences())
         myFixture.configureByText(
             "Conflict.java",
@@ -42,13 +69,16 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         val latestGuide = MULTILINE_GUIDE.copy(anchorLine = 2)
         val notification =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { expectedPreferences },
-                isConflict = { editor, guide, preferences ->
-                    assertThat(editor).isSameAs(myFixture.editor)
-                    assertThat(guide).isEqualTo(latestGuide)
-                    assertThat(preferences).isSameAs(expectedPreferences)
-                    conflictChecks++
-                    true
+                captureConflict = { editor, guide, preferences ->
+                    NativeConflictProbe { _ ->
+                        assertThat(editor).isSameAs(myFixture.editor)
+                        assertThat(guide).isEqualTo(latestGuide)
+                        assertThat(preferences).isSameAs(expectedPreferences)
+                        conflictChecks++
+                        true
+                    }
                 },
                 createNotification = { publishedProject, _ ->
                     assertThat(publishedProject).isSameAs(project)
@@ -80,8 +110,9 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         val restoredScheduler = ManualScheduler()
         val restored =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { expectedPreferences },
-                isConflict = { _, _, _ -> true },
+                captureConflict = { _, _, _ -> NativeConflictProbe { _ -> true } },
                 createNotification = { _, _ ->
                     restoredPublications++
                     testNotification()
@@ -113,8 +144,9 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         var publishedNotification: Notification? = null
         val notification =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { CONFLICT_PREFERENCES },
-                isConflict = { _, _, _ -> true },
+                captureConflict = { _, _, _ -> NativeConflictProbe { _ -> true } },
                 createNotification = { _, suppress ->
                     suppressCurrentConflict = suppress
                     testNotification().also { publishedNotification = it }
@@ -135,8 +167,9 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         var restoredPublications = 0
         val restored =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { CONFLICT_PREFERENCES },
-                isConflict = { _, _, _ -> true },
+                captureConflict = { _, _, _ -> NativeConflictProbe { _ -> true } },
                 createNotification = { _, _ ->
                     restoredPublications++
                     testNotification()
@@ -160,8 +193,9 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         var nativeHighlightingEnabled = true
         val rearmed =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { CONFLICT_PREFERENCES },
-                isConflict = { _, _, _ -> true },
+                captureConflict = { _, _, _ -> NativeConflictProbe { _ -> true } },
                 createNotification = { _, _ ->
                     restoredPublications++
                     testNotification()
@@ -194,8 +228,9 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         var publications = 0
         val notification =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { CONFLICT_PREFERENCES },
-                isConflict = { _, _, _ -> true },
+                captureConflict = { _, _, _ -> NativeConflictProbe { _ -> true } },
                 createNotification = { _, _ ->
                     publications++
                     testNotification()
@@ -230,8 +265,9 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         var publications = 0
         val notification =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { CONFLICT_PREFERENCES },
-                isConflict = { _, _, _ -> true },
+                captureConflict = { _, _, _ -> NativeConflictProbe { _ -> true } },
                 createNotification = { _, suppress ->
                     publications++
                     suppressCurrentConflict = suppress
@@ -275,8 +311,9 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         var publications = 0
         val notification =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { currentPreferences },
-                isConflict = { _, _, _ -> true },
+                captureConflict = { _, _, _ -> NativeConflictProbe { _ -> true } },
                 createNotification = { _, _ ->
                     publications++
                     testNotification()
@@ -305,8 +342,9 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         var publications = 0
         val notification =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { CONFLICT_PREFERENCES },
-                isConflict = { _, _, _ -> true },
+                captureConflict = { _, _, _ -> NativeConflictProbe { _ -> true } },
                 createNotification = { _, _ ->
                     publications++
                     testNotification()
@@ -331,8 +369,9 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         var publications = 0
         val notification =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { CONFLICT_PREFERENCES },
-                isConflict = { _, _, _ -> true },
+                captureConflict = { _, _, _ -> NativeConflictProbe { _ -> true } },
                 createNotification = { _, _ ->
                     publications++
                     testNotification()
@@ -360,8 +399,9 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         val scheduler = ManualScheduler()
         val notification =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { CONFLICT_PREFERENCES },
-                isConflict = { _, _, _ -> true },
+                captureConflict = { _, _, _ -> NativeConflictProbe { _ -> true } },
                 createNotification = { _, _ -> error("A driver-muted advisory must not publish") },
                 schedule = scheduler::schedule,
             )
@@ -390,10 +430,13 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         var conflictChecks = 0
         val notification =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { BracketGuidePreferences() },
-                isConflict = { _, _, _ ->
-                    conflictChecks++
-                    false
+                captureConflict = { _, _, _ ->
+                    NativeConflictProbe { _ ->
+                        conflictChecks++
+                        false
+                    }
                 },
                 createNotification = { _, _ -> error("A non-conflict must not publish") },
                 schedule = scheduler::schedule,
@@ -417,8 +460,11 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         val scheduler = ManualScheduler()
         val notification =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { BracketGuidePreferences() },
-                isConflict = { _, _, _ -> error("Preflight failure must skip detection") },
+                captureConflict = { _, _, _ ->
+                    NativeConflictProbe { _ -> error("Preflight failure must skip detection") }
+                },
                 createNotification = { _, _ -> error("Preflight failure must not publish") },
                 schedule = scheduler::schedule,
                 nativeHighlightingEnabled = { error("synthetic native-state failure") },
@@ -438,15 +484,18 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
                 editorFactory.createDocument("class NonConflict {}"),
                 project,
             )
-        val inspectedEditors = mutableListOf<Editor>()
+        val inspectedEditors = java.util.Collections.synchronizedList(mutableListOf<Editor>())
         var publications = 0
         try {
             val notification =
                 NativeGuideConflictNotification(
+                    scope = testScope,
                     preferences = { BracketGuidePreferences() },
-                    isConflict = { editor, _, _ ->
-                        inspectedEditors += editor
-                        editor === myFixture.editor
+                    captureConflict = { editor, _, _ ->
+                        NativeConflictProbe { _ ->
+                            inspectedEditors += editor
+                            editor === myFixture.editor
+                        }
                     },
                     createNotification = { _, _ ->
                         publications++
@@ -474,8 +523,9 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         var publications = 0
         val notification =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { BracketGuidePreferences() },
-                isConflict = { _, _, _ -> true },
+                captureConflict = { _, _, _ -> NativeConflictProbe { _ -> true } },
                 createNotification = { _, _ ->
                     publications++
                     if (publications == 1) error("synthetic publish failure")
@@ -500,8 +550,9 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         var publications = 0
         val notification =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { BracketGuidePreferences() },
-                isConflict = { _, _, _ -> false },
+                captureConflict = { _, _, _ -> NativeConflictProbe { _ -> false } },
                 createNotification = { _, _ ->
                     publications++
                     testNotification()
@@ -521,10 +572,13 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         var conflictChecks = 0
         val notification =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { BracketGuidePreferences() },
-                isConflict = { _, _, _ ->
-                    conflictChecks++
-                    true
+                captureConflict = { _, _, _ ->
+                    NativeConflictProbe { _ ->
+                        conflictChecks++
+                        true
+                    }
                 },
                 createNotification = { _, _ -> error("A stale candidate must not publish") },
                 schedule = scheduler::schedule,
@@ -549,10 +603,13 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         var conflictChecks = 0
         val notification =
             NativeGuideConflictNotification(
+                scope = testScope,
                 preferences = { BracketGuidePreferences() },
-                isConflict = { _, _, _ ->
-                    conflictChecks++
-                    true
+                captureConflict = { _, _, _ ->
+                    NativeConflictProbe { _ ->
+                        conflictChecks++
+                        true
+                    }
                 },
                 createNotification = { _, _ -> error("A disposed editor candidate must not publish") },
                 schedule = scheduler::schedule,
@@ -623,6 +680,229 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         ).isEqualTo(nativeBeforeAction)
     }
 
+    fun testInFlightCaretAwayAndBackRevokesTheOriginalProof() {
+        assertInFlightRevoked { notification ->
+            val offset = myFixture.editor.caretModel.offset
+            myFixture.editor.caretModel.moveToOffset(offset + 1)
+            notification.caretMoved(myFixture.editor)
+            myFixture.editor.caretModel.moveToOffset(offset)
+            notification.caretMoved(myFixture.editor)
+        }
+    }
+
+    fun testInFlightDocumentEditRevokesTheOriginalProof() {
+        assertInFlightRevoked {
+            WriteCommandAction.runWriteCommandAction(project) {
+                myFixture.editor.document.insertString(0, " ")
+            }
+        }
+    }
+
+    fun testInFlightHighlighterReplacementRevokesTheOriginalProof() {
+        assertInFlightRevoked {
+            WriteCommandAction.runWriteCommandAction(project) {
+                val replacement = EditorHighlighterFactory.getInstance().createEditorHighlighter(
+                    project,
+                    myFixture.file.virtualFile,
+                )
+                (myFixture.editor as EditorEx).setHighlighter(replacement)
+            }
+        }
+    }
+
+    fun testInFlightSettingsAwayAndBackRevokesTheOriginalProof() {
+        assertInFlightRevoked { notification ->
+            notification.settingsChanged(CONFLICT_PREFERENCES, SAFE_PREFERENCES)
+            notification.settingsChanged(SAFE_PREFERENCES, CONFLICT_PREFERENCES)
+        }
+    }
+
+    fun testDisposalCancelsAnInFlightProofWithoutWaitingForTheGate() {
+        assertInFlightRevoked { it.dispose() }
+    }
+
+    fun testDisposedEditorCancelsAnInFlightProofWithoutPublication() {
+        val scheduler = ManualScheduler()
+        val gate = InspectionGate()
+        val factory = EditorFactory.getInstance()
+        val editor = factory.createEditor(factory.createDocument("class Disposed {}"), project)
+        var publications = 0
+        val notification = NativeGuideConflictNotification(
+            scope = testScope,
+            preferences = { CONFLICT_PREFERENCES },
+            captureConflict = { _, _, _ -> NativeConflictProbe { checkCanceled -> gate.inspect(checkCanceled) } },
+            createNotification = { _, _ ->
+                publications++
+                testNotification()
+            },
+            schedule = scheduler::schedule,
+        )
+        try {
+            notification.consider(editor, MULTILINE_GUIDE)
+            scheduler.startNext()
+            gate.awaitStarted()
+            factory.releaseEditor(editor)
+            awaitWorkers()
+            assertThat(publications).isZero()
+            assertThat(gate.release.count).isEqualTo(1)
+        } finally {
+            gate.release.countDown()
+            if (!editor.isDisposed) factory.releaseEditor(editor)
+        }
+    }
+
+    fun testCompletedProofRevokedDuringEdtAcceptanceCannotPublish() {
+        val scheduler = ManualScheduler()
+        var publications = 0
+        lateinit var notification: NativeGuideConflictNotification
+        notification = NativeGuideConflictNotification(
+            scope = testScope,
+            preferences = { CONFLICT_PREFERENCES },
+            captureConflict = { _, _, _ ->
+                object : NativeConflictProbe {
+                    override suspend fun inspect(checkCanceled: () -> Unit): Boolean = true
+                    override fun isCurrent(): Boolean {
+                        assertThat(ApplicationManager.getApplication().isDispatchThread).isTrue()
+                        notification.dispose()
+                        return true
+                    }
+                }
+            },
+            createNotification = { _, _ ->
+                publications++
+                testNotification()
+            },
+            schedule = scheduler::schedule,
+        )
+        notification.consider(myFixture.editor, MULTILINE_GUIDE)
+        scheduler.runNext()
+        assertThat(publications).isZero()
+    }
+
+    fun testDriverMuteCancelsAnInFlightProofWithoutWaitingForTheGate() {
+        assertInFlightRevoked { it.muteForDriverSession() }
+    }
+
+    private fun assertInFlightRevoked(mutate: (NativeGuideConflictNotification) -> Unit) {
+        val scheduler = ManualScheduler()
+        val gate = InspectionGate()
+        var publications = 0
+        val notification = NativeGuideConflictNotification(
+            scope = testScope,
+            preferences = { CONFLICT_PREFERENCES },
+            captureConflict = { _, _, _ -> NativeConflictProbe { checkCanceled -> gate.inspect(checkCanceled) } },
+            createNotification = { _, _ ->
+                publications++
+                testNotification()
+            },
+            schedule = scheduler::schedule,
+        )
+        try {
+            notification.consider(myFixture.editor, MULTILINE_GUIDE)
+            scheduler.startNext()
+            gate.awaitStarted()
+            mutate(notification)
+            awaitWorkers()
+            assertThat(gate.finished.count).isZero()
+            assertThat(publications).isZero()
+            assertThat(notification.state.suppressedForCurrentConflict).isFalse()
+        } finally {
+            gate.release.countDown()
+        }
+    }
+
+    fun testLatestGuideCancelsTheSameEditorsOlderInFlightProof() {
+        val scheduler = ManualScheduler()
+        val gate = InspectionGate()
+        val replacement = MULTILINE_GUIDE.copy(anchorLine = 2)
+        var publications = 0
+        val notification = NativeGuideConflictNotification(
+            scope = testScope,
+            preferences = { CONFLICT_PREFERENCES },
+            captureConflict = { _, guide, _ ->
+                NativeConflictProbe { checkCanceled ->
+                    if (guide == MULTILINE_GUIDE) gate.inspect(checkCanceled) else true
+                }
+            },
+            createNotification = { _, _ ->
+                publications++
+                testNotification()
+            },
+            schedule = scheduler::schedule,
+        )
+        try {
+            notification.consider(myFixture.editor, MULTILINE_GUIDE)
+            scheduler.startNext()
+            gate.awaitStarted()
+            notification.consider(myFixture.editor, replacement)
+            scheduler.runNext()
+            assertThat(publications).isEqualTo(1)
+            assertThat(gate.finished.count).isZero()
+            assertThat(gate.release.count).isEqualTo(1)
+        } finally {
+            gate.release.countDown()
+        }
+    }
+
+    fun testSlowEditorDoesNotBlockAnotherEditorsPublication() {
+        val scheduler = ManualScheduler()
+        val gate = InspectionGate()
+        val factory = EditorFactory.getInstance()
+        val other = factory.createEditor(factory.createDocument("class Other {}"), project)
+        var publications = 0
+        val notification = NativeGuideConflictNotification(
+            scope = testScope,
+            preferences = { CONFLICT_PREFERENCES },
+            captureConflict = { editor, _, _ ->
+                NativeConflictProbe { checkCanceled ->
+                    if (editor === myFixture.editor) gate.inspect(checkCanceled) else true
+                }
+            },
+            createNotification = { _, _ ->
+                publications++
+                testNotification()
+            },
+            schedule = scheduler::schedule,
+        )
+        try {
+            notification.consider(myFixture.editor, MULTILINE_GUIDE)
+            scheduler.startNext()
+            gate.awaitStarted()
+            notification.consider(other, MULTILINE_GUIDE)
+            scheduler.runNext()
+            assertThat(publications).isEqualTo(1)
+            assertThat(gate.finished.count).isZero()
+            assertThat(gate.release.count).isEqualTo(1)
+        } finally {
+            gate.release.countDown()
+            factory.releaseEditor(other)
+        }
+    }
+
+    private class InspectionGate {
+        val started = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val finished = CountDownLatch(1)
+
+        fun inspect(checkCanceled: () -> Unit): Boolean {
+            check(!ApplicationManager.getApplication().isDispatchThread)
+            started.countDown()
+            try {
+                while (!release.await(10, TimeUnit.MILLISECONDS)) checkCanceled()
+                checkCanceled()
+                return true
+            } finally {
+                finished.countDown()
+            }
+        }
+
+        fun awaitStarted() {
+            PlatformTestUtil.waitWithEventsDispatching("Native conflict inspection did not start", {
+                started.count == 0L
+            }, 10)
+        }
+    }
+
     private companion object {
         val CONFLICT_PREFERENCES =
             BracketGuidePreferences(
@@ -657,7 +937,7 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
         )
     }
 
-    private class ManualScheduler {
+    private inner class ManualScheduler {
         private val tasks = ArrayDeque<() -> Unit>()
 
         val pendingCount: Int
@@ -667,8 +947,13 @@ class NativeGuideConflictNotificationTest : BasePlatformTestCase() {
             tasks.addLast(task)
         }
 
-        fun runNext() {
+        fun startNext() {
             tasks.removeFirst().invoke()
+        }
+
+        fun runNext() {
+            startNext()
+            awaitWorkers()
         }
     }
 }

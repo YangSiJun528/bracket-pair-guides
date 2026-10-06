@@ -1,11 +1,11 @@
-package com.sijunyang.bracketpairguides.editor.highlighting
+package com.sijunyang.bracketpairguides.editor.policy
 
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-class NativeGuideConflictDetectorTest {
+class NativeGuideConflictPolicyTest {
     @Test
     fun `new UI requires effective indent guides and a matching native descriptor`() {
         assertThat(conflicts(baseFacts(uiPath = NativeGuideUiPath.NEW_UI))).isTrue()
@@ -86,7 +86,7 @@ class NativeGuideConflictDetectorTest {
     @Test
     fun `native carrier preflight rejects paths that cannot paint the guide`() {
         assertThat(
-            NativeGuideConflictDetector.hasVisibleNativeCarrier(
+            NativeGuideConflictPolicy.hasVisibleNativeCarrier(
                 uiPath = NativeGuideUiPath.NEW_UI,
                 effectiveIndentGuidesShown = true,
                 lineMarkerAreaShown = true,
@@ -95,7 +95,7 @@ class NativeGuideConflictDetectorTest {
             ),
         ).isTrue()
         assertThat(
-            NativeGuideConflictDetector.hasVisibleNativeCarrier(
+            NativeGuideConflictPolicy.hasVisibleNativeCarrier(
                 uiPath = NativeGuideUiPath.NEW_UI,
                 effectiveIndentGuidesShown = false,
                 lineMarkerAreaShown = true,
@@ -104,7 +104,7 @@ class NativeGuideConflictDetectorTest {
             ),
         ).isFalse()
         assertThat(
-            NativeGuideConflictDetector.hasVisibleNativeCarrier(
+            NativeGuideConflictPolicy.hasVisibleNativeCarrier(
                 uiPath = NativeGuideUiPath.CLASSIC_UI,
                 effectiveIndentGuidesShown = true,
                 lineMarkerAreaShown = false,
@@ -113,7 +113,7 @@ class NativeGuideConflictDetectorTest {
             ),
         ).isFalse()
         assertThat(
-            NativeGuideConflictDetector.hasVisibleNativeCarrier(
+            NativeGuideConflictPolicy.hasVisibleNativeCarrier(
                 uiPath = NativeGuideUiPath.UNCLASSIFIED,
                 effectiveIndentGuidesShown = true,
                 lineMarkerAreaShown = true,
@@ -234,7 +234,7 @@ class NativeGuideConflictDetectorTest {
         assertThat(conflicts(baseFacts(displayedMultilineVerticalGuide = singleLine))).isFalse()
     }
 
-    private fun conflicts(facts: NativeGuideConflictFacts): Boolean = NativeGuideConflictDetector.isConflict(facts)
+    private fun conflicts(facts: NativeGuideConflictFacts): Boolean = NativeGuideConflictPolicy.isConflict(facts)
 
     private fun baseFacts(
         pluginEnabledForEditor: Boolean = true,
