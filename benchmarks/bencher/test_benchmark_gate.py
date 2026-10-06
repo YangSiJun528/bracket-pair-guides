@@ -21,8 +21,6 @@ class BenchmarkChangesTest(unittest.TestCase):
 
     def test_only_measured_dependencies_trigger(self):
         root = "plugin/src/main/"
-        java = root + "java/com/sijunyang/bracketpairguides/"
-        kotlin = root + "kotlin/com/sijunyang/bracketpairguides/"
         cases = {
             "analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/PairingMachine.java": True,
             "analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/NewHelper.java": True,
@@ -30,13 +28,13 @@ class BenchmarkChangesTest(unittest.TestCase):
             "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/preferences/BracketGuidePreferences.kt": True,
             "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/preferences/StoredColorFormat.kt": True,
             "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/settings/BracketGuidePreferenceNormalization.kt": True,
-            kotlin + "preferences/GuideAnalysisCoverage.kt": False,
-            kotlin + "analysis/intellij/BracketAnalysis.kt": False,
-            kotlin + "analysis/pairing/DocumentBrackets.kt": False,
-            kotlin + "presentation/GuideAppearance.kt": False,
-            kotlin + "editor/EditorGuideSession.kt": False,
-            kotlin + "settings/ui/BracketGuideSettingsPage.kt": False,
-            java + "editor/events/NativeMatchedBracePluginUnloadListener.java": False,
+            "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/preferences/GuideAnalysisCoverage.kt": False,
+            "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/BracketAnalysis.kt": False,
+            "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/DocumentBracketRecognition.kt": False,
+            "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/GuideAppearance.kt": False,
+            "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/EditorGuideSession.kt": False,
+            "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/settings/ui/BracketGuideSettingsPage.kt": False,
+            "editor-ui/src/main/java/com/sijunyang/bracketpairguides/editor/events/NativeMatchedBracePluginUnloadListener.java": False,
             root + "resources/META-INF/plugin.xml": False,
             "plugin/src/test/kotlin/ExampleTest.kt": False,
             "plugin/src/visualTest/resources/baseline.png": False,
