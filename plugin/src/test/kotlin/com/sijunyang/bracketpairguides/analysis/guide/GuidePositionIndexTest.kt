@@ -4,7 +4,7 @@ import com.intellij.openapi.editor.impl.DocumentImpl
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.intellij.DocumentGuidePositions
+import com.sijunyang.bracketpairguides.analysis.guide.GuidePositionTestAdapter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -133,7 +133,7 @@ class GuidePositionIndexTest {
         val document = DocumentImpl("one\ntwo")
 
         assertThat(
-            DocumentGuidePositions(
+            GuidePositionTestAdapter(
                 document = document,
                 tabSize = 4,
                 checkCanceled = {},
@@ -154,7 +154,7 @@ class GuidePositionIndexTest {
                 }
             }
 
-        DocumentGuidePositions(
+        GuidePositionTestAdapter(
             document = DocumentImpl(text),
             tabSize = 4,
             checkCanceled = progress::checkCanceled,
@@ -211,7 +211,7 @@ class GuidePositionIndexTest {
     private fun indexFor(text: String, tabSize: Int = 4, indexedLineRange: IntRange? = null): GuidePositionIndex {
         val document = DocumentImpl(text)
         return checkNotNull(
-            DocumentGuidePositions(
+            GuidePositionTestAdapter(
                 document = document,
                 tabSize = tabSize,
                 checkCanceled = {},
