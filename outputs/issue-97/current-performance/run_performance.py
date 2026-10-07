@@ -446,8 +446,11 @@ def main():
                     normalized.append(argument)
                 record['verifiedJVM']['normalizedJvmArgs'] = sorted(normalized)
                 env = record['rawEvidence']['environment']
-                if env.get('revision') != current_revision['head']:
+                if revision_arg not in record['verifiedJVM']['allJvmArgs']:
+                    raise RuntimeError('Actual fixture JVM revision property does not match frozen source revision')
+                if env.get('revision') is not None and env['revision'] != current_revision['head']:
                     raise RuntimeError('Raw fixture revision does not match frozen source revision')
+                record['revisionEvidence'] = 'actual JVM property plus verified source SHA/fingerprint; raw header checked when present'
                 same_workload = [r for key, rs in state['commands'].items() if key.startswith(job['workload'] + '-')
                                  for r in rs if r.get('status') == 'completed']
                 for previous in same_workload:
