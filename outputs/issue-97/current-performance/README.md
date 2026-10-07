@@ -18,3 +18,21 @@ The fixture runner shares `outputs/issue-97/performance-run.lock` with any main 
 Expected elapsed time with warmed Gradle/IDE caches is approximately 16–22 minutes for 42 commands, based on prior per-command durations of 14–32 seconds. A fresh archive build/download can add setup time. Full JMH is separate and must run serially after/before this campaign.
 
 Results are evidence, not a no-regression assertion. Previous implementation measurements showed repeated unresolved writer/native latency increases; preserve all current raw results and compare per-JVM summaries instead of pooling samples across JVMs.
+
+After the runner finishes, create the descriptive comparison from this campaign's state:
+
+```sh
+python3 -B outputs/issue-97/current-performance/compare_current.py \
+  --state outputs/issue-97/current-performance/performance-run-state.json \
+  --output outputs/issue-97/current-performance/comparison.json
+```
+
+This command reads raw artifacts and writes a report; it starts no build or measurement. It verifies raw/log hashes, unique run IDs, paired fixture/JVM/power/input identities, expected scenario/sample counts, emitted read-body counts, and selected completion/geometry/failure flags. `complete_descriptive_comparison`, `all42CommandsMatched`, and `allInvariantGroupsComplete` describe those evidence checks. They are not performance acceptance, verification of every raw Boolean, or proof that every threading or algorithm defect is absent.
+
+The report retains every recorded attempt in `attemptInventory`, lists missing/failed/invalid attempts under each workload, and includes per-JVM sample counts, Boolean outcomes, allocation trace completeness, cancellation results and release observations. Only the latest validated completed attempt for a command contributes to numbered paired comparisons. Inspect `unmatchedOrInvalid` before using any comparison. Raw files remain authoritative for individual sample traces; the report does not delete or rewrite them.
+
+Use the per-JVM median and nearest-rank p95, their numbered paired changes, and the median of per-JVM summaries. Do not pool samples across JVMs or treat the summary of three p95 values as the p95 of a combined sample population. Repair's frozen reference and production calculation, tab/space variants, warmup and measured rows remain separate. Cancellation success-conditioned unwind values need the unsuccessful attempt counts alongside them. Preserve payload/release timeouts and surviving context observations even when both implementations show them.
+
+Source revision/fingerprint provenance comes from the runner state and its frozen-source checks. The comparator validates original raw/log artifacts but does not independently re-read source manifests or Git source bytes; keep the per-file manifests, recorded final SHA, runner state and runner/init-script hashes with the report. Some fixture headers omit revision; the runner records the actual JVM revision property and exact source identity for those fixtures.
+
+Assess timing and allocation changes separately from evidence integrity and correctness checks. Repeated latency increases remain regression signals requiring investigation; mixed directions or noisy intervals do not establish equivalence. Run the existing performance gates with their original thresholds and report their scope separately. This comparator introduces no threshold and grants no performance pass.
