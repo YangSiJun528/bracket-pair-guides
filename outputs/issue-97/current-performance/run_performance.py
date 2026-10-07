@@ -71,13 +71,67 @@ def sensitive_environment():
 
 
 # Exact processes observed before this task; never terminate them.
-# PID, parent, executable, and start time must match and reported CPU must be 0.0%.
+# PID, parent, executable, and start time must match. Worker CPU must be 0.0%;
+# the known daemon may use <=0.1% only with independent last-log-state IDLE evidence.
 PRESERVED_IDLE_PROCESSES = {
     33144: {'parentPid': 1, 'startTime': 'Wed Oct 7 12:26:09 2026',
             'executable': '/Users/sijun-yang/.sdkman/candidates/java/25.0.3-amzn/bin/java', 'role': 'GradleDaemon'},
     33413: {'parentPid': 33144, 'startTime': 'Wed Oct 7 12:27:10 2026',
             'executable': '/Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home/bin/java', 'role': 'GradleWorkerMain'},
 }
+
+
+PRESERVED_DAEMON_LOG = Path('/Users/sijun-yang/.gradle/daemon/9.8.0/daemon-33144.out.log')
+PRESERVED_DAEMON_LOG_READ_LIMIT = 4 * 1024 * 1024
+
+
+def preserved_daemon_log_state():
+    """Read at most 4 MiB; expose only validated state/time and bounded-byte provenance."""
+    evidence = {'path': str(PRESERVED_DAEMON_LOG), 'state': 'unknown',
+                'parser': 'DaemonRegistryUpdater marking transition v1',
+                'readLimitBytes': PRESERVED_DAEMON_LOG_READ_LIMIT}
+    try:
+        with PRESERVED_DAEMON_LOG.open('rb') as stream:
+            before = os.fstat(stream.fileno())
+            offset = max(0, before.st_size - PRESERVED_DAEMON_LOG_READ_LIMIT)
+            stream.seek(offset)
+            data = stream.read(PRESERVED_DAEMON_LOG_READ_LIMIT)
+            after = os.fstat(stream.fileno())
+        evidence.update(fileSizeBytes=before.st_size, readOffsetBytes=offset,
+                        readBytes=len(data), boundedBytesSha256=hashlib.sha256(data).hexdigest(),
+                        fileModifiedNs=before.st_mtime_ns)
+        if (before.st_size, before.st_mtime_ns, before.st_ino) != (after.st_size, after.st_mtime_ns, after.st_ino):
+            evidence['state'] = 'changed-during-read'
+            return evidence
+        lines = data.decode('utf-8', errors='replace').splitlines()
+        if offset:
+            lines = lines[1:]  # A bounded tail may start in the middle of a line.
+        markers = [line for line in lines if '[org.gradle.launcher.daemon.server.DaemonRegistryUpdater]' in line
+                   and 'Marking the daemon as' in line]
+        evidence['transitionMarkersObserved'] = len(markers)
+        if not markers:
+            evidence['state'] = 'missing-transition'
+            return evidence
+        pattern = r'^(\S+)\s+\[(?:DEBUG|INFO)\]\s+\[org\.gradle\.launcher\.daemon\.server\.DaemonRegistryUpdater\]\s+Marking the daemon as (idle|busy)(?:,|\s|$)'
+        matches = [re.match(pattern, line) for line in markers]
+        latest = matches[-1]
+        if latest is None:
+            evidence['state'] = 'ambiguous-transition'
+            return evidence
+        timestamp, state = latest.groups()
+        parsed = datetime.datetime.fromisoformat(timestamp)
+        if parsed.tzinfo is None:
+            evidence['state'] = 'ambiguous-timestamp'
+            return evidence
+        if any(match is not None and match.group(1) == timestamp and match.group(2) != state for match in matches):
+            evidence['state'] = 'ambiguous-transition'
+            return evidence
+        evidence.update(state=state, timestamp=timestamp)
+    except FileNotFoundError:
+        evidence['state'] = 'missing-log'
+    except (OSError, ValueError):
+        evidence['state'] = 'unreadable-or-invalid-log'
+    return evidence
 
 
 def preserved_process_snapshot():
@@ -95,7 +149,13 @@ def preserved_process_snapshot():
         row = {'pid': pid, 'parentPid': int(fields[1]), 'cpuPercent': float(fields[2]),
                'startTime': ' '.join(fields[3:8]), 'executable': fields[8], 'role': expected['role']}
         row['identityMatches'] = all(row[k] == expected[k] for k in ('parentPid', 'startTime', 'executable'))
-        row['allowedIdle'] = row['identityMatches'] and row['cpuPercent'] == 0.0
+        if pid == 33144:
+            row['daemonLogState'] = preserved_daemon_log_state()
+            row['allowedIdle'] = row['identityMatches'] and 0.0 <= row['cpuPercent'] <= 0.1 and row['daemonLogState']['state'] == 'idle'
+            row['allowancePolicy'] = 'exact known daemon identity, <=0.1% CPU and independently observed last Gradle log transition IDLE'
+        else:
+            row['allowedIdle'] = row['identityMatches'] and row['cpuPercent'] == 0.0
+            row['allowancePolicy'] = 'exact known worker identity and instantaneous 0.0% CPU'
         found[pid] = row
     return [found.get(pid, {'pid': pid, 'present': False, 'allowedIdle': False, 'role': expected['role']})
             for pid, expected in PRESERVED_IDLE_PROCESSES.items()]
@@ -140,7 +200,7 @@ def external_work():
         blockers.append({'marker': 'Docker backend alive but Docker CLI unavailable'})
     observation = {'recordedUtc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
                    'preservedPreTaskProcesses': preserved, 'blockers': blockers,
-                   'policy': 'exact identity and instantaneous 0.0% CPU allowance; no process terminated'}
+                   'policy': 'exact identities; daemon <=0.1% CPU plus independent log IDLE, worker 0.0% CPU; no process terminated'}
     with COORDINATION_LOG.open('a') as stream:
         stream.write(json.dumps(observation) + '\n')
     return blockers
