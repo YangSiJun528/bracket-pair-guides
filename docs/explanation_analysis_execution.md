@@ -55,8 +55,13 @@ checks read tab layout only when guide coverage requires it.
 
 The production module verification audits the actual Java and Kotlin compile
 classpaths, compiler options, source ownership, and outputs, then compiles
-negative Java and Kotlin visibility probes. It checks that the declared DAG is
-also enforced by compiler visibility. The pure-build profile includes only
+negative Java and Kotlin visibility probes. Positive owner controls first verify
+that every forbidden implementation symbol exists and can compile in its owner;
+a renamed or missing symbol cannot make the negative proof pass. Production
+Java tasks use an explicit empty source path. The audit rejects added source,
+bootstrap and annotation-processor paths as well as shared outputs and compiler
+visibility overrides. It checks that the declared DAG is also enforced by
+compiler visibility. The pure-build profile includes only
 `analysis-model` and `analysis-core`, allowing their builds and the applicable
 module audit to run without configuring the IntelliJ host modules. These checks
 do not establish algorithm correctness or thread-lifecycle correctness; their

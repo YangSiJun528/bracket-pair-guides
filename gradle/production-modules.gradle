@@ -1,5 +1,6 @@
 import groovy.json.JsonOutput
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
+import org.gradle.api.tasks.compile.JavaCompile
 
 // Resolve only verification tooling, never add it to a production classpath.
 def probeCompiler = configurations.create('productionProbeCompiler')
@@ -10,6 +11,13 @@ def owners = productionNames.findAll { findProject(":${it}") != null }
 // Capture project/path handles during configuration; the intentionally non-cacheable
 // audit must not invoke Task.project while its action executes.
 def ownerProjects = owners.collectEntries { [(it): project(":${it}")] }
+// javac otherwise searches source entries in classpath jars/directories. An
+// explicit empty sourcepath permits only the source files owned by this task.
+ownerProjects.values().each { owner ->
+    owner.tasks.withType(JavaCompile).matching { it.name == 'compileJava' }.configureEach {
+        options.sourcepath = owner.files()
+    }
+}
 def verificationScript = file('tools/verify_production_modules.py').absolutePath
 def verificationManifest = layout.buildDirectory.file('module-verification/classpaths.json')
 def verificationRoot = rootDir
@@ -52,6 +60,10 @@ tasks.register('verifyProductionModules') {
                 sourceFiles: (javaTask.source.files + compilerSources.files).collect { it.canonicalPath },
                 compilerArguments: kotlinTask.compilerOptions.freeCompilerArgs.get(),
                 javaCompilerArguments: javaTask.options.compilerArgs,
+                javaSourcepathSpecified: javaTask.options.sourcepath != null,
+                javaSourcepath: javaTask.options.sourcepath == null ? [] : javaTask.options.sourcepath.files.collect { it.canonicalPath },
+                javaBootstrapClasspath: javaTask.options.bootstrapClasspath == null ? [] : javaTask.options.bootstrapClasspath.files.collect { it.canonicalPath },
+                javaAnnotationProcessorPath: javaTask.options.annotationProcessorPath == null ? [] : javaTask.options.annotationProcessorPath.files.collect { it.canonicalPath },
                 friendPaths: friends.toList(),
                 compilerPlugins: compilerPlugin == null ? [] : compilerPlugin.classpath.files.collect { it.canonicalPath },
                 sources: main.allSource.srcDirs.collect { it.canonicalPath },

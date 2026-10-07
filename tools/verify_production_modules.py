@@ -3,6 +3,7 @@
 from functools import cache
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -69,6 +70,35 @@ def unsafe_compiler_arguments(module):
     return unsafe
 
 
+@cache
+def contains_sources(path):
+    path = Path(path)
+    suffixes = {".java", ".kt", ".kts"}
+    if path.is_dir():
+        return any(file.suffix in suffixes for file in path.rglob("*") if file.is_file())
+    if path.is_file() and zipfile.is_zipfile(path):
+        with zipfile.ZipFile(path) as archive:
+            for name in archive.namelist():
+                entry = Path(name)
+                if entry.suffix != ".java":
+                    continue  # Kotlin does not compile source resources from jars.
+                if entry.with_suffix(".class").as_posix() in archive.namelist():
+                    # Compiled companion bytecode is audited for foreign owners.
+                    # The enforced empty javac sourcepath prevents recompilation
+                    # of bundled sources (some SDK libraries retain them).
+                    continue
+                text = archive.read(name).decode("utf-8", errors="replace")
+                package = re.search(r"\bpackage\s+([\w.]+)\s*;", text)
+                declared_package = package.group(1).replace(".", "/") if package else "."
+                # SDK rendering previews are resources, not Java types available
+                # under the entry's package/name. Inspect contents, not jar names.
+                if declared_package == entry.parent.as_posix() and re.search(
+                        r"\b(?:class|interface|enum|record)\s+" + re.escape(entry.stem) + r"\b", text):
+                    return True
+            return False
+    return False
+
+
 def audit(modules):
     roots = {}
     owned_classes = {}
@@ -77,6 +107,9 @@ def audit(modules):
         for source in map(Path, module["sourceFiles"]):
             if source_root not in source.resolve().parents:
                 raise ValueError(f"{name} compiler consumes a production source outside its owner: {source}")
+        if not module["javaSourcepathSpecified"] or any(module[field] for field in (
+                "javaSourcepath", "javaBootstrapClasspath", "javaAnnotationProcessorPath")):
+            raise ValueError(f"{name} production Java compiler must use an explicit empty sourcepath and no bootstrap/processor paths")
         unsafe = unsafe_compiler_arguments(module)
         if module["friendPaths"] or module["compilerPlugins"] or unsafe:
             raise ValueError(f"{name} production compiler contains friends, compiler plugins or visibility overrides: {unsafe}")
@@ -99,11 +132,9 @@ def audit(modules):
         forbidden = {class_name for class_name, owner in owned_classes.items() if owner not in ALLOWED[name] | {name}}
         for kind in ("javaClasspath", "kotlinClasspath"):
             for path in module[kind]:
-                directory = Path(path)
-                # javac defaults its source path to the classpath when no source
-                # path is specified. Reject source-bearing directory entries so
-                # foreign .java declarations cannot hide behind an empty class inventory.
-                if directory.is_dir() and any(file.suffix in {".java", ".kt", ".kts"} for file in directory.rglob("*") if file.is_file()):
+                # javac defaults its source path to the classpath, including jar
+                # entries. Source-only archives must not bypass bytecode inventory.
+                if contains_sources(path):
                     raise ValueError(f"{name} {kind} contains implicit compiler source roots: {path}")
                 contents = classes(path)
                 leaked = contents & forbidden
@@ -113,17 +144,22 @@ def audit(modules):
                     raise ValueError(f"{name} resolves IntelliJ SDK bytecode: {path}")
 
 
-def compile_probe(manifest, name, language, target, expected, root):
+def compile_probe(manifest, name, language, target, expected, root, owner_control=False):
     module = manifest["modules"][name]
-    directory = root / f"{name}-{language}-{target.replace('.', '-')}"
+    directory = root / f"{name}-{language}-{target.replace('.', '-')}{'-owner' if owner_control else ''}"
     directory.mkdir()
     output = directory / "classes"
     output.mkdir()
-    classpath = os.pathsep.join(module[f"{language}Classpath"])
+    classpath_entries = list(module[f"{language}Classpath"])
+    if owner_control:
+        # Production compilation does not need its own completed output on the
+        # input classpath. Owner controls deliberately add only that owner's output.
+        classpath_entries.extend(module["outputs"])
+    classpath = os.pathsep.join(classpath_entries)
     if language == "java":
         source = directory / "Probe.java"
         source.write_text(f"final class Probe {{ {target} value; }}\n")
-        command = [manifest["javac"], "--release", "17", "-proc:none", "-classpath", classpath, "-d", str(output), str(source)]
+        command = [manifest["javac"], "--release", "17", "-proc:none", "-sourcepath", "", "-classpath", classpath, "-d", str(output), str(source)]
     else:
         source = directory / "Probe.kt"
         source.write_text(f"class Probe {{ lateinit var value: {target}{'<' + 'Any, Any' + '>' if target == CORE else ''} }}\n")
@@ -144,7 +180,24 @@ def compile_probe(manifest, name, language, target, expected, root):
     elif language == "java" and not any(message in diagnostics for message in ("does not exist", "cannot find symbol")):
         raise ValueError(f"Negative {name}/{language}/{target} failed for an unexpected reason:\n{diagnostics}")
     print(f"PASS {name}/{language}: {target} {'visible' if expected else 'unavailable'}")
-    return {"module": name, "language": language, "target": target, "expectedVisible": expected, "diagnostics": diagnostics}
+    return {"module": name, "language": language, "target": target, "expectedVisible": expected, "ownerControl": owner_control, "diagnostics": diagnostics}
+
+
+def owner_controls(manifest, root):
+    probes = []
+    for owner, targets in (("analysis-core", CORE_TYPES), ("analysis-runtime", RUNTIME_TYPES)):
+        if owner not in manifest["modules"]:
+            continue  # The SDK-free profile deliberately omits runtime.
+        module = manifest["modules"][owner]
+        inventory = set().union(*(classes(path) for path in module["outputs"]))
+        for target in targets:
+            bytecode = target.replace(".Companion", "$Companion").replace(".", "/") + ".class"
+            if bytecode not in inventory:
+                raise ValueError(f"Probe target {target} is missing from its production owner {owner}")
+            # JVM-public internal Kotlin declarations remain callable from Java;
+            # positive Java controls verify the negative symbols really exist.
+            probes.append(compile_probe(manifest, owner, "java", target, True, root, owner_control=True))
+    return probes
 
 
 def main():
@@ -154,6 +207,7 @@ def main():
     probes = []
     with tempfile.TemporaryDirectory(prefix="module-compile-probes-") as temporary:
         root = Path(temporary)
+        probes.extend(owner_controls(manifest, root))
         for name in manifest["modules"]:
             negatives = [IDE] if name in ("analysis-core", "analysis-model") else CORE_TYPES + RUNTIME_TYPES if name == "editor-ui" else CORE_TYPES[:4] if name == "plugin" else []
             for language in ("java", "kotlin"):

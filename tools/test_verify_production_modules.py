@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 import subprocess
+import shutil
 import zipfile
 
 import verify_production_modules as verification
@@ -29,6 +30,8 @@ class ModuleAuditTest(unittest.TestCase):
                 "projects": [], "javaClasspath": [], "kotlinClasspath": [],
                 "compilerArguments": [], "javaCompilerArguments": [],
                 "friendPaths": [], "compilerPlugins": [],
+                "javaSourcepathSpecified": True, "javaSourcepath": [],
+                "javaBootstrapClasspath": [], "javaAnnotationProcessorPath": [],
             }
 
     def test_clean_dag_is_accepted(self):
@@ -107,6 +110,118 @@ class ModuleAuditTest(unittest.TestCase):
         self.modules["editor-ui"]["javaClasspath"] = [str(source)]
         with self.assertRaisesRegex(ValueError, "implicit compiler source roots"):
             verification.audit(self.modules)
+
+    def test_source_only_archives_are_rejected_on_both_compiler_classpaths(self):
+        for suffix in (".java",):
+            jar = self.root / f"source-only{suffix}.jar"
+            with zipfile.ZipFile(jar, "w") as archive:
+                archive.writestr("foreign/HiddenCore" + suffix, "package foreign; public class HiddenCore {}")
+            for kind in ("javaClasspath", "kotlinClasspath"):
+                with self.subTest(suffix=suffix, kind=kind):
+                    modules = copy.deepcopy(self.modules)
+                    modules["editor-ui"][kind] = [str(jar)]
+                    with self.assertRaisesRegex(ValueError, "implicit compiler source roots"):
+                        verification.audit(modules)
+
+    def test_sdk_preview_and_kotlin_resource_archives_remain_accepted(self):
+        jar = self.root / "embedded-resources.jar"
+        with zipfile.ZipFile(jar, "w") as archive:
+            archive.writestr("codeVisionProviders/inheritors/preview.java", "private class Scope {}")
+            archive.writestr("templates/Fixture.kt", "class Fixture")
+            archive.writestr("templates/setup.kts", "println(1)")
+        self.modules["editor-ui"]["javaClasspath"] = [str(jar)]
+        self.modules["editor-ui"]["kotlinClasspath"] = [str(jar)]
+        verification.audit(self.modules)
+
+    def test_source_and_class_companions_require_explicit_empty_sourcepath(self):
+        jar = self.root / "embedded-source-and-class.jar"
+        with zipfile.ZipFile(jar, "w") as archive:
+            archive.writestr("foreign/Library.java", "package foreign; public class Library {}")
+            archive.writestr("foreign/Library.class", b"compiled library inventory")
+        self.modules["editor-ui"]["javaClasspath"] = [str(jar)]
+        self.modules["editor-ui"]["kotlinClasspath"] = [str(jar)]
+        verification.audit(self.modules)
+        self.modules["editor-ui"]["javaSourcepathSpecified"] = False
+        with self.assertRaisesRegex(ValueError, "explicit empty sourcepath"):
+            verification.audit(self.modules)
+        self.modules["editor-ui"]["javaSourcepathSpecified"] = True
+        self.modules["editor-ui"]["javaSourcepath"] = [str(jar)]
+        with self.assertRaisesRegex(ValueError, "explicit empty sourcepath"):
+            verification.audit(self.modules)
+
+    def test_typed_java_compiler_paths_cannot_bypass_argument_checks(self):
+        for field in ("javaSourcepath", "javaBootstrapClasspath", "javaAnnotationProcessorPath"):
+            with self.subTest(field=field):
+                modules = copy.deepcopy(self.modules)
+                modules["editor-ui"][field] = [str(self.root / "foreign.jar")]
+                with self.assertRaisesRegex(ValueError, "explicit empty sourcepath"):
+                    verification.audit(modules)
+        self.modules["editor-ui"]["javaSourcepathSpecified"] = False
+        with self.assertRaisesRegex(ValueError, "explicit empty sourcepath"):
+            verification.audit(self.modules)
+
+    @unittest.skipUnless(shutil.which("javac"), "JDK required for implicit archive-source compilation control")
+    def test_javac_can_compile_a_hidden_implementation_from_a_source_only_jar(self):
+        jar = self.root / "hidden-source.jar"
+        with zipfile.ZipFile(jar, "w") as archive:
+            archive.writestr("foreign/HiddenCore.java", "package foreign; public class HiddenCore {}")
+        source = self.root / "Probe.java"
+        source.write_text("class Probe { foreign.HiddenCore value; }")
+        output = self.root / "javac-control"
+        output.mkdir()
+        result = subprocess.run([shutil.which("javac"), "--release", "17", "-proc:none",
+                                 "-classpath", str(jar), "-d", str(output), str(source)],
+                                capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue((output / "foreign/HiddenCore.class").is_file())
+        # This is the production compiler policy: explicit empty sourcepath.
+        blocked = subprocess.run([shutil.which("javac"), "--release", "17", "-proc:none",
+                                  "-sourcepath", "", "-classpath", str(jar), "-d", str(output), str(source)],
+                                 capture_output=True, text=True, timeout=30)
+        self.assertNotEqual(blocked.returncode, 0)
+        self.assertIn("does not exist", blocked.stderr)
+        self.modules["editor-ui"]["javaClasspath"] = [str(jar)]
+        with self.assertRaisesRegex(ValueError, "implicit compiler source roots"):
+            verification.audit(self.modules)
+
+    def test_missing_or_renamed_owner_target_fails_before_negative_probes(self):
+        manifest = {"modules": self.modules}
+        with patch("verify_production_modules.compile_probe") as compiler:
+            with self.assertRaisesRegex(ValueError, "missing from its production owner"):
+                verification.owner_controls(manifest, self.root)
+            compiler.assert_not_called()
+
+    def test_owner_controls_cover_all_symbols_including_companions(self):
+        manifest = {"modules": self.modules}
+        expected = []
+        for owner, targets in (("analysis-core", verification.CORE_TYPES), ("analysis-runtime", verification.RUNTIME_TYPES)):
+            for target in targets:
+                bytecode = target.replace(".Companion", "$Companion").replace(".", "/") + ".class"
+                output = Path(self.modules[owner]["outputs"][0]) / bytecode
+                output.parent.mkdir(parents=True, exist_ok=True)
+                output.write_bytes(b"owner inventory probe")
+                expected.append((owner, target))
+        with patch("verify_production_modules.compile_probe", return_value={}) as compiler:
+            verification.owner_controls(manifest, self.root)
+        self.assertEqual([(call.args[1], call.args[3]) for call in compiler.call_args_list], expected)
+        self.assertTrue(all(call.args[2] == "java" and call.args[4] is True and call.kwargs["owner_control"]
+                            for call in compiler.call_args_list))
+        manifest["modules"] = {name: module for name, module in self.modules.items()
+                               if name in ("analysis-model", "analysis-core")}
+        with patch("verify_production_modules.compile_probe", return_value={}) as compiler:
+            verification.owner_controls(manifest, self.root)
+        self.assertEqual(compiler.call_count, len(verification.CORE_TYPES))
+
+    def test_owner_control_includes_only_its_own_outputs_and_propagates_failure(self):
+        manifest = {"modules": self.modules, "java": "java", "javac": "javac", "compilerClasspath": []}
+        self.modules["analysis-core"]["javaClasspath"] = ["model.jar"]
+        with patch("verify_production_modules.subprocess.run", return_value=subprocess.CompletedProcess([], 1, "cannot find symbol", "")) as compiler:
+            with self.assertRaisesRegex(ValueError, "Positive analysis-core/java"):
+                verification.compile_probe(manifest, "analysis-core", "java", verification.CORE,
+                                           True, self.root, owner_control=True)
+        command = compiler.call_args.args[0]
+        self.assertEqual(command[command.index("-classpath") + 1],
+                         verification.os.pathsep.join(["model.jar"] + self.modules["analysis-core"]["outputs"]))
 
     def test_mixed_internal_access_and_unresolved_diagnostics_do_not_pass(self):
         manifest = {"modules": self.modules, "java": "java", "javac": "javac", "compilerClasspath": []}
