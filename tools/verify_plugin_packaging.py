@@ -2,6 +2,7 @@
 
 from collections import Counter
 from io import BytesIO
+import hashlib
 import json
 from pathlib import Path, PurePosixPath
 import sys
@@ -22,11 +23,19 @@ def verify(manifest):
     if set(outputs) != OWNERS:
         raise ValueError(f"Packaging owner list differs from the production modules: {sorted(outputs)}")
     expected = {}
+    compiled_hashes = {}
     for owner, roots in outputs.items():
         classes = set()
+        hashes = {}
         for root in map(Path, roots):
             if root.is_dir():
-                classes.update(file.relative_to(root).as_posix() for file in root.rglob("*.class"))
+                for file in root.rglob("*.class"):
+                    name = file.relative_to(root).as_posix()
+                    if name in hashes:
+                        raise ValueError(f"Compiled production class has duplicate outputs in owner {owner}: {name}")
+                    classes.add(name)
+                    hashes[name] = hashlib.sha256(file.read_bytes()).hexdigest()
+        compiled_hashes[owner] = hashes
         if owner != "plugin" and not classes:
             raise ValueError(f"No current compiled classes for production owner {owner}")
         expected[owner] = classes
@@ -35,6 +44,7 @@ def verify(manifest):
         raise ValueError("Compiled production classes have duplicate owners")
     owned_jars = {}
     jar_contents = {}
+    archived_hashes = {}
     counts = Counter()
     resources = set()
     descriptors = []
@@ -61,6 +71,7 @@ def verify(manifest):
                 resources.update(names)
                 counts.update(class_names)
                 jar_contents[owner] = set(class_names)
+                archived_hashes[owner] = {name: hashlib.sha256(jar.read(name)).hexdigest() for name in class_names}
                 if "META-INF/plugin.xml" in names:
                     descriptors.append((owner, jar.read("META-INF/plugin.xml")))
     if set(owned_jars) != OWNERS:
@@ -73,6 +84,9 @@ def verify(manifest):
         foreign = jar_contents[owner] - current_classes
         if missing or foreign:
             raise ValueError(f"Owner jar {owner} differs from current compiled classes; missing={sorted(missing)[:5]}, foreign/test={sorted(foreign)[:5]}")
+        changed = [name for name in current_classes if compiled_hashes[owner][name] != archived_hashes[owner][name]]
+        if changed:
+            raise ValueError(f"Owner jar {owner} contains stale class bytecode; differs from current compiled bytes: {sorted(changed)[:5]}")
     if len(descriptors) != 1 or descriptors[0][0] != "plugin":
         raise ValueError("Release must contain exactly one descriptor in the plugin owner jar")
     descriptor = ET.fromstring(descriptors[0][1])
@@ -94,7 +108,9 @@ def verify(manifest):
         raise ValueError(f"Missing release icons/licenses: {sorted(missing_resources)}")
     return {"archive": manifest["archive"], "classicIdeMinimum": "241", "ownerJars": owned_jars,
             "classCounts": {owner: len(classes) for owner, classes in expected.items()},
-            "ownedClassesExactlyOnce": True, "iconsAndLicenses": sorted(required)}
+            "ownedClassesExactlyOnce": True, "compiledClassBytesMatch": True,
+            "classHashAlgorithm": "SHA-256", "classSha256": compiled_hashes,
+            "iconsAndLicenses": sorted(required)}
 
 
 def main():
@@ -103,7 +119,7 @@ def main():
     destination = Path(manifest["evidenceFile"])
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(json.dumps(evidence, indent=2) + "\n")
-    print(f"Plugin packaging passed: all five ordinary lib owner jars, compiled classes exactly once; evidence: {destination}")
+    print(f"Plugin packaging passed: all five ordinary lib owner jars, compiled class bytes match exactly once; evidence: {destination}")
 
 
 if __name__ == "__main__":

@@ -51,6 +51,29 @@ class PackagingTest(unittest.TestCase):
         result = packaging.verify(self.manifest)
         self.assertTrue(result["ownedClassesExactlyOnce"])
         self.assertEqual(result["classCounts"]["plugin"], 0)
+        self.assertTrue(result["compiledClassBytesMatch"])
+        self.assertEqual(result["classHashAlgorithm"], "SHA-256")
+        self.assertEqual(len(result["classSha256"]["analysis-core"]["product/analysis-core.class"]), 64)
+
+    def test_same_class_name_with_stale_archived_bytecode_is_rejected(self):
+        self.contents["analysis-core"]["product/analysis-core.class"] = b"previous compiled implementation"
+        self.write_release()
+        with self.assertRaisesRegex(ValueError, "stale class bytecode"):
+            packaging.verify(self.manifest)
+
+    def test_updated_compiled_output_is_not_masked_by_unchanged_class_names(self):
+        self.write_release()
+        output = Path(self.manifest["ownerOutputs"]["editor-ui"][0]) / "product/editor-ui.class"
+        output.write_bytes(b"new compiled implementation")
+        with self.assertRaisesRegex(ValueError, "stale class bytecode"):
+            packaging.verify(self.manifest)
+
+    def test_ambiguous_compiled_owner_output_is_rejected(self):
+        root = Path(self.manifest["ownerOutputs"]["analysis-core"][0])
+        self.manifest["ownerOutputs"]["analysis-core"].append(str(root))
+        self.write_release()
+        with self.assertRaisesRegex(ValueError, "duplicate outputs in owner"):
+            packaging.verify(self.manifest)
 
     def test_nested_module_jar_is_rejected_for_classic_loader(self):
         self.write_release(nested="editor-ui")
