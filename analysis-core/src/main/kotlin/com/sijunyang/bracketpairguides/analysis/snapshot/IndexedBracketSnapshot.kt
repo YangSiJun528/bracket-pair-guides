@@ -32,8 +32,11 @@ internal class IndexedBracketSnapshot(
     /** Returns an indexed guide, or null when that index was intentionally omitted. */
     override fun guideFor(pair: BracketPair): BracketGuide? = indexes.guidePositions?.guideForOrNull(pair)
 
-    /** Returns a capped, allocation-light token window near [range]. */
+    /** Returns a capped, allocation-light token window near the supplied offset range. */
     override fun visibleTokens(startOffset: Int, endOffset: Int, focusOffset: Int, limit: Int): TokenWindow {
+        require(startOffset >= 0 && endOffset >= startOffset) {
+            "Visible token range must be nonnegative and ordered"
+        }
         require(limit > 0) { "Visible token limit must be positive" }
 
         val tokenIndex = indexes.tokens

@@ -37,6 +37,27 @@ class IndexedBracketSnapshotTest {
         assertThatThrownBy { result.visibleTokens(0, 4, 3, 0) }.isInstanceOf(IllegalArgumentException::class.java)
     }
 
+    @Test
+    fun tokenQueriesRejectNegativeAndReversedRanges() {
+        val result = indexes().newSnapshot(stamp(), BraceMatcherAvailability.AVAILABLE)
+        assertThatThrownBy { result.visibleTokens(-1, 4, 3, 1) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+        assertThatThrownBy { result.visibleTokens(-2, -1, 3, 1) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+        assertThatThrownBy { result.visibleTokens(3, 0, 3, 1) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun tokenQueriesAcceptEmptyRanges() {
+        val result = indexes().newSnapshot(stamp(), BraceMatcherAvailability.AVAILABLE)
+        val window = result.visibleTokens(2, 2, 2, 1)
+        assertThat(window.size).isZero()
+        assertThat(window.isCapped).isFalse()
+        assertThat(window.stableFocusStartOffset).isEqualTo(2)
+        assertThat(window.stableFocusEndOffset).isEqualTo(2)
+    }
+
     private fun stamp() = AnalysisStamp(
         documentStamp = 7,
         fileType = Any(),
