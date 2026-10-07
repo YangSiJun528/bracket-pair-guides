@@ -34,7 +34,7 @@ internal class IndexedBracketSnapshot(
 
     /** Returns a capped, allocation-light token window near the supplied offset range. */
     override fun visibleTokens(startOffset: Int, endOffset: Int, focusOffset: Int, limit: Int): TokenWindow {
-        require(startOffset >= 0 && endOffset >= startOffset) {
+        require(startOffset in 0..endOffset) {
             "Visible token range must be nonnegative and ordered"
         }
         require(limit > 0) { "Visible token limit must be positive" }
