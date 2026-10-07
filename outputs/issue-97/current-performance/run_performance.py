@@ -340,7 +340,7 @@ def main():
                     raise SystemExit(f"Recorded external child {record['pid']} is alive; refuse restart.")
         blockers = external_work()
         if blockers:
-            raise SystemExit('External workload is alive; no workload started:\n' + '\n'.join(blockers))
+            raise SystemExit('External workload is alive; no workload started:\n' + json.dumps(blockers, ensure_ascii=False))
         if state.get('candidateRequiredHead') != args.candidate_head:
             raise SystemExit('Candidate SHA changed since campaign began.')
         runner_hash = digest(Path(__file__))
@@ -391,7 +391,7 @@ def main():
                 raise SystemExit('Source/build input changed before next workload; stopped.')
             blockers = external_work()
             if blockers:
-                raise SystemExit('External workload detected before next command:\n' + '\n'.join(blockers))
+                raise SystemExit('External workload detected before next command:\n' + json.dumps(blockers, ensure_ascii=False))
             current_revision = git_source_identity(
                 job['cwd'], git_repository=plan['setup']['workingDirectories']['candidate'],
                 frozen_revision=plan['setup']['baselineRevision'] if job['side'] == 'baseline' else None,
