@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.snapshot.IndexedBracketSnapshotTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:05.666Z" hostname="sijun-yangui-MacBookPro.local" time="0.007">
+  <properties/>
+  <testcase name="readOnlyTokenQueriesPreserveCappingAndRejectAccessOutsideTheWindow" classname="com.sijunyang.bracketpairguides.analysis.snapshot.IndexedBracketSnapshotTest" time="0.005"/>
+  <testcase name="sharedIndexesKeepAnIndependentPairMemoForEachQueryView" classname="com.sijunyang.bracketpairguides.analysis.snapshot.IndexedBracketSnapshotTest" time="0.001"/>
+  <testcase name="tokenQueriesRejectNegativeAndReversedRanges" classname="com.sijunyang.bracketpairguides.analysis.snapshot.IndexedBracketSnapshotTest" time="0.001"/>
+  <testcase name="tokenQueriesAcceptEmptyRanges" classname="com.sijunyang.bracketpairguides.analysis.snapshot.IndexedBracketSnapshotTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

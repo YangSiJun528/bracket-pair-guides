@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.preferences.StoredColorFormatTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:55.659Z" hostname="sijun-yangui-MacBookPro.local" time="0.001">
+  <properties/>
+  <testcase name="validates exact concrete persisted colors without migration" classname="com.sijunyang.bracketpairguides.preferences.StoredColorFormatTest" time="0.001"/>
+  <testcase name="defines the exact built-in palette" classname="com.sijunyang.bracketpairguides.preferences.StoredColorFormatTest" time="0.0"/>
+  <testcase name="stores opaque RGB without alpha" classname="com.sijunyang.bracketpairguides.preferences.StoredColorFormatTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

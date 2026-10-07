@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.pairing.BracePairTopologyTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:22.989Z" hostname="sijun-yangui-MacBookPro.local" time="0.002">
+  <properties/>
+  <testcase name="mixed role token keeps opening priority instead of toggle behavior" classname="com.sijunyang.bracketpairguides.analysis.pairing.BracePairTopologyTest" time="0.001"/>
+  <testcase name="pure symmetric type toggles only when the matcher accepts the close role" classname="com.sijunyang.bracketpairguides.analysis.pairing.BracePairTopologyTest" time="0.0"/>
+  <testcase name="an extra incoming edge also prevents symmetric toggle behavior" classname="com.sijunyang.bracketpairguides.analysis.pairing.BracePairTopologyTest" time="0.0"/>
+  <testcase name="recognizes a pure symmetric delimiter" classname="com.sijunyang.bracketpairguides.analysis.pairing.BracePairTopologyTest" time="0.0"/>
+  <testcase name="reports structurality for registered open and close tokens" classname="com.sijunyang.bracketpairguides.analysis.pairing.BracePairTopologyTest" time="0.0"/>
+  <testcase name="mixed role token retains opening priority" classname="com.sijunyang.bracketpairguides.analysis.pairing.BracePairTopologyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

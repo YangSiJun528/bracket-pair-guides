@@ -1,0 +1,445 @@
+{
+  "ownershipAudit": "passed",
+  "probes": [
+    {
+      "module": "analysis-core",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachine",
+      "expectedVisible": true,
+      "ownerControl": true,
+      "diagnostics": ""
+    },
+    {
+      "module": "analysis-core",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculation",
+      "expectedVisible": true,
+      "ownerControl": true,
+      "diagnostics": ""
+    },
+    {
+      "module": "analysis-core",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculation",
+      "expectedVisible": true,
+      "ownerControl": true,
+      "diagnostics": ""
+    },
+    {
+      "module": "analysis-core",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.snapshot.BracketIndexes",
+      "expectedVisible": true,
+      "ownerControl": true,
+      "diagnostics": ""
+    },
+    {
+      "module": "analysis-core",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex",
+      "expectedVisible": true,
+      "ownerControl": true,
+      "diagnostics": ""
+    },
+    {
+      "module": "analysis-core",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex.Companion",
+      "expectedVisible": true,
+      "ownerControl": true,
+      "diagnostics": ""
+    },
+    {
+      "module": "analysis-core",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex",
+      "expectedVisible": true,
+      "ownerControl": true,
+      "diagnostics": ""
+    },
+    {
+      "module": "analysis-core",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex.Companion",
+      "expectedVisible": true,
+      "ownerControl": true,
+      "diagnostics": ""
+    },
+    {
+      "module": "analysis-runtime",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis",
+      "expectedVisible": true,
+      "ownerControl": true,
+      "diagnostics": ""
+    },
+    {
+      "module": "analysis-runtime",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCapture",
+      "expectedVisible": true,
+      "ownerControl": true,
+      "diagnostics": ""
+    },
+    {
+      "module": "analysis-runtime",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.editor.highlighting.EditorAnalysisExecution",
+      "expectedVisible": true,
+      "ownerControl": true,
+      "diagnostics": ""
+    },
+    {
+      "module": "analysis-model",
+      "language": "java",
+      "target": "kotlin.Unit",
+      "expectedVisible": true,
+      "ownerControl": false,
+      "diagnostics": ""
+    },
+    {
+      "module": "analysis-model",
+      "language": "java",
+      "target": "com.intellij.openapi.editor.Editor",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/analysis-model-java-com-intellij-openapi-editor-Editor/Probe.java:1: error: package com.intellij.openapi.editor does not exist\nfinal class Probe { com.intellij.openapi.editor.Editor value; }\n                                               ^\n1 error\n"
+    },
+    {
+      "module": "analysis-model",
+      "language": "kotlin",
+      "target": "kotlin.Unit",
+      "expectedVisible": true,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\n"
+    },
+    {
+      "module": "analysis-model",
+      "language": "kotlin",
+      "target": "com.intellij.openapi.editor.Editor",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/analysis-model-kotlin-com-intellij-openapi-editor-Editor/Probe.kt:1:39: error: unresolved reference: intellij\nclass Probe { lateinit var value: com.intellij.openapi.editor.Editor }\n                                      ^^^^^^^^\n"
+    },
+    {
+      "module": "analysis-core",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.AnalysisCoverage",
+      "expectedVisible": true,
+      "ownerControl": false,
+      "diagnostics": ""
+    },
+    {
+      "module": "analysis-core",
+      "language": "java",
+      "target": "com.intellij.openapi.editor.Editor",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/analysis-core-java-com-intellij-openapi-editor-Editor/Probe.java:1: error: package com.intellij.openapi.editor does not exist\nfinal class Probe { com.intellij.openapi.editor.Editor value; }\n                                               ^\n1 error\n"
+    },
+    {
+      "module": "analysis-core",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.AnalysisCoverage",
+      "expectedVisible": true,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n"
+    },
+    {
+      "module": "analysis-core",
+      "language": "kotlin",
+      "target": "com.intellij.openapi.editor.Editor",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/analysis-core-kotlin-com-intellij-openapi-editor-Editor/Probe.kt:1:39: error: unresolved reference: intellij\nclass Probe { lateinit var value: com.intellij.openapi.editor.Editor }\n                                      ^^^^^^^^\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.AnalysisCoverage",
+      "expectedVisible": true,
+      "ownerControl": false,
+      "diagnostics": ""
+    },
+    {
+      "module": "editor-ui",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachine",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-java-com-sijunyang-bracketpairguides-analysis-pairing-core-PairingMachine/Probe.java:1: error: package com.sijunyang.bracketpairguides.analysis.pairing.core does not exist\nfinal class Probe { com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachine value; }\n                                                                         ^\n1 error\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculation",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-java-com-sijunyang-bracketpairguides-analysis-snapshot-SnapshotCalculation/Probe.java:1: error: cannot find symbol\nfinal class Probe { com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculation value; }\n                                                                     ^\n  symbol:   class SnapshotCalculation\n  location: package com.sijunyang.bracketpairguides.analysis.snapshot\n1 error\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculation",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-java-com-sijunyang-bracketpairguides-analysis-guide-GuideRepairCalculation/Probe.java:1: error: package com.sijunyang.bracketpairguides.analysis.guide does not exist\nfinal class Probe { com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculation value; }\n                                                                  ^\n1 error\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.snapshot.BracketIndexes",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-java-com-sijunyang-bracketpairguides-analysis-snapshot-BracketIndexes/Probe.java:1: error: cannot find symbol\nfinal class Probe { com.sijunyang.bracketpairguides.analysis.snapshot.BracketIndexes value; }\n                                                                     ^\n  symbol:   class BracketIndexes\n  location: package com.sijunyang.bracketpairguides.analysis.snapshot\n1 error\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-java-com-sijunyang-bracketpairguides-analysis-token-BracketTokenIndex/Probe.java:1: error: package com.sijunyang.bracketpairguides.analysis.token does not exist\nfinal class Probe { com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex value; }\n                                                                  ^\n1 error\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex.Companion",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-java-com-sijunyang-bracketpairguides-analysis-token-BracketTokenIndex-Companion/Probe.java:1: error: package com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex does not exist\nfinal class Probe { com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex.Companion value; }\n                                                                                    ^\n1 error\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-java-com-sijunyang-bracketpairguides-analysis-active-ActiveBracketPairIndex/Probe.java:1: error: package com.sijunyang.bracketpairguides.analysis.active does not exist\nfinal class Probe { com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex value; }\n                                                                   ^\n1 error\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex.Companion",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-java-com-sijunyang-bracketpairguides-analysis-active-ActiveBracketPairIndex-Companion/Probe.java:1: error: package com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex does not exist\nfinal class Probe { com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex.Companion value; }\n                                                                                          ^\n1 error\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-java-com-sijunyang-bracketpairguides-analysis-intellij-BracketAnalysis/Probe.java:1: error: package com.sijunyang.bracketpairguides.analysis.intellij does not exist\nfinal class Probe { com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis value; }\n                                                                     ^\n1 error\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCapture",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-java-com-sijunyang-bracketpairguides-analysis-intellij-BracketTokenCapture/Probe.java:1: error: package com.sijunyang.bracketpairguides.analysis.intellij does not exist\nfinal class Probe { com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCapture value; }\n                                                                     ^\n1 error\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.editor.highlighting.EditorAnalysisExecution",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-java-com-sijunyang-bracketpairguides-editor-highlighting-EditorAnalysisExecution/Probe.java:1: error: cannot find symbol\nfinal class Probe { com.sijunyang.bracketpairguides.editor.highlighting.EditorAnalysisExecution value; }\n                                                                       ^\n  symbol:   class EditorAnalysisExecution\n  location: package com.sijunyang.bracketpairguides.editor.highlighting\n1 error\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.AnalysisCoverage",
+      "expectedVisible": true,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachine",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-kotlin-com-sijunyang-bracketpairguides-analysis-pairing-core-PairingMachine/Probe.kt:1:76: error: unresolved reference: pairing\nclass Probe { lateinit var value: com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachine<Any, Any> }\n                                                                           ^^^^^^^\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculation",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-kotlin-com-sijunyang-bracketpairguides-analysis-snapshot-SnapshotCalculation/Probe.kt:1:85: error: unresolved reference: SnapshotCalculation\nclass Probe { lateinit var value: com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculation }\n                                                                                    ^^^^^^^^^^^^^^^^^^^\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculation",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-kotlin-com-sijunyang-bracketpairguides-analysis-guide-GuideRepairCalculation/Probe.kt:1:76: error: unresolved reference: guide\nclass Probe { lateinit var value: com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculation }\n                                                                           ^^^^^\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.snapshot.BracketIndexes",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-kotlin-com-sijunyang-bracketpairguides-analysis-snapshot-BracketIndexes/Probe.kt:1:85: error: unresolved reference: BracketIndexes\nclass Probe { lateinit var value: com.sijunyang.bracketpairguides.analysis.snapshot.BracketIndexes }\n                                                                                    ^^^^^^^^^^^^^^\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-kotlin-com-sijunyang-bracketpairguides-analysis-token-BracketTokenIndex/Probe.kt:1:76: error: unresolved reference: token\nclass Probe { lateinit var value: com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex }\n                                                                           ^^^^^\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex.Companion",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-kotlin-com-sijunyang-bracketpairguides-analysis-token-BracketTokenIndex-Companion/Probe.kt:1:76: error: unresolved reference: token\nclass Probe { lateinit var value: com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex.Companion }\n                                                                           ^^^^^\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-kotlin-com-sijunyang-bracketpairguides-analysis-active-ActiveBracketPairIndex/Probe.kt:1:76: error: unresolved reference: active\nclass Probe { lateinit var value: com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex }\n                                                                           ^^^^^^\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex.Companion",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-kotlin-com-sijunyang-bracketpairguides-analysis-active-ActiveBracketPairIndex-Companion/Probe.kt:1:76: error: unresolved reference: active\nclass Probe { lateinit var value: com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex.Companion }\n                                                                           ^^^^^^\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-kotlin-com-sijunyang-bracketpairguides-analysis-intellij-BracketAnalysis/Probe.kt:1:76: error: unresolved reference: intellij\nclass Probe { lateinit var value: com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis }\n                                                                           ^^^^^^^^\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCapture",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-kotlin-com-sijunyang-bracketpairguides-analysis-intellij-BracketTokenCapture/Probe.kt:1:76: error: unresolved reference: intellij\nclass Probe { lateinit var value: com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCapture }\n                                                                           ^^^^^^^^\n"
+    },
+    {
+      "module": "editor-ui",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.editor.highlighting.EditorAnalysisExecution",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/editor-ui-kotlin-com-sijunyang-bracketpairguides-editor-highlighting-EditorAnalysisExecution/Probe.kt:1:67: error: unresolved reference: editor\nclass Probe { lateinit var value: com.sijunyang.bracketpairguides.editor.highlighting.EditorAnalysisExecution }\n                                                                  ^^^^^^\n"
+    },
+    {
+      "module": "analysis-runtime",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.AnalysisCoverage",
+      "expectedVisible": true,
+      "ownerControl": false,
+      "diagnostics": ""
+    },
+    {
+      "module": "analysis-runtime",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.AnalysisCoverage",
+      "expectedVisible": true,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n"
+    },
+    {
+      "module": "plugin",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.AnalysisCoverage",
+      "expectedVisible": true,
+      "ownerControl": false,
+      "diagnostics": ""
+    },
+    {
+      "module": "plugin",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachine",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/plugin-java-com-sijunyang-bracketpairguides-analysis-pairing-core-PairingMachine/Probe.java:1: error: package com.sijunyang.bracketpairguides.analysis.pairing.core does not exist\nfinal class Probe { com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachine value; }\n                                                                         ^\n1 error\n"
+    },
+    {
+      "module": "plugin",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculation",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/plugin-java-com-sijunyang-bracketpairguides-analysis-snapshot-SnapshotCalculation/Probe.java:1: error: cannot find symbol\nfinal class Probe { com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculation value; }\n                                                                     ^\n  symbol:   class SnapshotCalculation\n  location: package com.sijunyang.bracketpairguides.analysis.snapshot\n1 error\n"
+    },
+    {
+      "module": "plugin",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculation",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/plugin-java-com-sijunyang-bracketpairguides-analysis-guide-GuideRepairCalculation/Probe.java:1: error: package com.sijunyang.bracketpairguides.analysis.guide does not exist\nfinal class Probe { com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculation value; }\n                                                                  ^\n1 error\n"
+    },
+    {
+      "module": "plugin",
+      "language": "java",
+      "target": "com.sijunyang.bracketpairguides.analysis.snapshot.BracketIndexes",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/plugin-java-com-sijunyang-bracketpairguides-analysis-snapshot-BracketIndexes/Probe.java:1: error: cannot find symbol\nfinal class Probe { com.sijunyang.bracketpairguides.analysis.snapshot.BracketIndexes value; }\n                                                                     ^\n  symbol:   class BracketIndexes\n  location: package com.sijunyang.bracketpairguides.analysis.snapshot\n1 error\n"
+    },
+    {
+      "module": "plugin",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.AnalysisCoverage",
+      "expectedVisible": true,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n"
+    },
+    {
+      "module": "plugin",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachine",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/plugin-kotlin-com-sijunyang-bracketpairguides-analysis-pairing-core-PairingMachine/Probe.kt:1:84: error: unresolved reference: core\nclass Probe { lateinit var value: com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachine<Any, Any> }\n                                                                                   ^^^^\n"
+    },
+    {
+      "module": "plugin",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculation",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/plugin-kotlin-com-sijunyang-bracketpairguides-analysis-snapshot-SnapshotCalculation/Probe.kt:1:85: error: unresolved reference: SnapshotCalculation\nclass Probe { lateinit var value: com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculation }\n                                                                                    ^^^^^^^^^^^^^^^^^^^\n"
+    },
+    {
+      "module": "plugin",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculation",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/plugin-kotlin-com-sijunyang-bracketpairguides-analysis-guide-GuideRepairCalculation/Probe.kt:1:76: error: unresolved reference: guide\nclass Probe { lateinit var value: com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculation }\n                                                                           ^^^^^\n"
+    },
+    {
+      "module": "plugin",
+      "language": "kotlin",
+      "target": "com.sijunyang.bracketpairguides.analysis.snapshot.BracketIndexes",
+      "expectedVisible": false,
+      "ownerControl": false,
+      "diagnostics": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.jetbrains.kotlin.org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar)\nWARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nwarning: language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.\nwarning: classpath entry points to a non-existent location: /Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main\n/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/module-compile-probes-xydly1vi/plugin-kotlin-com-sijunyang-bracketpairguides-analysis-snapshot-BracketIndexes/Probe.kt:1:85: error: unresolved reference: BracketIndexes\nclass Probe { lateinit var value: com.sijunyang.bracketpairguides.analysis.snapshot.BracketIndexes }\n                                                                                    ^^^^^^^^^^^^^^\n"
+    }
+  ]
+}

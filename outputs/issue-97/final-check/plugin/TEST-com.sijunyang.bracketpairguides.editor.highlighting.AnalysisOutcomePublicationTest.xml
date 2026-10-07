@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:29.864Z" hostname="sijun-yangui-MacBookPro.local" time="4.314">
+  <properties/>
+  <testcase name="testLateUnavailableCannotDowngradeACompletedEquivalentAnalysis" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.317"/>
+  <testcase name="testLateRicherUnavailableCannotClearACompletedLowerCoverage" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.322"/>
+  <testcase name="testExactPlatformBoundaryIsAllowedAndNullSourceUsesEngineCaps" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.639"/>
+  <testcase name="testLateLimitedCannotDowngradeCompletedGuideForTheSameStamp" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.346"/>
+  <testcase name="testGuideCapacityRefusalSurvivesGuideSettingsRoundTrips" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.515"/>
+  <testcase name="testUnsavedLargeDocumentClearsPresentationWithoutRunningAnalysis" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.451"/>
+  <testcase name="testGuideCapacityKeepsTokensAndActivePairWithoutApproximateGuide" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.281"/>
+  <testcase name="testUnavailableAnalysisSuppressesTheSameRequestUntilItsInputChanges" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.539"/>
+  <testcase name="testCurrentDocumentPolicyDominatesStalePassAndShrinkingCanRecover" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.903"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

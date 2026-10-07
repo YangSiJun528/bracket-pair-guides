@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.ProvisionalGuideTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:49.436Z" hostname="sijun-yangui-MacBookPro.local" time="2.272">
+  <properties/>
+  <testcase name="testSameLengthWhitespaceReplacementHidesThenRepairsTheTrackedGuide" classname="com.sijunyang.bracketpairguides.editor.highlighting.ProvisionalGuideTest" time="0.211"/>
+  <testcase name="testInsertionInsideTrackedMultiCharacterEndpointClearsGuideImmediately" classname="com.sijunyang.bracketpairguides.editor.highlighting.ProvisionalGuideTest" time="0.17"/>
+  <testcase name="testReplacementHidesThenRepairsMultilineGeometryWithoutFullRecognition" classname="com.sijunyang.bracketpairguides.editor.highlighting.ProvisionalGuideTest" time="0.211"/>
+  <testcase name="testInsertionHidesThenRepairsTheTrackedGuideWithoutFullRecognition" classname="com.sijunyang.bracketpairguides.editor.highlighting.ProvisionalGuideTest" time="0.193"/>
+  <testcase name="testRemovingTrackedEndpointClearsGuideImmediatelyWithoutBackgroundAnalysis" classname="com.sijunyang.bracketpairguides.editor.highlighting.ProvisionalGuideTest" time="0.188"/>
+  <testcase name="testDocumentEditAdjustsTheActiveGuideBeforeFullRecognitionCompletes" classname="com.sijunyang.bracketpairguides.editor.highlighting.ProvisionalGuideTest" time="0.177"/>
+  <testcase name="testBracketEditWaitsForBackgroundAnalysisBeforePublishingANewInnermostPair" classname="com.sijunyang.bracketpairguides.editor.highlighting.ProvisionalGuideTest" time="0.295"/>
+  <testcase name="testEditBeyondSynchronousLineBudgetClearsStaleGuideImmediately" classname="com.sijunyang.bracketpairguides.editor.highlighting.ProvisionalGuideTest" time="0.174"/>
+  <testcase name="testRapidPairSwitchesReuseOneGuideHighlighter" classname="com.sijunyang.bracketpairguides.editor.highlighting.ProvisionalGuideTest" time="0.449"/>
+  <testcase name="testRemovalHidesThenRepairsTheTrackedGuideWithoutFullRecognition" classname="com.sijunyang.bracketpairguides.editor.highlighting.ProvisionalGuideTest" time="0.204"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

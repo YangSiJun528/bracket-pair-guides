@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.UnsupportedBackendNotificationProviderTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:53.410Z" hostname="sijun-yangui-MacBookPro.local" time="0.181">
+  <properties/>
+  <testcase name="testReSharperActionOpensSupportRequest" classname="com.sijunyang.bracketpairguides.editor.highlighting.UnsupportedBackendNotificationProviderTest" time="0.039"/>
+  <testcase name="testFileTypeSuppressionHidesTheWarning" classname="com.sijunyang.bracketpairguides.editor.highlighting.UnsupportedBackendNotificationProviderTest" time="0.035"/>
+  <testcase name="testWarnsForUnavailableMatcherInEveryProduct" classname="com.sijunyang.bracketpairguides.editor.highlighting.UnsupportedBackendNotificationProviderTest" time="0.035"/>
+  <testcase name="testDoesNotWarnForNonUnavailableStates" classname="com.sijunyang.bracketpairguides.editor.highlighting.UnsupportedBackendNotificationProviderTest" time="0.034"/>
+  <testcase name="testGenericActionOpensLanguageSupportReference" classname="com.sijunyang.bracketpairguides.editor.highlighting.UnsupportedBackendNotificationProviderTest" time="0.037"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

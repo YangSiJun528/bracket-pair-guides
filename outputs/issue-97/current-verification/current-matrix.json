@@ -1,0 +1,46 @@
+{
+    "recommended": [
+        "IC-2025.2.6.3",
+        "IC-2025.1.7.2",
+        "IC-2024.3.7.1",
+        "IC-2024.2.6",
+        "IC-2024.1.7",
+        "IU-263.6259.32",
+        "IU-2026.2.3",
+        "IU-2026.1.5",
+        "IU-2025.3.6.1"
+    ],
+    "explicit": [
+        "IU-2025.3",
+        "IU-2026.1",
+        "IU-2026.2",
+        "IU-263.4732.28"
+    ],
+    "targets": [
+        "IC-2025.2.6.3",
+        "IC-2025.1.7.2",
+        "IC-2024.3.7.1",
+        "IC-2024.2.6",
+        "IC-2024.1.7",
+        "IU-263.6259.32",
+        "IU-2026.2.3",
+        "IU-2026.1.5",
+        "IU-2025.3.6.1",
+        "IU-2025.3",
+        "IU-2026.1",
+        "IU-2026.2",
+        "IU-263.4732.28"
+    ],
+    "failureLevels": [
+        "COMPATIBILITY_PROBLEMS",
+        "DEPRECATED_API_USAGES",
+        "EXPERIMENTAL_API_USAGES",
+        "INTERNAL_API_USAGES",
+        "OVERRIDE_ONLY_API_USAGES",
+        "NON_EXTENDABLE_API_USAGES",
+        "MISSING_DEPENDENCIES",
+        "INVALID_PLUGIN"
+    ],
+    "declaration": "recommended() plus explicit create declarations in plugin/build.gradle.kts",
+    "pluginApi": "2.19.0"
+}

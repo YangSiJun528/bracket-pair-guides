@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.EditorExecutionMeasurementTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:38.198Z" hostname="sijun-yangui-MacBookPro.local" time="0.037">
+  <properties/>
+  <testcase name="testEditorExecutionMeasurements" classname="com.sijunyang.bracketpairguides.editor.highlighting.EditorExecutionMeasurementTest" time="0.037"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

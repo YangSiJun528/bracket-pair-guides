@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalogTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:22.778Z" hostname="sijun-yangui-MacBookPro.local" time="0.202">
+  <properties/>
+  <testcase name="testTextMatcherIsPresentedAsCustomFileTypeCapability" classname="com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalogTest" time="0.084"/>
+  <testcase name="testMatcherFamilyWithoutStandaloneFileTypeIsExposedToSettings" classname="com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalogTest" time="0.025"/>
+  <testcase name="testInstalledFamiliesAreStableUiReadyValues" classname="com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalogTest" time="0.032"/>
+  <testcase name="testLegacyFileTypeMatcherLanguageIsExposedToSettings" classname="com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalogTest" time="0.061"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

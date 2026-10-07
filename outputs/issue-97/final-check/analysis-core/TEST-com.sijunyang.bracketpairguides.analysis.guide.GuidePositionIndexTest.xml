@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndexTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:05.625Z" hostname="sijun-yangui-MacBookPro.local" time="0.015">
+  <properties/>
+  <testcase name="builds from primitive line indentation" classname="com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndexTest" time="0.002"/>
+  <testcase name="restricted index retains absolute anchor lines" classname="com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndexTest" time="0.005"/>
+  <testcase name="uses the minimum body and closing indentation" classname="com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndexTest" time="0.0"/>
+  <testcase name="restricted index omits a disjoint range" classname="com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndexTest" time="0.001"/>
+  <testcase name="indentation column saturates before the no-indent sentinel" classname="com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndexTest" time="0.0"/>
+  <testcase name="pair outside the indexed envelope has no guide" classname="com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndexTest" time="0.0"/>
+  <testcase name="blocked query returns the earliest exact minimum across edges and tree" classname="com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndexTest" time="0.002"/>
+  <testcase name="storage planning is overflow safe for the maximum line count" classname="com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndexTest" time="0.0"/>
+  <testcase name="blocked shape enforces the combined array memory boundary" classname="com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndexTest" time="0.001"/>
+  <testcase name="expands tabs using the editor tab size" classname="com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndexTest" time="0.0"/>
+  <testcase name="blocked queries match linear minima around every block edge" classname="com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndexTest" time="0.003"/>
+  <testcase name="checks cancellation while scanning a very long indentation" classname="com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndexTest" time="0.0"/>
+  <testcase name="ignores blank lines in minimum queries" classname="com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndexTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

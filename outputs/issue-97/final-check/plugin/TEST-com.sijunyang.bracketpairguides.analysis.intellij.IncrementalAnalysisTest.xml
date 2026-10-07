@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:21.939Z" hostname="sijun-yangui-MacBookPro.local" time="0.835">
+  <properties/>
+  <testcase name="testHighlighterReplacementDuringOffReadComputeRejectsAnUneditedRequest" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.077"/>
+  <testcase name="testRequestThatIsAlreadyStaleAtStartReturnsNoPayload" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.078"/>
+  <testcase name="testDisposedEditorCannotReturnAPublicationPayload" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.106"/>
+  <testcase name="testWriteCancelsAnInProgressTokenCaptureAndRetryPreservesAllResults" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.095"/>
+  <testcase name="testDocumentEditDuringOffReadComputeRejectsTheOldRequest" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.092"/>
+  <testcase name="testCancellationStopsTheWorkerWithoutReleasingItsOffReadGate" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.072"/>
+  <testcase name="testJavaAndXmlChunkPipelinePreservesObservablePairsTokensAndGuides" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.157"/>
+  <testcase name="testTabSizeChangedBetweenChunksRejectsTheCapturedLayoutAtCompletion" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.074"/>
+  <testcase name="testEdtWriteCompletesWhileOffReadComputeIsPausedThenAnalysisRetriesCleanly" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.082"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

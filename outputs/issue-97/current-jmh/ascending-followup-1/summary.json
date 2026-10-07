@@ -1,0 +1,1000 @@
+{
+  "originalRetained": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-jmh/results/summary.json",
+  "pairs": [
+    {
+      "pair": 1,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "cases": [
+        {
+          "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+          "params": {
+            "distribution": "ascending",
+            "size": "1000000"
+          },
+          "latency": {
+            "baseline": {
+              "score": 0.18670201835679098,
+              "scoreError": 0.012767027444224994,
+              "scoreConfidence": [
+                0.17393499091256598,
+                0.199469045801016
+              ],
+              "unit": "ms/op"
+            },
+            "candidate": {
+              "score": 0.18672346818140254,
+              "scoreError": 0.012491480747677532,
+              "scoreConfidence": [
+                0.174231987433725,
+                0.19921494892908007
+              ],
+              "unit": "ms/op"
+            },
+            "delta": 2.1449824611552426e-05,
+            "percentChange": 0.011488801674635042,
+            "conservativeDeltaInterval": [
+              -0.025237058367290982,
+              0.025279958016514087
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          },
+          "bytesPerOperation": {
+            "baseline": {
+              "score": 8000019.434739757,
+              "scoreError": 1.852096695328457,
+              "scoreConfidence": [
+                8000017.582643062,
+                8000021.286836453
+              ],
+              "unit": "B/op"
+            },
+            "candidate": {
+              "score": 8000019.448532724,
+              "scoreError": 1.8509232424190551,
+              "scoreConfidence": [
+                8000017.597609482,
+                8000021.299455966
+              ],
+              "unit": "B/op"
+            },
+            "delta": 0.013792966492474079,
+            "percentChange": 1.7241166230895248e-07,
+            "conservativeDeltaInterval": [
+              -3.6892269710078835,
+              3.7168129039928317
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          }
+        },
+        {
+          "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+          "params": {
+            "distribution": "ascending",
+            "size": "200000"
+          },
+          "latency": {
+            "baseline": {
+              "score": 0.0359513624240082,
+              "scoreError": 0.0007946539043137105,
+              "scoreConfidence": [
+                0.035156708519694484,
+                0.03674601632832191
+              ],
+              "unit": "ms/op"
+            },
+            "candidate": {
+              "score": 0.03591667641962689,
+              "scoreError": 0.0004533433851490553,
+              "scoreConfidence": [
+                0.03546333303447784,
+                0.036370019804775944
+              ],
+              "unit": "ms/op"
+            },
+            "delta": -3.468600438130687e-05,
+            "percentChange": -0.096480361362171,
+            "conservativeDeltaInterval": [
+              -0.0012826832938440738,
+              0.00121331128508146
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          },
+          "bytesPerOperation": {
+            "baseline": {
+              "score": 1600016.4384093347,
+              "scoreError": 0.10989278796302197,
+              "scoreConfidence": [
+                1600016.3285165469,
+                1600016.5483021226
+              ],
+              "unit": "B/op"
+            },
+            "candidate": {
+              "score": 1600016.436331978,
+              "scoreError": 0.08729538992845928,
+              "scoreConfidence": [
+                1600016.349036588,
+                1600016.523627368
+              ],
+              "unit": "B/op"
+            },
+            "delta": -0.002077356679365039,
+            "percentChange": -1.298334585506043e-07,
+            "conservativeDeltaInterval": [
+              -0.19926553452387452,
+              0.19511082116514444
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          }
+        },
+        {
+          "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+          "params": {
+            "distribution": "ascending",
+            "size": "2000000"
+          },
+          "latency": {
+            "baseline": {
+              "score": 0.37476142760118686,
+              "scoreError": 0.0006708676174580577,
+              "scoreConfidence": [
+                0.3740905599837288,
+                0.3754322952186449
+              ],
+              "unit": "ms/op"
+            },
+            "candidate": {
+              "score": 0.37472155783162053,
+              "scoreError": 0.0011596933423077477,
+              "scoreConfidence": [
+                0.3735618644893128,
+                0.3758812511739283
+              ],
+              "unit": "ms/op"
+            },
+            "delta": -3.9869769566325264e-05,
+            "percentChange": -0.010638706822505176,
+            "conservativeDeltaInterval": [
+              -0.0018704307293321287,
+              0.0017906911901994782
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          },
+          "bytesPerOperation": {
+            "baseline": {
+              "score": 16000024.034697214,
+              "scoreError": 0.23155734544788995,
+              "scoreConfidence": [
+                16000023.80313987,
+                16000024.26625456
+              ],
+              "unit": "B/op"
+            },
+            "candidate": {
+              "score": 16000024.023758346,
+              "scoreError": 0.22063630349620703,
+              "scoreConfidence": [
+                16000023.803122044,
+                16000024.244394649
+              ],
+              "unit": "B/op"
+            },
+            "delta": -0.010938867926597595,
+            "percentChange": -6.836782184124139e-08,
+            "conservativeDeltaInterval": [
+              -0.46313251554965973,
+              0.44125477969646454
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          }
+        },
+        {
+          "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+          "params": {
+            "distribution": "ascending",
+            "size": "32768"
+          },
+          "latency": {
+            "baseline": {
+              "score": 0.005871931111329695,
+              "scoreError": 2.606188678706559e-05,
+              "scoreConfidence": [
+                0.005845869224542629,
+                0.005897992998116761
+              ],
+              "unit": "ms/op"
+            },
+            "candidate": {
+              "score": 0.00587108403064672,
+              "scoreError": 2.4526722962270005e-05,
+              "scoreConfidence": [
+                0.00584655730768445,
+                0.00589561075360899
+              ],
+              "unit": "ms/op"
+            },
+            "delta": -8.470806829750585e-07,
+            "percentChange": -0.014425930190847175,
+            "conservativeDeltaInterval": [
+              -5.1435690432311e-05,
+              4.974152906636088e-05
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          },
+          "bytesPerOperation": {
+            "baseline": {
+              "score": 262160.0782766133,
+              "scoreError": 0.002707449074381563,
+              "scoreConfidence": [
+                262160.07556916424,
+                262160.0809840624
+              ],
+              "unit": "B/op"
+            },
+            "candidate": {
+              "score": 262160.07860019326,
+              "scoreError": 0.0040965020061447385,
+              "scoreConfidence": [
+                262160.0745036912,
+                262160.0826966953
+              ],
+              "unit": "B/op"
+            },
+            "delta": 0.00032357993768528104,
+            "percentChange": 1.2342838002354488e-07,
+            "conservativeDeltaInterval": [
+              -0.0064803711720742285,
+              0.007127531047444791
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          }
+        },
+        {
+          "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+          "params": {
+            "distribution": "ascending",
+            "size": "1000000"
+          },
+          "latency": {
+            "baseline": {
+              "score": 2.674594965414783,
+              "scoreError": 0.033005680864600026,
+              "scoreConfidence": [
+                2.641589284550183,
+                2.707600646279383
+              ],
+              "unit": "ms/op"
+            },
+            "candidate": {
+              "score": 2.678673257702832,
+              "scoreError": 0.02066487924931385,
+              "scoreConfidence": [
+                2.658008378453518,
+                2.6993381369521456
+              ],
+              "unit": "ms/op"
+            },
+            "delta": 0.004078292288048679,
+            "percentChange": 0.15248261291093126,
+            "conservativeDeltaInterval": [
+              -0.04959226782586512,
+              0.05774885240196248
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          },
+          "bytesPerOperation": {
+            "baseline": {
+              "score": 16000050.599400835,
+              "scoreError": 0.5975292806124074,
+              "scoreConfidence": [
+                16000050.001871554,
+                16000051.196930116
+              ],
+              "unit": "B/op"
+            },
+            "candidate": {
+              "score": 16000050.627753729,
+              "scoreError": 0.37110421925741816,
+              "scoreConfidence": [
+                16000050.25664951,
+                16000050.998857949
+              ],
+              "unit": "B/op"
+            },
+            "delta": 0.028352893888950348,
+            "percentChange": 1.772050264016796e-07,
+            "conservativeDeltaInterval": [
+              -0.940280606970191,
+              0.9969863947480917
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          }
+        },
+        {
+          "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+          "params": {
+            "distribution": "ascending",
+            "size": "200000"
+          },
+          "latency": {
+            "baseline": {
+              "score": 0.38569564106285553,
+              "scoreError": 0.0053139194555238,
+              "scoreConfidence": [
+                0.38038172160733175,
+                0.3910095605183793
+              ],
+              "unit": "ms/op"
+            },
+            "candidate": {
+              "score": 0.3851574876776663,
+              "scoreError": 0.015143837170008563,
+              "scoreConfidence": [
+                0.3700136505076577,
+                0.40030132484767483
+              ],
+              "unit": "ms/op"
+            },
+            "delta": -0.000538153385189255,
+            "percentChange": -0.13952799251406472,
+            "conservativeDeltaInterval": [
+              -0.020995910010721597,
+              0.019919603240343087
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          },
+          "bytesPerOperation": {
+            "baseline": {
+              "score": 3200034.4956771377,
+              "scoreError": 0.05582277412553832,
+              "scoreConfidence": [
+                3200034.4398543634,
+                3200034.551499912
+              ],
+              "unit": "B/op"
+            },
+            "candidate": {
+              "score": 3200034.486246869,
+              "scoreError": 0.050159166112578625,
+              "scoreConfidence": [
+                3200034.436087703,
+                3200034.536406035
+              ],
+              "unit": "B/op"
+            },
+            "delta": -0.00943026877939701,
+            "percentChange": -2.946927225983398e-07,
+            "conservativeDeltaInterval": [
+              -0.11541220918297768,
+              0.09655167162418365
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          }
+        },
+        {
+          "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+          "params": {
+            "distribution": "ascending",
+            "size": "2000000"
+          },
+          "latency": {
+            "baseline": {
+              "score": 5.137472139694824,
+              "scoreError": 0.29844496046850766,
+              "scoreConfidence": [
+                4.839027179226317,
+                5.435917100163332
+              ],
+              "unit": "ms/op"
+            },
+            "candidate": {
+              "score": 5.129019426876435,
+              "scoreError": 0.29347100435192924,
+              "scoreConfidence": [
+                4.835548422524506,
+                5.422490431228364
+              ],
+              "unit": "ms/op"
+            },
+            "delta": -0.00845271281838933,
+            "percentChange": -0.1645305821335595,
+            "conservativeDeltaInterval": [
+              -0.6003686776388255,
+              0.5834632520020469
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          },
+          "bytesPerOperation": {
+            "baseline": {
+              "score": 32000068.0092866,
+              "scoreError": 1.8475276317287508,
+              "scoreConfidence": [
+                32000066.16175897,
+                32000069.85681423
+              ],
+              "unit": "B/op"
+            },
+            "candidate": {
+              "score": 32000068.103534605,
+              "scoreError": 1.9963106665782868,
+              "scoreConfidence": [
+                32000066.10722394,
+                32000070.09984527
+              ],
+              "unit": "B/op"
+            },
+            "delta": 0.09424800425767899,
+            "percentChange": 2.9452438735545086e-07,
+            "conservativeDeltaInterval": [
+              -3.749590292572975,
+              3.938086301088333
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          }
+        },
+        {
+          "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+          "params": {
+            "distribution": "ascending",
+            "size": "32768"
+          },
+          "latency": {
+            "baseline": {
+              "score": 0.02343663893609339,
+              "scoreError": 0.001068690302603243,
+              "scoreConfidence": [
+                0.022367948633490148,
+                0.02450532923869663
+              ],
+              "unit": "ms/op"
+            },
+            "candidate": {
+              "score": 0.02377409134602813,
+              "scoreError": 0.000629246476877287,
+              "scoreConfidence": [
+                0.023144844869150843,
+                0.024403337822905418
+              ],
+              "unit": "ms/op"
+            },
+            "delta": 0.0003374524099347409,
+            "percentChange": 1.439849847304898,
+            "conservativeDeltaInterval": [
+              -0.0013604843695457884,
+              0.0020353891894152702
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          },
+          "bytesPerOperation": {
+            "baseline": {
+              "score": 524320.2086056201,
+              "scoreError": 0.05377013078845009,
+              "scoreConfidence": [
+                524320.1548354893,
+                524320.2623757508
+              ],
+              "unit": "B/op"
+            },
+            "candidate": {
+              "score": 524320.2069635912,
+              "scoreError": 0.05237885006311158,
+              "scoreConfidence": [
+                524320.1545847411,
+                524320.2593424412
+              ],
+              "unit": "B/op"
+            },
+            "delta": -0.0016420289175584912,
+            "percentChange": -3.13172921929771e-07,
+            "conservativeDeltaInterval": [
+              -0.10779100970830768,
+              0.1045069518731907
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          }
+        }
+      ]
+    },
+    {
+      "pair": 2,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "cases": [
+        {
+          "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+          "params": {
+            "distribution": "ascending",
+            "size": "1000000"
+          },
+          "latency": {
+            "baseline": {
+              "score": 0.18677605043333181,
+              "scoreError": 0.012237965302266058,
+              "scoreConfidence": [
+                0.17453808513106575,
+                0.19901401573559788
+              ],
+              "unit": "ms/op"
+            },
+            "candidate": {
+              "score": 0.1865215743701765,
+              "scoreError": 0.012310458792124036,
+              "scoreConfidence": [
+                0.17421111557805247,
+                0.19883203316230053
+              ],
+              "unit": "ms/op"
+            },
+            "delta": -0.0002544760631553178,
+            "percentChange": -0.13624662399966045,
+            "conservativeDeltaInterval": [
+              -0.02480290015754541,
+              0.024293948031234774
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          },
+          "bytesPerOperation": {
+            "baseline": {
+              "score": 8000019.436151574,
+              "scoreError": 1.86874837159587,
+              "scoreConfidence": [
+                8000017.567403203,
+                8000021.304899946
+              ],
+              "unit": "B/op"
+            },
+            "candidate": {
+              "score": 8000019.438469116,
+              "scoreError": 1.8426752708106005,
+              "scoreConfidence": [
+                8000017.595793845,
+                8000021.281144386
+              ],
+              "unit": "B/op"
+            },
+            "delta": 0.002317541278898716,
+            "percentChange": 2.8969195605024354e-08,
+            "conservativeDeltaInterval": [
+              -3.7091061007231474,
+              3.713741183280945
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          }
+        },
+        {
+          "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+          "params": {
+            "distribution": "ascending",
+            "size": "200000"
+          },
+          "latency": {
+            "baseline": {
+              "score": 0.03584347471119276,
+              "scoreError": 0.0005345350539430713,
+              "scoreConfidence": [
+                0.03530893965724969,
+                0.036378009765135826
+              ],
+              "unit": "ms/op"
+            },
+            "candidate": {
+              "score": 0.03584256302455047,
+              "scoreError": 0.00046490957547683573,
+              "scoreConfidence": [
+                0.035377653449073634,
+                0.0363074726000273
+              ],
+              "unit": "ms/op"
+            },
+            "delta": -9.116866422909098e-07,
+            "percentChange": -0.0025435219370799995,
+            "conservativeDeltaInterval": [
+              -0.0010003563160621912,
+              0.0009985329427776093
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          },
+          "bytesPerOperation": {
+            "baseline": {
+              "score": 1600016.4394189457,
+              "scoreError": 0.10367115197427117,
+              "scoreConfidence": [
+                1600016.3357477938,
+                1600016.5430900976
+              ],
+              "unit": "B/op"
+            },
+            "candidate": {
+              "score": 1600016.435313794,
+              "scoreError": 0.11748068457423563,
+              "scoreConfidence": [
+                1600016.3178331095,
+                1600016.5527944786
+              ],
+              "unit": "B/op"
+            },
+            "delta": -0.004105151630938053,
+            "percentChange": -2.5656934077682727e-07,
+            "conservativeDeltaInterval": [
+              -0.22525698808021843,
+              0.21704668481834233
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          }
+        },
+        {
+          "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+          "params": {
+            "distribution": "ascending",
+            "size": "2000000"
+          },
+          "latency": {
+            "baseline": {
+              "score": 0.37519167283052696,
+              "scoreError": 0.0014352458631405017,
+              "scoreConfidence": [
+                0.3737564269673865,
+                0.37662691869366743
+              ],
+              "unit": "ms/op"
+            },
+            "candidate": {
+              "score": 0.3748456009052419,
+              "scoreError": 0.0018605346157697133,
+              "scoreConfidence": [
+                0.37298506628947214,
+                0.3767061355210116
+              ],
+              "unit": "ms/op"
+            },
+            "delta": -0.00034607192528507413,
+            "percentChange": -0.09223870100160615,
+            "conservativeDeltaInterval": [
+              -0.0036418524041952893,
+              0.002949708553625141
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          },
+          "bytesPerOperation": {
+            "baseline": {
+              "score": 16000024.0308322,
+              "scoreError": 0.1269075088636753,
+              "scoreConfidence": [
+                16000023.90392469,
+                16000024.157739708
+              ],
+              "unit": "B/op"
+            },
+            "candidate": {
+              "score": 16000024.001914417,
+              "scoreError": 0.11081805687349683,
+              "scoreConfidence": [
+                16000023.891096361,
+                16000024.112732474
+              ],
+              "unit": "B/op"
+            },
+            "delta": -0.02891778200864792,
+            "percentChange": -1.8073586610197006e-07,
+            "conservativeDeltaInterval": [
+              -0.2666433472186327,
+              0.20880778320133686
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          }
+        },
+        {
+          "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+          "params": {
+            "distribution": "ascending",
+            "size": "32768"
+          },
+          "latency": {
+            "baseline": {
+              "score": 0.005874737680181641,
+              "scoreError": 3.422740909919929e-05,
+              "scoreConfidence": [
+                0.005840510271082441,
+                0.00590896508928084
+              ],
+              "unit": "ms/op"
+            },
+            "candidate": {
+              "score": 0.005893871406838297,
+              "scoreError": 6.00619330470713e-05,
+              "scoreConfidence": [
+                0.005833809473791226,
+                0.005953933339885368
+              ],
+              "unit": "ms/op"
+            },
+            "delta": 1.9133726656656025e-05,
+            "percentChange": 0.325694996071117,
+            "conservativeDeltaInterval": [
+              -7.51556154896145e-05,
+              0.00011342306880292655
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          },
+          "bytesPerOperation": {
+            "baseline": {
+              "score": 262160.07805631286,
+              "scoreError": 0.0028891955408109947,
+              "scoreConfidence": [
+                262160.07516711735,
+                262160.0809455084
+              ],
+              "unit": "B/op"
+            },
+            "candidate": {
+              "score": 262160.0761606602,
+              "scoreError": 0.006830863819943333,
+              "scoreConfidence": [
+                262160.06932979636,
+                262160.082991524
+              ],
+              "unit": "B/op"
+            },
+            "delta": -0.0018956526764668524,
+            "percentChange": -7.230897589447848e-07,
+            "conservativeDeltaInterval": [
+              -0.01161571202101186,
+              0.007824406668078154
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          }
+        },
+        {
+          "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+          "params": {
+            "distribution": "ascending",
+            "size": "1000000"
+          },
+          "latency": {
+            "baseline": {
+              "score": 2.6816172536118223,
+              "scoreError": 0.04091369711823337,
+              "scoreConfidence": [
+                2.640703556493589,
+                2.722530950730056
+              ],
+              "unit": "ms/op"
+            },
+            "candidate": {
+              "score": 2.2119908207659478,
+              "scoreError": 1.4191388768375897,
+              "scoreConfidence": [
+                0.7928519439283581,
+                3.631129697603537
+              ],
+              "unit": "ms/op"
+            },
+            "delta": -0.4696264328458746,
+            "percentChange": -17.512806207274476,
+            "conservativeDeltaInterval": [
+              -1.9296790068016978,
+              0.9904261411099484
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          },
+          "bytesPerOperation": {
+            "baseline": {
+              "score": 16000050.604329474,
+              "scoreError": 0.42153313631643197,
+              "scoreConfidence": [
+                16000050.182796339,
+                16000051.02586261
+              ],
+              "unit": "B/op"
+            },
+            "candidate": {
+              "score": 16000047.841686137,
+              "scoreError": 8.362231033426971,
+              "scoreConfidence": [
+                16000039.479455104,
+                16000056.20391717
+              ],
+              "unit": "B/op"
+            },
+            "delta": -2.762643337249756,
+            "percentChange": -1.7266466247939295e-05,
+            "conservativeDeltaInterval": [
+              -11.546407505869865,
+              6.021120831370354
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          }
+        },
+        {
+          "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+          "params": {
+            "distribution": "ascending",
+            "size": "200000"
+          },
+          "latency": {
+            "baseline": {
+              "score": 0.3857845475608616,
+              "scoreError": 0.0043288947234540985,
+              "scoreConfidence": [
+                0.3814556528374075,
+                0.3901134422843157
+              ],
+              "unit": "ms/op"
+            },
+            "candidate": {
+              "score": 0.38678353198079113,
+              "scoreError": 0.009080526863155426,
+              "scoreConfidence": [
+                0.3777030051176357,
+                0.39586405884394654
+              ],
+              "unit": "ms/op"
+            },
+            "delta": 0.0009989844199295161,
+            "percentChange": 0.25894879052197284,
+            "conservativeDeltaInterval": [
+              -0.01241043716668,
+              0.014408406006539032
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          },
+          "bytesPerOperation": {
+            "baseline": {
+              "score": 3200034.498644443,
+              "scoreError": 0.08011047491087046,
+              "scoreConfidence": [
+                3200034.4185339683,
+                3200034.578754918
+              ],
+              "unit": "B/op"
+            },
+            "candidate": {
+              "score": 3200034.5019871593,
+              "scoreError": 0.060049562563130904,
+              "scoreConfidence": [
+                3200034.4419375965,
+                3200034.562036722
+              ],
+              "unit": "B/op"
+            },
+            "delta": 0.00334271602332592,
+            "percentChange": 1.0445874957729106e-07,
+            "conservativeDeltaInterval": [
+              -0.1368173216469586,
+              0.14350275369361043
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          }
+        },
+        {
+          "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+          "params": {
+            "distribution": "ascending",
+            "size": "2000000"
+          },
+          "latency": {
+            "baseline": {
+              "score": 5.0093370029624245,
+              "scoreError": 0.5191735037931073,
+              "scoreConfidence": [
+                4.490163499169317,
+                5.528510506755532
+              ],
+              "unit": "ms/op"
+            },
+            "candidate": {
+              "score": 5.1717171635388555,
+              "scoreError": 0.2862993826319729,
+              "scoreConfidence": [
+                4.885417780906883,
+                5.458016546170828
+              ],
+              "unit": "ms/op"
+            },
+            "delta": 0.162380160576431,
+            "percentChange": 3.2415499392514926,
+            "conservativeDeltaInterval": [
+              -0.643092725848649,
+              0.967853047001511
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          },
+          "bytesPerOperation": {
+            "baseline": {
+              "score": 32000067.15026693,
+              "scoreError": 3.3886004129963356,
+              "scoreConfidence": [
+                32000063.761666518,
+                32000070.538867343
+              ],
+              "unit": "B/op"
+            },
+            "candidate": {
+              "score": 32000068.423473313,
+              "scoreError": 1.6563626836106178,
+              "scoreConfidence": [
+                32000066.76711063,
+                32000070.079835996
+              ],
+              "unit": "B/op"
+            },
+            "delta": 1.2732063829898834,
+            "percentChange": 3.978761597627657e-06,
+            "conservativeDeltaInterval": [
+              -3.771756712347269,
+              6.318169478327036
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          }
+        },
+        {
+          "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+          "params": {
+            "distribution": "ascending",
+            "size": "32768"
+          },
+          "latency": {
+            "baseline": {
+              "score": 0.023475921387389565,
+              "scoreError": 0.0013069825166804026,
+              "scoreConfidence": [
+                0.022168938870709164,
+                0.024782903904069967
+              ],
+              "unit": "ms/op"
+            },
+            "candidate": {
+              "score": 0.023364193713645842,
+              "scoreError": 0.000812960752430707,
+              "scoreConfidence": [
+                0.022551232961215136,
+                0.024177154466076548
+              ],
+              "unit": "ms/op"
+            },
+            "delta": -0.00011172767374372297,
+            "percentChange": -0.4759245522254097,
+            "conservativeDeltaInterval": [
+              -0.0022316709428548305,
+              0.0020082155953673846
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          },
+          "bytesPerOperation": {
+            "baseline": {
+              "score": 524320.208898522,
+              "scoreError": 0.05622460316348109,
+              "scoreConfidence": [
+                524320.1526739188,
+                524320.2651231252
+              ],
+              "unit": "B/op"
+            },
+            "candidate": {
+              "score": 524320.2053098112,
+              "scoreError": 0.058871200591563325,
+              "scoreConfidence": [
+                524320.1464386106,
+                524320.2641810117
+              ],
+              "unit": "B/op"
+            },
+            "delta": -0.0035887107951566577,
+            "percentChange": -6.84450214630431e-07,
+            "conservativeDeltaInterval": [
+              -0.11868451454211026,
+              0.11150709295179695
+            ],
+            "directionUnresolvedByReportedIntervals": true
+          }
+        }
+      ]
+    }
+  ],
+  "limitations": "Two predetermined paired repetitions; report each pair and original signal, never substitute follow-up for original or pool different cases."
+}

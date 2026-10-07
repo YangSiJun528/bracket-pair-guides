@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPageTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:57.013Z" hostname="sijun-yangui-MacBookPro.local" time="3.091">
+  <properties/>
+  <testcase name="testUsesBoundPlatformControlsForEveryEditorSetting" classname="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPageTest" time="0.214"/>
+  <testcase name="testLanguageBulkActionsPreserveUnavailableDisabledIds" classname="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPageTest" time="0.207"/>
+  <testcase name="testCustomFileTypeLanguageUsesSettingsSpecificLabelAndConstraint" classname="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPageTest" time="0.051"/>
+  <testcase name="testComponentOverrideTogglePreservesVisibleColorsAndControlsEditing" classname="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPageTest" time="0.209"/>
+  <testcase name="testResetRestoresAppliedColorsOverridesAndEditability" classname="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPageTest" time="0.129"/>
+  <testcase name="testIntegrationParentDisablesHighlightModeWithoutClearingItsValue" classname="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPageTest" time="0.124"/>
+  <testcase name="testApplyCommitsOneCombinedDraftThroughTheControllerEntryPoint" classname="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPageTest" time="0.192"/>
+  <testcase name="testDefaultPaletteShowsEveryConcreteColorWithOnlyBaseEditable" classname="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPageTest" time="0.049"/>
+  <testcase name="testOpeningResetAndDisposeDoNotCommitTheDraft" classname="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPageTest" time="0.192"/>
+  <testcase name="testLanguagesSectionIsVisibleAndLast" classname="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPageTest" time="0.052"/>
+  <testcase name="testResetColorsRestoresConcreteDefaultsAndDisablesOverrides" classname="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPageTest" time="0.119"/>
+  <testcase name="testLanguageBindingsPreserveUnavailableDisabledIds" classname="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPageTest" time="0.196"/>
+  <testcase name="testApplyingLanguageChangeDoesNotSynthesizeEditorPresentation" classname="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPageTest" time="0.161"/>
+  <testcase name="testScalarBindingsApplyAndResetWithoutWritingDraftValues" classname="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPageTest" time="0.677"/>
+  <testcase name="testSharedIntegrationInformationFollowsTheCoexistenceTruthTable" classname="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPageTest" time="0.518"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[[  44479]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44492]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44496]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44527]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44531]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44576]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44578]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44580]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44591]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44782]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44784]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44787]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44797]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44830]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44832]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44834]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44845]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  44848]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45042]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45044]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45046]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45055]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45057]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45167]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45168]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45169]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45178]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45180]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45291]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45292]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45293]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45302]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45304]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45488]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45490]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45491]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45500]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45501]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45530]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45531]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45532]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45540]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45541]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45737]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45738]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45739]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45746]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45774]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45775]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45776]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45782]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45783]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45894]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45896]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45897]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45905]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  46119]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  46123]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  46126]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  46142]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  46255]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  46257]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  46258]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  46266]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  46268]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  46932]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  46934]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  46935]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  46942]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  46944]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+]]></system-err>
+</testsuite>

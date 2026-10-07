@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.events.StickyLineRefreshEventTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:29.224Z" hostname="sijun-yangui-MacBookPro.local" time="0.52">
+  <properties/>
+  <testcase name="testStickyMarkupObservationEndsWithTheLastEditorForADocument" classname="com.sijunyang.bracketpairguides.editor.events.StickyLineRefreshEventTest" time="0.038"/>
+  <testcase name="testNativeStickyMarkerChangesRefreshDecorationsWithoutScrolling" classname="com.sijunyang.bracketpairguides.editor.events.StickyLineRefreshEventTest" time="0.263"/>
+  <testcase name="testDisablingStickyLinesClearsStickyOnlyDecorationsWithoutScrolling" classname="com.sijunyang.bracketpairguides.editor.events.StickyLineRefreshEventTest" time="0.219"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

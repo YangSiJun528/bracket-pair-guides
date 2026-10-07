@@ -1,8 +1,8 @@
 # Issue 97 current implementation and verification
 
-This report describes the isolated `codex/issue-97-module-isolation` worktree. It supersedes the imported historical `reference_validation.md` / `validation-summary.json` for current-run claims. Status: verification in progress; unexecuted checks below are not passes.
+This report describes the isolated `codex/issue-97-module-isolation` worktree. It supersedes the imported historical `reference_validation.md` / `validation-summary.json` for current-run claims. Implementation, deterministic checks and paired performance measurements are complete. Final-archive compatibility revalidation is running; pending entries below are not passes.
 
-The first Qodana run found one range-check style issue. The equivalent Kotlin range expression is now used and final root check passed. This changes one class and the archive SHA to `83d4c0a23cdd245b933fb6c663bdddb944a29d1342d01f0d73e72df4631c0da8`. The first 13-target matrix and Driver result below describe the previous archive; Driver has now passed again for the final source; the strict matrix will be rerun after performance assessment freezes the implementation. See final-check for updated compiler/packaging/test evidence.
+The final production change is `d6226f3`; measurements froze candidate `f7599fa39be7d8e93cc339da719b14012ab1a1dd`. Later report/tooling commits do not change that measured production source. Final ZIP SHA256 is `83d4c0a23cdd245b933fb6c663bdddb944a29d1342d01f0d73e72df4631c0da8`. The initial Qodana finding was fixed and all final-source checks rerun. The initial compatibility matrix checked an earlier ZIP; the final ZIP is being checked separately under `current-verification/runs/20261007T112724798906Z/`.
 
 ## Base and preservation
 
@@ -31,8 +31,8 @@ The final distribution uses five ordinary `lib/` owner jars for the minimum 241 
 | Actual compiler probes | 55 passed: 34 forbidden references, 10 generic positives, 11 owner positives | final-check/results.json; classpaths.json |
 | Actual Gradle bypass injections | All 13 rejected with intended reason; clean graph passed | current-contamination/run-20261007T085251Z/results.json |
 | Packaging | Five jars; 517 classes exactly once; all archived class bytes match compiled owners | final-check/packaging.json |
-| Strict compatibility | Initial archive 13/13 passed; final archive rerun pending | current-verification/runs/20261007T085741209814Z/summary.json |
-| Latest IU runtime | Initial archive 411 passed with case parity; final archive rerun pending | matrix run runtime-fixtures/IU-263.6259.32/summary.json |
+| Strict compatibility | Initial archive 13/13 passed; final archive revalidation running | current-verification/runs/20261007T085741209814Z/summary.json |
+| Latest IU runtime | Initial archive 411 passed with case parity; final archive revalidation running | Final matrix run runtime-fixtures/IU-263.6259.32/summary.json (pending) |
 | Driver visual test | 13 passed; 11 actual PNGs byte-identical; baseline hashes unchanged | current-verification/driver-result-final.json |
 | Python support tests | 21 compiler audit + 10 packaging + 52 Bencher passed | current-check/independent-review.md; bencher-tests-current.log |
 | Visual reporter tests | 5 passed | reporter-tests-current.log |
@@ -45,7 +45,27 @@ The compiler guard checks resolved archives and actual Kotlin/Java libraries, ty
 
 ## Performance and allocations
 
-Fresh comparison is pending. The exact PR96 archive is recorded in baseline-location.json. Both sides will use the same existing incremental fixtures, JVM settings, corpus, warmup/sample counts and power settings. Seven fixture workloads each receive three fresh alternating JVM pairs. JMH uses the existing full 46-case profile, two forks, GC allocation profiling and unchanged 240-second per-job gate. No historical measurement will be relabeled as current.
+Comparison execution is complete, but **performance equivalence / absence of regression is not established**. Baseline is the exact PR96 head; candidate is the frozen revision above. Original raw results, rejected attempts, source manifests, actual JVM revision flags and environment observations remain in this worktree. No test, timing boundary or screenshot baseline was weakened.
+
+Seven opt-in IntelliJ workloads ran in three fresh matched JVM pairs per workload (42 accepted commands, alternating order). One earlier attempt was rejected for coordination interference and retained. A pre-existing Gradle daemon was verified by exact identity and independent IDLE state, then gracefully terminated; its idle worker exited too. Files and caches were preserved, and both processes were absent in all 84 accepted before/after observations. The two sides used the same JVM/SDK/corpus/heap/power configuration and existing warmup/sample counts. See `current-performance/independent-current-review.md`, `comparison.json` and `idle-daemon-quiescence.json`.
+
+Selected results below are medians of the three per-JVM statistics, not pooled samples or paired effect estimates. The first five timing rows increased in all three pairs; the ordinary allocation shift occurred mainly in one pair.
+
+| Measurement | Baseline → candidate | Interpretation |
+| --- | --- | --- |
+| Nested analysis writer wait p95 | 127.042 → 153.125 µs (+20.5%) | Repeated responsiveness signal |
+| Native large-Java/direct/late-traversal writer p95 | 131.500 → 157.709 µs (+19.9%) | Repeated signal; read-body p95 also +39.6% |
+| Production ordinary/tab repair worker p95 | 202.875 → 262.459 µs (+29.4%) | Repeated signal; 15 samples per variant means p95 is the maximum |
+| Main request-to-observed-acceptance median | 4.973 → 5.362 ms (+7.8%) | Includes scheduler and harness observation, not keyboard latency |
+| Ordinary cancellation unwind median | 150.521 → 164.083 µs (+9.0%) | Cancellation behavior passed; latency uncertainty remains |
+| Ordinary calculation allocation median | 2,526,696 → 2,622,584 B (+3.8%) | Distribution shift mainly in one pair; p95 nearly unchanged |
+| Production ordinary/tab repair allocation | 21,200 → 21,248 B (+0.23%) | Paired increases of 24/24/48 B; cause not established |
+
+All measured cancellation and execution invariants completed; 450 cancellation trials per side cancelled before return, all 180 execution trials per side completed, and all 540 production repair worker traces per side closed. Native writers triggered before resolution finished in all 630 trials per side; 627 baseline / 626 candidate triggers occurred inside a read body, so this is not claimed for every trial. Payload object/array/primitive-byte inventories were identical in 15 paired observations, and all tracked payload releases completed. In capture release, all nine Java observations per side cleared; all nine XML observations per side retained one classifier context at the five-second deadline while token batches/primitive arrays cleared. Eventual XML classifier release is unproved on both revisions.
+
+JMH ran the unchanged full 46-case profile on each revision (seven jobs, two forks, two warmups and three measurements of one second, GC B/op profiler, 2 GiB heap, JDK17.0.17). Every job stayed within the 240-second limit; full-case coverage passed. One initial ascending-sort case (32,768 elements) rose **29.43%**, with a conservative latency delta interval wholly above zero. Two predetermined balanced follow-up pairs, each covering all eight ascending cases, measured **+1.44% and −0.48%** for that case with intervals spanning zero. The initial signal was not reproduced and has not been deleted or replaced. No interval-separated B/op increase was detected across the full JMH results or these follow-ups; that is not a proof of allocation equivalence. See `current-jmh/final-independent-review.md` and the untouched full run in `current-jmh/results/`.
+
+Source/bytecode review did not establish a cause for the timing or allocation differences. Some paths are byte-identical after relocation; a new bounded duplicate stamp comparison is a possible constant cost, not a proven explanation. Measurements are complete and reported honestly; no speculative production change or repeat-until-pass run was used. The external historical Bencher gate was not submitted or executed.
 
 ## Interpretation limits
 

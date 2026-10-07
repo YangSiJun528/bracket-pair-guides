@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.guide.GuideLineEnvelopeTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:14:34.319Z" hostname="sijun-yangui-MacBookPro.local" time="0.004">
+  <properties/>
+  <testcase name="finds the minimum multiline guide query envelope" classname="com.sijunyang.bracketpairguides.analysis.guide.GuideLineEnvelopeTest" time="0.003"/>
+  <testcase name="multiline probe honors cancellation on a large single-line result" classname="com.sijunyang.bracketpairguides.analysis.guide.GuideLineEnvelopeTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

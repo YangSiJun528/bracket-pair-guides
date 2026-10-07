@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.events.BracketGuideSettingsControllerTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:28.657Z" hostname="sijun-yangui-MacBookPro.local" time="0.004">
+  <properties/>
+  <testcase name="native override correction is persisted before runtime effects" classname="com.sijunyang.bracketpairguides.editor.events.BracketGuideSettingsControllerTest" time="0.002"/>
+  <testcase name="no-op apply still reconciles native settings without runtime effects" classname="com.sijunyang.bracketpairguides.editor.events.BracketGuideSettingsControllerTest" time="0.001"/>
+  <testcase name="application service entry points retain stable JVM names" classname="com.sijunyang.bracketpairguides.editor.events.BracketGuideSettingsControllerTest" time="0.0"/>
+  <testcase name="native reconciliation can commit an externally forced correction" classname="com.sijunyang.bracketpairguides.editor.events.BracketGuideSettingsControllerTest" time="0.0"/>
+  <testcase name="ownership callback updates only its still owning highlight" classname="com.sijunyang.bracketpairguides.editor.events.BracketGuideSettingsControllerTest" time="0.001"/>
+  <testcase name="delayed matched brace cleanup cannot replace a newer scope-only mode" classname="com.sijunyang.bracketpairguides.editor.events.BracketGuideSettingsControllerTest" time="0.0"/>
+  <testcase name="external callback is ignored after the parent gate is disabled" classname="com.sijunyang.bracketpairguides.editor.events.BracketGuideSettingsControllerTest" time="0.0"/>
+  <testcase name="normalizes the committed snapshot before every runtime effect" classname="com.sijunyang.bracketpairguides.editor.events.BracketGuideSettingsControllerTest" time="0.0"/>
+  <testcase name="delayed scope cleanup cannot replace a newer matched brace mode" classname="com.sijunyang.bracketpairguides.editor.events.BracketGuideSettingsControllerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

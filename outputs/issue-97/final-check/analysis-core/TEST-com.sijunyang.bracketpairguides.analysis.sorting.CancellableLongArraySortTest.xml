@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.sorting.CancellableLongArraySortTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:05.681Z" hostname="sijun-yangui-MacBookPro.local" time="0.309">
+  <properties/>
+  <testcase name="can cancel after chunk sorting while merge is in progress" classname="com.sijunyang.bracketpairguides.analysis.sorting.CancellableLongArraySortTest" time="0.002"/>
+  <testcase name="sorts multiple chunks with signed values and duplicates" classname="com.sijunyang.bracketpairguides.analysis.sorting.CancellableLongArraySortTest" time="0.302"/>
+  <testcase name="can cancel while the final merged buffer is copied back" classname="com.sijunyang.bracketpairguides.analysis.sorting.CancellableLongArraySortTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

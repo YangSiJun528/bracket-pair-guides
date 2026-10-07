@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.pairing.core.PairTableTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:05.327Z" hostname="sijun-yangui-MacBookPro.local" time="0.033">
+  <properties/>
+  <testcase name="draftIsSingleUseAndEmptyTablesAreShared" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairTableTest" time="0.03"/>
+  <testcase name="draftFreezesPrimitivePairGeometry" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairTableTest" time="0.001"/>
+  <testcase name="contentIdentityChecksCancellationDuringLargeExactComparisons" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairTableTest" time="0.001"/>
+  <testcase name="contentIdentityRequiresEveryGeometryColumn" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairTableTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

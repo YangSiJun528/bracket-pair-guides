@@ -1,0 +1,58 @@
+{
+  "recordedUtc": "2026-10-07T10:32:30.814440+00:00",
+  "reason": "Quiesce exact independently verified IDLE Gradle daemon after background CPU contaminated first measurement; no active build, files/caches preserved",
+  "before": [
+    {
+      "pid": 33144,
+      "parentPid": 1,
+      "cpuPercent": 0.0,
+      "startTime": "Wed Oct 7 12:26:09 2026",
+      "executable": "/Users/sijun-yang/.sdkman/candidates/java/25.0.3-amzn/bin/java",
+      "role": "GradleDaemon",
+      "identityMatches": true,
+      "daemonLogState": {
+        "path": "/Users/sijun-yang/.gradle/daemon/9.8.0/daemon-33144.out.log",
+        "state": "idle",
+        "parser": "DaemonRegistryUpdater marking transition v1",
+        "readLimitBytes": 4194304,
+        "fileSizeBytes": 1800019,
+        "readOffsetBytes": 0,
+        "readBytes": 1800019,
+        "boundedBytesSha256": "739615491909876c1ef258440da27abc9822068b404b20edfe405b18007c4bb5",
+        "fileModifiedNs": 1791369144619513940,
+        "transitionMarkersObserved": 8,
+        "timestamp": "2026-10-07T19:08:08.308+0900"
+      },
+      "allowedIdle": true,
+      "allowancePolicy": "exact known daemon identity, <=0.1% CPU and independently observed last Gradle log transition IDLE"
+    },
+    {
+      "pid": 33413,
+      "parentPid": 33144,
+      "cpuPercent": 0.0,
+      "startTime": "Wed Oct 7 12:27:10 2026",
+      "executable": "/Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home/bin/java",
+      "role": "GradleWorkerMain",
+      "identityMatches": true,
+      "allowedIdle": true,
+      "allowancePolicy": "exact known worker identity and instantaneous 0.0% CPU"
+    }
+  ],
+  "signal": "SIGTERM",
+  "targetPid": 33144,
+  "after": [
+    {
+      "pid": 33144,
+      "present": false,
+      "allowedIdle": false,
+      "role": "GradleDaemon"
+    },
+    {
+      "pid": 33413,
+      "present": false,
+      "allowedIdle": false,
+      "role": "GradleWorkerMain"
+    }
+  ],
+  "daemonExited": true
+}

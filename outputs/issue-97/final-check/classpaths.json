@@ -1,0 +1,551 @@
+{
+    "modules": {
+        "analysis-model": {
+            "projectDirectory": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model",
+            "sourceFiles": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/AnalysisLimit.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/BracketSnapshot.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/AnalysisOutcome.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/AnalysisCoverage.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/BracketModels.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/BraceMatcherAvailability.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/AnalysisStamp.kt"
+            ],
+            "compilerArguments": [
+                
+            ],
+            "javaCompilerArguments": [
+                
+            ],
+            "javaSourcepathSpecified": true,
+            "javaSourcepath": [
+                
+            ],
+            "javaBootstrapClasspath": [
+                
+            ],
+            "javaAnnotationProcessorPath": [
+                
+            ],
+            "friendPaths": [
+                
+            ],
+            "compilerPlugins": [
+                
+            ],
+            "sources": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/src/main/resources",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/src/main/java",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/src/main/kotlin"
+            ],
+            "outputs": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/kotlin/main"
+            ],
+            "javaClasspath": [
+                "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.3.21/a2ee2c4e220fee522f0451b723bab2a43f3481a7/kotlin-stdlib-2.3.21.jar",
+                "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/kotlin/main"
+            ],
+            "kotlinClasspath": [
+                "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.3.21/a2ee2c4e220fee522f0451b723bab2a43f3481a7/kotlin-stdlib-2.3.21.jar",
+                "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar"
+            ],
+            "projects": [
+                "analysis-model"
+            ]
+        },
+        "analysis-core": {
+            "projectDirectory": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core",
+            "sourceFiles": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/StructuralRole.java",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/PairSink.java",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/CancellationProbe.java",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/BracketRole.java",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/PairTable.java",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/PairingRules.java",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/PairingMachine.java",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/token/BracketTokenIndex.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/guide/GuideRepairCalculation.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/guide/GuideIndexShape.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/guide/GuideLineEnvelope.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/guide/VisualColumn.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/guide/GuidePositionIndex.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/guide/LineIndentation.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/BracketRecognitionLimits.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/DocumentBracketRecognition.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/CapturedBracketTokens.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/PairCollection.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/IndexedBracketSnapshot.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/BracketIndexes.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/IndexLayout.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/SnapshotCalculation.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/sorting/CancellableLongArraySort.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/active/ActiveBracketPairIndex.kt"
+            ],
+            "compilerArguments": [
+                
+            ],
+            "javaCompilerArguments": [
+                
+            ],
+            "javaSourcepathSpecified": true,
+            "javaSourcepath": [
+                
+            ],
+            "javaBootstrapClasspath": [
+                
+            ],
+            "javaAnnotationProcessorPath": [
+                
+            ],
+            "friendPaths": [
+                
+            ],
+            "compilerPlugins": [
+                
+            ],
+            "sources": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/resources",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/java",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/src/main/kotlin"
+            ],
+            "outputs": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/build/classes/kotlin/main"
+            ],
+            "javaClasspath": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/kotlin/main",
+                "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.3.21/a2ee2c4e220fee522f0451b723bab2a43f3481a7/kotlin-stdlib-2.3.21.jar",
+                "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/build/classes/kotlin/main"
+            ],
+            "kotlinClasspath": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/kotlin/main",
+                "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.3.21/a2ee2c4e220fee522f0451b723bab2a43f3481a7/kotlin-stdlib-2.3.21.jar",
+                "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar"
+            ],
+            "projects": [
+                "analysis-core",
+                "analysis-model"
+            ]
+        },
+        "editor-ui": {
+            "projectDirectory": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui",
+            "sourceFiles": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/java/com/sijunyang/bracketpairguides/editor/events/NativeMatchedBracePluginUnloadListener.java",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/settings/ui/BracketGuideSettingsPage.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/settings/NativeGuideConflictSettingsListener.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/settings/BracketGuideSettings.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/settings/InstalledBraceLanguages.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/settings/BracketGuidePreferenceNormalization.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/preferences/GuideAnalysisCoverage.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/preferences/BracketGuidePreferences.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/preferences/StoredColorFormat.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/EditorAnalysisStamp.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/ActiveGuidePresentation.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/GuidePositionFallback.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/BracketGuideDrawing.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/GuideRepairRequest.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/TrackedBracketPair.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/BracketColorPalette.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/DocumentChange.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/VisibleTokenDecorations.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/GuideAppearance.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/ActivePairMarkup.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/UnsupportedBackendNotificationProvider.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/SecondaryEditorAnalysis.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/BracketGuideHighlightingPass.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/EditorAnalysisRequests.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/BracketGuidePassRegistration.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/EditorSurfaceStartupActivity.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/EditorActivitySource.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/EditorSurfaceClassifier.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/EditorEffectGuard.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/EditorAnalysisState.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/EditorGuideSessions.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/IdentityEventBatch.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/EditorGuideEvents.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/GuideSettingsChange.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/NativeVisualSettingsCoordinator.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/NativeMatchedBraceStartupActivity.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/BracketGuideSettingsController.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/DaemonRefresh.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/NativeEditorSettingsRefresh.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/StickyLineSourceRanges.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/policy/EditorPresentationPolicy.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/policy/NativeGuideConflictPolicy.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/EditorGuideSession.kt"
+            ],
+            "compilerArguments": [
+                
+            ],
+            "javaCompilerArguments": [
+                
+            ],
+            "javaSourcepathSpecified": true,
+            "javaSourcepath": [
+                
+            ],
+            "javaBootstrapClasspath": [
+                
+            ],
+            "javaAnnotationProcessorPath": [
+                
+            ],
+            "friendPaths": [
+                
+            ],
+            "compilerPlugins": [
+                
+            ],
+            "sources": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/resources",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/java",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/src/main/kotlin"
+            ],
+            "outputs": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/build/classes/kotlin/main"
+            ],
+            "javaClasspath": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/kotlin/main",
+                "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.3.21/a2ee2c4e220fee522f0451b723bab2a43f3481a7/kotlin-stdlib-2.3.21.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/platform-loader.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util-8.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/app-client.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/product.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/opentelemetry.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/app.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/modules.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/lib-client.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/stats.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/jps-model.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/external-system-rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/rd.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/bouncy-castle.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/protobuf.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/intellij-test-discovery.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/intellij-coverage-agent-1.0.744.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/forms_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/lib.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/externalProcess-rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/groovy.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/annotations.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/grpc.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/idea_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/jsch-agent.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/trove.jar",
+                "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/build/classes/kotlin/main"
+            ],
+            "kotlinClasspath": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/kotlin/main",
+                "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.3.21/a2ee2c4e220fee522f0451b723bab2a43f3481a7/kotlin-stdlib-2.3.21.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/platform-loader.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util-8.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/app-client.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/product.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/opentelemetry.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/app.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/modules.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/lib-client.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/stats.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/jps-model.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/external-system-rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/rd.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/bouncy-castle.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/protobuf.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/intellij-test-discovery.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/intellij-coverage-agent-1.0.744.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/forms_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/lib.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/externalProcess-rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/groovy.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/annotations.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/grpc.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/idea_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/jsch-agent.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/trove.jar",
+                "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar"
+            ],
+            "projects": [
+                "editor-ui",
+                "analysis-model"
+            ]
+        },
+        "analysis-runtime": {
+            "projectDirectory": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime",
+            "sourceFiles": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/java/com/sijunyang/bracketpairguides/analysis/intellij/AnalysisPluginLifecycleListener.java",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/java/com/sijunyang/bracketpairguides/editor/highlighting/NativeBraceMatching.java",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/BracePairTopology.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/BraceLanguageCatalog.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/DocumentBraceGrammar.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/DocumentBracketIndexes.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/AnalysisPublication.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/AnalysisInput.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/AnalysisCaptureObserver.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/InstalledBraceLanguageCatalog.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/DocumentTextCapture.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/IncrementalAnalysis.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/BracketAnalysis.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/BracketTokenCapture.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/AnalysisReadEpoch.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/EditorAnalysisExecution.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeCursor.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeCaptureObserver.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/GuideRepairExecution.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeLazyHighlighter.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeMarkerInspection.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeConflictProbe.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeGuideConflictDetector.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeBraceContext.kt",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeGuideConflictNotification.kt"
+            ],
+            "compilerArguments": [
+                
+            ],
+            "javaCompilerArguments": [
+                
+            ],
+            "javaSourcepathSpecified": true,
+            "javaSourcepath": [
+                
+            ],
+            "javaBootstrapClasspath": [
+                
+            ],
+            "javaAnnotationProcessorPath": [
+                
+            ],
+            "friendPaths": [
+                
+            ],
+            "compilerPlugins": [
+                
+            ],
+            "sources": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/resources",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/java",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/src/main/kotlin"
+            ],
+            "outputs": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/build/classes/kotlin/main"
+            ],
+            "javaClasspath": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/build/classes/kotlin/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/build/classes/kotlin/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/kotlin/main",
+                "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.3.21/a2ee2c4e220fee522f0451b723bab2a43f3481a7/kotlin-stdlib-2.3.21.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/platform-loader.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util-8.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/app-client.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/product.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/opentelemetry.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/app.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/modules.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/lib-client.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/stats.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/jps-model.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/external-system-rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/rd.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/bouncy-castle.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/protobuf.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/intellij-test-discovery.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/intellij-coverage-agent-1.0.744.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/forms_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/lib.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/externalProcess-rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/groovy.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/annotations.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/grpc.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/idea_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/jsch-agent.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/trove.jar",
+                "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/build/classes/kotlin/main"
+            ],
+            "kotlinClasspath": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-core/build/classes/kotlin/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/build/classes/kotlin/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/kotlin/main",
+                "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.3.21/a2ee2c4e220fee522f0451b723bab2a43f3481a7/kotlin-stdlib-2.3.21.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/platform-loader.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util-8.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/app-client.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/product.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/opentelemetry.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/app.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/modules.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/lib-client.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/stats.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/jps-model.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/external-system-rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/rd.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/bouncy-castle.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/protobuf.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/intellij-test-discovery.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/intellij-coverage-agent-1.0.744.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/forms_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/lib.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/externalProcess-rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/groovy.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/annotations.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/grpc.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/idea_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/jsch-agent.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/trove.jar",
+                "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar"
+            ],
+            "projects": [
+                "analysis-runtime",
+                "analysis-model",
+                "analysis-core",
+                "editor-ui"
+            ]
+        },
+        "plugin": {
+            "projectDirectory": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/plugin",
+            "sourceFiles": [
+                
+            ],
+            "compilerArguments": [
+                
+            ],
+            "javaCompilerArguments": [
+                
+            ],
+            "javaSourcepathSpecified": true,
+            "javaSourcepath": [
+                
+            ],
+            "javaBootstrapClasspath": [
+                
+            ],
+            "javaAnnotationProcessorPath": [
+                
+            ],
+            "friendPaths": [
+                
+            ],
+            "compilerPlugins": [
+                
+            ],
+            "sources": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/plugin/src/main/resources",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/plugin/src/main/java",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/plugin/src/main/kotlin"
+            ],
+            "outputs": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/plugin/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/plugin/build/classes/kotlin/main"
+            ],
+            "javaClasspath": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/build/libs/editor-ui-0.0.6.jar",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/build/libs/analysis-runtime-0.0.6.jar",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/kotlin/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/libs/analysis-model-0.0.6.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/platform-loader.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util-8.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/app-client.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/product.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/opentelemetry.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/app.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/modules.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/lib-client.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/stats.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/jps-model.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/external-system-rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/rd.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/bouncy-castle.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/protobuf.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/intellij-test-discovery.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/intellij-coverage-agent-1.0.744.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/forms_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/lib.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/externalProcess-rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/groovy.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/annotations.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/grpc.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/idea_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/jsch-agent.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/trove.jar",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/plugin/build/classes/kotlin/main"
+            ],
+            "kotlinClasspath": [
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/editor-ui/build/libs/editor-ui-0.0.6.jar",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-runtime/build/libs/analysis-runtime-0.0.6.jar",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/java/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/classes/kotlin/main",
+                "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/analysis-model/build/libs/analysis-model-0.0.6.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/platform-loader.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util-8.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/app-client.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/product.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/opentelemetry.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/app.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/modules.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/lib-client.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/stats.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/jps-model.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/external-system-rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/rd.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/bouncy-castle.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/protobuf.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/intellij-test-discovery.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/intellij-coverage-agent-1.0.744.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/forms_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/lib.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/externalProcess-rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/groovy.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/annotations.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/grpc.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/idea_rt.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/jsch-agent.jar",
+                "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/trove.jar"
+            ],
+            "projects": [
+                "plugin",
+                "analysis-model",
+                "editor-ui",
+                "analysis-runtime"
+            ]
+        }
+    },
+    "compilerClasspath": [
+        "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar",
+        "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.3.21/a2ee2c4e220fee522f0451b723bab2a43f3481a7/kotlin-stdlib-2.3.21.jar",
+        "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-script-runtime/2.3.21/8dafd7f0eb5efef35a446683a2774fef61c68aeb/kotlin-script-runtime-2.3.21.jar",
+        "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-reflect/1.6.10/1cbe9c92c12a94eea200d23c2bbaedaf3daf5132/kotlin-reflect-1.6.10.jar",
+        "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-daemon-embeddable/2.3.21/384c12222b10aaa06fdd2163435709efdade5a02/kotlin-daemon-embeddable-2.3.21.jar",
+        "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.8.0/ac1dc37a30a93150b704022f8d895ee1bd3a36b3/kotlinx-coroutines-core-jvm-1.8.0.jar",
+        "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar"
+    ],
+    "java": "/Users/sijun-yang/.sdkman/candidates/java/25.0.3-amzn/bin/java",
+    "javac": "/Users/sijun-yang/.sdkman/candidates/java/25.0.3-amzn/bin/javac"
+}
