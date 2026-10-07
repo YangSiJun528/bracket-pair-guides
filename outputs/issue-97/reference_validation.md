@@ -1,5 +1,9 @@
 # Issue 97 validation reference
 
+Historical record imported from `codex/issue-97-physical-modules` at `a8e0bc1`.
+This file describes that earlier worktree and archive; current validation is recorded
+in `progress.md` and the `current-*` evidence directories beside this file.
+
 Status: implementation, deterministic checks, and comparative performance assessment are complete. Repeated latency increases remain unresolved; this is not a no-regression result.
 
 The implementation is on `codex/issue-97-physical-modules`, based on PR #96 head `84d1a43141b1933c81e027ef01d1579fc4679e6e`. PR #96 was open when the base was selected. The final production commit is `c918a9657843fbcdb0c944f674c4706908987511`, including the guard expression correction requested by static analysis. The original checkout was preserved. All work and evidence remain local; nothing was pushed or uploaded.
