@@ -1,8 +1,8 @@
 # Issue 97 current implementation and verification
 
-This report describes the isolated `codex/issue-97-module-isolation` worktree. It supersedes the imported historical `reference_validation.md` / `validation-summary.json` for current-run claims. Implementation, deterministic checks and paired performance measurements are complete. Final-archive compatibility revalidation is running; pending entries below are not passes.
+This report describes the isolated `codex/issue-97-module-isolation` worktree. It supersedes the imported historical `reference_validation.md` / `validation-summary.json` for current-run claims. Implementation and the requested local verification runs are complete. Structural, correctness, packaging, compatibility and visual checks passed. Performance measurements are complete, but absence of performance regression is not established.
 
-The final production change is `d6226f3`; measurements froze candidate `f7599fa39be7d8e93cc339da719b14012ab1a1dd`. Later report/tooling commits do not change that measured production source. Final ZIP SHA256 is `83d4c0a23cdd245b933fb6c663bdddb944a29d1342d01f0d73e72df4631c0da8`. The initial Qodana finding was fixed and all final-source checks rerun. The initial compatibility matrix checked an earlier ZIP; the final ZIP is being checked separately under `current-verification/runs/20261007T112724798906Z/`.
+The final production change is `d6226f3`; measurements froze candidate `f7599fa39be7d8e93cc339da719b14012ab1a1dd`. Later report/tooling commits do not change that measured production source. Final ZIP SHA256 is `83d4c0a23cdd245b933fb6c663bdddb944a29d1342d01f0d73e72df4631c0da8`. The initial Qodana finding was fixed and all final-source checks rerun. The final ZIP passed all 13 strict IDE targets and the latest-IU runtime suite under `current-verification/runs/20261007T112724798906Z/`. The earlier matrix remains historical evidence for its earlier ZIP.
 
 ## Base and preservation
 
@@ -31,15 +31,19 @@ The final distribution uses five ordinary `lib/` owner jars for the minimum 241 
 | Actual compiler probes | 55 passed: 34 forbidden references, 10 generic positives, 11 owner positives | final-check/results.json; classpaths.json |
 | Actual Gradle bypass injections | All 13 rejected with intended reason; clean graph passed | current-contamination/run-20261007T085251Z/results.json |
 | Packaging | Five jars; 517 classes exactly once; all archived class bytes match compiled owners | final-check/packaging.json |
-| Strict compatibility | Initial archive 13/13 passed; final archive revalidation running | current-verification/runs/20261007T085741209814Z/summary.json |
-| Latest IU runtime | Initial archive 411 passed with case parity; final archive revalidation running | Final matrix run runtime-fixtures/IU-263.6259.32/summary.json (pending) |
+| Strict compatibility | Final ZIP: 13/13 passed, all eight failure levels preserved | current-verification/runs/20261007T112724798906Z/summary.json |
+| Latest IU runtime | Final source: 411 passed with exact case parity and actual selected IDE/JBR | current-verification/runs/20261007T112724798906Z/runtime-fixtures/IU-263.6259.32/summary.json |
 | Driver visual test | 13 passed; 11 actual PNGs byte-identical; baseline hashes unchanged | current-verification/driver-result-final.json |
 | Python support tests | 21 compiler audit + 10 packaging + 52 Bencher passed | current-check/independent-review.md; bencher-tests-current.log |
 | Visual reporter tests | 5 passed | reporter-tests-current.log |
 | Final root check after packaging/range guard | Passed | check-current-final.log; final-check/ |
 | Qodana recommended / threshold 0 | Passed: actual exit 0; 0 findings; 112 source/build inputs matched | current-verification/qodana-result-final.json |
 
-Initial release ZIP SHA256: `f07ede40f0dce7d34bf6a092780c9349437f50664ed29510c5a640ed30ef3777`. Every compatibility target checked this exact archive before and after. Final deterministic review: final-check/independent-review.md. The initial matrix review is current-verification/matrix-independent-review.md and remains scoped to its old archive hash.
+Every final compatibility target checked ZIP `83d4c0a2…` before and after its invocation. The matrix selected IC 2024.1.7 through 2025.2.6.3 and IU 2025.3 through the frozen 263 builds; exact identities and verdicts are retained in the run summary and per-target records. Final independent reviews: `final-check/independent-review.md` and `current-verification/matrix-final-independent-review.md`. The initial matrix and its independent review remain scoped to the earlier `f07ede40…` archive.
+
+Existing execution/presentation behavior is covered by the actual IntelliJ fixtures, including `EditorAnalysisExecutionTest`, `BackgroundAnalysisLifecycleTest`, `EditorGuideSessionLifecycleTest`, `GuideRepairExecutionTest` and `AnalysisStampTest`. They exercise worker/read-access ownership, cancellation, stale-result refusal, disposal and guide publication/presentation. ADR 0001's affected-guide hiding and ADR 0002's preference for editor writes remain in place. All 503 original test declarations were conserved through relocation; 15 were added. This is declaration conservation, not a claim that no test body needed an adapter change.
+
+Root `check`, Spotless, CI's pure-module build and report collection, benchmark dependencies/change detection, and contributor/benchmark documentation cover the new module paths. Existing strict verifier settings, Driver image oracle and performance thresholds were preserved. Python support tests, visual reporter tests and full benchmark coverage were executed locally; remote CI/submission is outside the authorized scope.
 
 The compiler guard checks resolved archives and actual Kotlin/Java libraries, typed source/bootstrap/processor paths, source/output roots, compiler options and friend paths. Negative experiments include direct/transitive dependencies, shared outputs/sources, source-only archives and alternate compiler source/module paths. Owner-positive controls prevent missing or renamed forbidden symbols from falsely proving isolation.
 
@@ -72,3 +76,11 @@ Source/bytecode review did not establish a cause for the timing or allocation di
 Compiler restrictions prove the tested structural access boundary, not the absence of all threading, cancellation or algorithm bugs. The ordinary fixture suite includes disabled-by-default measurement tests; their successful ordinary execution alone does not prove performance. Runtime tests and Driver checks cover recorded scenarios rather than every supported IDE's complete UI behavior. Compatibility verification is static; actual runtime execution is separately recorded for minimum fixtures, pinned Linux Driver and latest IU fixtures.
 
 The pure profile compiles/tests without IntelliJ SDK bytecode. The settings script still loads IntelliJ Gradle settings tooling. Packaging resource checks cover required resources and descriptor rules, while class identity is checked byte-for-byte. Remote CI and Bencher submissions are not executed; external submission was not authorized.
+
+## Final state and local evidence
+
+The final consistency check confirms all 241 measured source/build/fixture inputs still match the frozen candidate, all 517 compiled owner class hashes still match the audited package, and the ZIP hash is unchanged after the entire matrix. The original checkout is clean. See `final-consistency.json`.
+
+Implementation and verification changes are preserved as separate local commits on `codex/issue-97-module-isolation`. The final production source change is d6226f3; measured candidate f7599fa includes only subsequent verification tooling. Documentation/evidence commits after measurement do not change production inputs. Full raw logs, JSONL and immutable benchmark bundles remain under this worktree's `outputs/issue-97/`; `local-evidence-index.json` records their SHA256 identities. Compact results and reports are committed. No push, PR, merge or external source/result upload was performed.
+
+Remaining limits are the unresolved performance/allocation signals, XML classifier retention at the bounded deadline on both revisions, finite runtime/visual coverage, SDK tooling distinction and the unexecuted external historical Bencher/remote CI runs. No requested local verification remains unexecuted. These limits are not converted into passes.

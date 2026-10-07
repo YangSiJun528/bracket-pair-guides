@@ -25,7 +25,9 @@ Five production modules are implemented on the exact open PR96 head. Committed s
 
 Final-source root check, SDK-free clean tests, Driver, Qodana and packaging passed. Fresh paired fixture measurements (42 accepted commands) and full JMH (46 cases per side plus two predetermined ascending follow-up pairs) completed. Repeated fixture latency/allocation signals remain unresolved: measurement completeness is not a no-regression pass. See `current_validation.md` and the independent performance reviews.
 
-The final archive `83d4c0a2…` is now undergoing the complete 13-target strict matrix and latest-IU 411-test suite in `current-verification/runs/20261007T112724798906Z/` (exec session77140). Initial old-archive results do not substitute for this run. No other builds or measurements may run concurrently. Production source remains at d6226f3; performance froze f7599fa. After matrix completion: independent matrix audit, final report/evidence commit, goal completion with explicit performance limitations.
+The final archive `83d4c0a2…` passed the complete 13-target strict matrix and latest-IU 411-test suite in `current-verification/runs/20261007T112724798906Z/` (actual executor exit0). No pending targets remain. Initial old-archive results are not used as a substitute. Production source remains at d6226f3; performance froze f7599fa. Final consistency verifies all241 measured inputs,517 compiled class hashes and the same ZIP; original checkout remains clean.
+
+Implementation and requested local verification execution are complete. Final report: `current_validation.md`; fixture/JMH assessments retain unresolved latency/allocation signals and do not claim performance equivalence. No cause for the measured shifts was established; no speculative production change was made to make measurements pass. No benchmark thresholds, test coverage or screenshot baselines were weakened.
 
 `reference_validation.md` and `validation-summary.json` are imported historical evidence. This run's current/final artifacts are authoritative. The original checkout and dirty sibling remain untouched; no external submission occurred.
 
@@ -40,3 +42,10 @@ The final archive `83d4c0a2…` is now undergoing the complete 13-target strict 
 - Completed measurement freeze: candidate f7599fa39be7d8e93cc339da719b14012ab1a1dd versus baseline84d1a43141b1933c81e027ef01d1579fc4679e6e.42 accepted fixture JVM commands; full46-case JMH each side;4 additional predeclared ascending invocations. Original/rejected evidence retained.
 - One fixture attempt was rejected when an otherwise idle daemon exceeded the coordination limit. Exact daemon33144 identity and independent IDLE state were verified before graceful SIGTERM; worker33413 exited. All84 accepted observations recorded both absent. No file/cache deletion or benchmark threshold relaxation was used.
 - Independent fixture and JMH reviews are complete; repeated fixture signals remain, and original29.43% JMH sort increase did not reproduce in two balanced repetitions(+1.44%/−0.48%). Do not describe overall performance as a pass.
+
+## Completion evidence
+
+- Final matrix13/13 strict passes, all8failurelevels; actual latestIU263.6259.32 fixture411/411 with exact testcase parity and selected bundled JBR.
+- Final root518 cases, SDK-free107 cases, compiler55 controls,13 genuine bypass injections, packaging517 classes, Driver13 cases/11 exact PNGs, Qodana0 findings.
+- Seven fixture workloads ×3 paired fresh JVMs=42 accepted commands; full46-case JMH on each side plus two fixed ascending follow-up pairs. Provenance and completeness confirmed; no overall performance pass claimed.
+- Raw evidence retained locally with SHA256 inventory. Local commits only; original main checkout and dirty sibling work preserved. No remaining local verification task.

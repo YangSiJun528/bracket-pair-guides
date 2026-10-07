@@ -1,0 +1,40 @@
+{
+  "identity": {
+    "path": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64",
+    "productCode": "IU",
+    "version": "2026.3",
+    "buildNumber": "263.6259.32",
+    "productInfo": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64/Resources/product-info.json",
+    "productInfoSha256": "a4af0ec6a4fc7ebfe05fe6cf2dd62a00bd09dc68d45ed89abaf528ea43875520"
+  },
+  "fixtureCommand": [
+    "./gradlew",
+    "--no-daemon",
+    "--max-workers=2",
+    "--no-configuration-cache",
+    "--init-script",
+    "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-verification/runs/20261007T112724798906Z/inputs/runtime-fixtures.init.gradle",
+    ":plugin:runtimeFixtures",
+    "-PruntimeIdeType=IU",
+    "-PruntimeIdeVersion=263.6259.32",
+    "-PruntimeFixtureReportPath=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-verification/runs/20261007T112724798906Z/runtime-fixtures/IU-263.6259.32",
+    "--info"
+  ],
+  "fixturePass": true,
+  "fixtureExit": 0,
+  "fixtureXml": {
+    "directory": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-verification/runs/20261007T112724798906Z/runtime-fixtures/IU-263.6259.32/junit-xml",
+    "xmlFiles": 64,
+    "tests": 411,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "fixtureCasesMatchBaseline": true,
+  "fixturePlatformPaths": [
+    "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64"
+  ],
+  "fixtureJvmPaths": [
+    "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64/jbr/Contents/Home/bin/java"
+  ]
+}

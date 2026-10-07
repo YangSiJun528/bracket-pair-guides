@@ -1,0 +1,49 @@
+{
+  "recordedAt": "2026-10-07T12:13:52.132626+00:00",
+  "state": "implementation-and-local-verification-complete",
+  "branch": "codex/issue-97-module-isolation",
+  "baseline": "84d1a43141b1933c81e027ef01d1579fc4679e6e",
+  "productionChange": "d6226f3",
+  "measuredCandidate": "f7599fa39be7d8e93cc339da719b14012ab1a1dd",
+  "archiveSha256": "83d4c0a23cdd245b933fb6c663bdddb944a29d1342d01f0d73e72df4631c0da8",
+  "finalMatrix": {
+    "run": "current-verification/runs/20261007T112724798906Z",
+    "executorExitCode": 0,
+    "strictTargetsPassed": 13,
+    "runtimeFixtureTestsPassed": 411
+  },
+  "tests": {
+    "total": 518,
+    "sdkFreeSubset": 107,
+    "compilerControls": 55,
+    "bypassInjectionsRejected": 13,
+    "driver": 13,
+    "actualPngBytesEqual": 11,
+    "qodanaFindings": 0
+  },
+  "performance": {
+    "acceptedFixtureCommands": 42,
+    "retainedRejectedAttempts": 1,
+    "jmhFullCasesPerRevision": 46,
+    "predeterminedAdditionalAscendingPairs": 2,
+    "measurementComplete": true,
+    "performanceEquivalenceEstablished": false,
+    "remainingLimits": [
+      "Repeated fixture latency increases without established cause",
+      "Some phase allocation shifts/increases",
+      "Original29.43percent sort increase did not reproduce in two fixed additional pairs",
+      "XML classifier retained at five-second deadline on both revisions"
+    ]
+  },
+  "remainingLocalVerification": [],
+  "unexecutedExternalActions": [
+    "Remote CI",
+    "Historical Bencher submission/gate",
+    "Push",
+    "PR",
+    "Merge",
+    "External upload"
+  ],
+  "finalReport": "current_validation.md",
+  "consistency": "final-consistency.json"
+}

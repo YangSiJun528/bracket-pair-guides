@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.policy.NativeGuideConflictPolicyTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:41:13.238Z" hostname="sijun-yangui-MacBookPro.local" time="0.001">
+  <properties/>
+  <testcase name="new UI requires effective indent guides and a matching native descriptor" classname="com.sijunyang.bracketpairguides.editor.policy.NativeGuideConflictPolicyTest" time="0.0"/>
+  <testcase name="native geometry must match the plugin column and exact pair lines" classname="com.sijunyang.bracketpairguides.editor.policy.NativeGuideConflictPolicyTest" time="0.001"/>
+  <testcase name="unclassified renderer path is skipped conservatively" classname="com.sijunyang.bracketpairguides.editor.policy.NativeGuideConflictPolicyTest" time="0.0"/>
+  <testcase name="all plugin and editor gates must be open" classname="com.sijunyang.bracketpairguides.editor.policy.NativeGuideConflictPolicyTest" time="0.0"/>
+  <testcase name="classic UI requires a visible line marker area" classname="com.sijunyang.bracketpairguides.editor.policy.NativeGuideConflictPolicyTest" time="0.0"/>
+  <testcase name="only an actually displayed multiline vertical guide is eligible" classname="com.sijunyang.bracketpairguides.editor.policy.NativeGuideConflictPolicyTest" time="0.0"/>
+  <testcase name="regular indent guide alone never triggers the advisory" classname="com.sijunyang.bracketpairguides.editor.policy.NativeGuideConflictPolicyTest" time="0.0"/>
+  <testcase name="native carrier preflight rejects paths that cannot paint the guide" classname="com.sijunyang.bracketpairguides.editor.policy.NativeGuideConflictPolicyTest" time="0.0"/>
+  <testcase name="classic UI marker remains a conflict when regular indent guides are hidden" classname="com.sijunyang.bracketpairguides.editor.policy.NativeGuideConflictPolicyTest" time="0.0"/>
+  <testcase name="direct marker must resolve the displayed active pair" classname="com.sijunyang.bracketpairguides.editor.policy.NativeGuideConflictPolicyTest" time="0.0"/>
+  <testcase name="current scope must resolve the displayed active pair" classname="com.sijunyang.bracketpairguides.editor.policy.NativeGuideConflictPolicyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:40:51.103Z" hostname="sijun-yangui-MacBookPro.local" time="2.076">
+  <properties/>
+  <testcase name="testCreatesReusesAndRemovesOwnedHighlighters" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.664"/>
+  <testcase name="testGuidePositionIndexRetainsOnlyTheMultilinePairEnvelope" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.08"/>
+  <testcase name="testDocumentChangesReleaseStaleAnalysisButKeepTokenPresentation" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.181"/>
+  <testcase name="testDocumentEditDoesNotInventAReplacementBeforeTheNextSnapshot" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.187"/>
+  <testcase name="testStaleCaretMovementKeepsAdjustedPairUntilTheNextSnapshot" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.336"/>
+  <testcase name="testInvalidPairTokenBoundsDoNotCreateActivePresentation" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.189"/>
+  <testcase name="testDocumentChangeKeepsTheAdjustedPairWhileSnapshotIsStale" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.203"/>
+  <testcase name="testCaretMovementWaitsForTheFirstFullSnapshot" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.061"/>
+  <testcase name="testHighlightingAcceptsMockedPairsWithoutALanguageLexer" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.175"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[[  25655]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+]]></system-err>
+</testsuite>

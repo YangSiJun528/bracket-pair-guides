@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:40:45.319Z" hostname="sijun-yangui-MacBookPro.local" time="4.487">
+  <properties/>
+  <testcase name="testLateUnavailableCannotDowngradeACompletedEquivalentAnalysis" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.334"/>
+  <testcase name="testLateRicherUnavailableCannotClearACompletedLowerCoverage" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.335"/>
+  <testcase name="testExactPlatformBoundaryIsAllowedAndNullSourceUsesEngineCaps" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.647"/>
+  <testcase name="testLateLimitedCannotDowngradeCompletedGuideForTheSameStamp" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.366"/>
+  <testcase name="testGuideCapacityRefusalSurvivesGuideSettingsRoundTrips" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.543"/>
+  <testcase name="testUnsavedLargeDocumentClearsPresentationWithoutRunningAnalysis" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.395"/>
+  <testcase name="testGuideCapacityKeepsTokensAndActivePairWithoutApproximateGuide" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.331"/>
+  <testcase name="testUnavailableAnalysisSuppressesTheSameRequestUntilItsInputChanges" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.57"/>
+  <testcase name="testCurrentDocumentPolicyDominatesStalePassAndShrinkingCanRecover" classname="com.sijunyang.bracketpairguides.editor.highlighting.AnalysisOutcomePublicationTest" time="0.966"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[[  20531]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  21573]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  22013]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  22733]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  23289]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  23440]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  23613]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+]]></system-err>
+</testsuite>

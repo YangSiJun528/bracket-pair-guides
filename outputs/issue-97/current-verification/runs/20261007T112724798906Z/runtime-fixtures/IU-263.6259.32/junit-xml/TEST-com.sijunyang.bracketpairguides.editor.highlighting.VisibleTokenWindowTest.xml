@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.VisibleTokenWindowTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:41:11.057Z" hostname="sijun-yangui-MacBookPro.local" time="2.177">
+  <properties/>
+  <testcase name="testStickyDecorationsFollowColorizationAndSessionLifecycle" classname="com.sijunyang.bracketpairguides.editor.highlighting.VisibleTokenWindowTest" time="0.165"/>
+  <testcase name="testDocumentEditImmediatelyRemovesStickyOnlyDecorations" classname="com.sijunyang.bracketpairguides.editor.highlighting.VisibleTokenWindowTest" time="0.189"/>
+  <testcase name="testOversizedDenseViewportStaysAnchoredAwayFromCaretAndCapsDecorations" classname="com.sijunyang.bracketpairguides.editor.highlighting.VisibleTokenWindowTest" time="0.212"/>
+  <testcase name="testStickyTokensKeepIdentityInsideADensePaddedViewportWindow" classname="com.sijunyang.bracketpairguides.editor.highlighting.VisibleTokenWindowTest" time="0.191"/>
+  <testcase name="testDenseFirstStickyRangeDoesNotStarveALaterStickyRange" classname="com.sijunyang.bracketpairguides.editor.highlighting.VisibleTokenWindowTest" time="0.187"/>
+  <testcase name="testStickyTokenOutsidePaddedViewportSurvivesScrollingWithoutRecognition" classname="com.sijunyang.bracketpairguides.editor.highlighting.VisibleTokenWindowTest" time="0.183"/>
+  <testcase name="testViewportBoundsMarkupForFiftyThousandPairsAndScrollReusesRecognition" classname="com.sijunyang.bracketpairguides.editor.highlighting.VisibleTokenWindowTest" time="0.227"/>
+  <testcase name="testStickyRangesAreRemovedAndDeduplicatedWithTheViewport" classname="com.sijunyang.bracketpairguides.editor.highlighting.VisibleTokenWindowTest" time="0.177"/>
+  <testcase name="testStickyTokensHavePriorityInsideTheGlobalDecorationCap" classname="com.sijunyang.bracketpairguides.editor.highlighting.VisibleTokenWindowTest" time="0.202"/>
+  <testcase name="testCappedDenseDecorationsFollowCaretMovementWithoutScrolling" classname="com.sijunyang.bracketpairguides.editor.highlighting.VisibleTokenWindowTest" time="0.242"/>
+  <testcase name="testCappedDenseDecorationsRecenterWhenScrollingInsideTheCachedPadding" classname="com.sijunyang.bracketpairguides.editor.highlighting.VisibleTokenWindowTest" time="0.2"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

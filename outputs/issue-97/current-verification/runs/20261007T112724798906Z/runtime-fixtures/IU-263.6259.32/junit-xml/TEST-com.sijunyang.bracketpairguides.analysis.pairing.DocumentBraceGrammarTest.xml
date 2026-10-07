@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" tests="19" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:40:37.812Z" hostname="sijun-yangui-MacBookPro.local" time="1.003">
+  <properties/>
+  <testcase name="testLayeredLanguagesWithTheSameNumericGroupRemainSeparate" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.048"/>
+  <testcase name="testSecondSymmetricPairUsesItsAuthoritativeOrientation" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.053"/>
+  <testcase name="testLegacyFileTypeMatcherSupportsPureSymmetricPairs" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.043"/>
+  <testcase name="testLegacyMatcherUsesOccurrenceBasedStructuralBraceCallbacks" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.057"/>
+  <testcase name="testPairedMatcherUsesDeclaredStructuralTopology" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.058"/>
+  <testcase name="testForeignStructuralCloserDoesNotInvalidateAnotherLanguage" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.042"/>
+  <testcase name="testStrictTagContextIsCaseInsensitiveWhenTheMatcherSaysSo" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.085"/>
+  <testcase name="testStructuralCloseRecoversPastARegularOpen" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.043"/>
+  <testcase name="testSharedCloserRecoversTheCompatibleOpen" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.057"/>
+  <testcase name="testLegacyMatcherKeepsTokenLanguagesSeparate" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.058"/>
+  <testcase name="testDualInterfaceMatcherHonorsContextualCallbacks" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.063"/>
+  <testcase name="testLayeredLanguageGateLeavesTheEnabledOuterPair" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.041"/>
+  <testcase name="testSymmetricCloseIsNotReusedAsAnOpener" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.041"/>
+  <testcase name="testUnmatchedStructuralCloserDoesNotConsumeARegularOpen" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.041"/>
+  <testcase name="testLegacyMatcherUsesHostLanguageAsCapabilityOwner" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.058"/>
+  <testcase name="testPureSymmetricPairClosesBeforeOpeningAgain" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.041"/>
+  <testcase name="testWellFormedStructuralNestingRemainsPaired" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.057"/>
+  <testcase name="testReusableClassificationPreservesXmlCallbackOrderAndResetsContext" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.058"/>
+  <testcase name="testStructuralBoundaryBlocksAMalformedRegularPair" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBraceGrammarTest" time="0.057"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

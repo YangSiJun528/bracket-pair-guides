@@ -1,0 +1,140 @@
+{
+  "target": "IU-263.6259.32",
+  "strictPass": true,
+  "failureLevels": [
+    "COMPATIBILITY_PROBLEMS",
+    "DEPRECATED_API_USAGES",
+    "EXPERIMENTAL_API_USAGES",
+    "INTERNAL_API_USAGES",
+    "OVERRIDE_ONLY_API_USAGES",
+    "NON_EXTENDABLE_API_USAGES",
+    "MISSING_DEPENDENCIES",
+    "INVALID_PLUGIN"
+  ],
+  "diskBefore": {
+    "path": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+    "freeBytes": 24328351744,
+    "minimumBytes": 9663676416,
+    "admitted": true
+  },
+  "archiveShaBefore": "83d4c0a23cdd245b933fb6c663bdddb944a29d1342d01f0d73e72df4631c0da8",
+  "preExistingTargetInstallers": [],
+  "resolveCommand": [
+    "./gradlew",
+    "--no-daemon",
+    "--max-workers=2",
+    "--no-configuration-cache",
+    "--init-script",
+    "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-verification/runs/20261007T112724798906Z/inputs/runtime-fixtures.init.gradle",
+    ":plugin:resolveRuntimeIde",
+    "-PruntimeIdeType=IU",
+    "-PruntimeIdeVersion=263.6259.32",
+    "--info"
+  ],
+  "resolveExit": 0,
+  "identity": {
+    "path": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64",
+    "productCode": "IU",
+    "version": "2026.3",
+    "buildNumber": "263.6259.32",
+    "productInfo": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64/Resources/product-info.json",
+    "productInfoSha256": "a4af0ec6a4fc7ebfe05fe6cf2dd62a00bd09dc68d45ed89abaf528ea43875520"
+  },
+  "acquiredThisTarget": true,
+  "createdArtifactInventory": {
+    "selectedTransformRoot": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9",
+    "selectedTargetInstallers": [
+      "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/idea/idea/263.6259.32/c9ef57d7d778cc9f6e74677cbbcf3c0965f6a70c/idea-263.6259.32-aarch64.dmg"
+    ],
+    "scope": "exact selected-target artifacts absent immediately before this acquisition; no pre-existing entries eligible"
+  },
+  "fixtureCommand": [
+    "./gradlew",
+    "--no-daemon",
+    "--max-workers=2",
+    "--no-configuration-cache",
+    "--init-script",
+    "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-verification/runs/20261007T112724798906Z/inputs/runtime-fixtures.init.gradle",
+    ":plugin:runtimeFixtures",
+    "-PruntimeIdeType=IU",
+    "-PruntimeIdeVersion=263.6259.32",
+    "-PruntimeFixtureReportPath=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-verification/runs/20261007T112724798906Z/runtime-fixtures/IU-263.6259.32",
+    "--info"
+  ],
+  "fixturePass": true,
+  "fixtureExit": 0,
+  "fixtureXml": {
+    "directory": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-verification/runs/20261007T112724798906Z/runtime-fixtures/IU-263.6259.32/junit-xml",
+    "xmlFiles": 64,
+    "tests": 411,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "fixtureCasesMatchBaseline": true,
+  "fixturePlatformPaths": [
+    "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64"
+  ],
+  "fixtureJvmPaths": [
+    "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64/jbr/Contents/Home/bin/java"
+  ],
+  "verifyCommand": [
+    "./gradlew",
+    "--no-daemon",
+    "--max-workers=2",
+    "--offline",
+    "--no-configuration-cache",
+    "--init-script",
+    "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-verification/runs/20261007T112724798906Z/inputs/serial-verifier.init.gradle",
+    ":plugin:verifyPlugin",
+    "-PverifierTarget=IU-263.6259.32",
+    "-PverifierIdePath=/Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64",
+    "-PverifierMatrixPath=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-verification/runs/20261007T112724798906Z/inputs/current-matrix.json",
+    "-PverifierReportPath=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-verification/runs/20261007T112724798906Z/reports/IU-263.6259.32",
+    "--info"
+  ],
+  "verifyExit": 0,
+  "archiveShaAfter": "83d4c0a23cdd245b933fb6c663bdddb944a29d1342d01f0d73e72df4631c0da8",
+  "verdicts": [
+    {
+      "path": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-verification/runs/20261007T112724798906Z/reports/IU-263.6259.32/IU-263.6259.32/plugins/com.sijunyang.bracketpairguides/0.0.6/verification-verdict.txt",
+      "text": "Compatible"
+    }
+  ],
+  "status": "finished",
+  "retirement": {
+    "eligibleCreatedArtifacts": [
+      {
+        "kind": "transform",
+        "path": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9",
+        "productInfoSha256": "a4af0ec6a4fc7ebfe05fe6cf2dd62a00bd09dc68d45ed89abaf528ea43875520"
+      },
+      {
+        "kind": "installer",
+        "path": "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/idea/idea/263.6259.32/c9ef57d7d778cc9f6e74677cbbcf3c0965f6a70c/idea-263.6259.32-aarch64.dmg",
+        "sizeBytes": 1563848418,
+        "mtimeNs": 1791373178893196144
+      }
+    ],
+    "removed": [
+      {
+        "kind": "transform",
+        "path": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9",
+        "productInfoSha256": "a4af0ec6a4fc7ebfe05fe6cf2dd62a00bd09dc68d45ed89abaf528ea43875520"
+      },
+      {
+        "kind": "installer",
+        "path": "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/idea/idea/263.6259.32/c9ef57d7d778cc9f6e74677cbbcf3c0965f6a70c/idea-263.6259.32-aarch64.dmg",
+        "sizeBytes": 1563848418,
+        "mtimeNs": 1791373178893196144
+      }
+    ],
+    "preservedForConsumers": []
+  },
+  "diskAfter": {
+    "path": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+    "freeBytes": 24389890048,
+    "minimumBytes": 9663676416,
+    "admitted": true
+  }
+}

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.events.IntentionPreviewDocumentEventTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:40:44.134Z" hostname="sijun-yangui-MacBookPro.local" time="0.47">
+  <properties/>
+  <testcase name="testDocumentEditInPreviewLeavesGuidesUnchanged" classname="com.sijunyang.bracketpairguides.editor.events.IntentionPreviewDocumentEventTest" time="0.219"/>
+  <testcase name="testPsiEditInPreviewLeavesGuidesUnchanged" classname="com.sijunyang.bracketpairguides.editor.events.IntentionPreviewDocumentEventTest" time="0.25"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.AnalysisInputTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:40:31.598Z" hostname="sijun-yangui-MacBookPro.local" time="0.073">
+  <properties/>
+  <testcase name="testDefensivelyCopiesDisabledLanguageIds" classname="com.sijunyang.bracketpairguides.analysis.AnalysisInputTest" time="0.073"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

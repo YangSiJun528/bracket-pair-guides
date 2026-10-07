@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.BackgroundAnalysisLifecycleTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:40:49.807Z" hostname="sijun-yangui-MacBookPro.local" time="1.294">
+  <properties/>
+  <testcase name="testCapturedLanguageSelectionSurvivesAnAbaSettingsChange" classname="com.sijunyang.bracketpairguides.editor.highlighting.BackgroundAnalysisLifecycleTest" time="0.174"/>
+  <testcase name="testRejectedStaleResultCannotReplaceCurrentSessionDependencies" classname="com.sijunyang.bracketpairguides.editor.highlighting.BackgroundAnalysisLifecycleTest" time="0.341"/>
+  <testcase name="testAppliesActiveGuideBeforeRequestingViewportDecorations" classname="com.sijunyang.bracketpairguides.editor.highlighting.BackgroundAnalysisLifecycleTest" time="0.189"/>
+  <testcase name="testDaemonRequestReturnsBeforeUnlockedCalculationAndPublishesOnEdt" classname="com.sijunyang.bracketpairguides.editor.highlighting.BackgroundAnalysisLifecycleTest" time="0.205"/>
+  <testcase name="testRequestsForTheSameCapturedInputCoalesce" classname="com.sijunyang.bracketpairguides.editor.highlighting.BackgroundAnalysisLifecycleTest" time="0.187"/>
+  <testcase name="testStaleResultDoesNotInstallItsDependenciesIntoANewSession" classname="com.sijunyang.bracketpairguides.editor.highlighting.BackgroundAnalysisLifecycleTest" time="0.197"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

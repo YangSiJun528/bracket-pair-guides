@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" tests="25" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:40:44.676Z" hostname="sijun-yangui-MacBookPro.local" time="0.015">
+  <properties/>
+  <testcase name="nullable false ownership values survive serialization" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.004"/>
+  <testcase name="external matched brace enablement updates only the owning highlight" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.002"/>
+  <testcase name="excluded environments never mutate or release native settings" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="external current scope enablement leaves other children unchanged" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="environment transition returns CAS correction for an external override" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.001"/>
+  <testcase name="both highlight slots restore exact original false values" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="apply keeps a newer enabled indent value while clearing legacy ownership" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="apply clears legacy false indent ownership without changing the native value" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="ordinary apply never owns or writes regular indent guides" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="plugin writes are ignored by a synchronous reentrant reconciliation" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="shutdown restores legacy indent ownership and persists its removal" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.001"/>
+  <testcase name="apply restores and clears legacy true indent ownership exactly once" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="shutdown persists cleared ownership even when every original was false" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="leave unchanged mode owns neither highlight value" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="an unavailable editor environment unwinds ownership without clearing child selections" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.001"/>
+  <testcase name="shutdown can restore ownership after mutation becomes unavailable" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="both highlight slots restore exact original true values" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="mode transitions acquire the new slot before releasing the old slot" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="current scope mode owns only current scope" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="default owns only matched braces and preserves regular indent guides" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.001"/>
+  <testcase name="lifecycle release reports only externally enabled owned slots" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="parent and plugin gates release highlighting without changing indent guides" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="shutdown restores highlighting and persists exactly once after clearing ownership" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.0"/>
+  <testcase name="dynamic unload ignores other plugins and persists this plugin once" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.004"/>
+  <testcase name="native writes refresh all editor settings once per transaction" classname="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinatorTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

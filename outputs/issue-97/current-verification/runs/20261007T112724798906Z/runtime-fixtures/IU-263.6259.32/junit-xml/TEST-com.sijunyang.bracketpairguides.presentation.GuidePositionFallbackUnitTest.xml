@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.presentation.GuidePositionFallbackUnitTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:41:14.051Z" hostname="sijun-yangui-MacBookPro.local" time="0.564">
+  <properties/>
+  <testcase name="testChangedCloserBoundaryRecomputesGuideInsteadOfReusingOverlappingPair" classname="com.sijunyang.bracketpairguides.presentation.GuidePositionFallbackUnitTest" time="0.047"/>
+  <testcase name="testSharedCharacterBudgetUsesClosingIndentAsDeterministicFallback" classname="com.sijunyang.bracketpairguides.presentation.GuidePositionFallbackUnitTest" time="0.036"/>
+  <testcase name="testEditOutsideTheOldPairSafelyReusesTrackedGuideGeometry" classname="com.sijunyang.bracketpairguides.presentation.GuidePositionFallbackUnitTest" time="0.044"/>
+  <testcase name="testIndentationColumnSaturatesBeforeOverflowOnBoundedFallback" classname="com.sijunyang.bracketpairguides.presentation.GuidePositionFallbackUnitTest" time="0.037"/>
+  <testcase name="testSameLineFallbackClampsAnOverflowedProviderLine" classname="com.sijunyang.bracketpairguides.presentation.GuidePositionFallbackUnitTest" time="0.037"/>
+  <testcase name="testBoundedFallbackMatchesTheExactIndexAcrossRandomIndentationRanges" classname="com.sijunyang.bracketpairguides.presentation.GuidePositionFallbackUnitTest" time="0.284"/>
+  <testcase name="testSharedLineBudgetUsesClosingIndentAsDeterministicFallback" classname="com.sijunyang.bracketpairguides.presentation.GuidePositionFallbackUnitTest" time="0.04"/>
+  <testcase name="testMissingMultilineGeometryIsHiddenWithoutReadingIndentation" classname="com.sijunyang.bracketpairguides.presentation.GuidePositionFallbackUnitTest" time="0.039"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
