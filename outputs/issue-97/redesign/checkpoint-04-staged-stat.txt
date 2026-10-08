@@ -1,0 +1,363 @@
+ .github/workflows/build.yml                        |   2 +-
+ .../bracketpairguides/comparison/ComparisonHost.kt |  15 +
+ docs/explanation_editor_presentation_policy.md     |   4 +-
+ docs/reference_performance_limits.md               |  33 +-
+ docs/reference_visual_testing.md                   |  15 +-
+ .../ui/presentation/ActiveGuidePresentation.kt     |   4 +-
+ .../ui/presentation/ActivePairMarkup.kt            |  30 +-
+ .../ui/presentation/TrackedBracketPair.kt          |   5 +
+ .../ui/editor/EditorGuideIdeContractTest.kt        |  93 +++
+ .../ui/measurement/UiObservedGuide.kt              |  13 +
+ .../ui/measurement/UiSdkEditMeasurementSession.kt  | 124 +++
+ .../ui/measurement/UiSdkGuideIsolation.kt          |  22 +
+ .../redesign/checkpoint-03-staged-stat.txt         | 134 ++++
+ .../checkpoint-04/baseline-additive-fixtures.json  |  26 +
+ .../checkpoint-04/baseline-additive-fixtures.zip   | Bin 0 -> 48281 bytes
+ .../redesign/checkpoint-04/verification.json       |  48 ++
+ outputs/issue-97/redesign/checkpoint-commit-02.log | 108 +++
+ outputs/issue-97/redesign/compatibility/README.md  |   4 +-
+ .../redesign/compatibility/run_serial_verifiers.py |   5 +-
+ .../compatibility/serial-verifier.init.gradle      |   2 +-
+ .../redesign/driver/capture-02/command.json        |  26 +
+ .../issue-97/redesign/driver/capture-02/docker.log | 287 +++++++
+ .../redesign/driver/capture-02/environment.txt     |  17 +
+ .../redesign/driver/capture-02/exit-code.txt       |   1 +
+ .../issue-97/redesign/driver/capture-02/gradle.log | 287 +++++++
+ outputs/issue-97/redesign/driver/capture-02/run.sh |  21 +
+ .../issue-97/redesign/driver/capture-02/scope.json |   7 +
+ .../driver/capture-02/snapshot-complete.txt        |   1 +
+ .../redesign/driver/capture-02/source.json         | 231 ++++++
+ .../redesign/driver/capture-03/command.json        |  26 +
+ .../issue-97/redesign/driver/capture-03/docker.log | 237 ++++++
+ .../redesign/driver/capture-03/environment.txt     |  17 +
+ .../redesign/driver/capture-03/exit-code.txt       |   1 +
+ .../issue-97/redesign/driver/capture-03/gradle.log | 237 ++++++
+ outputs/issue-97/redesign/driver/capture-03/run.sh |  21 +
+ .../driver/capture-03/snapshot-complete.txt        |   1 +
+ .../redesign/driver/capture-03/source.json         | 232 ++++++
+ .../driver/capture-04/baseline-review.json         |  20 +
+ .../redesign/driver/capture-04/command.json        |  26 +
+ .../issue-97/redesign/driver/capture-04/docker.log |  86 +++
+ .../redesign/driver/capture-04/environment.txt     |  17 +
+ .../redesign/driver/capture-04/exit-code.txt       |   1 +
+ .../issue-97/redesign/driver/capture-04/gradle.log |  86 +++
+ outputs/issue-97/redesign/driver/capture-04/run.sh |  21 +
+ .../driver/capture-04/snapshot-complete.txt        |   1 +
+ .../redesign/driver/capture-04/source.json         | 232 ++++++
+ .../redesign/driver/compare-05/command.json        |  26 +
+ .../issue-97/redesign/driver/compare-05/docker.log | 262 +++++++
+ .../redesign/driver/compare-05/environment.txt     |  17 +
+ .../redesign/driver/compare-05/exit-code.txt       |   1 +
+ .../issue-97/redesign/driver/compare-05/gradle.log | 262 +++++++
+ outputs/issue-97/redesign/driver/compare-05/run.sh |  21 +
+ .../driver/compare-05/snapshot-complete.txt        |   1 +
+ .../redesign/driver/compare-05/source.json         | 214 +++++
+ .../redesign/driver/compare-06/command.json        |  26 +
+ .../issue-97/redesign/driver/compare-06/docker.log |  86 +++
+ .../redesign/driver/compare-06/environment.txt     |  17 +
+ .../redesign/driver/compare-06/exit-code.txt       |   1 +
+ .../issue-97/redesign/driver/compare-06/gradle.log |  86 +++
+ outputs/issue-97/redesign/driver/compare-06/run.sh |  21 +
+ .../driver/compare-06/snapshot-complete.txt        |   1 +
+ .../redesign/driver/compare-06/source.json         | 214 +++++
+ .../redesign/driver/compare-06/verification.json   |  80 ++
+ .../redesign/endpoint-reuse-01/commands.json       |  34 +
+ .../issue-97/redesign/endpoint-reuse-01/format.log |  33 +
+ .../redesign/endpoint-reuse-01/integration.log     | 126 +++
+ ...uides.plugin.RuntimeIdentityIdeContractTest.xml |   9 +
+ ...time.session.AnalysisCaptureIdeContractTest.xml |   9 +
+ ...time.session.AnalysisSessionIdeContractTest.xml |  15 +
+ ...guides.ui.editor.EditorGuideIdeContractTest.xml | 353 +++++++++
+ ...lighting.NativeGuideAdvisoryIdeContractTest.xml |   7 +
+ .../minimumSdkTests/binary/output-events.bin       | Bin 0 -> 34041 bytes
+ .../minimumSdkTests/binary/results-generic.bin     | Bin 0 -> 11159 bytes
+ .../redesign/endpoint-reuse-01/source.json         | 248 ++++++
+ .../redesign/endpoint-reuse-02/commands.json       |  34 +
+ .../issue-97/redesign/endpoint-reuse-02/format.log |  33 +
+ .../redesign/endpoint-reuse-02/integration.log     | 120 +++
+ ...uides.plugin.RuntimeIdentityIdeContractTest.xml |   9 +
+ ...time.session.AnalysisCaptureIdeContractTest.xml |   9 +
+ ...time.session.AnalysisSessionIdeContractTest.xml |  15 +
+ ...guides.ui.editor.EditorGuideIdeContractTest.xml |  22 +
+ ...lighting.NativeGuideAdvisoryIdeContractTest.xml |   7 +
+ .../minimumSdkTests/binary/output-events.bin       | Bin 0 -> 757 bytes
+ .../minimumSdkTests/binary/results-generic.bin     | Bin 0 -> 5667 bytes
+ .../redesign/endpoint-reuse-02/source.json         | 248 ++++++
+ outputs/issue-97/redesign/format-08.log            |  33 +
+ outputs/issue-97/redesign/performance-plan.json    |  29 +-
+ outputs/issue-97/redesign/pure-final-04.log        |  64 ++
+ ...cketpairguides.core.CalculationContractTest.xml |  28 +
+ ...etpairguides.core.InputBoundaryContractTest.xml |  13 +
+ ...airguides.core.LateCancellationContractTest.xml |  11 +
+ ...tpairguides.core.TokenSemanticsContractTest.xml |  11 +
+ ....bracketpairguides.model.ResultContractTest.xml |  10 +
+ .../issue-97/redesign/pure-final-04/summary.json   |  50 ++
+ outputs/issue-97/redesign/qodana/run_local.sh      |  25 +
+ .../sdk-edit-smoke-01/baseline-source.json         | 351 +++++++++
+ .../redesign/sdk-edit-smoke-01/baseline.jsonl      |  74 ++
+ .../redesign/sdk-edit-smoke-01/baseline.log        |  88 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |  10 +
+ .../baseline/test-results/binary/output-events.bin | Bin 0 -> 840 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 381 bytes
+ .../sdk-edit-smoke-01/candidate-source.json        | 233 ++++++
+ .../redesign/sdk-edit-smoke-01/candidate.jsonl     |   3 +
+ .../redesign/sdk-edit-smoke-01/candidate.log       | 130 ++++
+ ...des.comparison.SdkComparisonMeasurementTest.xml | 853 ++++++++++++++++++++
+ .../test-results/binary/output-events.bin          | Bin 0 -> 85892 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 18650 bytes
+ .../redesign/sdk-edit-smoke-01/commands.json       |  56 ++
+ .../baseline-descriptor-evidence.json              |  33 +
+ .../sdk-isolated-smoke-03/baseline-source.json     | 328 ++++++++
+ .../redesign/sdk-isolated-smoke-03/baseline.jsonl  |   0
+ .../redesign/sdk-isolated-smoke-03/baseline.log    | 106 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |  94 +++
+ .../baseline/test-results/binary/output-events.bin | Bin 0 -> 5346 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 6060 bytes
+ .../candidate-descriptor-evidence.json             |  28 +
+ .../sdk-isolated-smoke-03/candidate-source.json    | 232 ++++++
+ .../redesign/sdk-isolated-smoke-03/candidate.jsonl |   0
+ .../redesign/sdk-isolated-smoke-03/candidate.log   | 130 ++++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |  94 +++
+ .../test-results/binary/output-events.bin          | Bin 0 -> 5558 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 6494 bytes
+ .../redesign/sdk-isolated-smoke-03/commands.json   |  56 ++
+ .../analysis-baseline-descriptor-evidence.json     |  33 +
+ .../analysis-baseline-test-resources-evidence.json |  18 +
+ .../sdk-isolated-smoke-04/analysis-baseline.jsonl  |  67 ++
+ .../sdk-isolated-smoke-04/analysis-baseline.log    |  84 ++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |  10 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 840 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 381 bytes
+ .../analysis-candidate-descriptor-evidence.json    |  28 +
+ ...analysis-candidate-test-resources-evidence.json |  30 +
+ .../sdk-isolated-smoke-04/analysis-candidate.jsonl |  67 ++
+ .../sdk-isolated-smoke-04/analysis-candidate.log   | 101 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   9 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 507 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 391 bytes
+ .../redesign/sdk-isolated-smoke-04/audit.md        |  30 +
+ .../sdk-isolated-smoke-04/baseline-source.json     | 328 ++++++++
+ .../sdk-isolated-smoke-04/candidate-source.json    | 232 ++++++
+ ...pture-release-baseline-descriptor-evidence.json |  33 +
+ ...e-release-baseline-test-resources-evidence.json |  18 +
+ .../capture-release-baseline.jsonl                 |  20 +
+ .../capture-release-baseline.log                   |  84 ++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |  10 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 840 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 381 bytes
+ ...ture-release-candidate-descriptor-evidence.json |  28 +
+ ...-release-candidate-test-resources-evidence.json |  30 +
+ .../capture-release-candidate.jsonl                |  20 +
+ .../capture-release-candidate.log                  | 101 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   8 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 214 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 391 bytes
+ .../redesign/sdk-isolated-smoke-04/commands.json   | 434 +++++++++++
+ ...t-restoration-baseline-descriptor-evidence.json |  33 +
+ ...storation-baseline-test-resources-evidence.json |  18 +
+ .../edit-restoration-baseline.jsonl                | 146 ++++
+ .../edit-restoration-baseline.log                  |  84 ++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |  10 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 840 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 381 bytes
+ ...-restoration-candidate-descriptor-evidence.json |  28 +
+ ...toration-candidate-test-resources-evidence.json |  30 +
+ .../edit-restoration-candidate.jsonl               | 146 ++++
+ .../edit-restoration-candidate.log                 | 101 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   8 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 214 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 391 bytes
+ .../execution-baseline-descriptor-evidence.json    |  33 +
+ ...execution-baseline-test-resources-evidence.json |  18 +
+ .../sdk-isolated-smoke-04/execution-baseline.jsonl |  26 +
+ .../sdk-isolated-smoke-04/execution-baseline.log   |  84 ++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |  10 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 840 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 381 bytes
+ .../execution-candidate-descriptor-evidence.json   |  28 +
+ ...xecution-candidate-test-resources-evidence.json |  30 +
+ .../execution-candidate.jsonl                      |  26 +
+ .../sdk-isolated-smoke-04/execution-candidate.log  | 101 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   8 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 214 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 391 bytes
+ .../native-baseline-descriptor-evidence.json       |  33 +
+ .../native-baseline-test-resources-evidence.json   |  18 +
+ .../sdk-isolated-smoke-04/native-baseline.jsonl    | 143 ++++
+ .../sdk-isolated-smoke-04/native-baseline.log      |  84 ++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |  10 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 840 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 381 bytes
+ .../native-candidate-descriptor-evidence.json      |  28 +
+ .../native-candidate-test-resources-evidence.json  |  30 +
+ .../sdk-isolated-smoke-04/native-candidate.jsonl   | 143 ++++
+ .../sdk-isolated-smoke-04/native-candidate.log     | 101 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   9 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 507 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 391 bytes
+ .../payload-baseline-descriptor-evidence.json      |  33 +
+ .../payload-baseline-test-resources-evidence.json  |  18 +
+ .../sdk-isolated-smoke-04/payload-baseline.jsonl   |  27 +
+ .../sdk-isolated-smoke-04/payload-baseline.log     |  84 ++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |  10 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 840 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 381 bytes
+ .../payload-candidate-descriptor-evidence.json     |  28 +
+ .../payload-candidate-test-resources-evidence.json |  30 +
+ .../sdk-isolated-smoke-04/payload-candidate.jsonl  |  27 +
+ .../sdk-isolated-smoke-04/payload-candidate.log    | 101 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   8 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 214 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 391 bytes
+ .../repair-baseline-descriptor-evidence.json       |  33 +
+ .../repair-baseline-test-resources-evidence.json   |  18 +
+ .../sdk-isolated-smoke-04/repair-baseline.jsonl    |  80 ++
+ .../sdk-isolated-smoke-04/repair-baseline.log      |  84 ++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |  10 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 840 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 381 bytes
+ .../repair-candidate-descriptor-evidence.json      |  28 +
+ .../repair-candidate-test-resources-evidence.json  |  30 +
+ .../sdk-isolated-smoke-04/repair-candidate.jsonl   |  80 ++
+ .../sdk-isolated-smoke-04/repair-candidate.log     | 101 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   9 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 507 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 391 bytes
+ .../write-wait-baseline-descriptor-evidence.json   |  33 +
+ ...rite-wait-baseline-test-resources-evidence.json |  18 +
+ .../write-wait-baseline.jsonl                      |  37 +
+ .../sdk-isolated-smoke-04/write-wait-baseline.log  |  84 ++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   9 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 547 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 381 bytes
+ .../write-wait-candidate-descriptor-evidence.json  |  28 +
+ ...ite-wait-candidate-test-resources-evidence.json |  30 +
+ .../write-wait-candidate.jsonl                     |  37 +
+ .../sdk-isolated-smoke-04/write-wait-candidate.log | 101 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   9 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 507 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 391 bytes
+ .../redesign/sdk-smoke-01/baseline-source.json     | 352 +++++++++
+ .../sdk-smoke-01/baseline-uncommitted.patch        |  47 ++
+ .../redesign/sdk-smoke-01/candidate-source.json    | 232 ++++++
+ .../sdk-smoke-01/candidate-uncommitted.patch       |   0
+ .../issue-97/redesign/sdk-smoke-01/commands.json   | 170 ++++
+ .../redesign/sdk-smoke-01/execution-baseline.jsonl |   2 +
+ .../redesign/sdk-smoke-01/execution-baseline.log   | 105 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml | 859 ++++++++++++++++++++
+ .../test-results/binary/output-events.bin          | Bin 0 -> 85450 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 21333 bytes
+ .../sdk-smoke-01/execution-candidate.jsonl         |   2 +
+ .../redesign/sdk-smoke-01/execution-candidate.log  | 117 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml | 860 +++++++++++++++++++++
+ .../test-results/binary/output-events.bin          | Bin 0 -> 85464 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 21343 bytes
+ .../redesign/sdk-smoke-01/native-baseline.jsonl    |   2 +
+ .../redesign/sdk-smoke-01/native-baseline.log      |  99 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml | 704 +++++++++++++++++
+ .../test-results/binary/output-events.bin          | Bin 0 -> 77286 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 4761 bytes
+ .../redesign/sdk-smoke-01/native-candidate.jsonl   |   2 +
+ .../redesign/sdk-smoke-01/native-candidate.log     | 116 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml | 708 +++++++++++++++++
+ .../test-results/binary/output-events.bin          | Bin 0 -> 77498 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 4771 bytes
+ .../redesign/sdk-smoke-01/payload-baseline.jsonl   |  22 +
+ .../redesign/sdk-smoke-01/payload-baseline.log     |  82 ++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   9 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 547 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 381 bytes
+ .../redesign/sdk-smoke-01/payload-candidate.jsonl  |  22 +
+ .../redesign/sdk-smoke-01/payload-candidate.log    |  99 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   9 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 507 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 391 bytes
+ .../redesign/sdk-smoke-02/analysis-baseline.jsonl  |  62 ++
+ .../redesign/sdk-smoke-02/analysis-baseline.log    |  82 ++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |  10 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 840 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 381 bytes
+ .../redesign/sdk-smoke-02/analysis-candidate.jsonl |  62 ++
+ .../redesign/sdk-smoke-02/analysis-candidate.log   |  99 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   8 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 214 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 391 bytes
+ .../redesign/sdk-smoke-02/baseline-source.json     | 350 +++++++++
+ .../redesign/sdk-smoke-02/candidate-source.json    | 230 ++++++
+ .../sdk-smoke-02/capture-release-baseline.jsonl    |  14 +
+ .../sdk-smoke-02/capture-release-baseline.log      |  82 ++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |  10 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 840 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 381 bytes
+ .../sdk-smoke-02/capture-release-candidate.jsonl   |  14 +
+ .../sdk-smoke-02/capture-release-candidate.log     |  99 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   9 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 507 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 391 bytes
+ .../issue-97/redesign/sdk-smoke-02/commands.json   | 338 ++++++++
+ .../redesign/sdk-smoke-02/execution-baseline.jsonl |  24 +
+ .../redesign/sdk-smoke-02/execution-baseline.log   |  87 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |  10 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 840 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 381 bytes
+ .../sdk-smoke-02/execution-candidate.jsonl         |  24 +
+ .../redesign/sdk-smoke-02/execution-candidate.log  | 104 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   8 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 214 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 391 bytes
+ .../redesign/sdk-smoke-02/native-baseline.jsonl    | 140 ++++
+ .../redesign/sdk-smoke-02/native-baseline.log      |  82 ++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |  10 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 840 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 381 bytes
+ .../redesign/sdk-smoke-02/native-candidate.jsonl   | 140 ++++
+ .../redesign/sdk-smoke-02/native-candidate.log     |  99 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   9 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 507 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 391 bytes
+ .../redesign/sdk-smoke-02/repair-baseline.jsonl    |  74 ++
+ .../redesign/sdk-smoke-02/repair-baseline.log      |  82 ++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |  10 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 840 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 381 bytes
+ .../redesign/sdk-smoke-02/repair-candidate.jsonl   |  74 ++
+ .../redesign/sdk-smoke-02/repair-candidate.log     |  99 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   9 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 507 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 391 bytes
+ .../sdk-smoke-02/write-wait-baseline.jsonl         |  32 +
+ .../redesign/sdk-smoke-02/write-wait-baseline.log  |  82 ++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |  10 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 840 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 381 bytes
+ .../sdk-smoke-02/write-wait-candidate.jsonl        |  32 +
+ .../redesign/sdk-smoke-02/write-wait-candidate.log |  99 +++
+ ...des.comparison.SdkComparisonMeasurementTest.xml |   9 +
+ .../test-results/binary/output-events.bin          | Bin 0 -> 507 bytes
+ .../test-results/binary/results-generic.bin        | Bin 0 -> 391 bytes
+ outputs/issue-97/redesign/status.md                |  16 +
+ outputs/issue-97/redesign/verification-matrix.md   |   6 +-
+ plugin/build.gradle.kts                            |  34 +
+ plugin/sdk-measurement.gradle                      | 162 ++++
+ .../comparison/CandidateComparisonHost.kt          |  65 ++
+ .../comparison/ComparisonFixture.kt                |   2 +
+ .../comparison/SdkComparisonMeasurementTest.kt     |  28 +-
+ .../comparison/SdkDescriptorEvidence.kt            | 151 ++++
+ .../comparison/SdkEditRestorationWorkload.kt       | 219 ++++++
+ .../comparison/SdkNativeRepairWorkloads.kt         |  22 +-
+ .../testing/EditorContractBridge.kt                |  85 +-
+ .../visual/EditorVisualContractTest.kt             |  66 +-
+ .../src/visualTest/resources/baselines/README.md   |  14 +
+ .../all-components.png                             | Bin 0 -> 8557 bytes
+ .../bracket-colorization-off.png                   | Bin 0 -> 7895 bytes
+ .../custom-palette.png                             | Bin 0 -> 8374 bytes
+ .../default-palette.png                            | Bin 0 -> 8555 bytes
+ .../edited-geometry.png                            | Bin 0 -> 8561 bytes
+ .../horizontal-only.png                            | Bin 0 -> 8482 bytes
+ .../native-highlight-suppressed.png                | Bin 0 -> 8557 bytes
+ .../native-visuals-unmanaged.png                   | Bin 0 -> 8600 bytes
+ .../pair-background-only.png                       | Bin 0 -> 8569 bytes
+ .../pair-border-only.png                           | Bin 0 -> 8569 bytes
+ .../plugin-disabled.png                            | Bin 0 -> 7519 bytes
+ .../vertical-only.png                              | Bin 0 -> 8485 bytes
+ 362 files changed, 21509 insertions(+), 81 deletions(-)

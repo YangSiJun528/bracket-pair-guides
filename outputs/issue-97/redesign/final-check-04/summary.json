@@ -1,0 +1,112 @@
+{
+  "recordedUtc": "2026-10-08T10:10:10.583357+00:00",
+  "rootCheckExit": 0,
+  "sourceManifestSha256": "a77aa88c5217aa2528e78b8da0e0f112ef72b3bed99882d93710cbcf341565c2",
+  "suites": [
+    {
+      "module": "analysis-model",
+      "task": "test",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.model.ResultContractTest.xml": "e8283ae858426a558b80f2a240b06bb7c618ebf85f34fb881e7d9f224e994eeb"
+      }
+    },
+    {
+      "module": "analysis-core",
+      "task": "test",
+      "tests": 41,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.core.CalculationContractTest.xml": "33afb5278d2fe3b3f150aeda432a6817bb71c3fdf1164200485539409810fb77",
+        "TEST-com.sijunyang.bracketpairguides.core.InputBoundaryContractTest.xml": "fa1fc2ccf5e19e331820671dfd3cb7db1da5ae4730fb3dd5bf65fe8eb586fc0c",
+        "TEST-com.sijunyang.bracketpairguides.core.LateCancellationContractTest.xml": "57be33e286a072d3260c7d9d73f30733b02da90964181db4b194f9547efbed2c",
+        "TEST-com.sijunyang.bracketpairguides.core.TokenSemanticsContractTest.xml": "6885c6efb53d41736e3c5e7e64a93ac505fc179c17bc637ca2ab3ac57c09dc2f"
+      }
+    },
+    {
+      "module": "editor-ui",
+      "task": "test",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.ui.policy.PresentationContractTest.xml": "15dc3f3caee84fcedd67ebd14a2783634391f3d2439eae4a94d2d500d9353c18",
+        "TEST-com.sijunyang.bracketpairguides.ui.work.GuideDemandContractTest.xml": "5a16db3f8edf1eada3de8f8f488471381681b434018689303e2aa6e26f78d4a4"
+      }
+    },
+    {
+      "module": "analysis-runtime",
+      "task": "test",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.runtime.nativeproof.NativeEvidenceContractTest.xml": "d88d91d7625746a6f8f066639531f991f177e436b064bedec9cf59873a3b8541"
+      }
+    },
+    {
+      "module": "plugin",
+      "task": "test",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.architecture.ResponsibilityBoundaryTest.xml": "8f343a483f8d276d681a56685811b1018bb631d948a72b3a5c0c18398496edbf"
+      }
+    },
+    {
+      "module": "plugin",
+      "task": "minimumSdkTests",
+      "tests": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.plugin.RuntimeIdentityIdeContractTest.xml": "9e40c50a41a336eb43520ea59d3da26c116bfb997c125a3ab0a87f958c3d583d",
+        "TEST-com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest.xml": "b6900d2eabf4edabaf5bd33f90fca3b69f8c6c52ce0c9e11434b96beb7d58e44",
+        "TEST-com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest.xml": "9278a113b3736b99472fe45df4e115f3d7ab4e951762ea6064afb70d0e45d6d7",
+        "TEST-com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest.xml": "78bd610f99e9756551bfda63a523d52ae6a9c72419e963a458a0d3f091ef8f13",
+        "TEST-com.sijunyang.bracketpairguides.ui.editor.highlighting.NativeGuideAdvisoryIdeContractTest.xml": "d777a1f8a87dcddd83439b0021ab3b03ed94acc641f346e96ab2ac403209f4a6"
+      }
+    },
+    {
+      "module": "build-logic",
+      "task": "test",
+      "tests": 50,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.buildlogic.BenchmarkReportTest.xml": "079bac0ce65bca90be058984c54edcd452f954eacd1221fed34d97b750ca7d7b",
+        "TEST-com.sijunyang.buildlogic.CompilationBoundaryTest.xml": "8b86c29282650fcec65903ed941005660da9ba12158f776870e97e2a40d5c589",
+        "TEST-com.sijunyang.buildlogic.PackagedOwnerTest.xml": "eae99927ef050092e5f6b5e552218aeea550f1cc78c3735a5ca14fcd25d56173"
+      }
+    }
+  ],
+  "independentSdkFreeSuites": [
+    {
+      "module": "analysis-model",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "analysis-core",
+      "tests": 41,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "totalRootCases": 134,
+  "scope": "Some unchanged module tasks were up-to-date after full-check-03; all matching XML retained. Independent SDK-free build used --rerun-tasks. Actual minimum IDE fixture and full50 build-policy tests executed again. Qodana is separate and pending."
+}

@@ -67,7 +67,7 @@ tasks.named("check") {
         ":analysis-model:check",
         ":analysis-core:check",
         "verifyProductionModules",
-        gradle.includedBuild("bracket-guide-build-logic").task(":check"),
+        gradle.includedBuild("build-logic").task(":check"),
     )
     if (findProject(":plugin") != null) {
         dependsOn(

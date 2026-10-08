@@ -1,44 +1,35 @@
 # Redesign verification ledger
 
-This ledger records observed results, not intended coverage. Historical issue-97 evidence does not validate the redesigned code.
+This ledger records observed execution. A previous snapshot, skipped task or setup smoke is not a current full pass. See individual raw failures and commands rather than discarding earlier attempts.
 
-| Obligation | Current evidence | Status |
+| Obligation | Latest evidence | Status |
 |---|---|---|
-| SDK-free model/core compilation | pure-final-04.log + pure-final-04/summary.json; fresh independent tools/pure-build check/build, 43 contracts | Passed for recorded source snapshot |
-| Fresh pure contracts | pure-tests-02.log; checkpoint-01.json; model 4 + core 39, zero failed/skipped | Passed; later additions await rerun |
-| Packaging/BMF policy tests | compiler-targeted-02.log; Packaging9+BMF9 | 18 passed for recorded snapshot; full check pending |
-| Full integration compilation | integration-compile-03.log and checkpoint-checks-01/03.log | Passed |
-| Actual UI/plugin Kotlin and Java isolation | compilation-boundaries-01 XML: UI10 forbidden symbols in Kotlin/Java + owner/model positive controls, plugin-core negative, pure-SDK negative | Passed |
-| Transitive/source/output/compiler-input contamination | compilation-boundaries-01:32tests/26pass/6fail; targeted02:23/24pass; diagnostic05 proves effective serialization compiler plugin bypass | Single real compiler-plugin mutation passed probe07 after effective-argument fix; full32 rerun pending |
-| Actual final compiler-input inventory | actual-inputs-02.log, UI test compiler input audit | integration-compile-07 passed after effective compiler-plugin gap fix |
-| SDK runtime thread/read/cancel/stale/lifetime/render behavior | sdk-contracts-10.log + sdk-driver-packaging-11.log:25 actual minimum SDK contracts; checkpoint-02 archived XML | integration-compile-07:26 passed including actual XML reload; current SDK pending |
-| Minimum/current actual IDE execution and identity | IC-241.19416.15 + JBR 17.0.12 confirmed | Minimum passed; current not run |
-| Formatting, bytecode architecture and complete check | Spotless and 4 ArchUnit rules passed | Full root check pending |
-| Final release archive and visual bridge separation | actual compiled/instrumented inputs, composed archive and ZIP identity passed | Visual bridge delta pending |
-| Supported IDE compatibility matrix | official IntelliJ Plugin Verifier, unchanged eight failure categories | Not run |
-| Driver pixel contracts and state transitions | driver/capture-04 passed and12images visually reviewed; compare05 failed A/B/A native rendering; compare06 passed exact12ARGB/image-byte equality after actual native-markup readiness | Passed for recorded source; endpoint reuse follow-up and paint-removal mutation pending |
-| Paired latency/allocation/resource comparison | fingerprint-01 exact8input/results match; performance-plan.json preregistered6 AB/BA pairs; sdk-isolated-smoke-04 all16commands passed with loaded descriptor/resource isolation + cleanup proof | Formal timing/allocation not run; same-caret endpoint churn found and being fixed |
-| Qodana inspection | zero-failure gate, local-only execution | Not run |
+| SDK-free model/core | final-check-04/pure.log, pure-results, source.json; fresh isolated output check/build | PASS45, zero failed/skipped |
+| Pure contracts | final-check-04 XML; model4+core41, including malformed token/prefix rejection and valid reuse afterwards | PASS45 |
+| Actual Kotlin/Java compile restriction and positive controls | full-check-03 and final-check-04 CompilationBoundaryTest32 | PASS32; actual UI core/runtime negatives, plugin-core and pure-SDK negatives included |
+| Transitive/source/output/compiler-input bypass rejection | same32 suite and effective actual serialized plugin-input audit | PASS; original real serialization-plugin bypass/failure retained in earlier evidence |
+| Packaging and benchmark-report policy | final-check-04 PackagedOwnerTest9 + BenchmarkReportTest9 | PASS18 |
+| Module policy/bytecode architecture | final-check-04 UI3+runtime3+plugin architecture4 | PASS10 |
+| Actual runtime/read/cancel/stale/lifetime/markup | final-check-04 minimumSdkTests; IC241.19416.15/JBR17 | PASS29; includes two actual editors sharing one document with independent close/publication |
+| Complete root check and formatting | final-check-04 check.log, format.log, summary.json | PASS134 represented cases; unchanged task reuse is recorded |
+| Release/visual archive separation | final-check-04/visual-archive-verification.json | PASS; 451 release classes, exact compiled bridge delta only |
+| Current actual IDE execution | official currentSdkTests, expected29 identities | RUNNING current-sdk-01 |
+| Supported IDE compatibility | fresh official recommended+explicit matrix, eight strict failure categories | NOT RUN |
+| Driver rendering/state transitions | compare06 exact12ARGB and PNG hashes on earlier source | Earlier PASS; final-source compare07 and mutation08 NOT RUN |
+| Local static inspection | qodana run01 FAILED74; run02 FAILED2; both remaining sites fixed | Fresh rerun PENDING; unchanged failThreshold0 |
+| Same-condition performance/allocation | pure semantic fingerprint01; earlier SDK smoke04 all16; post-reuse execution smoke | Formal NOT RUN; final common/jar proof and setup refresh required |
 
-## Findings being resolved
+## Preserved failed evidence
 
-- Public demand configuration must defensively own disabled-language values.
-- Final accepted-result commit must not call SDK methods under its lifecycle lock.
-- Document-local reuse generations must remain monotonic independently of mutable SDK stamps.
-- Coverage/repair result precedence must preserve useful valid results.
-- Cancellation verification must reach late sorting/copying/guide sealing and cache-lock waits.
-- Malformed input batches must not produce a seemingly complete partial calculation.
-- Compiler and archive guards require intentional contamination tests and positive controls.
+- Initial compilation-boundary run:26/32, followed by targeted fixes and actual serialization-plugin injection proof; full32 subsequently passed.
+- Driver capture01/advisory, capture02/settings, capture03/focus and compare05/native-markup failures remain preserved; compare06 passed after real SDK native-key readiness. This does not prove universal race freedom.
+- Isolated SDK smoke03 rejected original descriptors still visible through test resources. Descriptor-only overlays byte-verify all other resources; smoke04 passed16 commands.
+- Endpoint reuse test01 failed due a fixture colorscheme clone; test02 passed28 and added unchanged markup/range-marker identity plus independent theme/range coverage.
+- Qodana run01 failed74. Full-check03 separately failed SDK comparison compilation because K2 inspection had called K1-required assertions redundant; stable local owners compile in final-check04.
+- Qodana-fixes02 root check exposed a wrong included-build identity before execution; root dependency now resolves `build-logic`.
 
-## Execution discipline
+## Interpretation
 
-Only main runs shared builds and measurements. Implementation agents own disjoint files. No simultaneous performance measurements. Before local commits, pause every writer because the configured pre-commit hook stashes unstaged tracked changes. No remote push, pull request, merge, or upload is authorized.
+Fresh unit and SDK contracts replace old suites. Structural, runtime, visual, resource and performance claims remain separate. The minimum SDK uses actual host classes/bootstrap; current/matrix remain unexecuted. Baseline production is immutable, helpers additive, common source equality is enforced. No timings from setup are accepted as formal performance. No tolerances, thresholds, trial counts or failure categories were reduced.
 
-## Latest local integration checkpoint (2026-10-08)
-
-- User explicitly approved local CI configuration installation only; approved proposal installed. No remote job, upload, push or PR was executed. See `ci-local-authorization.json` and `benchmark-workflow-local-installation.json`.
-- `compiler-plugin-diagnostic-05` failed as intended evidence of an audit gap: KGP legacy getter returned null although actual `-Xplugin` contained serialization. Guard now reads actual serialized inputs with pinned resolved artifact identity and byte hashes. This fix is not yet marked passed.
-- `sdk-common-baseline-compile-04` passed; candidate composite compilation04 failed on test-only Balloon visibility API. A concrete SDK241/242 test adapter fix is installed, unverified.
-- `format-06` failed on new resource helper filename convention; integration/probe06 did not run because the serial queue stopped. No lint rule was weakened.
-
-- Follow-up integration07 passed actual compiler-input audit, SDK26 (zero failed/skipped), all new measurement/Driver compilation and packaging. Real serializer injection regression probe07 passed. `checkpoint-03-contracts.json` binds XML hashes. These runs do not replace the remaining full check/Driver/current-SDK/performance checks.
+Only main executes shared builds and measurements; implementation agents own disjoint files. All remote publication, uploads and jobs remain prohibited. Local CI file installation alone was explicitly approved.

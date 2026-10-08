@@ -24,6 +24,7 @@ import java.security.MessageDigest
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -64,9 +65,9 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
     }
 
     private inner class Fixture(override val host: ComparisonHost, private val pump: SdkEvidencePump) : ComparisonFixture {
-        override val warmups = Integer.getInteger("issue97.perf.warmup", 100)
-        override val repeats = Integer.getInteger("issue97.perf.repeat", 30)
-        override val cancellationTrials = Integer.getInteger("issue97.perf.cancelTrials", 30)
+        override val warmups: Int = Integer.getInteger("issue97.perf.warmup", 100)
+        override val repeats: Int = Integer.getInteger("issue97.perf.repeat", 30)
+        override val cancellationTrials: Int = Integer.getInteger("issue97.perf.cancelTrials", 30)
         private val output = Path.of(checkNotNull(System.getProperty("issue97.perf.output")))
         private val runId = UUID.randomUUID().toString()
         private val sequence = AtomicLong()
@@ -192,18 +193,7 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
             for ((name, text) in corpora()) {
                 val editor = editor(name, text)
                 try {
-                    var retained: AnalysisHandle? = null
-                    repeat(warmups + repeats) { n ->
-                        val previous = retained
-                        val result = measure("analysis", name, n - warmups) { host.analyze(editor, "all") }
-                        Reference.reachabilityFence(previous)
-                        retained = result
-                        if (n >= warmups) emit("kind" to "result", "workload" to "analysis", "corpus" to name,
-                            "iteration" to n - warmups, "shape" to result.shape(),
-                            "pair" to result.sample(text.indexOf('{').coerceAtLeast(0)))
-                    }
-                    Reference.reachabilityFence(retained)
-                    retained = null
+                    measureAnalysisIterations(editor, name, text)
                     repeat(cancellationTrials) { trial ->
                         val reads = host.newReads()
                         val owner = SupervisorJob()
@@ -212,7 +202,7 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
                         try {
                             val job = scope.async { host.analyze(editor, "all") }
                             val deadline = System.nanoTime() + 5_000_000_000L
-                            while (reads.requests().isEmpty() && !job.isCompleted && System.nanoTime() < deadline) delay(1)
+                            while (reads.requests().isEmpty() && !job.isCompleted && System.nanoTime() < deadline) delay(1.milliseconds)
                             val firstRequestObserved = reads.requests().isNotEmpty()
                             val requested = System.nanoTime()
                             val completed = job.isCompleted
@@ -238,6 +228,21 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
                     }
                 } finally { release(editor) }
             }
+        }
+
+        /** Keeps the hot previous result through each next calculation, then releases the local owner before cancellation trials. */
+        private suspend fun measureAnalysisIterations(editor: Editor, name: String, text: String) {
+            var retained: AnalysisHandle? = null
+            repeat(warmups + repeats) { n ->
+                val previous = retained
+                val result = measure("analysis", name, n - warmups) { host.analyze(editor, "all") }
+                Reference.reachabilityFence(previous)
+                retained = result
+                if (n >= warmups) emit("kind" to "result", "workload" to "analysis", "corpus" to name,
+                    "iteration" to n - warmups, "shape" to result.shape(),
+                    "pair" to result.sample(text.indexOf('{').coerceAtLeast(0)))
+            }
+            Reference.reachabilityFence(retained)
         }
 
         private suspend fun payload() {
@@ -281,7 +286,7 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
                                 finally { analysisFinished.set(System.nanoTime()) }
                             }
                             val deadline = System.nanoTime() + 5_000_000_000L
-                            while (reads.snapshot().isEmpty() && !job.isCompleted && System.nanoTime() < deadline) delay(1)
+                            while (reads.snapshot().isEmpty() && !job.isCompleted && System.nanoTime() < deadline) delay(1.milliseconds)
                             val bodyObserved = reads.snapshot().isNotEmpty()
                             val queued = System.nanoTime()
                             val incompleteAtQueue = analysisFinished.get() == 0L
@@ -341,37 +346,44 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
                                 editor.caretModel.moveToOffset(text.indexOf("call") + 1)
                                 val constructionBefore = allocated()
                                 val constructionStart = System.nanoTime()
-                                try { handle = host.execution(editor, mode, reads) { } }
+                                val created: ExecutionHandle
+                                try {
+                                    created = host.execution(editor, mode, reads) { }
+                                    handle = created
+                                }
                                 finally {
                                     constructionWallNs = System.nanoTime() - constructionStart
                                     constructionEdtBytes = delta(constructionBefore, allocated())
                                 }
                                 val requestBefore = allocated()
                                 val requestStart = System.nanoTime()
-                                try { handle!!.request() }
+                                try { created.request() }
                                 finally {
                                     requestWallNs = System.nanoTime() - requestStart
                                     requestEdtBytes = delta(requestBefore, allocated())
                                 }
                                 requestStart
                             }
+                            // Language 1.9 cannot smart-cast the nullable cleanup owner captured by changing closures.
+                            @Suppress("RedundantRequireNotNullCall")
+                            val active = checkNotNull(handle)
                             val deadline = System.nanoTime() + 30_000_000_000L
                             var count = 0
                             while (count == 0 && System.nanoTime() < deadline) {
-                                count = withContext(Dispatchers.EDT) { handle!!.markupCount() }
-                                if (count == 0) delay(1)
+                                count = withContext(Dispatchers.EDT) { active.markupCount() }
+                                if (count == 0) delay(1.milliseconds)
                             }
                             check(count > 0) { "No actual accepted markup" }
                             val observed = System.nanoTime()
                             val refresh = withContext(Dispatchers.EDT) {
-                                val before = handle!!.markup()
+                                val before = active.markup()
                                 checkTokenRanges(before, expectedTokenOffsets, mode)
                                 val bytes = allocated()
                                 val start = System.nanoTime()
-                                handle!!.refresh()
+                                active.refresh()
                                 val wall = System.nanoTime() - start
                                 val afterBytes = allocated()
-                                val after = handle!!.markup()
+                                val after = active.markup()
                                 checkTokenRanges(after, expectedTokenOffsets, mode)
                                 mapOf("wallNs" to wall, "edtAllocatedBytes" to delta(bytes, afterBytes),
                                     "reusedMarkupIdentities" to before.count { old -> after.any { it === old } },
@@ -380,8 +392,8 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
                             }
                             // Do not await controller trace closure until the current request has unwound.
                             val workerDeadline = System.nanoTime() + 5_000_000_000L
-                            while (handle!!.workerActive() && System.nanoTime() < workerDeadline) delay(1)
-                            check(!handle!!.workerActive()) { "Published request did not unwind" }
+                            while (active.workerActive() && System.nanoTime() < workerDeadline) delay(1.milliseconds)
+                            check(!active.workerActive()) { "Published request did not unwind" }
                             trace.awaitClosed()
                             if (n >= warmups) emit("kind" to "execution", "mode" to mode, "iteration" to n - warmups,
                                 "requestToObservedMarkupNs" to observed - requested, "markupCount" to count,
@@ -406,7 +418,7 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
                             }
                             withContext(NonCancellable) {
                                 val deadline = System.nanoTime() + 5_000_000_000L
-                                while (handle?.workerActive() == true && System.nanoTime() < deadline) delay(1)
+                                while (handle?.workerActive() == true && System.nanoTime() < deadline) delay(1.milliseconds)
                                 check(handle?.workerActive() != true) { "Execution work did not unwind" }
                                 trace.awaitClosed()
                             }
@@ -421,7 +433,6 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
                                     "scope" to "test bridge/factory/session synchronous disposal; async cancellation unwind excluded"),
                                 "nonAdditiveWithAsyncAllocation" to true,
                                 "allocationScopeRule" to "separate per-thread counters and inherited coroutine segments; never sum overlapping scopes or infer whole-session allocation")
-                            handle = null
                         }
                     }
                 } finally { release(editor) }
@@ -434,7 +445,7 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
             PsiDocumentManager.getInstance(project).commitAllDocuments()
             EditorFactory.getInstance().createViewer(myFixture.editor.document, project,
                 if (mode == "tokens") EditorKind.PREVIEW else EditorKind.MAIN_EDITOR).also {
-                (it as EditorEx).setHighlighter(EditorHighlighterFactory.getInstance().createEditorHighlighter(project, file.fileType))
+                (it as EditorEx).highlighter = EditorHighlighterFactory.getInstance().createEditorHighlighter(project, file.fileType)
                 // Actual SDK geometry supplies the same full-document viewport used by the old execution probe.
                 val height = (it.lineHeight.toLong() * (it.document.lineCount + 2)).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
                 val extent = Dimension(1200, height)
@@ -474,7 +485,7 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
             }
         }
         private fun allocated(): Long = allocation?.getThreadAllocatedBytes(Thread.currentThread().id) ?: -1
-        private fun delta(before: Long, after: Long): Long? = if (before >= 0 && after >= before) after - before else null
+        private fun delta(before: Long, after: Long): Long? = if (before in 0L..after) after - before else null
         private suspend fun captureRelease() {
             for (xml in listOf(false, true)) for (units in listOf(2000, 20000, 100000)) {
                 val text = if (xml) buildString { repeat(units) { append("</tag").append(it).append(">\n") } }
@@ -508,7 +519,7 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
                         "resourceReplicates" to 1, "resourceWarmups" to 0,
                         "characters" to text.length, "sha256" to sha(text), "chunks" to chunks,
                         "capturedOccurrences" to occurrences, "maximumBatchTokens" to maximumBatch,
-                        "exhausted" to exhausted, "finalOffset" to offset,
+                        "exhausted" to true, "finalOffset" to offset,
                         "captureAndDiagnosticInspectionNs" to captureAndInspectionNs,
                         "scope" to "all real bounded SDK raw captures consumed; no pairing; diagnostic traversal is included only in diagnostic wall, not a throughput metric",
                         "retainedAdapterType" to handle.retainedInput.javaClass.name,

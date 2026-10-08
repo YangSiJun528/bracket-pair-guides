@@ -22,7 +22,6 @@ internal class ActivePairMarkup(
     private var pairMarks: List<Mark> = emptyList()
     val guide: BracketGuide? get() = guideMark?.highlighter?.takeIf(RangeHighlighter::isValid)
         ?.customRenderer?.let { it as? BracketGuideDrawing }?.guide
-    val isVisible: Boolean get() = guideMark?.isReusable == true || pairMarks.any(Mark::isReusable)
 
     fun showGuide(guide: BracketGuide?, preferences: BracketGuidePreferences, frame: Frame) {
         frame.check()

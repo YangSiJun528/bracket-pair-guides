@@ -162,7 +162,7 @@ final class PairTable {
     }
 
     /** Single-use mutable pair table whose arrays become owned by the frozen table. */
-    public static final class Draft implements PairSink {
+    static final class Draft implements PairSink {
         private static final int INITIAL_CAPACITY = 16;
 
         private int[] openOffsets = new int[INITIAL_CAPACITY];

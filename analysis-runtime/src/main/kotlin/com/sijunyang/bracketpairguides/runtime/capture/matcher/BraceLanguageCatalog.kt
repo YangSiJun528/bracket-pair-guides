@@ -17,12 +17,6 @@ import com.sijunyang.bracketpairguides.model.BraceLanguageFamily
 
 /** Effective brace-matcher definitions and their shared capability families. */
 internal class BraceLanguageCatalog {
-    fun definitionFor(language: Language): BraceLanguageDefinition? {
-        val pairedMatcher =
-            LanguageBraceMatching.INSTANCE.forLanguage(language) ?: return null
-        return pairedDefinition(language, pairedMatcher)
-    }
-
     /** Resolves the same effective matcher used by the platform for this token. */
     fun definitionFor(
         fileType: FileType,

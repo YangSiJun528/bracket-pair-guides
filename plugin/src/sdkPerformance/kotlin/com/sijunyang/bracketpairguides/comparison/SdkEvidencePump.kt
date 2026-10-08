@@ -27,6 +27,10 @@ internal class SdkEvidencePump {
             check(now < deadline && !Thread.currentThread().isInterrupted) {
                 "SDK evidence watchdog expired/interrupted"
             }
+            // SDK 241 PlatformTestUtil.dispatchAllEventsInIdeEventQueue uses this reset+dispatch ordering.
+            // Its stable bulk-drain/wait helpers change our one-event cadence (wait also sleeps 10 ms).
+            // Keep the experimental call isolated to this pinned-minimum-SDK measurement harness.
+            @Suppress("UnstableApiUsage")
             val dispatched = resetThreadContext().use { PlatformTestUtil.dispatchNextEventIfAny() }
             if (dispatched != null) {
                 events.incrementAndGet()

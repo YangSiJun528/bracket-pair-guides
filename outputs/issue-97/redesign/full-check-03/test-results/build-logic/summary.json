@@ -1,0 +1,26 @@
+[
+  {
+    "name": "com.sijunyang.buildlogic.BenchmarkReportTest",
+    "tests": "9",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "timestamp": "2026-10-08T09:43:50.583Z"
+  },
+  {
+    "name": "com.sijunyang.buildlogic.CompilationBoundaryTest",
+    "tests": "32",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "timestamp": "2026-10-08T09:43:51.289Z"
+  },
+  {
+    "name": "com.sijunyang.buildlogic.PackagedOwnerTest",
+    "tests": "9",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "timestamp": "2026-10-08T09:53:49.769Z"
+  }
+]

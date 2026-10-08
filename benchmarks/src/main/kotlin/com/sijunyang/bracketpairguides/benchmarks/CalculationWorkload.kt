@@ -66,7 +66,8 @@ class CalculationWorkload(pairCount: Int, distribution: String) {
         }
     }
 
-    /** Independent pre-measurement behavior comparison; never called by a JMH measured method. */
+    /** Independent comparison called by the external Java fingerprint harness, outside JMH measurements. */
+    @Suppress("unused")
     fun semanticFingerprint(): String {
         fun digest(value: String): String = java.security.MessageDigest.getInstance("SHA-256")
             .digest(value.toByteArray(Charsets.UTF_8)).joinToString("") { "%02x".format(it.toInt() and 255) }

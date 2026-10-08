@@ -60,7 +60,6 @@ internal class EditorGuide(
         private set
     val hasCappedTokenDecorations: Boolean get() = tokens.isCapped
     val drawsGuides: Boolean get() = display.enabled && display.showsGuide
-    val isVisible: Boolean get() = activity.visible
 
     private fun observeDisplayedGuide(guide: BracketGuide) {
         if (!frames.isClosed && active.isDisplayed(guide) && advisory.interest(options).enabled)

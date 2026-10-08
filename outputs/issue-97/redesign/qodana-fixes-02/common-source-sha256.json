@@ -1,0 +1,11 @@
+{
+  "ComparisonFixture.kt": "2223bec2ad197983e5e12212ec655a65833296e8ad9c5a5291e89b2465505cb7",
+  "SdkComparisonMeasurementTest.kt": "ddd3aee5a6ae841d9224dc63943dd6a12f691572690cb6b86ef1a0fd49191849",
+  "SdkNativeRepairWorkloads.kt": "8e67c661d369c26ebb4fcaab4b409c2735e8bc03c503057d2722722b86f3e50e",
+  "SdkAllocationSegments.kt": "8571e9f40533e81c0a4b0b6ff8f8f2b32bbcba5942f9db380be08140d21a8a0d",
+  "ResourceEvidence.kt": "032c994daed031523df87dbc2ca9e2579bc75e95badc09165c95e5655f072892",
+  "SdkEvidencePump.kt": "88cc226336d16542bd8814a39fe2bcaf2f1f0379ca2672fc2dfcdaedde9a2b6f",
+  "SdkNativeControls.kt": "459fe0cfb3767368614bf32cc99256dc3af0923f1b655a678dfba2b249082a5d",
+  "SdkEditRestorationWorkload.kt": "7c74d651b21d12725005237952f1a75affb8124cf9a5c6319d08d2f589032ec1",
+  "SdkDescriptorEvidence.kt": "08bee7ca1673db3e1900ceba088ad302f2a3ce40d1fd7ccdc6d4e965398fbd3d"
+}

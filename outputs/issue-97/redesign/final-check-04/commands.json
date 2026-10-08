@@ -1,0 +1,89 @@
+[
+  {
+    "name": "format",
+    "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "command": [
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=2",
+      "--no-configuration-cache",
+      "spotlessApply",
+      "spotlessCheck",
+      "--console=plain"
+    ],
+    "startedUtc": "2026-10-08T09:56:38.613607+00:00",
+    "exitCode": 0,
+    "seconds": 12.61575198173523
+  },
+  {
+    "name": "harness-compile",
+    "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "command": [
+      "./gradlew",
+      "--no-daemon",
+      "--no-parallel",
+      "--max-workers=2",
+      "--no-configuration-cache",
+      "-Pkotlin.compiler.execution.strategy=in-process",
+      "-Dorg.gradle.jvmargs=-Xmx4g",
+      ":plugin:compileSdkPerformanceKotlin",
+      ":plugin:compileVisualTestKotlin",
+      ":plugin:buildVisualTestPlugin",
+      "--console=plain",
+      "--stacktrace"
+    ],
+    "startedUtc": "2026-10-08T09:56:51.234584+00:00",
+    "exitCode": 0,
+    "seconds": 12.79088282585144
+  },
+  {
+    "name": "pure",
+    "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "command": [
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=2",
+      "--no-configuration-cache",
+      "-p",
+      "tools/pure-build",
+      "check",
+      ":analysis-model:build",
+      ":analysis-core:build",
+      "--rerun-tasks",
+      "--console=plain"
+    ],
+    "startedUtc": "2026-10-08T09:57:04.025881+00:00",
+    "exitCode": 0,
+    "seconds": 14.642489671707153
+  },
+  {
+    "name": "check",
+    "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "command": [
+      "./gradlew",
+      "--no-daemon",
+      "--no-parallel",
+      "--max-workers=2",
+      "--no-configuration-cache",
+      "-Pkotlin.compiler.execution.strategy=in-process",
+      "-Dorg.gradle.jvmargs=-Xmx4g",
+      "check",
+      "--console=plain",
+      "--stacktrace"
+    ],
+    "startedUtc": "2026-10-08T09:57:18.730554+00:00",
+    "exitCode": 0,
+    "seconds": 660.4879508018494
+  },
+  {
+    "name": "qodana",
+    "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "command": [
+      "bash",
+      "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/qodana/run_local.sh"
+    ],
+    "startedUtc": "2026-10-08T10:08:19.236512+00:00",
+    "exitCode": 255,
+    "seconds": 537.4084010124207
+  }
+]

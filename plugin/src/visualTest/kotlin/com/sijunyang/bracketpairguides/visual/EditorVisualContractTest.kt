@@ -23,6 +23,8 @@ import com.intellij.ide.starter.models.TestCase
 import com.intellij.ide.starter.plugins.PluginConfigurator
 import com.intellij.ide.starter.project.LocalProjectInfo
 import com.intellij.ide.starter.runner.Starter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -94,14 +96,38 @@ class EditorVisualContractTest {
                 fun capture(name: String) {
                     var previous: BufferedImage? = null
                     var stable: BufferedImage? = null
-                    waitFor(30.seconds, 250.milliseconds, "Editor pixels did not stabilize: $name") {
-                        val raw = editor.getScreenshot()
-                        check(raw.width >= 220 && raw.height >= 240)
-                        val current = raw.getSubimage(0, 1, 220, 239)
-                        val same = previous?.let { equalPixels(it, current) } == true
-                        previous = current
-                        if (same) stable = current
-                        same
+                    val initialDaemon = bridge.daemonDiagnostics()
+                    var beforeDaemon = initialDaemon
+                    var afterDaemon = initialDaemon
+                    fun ready(state: String): Boolean = state.startsWith("ready=true;")
+                    fun stamp(state: String): String = state.substringAfter(";stamp=").substringBefore(';')
+                    try {
+                        waitFor(30.seconds, 250.milliseconds, "Editor pixels did not stabilize: $name") {
+                            beforeDaemon = bridge.daemonDiagnostics()
+                            if (!ready(beforeDaemon)) {
+                                previous = null
+                                false
+                            } else {
+                                val raw = editor.getScreenshot()
+                                check(raw.width >= 220 && raw.height >= 240)
+                                val current = raw.getSubimage(0, 1, 220, 239)
+                                afterDaemon = bridge.daemonDiagnostics()
+                                if (!ready(afterDaemon) || stamp(beforeDaemon) != stamp(afterDaemon)) {
+                                    previous = null
+                                    false
+                                } else {
+                                    val same = previous?.let { equalPixels(it, current) } == true
+                                    previous = current
+                                    if (same) stable = current
+                                    same
+                                }
+                            }
+                        }
+                    } finally {
+                        Files.writeString(artifacts.resolve("$name-daemon-observed.txt"),
+                            "initial:\n$initialDaemon\nbeforeScreenshot:\n$beforeDaemon\n" +
+                                "afterScreenshot:\n$afterDaemon\nstableImageAccepted=${stable != null}\n" +
+                                "editorMarkup:\n${bridge.markupDiagnostics()}\n")
                     }
                     val image = checkNotNull(stable)
                     ImageIO.write(image, "png", artifacts.resolve("$name-actual.png").toFile())
@@ -310,14 +336,14 @@ class EditorVisualContractTest {
     private fun required(name: String): Path = Path.of(checkNotNull(System.getProperty(name)) { "Missing $name" })
 
     private class PinnedInstaller : IdeInstaller {
-        override suspend fun install(ideInfo: IdeInfo): Pair<String, InstalledIde> {
+        override suspend fun install(ideInfo: IdeInfo): Pair<String, InstalledIde> = withContext(Dispatchers.IO) {
             val platform = Path.of(checkNotNull(System.getProperty("visual.test.ide.path"))).toRealPath()
             val wrapper = Files.createTempDirectory(Path.of("build"), "driver-distribution-")
             Files.createSymbolicLink(wrapper.resolve("idea"), platform)
             val installed = IdeDistributionFactory.installIDE(wrapper.toFile(), ideInfo.executableFileName)
             check(installed.productCode == "IC" && installed.build == "242.26775.15")
             check(Files.isSameFile(installed.installationPath, platform))
-            return installed.build to installed
+            installed.build to installed
         }
     }
 
@@ -348,5 +374,6 @@ internal interface EditorContractRemote {
     fun state(): String
     fun nativeBraceCount(): Int
     fun markupDiagnostics(): String
+    fun daemonDiagnostics(): String
 }
 

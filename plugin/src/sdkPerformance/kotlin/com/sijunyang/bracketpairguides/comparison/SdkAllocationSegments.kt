@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration.Companion.milliseconds
 
 /** Per-thread execution segments; nested activation of this trace is counted once. */
 internal class SdkAllocationSegments(private val allocation: ThreadMXBean?) :
@@ -38,7 +39,7 @@ internal class SdkAllocationSegments(private val allocation: ThreadMXBean?) :
         check(oldState.thread == Thread.currentThread().id)
         if (--oldState.depth != 0) return
         val after = allocation?.getThreadAllocatedBytes(oldState.thread) ?: -1
-        if (oldState.before >= 0 && after >= oldState.before) {
+        if (oldState.before in 0L..after) {
             total.addAndGet(after - oldState.before)
         } else if (allocation != null) {
             invalid.incrementAndGet()
@@ -48,7 +49,7 @@ internal class SdkAllocationSegments(private val allocation: ThreadMXBean?) :
     }
     suspend fun awaitClosed() {
         val deadline = System.nanoTime() + 5_000_000_000L
-        while (open.get() != 0 && System.nanoTime() < deadline) delay(1)
+        while (open.get() != 0 && System.nanoTime() < deadline) delay(1.milliseconds)
         check(open.get() == 0) { "Allocation trace still has active execution segments" }
     }
     fun snapshot(): Map<String, Any?> = mapOf(

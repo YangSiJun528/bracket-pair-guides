@@ -11,7 +11,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 
-/** SDK performance composition only. Release and UI compiler inputs never include this source set. */
+/** SDK performance entry point loaded by Class.forName from the common fixture's host property. */
+@Suppress("unused")
 class CandidateComparisonHost private constructor(private val direct: CandidateRuntimeHost) : ComparisonHost by direct {
     constructor() : this(CandidateRuntimeHost())
 

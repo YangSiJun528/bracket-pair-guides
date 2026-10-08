@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-10-08T09:44:21.312Z" hostname="sijun-yangui-MacBookPro.local" time="4.635">
+  <properties/>
+  <testcase name="testUnchangedCaretCallbackPreservesAllActualMarkupWithoutSdkCallbacks" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="3.685"/>
+  <testcase name="testFreshResultInsideRepairMarkupCallbackOwnsItsResourcesAfterOldRollback" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.09"/>
+  <testcase name="testHiddenPresentationReleasesReadOnlyLookup" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.085"/>
+  <testcase name="testRenderingFailurePropagatesAndLeavesNoMarkup" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.069"/>
+  <testcase name="testFailureAfterFreshReentrantApplyPropagatesWithoutClearingFreshMarkup" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.068"/>
+  <testcase name="testAffectedEditHidesGuideBeforeSingleCompleteContentDemand" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.121"/>
+  <testcase name="testCloseRevokesViewAndIsIdempotent" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.064"/>
+  <testcase name="testReentrantCloseDuringResultQueryLeavesNoMarkup" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.064"/>
+  <testcase name="testEndpointStyleThemeAndPairChangesStillReplaceIncompatibleMarkup" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.069"/>
+  <testcase name="testCloseInsideActualRepairMarkupCallbackLeavesNoOrphanHighlighter" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.06"/>
+  <testcase name="testFreshTokenResultInsideMarkupCallbackSurvivesOldTokenRollback" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.059"/>
+  <testcase name="testDisabledPresentationReleasesReadOnlyLookup" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.081"/>
+  <testcase name="testLimitedFullResultPreservesSuccessfulCurrentRepairGeometry" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.07"/>
+  <testcase name="testCloseInsideBeforeRemovedRevokesOldTokenRenderingAndLeavesNoMarkup" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.05"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Configuration file for j.u.l.LogManager does not exist: /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/test-log.properties
+]]></system-err>
+</testsuite>

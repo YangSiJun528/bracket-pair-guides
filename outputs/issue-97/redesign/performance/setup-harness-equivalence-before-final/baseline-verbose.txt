@@ -1,0 +1,560 @@
+Classfile /Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides/plugin/build/classes/kotlin/test/com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest.class
+  Last modified 2026. 10. 8.; size 7185 bytes
+  SHA-256 checksum e60c9faf42639765fadefcccef38cade5c4918bee1481e4718b2bc1b016100e5
+  Compiled from "SdkComparisonMeasurementTest.kt"
+public final class com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest extends com.intellij.testFramework.fixtures.BasePlatformTestCase
+  minor version: 0
+  major version: 61
+  flags: (0x0031) ACC_PUBLIC, ACC_FINAL, ACC_SUPER
+  this_class: #2                          // com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest
+  super_class: #4                         // com/intellij/testFramework/fixtures/BasePlatformTestCase
+  interfaces: 0, fields: 0, methods: 5, attributes: 6
+Constant pool:
+    #1 = Utf8               com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest
+    #2 = Class              #1            // com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest
+    #3 = Utf8               com/intellij/testFramework/fixtures/BasePlatformTestCase
+    #4 = Class              #3            // com/intellij/testFramework/fixtures/BasePlatformTestCase
+    #5 = Utf8               <init>
+    #6 = Utf8               ()V
+    #7 = NameAndType        #5:#6         // "<init>":()V
+    #8 = Methodref          #4.#7         // com/intellij/testFramework/fixtures/BasePlatformTestCase."<init>":()V
+    #9 = Utf8               this
+   #10 = Utf8               Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;
+   #11 = Utf8               testSdkComparison
+   #12 = Utf8               issue97.perf.workload
+   #13 = String             #12           // issue97.perf.workload
+   #14 = Utf8               java/lang/System
+   #15 = Class              #14           // java/lang/System
+   #16 = Utf8               getProperty
+   #17 = Utf8               (Ljava/lang/String;)Ljava/lang/String;
+   #18 = NameAndType        #16:#17       // getProperty:(Ljava/lang/String;)Ljava/lang/String;
+   #19 = Methodref          #15.#18       // java/lang/System.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+   #20 = Utf8               Explicit performance workload required
+   #21 = String             #20           // Explicit performance workload required
+   #22 = Utf8               java/lang/IllegalStateException
+   #23 = Class              #22           // java/lang/IllegalStateException
+   #24 = Utf8               java/lang/Object
+   #25 = Class              #24           // java/lang/Object
+   #26 = Utf8               toString
+   #27 = Utf8               ()Ljava/lang/String;
+   #28 = NameAndType        #26:#27       // toString:()Ljava/lang/String;
+   #29 = Methodref          #25.#28       // java/lang/Object.toString:()Ljava/lang/String;
+   #30 = Utf8               (Ljava/lang/String;)V
+   #31 = NameAndType        #5:#30        // "<init>":(Ljava/lang/String;)V
+   #32 = Methodref          #23.#31       // java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+   #33 = Utf8               issue97.perf.host
+   #34 = String             #33           // issue97.perf.host
+   #35 = Utf8               Required value was null.
+   #36 = String             #35           // Required value was null.
+   #37 = Utf8               java/lang/Class
+   #38 = Class              #37           // java/lang/Class
+   #39 = Utf8               forName
+   #40 = Utf8               (Ljava/lang/String;)Ljava/lang/Class;
+   #41 = NameAndType        #39:#40       // forName:(Ljava/lang/String;)Ljava/lang/Class;
+   #42 = Methodref          #38.#41       // java/lang/Class.forName:(Ljava/lang/String;)Ljava/lang/Class;
+   #43 = Utf8               getDeclaredConstructor
+   #44 = Utf8               ([Ljava/lang/Class;)Ljava/lang/reflect/Constructor;
+   #45 = NameAndType        #43:#44       // getDeclaredConstructor:([Ljava/lang/Class;)Ljava/lang/reflect/Constructor;
+   #46 = Methodref          #38.#45       // java/lang/Class.getDeclaredConstructor:([Ljava/lang/Class;)Ljava/lang/reflect/Constructor;
+   #47 = Utf8               java/lang/reflect/Constructor
+   #48 = Class              #47           // java/lang/reflect/Constructor
+   #49 = Utf8               newInstance
+   #50 = Utf8               ([Ljava/lang/Object;)Ljava/lang/Object;
+   #51 = NameAndType        #49:#50       // newInstance:([Ljava/lang/Object;)Ljava/lang/Object;
+   #52 = Methodref          #48.#51       // java/lang/reflect/Constructor.newInstance:([Ljava/lang/Object;)Ljava/lang/Object;
+   #53 = Utf8               null cannot be cast to non-null type com.sijunyang.bracketpairguides.comparison.ComparisonHost
+   #54 = String             #53           // null cannot be cast to non-null type com.sijunyang.bracketpairguides.comparison.ComparisonHost
+   #55 = Utf8               kotlin/jvm/internal/Intrinsics
+   #56 = Class              #55           // kotlin/jvm/internal/Intrinsics
+   #57 = Utf8               checkNotNull
+   #58 = Utf8               (Ljava/lang/Object;Ljava/lang/String;)V
+   #59 = NameAndType        #57:#58       // checkNotNull:(Ljava/lang/Object;Ljava/lang/String;)V
+   #60 = Methodref          #56.#59       // kotlin/jvm/internal/Intrinsics.checkNotNull:(Ljava/lang/Object;Ljava/lang/String;)V
+   #61 = Utf8               com/sijunyang/bracketpairguides/comparison/ComparisonHost
+   #62 = Class              #61           // com/sijunyang/bracketpairguides/comparison/ComparisonHost
+   #63 = Utf8               kotlinx/coroutines/SupervisorKt
+   #64 = Class              #63           // kotlinx/coroutines/SupervisorKt
+   #65 = Utf8               SupervisorJob$default
+   #66 = Utf8               (Lkotlinx/coroutines/Job;ILjava/lang/Object;)Lkotlinx/coroutines/CompletableJob;
+   #67 = NameAndType        #65:#66       // SupervisorJob$default:(Lkotlinx/coroutines/Job;ILjava/lang/Object;)Lkotlinx/coroutines/CompletableJob;
+   #68 = Methodref          #64.#67       // kotlinx/coroutines/SupervisorKt.SupervisorJob$default:(Lkotlinx/coroutines/Job;ILjava/lang/Object;)Lkotlinx/coroutines/CompletableJob;
+   #69 = Utf8               kotlinx/coroutines/Dispatchers
+   #70 = Class              #69           // kotlinx/coroutines/Dispatchers
+   #71 = Utf8               getDefault
+   #72 = Utf8               ()Lkotlinx/coroutines/CoroutineDispatcher;
+   #73 = NameAndType        #71:#72       // getDefault:()Lkotlinx/coroutines/CoroutineDispatcher;
+   #74 = Methodref          #70.#73       // kotlinx/coroutines/Dispatchers.getDefault:()Lkotlinx/coroutines/CoroutineDispatcher;
+   #75 = Utf8               kotlin/coroutines/CoroutineContext
+   #76 = Class              #75           // kotlin/coroutines/CoroutineContext
+   #77 = Utf8               kotlinx/coroutines/CompletableJob
+   #78 = Class              #77           // kotlinx/coroutines/CompletableJob
+   #79 = Utf8               plus
+   #80 = Utf8               (Lkotlin/coroutines/CoroutineContext;)Lkotlin/coroutines/CoroutineContext;
+   #81 = NameAndType        #79:#80       // plus:(Lkotlin/coroutines/CoroutineContext;)Lkotlin/coroutines/CoroutineContext;
+   #82 = InterfaceMethodref #78.#81       // kotlinx/coroutines/CompletableJob.plus:(Lkotlin/coroutines/CoroutineContext;)Lkotlin/coroutines/CoroutineContext;
+   #83 = Utf8               kotlinx/coroutines/CoroutineScopeKt
+   #84 = Class              #83           // kotlinx/coroutines/CoroutineScopeKt
+   #85 = Utf8               CoroutineScope
+   #86 = Utf8               (Lkotlin/coroutines/CoroutineContext;)Lkotlinx/coroutines/CoroutineScope;
+   #87 = NameAndType        #85:#86       // CoroutineScope:(Lkotlin/coroutines/CoroutineContext;)Lkotlinx/coroutines/CoroutineScope;
+   #88 = Methodref          #84.#87       // kotlinx/coroutines/CoroutineScopeKt.CoroutineScope:(Lkotlin/coroutines/CoroutineContext;)Lkotlinx/coroutines/CoroutineScope;
+   #89 = Utf8               java/util/concurrent/atomic/AtomicReference
+   #90 = Class              #89           // java/util/concurrent/atomic/AtomicReference
+   #91 = Methodref          #90.#7        // java/util/concurrent/atomic/AtomicReference."<init>":()V
+   #92 = Utf8               java/util/concurrent/atomic/AtomicBoolean
+   #93 = Class              #92           // java/util/concurrent/atomic/AtomicBoolean
+   #94 = Methodref          #93.#7        // java/util/concurrent/atomic/AtomicBoolean."<init>":()V
+   #95 = Utf8               com/sijunyang/bracketpairguides/comparison/SdkEvidencePump
+   #96 = Class              #95           // com/sijunyang/bracketpairguides/comparison/SdkEvidencePump
+   #97 = Methodref          #96.#7        // com/sijunyang/bracketpairguides/comparison/SdkEvidencePump."<init>":()V
+   #98 = Utf8               com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$testSdkComparison$task$1
+   #99 = Class              #98           // com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$testSdkComparison$task$1
+  #100 = Utf8               (Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;Lcom/sijunyang/bracketpairguides/comparison/ComparisonHost;Lcom/sijunyang/bracketpairguides/comparison/SdkEvidencePump;Ljava/util/concurrent/atomic/AtomicReference;Ljava/util/concurrent/atomic/AtomicBoolean;Lkotlin/coroutines/Continuation;)V
+  #101 = NameAndType        #5:#100       // "<init>":(Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;Lcom/sijunyang/bracketpairguides/comparison/ComparisonHost;Lcom/sijunyang/bracketpairguides/comparison/SdkEvidencePump;Ljava/util/concurrent/atomic/AtomicReference;Ljava/util/concurrent/atomic/AtomicBoolean;Lkotlin/coroutines/Continuation;)V
+  #102 = Methodref          #99.#101      // com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$testSdkComparison$task$1."<init>":(Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;Lcom/sijunyang/bracketpairguides/comparison/ComparisonHost;Lcom/sijunyang/bracketpairguides/comparison/SdkEvidencePump;Ljava/util/concurrent/atomic/AtomicReference;Ljava/util/concurrent/atomic/AtomicBoolean;Lkotlin/coroutines/Continuation;)V
+  #103 = Utf8               kotlin/jvm/functions/Function2
+  #104 = Class              #103          // kotlin/jvm/functions/Function2
+  #105 = Utf8               kotlinx/coroutines/BuildersKt
+  #106 = Class              #105          // kotlinx/coroutines/BuildersKt
+  #107 = Utf8               launch$default
+  #108 = Utf8               (Lkotlinx/coroutines/CoroutineScope;Lkotlin/coroutines/CoroutineContext;Lkotlinx/coroutines/CoroutineStart;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lkotlinx/coroutines/Job;
+  #109 = NameAndType        #107:#108     // launch$default:(Lkotlinx/coroutines/CoroutineScope;Lkotlin/coroutines/CoroutineContext;Lkotlinx/coroutines/CoroutineStart;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lkotlinx/coroutines/Job;
+  #110 = Methodref          #106.#109     // kotlinx/coroutines/BuildersKt.launch$default:(Lkotlinx/coroutines/CoroutineScope;Lkotlin/coroutines/CoroutineContext;Lkotlinx/coroutines/CoroutineStart;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lkotlinx/coroutines/Job;
+  #111 = Long               600l
+  #113 = Utf8               com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$testSdkComparison$2
+  #114 = Class              #113          // com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$testSdkComparison$2
+  #115 = Utf8               (Ljava/util/concurrent/atomic/AtomicBoolean;)V
+  #116 = NameAndType        #5:#115       // "<init>":(Ljava/util/concurrent/atomic/AtomicBoolean;)V
+  #117 = Methodref          #114.#116     // com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$testSdkComparison$2."<init>":(Ljava/util/concurrent/atomic/AtomicBoolean;)V
+  #118 = Utf8               kotlin/jvm/functions/Function0
+  #119 = Class              #118          // kotlin/jvm/functions/Function0
+  #120 = Utf8               await
+  #121 = Utf8               (JLkotlin/jvm/functions/Function0;)V
+  #122 = NameAndType        #120:#121     // await:(JLkotlin/jvm/functions/Function0;)V
+  #123 = Methodref          #96.#122      // com/sijunyang/bracketpairguides/comparison/SdkEvidencePump.await:(JLkotlin/jvm/functions/Function0;)V
+  #124 = Utf8               get
+  #125 = Utf8               ()Ljava/lang/Object;
+  #126 = NameAndType        #124:#125     // get:()Ljava/lang/Object;
+  #127 = Methodref          #90.#126      // java/util/concurrent/atomic/AtomicReference.get:()Ljava/lang/Object;
+  #128 = Utf8               java/lang/Throwable
+  #129 = Class              #128          // java/lang/Throwable
+  #130 = Utf8               java/lang/AssertionError
+  #131 = Class              #130          // java/lang/AssertionError
+  #132 = Utf8               SDK comparison failed
+  #133 = String             #132          // SDK comparison failed
+  #134 = Utf8               (Ljava/lang/String;Ljava/lang/Throwable;)V
+  #135 = NameAndType        #5:#134       // "<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+  #136 = Methodref          #131.#135     // java/lang/AssertionError."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+  #137 = Utf8               kotlinx/coroutines/Job$DefaultImpls
+  #138 = Class              #137          // kotlinx/coroutines/Job$DefaultImpls
+  #139 = Utf8               cancel$default
+  #140 = Utf8               (Lkotlinx/coroutines/Job;Ljava/util/concurrent/CancellationException;ILjava/lang/Object;)V
+  #141 = NameAndType        #139:#140     // cancel$default:(Lkotlinx/coroutines/Job;Ljava/util/concurrent/CancellationException;ILjava/lang/Object;)V
+  #142 = Methodref          #138.#141     // kotlinx/coroutines/Job$DefaultImpls.cancel$default:(Lkotlinx/coroutines/Job;Ljava/util/concurrent/CancellationException;ILjava/lang/Object;)V
+  #143 = Utf8               (Lkotlinx/coroutines/CoroutineScope;Ljava/util/concurrent/CancellationException;ILjava/lang/Object;)V
+  #144 = NameAndType        #139:#143     // cancel$default:(Lkotlinx/coroutines/CoroutineScope;Ljava/util/concurrent/CancellationException;ILjava/lang/Object;)V
+  #145 = Methodref          #84.#144      // kotlinx/coroutines/CoroutineScopeKt.cancel$default:(Lkotlinx/coroutines/CoroutineScope;Ljava/util/concurrent/CancellationException;ILjava/lang/Object;)V
+  #146 = Utf8               SDK comparison cleanup
+  #147 = String             #146          // SDK comparison cleanup
+  #148 = Utf8               ()Z
+  #149 = MethodType         #148          //  ()Z
+  #150 = Utf8               testSdkComparison$lambda$2
+  #151 = Utf8               (Lkotlinx/coroutines/Job;)Z
+  #152 = NameAndType        #150:#151     // testSdkComparison$lambda$2:(Lkotlinx/coroutines/Job;)Z
+  #153 = Methodref          #2.#152       // com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest.testSdkComparison$lambda$2:(Lkotlinx/coroutines/Job;)Z
+  #154 = MethodHandle       6:#153        // REF_invokeStatic com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest.testSdkComparison$lambda$2:(Lkotlinx/coroutines/Job;)Z
+  #155 = Utf8               java/lang/invoke/LambdaMetafactory
+  #156 = Class              #155          // java/lang/invoke/LambdaMetafactory
+  #157 = Utf8               metafactory
+  #158 = Utf8               (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+  #159 = NameAndType        #157:#158     // metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+  #160 = Methodref          #156.#159     // java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+  #161 = MethodHandle       6:#160        // REF_invokeStatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+  #162 = Utf8               getAsBoolean
+  #163 = Utf8               (Lkotlinx/coroutines/Job;)Ljava/util/function/BooleanSupplier;
+  #164 = NameAndType        #162:#163     // getAsBoolean:(Lkotlinx/coroutines/Job;)Ljava/util/function/BooleanSupplier;
+  #165 = InvokeDynamic      #0:#164       // #0:getAsBoolean:(Lkotlinx/coroutines/Job;)Ljava/util/function/BooleanSupplier;
+  #166 = Utf8               com/intellij/testFramework/PlatformTestUtil
+  #167 = Class              #166          // com/intellij/testFramework/PlatformTestUtil
+  #168 = Utf8               waitWithEventsDispatching
+  #169 = Utf8               (Ljava/lang/String;Ljava/util/function/BooleanSupplier;I)V
+  #170 = NameAndType        #168:#169     // waitWithEventsDispatching:(Ljava/lang/String;Ljava/util/function/BooleanSupplier;I)V
+  #171 = Methodref          #167.#170     // com/intellij/testFramework/PlatformTestUtil.waitWithEventsDispatching:(Ljava/lang/String;Ljava/util/function/BooleanSupplier;I)V
+  #172 = Utf8               $i$a$-check-SdkComparisonMeasurementTest$testSdkComparison$1
+  #173 = Utf8               I
+  #174 = Utf8               $i$a$-let-SdkComparisonMeasurementTest$testSdkComparison$3
+  #175 = Utf8               it
+  #176 = Utf8               Ljava/lang/Throwable;
+  #177 = Utf8               hostName
+  #178 = Utf8               Ljava/lang/String;
+  #179 = Utf8               host
+  #180 = Utf8               Lcom/sijunyang/bracketpairguides/comparison/ComparisonHost;
+  #181 = Utf8               scope
+  #182 = Utf8               Lkotlinx/coroutines/CoroutineScope;
+  #183 = Utf8               failure
+  #184 = Utf8               Ljava/util/concurrent/atomic/AtomicReference;
+  #185 = Utf8               complete
+  #186 = Utf8               Ljava/util/concurrent/atomic/AtomicBoolean;
+  #187 = Utf8               pump
+  #188 = Utf8               Lcom/sijunyang/bracketpairguides/comparison/SdkEvidencePump;
+  #189 = Utf8               task
+  #190 = Utf8               Lkotlinx/coroutines/Job;
+  #191 = Utf8               java/lang/String
+  #192 = Class              #191          // java/lang/String
+  #193 = Utf8               kotlinx/coroutines/CoroutineScope
+  #194 = Class              #193          // kotlinx/coroutines/CoroutineScope
+  #195 = Utf8               kotlinx/coroutines/Job
+  #196 = Class              #195          // kotlinx/coroutines/Job
+  #197 = Utf8               isCompleted
+  #198 = NameAndType        #197:#148     // isCompleted:()Z
+  #199 = InterfaceMethodref #196.#198     // kotlinx/coroutines/Job.isCompleted:()Z
+  #200 = Utf8               $task
+  #201 = Utf8               access$getMyFixture$p$s790461483
+  #202 = Utf8               (Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;)Lcom/intellij/testFramework/fixtures/CodeInsightTestFixture;
+  #203 = Utf8               myFixture
+  #204 = Utf8               Lcom/intellij/testFramework/fixtures/CodeInsightTestFixture;
+  #205 = NameAndType        #203:#204     // myFixture:Lcom/intellij/testFramework/fixtures/CodeInsightTestFixture;
+  #206 = Fieldref           #2.#205       // com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest.myFixture:Lcom/intellij/testFramework/fixtures/CodeInsightTestFixture;
+  #207 = Utf8               $this
+  #208 = Utf8               access$getProject
+  #209 = Utf8               (Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;)Lcom/intellij/openapi/project/Project;
+  #210 = Utf8               getProject
+  #211 = Utf8               ()Lcom/intellij/openapi/project/Project;
+  #212 = NameAndType        #210:#211     // getProject:()Lcom/intellij/openapi/project/Project;
+  #213 = Methodref          #2.#212       // com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest.getProject:()Lcom/intellij/openapi/project/Project;
+  #214 = Utf8               Lkotlin/Metadata;
+  #215 = Utf8               mv
+  #216 = Integer            1
+  #217 = Integer            9
+  #218 = Integer            0
+  #219 = Utf8               k
+  #220 = Utf8               xi
+  #221 = Integer            48
+  #222 = Utf8               d1
+  #223 = Utf8               \u0000\u0014\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\u0002\n\u0002\b\u0002\u0018\u00002\u00020\u0001:\u0001\u0005B\u0005¢\u0006\u0002\u0010\u0002J\u0006\u0010\u0003\u001a\u00020\u0004¨\u0006\u0006
+  #224 = Utf8               d2
+  #225 = Utf8               Lcom/intellij/testFramework/fixtures/BasePlatformTestCase;
+  #226 = Utf8
+  #227 = Utf8               Fixture
+  #228 = Utf8               bracket-pair-guides_test
+  #229 = Utf8               com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$Fixture
+  #230 = Class              #229          // com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$Fixture
+  #231 = Utf8               DefaultImpls
+  #232 = Utf8               SdkComparisonMeasurementTest.kt
+  #233 = Utf8               Lkotlin/jvm/internal/SourceDebugExtension;
+  #234 = Utf8               value
+  #235 = Utf8               SMAP\nSdkComparisonMeasurementTest.kt\nKotlin\n*S Kotlin\n*F\n+ 1 SdkComparisonMeasurementTest.kt\ncom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n*L\n1#1,549:1\n1#2:550\n*E\n
+  #236 = Utf8               Code
+  #237 = Utf8               LineNumberTable
+  #238 = Utf8               LocalVariableTable
+  #239 = Utf8               StackMapTable
+  #240 = Utf8               InnerClasses
+  #241 = Utf8               SourceFile
+  #242 = Utf8               SourceDebugExtension
+  #243 = Utf8               RuntimeVisibleAnnotations
+  #244 = Utf8               RuntimeInvisibleAnnotations
+  #245 = Utf8               BootstrapMethods
+{
+  public com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #8                  // Method com/intellij/testFramework/fixtures/BasePlatformTestCase."<init>":()V
+         4: return
+      LineNumberTable:
+        line 38: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;
+
+  public final void testSdkComparison();
+    descriptor: ()V
+    flags: (0x0011) ACC_PUBLIC, ACC_FINAL
+    Code:
+      stack=11, locals=11, args_size=1
+         0: ldc           #13                 // String issue97.perf.workload
+         2: invokestatic  #19                 // Method java/lang/System.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+         5: ifnull        12
+         8: iconst_1
+         9: goto          13
+        12: iconst_0
+        13: ifne          33
+        16: iconst_0
+        17: istore_2
+        18: ldc           #21                 // String Explicit performance workload required
+        20: astore_2
+        21: new           #23                 // class java/lang/IllegalStateException
+        24: dup
+        25: aload_2
+        26: invokevirtual #29                 // Method java/lang/Object.toString:()Ljava/lang/String;
+        29: invokespecial #32                 // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+        32: athrow
+        33: ldc           #34                 // String issue97.perf.host
+        35: invokestatic  #19                 // Method java/lang/System.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+        38: dup
+        39: ifnonnull     58
+        42: pop
+        43: ldc           #36                 // String Required value was null.
+        45: astore_3
+        46: new           #23                 // class java/lang/IllegalStateException
+        49: dup
+        50: aload_3
+        51: invokevirtual #29                 // Method java/lang/Object.toString:()Ljava/lang/String;
+        54: invokespecial #32                 // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+        57: athrow
+        58: astore_1
+        59: aload_1
+        60: invokestatic  #42                 // Method java/lang/Class.forName:(Ljava/lang/String;)Ljava/lang/Class;
+        63: iconst_0
+        64: anewarray     #38                 // class java/lang/Class
+        67: invokevirtual #46                 // Method java/lang/Class.getDeclaredConstructor:([Ljava/lang/Class;)Ljava/lang/reflect/Constructor;
+        70: iconst_0
+        71: anewarray     #25                 // class java/lang/Object
+        74: invokevirtual #52                 // Method java/lang/reflect/Constructor.newInstance:([Ljava/lang/Object;)Ljava/lang/Object;
+        77: dup
+        78: ldc           #54                 // String null cannot be cast to non-null type com.sijunyang.bracketpairguides.comparison.ComparisonHost
+        80: invokestatic  #60                 // Method kotlin/jvm/internal/Intrinsics.checkNotNull:(Ljava/lang/Object;Ljava/lang/String;)V
+        83: checkcast     #62                 // class com/sijunyang/bracketpairguides/comparison/ComparisonHost
+        86: astore_2
+        87: aconst_null
+        88: iconst_1
+        89: aconst_null
+        90: invokestatic  #68                 // Method kotlinx/coroutines/SupervisorKt.SupervisorJob$default:(Lkotlinx/coroutines/Job;ILjava/lang/Object;)Lkotlinx/coroutines/CompletableJob;
+        93: invokestatic  #74                 // Method kotlinx/coroutines/Dispatchers.getDefault:()Lkotlinx/coroutines/CoroutineDispatcher;
+        96: checkcast     #76                 // class kotlin/coroutines/CoroutineContext
+        99: invokeinterface #82,  2           // InterfaceMethod kotlinx/coroutines/CompletableJob.plus:(Lkotlin/coroutines/CoroutineContext;)Lkotlin/coroutines/CoroutineContext;
+       104: invokestatic  #88                 // Method kotlinx/coroutines/CoroutineScopeKt.CoroutineScope:(Lkotlin/coroutines/CoroutineContext;)Lkotlinx/coroutines/CoroutineScope;
+       107: astore_3
+       108: new           #90                 // class java/util/concurrent/atomic/AtomicReference
+       111: dup
+       112: invokespecial #91                 // Method java/util/concurrent/atomic/AtomicReference."<init>":()V
+       115: astore        4
+       117: new           #93                 // class java/util/concurrent/atomic/AtomicBoolean
+       120: dup
+       121: invokespecial #94                 // Method java/util/concurrent/atomic/AtomicBoolean."<init>":()V
+       124: astore        5
+       126: new           #96                 // class com/sijunyang/bracketpairguides/comparison/SdkEvidencePump
+       129: dup
+       130: invokespecial #97                 // Method com/sijunyang/bracketpairguides/comparison/SdkEvidencePump."<init>":()V
+       133: astore        6
+       135: aload_3
+       136: aconst_null
+       137: aconst_null
+       138: new           #99                 // class com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$testSdkComparison$task$1
+       141: dup
+       142: aload_0
+       143: aload_2
+       144: aload         6
+       146: aload         4
+       148: aload         5
+       150: aconst_null
+       151: invokespecial #102                // Method com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$testSdkComparison$task$1."<init>":(Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;Lcom/sijunyang/bracketpairguides/comparison/ComparisonHost;Lcom/sijunyang/bracketpairguides/comparison/SdkEvidencePump;Ljava/util/concurrent/atomic/AtomicReference;Ljava/util/concurrent/atomic/AtomicBoolean;Lkotlin/coroutines/Continuation;)V
+       154: checkcast     #104                // class kotlin/jvm/functions/Function2
+       157: iconst_3
+       158: aconst_null
+       159: invokestatic  #110                // Method kotlinx/coroutines/BuildersKt.launch$default:(Lkotlinx/coroutines/CoroutineScope;Lkotlin/coroutines/CoroutineContext;Lkotlinx/coroutines/CoroutineStart;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lkotlinx/coroutines/Job;
+       162: astore        7
+       164: nop
+       165: aload         6
+       167: ldc2_w        #111                // long 600l
+       170: new           #114                // class com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$testSdkComparison$2
+       173: dup
+       174: aload         5
+       176: invokespecial #117                // Method com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$testSdkComparison$2."<init>":(Ljava/util/concurrent/atomic/AtomicBoolean;)V
+       179: checkcast     #119                // class kotlin/jvm/functions/Function0
+       182: invokevirtual #123                // Method com/sijunyang/bracketpairguides/comparison/SdkEvidencePump.await:(JLkotlin/jvm/functions/Function0;)V
+       185: aload         4
+       187: invokevirtual #127                // Method java/util/concurrent/atomic/AtomicReference.get:()Ljava/lang/Object;
+       190: checkcast     #129                // class java/lang/Throwable
+       193: astore        8
+       195: aload         8
+       197: ifnull        219
+       200: aload         8
+       202: astore        9
+       204: iconst_0
+       205: istore        10
+       207: new           #131                // class java/lang/AssertionError
+       210: dup
+       211: ldc           #133                // String SDK comparison failed
+       213: aload         9
+       215: invokespecial #136                // Method java/lang/AssertionError."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+       218: athrow
+       219: aload         7
+       221: aconst_null
+       222: iconst_1
+       223: aconst_null
+       224: invokestatic  #142                // Method kotlinx/coroutines/Job$DefaultImpls.cancel$default:(Lkotlinx/coroutines/Job;Ljava/util/concurrent/CancellationException;ILjava/lang/Object;)V
+       227: aload_3
+       228: aconst_null
+       229: iconst_1
+       230: aconst_null
+       231: invokestatic  #145                // Method kotlinx/coroutines/CoroutineScopeKt.cancel$default:(Lkotlinx/coroutines/CoroutineScope;Ljava/util/concurrent/CancellationException;ILjava/lang/Object;)V
+       234: ldc           #147                // String SDK comparison cleanup
+       236: aload         7
+       238: invokedynamic #165,  0            // InvokeDynamic #0:getAsBoolean:(Lkotlinx/coroutines/Job;)Ljava/util/function/BooleanSupplier;
+       243: bipush        30
+       245: invokestatic  #171                // Method com/intellij/testFramework/PlatformTestUtil.waitWithEventsDispatching:(Ljava/lang/String;Ljava/util/function/BooleanSupplier;I)V
+       248: goto          285
+       251: astore        8
+       253: aload         7
+       255: aconst_null
+       256: iconst_1
+       257: aconst_null
+       258: invokestatic  #142                // Method kotlinx/coroutines/Job$DefaultImpls.cancel$default:(Lkotlinx/coroutines/Job;Ljava/util/concurrent/CancellationException;ILjava/lang/Object;)V
+       261: aload_3
+       262: aconst_null
+       263: iconst_1
+       264: aconst_null
+       265: invokestatic  #145                // Method kotlinx/coroutines/CoroutineScopeKt.cancel$default:(Lkotlinx/coroutines/CoroutineScope;Ljava/util/concurrent/CancellationException;ILjava/lang/Object;)V
+       268: ldc           #147                // String SDK comparison cleanup
+       270: aload         7
+       272: invokedynamic #165,  0            // InvokeDynamic #0:getAsBoolean:(Lkotlinx/coroutines/Job;)Ljava/util/function/BooleanSupplier;
+       277: bipush        30
+       279: invokestatic  #171                // Method com/intellij/testFramework/PlatformTestUtil.waitWithEventsDispatching:(Ljava/lang/String;Ljava/util/function/BooleanSupplier;I)V
+       282: aload         8
+       284: athrow
+       285: return
+      Exception table:
+         from    to  target type
+           164   219   251   any
+           251   253   251   any
+      StackMapTable: number_of_entries = 7
+        frame_type = 12 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 19 /* same */
+        frame_type = 88 /* same_locals_1_stack_item */
+          stack = [ class java/lang/String ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 160
+          locals = [ class com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest, class java/lang/String, class com/sijunyang/bracketpairguides/comparison/ComparisonHost, class kotlinx/coroutines/CoroutineScope, class java/util/concurrent/atomic/AtomicReference, class java/util/concurrent/atomic/AtomicBoolean, class com/sijunyang/bracketpairguides/comparison/SdkEvidencePump, class kotlinx/coroutines/Job, class java/lang/Throwable ]
+          stack = []
+        frame_type = 255 /* full_frame */
+          offset_delta = 31
+          locals = [ class com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest, class java/lang/String, class com/sijunyang/bracketpairguides/comparison/ComparisonHost, class kotlinx/coroutines/CoroutineScope, class java/util/concurrent/atomic/AtomicReference, class java/util/concurrent/atomic/AtomicBoolean, class com/sijunyang/bracketpairguides/comparison/SdkEvidencePump, class kotlinx/coroutines/Job ]
+          stack = [ class java/lang/Throwable ]
+        frame_type = 252 /* append */
+          offset_delta = 33
+          locals = [ class java/lang/Throwable ]
+      LineNumberTable:
+        line 40: 0
+        line 550: 16
+        line 40: 18
+        line 40: 20
+        line 41: 33
+        line 41: 58
+        line 42: 59
+        line 43: 87
+        line 44: 108
+        line 45: 117
+        line 46: 126
+        line 47: 135
+        line 57: 164
+        line 58: 165
+        line 59: 185
+        line 550: 204
+        line 59: 207
+        line 61: 219
+        line 62: 234
+        line 63: 248
+        line 61: 251
+        line 62: 268
+        line 64: 285
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           18       2     2 $i$a$-check-SdkComparisonMeasurementTest$testSdkComparison$1   I
+          207      12    10 $i$a$-let-SdkComparisonMeasurementTest$testSdkComparison$3   I
+          204      15     9    it   Ljava/lang/Throwable;
+           59     227     1 hostName   Ljava/lang/String;
+           87     199     2  host   Lcom/sijunyang/bracketpairguides/comparison/ComparisonHost;
+          108     178     3 scope   Lkotlinx/coroutines/CoroutineScope;
+          117     169     4 failure   Ljava/util/concurrent/atomic/AtomicReference;
+          126     160     5 complete   Ljava/util/concurrent/atomic/AtomicBoolean;
+          135     151     6  pump   Lcom/sijunyang/bracketpairguides/comparison/SdkEvidencePump;
+          164     122     7  task   Lkotlinx/coroutines/Job;
+            0     286     0  this   Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;
+
+  private static final boolean testSdkComparison$lambda$2(kotlinx.coroutines.Job);
+    descriptor: (Lkotlinx/coroutines/Job;)Z
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokeinterface #199,  1          // InterfaceMethod kotlinx/coroutines/Job.isCompleted:()Z
+         6: ireturn
+      LineNumberTable:
+        line 62: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       7     0 $task   Lkotlinx/coroutines/Job;
+
+  public static final com.intellij.testFramework.fixtures.CodeInsightTestFixture access$getMyFixture$p$s790461483(com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest);
+    descriptor: (Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;)Lcom/intellij/testFramework/fixtures/CodeInsightTestFixture;
+    flags: (0x1019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL, ACC_SYNTHETIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #206                // Field myFixture:Lcom/intellij/testFramework/fixtures/CodeInsightTestFixture;
+         4: areturn
+      LineNumberTable:
+        line 38: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0 $this   Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;
+
+  public static final com.intellij.openapi.project.Project access$getProject(com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest);
+    descriptor: (Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;)Lcom/intellij/openapi/project/Project;
+    flags: (0x1019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL, ACC_SYNTHETIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokevirtual #213                // Method getProject:()Lcom/intellij/openapi/project/Project;
+         4: areturn
+      LineNumberTable:
+        line 38: 1
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0 $this   Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;
+}
+InnerClasses:
+  private final #227= #230 of #2;         // Fixture=class com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$Fixture of class com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest
+  static final #99;                       // class com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$testSdkComparison$task$1
+  static final #114;                      // class com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$testSdkComparison$2
+  public static final #231= #138 of #196; // DefaultImpls=class kotlinx/coroutines/Job$DefaultImpls of class kotlinx/coroutines/Job
+SourceFile: "SdkComparisonMeasurementTest.kt"
+SourceDebugExtension:
+  SMAP
+  SdkComparisonMeasurementTest.kt
+  Kotlin
+  *S Kotlin
+  *F
+  + 1 SdkComparisonMeasurementTest.kt
+  com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest
+  + 2 fake.kt
+  kotlin/jvm/internal/FakeKt
+  *L
+  1#1,549:1
+  1#2:550
+  *E
+RuntimeVisibleAnnotations:
+  0: #214(#215=[I#216,I#217,I#218],#219=I#216,#220=I#221,#222=[s#223],#224=[s#10,s#225,s#6,s#11,s#226,s#227,s#228])
+    kotlin.Metadata(
+      mv=[1,9,0]
+      k=1
+      xi=48
+      d1=["\u0000\u0014\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\u0002\n\u0002\b\u0002\u0018\u00002\u00020\u0001:\u0001\u0005B\u0005¢\u0006\u0002\u0010\u0002J\u0006\u0010\u0003\u001a\u00020\u0004¨\u0006\u0006"]
+      d2=["Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;","Lcom/intellij/testFramework/fixtures/BasePlatformTestCase;","()V","testSdkComparison","","Fixture","bracket-pair-guides_test"]
+    )
+RuntimeInvisibleAnnotations:
+  0: #233(#234=[s#235])
+    kotlin.jvm.internal.SourceDebugExtension(
+      value=["SMAP\nSdkComparisonMeasurementTest.kt\nKotlin\n*S Kotlin\n*F\n+ 1 SdkComparisonMeasurementTest.kt\ncom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n*L\n1#1,549:1\n1#2:550\n*E\n"]
+    )
+BootstrapMethods:
+  0: #161 REF_invokeStatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+    Method arguments:
+      #149 ()Z
+      #154 REF_invokeStatic com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest.testSdkComparison$lambda$2:(Lkotlinx/coroutines/Job;)Z
+      #149 ()Z

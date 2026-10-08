@@ -53,7 +53,7 @@ final class PairingMachine<T, G> {
                 maximumPendingOpens);
     }
 
-    public final class Session {
+    final class Session {
         private final PairSink sink;
         private final CancellationProbe cancellation;
         private final int maximumPendingOpens;

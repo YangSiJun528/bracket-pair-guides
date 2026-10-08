@@ -1,5 +1,6 @@
 package com.sijunyang.bracketpairguides.runtime.session
 
+import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.EditorFactory
@@ -161,6 +162,74 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
         settle()
         assertEquals(count, entered.get())
         assertEquals(1, publications)
+    }
+    fun testSharedDocumentEditorsKeepIndependentPublicationAndCloseLifetimes() {
+        open()
+        work.close()
+        val editors = EditorFactory.getInstance()
+        val document = myFixture.editor.document
+        val editorA = editors.createEditor(document, project, JavaFileType.INSTANCE, false)
+        val editorB = editors.createEditor(document, project, JavaFileType.INSTANCE, false)
+        var publishedA = 0
+        var publishedB = 0
+        var latestA: AnalysisUpdate? = null
+        var latestB: AnalysisUpdate? = null
+        fun view(receive: (AnalysisUpdate) -> Unit): GuideView = object : GuideView {
+            override fun applyAnalysis(update: AnalysisUpdate): ViewApplication {
+                assertTrue(ApplicationManager.getApplication().isDispatchThread)
+                receive(update)
+                return ViewApplication.APPLIED
+            }
+            override fun applyRepair(update: RepairUpdate) = ViewApplication.APPLIED
+            override fun reportNativeConflict(evidence: NativeConflictEvidence) = Unit
+        }
+        val workA = factory.attach(
+            editorA,
+            view {
+                publishedA++
+                latestA = it
+            },
+        )
+        val workB = factory.attach(
+            editorB,
+            view {
+                publishedB++
+                latestB = it
+            },
+        )
+        try {
+            permanentJobs = descendants(parentJob)
+            workA.reconcile(initial)
+            workB.reconcile(initial)
+            await { publishedA == 1 && publishedB == 1 }
+            settle()
+            for (update in listOf(checkNotNull(latestA), checkNotNull(latestB))) {
+                val lookup = (update.result as AnalysisResult.Available).view
+                assertEquals(8, checkNotNull(lookup.activePairAt(10)).openOffset)
+            }
+            workA.close()
+            editors.releaseEditor(editorA)
+            assertTrue(editorA.isDisposed)
+            WriteCommandAction.runWriteCommandAction(project) { document.insertString(0, "/*new*/") }
+            workB.reconcile(initial.copy(revision = 1, guideRevision = 1, change = GuideChange.CONTENT))
+            workA.refresh()
+            await { publishedB == 2 }
+            settle()
+            assertEquals(1, publishedA)
+            assertEquals(1L, checkNotNull(latestB).demandRevision)
+            val lookup = (checkNotNull(latestB).result as AnalysisResult.Available).view
+            assertEquals(15, checkNotNull(lookup.activePairAt(17)).openOffset)
+        } finally {
+            workA.close()
+            workB.close()
+            if (!editorA.isDisposed) editors.releaseEditor(editorA)
+            editors.releaseEditor(editorB)
+            Disposer.dispose(factory)
+            await { parentJob.children.none() }
+        }
+        assertTrue(editorB.isDisposed)
+        assertEquals(1, publishedA)
+        assertEquals(2, publishedB)
     }
     fun testDocumentGenerationSurvivesStampResetAndDormantReacquire() {
         open()

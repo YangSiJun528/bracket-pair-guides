@@ -1,0 +1,54 @@
+{
+  "recordedUtc": "2026-10-08T09:48:43.421401+00:00",
+  "rootBuildStatus": "SDK comparison harness compile failed; full TestKit still running",
+  "suites": [
+    {
+      "module": "analysis-model",
+      "task": "test",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "analysis-core",
+      "task": "test",
+      "tests": 41,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "editor-ui",
+      "task": "test",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "analysis-runtime",
+      "task": "test",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "plugin",
+      "task": "test",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "plugin",
+      "task": "minimumSdkTests",
+      "tests": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ]
+}

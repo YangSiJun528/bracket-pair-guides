@@ -18,4 +18,18 @@ gradlePlugin {
     }
 }
 java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
-tasks.test { systemProperty("repository.root", rootDir.parentFile.absolutePath) }
+// Match CompilationBoundaryTest.copyRealBuild: only source/configuration files,
+// never recursive build outputs, native caches, or generated verification evidence.
+val realBuildFixture = fileTree(rootDir.parentFile) {
+    listOf(".git", ".gradle", ".kotlin", ".intellijPlatform", ".qodana", "build", "outputs", ".idea")
+        .forEach { excludedName ->
+            exclude("**/$excludedName", "**/$excludedName/**")
+        }
+}
+
+tasks.test {
+    systemProperty("repository.root", rootDir.parentFile.absolutePath)
+    inputs.files(realBuildFixture)
+        .withPropertyName("realBuildFixture")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+}

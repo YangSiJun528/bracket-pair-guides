@@ -1,0 +1,23 @@
+{
+  "recordedUtc": "2026-10-08T10:39:00.736312+00:00",
+  "scope": "Source checkpoint before final rendering/static/performance validation",
+  "passed": [
+    "full-check-04 root134",
+    "standalone SDK-free45",
+    "minimum SDK29",
+    "current SDK29 exactsamecaseidentity, IU263.6259.32/JBR25.0.4.1",
+    "release/visual archive byte separation"
+  ],
+  "pending": [
+    "latest two Qodana style fixes and new Driver daemon-readiness source rerun",
+    "final positive Driver and painting mutation",
+    "strict IDE verifier matrix",
+    "formal paired measurements"
+  ],
+  "preservedFailures": [
+    "Qodana01 74, Qodana02 2",
+    "Drivercompare07 horizontal-only569 text pixels; allother11 exact",
+    "SDKsetup05 candidate rejected non-SHA sourceRevision before measurement; baseline first workloadpassed; no formal timings"
+  ],
+  "noRemoteActions": true
+}

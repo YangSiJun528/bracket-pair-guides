@@ -2,6 +2,8 @@ package com.sijunyang.bracketpairguides.core
 
 import com.sijunyang.bracketpairguides.core.api.BracketCalculator
 import com.sijunyang.bracketpairguides.core.input.BracketInput
+import com.sijunyang.bracketpairguides.core.input.PrefixBatch
+import com.sijunyang.bracketpairguides.core.input.RepairRequest
 import com.sijunyang.bracketpairguides.core.input.StructuralRole
 import com.sijunyang.bracketpairguides.core.input.TokenBatch
 import com.sijunyang.bracketpairguides.core.input.TokenGroup
@@ -51,6 +53,44 @@ class InputBoundaryContractTest {
         assertThat(calculate(input(0) { batch(0, true) })).isInstanceOf(AnalysisResult.Available::class.java)
     }
 
+    @Test fun fullGuideCaptureRejectsBeyondDocumentPrefixesWithoutPoisoningCanonicalReuse() = runBlocking<Unit> {
+        val calculator = BracketCalculator()
+        val source = RecordedInput("{\n  x\n}")
+        val coverage = AnalysisCoverage(true, true, true)
+        val initial = calculator.analyze(source, coverage, coroutineControl()) as AnalysisResult.Available
+        val pair = checkNotNull(initial.view.activePairAt(1))
+        val expected = checkNotNull(initial.view.guideFor(pair))
+
+        rejects { calculator.analyze(beyondDocumentPrefixes(source), coverage, coroutineControl()) }
+
+        val accepted = calculator.analyze(source, coverage, coroutineControl()) as AnalysisResult.Available
+        assertThat(accepted.view.guideFor(pair)).isEqualTo(expected)
+        assertThat(accepted.view.visibleTokens(OffsetRange(0, source.text.length), 1, 10).size).isEqualTo(2)
+    }
+
+    @Test fun repairRejectsBeyondDocumentPrefixesWithoutPublishingGeometry() = runBlocking<Unit> {
+        val calculator = BracketCalculator()
+        val source = RecordedInput("{\n  x\n}")
+        val accepted = calculator.analyze(
+            source,
+            AnalysisCoverage(true, true, true),
+            coroutineControl(),
+        ) as AnalysisResult.Available
+        val pair = checkNotNull(accepted.view.activePairAt(1))
+        val request = RepairRequest(pair, exact = true)
+
+        rejects { calculator.repair(beyondDocumentPrefixes(source), request, coroutineControl()) }
+
+        assertThat(calculator.repair(source, request, coroutineControl())).isEqualTo(accepted.view.guideFor(pair))
+    }
+
+    private fun beyondDocumentPrefixes(source: RecordedInput): BracketInput = object : BracketInput by source {
+        override suspend fun initialPrefixes(firstLine: Int, lineCount: Int): PrefixBatch {
+            val batch = source.initialPrefixes(firstLine, lineCount)
+            return PrefixBatch(batch.firstLine, batch.prefixes.map { it.copy(lineEndOffset = source.text.length + 1) })
+        }
+    }
+
     private fun input(length: Int, capture: (Int) -> TokenBatch): BracketInput =
         object : BracketInput by RecordedInput("x".repeat(length)) {
             override suspend fun tokensAt(offset: Int) = capture(offset)
@@ -73,10 +113,12 @@ class InputBoundaryContractTest {
         coroutineControl(),
     )
 
-    private suspend fun rejects(input: BracketInput) {
+    private suspend fun rejects(input: BracketInput) = rejects { calculate(input) }
+
+    private suspend fun rejects(operation: suspend () -> Unit) {
         var observed: Throwable? = null
         try {
-            calculate(input)
+            operation()
         } catch (failure: Throwable) {
             observed = failure
         }

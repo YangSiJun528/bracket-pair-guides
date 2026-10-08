@@ -31,18 +31,16 @@ internal class IndexedBracketView(private val indexes: BracketIndexes) : Bracket
     override fun visibleTokens(range: OffsetRange, focus: Int, maximum: Int): TokenWindow {
         val startOffset = range.startOffset
         val endOffset = range.endOffset
-        val focusOffset = focus
-        val limit = maximum
         require(startOffset in 0..endOffset) {
             "Visible token range must be nonnegative and ordered"
         }
-        require(limit > 0) { "Visible token limit must be positive" }
+        require(maximum > 0) { "Visible token limit must be positive" }
 
         val tokenIndex = indexes.tokens
         val firstCandidate = tokenIndex.firstIndexInRange(startOffset)
         val lastCandidate = tokenIndex.firstIndexAtOrAfter(endOffset)
         val candidateCount = lastCandidate - firstCandidate
-        if (candidateCount <= limit) {
+        if (candidateCount <= maximum) {
             return IndexedTokenWindow(
                 tokenIndex = tokenIndex,
                 firstIndex = firstCandidate,
@@ -55,18 +53,18 @@ internal class IndexedBracketView(private val indexes: BracketIndexes) : Bracket
 
         val focusIndex =
             tokenIndex
-                .firstIndexAtOrAfter(focusOffset)
+                .firstIndexAtOrAfter(focus)
                 .coerceIn(firstCandidate, lastCandidate)
-        var firstSelected = (focusIndex - limit / 2).coerceAtLeast(firstCandidate)
+        var firstSelected = (focusIndex - maximum / 2).coerceAtLeast(firstCandidate)
         val lastSelected =
             minOf(
-                firstSelected.toLong() + limit,
+                firstSelected.toLong() + maximum,
                 lastCandidate.toLong(),
             ).toInt()
-        firstSelected = (lastSelected - limit).coerceAtLeast(firstCandidate)
+        firstSelected = (lastSelected - maximum).coerceAtLeast(firstCandidate)
 
         val selectedFocusIndex = focusIndex.coerceIn(firstSelected, lastSelected - 1)
-        val tolerance = limit / 4
+        val tolerance = maximum / 4
         val stableFirstIndex =
             (selectedFocusIndex - tolerance)
                 .coerceAtLeast(firstSelected)

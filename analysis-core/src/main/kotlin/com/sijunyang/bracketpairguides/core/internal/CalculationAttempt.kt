@@ -28,7 +28,7 @@ internal class CalculationAttempt(private val control: CalculationControl) {
             DocumentBracketRecognition.Complete(PairTable.empty(), BraceMatcherAvailability.UNDETERMINED)
         }
         val prepared = SnapshotCalculation.prepare(coverage, recognition, facts.length, facts.lineCount, checkCanceled)
-        val guides = prepared.guideLines?.let { buildGuides(input, it, facts.tabSize) }
+        val guides = prepared.guideLines?.let { buildGuides(input, it, facts.tabSize, facts.length) }
         val calculated = prepared.finish(guides)
         input.validateCurrent()
         control.checkCanceled()
@@ -124,7 +124,12 @@ internal class CalculationAttempt(private val control: CalculationControl) {
         }
     }
 
-    private suspend fun buildGuides(input: LineInput, lines: IntRange, tabSize: Int): GuidePositionIndex {
+    private suspend fun buildGuides(
+        input: LineInput,
+        lines: IntRange,
+        tabSize: Int,
+        documentLength: Int,
+    ): GuidePositionIndex {
         val builder = checkNotNull(GuidePositionIndex.builder(lines.first, lines.last - lines.first + 1, checkCanceled))
         var firstLine = lines.first
         while (firstLine <= lines.last) {
@@ -133,7 +138,7 @@ internal class CalculationAttempt(private val control: CalculationControl) {
             val batch = input.initialPrefixes(firstLine, count)
             require(batch.firstLine == firstLine && batch.prefixes.size == count)
             for ((relative, prefix) in batch.prefixes.withIndex()) {
-                require(prefix.text.length <= 128)
+                require(prefix.text.length <= 128 && prefix.lineEndOffset <= documentLength)
                 val indentation = LineIndentation(tabSize, checkCanceled)
                 var current = prefix
                 indentation.append(current.text, current.endOfLine)
@@ -187,7 +192,7 @@ internal class CalculationAttempt(private val control: CalculationControl) {
             val batch = input.initialPrefixes(line, 1)
             require(batch.firstLine == line && batch.prefixes.size == 1)
             var prefix = batch.prefixes.single()
-            require(prefix.text.length <= 128)
+            require(prefix.text.length <= 128 && prefix.lineEndOffset <= facts.length)
             while (!calculation.append(prefix.text, prefix.endOfLine)) {
                 control.checkCanceled()
                 prefix = continuation(input, line, prefix)
@@ -200,7 +205,7 @@ internal class CalculationAttempt(private val control: CalculationControl) {
     }
 
     private companion object {
-        val ROLES: Array<BracketRole> = BracketRole.values()
-        val STRUCTURAL: Array<StructuralRole> = StructuralRole.values()
+        val ROLES: Array<BracketRole> = BracketRole.entries.toTypedArray()
+        val STRUCTURAL: Array<StructuralRole> = StructuralRole.entries.toTypedArray()
     }
 }

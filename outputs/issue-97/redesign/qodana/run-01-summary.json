@@ -1,0 +1,39 @@
+{
+  "observedUtc": "2026-10-08T09:36:39.712720+00:00",
+  "candidateCommit": "a89e9731c5a3b40ec8bcccac40b9617f4101fc10",
+  "exitCode": 255,
+  "failThreshold": 0,
+  "results": 74,
+  "byRule": {
+    "AssignedValueIsNeverRead": 2,
+    "BlockingMethodInNonBlockingContext": 4,
+    "ClassEscapesItsScope": 5,
+    "ConvertLongToDuration": 14,
+    "ConvertTwoComparisonsToRangeCheck": 3,
+    "DestructuringDeclaration": 2,
+    "EnumValuesSoftDeprecate": 2,
+    "HasPlatformType": 3,
+    "JavaIoSerializableObjectMustHaveReadResolve": 1,
+    "KotlinConstantConditions": 3,
+    "KotlinDeprecation": 10,
+    "KotlinUnusedImport": 5,
+    "ObjectInheritsException": 1,
+    "RedundantRequireNotNullCall": 1,
+    "RemoveExplicitTypeArguments": 1,
+    "RemoveRedundantQualifierName": 4,
+    "UnnecessaryVariable": 2,
+    "UnstableApiUsage": 1,
+    "UnusedSymbol": 9,
+    "UsePropertyAccessSyntax": 1
+  },
+  "byModule": {
+    "analysis-core": 9,
+    "analysis-model": 1,
+    "analysis-runtime": 11,
+    "benchmarks": 1,
+    "editor-ui": 7,
+    "plugin": 45
+  },
+  "sarif": "outputs/issue-97/redesign/qodana/local/results.xhnCdG/qodana.sarif.json",
+  "status": "failed; disjoint source fixes delegated; no rules or thresholds changed"
+}

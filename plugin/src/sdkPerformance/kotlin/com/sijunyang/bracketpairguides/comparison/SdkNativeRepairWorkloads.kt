@@ -2,51 +2,52 @@ package com.sijunyang.bracketpairguides.comparison
 
 import com.intellij.openapi.application.EDT
 import java.security.MessageDigest
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /** Fresh shared operations. The old timing harness is not used by these comparisons. */
 suspend fun ComparisonFixture.runRepairWorkload() {
-    for (corpus in repairCorpora()) {
-        val editor = editor("RepairMeasure.java", corpus.text)
+    for ((name, text, editOffset, candidateLines, consumedPrefixCharacters, refuses, column) in repairCorpora()) {
+        val editor = editor("RepairMeasure.java", text)
         try {
             withContext(Dispatchers.EDT) { editor.settings.setTabSize(4) }
             val result = host.analyze(editor, "all")
-            val pair = checkNotNull(result.sample(corpus.editOffset))
-            check(pair.open == 0 && pair.close == corpus.text.lastIndex)
-            emit("kind" to "corpus", "workload" to "repair", "corpus" to corpus.name,
-                "sha256Utf8" to fingerprint(corpus.text), "filename" to "RepairMeasure.java",
-                "characters" to corpus.text.length,
-                "tabSize" to 4, "candidateLines" to corpus.candidateLines,
-                "consumedPrefixCharacters" to corpus.consumedPrefixCharacters,
+            val pair = checkNotNull(result.sample(editOffset))
+            check(pair.open == 0 && pair.close == text.lastIndex)
+            emit("kind" to "corpus", "workload" to "repair", "corpus" to name,
+                "sha256Utf8" to fingerprint(text), "filename" to "RepairMeasure.java",
+                "characters" to text.length,
+                "tabSize" to 4, "candidateLines" to candidateLines,
+                "consumedPrefixCharacters" to consumedPrefixCharacters,
                 "lineLimit" to 256, "characterLimit" to 32768,
-                "expectedRefusal" to corpus.refuses, "expectedGuideColumn" to corpus.column,
+                "expectedRefusal" to refuses, "expectedGuideColumn" to column,
                 "scope" to "actual direct worker repair including source capture; UI hide/enqueue/publication excluded",
-                "sameLineScope" to if (corpus.candidateLines == 0)
+                "sameLineScope" to if (candidateLines == 0)
                     "direct worker API; original UI special case does not schedule a worker" else null,
                 "readBodyCoverage" to "baseline repair has no read observer; worker wall is not read hold time")
             repeat(warmups + repeats) { index ->
                 // Same one-character whitespace edit as the original boundary corpora; offsets stay fixed.
-                edit(editor, corpus.editOffset, 1, if (index % 2 == 0) "\t" else " ")
+                edit(editor, editOffset, 1, if (index % 2 == 0) "\t" else " ")
                 val repaired = if (index < warmups) {
-                    host.repair(editor, result, corpus.editOffset, true)
+                    host.repair(editor, result, editOffset, true)
                 } else {
-                    measure("repair", corpus.name, index - warmups,
+                    measure("repair", name, index - warmups,
                         mapOf("exact" to true, "tabbed" to (index % 2 == 0),
-                            "expectedRefusal" to corpus.refuses)) {
-                        host.repair(editor, result, corpus.editOffset, true)
+                            "expectedRefusal" to refuses)) {
+                        host.repair(editor, result, editOffset, true)
                     }
                 }
-                check((repaired == null) == corpus.refuses) {
-                    "Repair budget behavior changed for ${corpus.name}: $repaired"
+                check((repaired == null) == refuses) {
+                    "Repair budget behavior changed for $name: $repaired"
                 }
                 if (repaired != null) {
-                    check(repaired.pair == pair && repaired.guideColumn == corpus.column) {
-                        "Repair geometry changed for ${corpus.name}: $repaired"
+                    check(repaired.pair == pair && repaired.guideColumn == column) {
+                        "Repair geometry changed for $name: $repaired"
                     }
                 }
                 if (index >= warmups) emit("kind" to "result", "workload" to "repair",
-                    "corpus" to corpus.name, "iteration" to index - warmups,
+                    "corpus" to name, "iteration" to index - warmups,
                     "refused" to (repaired == null), "guideColumn" to repaired?.guideColumn,
                     "pair" to repaired?.pair)
             }
@@ -66,29 +67,29 @@ suspend fun ComparisonFixture.runNativeWorkload() {
         NativeCorpus("large-java-lazy", "NativeLazyMeasure.java", java, methodOpen, javaCarets, true),
         NativeCorpus("large-xml", "NativeMeasure.xml", xml, 0, listOf("direct" to 0)),
     )
-    for (corpus in corpora) {
-        val editor = editor(corpus.filename, corpus.text)
+    for ((name, filename, text, pairOffset, carets, forceLazy) in corpora) {
+        val editor = editor(filename, text)
         try {
             withContext(Dispatchers.EDT) { editor.settings.isBlockCursor = false }
-            if (corpus.forceLazy) forceNativeLazyLanguage(editor, corpus.pairOffset)
+            if (forceLazy) forceNativeLazyLanguage(editor, pairOffset)
             val result = host.analyze(editor, "all")
             // BracketView uses strict containment; query inside the original requested opener.
-            val pairLookupOffset = corpus.pairOffset + 1
+            val pairLookupOffset = pairOffset + 1
             val pair = checkNotNull(result.sample(pairLookupOffset)) {
-                "No original native pair: corpus=${corpus.name}, expectedOpen=${corpus.pairOffset}, lookup=$pairLookupOffset"
+                "No original native pair: corpus=$name, expectedOpen=$pairOffset, lookup=$pairLookupOffset"
             }
-            check(pair.open == corpus.pairOffset) {
-                "Wrong native pair: corpus=${corpus.name}, expectedOpen=${corpus.pairOffset}, lookup=$pairLookupOffset, actual=$pair"
+            check(pair.open == pairOffset) {
+                "Wrong native pair: corpus=$name, expectedOpen=$pairOffset, lookup=$pairLookupOffset, actual=$pair"
             }
-            emit("kind" to "corpus", "workload" to "native", "corpus" to corpus.name,
-                "sha256Utf8" to fingerprint(corpus.text), "filename" to corpus.filename,
-                "characters" to corpus.text.length, "pairOffset" to corpus.pairOffset,
+            emit("kind" to "corpus", "workload" to "native", "corpus" to name,
+                "sha256Utf8" to fingerprint(text), "filename" to filename,
+                "characters" to text.length, "pairOffset" to pairOffset,
                 "pairLookupOffset" to pairLookupOffset, "pair" to pair,
-                "forcedLazyLanguageBranch" to corpus.forceLazy,
+                "forcedLazyLanguageBranch" to forceLazy,
                 "scope" to "actual SDK native source resolver; analysis, setup, UI eligibility and painting excluded")
-            for ((mode, caret) in corpus.carets) {
+            for ((mode, caret) in carets) {
                 repeat(warmups) { host.native(editor, result, pairLookupOffset, caret, true) }
-                val writers = if (corpus.forceLazy) listOf("none", "late-traversal", "late-lazy-lexer")
+                val writers = if (forceLazy) listOf("none", "late-traversal", "late-lazy-lexer")
                     else listOf("none", "late-traversal")
                 for (writer in writers) {
                   var witnessedWriterInsideRead = 0
@@ -100,8 +101,8 @@ suspend fun ComparisonFixture.runNativeWorkload() {
                     try {
                         probe.installLazyLexer(editor)
                         try {
-                            resolved = measure("native", "${corpus.name}:$mode", index,
-                                mapOf("mode" to mode, "writerMode" to writer, "pairOffset" to corpus.pairOffset,
+                            resolved = measure("native", "$name:$mode", index,
+                                mapOf("mode" to mode, "writerMode" to writer, "pairOffset" to pairOffset,
                                     "pairLookupOffset" to pairLookupOffset,
                                     "caretOffset" to caret, "resolveCurrentScope" to true), reads) {
                                 try { host.native(editor, result, pairLookupOffset, caret, true) }
@@ -115,7 +116,7 @@ suspend fun ComparisonFixture.runNativeWorkload() {
                         if (resolved != null) {
                             check(resolved.available && resolved.directMarkers in 0..1 && resolved.scopeMarkers in 0..1)
                         }
-                        emit("kind" to "result", "workload" to "native", "corpus" to "${corpus.name}:$mode",
+                        emit("kind" to "result", "workload" to "native", "corpus" to "$name:$mode",
                             "iteration" to index, "writerMode" to writer, "writer" to writerEvidence,
                             "actualResolverCalled" to resolved?.available,
                             "directMarkers" to resolved?.directMarkers, "scopeMarkers" to resolved?.scopeMarkers,
@@ -124,26 +125,28 @@ suspend fun ComparisonFixture.runNativeWorkload() {
                         resolutionFailure?.let { throw it }
                         if (writer == "none") {
                             check(resolutionFailure == null && resolved?.available == true)
-                            val completed = checkNotNull(resolved)
-                            if (corpus.forceLazy) check(reads.snapshot().any { it.phase == "native-preparation" }) {
+                            // Language 1.9 does not infer resolved's non-nullability from the compound check above.
+                            @Suppress("RedundantRequireNotNullCall")
+                            val observed = checkNotNull(resolved)
+                            if (forceLazy) check(reads.snapshot().any { it.phase == "native-preparation" }) {
                                 "Forced lazy setup did not exercise an actual preparation read body"
                             }
-                            check(if (mode == "scope") completed.scopeMarkers == 1 else completed.directMarkers == 1) {
-                                "Expected actual native marker proof for ${corpus.name}:$mode"
+                            check(if (mode == "scope") observed.scopeMarkers == 1 else observed.directMarkers == 1) {
+                                "Expected actual native marker proof for $name:$mode"
                             }
                         }
                     } finally {
-                        kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
+                        withContext(NonCancellable) {
                             try { probe.finish() }
                             finally { withContext(Dispatchers.EDT) { probe.close() } }
                         }
                     }
                   }
-                  emit("kind" to "native-control-coverage", "corpus" to "${corpus.name}:$mode",
+                  emit("kind" to "native-control-coverage", "corpus" to "$name:$mode",
                       "writerMode" to writer, "attemptedSamples" to repeats,
                       "samplesWithActualWriterInsideTriggeredPhase" to witnessedWriterInsideRead)
                   if (writer != "none") check(witnessedWriterInsideRead > 0) {
-                      "No actual triggered-phase read/write overlap observed for ${corpus.name}:$mode:$writer; raw misses retained"
+                      "No actual triggered-phase read/write overlap observed for $name:$mode:$writer; raw misses retained"
                   }
                 }
             }

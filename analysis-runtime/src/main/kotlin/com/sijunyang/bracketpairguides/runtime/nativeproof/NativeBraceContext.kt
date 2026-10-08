@@ -11,7 +11,6 @@ package com.sijunyang.bracketpairguides.runtime.nativeproof
 
 import com.intellij.codeInsight.highlighting.BraceMatchingUtil
 import com.intellij.openapi.editor.Document
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.highlighter.EditorHighlighter
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.editor.markup.TextAttributes
@@ -22,31 +21,6 @@ import com.intellij.psi.tree.IElementType
 /** Native candidate order and navigation semantics; all host callbacks occur under caller-owned read access. */
 internal object NativeBraceContext {
     data class Context(val currentBraceOffset: Int, val navigationOffset: Int)
-
-    fun compute(
-        editor: Editor,
-        file: PsiFile,
-        caretOffset: Int,
-        blockCursor: Boolean,
-        checkCanceled: () -> Unit,
-    ): Context? {
-        checkCanceled()
-        if (!file.isValid) return null
-        val source = NativeLazyHighlighter.prepare(editor, file, caretOffset, checkCanceled)
-        checkCanceled()
-        val session = begin(source, file, editor.document.charsSequence, caretOffset, blockCursor, checkCanceled)
-        while (true) {
-            if (session.advance(
-                    editor.document.charsSequence,
-                    NativeBraceMatching.WorkBudget.unlimited(),
-                    checkCanceled,
-                )
-            ) {
-                break
-            }
-        }
-        return session.result()
-    }
 
     fun begin(
         source: EditorHighlighter,

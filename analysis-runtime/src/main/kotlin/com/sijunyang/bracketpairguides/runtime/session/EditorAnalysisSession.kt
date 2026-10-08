@@ -14,7 +14,6 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.SingleRootFileViewProvider
-import com.sijunyang.bracketpairguides.core.api.BracketCalculator
 import com.sijunyang.bracketpairguides.core.input.CalculationControl
 import com.sijunyang.bracketpairguides.core.input.RepairRequest
 import com.sijunyang.bracketpairguides.model.AnalysisCoverage
@@ -49,6 +48,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.time.Duration.Companion.milliseconds
 
 /** One editor owns one accepted value and three independently revocable work lanes. */
 internal class EditorAnalysisSession(
@@ -95,11 +95,11 @@ internal class EditorAnalysisSession(
             return
         }
         if (sourceChanged) revokeWork()
-        if (previous?.guideRevision != demand.guideRevision || previous.nativeInterest != demand.nativeInterest || !demand.visible) {
+        if (previous?.guideRevision != demand.guideRevision || previous.nativeInterest != demand.nativeInterest) {
             native.invalidate(); nativeJob?.cancel()
         }
         reconcileRepair(demand)
-        if (sourceChanged || previous?.visible != demand.visible || previous.coverage != demand.coverage) scheduleFull()
+        if (sourceChanged || previous?.visible != true || previous.coverage != demand.coverage) scheduleFull()
     }
 
     private fun revokeWork() {
@@ -138,7 +138,7 @@ internal class EditorAnalysisSession(
         val modality = ModalityState.stateForComponent(editor.contentComponent).asContextElement()
         fullJob = scope.launch {
             try {
-                if (editor.editorKind != EditorKind.MAIN_EDITOR) delay(75)
+                if (editor.editorKind != EditorKind.MAIN_EDITOR) delay(75.milliseconds)
                 val control = control(fullTicket, ticket, epoch)
                 val refused = readAction { sourceIsTooLarge() }
                 val result = if (refused) AnalysisResult.Unavailable(requested.coverage, AnalysisLimit.IDE_CODE_INSIGHT_FILE_SIZE)

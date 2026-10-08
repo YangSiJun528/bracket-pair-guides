@@ -11,10 +11,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.ui.NewUI
 import com.sijunyang.bracketpairguides.model.BracketGuide
 import com.sijunyang.bracketpairguides.model.BracketPair
-import com.sijunyang.bracketpairguides.runtime.nativeproof.NativeGuideConflictFacts
-import com.sijunyang.bracketpairguides.runtime.nativeproof.NativeGuideConflictPolicy
-import com.sijunyang.bracketpairguides.runtime.nativeproof.NativeGuideUiPath
-import com.sijunyang.bracketpairguides.runtime.nativeproof.NativeIndentGuideGeometry
 
 /** Captures editor/UI facts and resolves native marker sources through platform read access. */
 internal object NativeGuideConflictDetector {
@@ -88,10 +84,6 @@ internal object NativeGuideConflictDetector {
         val blockCursor: Boolean,
         val caretCollapsed: Boolean,
     )
-
-    /** Public-editor-state preflight used before any brace-source resolution. */
-    internal fun hasVisibleCarrier(editor: Editor, guide: BracketGuide, uiPath: NativeGuideUiPath): Boolean =
-        visibleNativeCarrier(editor, guide, uiPath) != null
 
     private fun visibleNativeCarrier(editor: Editor, guide: BracketGuide, uiPath: NativeGuideUiPath): NativeCarrier? {
         if (uiPath == NativeGuideUiPath.UNCLASSIFIED) return null

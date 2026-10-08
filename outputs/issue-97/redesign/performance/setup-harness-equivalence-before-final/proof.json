@@ -1,0 +1,20 @@
+{
+  "recordedUtc": "2026-10-08T09:44:59.157247+00:00",
+  "scope": "Read-only setup proof before final compilation; wrapper dynamically revalidates after final compile, not formal measurement evidence",
+  "baselineClass": "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides/plugin/build/instrumented/instrumentTestCode/com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest.class",
+  "candidateClass": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/classes/kotlin/sdkPerformance/com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest.class",
+  "baselineSha256": "e60c9faf42639765fadefcccef38cade5c4918bee1481e4718b2bc1b016100e5",
+  "candidateSha256": "05491991437211cc9220d857ad06b42f69e1e666bf6aeb5c22bdd4a7f8ceb465",
+  "approvedDifference": "Exactly one CONSTANT_Utf8 Kotlin.Metadata d2 module-name value and its u2 length",
+  "baselineModule": "bracket-pair-guides_test",
+  "candidateModule": "bracket-pair-guides_sdkPerformance",
+  "allOtherClassfileBytesIdentical": true,
+  "javapExecutableCodeAndDescriptorsIdentical": true,
+  "javapCodeSha256": "6b995d4f005c66d530ed501639c88e66975a19405ffcf37d623eba7558bd0ec8",
+  "javapOptions": [
+    "-p",
+    "-c",
+    "-s"
+  ],
+  "buildOrMeasurementExecuted": false
+}

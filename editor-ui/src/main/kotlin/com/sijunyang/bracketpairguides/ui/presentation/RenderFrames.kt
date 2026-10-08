@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 /** Presentation authority and ownership for synchronous, reentrant SDK effects. */
 internal class RenderFrames {
-    private val current = AtomicReference<Frame?>(Frame(this))
+    private val current: AtomicReference<Frame?> = AtomicReference(Frame(this))
     val isClosed: Boolean get() = current.get() == null
     fun begin(): Frame {
         val next = Frame(this)
@@ -20,7 +20,7 @@ internal class RenderFrames {
         private var created: MutableList<Mark>? = null
         val isCurrent: Boolean get() = frames.current.get() === this
         fun check() {
-            if (!isCurrent) throw ObsoleteRendering
+            if (!isCurrent) throw ObsoleteRendering.INSTANCE
         }
         fun created(highlighter: RangeHighlighter): Mark {
             val mark = Mark(highlighter, this)
@@ -30,7 +30,7 @@ internal class RenderFrames {
         }
         fun adopt(mark: Mark): Mark {
             check()
-            kotlin.check(mark.isReusable)
+            check(mark.isReusable)
             mark.owner = this
             return mark
         }
@@ -77,4 +77,8 @@ internal class RenderFrames {
     }
 }
 
-internal object ObsoleteRendering : RuntimeException(null, null, false, false)
+internal class ObsoleteRendering private constructor() : RuntimeException(null, null, false, false) {
+    companion object {
+        val INSTANCE = ObsoleteRendering()
+    }
+}

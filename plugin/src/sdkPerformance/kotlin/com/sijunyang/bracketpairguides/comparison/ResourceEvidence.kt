@@ -8,6 +8,7 @@ import java.lang.reflect.Modifier
 import java.util.ArrayDeque
 import java.util.Collections
 import java.util.IdentityHashMap
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 
 /** Reachable owned arrays only, not an estimator of object headers or retained JVM/SDK heap. */
@@ -54,8 +55,8 @@ internal class ResourceEvidence {
                 if (component.isPrimitive) {
                     val width = when (component) {
                         java.lang.Boolean.TYPE, java.lang.Byte.TYPE -> 1
-                        java.lang.Character.TYPE, java.lang.Short.TYPE -> 2
-                        java.lang.Integer.TYPE, java.lang.Float.TYPE -> 4
+                        Character.TYPE, java.lang.Short.TYPE -> 2
+                        Integer.TYPE, java.lang.Float.TYPE -> 4
                         java.lang.Long.TYPE, java.lang.Double.TYPE -> 8
                         else -> error("Unknown primitive array component: $component")
                     }
@@ -111,7 +112,7 @@ internal class ResourceEvidence {
         while (tracked.any { it.reference.get() != null } && System.nanoTime() < deadline) {
             System.gc()
             polls++
-            delay(10)
+            delay(10.milliseconds)
         }
         val survivors = tracked.filter { it.reference.get() != null }.map { it.kind }
         return linkedMapOf("released" to survivors.isEmpty(), "survivors" to survivors,

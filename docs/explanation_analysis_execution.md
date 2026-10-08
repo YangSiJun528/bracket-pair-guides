@@ -50,7 +50,7 @@ Each traversal body admits at most 8,192 owned operations and checks a cooperati
 
 ## Evidence boundaries
 
-Pure calculation contracts exercise the public use cases with SDK-free input adapters. SDK contracts must separately establish actual worker dispatch, read access, retries, cancellation, stale-result rejection, and editor lifetime. View contracts must exercise rendering failure and reentrancy; packaging and supported IDE behavior require their own checks. Performance evidence distinguishes calculation cost, allocation, writer wait, and native preparation rather than treating one timing scope as all four.
+Pure calculation contracts exercise the public use cases with SDK-free input adapters. SDK contracts must separately establish actual worker dispatch, read access, retries, cancellation, stale-result rejection, and editor lifetime. Native A→B→A admission contracts exercise proof identity separately from Driver observations of actual native settings and painted markup; neither substitutes for a deterministic delayed native-SDK completion test. View contracts must exercise rendering failure and reentrancy; packaging and supported IDE behavior require their own checks. Performance evidence distinguishes calculation cost, allocation, writer wait, and native preparation rather than treating one timing scope as all four.
 
 The physical dependency restrictions do not establish the absence of thread or algorithm bugs. See the repository validation records for what was actually executed. The accepted responsiveness trade-off remains [ADR 0002](adr/0002-prefer-editor-write-responsiveness.md); immediate hiding before repair remains [ADR 0001](adr/0001-hide-affected-guides-before-background-repair.md).
 

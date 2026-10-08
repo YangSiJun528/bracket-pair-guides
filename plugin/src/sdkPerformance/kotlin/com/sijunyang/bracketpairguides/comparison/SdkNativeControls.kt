@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.LockSupport
+import kotlin.time.Duration.Companion.milliseconds
 
 /** Setup only: deliberately selects the actual SDK lazy-language branch. */
 suspend fun forceNativeLazyLanguage(editor: Editor, offset: Int) {
@@ -132,8 +133,8 @@ class NativeWriterProbe(private val reads: ReadRecorder, private val mode: Strin
         dispatcher?.join(5_000)
         check(dispatcher?.isAlive != true) { "Native external dispatcher did not finish" }
         if (queued.get() != 0L) {
-            withTimeout(5_000) {
-                while (!done.get()) delay(1)
+            withTimeout(5_000.milliseconds) {
+                while (!done.get()) delay(1.milliseconds)
             }
         }
         writerFailure.get()?.let { throw it }

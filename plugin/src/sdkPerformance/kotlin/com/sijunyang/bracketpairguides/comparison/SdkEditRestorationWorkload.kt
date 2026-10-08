@@ -11,6 +11,7 @@ import com.intellij.psi.PsiDocumentManager
 import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
@@ -47,16 +48,19 @@ suspend fun ComparisonFixture.runEditRestorationWorkload() {
                     editor.caretModel.moveToOffset(corpus.editOffset + 1)
                     handle = host.editSession(editor, reads)
                 }
+                // Language 1.9 cannot smart-cast the nullable cleanup owner captured by changing closures.
+                @Suppress("RedundantRequireNotNullCall")
+                val active = checkNotNull(handle)
                 // Genuine initial acceptance and request unwind are outside every edit sample.
                 var initial: GuideShape? = null
                 val initialDeadline = System.nanoTime() + 30_000_000_000L
                 while (System.nanoTime() < initialDeadline) {
-                    initial = withContext(Dispatchers.EDT) { handle!!.visibleGuide() }
-                    if (initial != null && !handle!!.workerActive()) break
-                    delay(1)
+                    initial = withContext(Dispatchers.EDT) { active.visibleGuide() }
+                    if (initial != null && !active.workerActive()) break
+                    delay(1.milliseconds)
                 }
                 val previous = checkNotNull(initial) { "No genuine initial guide: ${corpus.name}" }
-                check(!handle!!.workerActive()) { "Initial accepted request did not unwind: ${corpus.name}" }
+                check(!active.workerActive()) { "Initial accepted request did not unwind: ${corpus.name}" }
                 trace.awaitClosed()
                 check(previous.pair.open == 0 && previous.pair.close == corpus.text.lastIndex &&
                     previous.guideColumn == corpus.column && previous.anchorLine == expectedAnchor(corpus, startingTabbed)) {
@@ -65,7 +69,7 @@ suspend fun ComparisonFixture.runEditRestorationWorkload() {
                 reads.reset()
                 val allocationBefore = trace.snapshot()
                 withContext(Dispatchers.EDT) {
-                    val guideMarks = handle!!.markup().filterIsInstance<RangeHighlighter>()
+                    val guideMarks = active.markup().filterIsInstance<RangeHighlighter>()
                         .filter { it.isValid && it.customRenderer?.javaClass?.simpleName == "BracketGuideDrawing" }
                     target.set(guideMarks.single())
                     (editor.markupModel as MarkupModelEx).addMarkupModelListener(listenerLifetime,
@@ -93,7 +97,7 @@ suspend fun ComparisonFixture.runEditRestorationWorkload() {
                         mutationCompleted = System.nanoTime()
                         mutationAllocatedBytes = allocationDelta(before, allocatedOnCurrentThread())
                         // Inspect before relinquishing write access: async publication cannot mask a missing hide.
-                        immediate = handle!!.visibleGuide()
+                        immediate = active.visibleGuide()
                         previousMarkValidAfterListeners = target.get()?.isValid == true
                     }
                     commandReturned = System.nanoTime()
@@ -116,22 +120,22 @@ suspend fun ComparisonFixture.runEditRestorationWorkload() {
                 var lastPoll = commandReturned
                 val restorationDeadline = commandReturned + 5_000_000_000L
                 while (restored != expected && System.nanoTime() < restorationDeadline) {
-                    restored = withContext(Dispatchers.EDT) { handle!!.visibleGuide() }
+                    restored = withContext(Dispatchers.EDT) { active.visibleGuide() }
                     val now = System.nanoTime()
                     maximumPollGap = maxOf(maximumPollGap, now - lastPoll)
                     lastPoll = now
                     polls++
                     if (restored == expected) { observed = now; break }
                     // A refused repair can quiesce without restoration when no daemon is orchestrated.
-                    if (corpus.refuses && !handle!!.workerActive()) break
-                    delay(1)
+                    if (corpus.refuses && !active.workerActive()) break
+                    delay(1.milliseconds)
                 }
                 val workDeadline = System.nanoTime() + 5_000_000_000L
-                while (handle!!.workerActive() && System.nanoTime() < workDeadline) delay(1)
-                check(!handle!!.workerActive()) { "Edit work did not unwind: ${corpus.name}" }
+                while (active.workerActive() && System.nanoTime() < workDeadline) delay(1.milliseconds)
+                check(!active.workerActive()) { "Edit work did not unwind: ${corpus.name}" }
                 trace.awaitClosed()
                 // Observe any full-analysis winner after owned work settles, retaining the first observation if already seen.
-                val settled = withContext(Dispatchers.EDT) { handle!!.visibleGuide() }
+                val settled = withContext(Dispatchers.EDT) { active.visibleGuide() }
                 if (observed == 0L && settled == expected) observed = System.nanoTime()
                 val outcome = when {
                     !expectedHide -> "synchronous-same-line-geometry"
@@ -176,7 +180,7 @@ suspend fun ComparisonFixture.runEditRestorationWorkload() {
                     } finally {
                         withContext(NonCancellable) {
                             val deadline = System.nanoTime() + 5_000_000_000L
-                            while (handle?.workerActive() == true && System.nanoTime() < deadline) delay(1)
+                            while (handle?.workerActive() == true && System.nanoTime() < deadline) delay(1.milliseconds)
                             check(handle?.workerActive() != true) { "Edit session did not close" }
                             trace.awaitClosed()
                         }
@@ -195,7 +199,7 @@ suspend fun ComparisonFixture.runEditRestorationWorkload() {
                             "scope" to "actual registry/SDK markup and owned jobs before guaranteed editor release; not heap GC evidence")
                     }
                 } finally {
-                    try { release(editor) } finally { handle = null }
+                    release(editor)
                 }
             }
         }

@@ -1,0 +1,46 @@
+{
+  "recordedUtc": "2026-10-08T10:24:53.574461+00:00",
+  "tests": 29,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "sameCaseIdentitiesAsMinimum": true,
+  "suites": [
+    {
+      "name": "com.sijunyang.bracketpairguides.plugin.RuntimeIdentityIdeContractTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "tests": "14",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.sijunyang.bracketpairguides.ui.editor.highlighting.NativeGuideAdvisoryIdeContractTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "sourceManifestSha256": "f58edc9d45a096ff814d114e368837a986e10b09de2636464ea1ae95a058dd8d"
+}

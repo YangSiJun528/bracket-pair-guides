@@ -1,6 +1,11 @@
 package com.sijunyang.bracketpairguides.testing
 
 import com.intellij.codeInsight.CodeInsightSettings
+import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerEx
+import com.intellij.openapi.editor.impl.DocumentMarkupModel
+import com.intellij.openapi.fileEditor.TextEditor
+import com.intellij.openapi.project.DumbService
+import com.intellij.psi.PsiDocumentManager
 import com.intellij.codeInsight.codeVision.settings.CodeVisionSettings
 import com.intellij.ide.ui.LafManager
 import com.intellij.notification.Notification
@@ -243,6 +248,32 @@ object EditorContractBridge {
                     "foreground=${attributes?.foregroundColor?.rgb},background=${attributes?.backgroundColor?.rgb}," +
                     "effect=${attributes?.effectType},effectColor=${attributes?.effectColor?.rgb}," +
                     "renderer=${highlighter.customRenderer?.javaClass?.name}"
+            }
+    }
+
+    /** Observes all daemon dirty scopes without starting, restarting, or disabling analysis. */
+    @JvmStatic
+    fun daemonDiagnostics(): String = readEdt {
+        val editor = editor()
+        val project = checkNotNull(editor.project)
+        val document = editor.document
+        val selected = FileEditorManager.getInstance(project).selectedEditor
+        val selectedMatches = (selected as? TextEditor)?.editor === editor
+        val indexing = DumbService.getInstance(project).isDumb
+        val committed = PsiDocumentManager.getInstance(project).isCommitted(document)
+        val completed = selected != null && selectedMatches &&
+            DaemonCodeAnalyzerEx.isHighlightingCompleted(selected, project)
+        val ready = !indexing && committed && completed
+        val highlighters = DocumentMarkupModel.forDocument(document, project, false).allHighlighters
+        "ready=$ready;stamp=${document.modificationStamp};selectedMatches=$selectedMatches;" +
+            "indexing=$indexing;committed=$committed;highlightingCompleted=$completed;" +
+            "documentMarkupCount=${highlighters.size}\n" +
+            highlighters.take(128).joinToString("\n") { mark ->
+                val attributes = mark.getTextAttributes(editor.colorsScheme)
+                "valid=${mark.isValid},range=${mark.startOffset}..${mark.endOffset}," +
+                    "layer=${mark.layer},key=${mark.textAttributesKey?.externalName}," +
+                    "foreground=${attributes?.foregroundColor?.rgb},effect=${attributes?.effectType}," +
+                    "effectColor=${attributes?.effectColor?.rgb}"
             }
     }
 

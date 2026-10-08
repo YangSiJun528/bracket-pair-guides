@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.core.LateCancellationContractTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-08T09:57:17.333Z" hostname="sijun-yangui-MacBookPro.local" time="0.845">
+  <properties/>
+  <testcase name="cacheWaitRemainsCancellableBeforeTheOwnerReleasesItsLock" classname="com.sijunyang.bracketpairguides.core.LateCancellationContractTest" time="0.003"/>
+  <testcase name="cancellationDuringMergeCannotPublishAPartiallySortedTokenView" classname="com.sijunyang.bracketpairguides.core.LateCancellationContractTest" time="0.435"/>
+  <testcase name="cancellationWhileSealingGuidesCannotPublishAFrozenPartialTree" classname="com.sijunyang.bracketpairguides.core.LateCancellationContractTest" time="0.017"/>
+  <testcase name="cancellationDuringMergeCopyCannotPublishAPartiallyCopiedTokenView" classname="com.sijunyang.bracketpairguides.core.LateCancellationContractTest" time="0.389"/>
+  <testcase name="canonicalCacheStoresOnlyWeakPayloadReferences" classname="com.sijunyang.bracketpairguides.core.LateCancellationContractTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

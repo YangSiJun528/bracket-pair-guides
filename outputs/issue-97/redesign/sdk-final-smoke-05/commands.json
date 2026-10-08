@@ -1,0 +1,58 @@
+[
+  {
+    "name": "edit-restoration-baseline",
+    "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides",
+    "command": [
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=1",
+      "--no-configuration-cache",
+      "--console=plain",
+      "-Pkotlin.compiler.execution.strategy=in-process",
+      "-Dorg.gradle.jvmargs=-Xmx4g",
+      "-Dissue97.perf.workload=edit-restoration",
+      "-Dissue97.perf.output=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/sdk-final-smoke-05/edit-restoration-baseline.jsonl",
+      "-Dissue97.perf.sourceRevision=072533fa3e223d53f937a15d50fe8637add8b2cb",
+      "-Dissue97.perf.host=com.sijunyang.bracketpairguides.comparison.BaselineComparisonHost",
+      "-Dissue97.perf.warmup=1",
+      "-Dissue97.perf.repeat=5",
+      "-Dissue97.perf.cancelTrials=1",
+      "-Dissue97.perf.expectedIdeBuild=IC-241.19416.15",
+      "-I",
+      "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/sdk-comparison.init.gradle",
+      ":plugin:test",
+      "--tests",
+      "com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest.testSdkComparison"
+    ],
+    "startedUtc": "2026-10-08T10:34:51.869629+00:00",
+    "exitCode": 0,
+    "seconds": 31.77730894088745
+  },
+  {
+    "name": "edit-restoration-candidate",
+    "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "command": [
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=1",
+      "--no-configuration-cache",
+      "--console=plain",
+      "-Pkotlin.compiler.execution.strategy=in-process",
+      "-Dorg.gradle.jvmargs=-Xmx4g",
+      "-Dissue97.perf.workload=edit-restoration",
+      "-Dissue97.perf.output=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/sdk-final-smoke-05/edit-restoration-candidate.jsonl",
+      "-Dissue97.perf.sourceRevision=a89e9731c5a3b40ec8bcccac40b9617f4101fc10+source-96a2bb5f38980c1c",
+      "-Dissue97.perf.host=com.sijunyang.bracketpairguides.comparison.CandidateComparisonHost",
+      "-Dissue97.perf.warmup=1",
+      "-Dissue97.perf.repeat=5",
+      "-Dissue97.perf.cancelTrials=1",
+      "-Dissue97.perf.expectedIdeBuild=IC-241.19416.15",
+      ":plugin:sdkPerformance",
+      "--tests",
+      "com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest.testSdkComparison"
+    ],
+    "startedUtc": "2026-10-08T10:35:23.650229+00:00",
+    "exitCode": 1,
+    "seconds": 12.659675121307373
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "command": [
+    "bash",
+    "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/qodana/run_local.sh"
+  ],
+  "gitHead": "a89e9731c5a3b40ec8bcccac40b9617f4101fc10",
+  "exitCode": 255,
+  "seconds": 676.6891460418701,
+  "imageSha256": "3db2bdb1d846ddeca9f600a6737bc82b3993067e07e572ba7bf791d9fe41a9bf"
+}
