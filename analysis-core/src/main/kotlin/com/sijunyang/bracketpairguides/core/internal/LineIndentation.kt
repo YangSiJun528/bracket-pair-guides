@@ -14,6 +14,12 @@ internal class LineIndentation(tabSize: Int, private val checkCanceled: () -> Un
             return currentColumn
         }
 
+    /** Reuses this attempt-local scanner only after the preceding line has been resolved. */
+    fun reset() {
+        currentColumn = 0
+        isComplete = false
+    }
+
     /** Returns true once content or the actual end of this line establishes its indentation. */
     fun append(chunk: String, endOfLine: Boolean): Boolean {
         check(!isComplete) { "A completed line cannot accept another indentation chunk" }

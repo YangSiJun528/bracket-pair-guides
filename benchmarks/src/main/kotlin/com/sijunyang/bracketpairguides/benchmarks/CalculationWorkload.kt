@@ -148,6 +148,7 @@ class CalculationWorkload(pairCount: Int, distribution: String) {
             }
             TokenBatch.End(cursor, cursor == text.length, visited, BraceMatcherAvailability.AVAILABLE)
         }
+        override suspend fun initialPrefix(line: Int): PrefixChunk = prefix(line, starts[line], 128)
         override suspend fun initialPrefixes(firstLine: Int, lineCount: Int): PrefixBatch = PrefixBatch(
             firstLine,
             (firstLine until minOf(starts.size, firstLine + lineCount)).map { prefix(it, starts[it], 128) },

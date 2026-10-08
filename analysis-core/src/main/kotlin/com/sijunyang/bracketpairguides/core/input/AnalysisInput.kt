@@ -6,6 +6,9 @@ import java.util.Collections
 /** Host reads return owned immutable facts. Every attempt begins with a fresh capture epoch. */
 interface LineInput {
     suspend fun beginAttempt(): DocumentFacts
+
+    /** Captures at most 128 initial characters of exactly the requested line. */
+    suspend fun initialPrefix(line: Int): PrefixChunk
     suspend fun initialPrefixes(firstLine: Int, lineCount: Int): PrefixBatch
     suspend fun continuePrefix(line: Int, afterOffset: Int): PrefixChunk
     suspend fun validateCurrent()
@@ -43,7 +46,11 @@ data class PrefixChunk(val text: String, val afterOffset: Int, val lineEndOffset
 }
 
 class PrefixBatch(val firstLine: Int, prefixes: List<PrefixChunk>) {
-    val prefixes: List<PrefixChunk> = Collections.unmodifiableList(ArrayList(prefixes))
+    val prefixes: List<PrefixChunk> = when (prefixes.size) {
+        0 -> emptyList()
+        1 -> Collections.singletonList(prefixes[0])
+        else -> Collections.unmodifiableList(ArrayList(prefixes))
+    }
     init {
         require(firstLine >= 0 && prefixes.size <= 128)
     }

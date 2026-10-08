@@ -131,6 +131,7 @@ internal class CalculationAttempt(private val control: CalculationControl) {
         documentLength: Int,
     ): GuidePositionIndex {
         val builder = checkNotNull(GuidePositionIndex.builder(lines.first, lines.last - lines.first + 1, checkCanceled))
+        val indentation = LineIndentation(tabSize, checkCanceled)
         var firstLine = lines.first
         while (firstLine <= lines.last) {
             control.checkCanceled()
@@ -139,7 +140,7 @@ internal class CalculationAttempt(private val control: CalculationControl) {
             require(batch.firstLine == firstLine && batch.prefixes.size == count)
             for ((relative, prefix) in batch.prefixes.withIndex()) {
                 require(prefix.text.length <= 128 && prefix.lineEndOffset <= documentLength)
-                val indentation = LineIndentation(tabSize, checkCanceled)
+                indentation.reset()
                 var current = prefix
                 indentation.append(current.text, current.endOfLine)
                 while (!indentation.isComplete) {
@@ -188,10 +189,9 @@ internal class CalculationAttempt(private val control: CalculationControl) {
         )
         while (true) {
             control.checkCanceled()
-            val line = calculation.nextLine() ?: break
-            val batch = input.initialPrefixes(line, 1)
-            require(batch.firstLine == line && batch.prefixes.size == 1)
-            var prefix = batch.prefixes.single()
+            val line = calculation.nextLine()
+            if (line < 0) break
+            var prefix = input.initialPrefix(line)
             require(prefix.text.length <= 128 && prefix.lineEndOffset <= facts.length)
             while (!calculation.append(prefix.text, prefix.endOfLine)) {
                 control.checkCanceled()

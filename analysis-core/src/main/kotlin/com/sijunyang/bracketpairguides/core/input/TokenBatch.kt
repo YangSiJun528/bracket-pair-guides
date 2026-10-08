@@ -69,6 +69,9 @@ class TokenBatch private constructor(
     )
 
     companion object {
+        private val EMPTY_KINDS = emptyArray<TokenKind?>()
+        private val EMPTY_GEOMETRY = IntArray(0)
+
         fun capture(expectedTokens: Int = 32, capture: (TokenCollector) -> End): TokenBatch {
             val collector = Collector(expectedTokens.coerceIn(1, 512))
             return try {
@@ -80,11 +83,11 @@ class TokenBatch private constructor(
     }
 
     private class Collector(private val expected: Int) : TokenCollector {
-        private var kinds = emptyArray<TokenKind?>()
+        private var kinds = EMPTY_KINDS
         private var commonGroup: TokenGroup? = null
         private var groups: Array<TokenGroup?>? = null
         private var contexts: Array<String?>? = null
-        private var geometry = IntArray(0)
+        private var geometry = EMPTY_GEOMETRY
         private var size = 0
         private var revoked = false
 

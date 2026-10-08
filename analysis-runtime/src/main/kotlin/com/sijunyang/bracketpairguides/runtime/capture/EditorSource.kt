@@ -88,20 +88,25 @@ internal class EditorSource(
     override suspend fun areCompatible(open: TokenKind, close: TokenKind, group: TokenGroup): Boolean =
         capture(AnalysisCaptureObserver.COMPATIBILITY) { checkNotNull(tokens).matches(open, close, group) }
 
+    override suspend fun initialPrefix(line: Int): PrefixChunk =
+        capture(AnalysisCaptureObserver.GUIDE_PREFIX) { captureInitialPrefix(line) }
+
     override suspend fun initialPrefixes(firstLine: Int, lineCount: Int): PrefixBatch =
         capture(AnalysisCaptureObserver.GUIDE_PREFIX) {
             require(lineCount in 0..128)
-            val document = editor.document
             PrefixBatch(
                 firstLine,
-                (firstLine until firstLine + lineCount).map { line ->
-                    val start = document.getLineStartOffset(line)
-                    val end = document.getLineEndOffset(line)
-                    val after = minOf(start.toLong() + 128, end.toLong()).toInt()
-                    PrefixChunk(text.copy(document, start, after), after, end)
-                },
+                (firstLine until firstLine + lineCount).map { line -> captureInitialPrefix(line) },
             )
         }
+
+    private fun captureInitialPrefix(line: Int): PrefixChunk {
+        val document = editor.document
+        val start = document.getLineStartOffset(line)
+        val end = document.getLineEndOffset(line)
+        val after = minOf(start.toLong() + 128, end.toLong()).toInt()
+        return PrefixChunk(text.copy(document, start, after), after, end)
+    }
 
     override suspend fun continuePrefix(line: Int, afterOffset: Int): PrefixChunk =
         capture(AnalysisCaptureObserver.GUIDE_CONTINUATION) {

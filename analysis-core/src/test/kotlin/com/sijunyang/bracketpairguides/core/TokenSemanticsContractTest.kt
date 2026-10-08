@@ -133,6 +133,7 @@ class TokenSemanticsContractTest {
             return (open === this@TokenSemanticsContractTest.open && close === this@TokenSemanticsContractTest.close) ||
                 extra.any { it.first === open && it.second === close }
         }
+        override suspend fun initialPrefix(line: Int): PrefixChunk = error("Guides were not requested")
         override suspend fun initialPrefixes(firstLine: Int, lineCount: Int): PrefixBatch =
             error("Guides were not requested")
         override suspend fun continuePrefix(line: Int, afterOffset: Int): PrefixChunk =

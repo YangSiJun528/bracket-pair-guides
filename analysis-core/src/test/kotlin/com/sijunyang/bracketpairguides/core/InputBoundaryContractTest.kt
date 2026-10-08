@@ -3,6 +3,7 @@ package com.sijunyang.bracketpairguides.core
 import com.sijunyang.bracketpairguides.core.api.BracketCalculator
 import com.sijunyang.bracketpairguides.core.input.BracketInput
 import com.sijunyang.bracketpairguides.core.input.PrefixBatch
+import com.sijunyang.bracketpairguides.core.input.PrefixChunk
 import com.sijunyang.bracketpairguides.core.input.RepairRequest
 import com.sijunyang.bracketpairguides.core.input.StructuralRole
 import com.sijunyang.bracketpairguides.core.input.TokenBatch
@@ -85,6 +86,8 @@ class InputBoundaryContractTest {
     }
 
     private fun beyondDocumentPrefixes(source: RecordedInput): BracketInput = object : BracketInput by source {
+        override suspend fun initialPrefix(line: Int): PrefixChunk =
+            source.initialPrefix(line).copy(lineEndOffset = source.text.length + 1)
         override suspend fun initialPrefixes(firstLine: Int, lineCount: Int): PrefixBatch {
             val batch = source.initialPrefixes(firstLine, lineCount)
             return PrefixBatch(batch.firstLine, batch.prefixes.map { it.copy(lineEndOffset = source.text.length + 1) })

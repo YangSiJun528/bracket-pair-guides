@@ -85,16 +85,18 @@ internal class RecordedInput(
             else -> false
         }
     }
+    override suspend fun initialPrefix(line: Int): PrefixChunk {
+        prefixRequests += line to 1
+        return prefix(line)
+    }
     override suspend fun initialPrefixes(firstLine: Int, lineCount: Int): PrefixBatch {
         require(lineCount in 1..128)
         prefixRequests += firstLine to lineCount
-        return PrefixBatch(
-            firstLine,
-            (firstLine until firstLine + lineCount).map { line ->
-                val after = minOf(starts[line] + 128, ends[line])
-                PrefixChunk(text.substring(starts[line], after), after, ends[line])
-            },
-        )
+        return PrefixBatch(firstLine, (firstLine until firstLine + lineCount).map(::prefix))
+    }
+    private fun prefix(line: Int): PrefixChunk {
+        val after = minOf(starts[line] + 128, ends[line])
+        return PrefixChunk(text.substring(starts[line], after), after, ends[line])
     }
     override suspend fun continuePrefix(line: Int, afterOffset: Int): PrefixChunk {
         continuationReads++
