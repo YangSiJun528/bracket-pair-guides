@@ -2,8 +2,11 @@ package com.sijunyang.bracketpairguides.runtime.capture
 
 import com.intellij.lang.Language
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.psi.tree.IElementType
 import com.sijunyang.bracketpairguides.core.input.TokenBatch
+import com.sijunyang.bracketpairguides.core.input.TokenCollector
 import com.sijunyang.bracketpairguides.core.input.TokenGroup
 import com.sijunyang.bracketpairguides.core.input.TokenKind
 import com.sijunyang.bracketpairguides.model.BraceMatcherAvailability
@@ -59,36 +62,47 @@ internal class BracketTokenCapture(
             disabledLanguageIds = input.disabledLanguageIds,
         ).also { grammar = it }
         return TokenBatch.capture(initialCapacity(maximumVisitedTokens)) { tokens ->
-            var visited = 0
-            while (!iterator.atEnd() && visited < maximumVisitedTokens) {
-                if (visited and CANCELLATION_MASK == 0) checkCanceled()
-                visited++
-                if (classifier.classifyInto(iterator, token)) {
-                    val ordinal = languageOrdinals.getOrPut(token.language) {
-                        definitions.add(token.definition)
-                        definitions.lastIndex
-                    }
-                    tokens.append(
-                        kind = kindFor(token.type),
-                        group = groupFor(ordinal, token.tokenGroup),
-                        context = token.context,
-                        strictContext = token.strictContext,
-                        role = token.role,
-                        structuralRole = token.structuralRole,
-                        offset = iterator.start,
-                        tokenLength = iterator.end - iterator.start,
-                        line = document.getLineNumber(iterator.start),
-                    )
-                }
-                iterator.advance()
-            }
-            checkCanceled()
-            val end = iterator.atEnd()
-            ending(if (end) document.textLength else iterator.start, end, visited)
+            collectChunk(iterator, classifier, document, maximumVisitedTokens, checkCanceled, tokens)
         }.also {
             previousCapturedTokens = it.size
             previousVisitedTokens = it.visitedTokens
         }
+    }
+
+    private fun collectChunk(
+        iterator: HighlighterIterator,
+        classifier: DocumentBraceGrammar,
+        document: Document,
+        maxVisited: Int,
+        checkCanceled: () -> Unit,
+        sink: TokenCollector,
+    ): TokenBatch.End {
+        var visited = 0
+        while (!iterator.atEnd() && visited < maxVisited) {
+            if (visited and CANCELLATION_MASK == 0) checkCanceled()
+            visited++
+            if (classifier.classifyInto(iterator, token)) {
+                val ordinal = languageOrdinals.getOrPut(token.language) {
+                    definitions.add(token.definition)
+                    definitions.lastIndex
+                }
+                sink.append(
+                    kind = kindFor(token.type),
+                    group = groupFor(ordinal, token.tokenGroup),
+                    context = token.context,
+                    strictContext = token.strictContext,
+                    role = token.role,
+                    structuralRole = token.structuralRole,
+                    offset = iterator.start,
+                    tokenLength = iterator.end - iterator.start,
+                    line = document.getLineNumber(iterator.start),
+                )
+            }
+            iterator.advance()
+        }
+        checkCanceled()
+        val end = iterator.atEnd()
+        return ending(if (end) document.textLength else iterator.start, end, visited)
     }
 
     private fun initialCapacity(maximumVisitedTokens: Int): Int {

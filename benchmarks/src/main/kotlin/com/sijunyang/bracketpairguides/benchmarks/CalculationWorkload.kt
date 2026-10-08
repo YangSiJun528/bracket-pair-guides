@@ -9,6 +9,7 @@ import com.sijunyang.bracketpairguides.core.input.PrefixChunk
 import com.sijunyang.bracketpairguides.core.input.RepairRequest
 import com.sijunyang.bracketpairguides.core.input.StructuralRole
 import com.sijunyang.bracketpairguides.core.input.TokenBatch
+import com.sijunyang.bracketpairguides.core.input.TokenCollector
 import com.sijunyang.bracketpairguides.core.input.TokenGroup
 import com.sijunyang.bracketpairguides.core.input.TokenKind
 import com.sijunyang.bracketpairguides.core.input.TokenRole
@@ -129,6 +130,9 @@ class CalculationWorkload(pairCount: Int, distribution: String) {
         override suspend fun areCompatible(open: TokenKind, close: TokenKind, group: TokenGroup): Boolean =
             open === this.open && close === this.close
         override suspend fun tokensAt(offset: Int): TokenBatch = TokenBatch.capture { collector ->
+            collectChunk(offset, collector)
+        }
+        private fun collectChunk(offset: Int, collector: TokenCollector): TokenBatch.End {
             var cursor = offset
             var visited = 0
             while (cursor < text.length && visited < 512) {
@@ -146,7 +150,7 @@ class CalculationWorkload(pairCount: Int, distribution: String) {
                 cursor++
                 visited++
             }
-            TokenBatch.End(cursor, cursor == text.length, visited, BraceMatcherAvailability.AVAILABLE)
+            return TokenBatch.End(cursor, cursor == text.length, visited, BraceMatcherAvailability.AVAILABLE)
         }
         override suspend fun initialPrefix(line: Int): PrefixChunk = prefix(line, starts[line], 128)
         override suspend fun initialPrefixes(firstLine: Int, lineCount: Int): PrefixBatch = PrefixBatch(
