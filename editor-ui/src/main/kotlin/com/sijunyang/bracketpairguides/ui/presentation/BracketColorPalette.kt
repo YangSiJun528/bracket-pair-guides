@@ -36,6 +36,12 @@ internal object BracketColorPalette {
         overrides = settings.guideLineColors,
     )
 
+    fun guideLineRgb(settings: BracketGuidePreferences, depth: Int): Int =
+        componentRgb(settings, depth, settings.guideLineColors)
+
+    fun pairBorderRgb(settings: BracketGuidePreferences, depth: Int): Int =
+        componentRgb(settings, depth, settings.pairBorderColors)
+
     fun pairBorderColor(settings: BracketGuidePreferences, depth: Int): Color = componentColor(
         settings = settings,
         depth = depth,
@@ -75,7 +81,10 @@ internal object BracketColorPalette {
     fun hasVisiblePairBackground(settings: BracketGuidePreferences): Boolean = settings.showActivePairBackground &&
         settings.pairBackgroundOpacityPercent.coerceIn(0, 100) > 0
 
-    private fun componentColor(settings: BracketGuidePreferences, depth: Int, overrides: List<Int>): Color {
+    private fun componentColor(settings: BracketGuidePreferences, depth: Int, overrides: List<Int>): Color =
+        StoredColorFormat.storedColor(componentRgb(settings, depth, overrides))
+
+    private fun componentRgb(settings: BracketGuidePreferences, depth: Int, overrides: List<Int>): Int {
         val index = levelIndex(depth)
         val storedValue =
             if (settings.useIndependentComponentColors) {
@@ -83,7 +92,8 @@ internal object BracketColorPalette {
             } else {
                 settings.levelBaseColors[index]
             }
-        return StoredColorFormat.storedColor(storedValue)
+        require(storedValue in 0..0x00FF_FFFF) { "Stored colors must be 24-bit RGB values" }
+        return storedValue
     }
 
     private fun blend(background: Color, foreground: Color, foregroundPercent: Int): Color {

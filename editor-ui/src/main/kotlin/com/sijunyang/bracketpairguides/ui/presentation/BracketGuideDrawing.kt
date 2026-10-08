@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.markup.CustomHighlighterRenderer
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.ui.paint.PaintUtil
 import com.sijunyang.bracketpairguides.model.BracketGuide
+import com.sijunyang.bracketpairguides.ui.preferences.BracketGuidePreferences
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics
@@ -39,6 +40,20 @@ internal class BracketGuideDrawing(
         this.appearance = appearance
         this.color = color
     }
+
+    /** Compare owned style without materializing a replacement appearance or color. */
+    fun matches(preferences: BracketGuidePreferences): Boolean =
+        appearance.showVertical == preferences.showVerticalGuide &&
+            appearance.showHorizontal == preferences.showHorizontalGuides &&
+            appearance.lineWidth == preferences.guideLineWidth.coerceIn(
+                BracketGuidePreferences.MIN_GUIDE_LINE_WIDTH,
+                BracketGuidePreferences.MAX_GUIDE_LINE_WIDTH,
+            ) &&
+            appearance.opacityPercent == preferences.guideOpacityPercent.coerceIn(
+                BracketGuidePreferences.MIN_GUIDE_OPACITY_PERCENT,
+                BracketGuidePreferences.MAX_GUIDE_OPACITY_PERCENT,
+            ) &&
+            color.rgb == (BracketColorPalette.guideLineRgb(preferences, guide.pair.depth) or (0xFF shl 24))
 
     override fun paint(editor: Editor, highlighter: RangeHighlighter, graphics: Graphics) {
         val options = appearance

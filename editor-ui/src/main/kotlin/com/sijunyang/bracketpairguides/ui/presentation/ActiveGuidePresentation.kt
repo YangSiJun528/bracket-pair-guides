@@ -29,6 +29,16 @@ internal class ActiveGuidePresentation(
 
     fun isDisplayed(guide: BracketGuide): Boolean = currentGuide() == guide
 
+    /** A live accepted view can keep already established geometry; pending/provisional work cannot. */
+    fun adoptUnchanged(pair: BracketPair?, preferences: BracketGuidePreferences, frame: Frame): Boolean {
+        frame.check()
+        if (pair == null || !pair.hasWellFormedTokenRange(editor.document.textLength)) return false
+        val guide = currentGuide() ?: return false
+        if (guide.pair != pair || !trackedPair.matches(pair, guide)) return false
+        frame.check()
+        return markup.adoptUnchanged(pair, preferences, frame)
+    }
+
     fun replace(
         pair: BracketPair?,
         indexedGuide: BracketGuide?,

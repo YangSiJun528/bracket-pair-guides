@@ -73,7 +73,10 @@ internal class EditorGuide(
         assertEdt()
         if (frames.isClosed) return
         guideRevision++
-        try { render { frame -> synchronizeLayout(frame); renderActive(frame) } }
+        try { render { frame ->
+            val changedLayout = synchronizeLayout(frame)
+            renderActive(frame, allowUnchanged = !changedLayout)
+        } }
         finally { reconcile(GuideChange.PRESENTATION) }
     }
 
@@ -225,7 +228,7 @@ internal class EditorGuide(
         else tokens.dispose(frame)
     }
 
-    private fun renderActive(frame: Frame) {
+    private fun renderActive(frame: Frame, allowUnchanged: Boolean = false) {
         frame.check()
         if (!display.enabled || !display.showsActivePair && !display.showsGuide) { active.clear(false, frame); return }
         val current = view
@@ -233,6 +236,12 @@ internal class EditorGuide(
         else {
             val pair = current.activePairAt(caretOffset())
             frame.check()
+            if (allowUnchanged && active.adoptUnchanged(pair, display, frame)) {
+                // Native evidence is invalidated by this caret revision; retain the paint request
+                // that lets the actual renderer observe the displayed guide again.
+                repaint()
+                return
+            }
             val geometry = pair?.let(current::guideFor)
             frame.check()
             active.replace(pair, geometry, true, display, frame)

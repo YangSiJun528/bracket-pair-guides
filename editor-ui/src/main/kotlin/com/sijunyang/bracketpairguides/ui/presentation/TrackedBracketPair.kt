@@ -35,6 +35,23 @@ internal class TrackedBracketPair(private val editor: Editor) {
             )
         }
 
+    /** Actual marker geometry must still describe the already displayed immutable pair. */
+    fun matches(pair: BracketPair, guide: BracketGuide): Boolean {
+        if (current != pair || guide.anchorLine !in 0 until editor.document.lineCount) return false
+        val tracked = range ?: return false
+        if (!tracked.isValid || tracked.isGreedyToLeft || tracked.isGreedyToRight ||
+            tracked.startOffset != pair.openOffset || tracked.endOffset != pair.closeOffset + pair.closeTokenLength ||
+            editor.document.getLineNumber(pair.openOffset) != pair.openLine ||
+            editor.document.getLineNumber(pair.closeOffset) != pair.closeLine
+        ) {
+            return false
+        }
+        val trackedAnchor = anchor ?: return false
+        return trackedAnchor.isValid && !trackedAnchor.isGreedyToLeft && !trackedAnchor.isGreedyToRight &&
+            trackedAnchor.startOffset == trackedAnchor.endOffset &&
+            trackedAnchor.startOffset == editor.document.getLineStartOffset(guide.anchorLine)
+    }
+
     fun track(pair: BracketPair, guide: BracketGuide?) {
         val existing = range
         if (existing?.isValid == true && !existing.isGreedyToLeft && !existing.isGreedyToRight && adjusted == pair) {

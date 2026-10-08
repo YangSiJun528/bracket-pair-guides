@@ -49,7 +49,8 @@ class GuideDemand(
     val change: GuideChange,
     val nativeInterest: NativeInterest,
 ) {
-    val disabledLanguageIds: Set<String> = java.util.Collections.unmodifiableSet(HashSet(disabledLanguageIds))
+    val disabledLanguageIds: Set<String> = if (disabledLanguageIds.isEmpty()) emptySet()
+        else java.util.Collections.unmodifiableSet(HashSet(disabledLanguageIds))
 
     fun copy(
         revision: Long = this.revision,

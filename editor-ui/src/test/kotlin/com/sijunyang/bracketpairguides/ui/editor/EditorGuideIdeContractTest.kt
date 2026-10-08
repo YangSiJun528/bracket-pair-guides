@@ -10,6 +10,7 @@ import com.intellij.openapi.editor.HighlighterColors
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.markup.HighlighterLayer
+import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import java.awt.Color
 import com.intellij.openapi.editor.ex.RangeHighlighterEx
@@ -125,6 +126,8 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
         val available = AnalysisResult.Available(lookup, demands.last().coverage, BraceMatcherAvailability.AVAILABLE)
         guide.applyAnalysis(AnalysisUpdate(demands.last().revision, available))
         assertNotNull(demands.last().repair)
+        guide.caretMoved()
+        assertNotNull(demands.last().repair)
         val repaired = BracketGuide(pair, 2, 1)
         assertEquals(ViewApplication.APPLIED, guide.applyRepair(RepairUpdate(demands.last().guideRevision, repaired)))
         val limited = available.copy(
@@ -140,9 +143,10 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
     fun testUnchangedCaretCallbackPreservesAllActualMarkupWithoutSdkCallbacks() {
         open(BracketGuidePreferences(showActivePairBorder = true))
         val pair = BracketPair(8, 1, myFixture.editor.document.textLength - 1, 1, 0, 0, 2)
+        var guideQueries = 0
         val result = AnalysisResult.Available(object : BracketView {
             override fun activePairAt(offset: Int) = pair
-            override fun guideFor(pair: BracketPair) = BracketGuide(pair, 0)
+            override fun guideFor(pair: BracketPair): BracketGuide { guideQueries++; return BracketGuide(pair, 0) }
             override fun visibleTokens(range: OffsetRange, focus: Int, maximum: Int): TokenWindow = object : TokenWindow {
                 override val size = 2
                 override val isCapped = false
@@ -171,7 +175,11 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
             override fun beforeRemoved(highlighter: RangeHighlighterEx) { callbacks++ }
             override fun attributesChanged(highlighter: RangeHighlighterEx, renderersChanged: Boolean, fontStyleOrColorChanged: Boolean) { callbacks++ }
         })
+        val previousRevision = demands.last().guideRevision
+        assertEquals(1, guideQueries)
         guide.caretMoved()
+        assertEquals(1, guideQueries)
+        assertEquals(previousRevision + 1, demands.last().guideRevision)
         val after = myFixture.editor.markupModel.allHighlighters.toList()
         assertEquals(before.size, after.size)
         assertTrue(before.all { previous -> previous.isValid && after.any { it === previous } })
@@ -219,6 +227,110 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
         assertTrue(themed.all { !it.isValid })
         assertEquals(setOf(nextPair.openOffset, nextPair.closeOffset), moved.map { it.startOffset }.toSet())
         assertTrue(moved.all { it.endOffset - it.startOffset == 1 })
+    }
+
+    fun testUnchangedAdoptionRejectsDisposedEndpointAndExternalStyleMutation() {
+        open(BracketGuidePreferences(colorBracketTokens = false, showActivePairBorder = true))
+        val editor = myFixture.editor
+        val pair = BracketPair(8, 1, editor.document.textLength - 1, 1, 0, 0, 2)
+        var queries = 0
+        val view = object : BracketView {
+            override fun activePairAt(offset: Int) = pair
+            override fun guideFor(pair: BracketPair): BracketGuide { queries++; return BracketGuide(pair, 0) }
+            override fun visibleTokens(range: OffsetRange, focus: Int, maximum: Int): TokenWindow = error("tokens disabled")
+        }
+        guide.applyAnalysis(AnalysisUpdate(demands.last().revision,
+            AnalysisResult.Available(view, demands.last().coverage, BraceMatcherAvailability.AVAILABLE)))
+        fun endpoints() = editor.markupModel.allHighlighters.filter { it.layer == HighlighterLayer.ELEMENT_UNDER_CARET }
+        val first = endpoints().first()
+        first.dispose()
+        guide.caretMoved()
+        assertEquals(2, queries)
+        assertEquals(2, endpoints().size)
+        assertTrue(endpoints().all { it.isValid })
+        val changed = endpoints().first()
+        val expectedColor = changed.getTextAttributes(editor.colorsScheme)!!.effectColor
+        val attributes = changed.getTextAttributes(editor.colorsScheme)!!.clone()
+        attributes.effectColor = if (expectedColor == Color.RED) Color.BLUE else Color.RED
+        (changed as RangeHighlighterEx).setTextAttributes(attributes)
+        guide.caretMoved()
+        assertEquals(3, queries)
+        assertFalse(changed.isValid)
+        assertEquals(listOf(expectedColor, expectedColor), endpoints().map { it.getTextAttributes(editor.colorsScheme)!!.effectColor })
+        val extraEffectEndpoint = endpoints().first()
+        val extraAttributes = extraEffectEndpoint.getTextAttributes(editor.colorsScheme)!!.clone()
+        extraAttributes.setAdditionalEffects(mapOf(EffectType.WAVE_UNDERSCORE to Color.RED))
+        (extraEffectEndpoint as RangeHighlighterEx).setTextAttributes(extraAttributes)
+        guide.caretMoved()
+        assertEquals(4, queries)
+        assertFalse(extraEffectEndpoint.isValid)
+        for (endpoint in endpoints()) {
+            var hasAdditionalEffects = false
+            endpoint.getTextAttributes(editor.colorsScheme)!!.forEachAdditionalEffect { _, _ -> hasAdditionalEffects = true }
+            assertFalse(hasAdditionalEffects)
+        }
+    }
+
+    fun testUnchangedAdoptionRejectsDisposedTrackedPairMarker() {
+        open(BracketGuidePreferences(colorBracketTokens = false, showActivePairBorder = true))
+        val editor = myFixture.editor
+        val pair = BracketPair(8, 1, editor.document.textLength - 1, 1, 0, 0, 2)
+        var queries = 0
+        val view = object : BracketView {
+            override fun activePairAt(offset: Int) = pair
+            override fun guideFor(pair: BracketPair): BracketGuide { queries++; return BracketGuide(pair, 0) }
+            override fun visibleTokens(range: OffsetRange, focus: Int, maximum: Int): TokenWindow = error("tokens disabled")
+        }
+        guide.applyAnalysis(AnalysisUpdate(demands.last().revision,
+            AnalysisResult.Available(view, demands.last().coverage, BraceMatcherAvailability.AVAILABLE)))
+        val tracked = mutableListOf<RangeMarker>()
+        (editor.document as DocumentEx).processRangeMarkers { marker ->
+            if (marker.startOffset == pair.openOffset && marker.endOffset == pair.closeOffset + pair.closeTokenLength)
+                tracked += marker
+            true
+        }
+        assertEquals(1, tracked.size)
+        tracked.single().dispose()
+        guide.caretMoved()
+        assertEquals(2, queries)
+        val replacements = mutableListOf<RangeMarker>()
+        (editor.document as DocumentEx).processRangeMarkers { marker ->
+            if (marker.startOffset == pair.openOffset && marker.endOffset == pair.closeOffset + pair.closeTokenLength)
+                replacements += marker
+            true
+        }
+        assertEquals(1, replacements.size)
+        assertTrue(replacements.single().isValid)
+        assertNotSame(tracked.single(), replacements.single())
+    }
+
+    fun testFreshResultDuringUnchangedCaretQueryKeepsNewFrameAuthority() {
+        open(BracketGuidePreferences(colorBracketTokens = false, showActivePairBorder = true))
+        val pair = BracketPair(8, 1, myFixture.editor.document.textLength - 1, 1, 0, 0, 2)
+        var reenter = false
+        val fresh = BracketGuide(pair, 3, 1)
+        val oldView = object : BracketView {
+            override fun activePairAt(offset: Int): BracketPair {
+                if (reenter) {
+                    reenter = false
+                    assertEquals(ViewApplication.APPLIED,
+                        guide.applyAnalysis(AnalysisUpdate(demands.last().revision, available(pair, fresh))))
+                }
+                return pair
+            }
+            override fun guideFor(pair: BracketPair) = BracketGuide(pair, 0)
+            override fun visibleTokens(range: OffsetRange, focus: Int, maximum: Int): TokenWindow = error("tokens disabled")
+        }
+        guide.applyAnalysis(AnalysisUpdate(demands.last().revision,
+            AnalysisResult.Available(oldView, demands.last().coverage, BraceMatcherAvailability.AVAILABLE)))
+        reenter = true
+        guide.caretMoved()
+        val drawing = myFixture.editor.markupModel.allHighlighters.mapNotNull { it.customRenderer as? BracketGuideDrawing }.single()
+        assertEquals(fresh, drawing.guide)
+        assertEquals(3, myFixture.editor.markupModel.allHighlighters.size)
+        assertNull(demands.last().repair)
+        guide.caretMoved()
+        assertEquals(fresh, drawing.guide)
     }
 
     private fun installTrackedLookup(): GCWatcher {
