@@ -268,7 +268,7 @@ jobs:
         shell: bash
         run: |
           jq -s 'add' results/*/jmh.json > results/all-jmh.json
-          ./gradlew exportBenchmarkMetrics -PbenchmarkJob=all \
+          ./gradlew exportBenchmarkMetrics \
             -PbenchmarkResults=results/all-jmh.json -PbenchmarkBmf=results/all-bmf.json
           if [ '${{ needs.prepare.outputs.bencher }}' = true ]; then
             jq -s 'add' results/*/bmf.json | jq -S . > results/guest-bmf.json

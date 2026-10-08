@@ -10,7 +10,7 @@ import java.util.Map;
 import org.junit.Test;
 
 public class BenchmarkReportTest {
-    private List<Map<String, Object>> report() {
+    List<Map<String, Object>> report() {
         var rows = new ArrayList<Map<String, Object>>();
         for (String size : List.of("64", "4096")) {
             for (String distribution : List.of("siblings", "nested", "sparse", "malformed")) {

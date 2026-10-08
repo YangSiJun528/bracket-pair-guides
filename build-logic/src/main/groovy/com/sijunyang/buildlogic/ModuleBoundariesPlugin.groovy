@@ -46,8 +46,8 @@ class ModuleBoundariesPlugin implements Plugin<Project> {
         def expectedOwners = pureEntry(root) ? ['analysis-model', 'analysis-core'] : OWNERS
         require(owners.collect { it.name }.toSet() == expectedOwners.toSet(), 'production owner set is incomplete')
         root.tasks.register('exportBenchmarkMetrics', BenchmarkReportTask) {
-            inputFile.set(root.layout.file(root.providers.gradleProperty('benchmarkResults').map { root.file(it) }))
-            outputFile.set(root.layout.file(root.providers.gradleProperty('benchmarkBmf').orElse('build/benchmark-metrics.json').map { root.file(it) }))
+            inputFile.set(root.layout.projectDirectory.file(root.providers.gradleProperty('benchmarkResults')))
+            outputFile.set(root.layout.projectDirectory.file(root.providers.gradleProperty('benchmarkBmf').orElse('build/benchmark-metrics.json')))
             job.set(root.providers.gradleProperty('benchmarkJob').orElse('all'))
         }
         owners.each { owner ->

@@ -8,7 +8,7 @@ project lookup, registry push, remote measurement or result upload.
 Export complete production measurements without changing their values:
 
 ```shell
-./gradlew exportBenchmarkMetrics -PbenchmarkJob=all \
+./gradlew exportBenchmarkMetrics \
   -PbenchmarkResults=results/all-jmh.json -PbenchmarkBmf=results/all-bmf.json
 ```
 
