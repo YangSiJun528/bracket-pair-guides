@@ -1,0 +1,5199 @@
+{
+  "sourceReportSha256": "bb9696918ecc6769786b6d421d2052f3aa0c741ed5581d6e5e8766f89e8f3e84",
+  "phase": "pure",
+  "comparisonUnit": "six paired JMH invocations, each case/run score is the JMH mean over 2 forks x 3 measurement iterations",
+  "policy": "Six paired comparison units; JMH uses mean scores in the internal median slot, SDK uses per-fixture JVM trial summaries. No fork/trial pooling or retries; p95 nearest rank on observed SDK trials; null/censor/unsupported separate; allocation scopes never added. All increases reported; >20% paired median flagged for investigation, never auto-waived or auto-failed.",
+  "comparisons": [
+    {
+      "metric": "analyzeCold|malformed|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 829650.6743583389,
+          "candidate": 829328.3949701969,
+          "ratio": 0.9996115480911393,
+          "absoluteDelta": -322.2793881420512,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 829685.9215343687,
+          "candidate": 829521.5092559081,
+          "ratio": 0.999801837931447,
+          "absoluteDelta": -164.41227846057154,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 829668.3046930782,
+          "candidate": 829349.3920077565,
+          "ratio": 0.9996156142358125,
+          "absoluteDelta": -318.91268532164395,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 829651.7188718716,
+          "candidate": 829335.585281104,
+          "ratio": 0.999618956263723,
+          "absoluteDelta": -316.1335907676257,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 829652.1822562125,
+          "candidate": 829334.5319721325,
+          "ratio": 0.9996171283691244,
+          "absoluteDelta": -317.65028407995123,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 829650.0896075101,
+          "candidate": 829333.3232235868,
+          "ratio": 0.9996181927924901,
+          "absoluteDelta": -316.76638392335735,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9996176605808073,
+      "pairedMedianAbsoluteDelta": -317.2083340016543,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "analyzeCold|malformed|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 303851.9541532231,
+          "candidate": 310507.23428435955,
+          "ratio": 1.0219030354755607,
+          "absoluteDelta": 6655.280131136475,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 320788.6096788944,
+          "candidate": 324586.9785498681,
+          "ratio": 1.0118407223834283,
+          "absoluteDelta": 3798.3688709737035,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 324373.9696622608,
+          "candidate": 329326.368893791,
+          "ratio": 1.015267560577338,
+          "absoluteDelta": 4952.399231530202,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 305785.7486641351,
+          "candidate": 319351.02159395814,
+          "ratio": 1.044362018142064,
+          "absoluteDelta": 13565.272929823026,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 312872.5569038181,
+          "candidate": 310036.8457834797,
+          "ratio": 0.990936529721876,
+          "absoluteDelta": -2835.711120338412,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 301425.1821201903,
+          "candidate": 312888.5628079427,
+          "ratio": 1.0380306005195727,
+          "absoluteDelta": 11463.38068775239,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0185852980264494,
+      "pairedMedianAbsoluteDelta": 5803.839681333338,
+      "pairsWithIncrease": 5,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeCold|malformed|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 11656.02162428427,
+          "candidate": 11520.02052497514,
+          "ratio": 0.9883321167639407,
+          "absoluteDelta": -136.00109930913095,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 11696.020058369913,
+          "candidate": 11560.020372896803,
+          "ratio": 0.9883721398566013,
+          "absoluteDelta": -135.99968547311073,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 11696.020799852406,
+          "candidate": 11520.020725439164,
+          "ratio": 0.9849521407814645,
+          "absoluteDelta": -176.00007441324124,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 11676.021940554267,
+          "candidate": 11520.020863460952,
+          "ratio": 0.9866391928785713,
+          "absoluteDelta": -156.00107709331496,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 11656.021189888146,
+          "candidate": 11540.020863555168,
+          "ratio": 0.9900480340209392,
+          "absoluteDelta": -116.00032633297815,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 11656.019967963131,
+          "candidate": 11520.020505129092,
+          "ratio": 0.9883322555033505,
+          "absoluteDelta": -135.99946283403915,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9883321861336456,
+      "pairedMedianAbsoluteDelta": -136.00039239112084,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "analyzeCold|malformed|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 3672.491006717622,
+          "candidate": 3486.4508702548774,
+          "ratio": 0.949342248593,
+          "absoluteDelta": -186.0401364627446,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 3410.1743920482913,
+          "candidate": 3468.0426743749626,
+          "ratio": 1.0169693029370013,
+          "absoluteDelta": 57.868282326671306,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 3540.722050279784,
+          "candidate": 3524.69826993073,
+          "ratio": 0.9954744314516899,
+          "absoluteDelta": -16.02378034905405,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 3730.9190039031146,
+          "candidate": 3539.00547657165,
+          "ratio": 0.9485613257402014,
+          "absoluteDelta": -191.9135273314646,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 3601.949927628655,
+          "candidate": 3540.317270410041,
+          "ratio": 0.9828890855073075,
+          "absoluteDelta": -61.632657218613986,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 3391.1620222965817,
+          "candidate": 3485.6298558487856,
+          "ratio": 1.0278570687366415,
+          "absoluteDelta": 94.46783355220396,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9891817584794986,
+      "pairedMedianAbsoluteDelta": -38.82821878383402,
+      "pairsWithIncrease": 2,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeCold|nested|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 1683718.0261416526,
+          "candidate": 1683429.0815854382,
+          "ratio": 0.9998283889869157,
+          "absoluteDelta": -288.944556214381,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 1683737.1256428529,
+          "candidate": 1683429.135809526,
+          "ratio": 0.9998170796209004,
+          "absoluteDelta": -307.98983332677744,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 1683736.9708908543,
+          "candidate": 1683428.7856413256,
+          "ratio": 0.999816963543085,
+          "absoluteDelta": -308.1852495286148,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 1683717.9953455736,
+          "candidate": 1683429.5089646773,
+          "ratio": 0.9998286611049512,
+          "absoluteDelta": -288.4863808962982,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 1683716.8036198553,
+          "candidate": 1683428.698385382,
+          "ratio": 0.9998288873557276,
+          "absoluteDelta": -288.1052344732452,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 1683717.7635057538,
+          "candidate": 1683428.5037994029,
+          "ratio": 0.99982820178499,
+          "absoluteDelta": -289.25970635097474,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9998282953859529,
+      "pairedMedianAbsoluteDelta": -289.1021312826779,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "analyzeCold|nested|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 926355.2388212538,
+          "candidate": 927204.5160575324,
+          "ratio": 1.0009167943362196,
+          "absoluteDelta": 849.2772362786345,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 974156.4072116846,
+          "candidate": 934819.1664257835,
+          "ratio": 0.9596191735796353,
+          "absoluteDelta": -39337.240785901085,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 973794.3427957972,
+          "candidate": 930149.5633251596,
+          "ratio": 0.9551807013528834,
+          "absoluteDelta": -43644.77947063756,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 929700.6424860255,
+          "candidate": 935539.2082549772,
+          "ratio": 1.0062800491923287,
+          "absoluteDelta": 5838.565768951783,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 922467.1547708452,
+          "candidate": 921534.0718139317,
+          "ratio": 0.9989884919456614,
+          "absoluteDelta": -933.0829569135094,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 923300.7372995958,
+          "candidate": 927686.7082576252,
+          "ratio": 1.0047503167503766,
+          "absoluteDelta": 4385.970958029386,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9999526431409405,
+      "pairedMedianAbsoluteDelta": -41.902860317437444,
+      "pairsWithIncrease": 3,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeCold|nested|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 25036.067959948265,
+          "candidate": 25008.06969584104,
+          "ratio": 0.9988816828524346,
+          "absoluteDelta": -27.998264107223804,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 25056.073142335237,
+          "candidate": 24988.069746409634,
+          "ratio": 0.9972859515719283,
+          "absoluteDelta": -68.0033959256034,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 25016.068586200912,
+          "candidate": 24968.070200707192,
+          "ratio": 0.9980812978135103,
+          "absoluteDelta": -47.99838549371998,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 25036.068351393373,
+          "candidate": 24988.069746483106,
+          "ratio": 0.9980828217818956,
+          "absoluteDelta": -47.998604910266295,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 24996.068679252236,
+          "candidate": 24968.070247292315,
+          "ratio": 0.9988798865805981,
+          "absoluteDelta": -27.99843195992071,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 25036.068221302656,
+          "candidate": 24988.07004725971,
+          "ratio": 0.9980828389817973,
+          "absoluteDelta": -47.99817404294663,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9980828303818464,
+      "pairedMedianAbsoluteDelta": -47.998279768333305,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "analyzeCold|nested|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 11512.811587569371,
+          "candidate": 11843.601375997265,
+          "ratio": 1.0287323201558387,
+          "absoluteDelta": 330.78978842789365,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 12393.20118728232,
+          "candidate": 11780.555213056434,
+          "ratio": 0.9505659623395307,
+          "absoluteDelta": -612.6459742258867,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 11617.07520960969,
+          "candidate": 11891.22354114421,
+          "ratio": 1.0235987394923418,
+          "absoluteDelta": 274.1483315345213,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 11556.654155372742,
+          "candidate": 11823.050727025848,
+          "ratio": 1.0230513579511469,
+          "absoluteDelta": 266.39657165310564,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 11615.879518510652,
+          "candidate": 11907.370999064742,
+          "ratio": 1.0250942238243415,
+          "absoluteDelta": 291.49148055409023,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 11611.696367701335,
+          "candidate": 11875.97093088569,
+          "ratio": 1.0227593415135665,
+          "absoluteDelta": 264.27456318435543,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0233250487217442,
+      "pairedMedianAbsoluteDelta": 270.27245159381346,
+      "pairsWithIncrease": 5,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeCold|siblings|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 2854991.6719138953,
+          "candidate": 2910887.8795155194,
+          "ratio": 1.019578413538472,
+          "absoluteDelta": 55896.207601624075,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 2856528.526952084,
+          "candidate": 2909735.440798716,
+          "ratio": 1.0186264248176102,
+          "absoluteDelta": 53206.913846632,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 2856528.340440796,
+          "candidate": 2912039.576910272,
+          "ratio": 1.0194331124545781,
+          "absoluteDelta": 55511.23646947555,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 2853455.9210571223,
+          "candidate": 2908583.740064169,
+          "ratio": 1.0193196672849334,
+          "absoluteDelta": 55127.81900704652,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 2853455.826481963,
+          "candidate": 2910887.51565104,
+          "ratio": 1.0201270643954157,
+          "absoluteDelta": 57431.68916907674,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 2854991.6448948854,
+          "candidate": 2908583.8089560755,
+          "ratio": 1.01877139085749,
+          "absoluteDelta": 53592.164061190095,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0193763898697559,
+      "pairedMedianAbsoluteDelta": 55319.52773826104,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeCold|siblings|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 1273755.8725709415,
+          "candidate": 1309073.3509811799,
+          "ratio": 1.0277270387291355,
+          "absoluteDelta": 35317.4784102384,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 1314424.2759051323,
+          "candidate": 1232779.9835750675,
+          "ratio": 0.9378858913163002,
+          "absoluteDelta": -81644.29233006481,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 1210764.8827886789,
+          "candidate": 1257455.4910655404,
+          "ratio": 1.0385629026250927,
+          "absoluteDelta": 46690.60827686149,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 1304086.4194198062,
+          "candidate": 1284098.697757383,
+          "ratio": 0.9846730083491585,
+          "absoluteDelta": -19987.721662423108,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 1289195.8606974196,
+          "candidate": 1241186.170036543,
+          "ratio": 0.9627599714484774,
+          "absoluteDelta": -48009.69066087669,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 1262079.7897604199,
+          "candidate": 1294203.429375787,
+          "ratio": 1.0254529387729638,
+          "absoluteDelta": 32123.639615367167,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0050629735610612,
+      "pairedMedianAbsoluteDelta": 6067.9589764720295,
+      "pairsWithIncrease": 3,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeCold|siblings|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 47108.08323101824,
+          "candidate": 47857.41840110276,
+          "ratio": 1.015906721706544,
+          "absoluteDelta": 749.3351700845233,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 47128.084365282935,
+          "candidate": 47872.08877604045,
+          "ratio": 1.0157868587441587,
+          "absoluteDelta": 744.0044107575159,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 47113.51571049248,
+          "candidate": 47872.08792791966,
+          "ratio": 1.0161009469573132,
+          "absoluteDelta": 758.5722174271796,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 47088.08304927892,
+          "candidate": 47861.345263793475,
+          "ratio": 1.0164216116783797,
+          "absoluteDelta": 773.2622145145579,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 47108.08238183235,
+          "candidate": 47872.084808997046,
+          "ratio": 1.0162180752969758,
+          "absoluteDelta": 764.002427164698,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 47036.084489159846,
+          "candidate": 47869.47958760348,
+          "ratio": 1.0177182073613227,
+          "absoluteDelta": 833.3950984436306,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0161595111271446,
+      "pairedMedianAbsoluteDelta": 761.2873222959388,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeCold|siblings|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 14098.401578230383,
+          "candidate": 14364.303216955159,
+          "ratio": 1.018860410327321,
+          "absoluteDelta": 265.9016387247757,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 14310.286743117096,
+          "candidate": 15062.818408976096,
+          "ratio": 1.052586763589552,
+          "absoluteDelta": 752.531665859,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 14648.772454991746,
+          "candidate": 14839.739692916735,
+          "ratio": 1.0130363986819875,
+          "absoluteDelta": 190.9672379249896,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 14032.00049870095,
+          "candidate": 14842.370432952317,
+          "ratio": 1.0577515611067994,
+          "absoluteDelta": 810.3699342513664,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 13972.739515503965,
+          "candidate": 14360.973061685718,
+          "ratio": 1.0277850700466415,
+          "absoluteDelta": 388.2335461817529,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 14399.122656092679,
+          "candidate": 15030.863827478059,
+          "ratio": 1.0438735877507141,
+          "absoluteDelta": 631.7411713853799,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0358293288986777,
+      "pairedMedianAbsoluteDelta": 509.9873587835664,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeCold|sparse|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 520490.76892561984,
+          "candidate": 529251.6089280915,
+          "ratio": 1.0168318835328347,
+          "absoluteDelta": 8760.84000247164,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 519682.3616993637,
+          "candidate": 529297.7282440792,
+          "ratio": 1.0185023915633258,
+          "absoluteDelta": 9615.366544715478,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 519732.9005345485,
+          "candidate": 529303.4041139078,
+          "ratio": 1.0184142731189731,
+          "absoluteDelta": 9570.503579359327,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 520501.0649982714,
+          "candidate": 529245.9361251161,
+          "ratio": 1.0168008707664675,
+          "absoluteDelta": 8744.871126844664,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 520507.9191096814,
+          "candidate": 529288.6516813623,
+          "ratio": 1.0168695465511843,
+          "absoluteDelta": 8780.732571680914,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 520481.91889850935,
+          "candidate": 529298.1630137403,
+          "ratio": 1.0169386174526267,
+          "absoluteDelta": 8816.244115230977,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0169040820019055,
+      "pairedMedianAbsoluteDelta": 8798.488343455945,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeCold|sparse|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 262791.94779131474,
+          "candidate": 400166.39490333246,
+          "ratio": 1.5227498341049168,
+          "absoluteDelta": 137374.44711201772,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 255842.1408791953,
+          "candidate": 533538.7108975843,
+          "ratio": 2.0854215379221404,
+          "absoluteDelta": 277696.57001838903,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 334236.67933475936,
+          "candidate": 523655.16833571345,
+          "ratio": 1.5667196352535544,
+          "absoluteDelta": 189418.48900095408,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 351223.8717281928,
+          "candidate": 402000.3257459102,
+          "ratio": 1.1445700537605046,
+          "absoluteDelta": 50776.45401771739,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 348948.4275159591,
+          "candidate": 527620.4319120495,
+          "ratio": 1.512029831078459,
+          "absoluteDelta": 178672.00439609046,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 262249.9491534221,
+          "candidate": 528004.1320704528,
+          "ratio": 2.0133621904405348,
+          "absoluteDelta": 265754.1829170307,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.5447347346792357,
+      "pairedMedianAbsoluteDelta": 184045.24669852227,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeCold|sparse|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 13088.043829605283,
+          "candidate": 13132.044650523496,
+          "ratio": 1.0033619096551833,
+          "absoluteDelta": 44.00082091821241,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 13128.044156497543,
+          "candidate": 13112.04307848778,
+          "ratio": 0.9987811529410615,
+          "absoluteDelta": -16.00107800976184,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 13128.04363821955,
+          "candidate": 13112.043514253906,
+          "ratio": 0.9987812255651664,
+          "absoluteDelta": -16.00012396564307,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 13088.044091465292,
+          "candidate": 13152.042814053106,
+          "ratio": 1.0048898614751418,
+          "absoluteDelta": 63.99872258781397,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 13088.043784432826,
+          "candidate": 13172.036087759336,
+          "ratio": 1.0064174833695476,
+          "absoluteDelta": 83.9923033265095,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 13108.04427721823,
+          "candidate": 13172.036450114882,
+          "ratio": 1.0048819008803525,
+          "absoluteDelta": 63.99217289665103,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.004121905267768,
+      "pairedMedianAbsoluteDelta": 53.99649690743172,
+      "pairsWithIncrease": 4,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeCold|sparse|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 7424.3810014256005,
+          "candidate": 7563.20123087794,
+          "ratio": 1.0186978859821019,
+          "absoluteDelta": 138.82022945233985,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 7495.640679866788,
+          "candidate": 7306.337336281626,
+          "ratio": 0.9747448748318969,
+          "absoluteDelta": -189.3033435851612,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 7384.330758039919,
+          "candidate": 7396.2258150398675,
+          "ratio": 1.0016108510560686,
+          "absoluteDelta": 11.895056999948793,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 7475.765901808329,
+          "candidate": 7266.778671980611,
+          "ratio": 0.9720447065126577,
+          "absoluteDelta": -208.98722982771778,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 7424.942529567066,
+          "candidate": 6113.7276488321295,
+          "ratio": 0.8234040363930748,
+          "absoluteDelta": -1311.2148807349367,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 7508.4081593199335,
+          "candidate": 6191.558301034737,
+          "ratio": 0.8246166390607529,
+          "absoluteDelta": -1316.8498582851962,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9733947906722773,
+      "pairedMedianAbsoluteDelta": -199.1452867064395,
+      "pairsWithIncrease": 2,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeReuse|malformed|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 829141.1037301304,
+          "candidate": 829027.8889531355,
+          "ratio": 0.9998634553558067,
+          "absoluteDelta": -113.21477699489333,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 829129.9909668957,
+          "candidate": 829034.138389851,
+          "ratio": 0.9998843937885626,
+          "absoluteDelta": -95.85257704474498,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 829141.3212749175,
+          "candidate": 829049.2484278781,
+          "ratio": 0.999888953976027,
+          "absoluteDelta": -92.07284703932237,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 829130.988324713,
+          "candidate": 829036.6297191373,
+          "ratio": 0.9998861957797931,
+          "absoluteDelta": -94.35860557563137,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 829130.7166945139,
+          "candidate": 829045.2111874145,
+          "ratio": 0.9998968733091443,
+          "absoluteDelta": -85.50550709944218,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 829148.8848701323,
+          "candidate": 829024.4490382342,
+          "ratio": 0.999849923416447,
+          "absoluteDelta": -124.43583189812489,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9998852947841779,
+      "pairedMedianAbsoluteDelta": -95.10559131018817,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "analyzeReuse|malformed|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 302392.25711901905,
+          "candidate": 319102.52461578866,
+          "ratio": 1.0552602360125662,
+          "absoluteDelta": 16710.267496769608,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 302483.252519125,
+          "candidate": 320467.9042366633,
+          "ratio": 1.05945668584214,
+          "absoluteDelta": 17984.651717538305,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 304660.13878334727,
+          "candidate": 319608.7557430666,
+          "ratio": 1.0490665336772191,
+          "absoluteDelta": 14948.616959719337,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 303409.3767146146,
+          "candidate": 309712.67656446976,
+          "ratio": 1.020774901283898,
+          "absoluteDelta": 6303.2998498551315,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 303259.29930828454,
+          "candidate": 310762.92986333085,
+          "ratio": 1.0247432826368774,
+          "absoluteDelta": 7503.630555046315,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 314680.7844990086,
+          "candidate": 310568.9554805272,
+          "ratio": 0.9869333330122851,
+          "absoluteDelta": -4111.829018481425,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0369049081570483,
+      "pairedMedianAbsoluteDelta": 11226.123757382826,
+      "pairsWithIncrease": 5,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeReuse|malformed|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 11136.021210567198,
+          "candidate": 11244.020407745413,
+          "ratio": 1.0096981852976117,
+          "absoluteDelta": 107.99919717821467,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 11136.021230948072,
+          "candidate": 11224.02086372736,
+          "ratio": 1.0079022508088193,
+          "absoluteDelta": 87.99963277928873,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 11136.021613887262,
+          "candidate": 11224.01877913544,
+          "ratio": 1.0079020289560539,
+          "absoluteDelta": 87.99716524817813,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 11136.019184926947,
+          "candidate": 11224.020343989643,
+          "ratio": 1.0079023893189596,
+          "absoluteDelta": 88.00115906269639,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 11136.021553014152,
+          "candidate": 11220.019139625454,
+          "ratio": 1.0075428721299993,
+          "absoluteDelta": 83.99758661130181,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 11136.02144531018,
+          "candidate": 11224.020148052674,
+          "ratio": 1.0079021671406312,
+          "absoluteDelta": 87.99870274249406,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0079022089747252,
+      "pairedMedianAbsoluteDelta": 87.9991677608914,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeReuse|malformed|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 3613.5740260062007,
+          "candidate": 3470.7278901477307,
+          "ratio": 0.9604695697859146,
+          "absoluteDelta": -142.84613585847,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 3603.560417075511,
+          "candidate": 3541.637135458117,
+          "ratio": 0.9828160834146225,
+          "absoluteDelta": -61.92328161739397,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 3678.294104210065,
+          "candidate": 3191.6342994928013,
+          "ratio": 0.867694156331804,
+          "absoluteDelta": -486.6598047172638,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 3254.173860122666,
+          "candidate": 3460.433490657122,
+          "ratio": 1.0633831010266552,
+          "absoluteDelta": 206.25963053445594,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 3659.078250844241,
+          "candidate": 3255.0964861021316,
+          "ratio": 0.889594663724696,
+          "absoluteDelta": -403.9817647421096,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 3635.6275456377334,
+          "candidate": 3411.247184834343,
+          "ratio": 0.9382829076997679,
+          "absoluteDelta": -224.38036080339043,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9493762387428413,
+      "pairedMedianAbsoluteDelta": -183.61324833093022,
+      "pairsWithIncrease": 1,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeReuse|nested|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 1683203.6656577548,
+          "candidate": 1683169.2513578143,
+          "ratio": 0.999979554286482,
+          "absoluteDelta": -34.41429994045757,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 1683202.5339874497,
+          "candidate": 1683167.8022597097,
+          "ratio": 0.9999793656871121,
+          "absoluteDelta": -34.73172774002887,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 1683201.5164332974,
+          "candidate": 1683168.7992330946,
+          "ratio": 0.9999805625173911,
+          "absoluteDelta": -32.71720020286739,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 1683203.9302588862,
+          "candidate": 1683169.268398267,
+          "ratio": 0.9999794072126401,
+          "absoluteDelta": -34.66186061920598,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 1683201.4194619611,
+          "candidate": 1683167.337132444,
+          "ratio": 0.9999797514848056,
+          "absoluteDelta": -34.08232951723039,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 1683202.17661901,
+          "candidate": 1683170.4481484871,
+          "ratio": 0.9999811499349492,
+          "absoluteDelta": -31.728470522910357,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9999796528856437,
+      "pairedMedianAbsoluteDelta": -34.24831472884398,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "analyzeReuse|nested|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 954916.1962276296,
+          "candidate": 953326.0147552887,
+          "ratio": 0.9983347423798834,
+          "absoluteDelta": -1590.1814723408315,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 939768.3478661189,
+          "candidate": 942166.5039279718,
+          "ratio": 1.00255185872912,
+          "absoluteDelta": 2398.156061852933,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 944720.4102933654,
+          "candidate": 947226.9754661265,
+          "ratio": 1.0026532349099802,
+          "absoluteDelta": 2506.5651727610966,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 950050.5613748454,
+          "candidate": 953527.5968382196,
+          "ratio": 1.0036598425438983,
+          "absoluteDelta": 3477.035463374108,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 940505.3389589257,
+          "candidate": 941339.0720957423,
+          "ratio": 1.000886473582106,
+          "absoluteDelta": 833.7331368166488,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 947210.0430632246,
+          "candidate": 958579.9052018543,
+          "ratio": 1.0120035278573063,
+          "absoluteDelta": 11369.862138629658,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.00260254681955,
+      "pairedMedianAbsoluteDelta": 2452.3606173070148,
+      "pairsWithIncrease": 5,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeReuse|nested|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 24492.069779757152,
+          "candidate": 24688.07100142568,
+          "ratio": 1.008002640178272,
+          "absoluteDelta": 196.00122166852816,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 24532.06960495171,
+          "candidate": 24708.071544310336,
+          "ratio": 1.0071743616495814,
+          "absoluteDelta": 176.00193935862626,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 24512.069276535734,
+          "candidate": 24728.07160825326,
+          "ratio": 1.0088120806644543,
+          "absoluteDelta": 216.00233171752552,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 24492.06991559822,
+          "candidate": 24712.07155542013,
+          "ratio": 1.0089825662175576,
+          "absoluteDelta": 220.00163982191225,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 24472.069556626713,
+          "candidate": 24688.070977394604,
+          "ratio": 1.008826446830256,
+          "absoluteDelta": 216.00142076789052,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 24512.06925281307,
+          "candidate": 24688.071499909973,
+          "ratio": 1.0071802280452804,
+          "absoluteDelta": 176.00224709690156,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.008407360421363,
+      "pairedMedianAbsoluteDelta": 206.00132121820934,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeReuse|nested|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 11802.359393913,
+          "candidate": 11986.851183895515,
+          "ratio": 1.0156317719046637,
+          "absoluteDelta": 184.4917899825141,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 11776.934803162178,
+          "candidate": 12149.846217946013,
+          "ratio": 1.0316645562717819,
+          "absoluteDelta": 372.9114147838354,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 11751.064965552474,
+          "candidate": 12153.89464251261,
+          "ratio": 1.0342802697577629,
+          "absoluteDelta": 402.82967696013657,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 11815.913965727757,
+          "candidate": 12156.01552284076,
+          "ratio": 1.0287833474498438,
+          "absoluteDelta": 340.10155711300285,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 11756.9777203911,
+          "candidate": 11998.280011138626,
+          "ratio": 1.0205241769174245,
+          "absoluteDelta": 241.30229074752606,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 11768.6710005161,
+          "candidate": 12116.407287566231,
+          "ratio": 1.0295476258138987,
+          "absoluteDelta": 347.73628705013107,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0291654866318711,
+      "pairedMedianAbsoluteDelta": 343.91892208156696,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeReuse|siblings|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 2856007.562186645,
+          "candidate": 2910631.899800399,
+          "ratio": 1.0191261179896638,
+          "absoluteDelta": 54624.337613753974,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 2852935.9007876585,
+          "candidate": 2909479.548137335,
+          "ratio": 1.0198194594326726,
+          "absoluteDelta": 56543.64734967658,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 2854471.9198293756,
+          "candidate": 2915239.679431396,
+          "ratio": 1.021288617057285,
+          "absoluteDelta": 60767.759602020495,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 2852936.047319383,
+          "candidate": 2912935.3795293104,
+          "ratio": 1.0210307315743383,
+          "absoluteDelta": 59999.332209927496,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 2852936.0802299646,
+          "candidate": 2912935.449461729,
+          "ratio": 1.0210307443084838,
+          "absoluteDelta": 59999.36923176423,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 2852935.919401597,
+          "candidate": 2911783.735476425,
+          "ratio": 1.020627107561242,
+          "absoluteDelta": 58847.816074827686,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0208289195677902,
+      "pairedMedianAbsoluteDelta": 59423.57414237759,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeReuse|siblings|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 1230622.1387027146,
+          "candidate": 1309750.3001037699,
+          "ratio": 1.064299315697725,
+          "absoluteDelta": 79128.16140105529,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 1295090.9955360638,
+          "candidate": 1249160.0576672822,
+          "ratio": 0.9645345863517722,
+          "absoluteDelta": -45930.93786878162,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 1290178.4341923743,
+          "candidate": 1276521.9885325371,
+          "ratio": 0.9894150721342774,
+          "absoluteDelta": -13656.44565983722,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 1312291.6989783493,
+          "candidate": 1219374.7343859125,
+          "ratio": 0.9291948850512619,
+          "absoluteDelta": -92916.9645924368,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 1315814.2905658616,
+          "candidate": 1227684.8254743237,
+          "ratio": 0.933022869774702,
+          "absoluteDelta": -88129.46509153792,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 1292182.36561177,
+          "candidate": 1285771.1779790288,
+          "ratio": 0.9950384807877285,
+          "absoluteDelta": -6411.187632741174,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9769748292430248,
+      "pairedMedianAbsoluteDelta": -29793.69176430942,
+      "pairsWithIncrease": 1,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeReuse|siblings|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 46609.31928639202,
+          "candidate": 47609.58788673938,
+          "ratio": 1.0214606996124784,
+          "absoluteDelta": 1000.2686003473573,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 46624.08295639014,
+          "candidate": 47572.09250820804,
+          "ratio": 1.020333044463408,
+          "absoluteDelta": 948.0095518179005,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 46604.086567329534,
+          "candidate": 47552.08888124374,
+          "ratio": 1.0203416134450918,
+          "absoluteDelta": 948.0023139142068,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 46595.014034805936,
+          "candidate": 47616.089134883776,
+          "ratio": 1.021913827503413,
+          "absoluteDelta": 1021.07510007784,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 46517.35624117639,
+          "candidate": 47609.810336394934,
+          "ratio": 1.0234848706696602,
+          "absoluteDelta": 1092.4540952185416,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 46624.08279787594,
+          "candidate": 47592.08716424583,
+          "ratio": 1.0207618961764109,
+          "absoluteDelta": 968.0043663698889,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0211112978944445,
+      "pairedMedianAbsoluteDelta": 984.1364833586231,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeReuse|siblings|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 14618.708225409884,
+          "candidate": 15207.608000992064,
+          "ratio": 1.0402839817651308,
+          "absoluteDelta": 588.8997755821802,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 14083.292676582298,
+          "candidate": 15645.847434197984,
+          "ratio": 1.1109509539778224,
+          "absoluteDelta": 1562.554757615686,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 14598.851705988345,
+          "candidate": 15061.130563646715,
+          "ratio": 1.0316654259505045,
+          "absoluteDelta": 462.2788576583698,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 14703.145934906503,
+          "candidate": 15078.591639699689,
+          "ratio": 1.0255350593985364,
+          "absoluteDelta": 375.44570479318645,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 14591.026819280234,
+          "candidate": 15142.544769184511,
+          "ratio": 1.0377984330188137,
+          "absoluteDelta": 551.517949904277,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 14048.286049592547,
+          "candidate": 14832.725214125932,
+          "ratio": 1.0558387807426612,
+          "absoluteDelta": 784.4391645333853,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0390412073919721,
+      "pairedMedianAbsoluteDelta": 570.2088627432286,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeReuse|sparse|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 520006.383572764,
+          "candidate": 529023.8476401372,
+          "ratio": 1.0173410641719773,
+          "absoluteDelta": 9017.464067373192,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 519969.37534691097,
+          "candidate": 529025.527177523,
+          "ratio": 1.0174167023289977,
+          "absoluteDelta": 9056.151830612042,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 520014.12081192835,
+          "candidate": 529027.1614378899,
+          "ratio": 1.0173322997688774,
+          "absoluteDelta": 9013.040625961556,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 520012.8131832465,
+          "candidate": 529374.8551724897,
+          "ratio": 1.0180034832832938,
+          "absoluteDelta": 9362.041989243182,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 519993.51792114513,
+          "candidate": 529026.2389444351,
+          "ratio": 1.0173708338892404,
+          "absoluteDelta": 9032.72102329001,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 519983.80538373435,
+          "candidate": 529040.1276312154,
+          "ratio": 1.0174165467341771,
+          "absoluteDelta": 9056.322247481032,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.017393690311709,
+      "pairedMedianAbsoluteDelta": 9044.436426951026,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeReuse|sparse|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 343743.4178774869,
+          "candidate": 528787.9959596522,
+          "ratio": 1.5383218076574685,
+          "absoluteDelta": 185044.57808216533,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 267741.9553211568,
+          "candidate": 523853.75802286173,
+          "ratio": 1.9565620837963122,
+          "absoluteDelta": 256111.8027017049,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 351143.25050100236,
+          "candidate": 528676.9016575761,
+          "ratio": 1.5055875370045506,
+          "absoluteDelta": 177533.65115657373,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 345702.35428963014,
+          "candidate": 404165.53796612634,
+          "ratio": 1.1691142190704193,
+          "absoluteDelta": 58463.183676496206,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 349723.2677686761,
+          "candidate": 525472.1711110579,
+          "ratio": 1.5025370615564264,
+          "absoluteDelta": 175748.90334238176,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 268178.8396960146,
+          "candidate": 524747.2629570545,
+          "ratio": 1.9567064409401753,
+          "absoluteDelta": 256568.42326103995,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.5219546723310096,
+      "pairedMedianAbsoluteDelta": 181289.11461936953,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeReuse|sparse|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 12568.043751081043,
+          "candidate": 12816.044626076917,
+          "ratio": 1.0197326552888983,
+          "absoluteDelta": 248.00087499587426,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 12568.044210135902,
+          "candidate": 12816.044906548967,
+          "ratio": 1.019732640358876,
+          "absoluteDelta": 248.00069641306436,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 12568.04415840714,
+          "candidate": 12816.044240624346,
+          "ratio": 1.0197325915704483,
+          "absoluteDelta": 248.000082217206,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 12568.04348722804,
+          "candidate": 12816.04260891121,
+          "ratio": 1.0197325161975443,
+          "absoluteDelta": 247.9991216831695,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 12568.044316481371,
+          "candidate": 12876.036021009118,
+          "ratio": 1.0245059371825938,
+          "absoluteDelta": 307.99170452774706,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 12588.044082219762,
+          "candidate": 12876.03567277999,
+          "ratio": 1.022878184146734,
+          "absoluteDelta": 287.99159056022836,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0197326478238873,
+      "pairedMedianAbsoluteDelta": 248.0007857044693,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "analyzeReuse|sparse|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 7425.0263672146075,
+          "candidate": 7575.269831441474,
+          "ratio": 1.0202347381404961,
+          "absoluteDelta": 150.2434642268663,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 7490.479999915279,
+          "candidate": 7597.60157945761,
+          "ratio": 1.0143010300466115,
+          "absoluteDelta": 107.12157954233044,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 7485.450969275648,
+          "candidate": 7485.73326200532,
+          "ratio": 1.0000377121873927,
+          "absoluteDelta": 0.28229272967200814,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 7358.512068857792,
+          "candidate": 7252.804105730086,
+          "ratio": 0.9856346008352591,
+          "absoluteDelta": -105.70796312770563,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 7503.857011348788,
+          "candidate": 6132.871234729297,
+          "ratio": 0.8172958553786379,
+          "absoluteDelta": -1370.985776619491,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 7465.663320495412,
+          "candidate": 6065.5241538672735,
+          "ratio": 0.8124561600863582,
+          "absoluteDelta": -1400.1391666281388,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.992836156511326,
+      "pairedMedianAbsoluteDelta": -52.71283519901681,
+      "pairsWithIncrease": 3,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "cancelledAttempt|malformed|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 48484.11532767525,
+          "candidate": 69376.12379672685,
+          "ratio": 1.430904190534466,
+          "absoluteDelta": 20892.0084690516,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 48504.1153072259,
+          "candidate": 69376.12678369791,
+          "ratio": 1.4303142391994645,
+          "absoluteDelta": 20872.011476472013,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 48486.10353119947,
+          "candidate": 69376.11937886645,
+          "ratio": 1.4308454242817188,
+          "absoluteDelta": 20890.015847666982,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 48504.11440315988,
+          "candidate": 69376.12519892515,
+          "ratio": 1.4303142331860723,
+          "absoluteDelta": 20872.010795765265,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 48504.115391762134,
+          "candidate": 69376.1245348631,
+          "ratio": 1.4303141903428227,
+          "absoluteDelta": 20872.00914310097,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 48504.11237356489,
+          "candidate": 69358.7546988938,
+          "ratio": 1.429956168761782,
+          "absoluteDelta": 20854.64232532891,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.4303142361927685,
+      "pairedMedianAbsoluteDelta": 20872.01113611864,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "cancelledAttempt|malformed|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 19501.94458222193,
+          "candidate": 20922.47117027908,
+          "ratio": 1.0728402535484645,
+          "absoluteDelta": 1420.5265880571496,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 19369.119407367416,
+          "candidate": 21359.57274784428,
+          "ratio": 1.1027642660780828,
+          "absoluteDelta": 1990.4533404768626,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 19104.45067083872,
+          "candidate": 20131.373381839217,
+          "ratio": 1.0537530614564075,
+          "absoluteDelta": 1026.9227110004977,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 19332.009492864,
+          "candidate": 21033.24683764554,
+          "ratio": 1.0880010609041713,
+          "absoluteDelta": 1701.2373447815407,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 19456.360211871404,
+          "candidate": 20915.09299463041,
+          "ratio": 1.0749745978628085,
+          "absoluteDelta": 1458.7327827590052,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 19072.39346160811,
+          "candidate": 20448.99250242381,
+          "ratio": 1.0721775713985104,
+          "absoluteDelta": 1376.5990408157013,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0739074257056365,
+      "pairedMedianAbsoluteDelta": 1439.6296854080774,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "cancelledAttempt|malformed|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 12012.02905262383,
+          "candidate": 12152.024139376997,
+          "ratio": 1.0116545744386614,
+          "absoluteDelta": 139.99508675316793,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 12012.02877226939,
+          "candidate": 12172.024548578358,
+          "ratio": 1.0133196297929563,
+          "absoluteDelta": 159.99577630896783,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 12032.029128690025,
+          "candidate": 12152.024079224668,
+          "ratio": 1.0099729604417693,
+          "absoluteDelta": 119.99495053464307,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 12012.0282665721,
+          "candidate": 12156.024038079086,
+          "ratio": 1.0119876317563876,
+          "absoluteDelta": 143.99577150698497,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 11992.02847807089,
+          "candidate": 12152.024622973702,
+          "ratio": 1.0133418749959933,
+          "absoluteDelta": 159.99614490281238,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 11992.0287708069,
+          "candidate": 12152.02432470311,
+          "ratio": 1.0133418253870186,
+          "absoluteDelta": 159.99555389620946,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0126536307746719,
+      "pairedMedianAbsoluteDelta": 151.9956627015972,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "cancelledAttempt|malformed|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 4920.91167011331,
+          "candidate": 4105.399711168781,
+          "ratio": 0.8342762452133691,
+          "absoluteDelta": -815.5119589445285,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 4887.069008738661,
+          "candidate": 4173.737371985338,
+          "ratio": 0.854036921623615,
+          "absoluteDelta": -713.3316367533234,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 4945.478245564341,
+          "candidate": 4090.071921007564,
+          "ratio": 0.8270326382844772,
+          "absoluteDelta": -855.4063245567768,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 4798.3931771624275,
+          "candidate": 4072.4529278775794,
+          "ratio": 0.848711803622116,
+          "absoluteDelta": -725.940249284848,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 4830.113681050225,
+          "candidate": 4177.7791169961465,
+          "ratio": 0.8649442627792894,
+          "absoluteDelta": -652.3345640540783,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 4868.33801551289,
+          "candidate": 4140.657047675146,
+          "ratio": 0.8505278463576278,
+          "absoluteDelta": -727.680967837744,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.8496198249898719,
+      "pairedMedianAbsoluteDelta": -726.810608561296,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "cancelledAttempt|nested|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 93272.12671886756,
+          "candidate": 121664.1685112487,
+          "ratio": 1.3044000688218238,
+          "absoluteDelta": 28392.041792381147,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 93272.127474816,
+          "candidate": 121664.16880456865,
+          "ratio": 1.3044000613947468,
+          "absoluteDelta": 28392.04132975264,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 93272.12655352928,
+          "candidate": 121644.16635289094,
+          "ratio": 1.3041856216613528,
+          "absoluteDelta": 28372.039799361664,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 93272.12746008414,
+          "candidate": 121644.16780027775,
+          "ratio": 1.3041856245032626,
+          "absoluteDelta": 28372.040340193606,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 93272.12637545708,
+          "candidate": 121644.16746590986,
+          "ratio": 1.304185636084291,
+          "absoluteDelta": 28372.04109045278,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 93272.12661656023,
+          "candidate": 121652.87441607572,
+          "ratio": 1.3042789826824488,
+          "absoluteDelta": 28380.74779951549,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.3042323093833699,
+      "pairedMedianAbsoluteDelta": 28376.394444984136,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "cancelledAttempt|nested|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 21426.687716045606,
+          "candidate": 28313.566519782573,
+          "ratio": 1.321415932084531,
+          "absoluteDelta": 6886.878803736967,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 21472.39383800652,
+          "candidate": 28478.65030512234,
+          "ratio": 1.3262913543768289,
+          "absoluteDelta": 7006.256467115822,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 21365.800596084762,
+          "candidate": 28035.941564080847,
+          "ratio": 1.3121877384373968,
+          "absoluteDelta": 6670.140967996085,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 21551.092821521932,
+          "candidate": 28405.67501125798,
+          "ratio": 1.3180619306177708,
+          "absoluteDelta": 6854.582189736047,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 21460.61882356711,
+          "candidate": 28279.39387949338,
+          "ratio": 1.3177343166096491,
+          "absoluteDelta": 6818.775055926268,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 21454.75580920982,
+          "candidate": 28423.070239824636,
+          "ratio": 1.3247911322124464,
+          "absoluteDelta": 6968.314430614817,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.319738931351151,
+      "pairedMedianAbsoluteDelta": 6870.730496736507,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "cancelledAttempt|nested|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 14492.030158328389,
+          "candidate": 14612.031855445197,
+          "ratio": 1.0082805304574836,
+          "absoluteDelta": 120.00169711680792,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 14512.030151101824,
+          "candidate": 14632.032272332646,
+          "ratio": 1.0082691477333867,
+          "absoluteDelta": 120.00212123082201,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 14492.029564694405,
+          "candidate": 14592.031232093745,
+          "ratio": 1.0069004597977749,
+          "absoluteDelta": 100.00166739933957,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 14512.030197369453,
+          "candidate": 14592.031210197978,
+          "ratio": 1.0055127374833486,
+          "absoluteDelta": 80.00101282852484,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 14472.029334529783,
+          "candidate": 14612.03230744976,
+          "ratio": 1.0096740387739496,
+          "absoluteDelta": 140.00297291997595,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 14492.029519097343,
+          "candidate": 14612.032021731162,
+          "ratio": 1.0082805864061815,
+          "absoluteDelta": 120.00250263381895,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.008274839095435,
+      "pairedMedianAbsoluteDelta": 120.00190917381497,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "cancelledAttempt|nested|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 5123.693806239092,
+          "candidate": 5409.8629531742545,
+          "ratio": 1.055852117194571,
+          "absoluteDelta": 286.16914693516264,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 5094.718071234611,
+          "candidate": 5479.975468859763,
+          "ratio": 1.0756189826872584,
+          "absoluteDelta": 385.2573976251524,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 5032.46440166949,
+          "candidate": 5290.868384294235,
+          "ratio": 1.0513474039754798,
+          "absoluteDelta": 258.40398262474446,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 5115.032406829286,
+          "candidate": 5293.2772943724785,
+          "ratio": 1.0348472645657554,
+          "absoluteDelta": 178.24488754319282,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 4979.559428483241,
+          "candidate": 5476.842906754963,
+          "ratio": 1.0998649550053052,
+          "absoluteDelta": 497.28347827172183,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 5029.864877235063,
+          "candidate": 5437.041010736047,
+          "ratio": 1.0809517041588619,
+          "absoluteDelta": 407.17613350098327,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0657355499409147,
+      "pairedMedianAbsoluteDelta": 335.7132722801575,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "cancelledAttempt|siblings|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 8904.03289897349,
+          "candidate": 9124.027722553283,
+          "ratio": 1.0247073237572106,
+          "absoluteDelta": 219.99482357979286,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 8884.0313859614,
+          "candidate": 9104.027078175686,
+          "ratio": 1.0247630476139384,
+          "absoluteDelta": 219.99569221428646,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 8884.031575162455,
+          "candidate": 9108.02989155377,
+          "ratio": 1.0252135885038454,
+          "absoluteDelta": 223.9983163913148,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 8864.031128337285,
+          "candidate": 9124.027685006711,
+          "ratio": 1.02933163849552,
+          "absoluteDelta": 259.99655666942635,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 8864.030959713918,
+          "candidate": 9108.029745139755,
+          "ratio": 1.0275268426447048,
+          "absoluteDelta": 243.9987854258361,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 8864.031056735721,
+          "candidate": 9124.027977454785,
+          "ratio": 1.0293316798028922,
+          "absoluteDelta": 259.9969207190643,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.026370215574275,
+      "pairedMedianAbsoluteDelta": 233.99855090857545,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "cancelledAttempt|siblings|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 5593.0690677951,
+          "candidate": 4719.132011467983,
+          "ratio": 0.8437464215560563,
+          "absoluteDelta": -873.9370563271168,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 5313.687558553533,
+          "candidate": 4595.795528243374,
+          "ratio": 0.8648975833826443,
+          "absoluteDelta": -717.8920303101586,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 5357.695752928813,
+          "candidate": 5061.511905627085,
+          "ratio": 0.9447180539992743,
+          "absoluteDelta": -296.18384730172784,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 5296.605207810581,
+          "candidate": 4694.171750775146,
+          "ratio": 0.8862604567644454,
+          "absoluteDelta": -602.4334570354349,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 5247.4609927216015,
+          "candidate": 5037.43577071622,
+          "ratio": 0.9599758393065344,
+          "absoluteDelta": -210.0252220053817,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 5269.546667845869,
+          "candidate": 4733.227893386161,
+          "ratio": 0.8982229766115822,
+          "absoluteDelta": -536.318774459708,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.8922417166880139,
+      "pairedMedianAbsoluteDelta": -569.3761157475715,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "cancelledAttempt|siblings|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 8904.028024875832,
+          "candidate": 9144.024588527167,
+          "ratio": 1.0269537071290475,
+          "absoluteDelta": 239.99656365133524,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 8864.026822686328,
+          "candidate": 9108.025884474506,
+          "ratio": 1.0275268866700282,
+          "absoluteDelta": 243.99906178817764,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 8884.027344663364,
+          "candidate": 9112.027579189396,
+          "ratio": 1.0256640626689417,
+          "absoluteDelta": 228.00023452603273,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 8864.02672141749,
+          "candidate": 9124.024272108947,
+          "ratio": 1.0293317652194398,
+          "absoluteDelta": 259.99755069145795,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 8864.02686547129,
+          "candidate": 9144.02476517961,
+          "ratio": 1.0315881149682675,
+          "absoluteDelta": 279.9978997083199,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 8904.028045554514,
+          "candidate": 9124.02444937092,
+          "ratio": 1.0247075146990627,
+          "absoluteDelta": 219.9964038164053,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0272402968995378,
+      "pairedMedianAbsoluteDelta": 241.99781271975644,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "cancelledAttempt|siblings|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 4753.360824115135,
+          "candidate": 4171.96815651657,
+          "ratio": 0.8776880844708871,
+          "absoluteDelta": -581.3926675985649,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 4555.835373662624,
+          "candidate": 4405.282926181933,
+          "ratio": 0.9669539315772827,
+          "absoluteDelta": -150.55244748069072,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 4631.261390589162,
+          "candidate": 4690.4501862974275,
+          "ratio": 1.012780275332448,
+          "absoluteDelta": 59.18879570826539,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 4540.945558082927,
+          "candidate": 4131.992050650608,
+          "ratio": 0.9099408917809247,
+          "absoluteDelta": -408.9535074323194,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 4553.74383915901,
+          "candidate": 4196.163341550627,
+          "ratio": 0.9214754913235476,
+          "absoluteDelta": -357.58049760838367,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 4754.37556546396,
+          "candidate": 4160.392430240908,
+          "ratio": 0.8750660045584582,
+          "absoluteDelta": -593.9831352230522,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9157081915522362,
+      "pairedMedianAbsoluteDelta": -383.2670025203515,
+      "pairsWithIncrease": 1,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "cancelledAttempt|sparse|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 3968.0324621678524,
+          "candidate": 3940.0375862772453,
+          "ratio": 0.9929448974630332,
+          "absoluteDelta": -27.99487589060709,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 3988.0328575138283,
+          "candidate": 3940.036277264378,
+          "ratio": 0.9879648483439598,
+          "absoluteDelta": -47.99658024945029,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 3968.0314654112535,
+          "candidate": 3960.0413368013656,
+          "ratio": 0.9979863746848944,
+          "absoluteDelta": -7.990128609887961,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 3988.0329802696215,
+          "candidate": 3960.041563115912,
+          "ratio": 0.9929811470235592,
+          "absoluteDelta": -27.991417153709335,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 3968.0323256526867,
+          "candidate": 3940.0407200401137,
+          "ratio": 0.9929457213764082,
+          "absoluteDelta": -27.99160561257304,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 3988.0338900963266,
+          "candidate": 3940.0407005133006,
+          "ratio": 0.9879657016701363,
+          "absoluteDelta": -47.993189583025924,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9929453094197207,
+      "pairedMedianAbsoluteDelta": -27.993240751590065,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "cancelledAttempt|sparse|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 5524.509012548318,
+          "candidate": 6422.167090601739,
+          "ratio": 1.1624864899332208,
+          "absoluteDelta": 897.6580780534205,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 5579.478533358608,
+          "candidate": 6157.613002173523,
+          "ratio": 1.1036180111382026,
+          "absoluteDelta": 578.1344688149147,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 5353.296852003615,
+          "candidate": 7026.691038937711,
+          "ratio": 1.3125913307624224,
+          "absoluteDelta": 1673.394186934096,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 5617.467873339238,
+          "candidate": 7051.216326092806,
+          "ratio": 1.2552303787188894,
+          "absoluteDelta": 1433.748452753568,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 5505.569450761289,
+          "candidate": 6935.036203369808,
+          "ratio": 1.259640127218967,
+          "absoluteDelta": 1429.4667526085195,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 5765.1317540223745,
+          "candidate": 6917.817380494243,
+          "ratio": 1.1999408991247478,
+          "absoluteDelta": 1152.685626471868,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.2275856389218185,
+      "pairedMedianAbsoluteDelta": 1291.0761895401938,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "cancelledAttempt|sparse|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 3988.0293496831014,
+          "candidate": 3940.037827198741,
+          "ratio": 0.9879661059946377,
+          "absoluteDelta": -47.9915224843603,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 3988.0300606415253,
+          "candidate": 3940.038530098911,
+          "ratio": 0.987966106119347,
+          "absoluteDelta": -47.99153054261433,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 3968.029227674697,
+          "candidate": 3920.037771851285,
+          "ratio": 0.9879054681632133,
+          "absoluteDelta": -47.9914558234118,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 3988.02975639591,
+          "candidate": 3940.038909730105,
+          "ratio": 0.9879662766836584,
+          "absoluteDelta": -47.99084666580529,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 3988.029751408883,
+          "candidate": 3920.0371806688086,
+          "ratio": 0.9829508366340411,
+          "absoluteDelta": -67.99257074007437,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 3988.0304046345773,
+          "candidate": 3960.0385714530335,
+          "ratio": 0.9929810381713705,
+          "absoluteDelta": -27.991833181543825,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9879661060569924,
+      "pairedMedianAbsoluteDelta": -47.99148915388605,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "cancelledAttempt|sparse|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 5001.467856269897,
+          "candidate": 6454.04719474689,
+          "ratio": 1.2904306056183132,
+          "absoluteDelta": 1452.5793384769931,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 5119.465185420083,
+          "candidate": 6545.279570402072,
+          "ratio": 1.278508463939284,
+          "absoluteDelta": 1425.814384981989,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 4980.371598630515,
+          "candidate": 6430.10954760688,
+          "ratio": 1.2910903173118666,
+          "absoluteDelta": 1449.7379489763653,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 5058.500839488562,
+          "candidate": 6615.271523214377,
+          "ratio": 1.307753370637616,
+          "absoluteDelta": 1556.7706837258156,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 5059.615102819961,
+          "candidate": 6332.453598798479,
+          "ratio": 1.2515682458274555,
+          "absoluteDelta": 1272.838495978518,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 5178.027721752254,
+          "candidate": 6579.180080490864,
+          "ratio": 1.2705957623310016,
+          "absoluteDelta": 1401.15235873861,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.2844695347787987,
+      "pairedMedianAbsoluteDelta": 1437.776166979177,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "repair|malformed|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 192.00045548296794,
+          "candidate": 192.0004569113951,
+          "ratio": 1.0000000074397073,
+          "absoluteDelta": 1.4284271685482963e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 192.00045851130145,
+          "candidate": 192.00045836336753,
+          "ratio": 0.9999999992295127,
+          "absoluteDelta": -1.479339175602945e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 192.0004589371797,
+          "candidate": 192.00045342115993,
+          "ratio": 0.9999999712707991,
+          "absoluteDelta": -5.516019768947444e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 192.00046166319703,
+          "candidate": 192.00045529458373,
+          "ratio": 0.9999999668302189,
+          "absoluteDelta": -6.368613298946002e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 192.0004585513952,
+          "candidate": 192.00045637808444,
+          "ratio": 0.9999999886807001,
+          "absoluteDelta": -2.1733107757881953e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 192.00045705977027,
+          "candidate": 192.00046269710697,
+          "ratio": 1.0000000293610587,
+          "absoluteDelta": 5.637336698782747e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9999999939551063,
+      "pairedMedianAbsoluteDelta": -1.160622346674245e-06,
+      "pairsWithIncrease": 2,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "repair|malformed|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 77.53792221207529,
+          "candidate": 77.52486606483423,
+          "ratio": 0.9998316159774652,
+          "absoluteDelta": -0.01305614724105908,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 77.80711853214386,
+          "candidate": 78.14263676439361,
+          "ratio": 1.0043121791242167,
+          "absoluteDelta": 0.3355182322497541,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 77.85048505279731,
+          "candidate": 77.20815841836705,
+          "ratio": 0.9917492275867691,
+          "absoluteDelta": -0.6423266344302618,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 78.04648504904503,
+          "candidate": 77.47815497284857,
+          "ratio": 0.9927180567345305,
+          "absoluteDelta": -0.5683300761964603,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 77.66105839171703,
+          "candidate": 77.60823073433502,
+          "ratio": 0.9993197664508311,
+          "absoluteDelta": -0.052827657382010784,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 77.74099413938076,
+          "candidate": 78.36185118085821,
+          "ratio": 1.0079862246212639,
+          "absoluteDelta": 0.6208570414774499,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9995756912141481,
+      "pairedMedianAbsoluteDelta": -0.03294190231153493,
+      "pairsWithIncrease": 2,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "repair|malformed|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 192.0004553034199,
+          "candidate": 192.00045854918065,
+          "ratio": 1.0000000169049639,
+          "absoluteDelta": 3.245760751724447e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 192.0004572307356,
+          "candidate": 192.00045606296712,
+          "ratio": 0.999999993917887,
+          "absoluteDelta": -1.167768488130605e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 192.0004558204565,
+          "candidate": 192.00045651001346,
+          "ratio": 1.000000003591434,
+          "absoluteDelta": 6.895569697462633e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 192.00045564374219,
+          "candidate": 192.00046073136488,
+          "ratio": 1.000000026497972,
+          "absoluteDelta": 5.0876226964646776e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 192.00046116180988,
+          "candidate": 192.00046223298946,
+          "ratio": 1.000000005579047,
+          "absoluteDelta": 1.0711795823681314e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 192.00045882589805,
+          "candidate": 192.00045860380817,
+          "ratio": 0.9999999988432846,
+          "absoluteDelta": -2.2208988070815394e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0000000045852406,
+      "pairedMedianAbsoluteDelta": 8.803682760571974e-07,
+      "pairsWithIncrease": 4,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "repair|malformed|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 77.22319770058566,
+          "candidate": 77.87555670708029,
+          "ratio": 1.0084477077603546,
+          "absoluteDelta": 0.6523590064946347,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 77.49308755878924,
+          "candidate": 77.46074445497048,
+          "ratio": 0.9995826324019645,
+          "absoluteDelta": -0.03234310381876071,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 77.56190587446251,
+          "candidate": 77.4282130252852,
+          "ratio": 0.9982763078386225,
+          "absoluteDelta": -0.13369284917730795,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 77.34819536603666,
+          "candidate": 78.11544548093742,
+          "ratio": 1.0099194313619069,
+          "absoluteDelta": 0.7672501149007616,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 78.27230489342894,
+          "candidate": 78.33681695168357,
+          "ratio": 1.0008242003137953,
+          "absoluteDelta": 0.06451205825463546,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 77.83889744805232,
+          "candidate": 77.81421159591876,
+          "ratio": 0.9996828596891415,
+          "absoluteDelta": -0.024685852133558228,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0002535300014683,
+      "pairedMedianAbsoluteDelta": 0.019913103060538617,
+      "pairsWithIncrease": 3,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "repair|nested|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 856.00112571204,
+          "candidate": 728.0009555560272,
+          "ratio": 0.8504672875873387,
+          "absoluteDelta": -128.0001701560128,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 856.0011406769435,
+          "candidate": 748.0010016316342,
+          "ratio": 0.8738317813923699,
+          "absoluteDelta": -108.00013904530931,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 856.0011468280081,
+          "candidate": 728.0009807690226,
+          "ratio": 0.8504672960622751,
+          "absoluteDelta": -128.00016605898554,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 856.0011660604301,
+          "candidate": 728.0009582699349,
+          "ratio": 0.8504672506702415,
+          "absoluteDelta": -128.0002077904952,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 856.0011704413141,
+          "candidate": 748.0010189321688,
+          "ratio": 0.873831771218881,
+          "absoluteDelta": -108.00015150914533,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 856.0011468129555,
+          "candidate": 748.0009960316216,
+          "ratio": 0.8738317685864818,
+          "absoluteDelta": -108.0001507813339,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.8621495323243784,
+      "pairedMedianAbsoluteDelta": -118.00015878406543,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "repair|nested|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 191.52677249771298,
+          "candidate": 162.64718295603925,
+          "ratio": 0.8492138244431672,
+          "absoluteDelta": -28.879589541673738,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 194.10340269376786,
+          "candidate": 170.5005057662032,
+          "ratio": 0.8784003958714605,
+          "absoluteDelta": -23.60289692756467,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 194.84048646948267,
+          "candidate": 166.6231172629401,
+          "ratio": 0.8551770747556505,
+          "absoluteDelta": -28.21736920654257,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 198.5700507490225,
+          "candidate": 163.286394670637,
+          "ratio": 0.8223112904222332,
+          "absoluteDelta": -35.28365607838549,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 198.66675626673143,
+          "candidate": 172.66510038915024,
+          "ratio": 0.8691192408523992,
+          "absoluteDelta": -26.001655877581186,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 194.62257556452036,
+          "candidate": 169.4855166297195,
+          "ratio": 0.8708420189081943,
+          "absoluteDelta": -25.137058934800848,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.8621481578040249,
+      "pairedMedianAbsoluteDelta": -27.10951254206188,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "repair|nested|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 792.0011179617296,
+          "candidate": 684.0010012092063,
+          "ratio": 0.8636364087080215,
+          "absoluteDelta": -108.00011675252335,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 792.0011155372998,
+          "candidate": 664.0009272853249,
+          "ratio": 0.8383838283294102,
+          "absoluteDelta": -128.00018825197492,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 792.0011242108062,
+          "candidate": 664.0009320046538,
+          "ratio": 0.8383838251066892,
+          "absoluteDelta": -128.0001922061524,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 792.0011359903333,
+          "candidate": 664.0009306053976,
+          "ratio": 0.8383838108705718,
+          "absoluteDelta": -128.00020538493573,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 792.0011276343431,
+          "candidate": 664.0009235134988,
+          "ratio": 0.8383838107615166,
+          "absoluteDelta": -128.00020412084427,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 792.0011220482602,
+          "candidate": 684.0010233976536,
+          "ratio": 0.8636364322675472,
+          "absoluteDelta": -108.00009865060656,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.8383838267180497,
+      "pairedMedianAbsoluteDelta": -128.00019022906366,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "repair|nested|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 189.9298357210602,
+          "candidate": 170.2484676244606,
+          "ratio": 0.896375585110785,
+          "absoluteDelta": -19.681368096599584,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 189.54198660426343,
+          "candidate": 157.2751169557528,
+          "ratio": 0.8297639999105885,
+          "absoluteDelta": -32.266869648510635,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 191.25396395992485,
+          "candidate": 158.14292431884397,
+          "ratio": 0.8268739692735523,
+          "absoluteDelta": -33.11103964108088,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 192.6892322721324,
+          "candidate": 158.129328654389,
+          "ratio": 0.8206443442105011,
+          "absoluteDelta": -34.55990361774337,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 192.02956214807077,
+          "candidate": 156.9880406231985,
+          "ratio": 0.817520171723079,
+          "absoluteDelta": -35.04152152487228,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 190.6858676890721,
+          "candidate": 173.89082547119156,
+          "ratio": 0.9119229840080958,
+          "absoluteDelta": -16.795042217880535,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.8283189845920704,
+      "pairedMedianAbsoluteDelta": -32.68895464479576,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "repair|siblings|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 736.0011362733782,
+          "candidate": 608.001391478581,
+          "ratio": 0.8260875717625885,
+          "absoluteDelta": -127.99974479479715,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 736.0011716704812,
+          "candidate": 628.0011899547877,
+          "ratio": 0.8532611280080317,
+          "absoluteDelta": -107.99998171569348,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 736.0011339138858,
+          "candidate": 608.0013943124649,
+          "ratio": 0.8260875782612622,
+          "absoluteDelta": -127.99973960142097,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 736.001148893732,
+          "candidate": 608.0013483050952,
+          "ratio": 0.8260874989379696,
+          "absoluteDelta": -127.99980058863673,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 736.0011678781005,
+          "candidate": 628.001176023252,
+          "ratio": 0.8532611134759287,
+          "absoluteDelta": -107.99999185484853,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 736.0011552721504,
+          "candidate": 608.001389170331,
+          "ratio": 0.8260875473021655,
+          "absoluteDelta": -127.99976610181943,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.8260875750119254,
+      "pairedMedianAbsoluteDelta": -127.99974219810906,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "repair|siblings|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 192.52954128127715,
+          "candidate": 236.07437339058131,
+          "ratio": 1.2261722113890412,
+          "absoluteDelta": 43.54483210930417,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 198.74252883149617,
+          "candidate": 202.00674943175895,
+          "ratio": 1.01642436885278,
+          "absoluteDelta": 3.2642206002627745,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 192.51035362247762,
+          "candidate": 237.31281286593176,
+          "ratio": 1.2327275307556391,
+          "absoluteDelta": 44.80245924345414,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 195.76431864039554,
+          "candidate": 229.3861642518594,
+          "ratio": 1.1717465462806054,
+          "absoluteDelta": 33.62184561146387,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 198.3058525610193,
+          "candidate": 199.51499384306214,
+          "ratio": 1.006097355506292,
+          "absoluteDelta": 1.2091412820428502,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 196.3783788151521,
+          "candidate": 236.1057184234697,
+          "ratio": 1.2022999672775196,
+          "absoluteDelta": 39.72733960831761,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.1870232567790624,
+      "pairedMedianAbsoluteDelta": 36.67459260989074,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "repair|siblings|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 736.0011017930316,
+          "candidate": 608.0013047696096,
+          "ratio": 0.8260874926524004,
+          "absoluteDelta": -127.99979702342193,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 736.001112591498,
+          "candidate": 608.0012854718542,
+          "ratio": 0.8260874543124673,
+          "absoluteDelta": -127.99982711964378,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 736.0011070745035,
+          "candidate": 608.0013062211456,
+          "ratio": 0.8260874886966701,
+          "absoluteDelta": -127.9998008533579,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 736.0011028208772,
+          "candidate": 608.001316098816,
+          "ratio": 0.8260875068916671,
+          "absoluteDelta": -127.99978672206123,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 736.0011207688462,
+          "candidate": 648.0009396281628,
+          "ratio": 0.8804347185657052,
+          "absoluteDelta": -88.00018114068348,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 736.0011308506777,
+          "candidate": 628.0011245465884,
+          "ratio": 0.8532610864615632,
+          "absoluteDelta": -108.00000630408931,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.8260874997720338,
+      "pairedMedianAbsoluteDelta": -127.99979187274158,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "repair|siblings|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 187.07391105165615,
+          "candidate": 221.77604136462404,
+          "ratio": 1.18549957136132,
+          "absoluteDelta": 34.70213031296788,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 188.60430818350065,
+          "candidate": 218.08137792611743,
+          "ratio": 1.1562905430237433,
+          "absoluteDelta": 29.477069742616777,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 188.11004050842885,
+          "candidate": 221.68024964108056,
+          "ratio": 1.1784604853729086,
+          "absoluteDelta": 33.57020913265171,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 187.6622125226464,
+          "candidate": 223.07361701563696,
+          "ratio": 1.1886975753774471,
+          "absoluteDelta": 35.411404492990556,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 190.43329441613994,
+          "candidate": 159.3452182714136,
+          "ratio": 0.8367508358239507,
+          "absoluteDelta": -31.088076144726358,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 192.17709380961233,
+          "candidate": 191.19001632341454,
+          "ratio": 0.9948637089539106,
+          "absoluteDelta": -0.9870774861977907,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.167375514198326,
+      "pairedMedianAbsoluteDelta": 31.523639437634245,
+      "pairsWithIncrease": 4,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "repair|sparse|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 45568.070985191785,
+          "candidate": 18920.03569389324,
+          "ratio": 0.4152037881972591,
+          "absoluteDelta": -26648.035291298547,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 45544.07078661933,
+          "candidate": 18920.03413328331,
+          "ratio": 0.4154225524092137,
+          "absoluteDelta": -26624.036653336025,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 45528.06678923298,
+          "candidate": 18920.034898347785,
+          "ratio": 0.415568598287644,
+          "absoluteDelta": -26608.031890885195,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 45568.07201840818,
+          "candidate": 18920.03457831851,
+          "ratio": 0.415203754301375,
+          "absoluteDelta": -26648.03744008967,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 45528.069156414014,
+          "candidate": 18920.035323975175,
+          "ratio": 0.4155685860293004,
+          "absoluteDelta": -26608.03383243884,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 45568.0733876999,
+          "candidate": 18920.035621940744,
+          "ratio": 0.4152037647272529,
+          "absoluteDelta": -26648.037765759156,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.41531317030323645,
+      "pairedMedianAbsoluteDelta": -26636.035972317288,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "repair|sparse|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 12019.795360083619,
+          "candidate": 6068.093511413794,
+          "ratio": 0.5048416657379414,
+          "absoluteDelta": -5951.701848669825,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 11982.45060075334,
+          "candidate": 5802.490576449345,
+          "ratio": 0.4842490713948398,
+          "absoluteDelta": -6179.960024303995,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 11357.00148860056,
+          "candidate": 5909.024271066872,
+          "ratio": 0.520297921682759,
+          "absoluteDelta": -5447.9772175336875,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 12188.17721738855,
+          "candidate": 5839.199879484779,
+          "ratio": 0.47908721503935364,
+          "absoluteDelta": -6348.977337903771,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 11733.249711507133,
+          "candidate": 5977.494675216652,
+          "ratio": 0.5094491996837289,
+          "absoluteDelta": -5755.755036290481,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 12484.29886725405,
+          "candidate": 6055.384988886843,
+          "ratio": 0.4850400533721553,
+          "absoluteDelta": -6428.913878367208,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.49494085955504835,
+      "pairedMedianAbsoluteDelta": -6065.83093648691,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "repair|sparse|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 10840.015690430331,
+          "candidate": 5168.008784078994,
+          "ratio": 0.47675288778791725,
+          "absoluteDelta": -5672.006906351337,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 10820.015874476638,
+          "candidate": 5168.008860103301,
+          "ratio": 0.4776341291969941,
+          "absoluteDelta": -5652.0070143733365,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 10820.015806428173,
+          "candidate": 5168.008891153042,
+          "ratio": 0.47763413507055386,
+          "absoluteDelta": -5652.006915275131,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 10840.015783264564,
+          "candidate": 5168.008786102516,
+          "ratio": 0.47675288389166215,
+          "absoluteDelta": -5672.006997162048,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 10820.015746179886,
+          "candidate": 5168.008747281012,
+          "ratio": 0.4776341244332873,
+          "absoluteDelta": -5652.006998898874,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 10820.01572880039,
+          "candidate": 5168.008812271304,
+          "ratio": 0.47763413120696807,
+          "absoluteDelta": -5652.006916529086,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.4776341268151407,
+      "pairedMedianAbsoluteDelta": -5652.007006636106,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "repair|sparse|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 2667.9988970103936,
+          "candidate": 1491.1526548740937,
+          "ratio": 0.558903025239251,
+          "absoluteDelta": -1176.8462421363,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 2686.778381704909,
+          "candidate": 1502.0645291579915,
+          "ratio": 0.5590578439167166,
+          "absoluteDelta": -1184.7138525469175,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 2682.807006360345,
+          "candidate": 1512.6614223492795,
+          "ratio": 0.5638353481122914,
+          "absoluteDelta": -1170.1455840110655,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 2680.8062335199884,
+          "candidate": 1492.3666086270412,
+          "ratio": 0.5566857425079595,
+          "absoluteDelta": -1188.4396248929472,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 2664.7949006326176,
+          "candidate": 1485.7049188567028,
+          "ratio": 0.5575306821939651,
+          "absoluteDelta": -1179.0899817759148,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 2677.781415896163,
+          "candidate": 1495.3957973753415,
+          "ratio": 0.5584458046120554,
+          "absoluteDelta": -1182.3856185208213,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.5586744149256532,
+      "pairedMedianAbsoluteDelta": -1180.737800148368,
+      "pairsWithIncrease": 0,
+      "anyObservedIncrease": false
+    },
+    {
+      "metric": "visibleQuery|malformed|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 1.2724091793195919e-05,
+          "candidate": 1.3658198658460449e-05,
+          "ratio": 1.073412458857302,
+          "absoluteDelta": 9.3410686526453e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 1.262058968265068e-05,
+          "candidate": 1.3628343036039184e-05,
+          "ratio": 1.0798499419384378,
+          "absoluteDelta": 1.007753353388504e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 1.2613093712223448e-05,
+          "candidate": 1.3705882983365764e-05,
+          "ratio": 1.08663927312958,
+          "absoluteDelta": 1.0927892711423164e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 1.2623514004751174e-05,
+          "candidate": 1.3645657470275533e-05,
+          "ratio": 1.0809713891979404,
+          "absoluteDelta": 1.0221434655243586e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 1.262266513260834e-05,
+          "candidate": 1.3601370745103843e-05,
+          "ratio": 1.0775355760620786,
+          "absoluteDelta": 9.787056124955025e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 1.2613780257342755e-05,
+          "candidate": 1.357255564059977e-05,
+          "ratio": 1.0760101542675038,
+          "absoluteDelta": 9.587753832570163e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0786927590002582,
+      "pairedMedianAbsoluteDelta": 9.932294829420032e-07,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "visibleQuery|malformed|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 2.1804963076109263,
+          "candidate": 2.333130400431624,
+          "ratio": 1.069999702493389,
+          "absoluteDelta": 0.15263409282069773,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 2.1555116166996786,
+          "candidate": 2.327845345937506,
+          "ratio": 1.079950266981947,
+          "absoluteDelta": 0.17233372923782753,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 2.1500207629684525,
+          "candidate": 2.3364968827355175,
+          "ratio": 1.08673224137129,
+          "absoluteDelta": 0.18647611976706502,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 2.1550948748347833,
+          "candidate": 2.329756156682539,
+          "ratio": 1.0810457506475886,
+          "absoluteDelta": 0.17466128184775576,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 2.157180626130572,
+          "candidate": 2.326255240768643,
+          "ratio": 1.0783775881305533,
+          "absoluteDelta": 0.16907461463807083,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 2.162870690409909,
+          "candidate": 2.320986324851544,
+          "ratio": 1.073104524992046,
+          "absoluteDelta": 0.1581156344416348,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0791639275562501,
+      "pairedMedianAbsoluteDelta": 0.17070417193794918,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "visibleQuery|malformed|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 1.2666240032570599e-05,
+          "candidate": 1.348396874650747e-05,
+          "ratio": 1.06455970452432,
+          "absoluteDelta": 8.177287139368702e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 1.2662804698974788e-05,
+          "candidate": 1.3612489175994055e-05,
+          "ratio": 1.0749979565819376,
+          "absoluteDelta": 9.496844770192674e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 1.2644662699939788e-05,
+          "candidate": 1.3513998306934598e-05,
+          "ratio": 1.068751189938736,
+          "absoluteDelta": 8.693356069948106e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 1.2605823976857462e-05,
+          "candidate": 1.3511390921581679e-05,
+          "ratio": 1.0718371878257789,
+          "absoluteDelta": 9.055669447242172e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 1.2646474852369272e-05,
+          "candidate": 1.3528411856789523e-05,
+          "ratio": 1.0697377739422005,
+          "absoluteDelta": 8.819370044202503e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 1.2651098979469233e-05,
+          "candidate": 1.3462098533233177e-05,
+          "ratio": 1.0641050674791235,
+          "absoluteDelta": 8.10999553763944e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0692444819404683,
+      "pairedMedianAbsoluteDelta": 8.756363057075304e-07,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "visibleQuery|malformed|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 2.1566720511221225,
+          "candidate": 2.30387437978269,
+          "ratio": 1.0682543869310024,
+          "absoluteDelta": 0.1472023286605677,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 2.160239305100483,
+          "candidate": 2.3174549676046534,
+          "ratio": 1.0727769660208353,
+          "absoluteDelta": 0.15721566250417052,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 2.1580631646808848,
+          "candidate": 2.304590411486989,
+          "ratio": 1.0678975709349876,
+          "absoluteDelta": 0.1465272468061043,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 2.156587158235609,
+          "candidate": 2.3107098119572957,
+          "ratio": 1.071465998085503,
+          "absoluteDelta": 0.15412265372168665,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 2.1565622504307904,
+          "candidate": 2.3079102278970574,
+          "ratio": 1.0701802034400045,
+          "absoluteDelta": 0.15134797746626694,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 2.159273958379068,
+          "candidate": 2.3004832315095283,
+          "ratio": 1.0653966452855588,
+          "absoluteDelta": 0.1412092731304604,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0692172951855035,
+      "pairedMedianAbsoluteDelta": 0.14927515306341732,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "visibleQuery|nested|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 40.00435862084062,
+          "candidate": 40.0043969440604,
+          "ratio": 1.0000009579761082,
+          "absoluteDelta": 3.832321978336495e-05,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 40.00438213795333,
+          "candidate": 40.00438278938979,
+          "ratio": 1.0000000162841274,
+          "absoluteDelta": 6.514364585541443e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 40.00439201770312,
+          "candidate": 40.00438186890343,
+          "ratio": 0.9999997463078633,
+          "absoluteDelta": -1.0148799688636245e-05,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 40.00439457240827,
+          "candidate": 40.004382996353335,
+          "ratio": 0.9999997106304179,
+          "absoluteDelta": -1.157605493773417e-05,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 40.004380960091396,
+          "candidate": 40.004381379717366,
+          "ratio": 1.0000000104895004,
+          "absoluteDelta": 4.196259695277149e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 40.00443439858867,
+          "candidate": 40.004400009634786,
+          "ratio": 0.9999991403714512,
+          "absoluteDelta": -3.438895388541141e-05,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9999998783986819,
+      "pairedMedianAbsoluteDelta": -4.864586859554265e-06,
+      "pairsWithIncrease": 3,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "visibleQuery|nested|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 748.6435049534817,
+          "candidate": 750.3859265381913,
+          "ratio": 1.0023274383243568,
+          "absoluteDelta": 1.7424215847095184,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 747.5864984533064,
+          "candidate": 747.37210010341,
+          "ratio": 0.9997132126511916,
+          "absoluteDelta": -0.214398349896328,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 746.6850602420494,
+          "candidate": 748.6583538067039,
+          "ratio": 1.0026427387793386,
+          "absoluteDelta": 1.9732935646544547,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 748.6610956935592,
+          "candidate": 747.4927219185528,
+          "ratio": 0.99843938227627,
+          "absoluteDelta": -1.1683737750064438,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 747.9971130447228,
+          "candidate": 748.2579321657304,
+          "ratio": 1.0003486900102407,
+          "absoluteDelta": 0.26081912100755744,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 754.3125805053787,
+          "candidate": 750.0828221391466,
+          "ratio": 0.9943925655284733,
+          "absoluteDelta": -4.22975836623209,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0000309513307162,
+      "pairedMedianAbsoluteDelta": 0.02321038555561472,
+      "pairsWithIncrease": 3,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "visibleQuery|nested|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 0.0005788296134074437,
+          "candidate": 0.0005793897413156954,
+          "ratio": 1.0009676904831362,
+          "absoluteDelta": 5.601279082517339e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 0.0005784020709267961,
+          "candidate": 0.0005774629619022244,
+          "ratio": 0.9983763733365149,
+          "absoluteDelta": -9.391090245717453e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 0.000578816711941105,
+          "candidate": 0.0005786691204480505,
+          "ratio": 0.9997450116936679,
+          "absoluteDelta": -1.4759149305455192e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 0.0005775959623854307,
+          "candidate": 0.0005783264090317166,
+          "ratio": 1.001264632535292,
+          "absoluteDelta": 7.304466462859302e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 0.0005783058485174839,
+          "candidate": 0.0005801457547658596,
+          "ratio": 1.0031815452897328,
+          "absoluteDelta": 1.8399062483757207e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 0.000580759322156545,
+          "candidate": 0.0005777992199841795,
+          "ratio": 0.9949030483723039,
+          "absoluteDelta": -2.960102172365497e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.000356351088402,
+      "pairedMedianAbsoluteDelta": 2.06268207598591e-07,
+      "pairsWithIncrease": 3,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "visibleQuery|nested|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 98.99944328630271,
+          "candidate": 99.12859150794304,
+          "ratio": 1.0013045348271994,
+          "absoluteDelta": 0.12914822164033524,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 98.84264629570237,
+          "candidate": 98.8461395583574,
+          "ratio": 1.0000353416544978,
+          "absoluteDelta": 0.0034932626550272516,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 99.11322466118719,
+          "candidate": 98.97685114197508,
+          "ratio": 0.9986240633409084,
+          "absoluteDelta": -0.13637351921211405,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 98.93730385347952,
+          "candidate": 98.81712616828504,
+          "ratio": 0.9987853147345469,
+          "absoluteDelta": -0.12017768519447714,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 98.94576792106403,
+          "candidate": 98.97001893528925,
+          "ratio": 1.000245094001843,
+          "absoluteDelta": 0.024251014225214362,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 99.19721589306236,
+          "candidate": 98.92285251865674,
+          "ratio": 0.9972341625524914,
+          "absoluteDelta": -0.27436337440562397,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9994103281945224,
+      "pairedMedianAbsoluteDelta": -0.05834221126972494,
+      "pairsWithIncrease": 3,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "visibleQuery|siblings|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 0.0008129631798110618,
+          "candidate": 0.000812120563753716,
+          "ratio": 0.998963524943969,
+          "absoluteDelta": -8.426160573457922e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 0.0008148606014503571,
+          "candidate": 0.0008129615162341593,
+          "ratio": 0.9976694354680817,
+          "absoluteDelta": -1.8990852161977897e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 0.0008155203478876488,
+          "candidate": 0.0008126000036584977,
+          "ratio": 0.9964190418587159,
+          "absoluteDelta": -2.9203442291511573e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 0.0008118541583353628,
+          "candidate": 0.0008125987722399955,
+          "ratio": 1.0009171769301022,
+          "absoluteDelta": 7.446139046326464e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 0.0008144317689072031,
+          "candidate": 0.0008126475203379576,
+          "ratio": 0.9978092104982108,
+          "absoluteDelta": -1.7842485692454906e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 0.000811992513923162,
+          "candidate": 0.0008099062543414459,
+          "ratio": 0.9974306911135962,
+          "absoluteDelta": -2.0862595817161414e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9977393229831463,
+      "pairedMedianAbsoluteDelta": -1.8416668927216402e-06,
+      "pairsWithIncrease": 1,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "visibleQuery|siblings|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 139.0899950949307,
+          "candidate": 138.90376098321312,
+          "ratio": 0.9986610531433947,
+          "absoluteDelta": -0.18623411171759585,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 139.55450113668354,
+          "candidate": 139.2226285066587,
+          "ratio": 0.9976219138234761,
+          "absoluteDelta": -0.3318726300248329,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 139.08444391730873,
+          "candidate": 139.0594438317078,
+          "ratio": 0.9998202524675168,
+          "absoluteDelta": -0.025000085600936472,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 138.89875590129637,
+          "candidate": 139.1441182288568,
+          "ratio": 1.0017664832630666,
+          "absoluteDelta": 0.24536232756042864,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 139.16652780783556,
+          "candidate": 139.23892921291392,
+          "ratio": 1.0005202501364288,
+          "absoluteDelta": 0.07240140507835235,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 139.11655644590203,
+          "candidate": 138.94350064734553,
+          "ratio": 0.9987560373619239,
+          "absoluteDelta": -0.17305579855650421,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 0.9992881449147204,
+      "pairedMedianAbsoluteDelta": -0.09902794207872034,
+      "pairsWithIncrease": 2,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "visibleQuery|siblings|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 0.0005780735523420645,
+          "candidate": 0.0005789226091796213,
+          "ratio": 1.0014687695607538,
+          "absoluteDelta": 8.490568375568285e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 0.000578881761669855,
+          "candidate": 0.0005778410407891525,
+          "ratio": 0.9982021874765922,
+          "absoluteDelta": -1.040720880702466e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 0.0005788794654768533,
+          "candidate": 0.0005804738843783993,
+          "ratio": 1.0027543193300743,
+          "absoluteDelta": 1.5944189015459909e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 0.0005794703895489977,
+          "candidate": 0.0005803445126642235,
+          "ratio": 1.0015084862505332,
+          "absoluteDelta": 8.741231152257969e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 0.0005786399451435188,
+          "candidate": 0.0005796325758395921,
+          "ratio": 1.0017154548426952,
+          "absoluteDelta": 9.92630696073282e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 0.0005785183505787087,
+          "candidate": 0.0005792772693519713,
+          "ratio": 1.0013118318070695,
+          "absoluteDelta": 7.589187732625572e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0014886279056436,
+      "pairedMedianAbsoluteDelta": 8.615899763913127e-07,
+      "pairsWithIncrease": 5,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "visibleQuery|siblings|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 98.7430720979637,
+          "candidate": 98.9105661825787,
+          "ratio": 1.0016962616318927,
+          "absoluteDelta": 0.16749408461500082,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 98.90706382587369,
+          "candidate": 98.78059400695491,
+          "ratio": 0.9987213267280745,
+          "absoluteDelta": -0.1264698189187783,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 98.87984925062328,
+          "candidate": 99.1272948474947,
+          "ratio": 1.002502487602345,
+          "absoluteDelta": 0.24744559687141532,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 98.99094343222212,
+          "candidate": 99.03045877087969,
+          "ratio": 1.0003991813522277,
+          "absoluteDelta": 0.039515338657565735,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 98.80814504304969,
+          "candidate": 99.21811449791574,
+          "ratio": 1.0041491463551655,
+          "absoluteDelta": 0.40996945486604375,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 98.77604136510142,
+          "candidate": 99.04450377426762,
+          "ratio": 1.002717889940273,
+          "absoluteDelta": 0.26846240916620445,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.002099374617119,
+      "pairedMedianAbsoluteDelta": 0.20746984074320807,
+      "pairsWithIncrease": 5,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "visibleQuery|sparse|4096|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 4.479040402260331e-05,
+          "candidate": 4.527330674341075e-05,
+          "ratio": 1.0107813879187992,
+          "absoluteDelta": 4.829027208074339e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 4.4665104328500225e-05,
+          "candidate": 4.5089041043076294e-05,
+          "ratio": 1.0094914524649516,
+          "absoluteDelta": 4.239367145760691e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 4.482561683895976e-05,
+          "candidate": 4.526295481513604e-05,
+          "ratio": 1.0097564296270023,
+          "absoluteDelta": 4.373379761762842e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 4.500725809447238e-05,
+          "candidate": 4.534811842006338e-05,
+          "ratio": 1.0075734523724045,
+          "absoluteDelta": 3.408603255910007e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 4.451093676340926e-05,
+          "candidate": 4.52493363120746e-05,
+          "ratio": 1.0165891711646102,
+          "absoluteDelta": 7.383995486653377e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 4.436860690921481e-05,
+          "candidate": 4.517854810269948e-05,
+          "ratio": 1.0182548258759156,
+          "absoluteDelta": 8.099411934846658e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0102689087729009,
+      "pairedMedianAbsoluteDelta": 4.601203484918591e-07,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "visibleQuery|sparse|4096|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 7.639966876264556,
+          "candidate": 7.711910409161106,
+          "ratio": 1.0094167336143904,
+          "absoluteDelta": 0.07194353289655009,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 7.619739430324593,
+          "candidate": 7.723994424044389,
+          "ratio": 1.0136822255764926,
+          "absoluteDelta": 0.1042549937197963,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 7.645381719370522,
+          "candidate": 7.71141507841041,
+          "ratio": 1.0086370257841522,
+          "absoluteDelta": 0.0660333590398885,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 7.666881654014183,
+          "candidate": 7.737352274476927,
+          "ratio": 1.009191562312149,
+          "absoluteDelta": 0.07047062046274366,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 7.60187913899106,
+          "candidate": 7.725935591704128,
+          "ratio": 1.0163191824606586,
+          "absoluteDelta": 0.12405645271306831,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 7.578497807853169,
+          "candidate": 7.716839068949754,
+          "ratio": 1.0182544436383196,
+          "absoluteDelta": 0.13834126109658484,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0115494795954416,
+      "pairedMedianAbsoluteDelta": 0.08809926330817319,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "visibleQuery|sparse|64|allocation_bop|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 4.446360281004048e-05,
+          "candidate": 4.533553388761134e-05,
+          "ratio": 1.0196099960971665,
+          "absoluteDelta": 8.719310775708562e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 4.4327099229305475e-05,
+          "candidate": 4.523114685237376e-05,
+          "ratio": 1.020394919559063,
+          "absoluteDelta": 9.040476230682867e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 4.422641598959963e-05,
+          "candidate": 4.5223767718986016e-05,
+          "ratio": 1.0225510412062537,
+          "absoluteDelta": 9.97351729386384e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 4.4400014010577165e-05,
+          "candidate": 4.52542157040835e-05,
+          "ratio": 1.019238770809911,
+          "absoluteDelta": 8.542016935063338e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 4.4232565629955565e-05,
+          "candidate": 4.5251108662921296e-05,
+          "ratio": 1.0230269942170378,
+          "absoluteDelta": 1.018543032965731e-06,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 4.484896013169161e-05,
+          "candidate": 4.51173356228722e-05,
+          "ratio": 1.0059839846986987,
+          "absoluteDelta": 2.6837549118059333e-07,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0200024578281148,
+      "pairedMedianAbsoluteDelta": 8.879893503195715e-07,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    },
+    {
+      "metric": "visibleQuery|sparse|64|latency|median",
+      "estimateKind": "jmh-mean-score",
+      "pairs": [
+        {
+          "pair": 1,
+          "baseline": 7.605480680932835,
+          "candidate": 7.737069607776987,
+          "ratio": 1.0173018553809556,
+          "absoluteDelta": 0.13158892684415235,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 2,
+          "baseline": 7.583468309544565,
+          "candidate": 7.728255896702984,
+          "ratio": 1.0190925288071935,
+          "absoluteDelta": 0.14478758715841877,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 3,
+          "baseline": 7.580338750323807,
+          "candidate": 7.740315066450388,
+          "ratio": 1.021104111754867,
+          "absoluteDelta": 0.15997631612658125,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 4,
+          "baseline": 7.58828871204247,
+          "candidate": 7.728851885682684,
+          "ratio": 1.0185236986854682,
+          "absoluteDelta": 0.14056317364021442,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 5,
+          "baseline": 7.585099484242239,
+          "candidate": 7.726345213708829,
+          "ratio": 1.0186214735561507,
+          "absoluteDelta": 0.14124572946658986,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        },
+        {
+          "pair": 6,
+          "baseline": 7.650777465366299,
+          "candidate": 7.72838825524121,
+          "ratio": 1.0101441703442875,
+          "absoluteDelta": 0.07761078987491121,
+          "ratioUnavailableReason": null,
+          "populationP95ClaimAllowed": true
+        }
+      ],
+      "pairedMedianRatio": 1.0185725861208095,
+      "pairedMedianAbsoluteDelta": 0.14090445155340214,
+      "pairsWithIncrease": 6,
+      "anyObservedIncrease": true
+    }
+  ],
+  "anyIncrease": [
+    "analyzeCold|malformed|4096|latency|median",
+    "analyzeCold|malformed|64|latency|median",
+    "analyzeCold|nested|4096|latency|median",
+    "analyzeCold|nested|64|latency|median",
+    "analyzeCold|siblings|4096|allocation_bop|median",
+    "analyzeCold|siblings|4096|latency|median",
+    "analyzeCold|siblings|64|allocation_bop|median",
+    "analyzeCold|siblings|64|latency|median",
+    "analyzeCold|sparse|4096|allocation_bop|median",
+    "analyzeCold|sparse|4096|latency|median",
+    "analyzeCold|sparse|64|allocation_bop|median",
+    "analyzeCold|sparse|64|latency|median",
+    "analyzeReuse|malformed|4096|latency|median",
+    "analyzeReuse|malformed|64|allocation_bop|median",
+    "analyzeReuse|malformed|64|latency|median",
+    "analyzeReuse|nested|4096|latency|median",
+    "analyzeReuse|nested|64|allocation_bop|median",
+    "analyzeReuse|nested|64|latency|median",
+    "analyzeReuse|siblings|4096|allocation_bop|median",
+    "analyzeReuse|siblings|4096|latency|median",
+    "analyzeReuse|siblings|64|allocation_bop|median",
+    "analyzeReuse|siblings|64|latency|median",
+    "analyzeReuse|sparse|4096|allocation_bop|median",
+    "analyzeReuse|sparse|4096|latency|median",
+    "analyzeReuse|sparse|64|allocation_bop|median",
+    "analyzeReuse|sparse|64|latency|median",
+    "cancelledAttempt|malformed|4096|allocation_bop|median",
+    "cancelledAttempt|malformed|4096|latency|median",
+    "cancelledAttempt|malformed|64|allocation_bop|median",
+    "cancelledAttempt|nested|4096|allocation_bop|median",
+    "cancelledAttempt|nested|4096|latency|median",
+    "cancelledAttempt|nested|64|allocation_bop|median",
+    "cancelledAttempt|nested|64|latency|median",
+    "cancelledAttempt|siblings|4096|allocation_bop|median",
+    "cancelledAttempt|siblings|64|allocation_bop|median",
+    "cancelledAttempt|siblings|64|latency|median",
+    "cancelledAttempt|sparse|4096|latency|median",
+    "cancelledAttempt|sparse|64|latency|median",
+    "repair|malformed|4096|allocation_bop|median",
+    "repair|malformed|4096|latency|median",
+    "repair|malformed|64|allocation_bop|median",
+    "repair|malformed|64|latency|median",
+    "repair|siblings|4096|latency|median",
+    "repair|siblings|64|latency|median",
+    "visibleQuery|malformed|4096|allocation_bop|median",
+    "visibleQuery|malformed|4096|latency|median",
+    "visibleQuery|malformed|64|allocation_bop|median",
+    "visibleQuery|malformed|64|latency|median",
+    "visibleQuery|nested|4096|allocation_bop|median",
+    "visibleQuery|nested|4096|latency|median",
+    "visibleQuery|nested|64|allocation_bop|median",
+    "visibleQuery|nested|64|latency|median",
+    "visibleQuery|siblings|4096|allocation_bop|median",
+    "visibleQuery|siblings|4096|latency|median",
+    "visibleQuery|siblings|64|allocation_bop|median",
+    "visibleQuery|siblings|64|latency|median",
+    "visibleQuery|sparse|4096|allocation_bop|median",
+    "visibleQuery|sparse|4096|latency|median",
+    "visibleQuery|sparse|64|allocation_bop|median",
+    "visibleQuery|sparse|64|latency|median"
+  ],
+  "over20PercentInvestigation": [
+    "analyzeCold|sparse|4096|latency|median",
+    "analyzeReuse|sparse|4096|latency|median",
+    "cancelledAttempt|malformed|4096|allocation_bop|median",
+    "cancelledAttempt|nested|4096|allocation_bop|median",
+    "cancelledAttempt|nested|4096|latency|median",
+    "cancelledAttempt|sparse|4096|latency|median",
+    "cancelledAttempt|sparse|64|latency|median"
+  ]
+}

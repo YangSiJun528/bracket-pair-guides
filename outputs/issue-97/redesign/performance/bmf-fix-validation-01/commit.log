@@ -1,0 +1,6 @@
+Unstaged changes detected. Temporarily saving them to `/Users/sijun-yang/.cache/prek/patches/1791488635187-71109.patch`
+Spotless.................................................................Passed
+Restored unstaged changes from `/Users/sijun-yang/.cache/prek/patches/1791488635187-71109.patch`
+[codex/issue-97-deep-redesign 8d853ea] benchmarks: export complete metrics with configuration cache
+ 5 files changed, 160 insertions(+), 5 deletions(-)
+ create mode 100644 build-logic/src/test/java/com/sijunyang/buildlogic/BenchmarkReportIntegrationTest.java

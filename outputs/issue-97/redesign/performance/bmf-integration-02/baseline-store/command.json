@@ -1,0 +1,24 @@
+{
+  "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+  "command": [
+    "./gradlew",
+    "--no-daemon",
+    "--no-parallel",
+    "--max-workers=2",
+    "--no-build-cache",
+    "--configuration-cache-problems=fail",
+    "exportBenchmarkMetrics",
+    "-PbenchmarkResults=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/bmf-integration-02/baseline-all-jmh.json",
+    "-PbenchmarkBmf=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/bmf-integration-02/baseline-gradle-bmf.json"
+  ],
+  "directory": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/bmf-integration-02/baseline-store",
+  "timeoutSeconds": 300,
+  "status": "passed-integration",
+  "startedUtc": "2026-10-08T19:42:25.859113+00:00",
+  "ownedPid": 70958,
+  "ownedProcessGroup": 70958,
+  "timedOut": false,
+  "elapsedSeconds": 5.289821457990911,
+  "exitCode": 0,
+  "finishedUtc": "2026-10-08T19:42:31.150902+00:00"
+}

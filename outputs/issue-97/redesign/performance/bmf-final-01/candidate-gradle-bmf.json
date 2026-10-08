@@ -1,0 +1,322 @@
+{
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeCold {\"distribution\":\"siblings\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 14364.303216955159
+        },
+        "allocation_bop": {
+            "value": 47857.41840110276
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeCold {\"distribution\":\"siblings\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 1309073.3509811799
+        },
+        "allocation_bop": {
+            "value": 2910887.8795155194
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeCold {\"distribution\":\"nested\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 11843.601375997265
+        },
+        "allocation_bop": {
+            "value": 25008.06969584104
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeCold {\"distribution\":\"nested\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 927204.5160575324
+        },
+        "allocation_bop": {
+            "value": 1683429.0815854382
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeCold {\"distribution\":\"sparse\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 7563.20123087794
+        },
+        "allocation_bop": {
+            "value": 13132.044650523496
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeCold {\"distribution\":\"sparse\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 400166.39490333246
+        },
+        "allocation_bop": {
+            "value": 529251.6089280915
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeCold {\"distribution\":\"malformed\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 3486.4508702548774
+        },
+        "allocation_bop": {
+            "value": 11520.02052497514
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeCold {\"distribution\":\"malformed\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 310507.23428435955
+        },
+        "allocation_bop": {
+            "value": 829328.3949701969
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeReuse {\"distribution\":\"siblings\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 15207.608000992064
+        },
+        "allocation_bop": {
+            "value": 47609.58788673938
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeReuse {\"distribution\":\"siblings\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 1309750.3001037699
+        },
+        "allocation_bop": {
+            "value": 2910631.899800399
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeReuse {\"distribution\":\"nested\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 11986.851183895515
+        },
+        "allocation_bop": {
+            "value": 24688.07100142568
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeReuse {\"distribution\":\"nested\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 953326.0147552887
+        },
+        "allocation_bop": {
+            "value": 1683169.2513578143
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeReuse {\"distribution\":\"sparse\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 7575.269831441474
+        },
+        "allocation_bop": {
+            "value": 12816.044626076917
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeReuse {\"distribution\":\"sparse\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 528787.9959596522
+        },
+        "allocation_bop": {
+            "value": 529023.8476401372
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeReuse {\"distribution\":\"malformed\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 3470.7278901477307
+        },
+        "allocation_bop": {
+            "value": 11244.020407745413
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeReuse {\"distribution\":\"malformed\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 319102.52461578866
+        },
+        "allocation_bop": {
+            "value": 829027.8889531355
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.visibleQuery {\"distribution\":\"siblings\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 98.9105661825787
+        },
+        "allocation_bop": {
+            "value": 5.789226091796213E-4
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.visibleQuery {\"distribution\":\"siblings\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 138.90376098321312
+        },
+        "allocation_bop": {
+            "value": 8.12120563753716E-4
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.visibleQuery {\"distribution\":\"nested\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 99.12859150794304
+        },
+        "allocation_bop": {
+            "value": 5.793897413156954E-4
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.visibleQuery {\"distribution\":\"nested\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 750.3859265381913
+        },
+        "allocation_bop": {
+            "value": 40.0043969440604
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.visibleQuery {\"distribution\":\"sparse\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 7.737069607776987
+        },
+        "allocation_bop": {
+            "value": 4.533553388761134E-5
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.visibleQuery {\"distribution\":\"sparse\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 7.711910409161106
+        },
+        "allocation_bop": {
+            "value": 4.527330674341075E-5
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.visibleQuery {\"distribution\":\"malformed\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 2.30387437978269
+        },
+        "allocation_bop": {
+            "value": 1.348396874650747E-5
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.visibleQuery {\"distribution\":\"malformed\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 2.333130400431624
+        },
+        "allocation_bop": {
+            "value": 1.3658198658460449E-5
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.repair {\"distribution\":\"siblings\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 221.77604136462404
+        },
+        "allocation_bop": {
+            "value": 608.0013047696096
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.repair {\"distribution\":\"siblings\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 236.07437339058131
+        },
+        "allocation_bop": {
+            "value": 608.001391478581
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.repair {\"distribution\":\"nested\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 170.2484676244606
+        },
+        "allocation_bop": {
+            "value": 684.0010012092063
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.repair {\"distribution\":\"nested\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 162.64718295603925
+        },
+        "allocation_bop": {
+            "value": 728.0009555560272
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.repair {\"distribution\":\"sparse\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 1491.1526548740937
+        },
+        "allocation_bop": {
+            "value": 5168.008784078994
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.repair {\"distribution\":\"sparse\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 6068.093511413794
+        },
+        "allocation_bop": {
+            "value": 18920.03569389324
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.repair {\"distribution\":\"malformed\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 77.87555670708029
+        },
+        "allocation_bop": {
+            "value": 192.00045854918065
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.repair {\"distribution\":\"malformed\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 77.52486606483423
+        },
+        "allocation_bop": {
+            "value": 192.0004569113951
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.cancelledAttempt {\"distribution\":\"siblings\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 4171.96815651657
+        },
+        "allocation_bop": {
+            "value": 9144.024588527167
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.cancelledAttempt {\"distribution\":\"siblings\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 4719.132011467983
+        },
+        "allocation_bop": {
+            "value": 9124.027722553283
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.cancelledAttempt {\"distribution\":\"nested\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 5409.8629531742545
+        },
+        "allocation_bop": {
+            "value": 14612.031855445197
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.cancelledAttempt {\"distribution\":\"nested\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 28313.566519782573
+        },
+        "allocation_bop": {
+            "value": 121664.1685112487
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.cancelledAttempt {\"distribution\":\"sparse\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 6454.04719474689
+        },
+        "allocation_bop": {
+            "value": 3940.037827198741
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.cancelledAttempt {\"distribution\":\"sparse\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 6422.167090601739
+        },
+        "allocation_bop": {
+            "value": 3940.0375862772453
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.cancelledAttempt {\"distribution\":\"malformed\",\"pairCount\":\"64\"}": {
+        "latency": {
+            "value": 4105.399711168781
+        },
+        "allocation_bop": {
+            "value": 12152.024139376997
+        }
+    },
+    "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.cancelledAttempt {\"distribution\":\"malformed\",\"pairCount\":\"4096\"}": {
+        "latency": {
+            "value": 20922.47117027908
+        },
+        "allocation_bop": {
+            "value": 69376.12379672685
+        }
+    }
+}

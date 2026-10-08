@@ -1,0 +1,179 @@
+{
+  "task": "minimumSdkTests",
+  "summary": {
+    "directory": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/sdk-contracts/minimumSdkTests",
+    "xmlFiles": 6,
+    "tests": 35,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "cases": [
+    [
+      "com.sijunyang.bracketpairguides.plugin.RuntimeIdentityIdeContractTest",
+      "testSelectedIdeActuallyRunsWithReadAccessAndComposition"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest",
+      "testCloseDuringRealMatcherReadRejectsPublicationAfterCaptureUnwinds"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest",
+      "testSecondaryRepairPublishesWhileDelayedFullCaptureIsStillBlocked"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest",
+      "testSourceEditAfterInFlightReadRejectsOldResultAndPublishesNewCoordinates"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+      "testCloseDuringPublicationPreventsAnyLaterWork"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+      "testDocumentGenerationSurvivesStampResetAndDormantReacquire"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+      "testHiddenDemandReleasesAcceptedPayloadAndWakeUpDoesNotRecapture"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+      "testImmediateCloseCancelsPendingPublication"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+      "testNoFacetDemandReleasesAcceptedPayloadAndWakeUpDoesNotRecapture"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+      "testReadsAreBackgroundAndPublicationIsEdtAndDuplicateDemandIsInert"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+      "testReentrantEditCannotAcceptOldResult"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+      "testRetainedClosedWorkDoesNotRetainEditorViewOrPayload"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+      "testRicherAcceptedResultSurvivesCoverageReduction"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+      "testSharedDocumentEditorsKeepIndependentPublicationAndCloseLifetimes"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.runtime.session.ScalarPrefixCaptureIdeContractTest",
+      "testRepairThenFullAnalysisSurvivesAttemptRestartAfterUnrelatedWrite"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.runtime.session.ScalarPrefixCaptureIdeContractTest",
+      "testScalarAndContinuationUseActualBoundedBackgroundReads"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.runtime.session.ScalarPrefixCaptureIdeContractTest",
+      "testScalarRejectsCancellationChangedSourceAndUnrelatedWriteEpoch"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testAffectedEditHidesGuideBeforeSingleCompleteContentDemand"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testCloseInsideActualRepairMarkupCallbackLeavesNoOrphanHighlighter"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testCloseInsideBeforeRemovedRevokesOldTokenRenderingAndLeavesNoMarkup"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testCloseRevokesViewAndIsIdempotent"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testDisabledPresentationReleasesReadOnlyLookup"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testEndpointStyleThemeAndPairChangesStillReplaceIncompatibleMarkup"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testFailureAfterFreshReentrantApplyPropagatesWithoutClearingFreshMarkup"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testFreshResultDuringUnchangedCaretQueryKeepsNewFrameAuthority"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testFreshResultInsideRepairMarkupCallbackOwnsItsResourcesAfterOldRollback"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testFreshTokenResultInsideMarkupCallbackSurvivesOldTokenRollback"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testHiddenPresentationReleasesReadOnlyLookup"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testLimitedFullResultPreservesSuccessfulCurrentRepairGeometry"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testReentrantCloseDuringResultQueryLeavesNoMarkup"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testRenderingFailurePropagatesAndLeavesNoMarkup"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testUnchangedAdoptionRejectsDisposedEndpointAndExternalStyleMutation"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testUnchangedAdoptionRejectsDisposedTrackedPairMarker"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "testUnchangedCaretCallbackPreservesAllActualMarkupWithoutSdkCallbacks"
+    ],
+    [
+      "com.sijunyang.bracketpairguides.ui.editor.highlighting.NativeGuideAdvisoryIdeContractTest",
+      "testSuppressionSurvivesXmlReloadUntilConflictCapabilityEnds"
+    ]
+  ],
+  "actualIde": "IC-241.19416.15",
+  "expectedVersion": "2024.1.7",
+  "javaHome": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/jbr/Contents/Home",
+  "javaRuntimeVersion": "17.0.12+1-b1207.37",
+  "javaExecutableSha256": "635e630497a3932fd4360214e3f1d5f6bcaa521434781fa5923cf098cbd5905c",
+  "xmlSha256": {
+    "TEST-com.sijunyang.bracketpairguides.plugin.RuntimeIdentityIdeContractTest.xml": "50ad7aeb7895cbae45d04c77d58ef90eb987e7dfc9432664ac114b8ed925cfc2",
+    "TEST-com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest.xml": "82959daad5e8913d24ebd7e3ec7a2a851699e3695dfac18c715187e8abdab33c",
+    "TEST-com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest.xml": "96b6a664c6ac6399b67aa1861cc5e225d4e97e3689dff4d76caf79d9d04c861c",
+    "TEST-com.sijunyang.bracketpairguides.runtime.session.ScalarPrefixCaptureIdeContractTest.xml": "a747835a787e0e705e9058b2889d8cf1156c329c2edbc63503656b25319bad92",
+    "TEST-com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest.xml": "b18d8e79a74e9fedb7a06c18028fb054f99d06584b55934f6198812abd6ef68f",
+    "TEST-com.sijunyang.bracketpairguides.ui.editor.highlighting.NativeGuideAdvisoryIdeContractTest.xml": "7ef8aeb221cd6a694269588696e25b10d7b37e204a824e2e20c5498bf101a532"
+  },
+  "command": [
+    "./gradlew",
+    "--no-daemon",
+    "--no-parallel",
+    "--max-workers=2",
+    "--no-configuration-cache",
+    ":plugin:minimumSdkTests",
+    "--info"
+  ],
+  "exit": 0,
+  "casesMatchFrozen": true,
+  "archiveSha256After": "3af98835450aaea492c213841fefc8c386c3435fabb6f2352d6484a0572ddc78",
+  "passed": true
+}

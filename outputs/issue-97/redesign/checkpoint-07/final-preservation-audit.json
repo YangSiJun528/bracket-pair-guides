@@ -1,0 +1,17 @@
+{
+  "recordedUtc": "2026-10-08T22:27:57.577572+00:00",
+  "originalHead": "516d4edda86a987aad66a3be9227fca67dd4f1f2",
+  "originalStatus": "",
+  "originalWorktreeUntouchedAndClean": true,
+  "baselineHead": "072533fa3e223d53f937a15d50fe8637add8b2cb",
+  "baselineProtectedProductionAndRootFilesUnchanged": true,
+  "baselineOverlayPreserved": "checkpoint-06/baseline-overlay",
+  "worktreeBranch": "codex/issue-97-deep-redesign",
+  "implementationHead": "8d853ea08d92150c127efe43d807771542ef84d6",
+  "pr96StartHeadIsAncestor": true,
+  "pr96Scope": "Start-time state was open/unmerged; no new remote-state claim",
+  "releaseSha256": "3af98835450aaea492c213841fefc8c386c3435fabb6f2352d6484a0572ddc78",
+  "runtimePerformancePass": false,
+  "purePerformancePass": false,
+  "remotePushOrUpload": false
+}

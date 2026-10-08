@@ -1,0 +1,60 @@
+{
+  "status": "execution-and-aggregation-main-reviewed-performance-regressions-remain",
+  "recordedUtc": "2026-10-08T21:43:58.717297+00:00",
+  "head": "8d853ea08d92150c127efe43d807771542ef84d6",
+  "baseline": "072533fa3e223d53f937a15d50fe8637add8b2cb",
+  "invocations": 60,
+  "executionFailures": 0,
+  "elapsedInvocationSeconds": 5051.141633540858,
+  "metrics": 80,
+  "anyIncrease": 60,
+  "allSixPairsIncrease": 34,
+  "over20Flags": [
+    {
+      "metric": "analyzeCold|sparse|4096|latency|median",
+      "pairedMedianRatio": 1.5447347346792357,
+      "pairedMedianAbsoluteDelta": 184045.24669852227,
+      "pairsWithIncrease": 6
+    },
+    {
+      "metric": "analyzeReuse|sparse|4096|latency|median",
+      "pairedMedianRatio": 1.5219546723310096,
+      "pairedMedianAbsoluteDelta": 181289.11461936953,
+      "pairsWithIncrease": 6
+    },
+    {
+      "metric": "cancelledAttempt|malformed|4096|allocation_bop|median",
+      "pairedMedianRatio": 1.4303142361927685,
+      "pairedMedianAbsoluteDelta": 20872.01113611864,
+      "pairsWithIncrease": 6
+    },
+    {
+      "metric": "cancelledAttempt|nested|4096|allocation_bop|median",
+      "pairedMedianRatio": 1.3042323093833699,
+      "pairedMedianAbsoluteDelta": 28376.394444984136,
+      "pairsWithIncrease": 6
+    },
+    {
+      "metric": "cancelledAttempt|nested|4096|latency|median",
+      "pairedMedianRatio": 1.319738931351151,
+      "pairedMedianAbsoluteDelta": 6870.730496736507,
+      "pairsWithIncrease": 6
+    },
+    {
+      "metric": "cancelledAttempt|sparse|4096|latency|median",
+      "pairedMedianRatio": 1.2275856389218185,
+      "pairedMedianAbsoluteDelta": 1291.0761895401938,
+      "pairsWithIncrease": 6
+    },
+    {
+      "metric": "cancelledAttempt|sparse|64|latency|median",
+      "pairedMedianRatio": 1.2844695347787987,
+      "pairedMedianAbsoluteDelta": 1437.776166979177,
+      "pairsWithIncrease": 6
+    }
+  ],
+  "rawHashesChecked": true,
+  "frozenInputsPreserved": "Wrapper compared full source/compiled/JVM/JAR freeze before and after, unchanged",
+  "performancePass": false,
+  "scope": "Sparse full/reuse latency regression persists in all six pairs. Cancellation checkpoints differ by architecture; do not interpret as equal-work throughput. Final detailed assessment retains every increase including below20 and prior failed evidence."
+}

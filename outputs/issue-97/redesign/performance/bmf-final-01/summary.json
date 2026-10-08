@@ -1,0 +1,28 @@
+{
+  "status": "passed-main-review",
+  "head": "8d853ea08d92150c127efe43d807771542ef84d6",
+  "sourceUnchanged": true,
+  "results": {
+    "baseline": {
+      "cases": 40,
+      "metrics": 80,
+      "exactJqNamesAndValues": true,
+      "configurationCacheStoreAndReuse": true,
+      "actualTaskReexecutionAfterOutputDeletion": true,
+      "identicalOutputBytesOnReuse": true,
+      "outputSha256": "4d2e8b9966998e7c34eaa532961cea2318e8c65fc24dcfb3fd0defbfad272d8a"
+    },
+    "candidate": {
+      "cases": 40,
+      "metrics": 80,
+      "exactJqNamesAndValues": true,
+      "configurationCacheStoreAndReuse": true,
+      "actualTaskReexecutionAfterOutputDeletion": true,
+      "identicalOutputBytesOnReuse": true,
+      "outputSha256": "a38d7b597e718c9f39b0a10bb03f1b0ca4fc3fa895b9a48a3c9d8e037596906e"
+    }
+  },
+  "scope": "Final pure02 pair01 all5jobs40cases per side, actual root Gradle exporter integration; statistical comparison uses every6pair",
+  "performancePass": null,
+  "remoteUpload": false
+}

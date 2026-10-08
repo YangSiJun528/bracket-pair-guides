@@ -1,0 +1,80 @@
+{
+  "createdUtc": "2026-10-08T22:24:20.930586+00:00",
+  "head": "8d853ea08d92150c127efe43d807771542ef84d6",
+  "priorSelection": "Before pure02 measurement: repeat actual export for baseline and candidate pair01, all5jobs40cases each. Statistical assessment still uses all6pairs.",
+  "priorSelectionEvidence": "../bmf-integration-01/plan.json",
+  "campaignSha256": "09ba27264fd0348ceff82c247b4675b3b5f5b6074adebde19969bfaaf7fdce0e",
+  "scope": "Final pure02 pair01 all5jobs40cases per side, actual root Gradle exporter integration; statistical comparison uses every6pair",
+  "sides": {
+    "baseline": {
+      "sourceRuns": [
+        {
+          "job": "analyzeCold",
+          "raw": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-02/analyzeCold/pair-01/baseline/jmh.json",
+          "rawSha256": "037f36083db4afd2420c31b9f061d12138f39879c1a96d066e9230cc3ea3f573",
+          "expectedBmfSha256": "2543fbf7e597326f52bd77aa72a9ed5c6a92f86db981d285f94cae2fcd9bf295"
+        },
+        {
+          "job": "analyzeReuse",
+          "raw": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-02/analyzeReuse/pair-01/baseline/jmh.json",
+          "rawSha256": "cc33d9d3c19fbb6cd94f42ee221017cc3496ff4b9e0a3254cdc99c0fd11a6ef1",
+          "expectedBmfSha256": "7ce7df0f887547cd018de2a9d47a2b7924aff8397671983d262b76544c1dbc72"
+        },
+        {
+          "job": "visibleQuery",
+          "raw": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-02/visibleQuery/pair-01/baseline/jmh.json",
+          "rawSha256": "4948dbaca2911581ed9e2497bc4a223075911f28157cefd0e8d17e59a1edd2df",
+          "expectedBmfSha256": "4499cfc75357892e3528565e0eba95a58ed6dca961996203303dad9cecaa70d4"
+        },
+        {
+          "job": "repair",
+          "raw": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-02/repair/pair-01/baseline/jmh.json",
+          "rawSha256": "105553fa97e0ccaa8c6fbacc0976e0c5aa4c8d3e6bfca004ae601d0334c8fb7d",
+          "expectedBmfSha256": "ff38c2c5a72fd54ba7ebd48794ee8c4b9273a18eb27a05a1d2eb8bf802199409"
+        },
+        {
+          "job": "cancelledAttempt",
+          "raw": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-02/cancelledAttempt/pair-01/baseline/jmh.json",
+          "rawSha256": "9a4197ca4ac40bfa84a4571af4e02a57946cc89a291c45f03f1eeb83042593dc",
+          "expectedBmfSha256": "0d2fd1359cb08890b72297224c66517614594eee26fdb90ade1f63f875385ea6"
+        }
+      ],
+      "inputSha256": "6f1d46aab17ce94f47b8ebabdc8fb5ec1f626f196e1d7cb533d524fbcddd1ca0"
+    },
+    "candidate": {
+      "sourceRuns": [
+        {
+          "job": "analyzeCold",
+          "raw": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-02/analyzeCold/pair-01/candidate/jmh.json",
+          "rawSha256": "c21cfda43d76128a11acf348d55f734c6edd80904e2db785de6bfb88718296f5",
+          "expectedBmfSha256": "d10a40e30d525660ba66bf158b4cd7c742294a7ce40f97e458f2c7a772173652"
+        },
+        {
+          "job": "analyzeReuse",
+          "raw": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-02/analyzeReuse/pair-01/candidate/jmh.json",
+          "rawSha256": "0e77e88c1dad15f2eb779170850d5d439421a16095cc883c9f48a954ff56754c",
+          "expectedBmfSha256": "390b675282fa7eb6187fb6ea31bda836725c705b540648df83443dd537b76737"
+        },
+        {
+          "job": "visibleQuery",
+          "raw": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-02/visibleQuery/pair-01/candidate/jmh.json",
+          "rawSha256": "4801da5c211c221ea5fe340f1fa172c80873f0066bff608a3fb4a58f7816c310",
+          "expectedBmfSha256": "d4b33933eb849c605c5d40d40e0b2a7079fbddf5d456b972affb6213f43ae2f6"
+        },
+        {
+          "job": "repair",
+          "raw": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-02/repair/pair-01/candidate/jmh.json",
+          "rawSha256": "0f02bf009f3fd8fc497a271afc33b4d98735254405267ff1dc2c78e1344d721a",
+          "expectedBmfSha256": "579a3becfbdfeb1bd37c649309d4bc787b059b8f90b3cd26fbe8bf92da7d10da"
+        },
+        {
+          "job": "cancelledAttempt",
+          "raw": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-02/cancelledAttempt/pair-01/candidate/jmh.json",
+          "rawSha256": "110ef6feeece84a0cd4f1afdc51d329f3b7531300dda20a62d7c896584315975",
+          "expectedBmfSha256": "fc57681988424428fd94180f4bdf25cfb7750365a5b22baae931861782790c54"
+        }
+      ],
+      "inputSha256": "946045f63d2d5ecf7c915bab2cb10513eb1aba94d2536b346541c8dac5139785"
+    }
+  }
+}

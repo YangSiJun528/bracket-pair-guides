@@ -1,0 +1,35 @@
+{
+  "head": "8d853ea08d92150c127efe43d807771542ef84d6",
+  "artifactSha256": "3af98835450aaea492c213841fefc8c386c3435fabb6f2352d6484a0572ddc78",
+  "changedSinceProductionRevision": [
+    ".github/workflows/benchmark-jobs.yml",
+    "benchmarks/guide_bencher.md",
+    "build-logic/src/main/groovy/com/sijunyang/buildlogic/ModuleBoundariesPlugin.groovy",
+    "build-logic/src/test/java/com/sijunyang/buildlogic/BenchmarkReportIntegrationTest.java",
+    "build-logic/src/test/java/com/sijunyang/buildlogic/BenchmarkReportTest.java"
+  ],
+  "packagedJarEntries": {
+    "bracket-pair-guides/lib/analysis-core-0.0.6.jar": {
+      "sha256": "c9059df34a3024fee27ace87b1789cc2ad2c4d82264ff5690f869e1021ddfea7"
+    },
+    "bracket-pair-guides/lib/analysis-model-0.0.6.jar": {
+      "sha256": "1767985e279850e3e474a68002eb3bbb306bbb2912d605a49c117401902fa646"
+    },
+    "bracket-pair-guides/lib/analysis-runtime-0.0.6.jar": {
+      "sha256": "3886684b86fb83c8261842620e39b2b208e430cc635e7fbc077b2d0d6a1ee7e0"
+    },
+    "bracket-pair-guides/lib/editor-ui-0.0.6.jar": {
+      "sha256": "ce6b2c8881c83c156eff45d84712abc59d10abe0cf29ad12328058312b942885"
+    },
+    "bracket-pair-guides/lib/plugin-0.0.6.jar": {
+      "sha256": "0ba9536227e662aec65e6d102b05f03c25ed2030f8e41528c7f398c9e7cb8bf3"
+    }
+  },
+  "driverEvidence": "driver/compare-13/verification.json",
+  "driverExecutedOnRevision": "f65ed4e3fddbb8cdb1142af9cb72cf2e2f7ebade",
+  "driverHostZipExactlyEqual": true,
+  "driverLinuxClassesResourcesEqual": "driver/compare-13/production-equivalence.json",
+  "compatibilityEvidence": "compatibility/runs/20261008T184514375884Z/main-review.json",
+  "compatibility13IdeExactZip": true,
+  "scope": "Existing runs are bound to unchanged exact production artifact, not reported as reruns on 8d853ea."
+}

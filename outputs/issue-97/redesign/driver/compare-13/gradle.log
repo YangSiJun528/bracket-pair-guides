@@ -1,0 +1,93 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :build-logic:compileJava NO-SOURCE
+> Task :build-logic:compileGroovy FROM-CACHE
+> Task :build-logic:pluginDescriptors
+> Task :build-logic:processResources
+> Task :build-logic:classes
+> Task :build-logic:jar
+> Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-model:compileKotlin FROM-CACHE
+> Task :analysis-model:compileJava NO-SOURCE
+> Task :analysis-model:processResources NO-SOURCE
+> Task :analysis-model:classes UP-TO-DATE
+> Task :analysis-model:jar
+> Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-core:compileKotlin
+> Task :editor-ui:compileKotlin
+
+> Task :analysis-core:compileKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :analysis-core:compileJava
+> Task :analysis-runtime:processResources NO-SOURCE
+> Task :editor-ui:processResources NO-SOURCE
+> Task :plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :plugin:initializeIntellijPlatformPlugin
+> Task :plugin:patchPluginXml FROM-CACHE
+> Task :plugin:processResources
+> Task :plugin:generateManifest FROM-CACHE
+> Task :plugin:processVisualBridgeResources
+> Task :analysis-core:processResources NO-SOURCE
+> Task :analysis-core:classes
+> Task :analysis-core:jar
+> Task :plugin:cleanVisualTestArtifacts UP-TO-DATE
+> Task :plugin:processVisualTestResources
+
+> Task :editor-ui:compileKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :editor-ui:compileJava
+> Task :editor-ui:classes
+> Task :editor-ui:jar
+
+> Task :analysis-runtime:compileKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :analysis-runtime:compileJava
+> Task :analysis-runtime:classes
+> Task :analysis-runtime:jar
+
+> Task :plugin:compileKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :plugin:compileJava NO-SOURCE
+> Task :plugin:classes
+> Task :plugin:jar
+> Task :plugin:instrumentCode FROM-CACHE
+> Task :plugin:instrumentedJar FROM-CACHE
+> Task :plugin:composedJar FROM-CACHE
+> Task :plugin:prepareSandbox
+> Task :plugin:buildSearchableOptions SKIPPED
+> Task :plugin:prepareJarSearchableOptions SKIPPED
+> Task :plugin:jarSearchableOptions SKIPPED
+> Task :plugin:buildPlugin
+> Task :plugin:compileVisualTestKotlin FROM-CACHE
+> Task :plugin:compileVisualTestJava NO-SOURCE
+> Task :plugin:prepareSandbox_visualTest
+> Task :plugin:visualTestClasses
+
+> Task :plugin:compileVisualBridgeKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :plugin:compileVisualBridgeJava NO-SOURCE
+> Task :plugin:visualBridgeClasses
+> Task :plugin:visualTestBridgeJar
+> Task :plugin:buildVisualTestPlugin
+> Task :plugin:visualTest
+
+
+(java:378): dbind-WARNING **: 18:38:30.589: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+[Incubating] Problems report is available at: file:///workspace/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 4m 2s
+35 actionable tasks: 26 executed, 8 from cache, 1 up-to-date

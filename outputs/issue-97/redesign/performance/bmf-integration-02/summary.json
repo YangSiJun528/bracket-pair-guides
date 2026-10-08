@@ -1,0 +1,24 @@
+{
+  "status": "passed-main-review",
+  "sourceUnchanged": true,
+  "results": {
+    "baseline": {
+      "cases": 40,
+      "metrics": 80,
+      "exactJqNamesAndValues": true,
+      "cacheStoreAndReuse": true,
+      "reexecutedTaskAfterOutputDeletion": true,
+      "outputSha256": "1a81952ee085ed1c3b62b937f79cf9214cd719c435b60a6cbde599083ec8a0d4"
+    },
+    "candidate": {
+      "cases": 40,
+      "metrics": 80,
+      "exactJqNamesAndValues": true,
+      "cacheStoreAndReuse": true,
+      "reexecutedTaskAfterOutputDeletion": true,
+      "outputSha256": "9b3ca39feb2705746a32fb2c2bf970977cb7e0d512e2c5030ec148b15c7e96e3"
+    }
+  },
+  "scope": "Actual root Gradle exporter, preserved historical pure01 records; not final-source performance pass",
+  "priorFailurePreserved": "../bmf-integration-01/summary.json"
+}

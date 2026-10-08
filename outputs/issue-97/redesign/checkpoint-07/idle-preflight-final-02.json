@@ -1,0 +1,9 @@
+{
+  "recordedUtc": "2026-10-08T20:12:49.070336+00:00",
+  "jvmProcesses": [],
+  "dockerContainers": "",
+  "agents": "All three subagents completed/frozen; main owns every build and measurement",
+  "freeBytes": 12643037184,
+  "qodana08": "PASS0, completed before preflight",
+  "scope": "Setup is not a timing or allocation performance pass"
+}

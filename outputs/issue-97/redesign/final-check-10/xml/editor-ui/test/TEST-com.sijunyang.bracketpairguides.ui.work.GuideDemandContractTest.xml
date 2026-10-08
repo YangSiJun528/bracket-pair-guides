@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.ui.work.GuideDemandContractTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-08T18:13:42.036Z" hostname="sijun-yangui-MacBookPro.local" time="0.01">
+  <properties/>
+  <testcase name="construction and copy freeze caller language selections" classname="com.sijunyang.bracketpairguides.ui.work.GuideDemandContractTest" time="0.007"/>
+  <testcase name="empty caller selection stays frozen and exposed sets reject mutation" classname="com.sijunyang.bracketpairguides.ui.work.GuideDemandContractTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

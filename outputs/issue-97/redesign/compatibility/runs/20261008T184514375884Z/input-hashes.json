@@ -1,0 +1,20 @@
+{
+  "run_serial_verifiers.py": "df00f5d99929a7b71318bab6eee07bf7a21e7ce6edb5b5552bc9c14f7bc492e8",
+  "serial-verifier.init.gradle": "4a35894d29e355993bc07b9a44a45d4ccb91049b34ab31e1c0a42ee7b9ae922e",
+  "bracket-pair-guides-0.0.6.zip": "3af98835450aaea492c213841fefc8c386c3435fabb6f2352d6484a0572ddc78",
+  "expected-testcases-03.json": "bfd85382b97cb9c0eb9fca07be6610bf6743800e604497bfa2f969efb42f50ed",
+  "ide-acquisition.init.gradle": "f800c4866ce269ccfe64a503ec1073d9f9d86af6b396ad905c95e000346e7875",
+  "current-matrix-03.json": "1ba5550b245d10a5a0f148eb2ec6ba30d0531aa76bb9e8356ed40fc03935a34d",
+  "initial-sdk-evidence/currentSdkTests/TEST-com.sijunyang.bracketpairguides.ui.editor.highlighting.NativeGuideAdvisoryIdeContractTest.xml": "a71c095267ddfe0b7eacc0d7d2e41991ca4145fdaad5e407fc0bae1e1e765af0",
+  "initial-sdk-evidence/currentSdkTests/TEST-com.sijunyang.bracketpairguides.plugin.RuntimeIdentityIdeContractTest.xml": "f3d22c197659f32522c3c60e1c27daef8a05abd94ba75c243624e83ee217201d",
+  "initial-sdk-evidence/currentSdkTests/TEST-com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest.xml": "50b53fd8135d28442f210422a892307748a43b9c6e7ced0addf27bd330c8a295",
+  "initial-sdk-evidence/currentSdkTests/TEST-com.sijunyang.bracketpairguides.runtime.session.ScalarPrefixCaptureIdeContractTest.xml": "421ec8aaec7c56c01edb0d9c24d02b35de20c30f60ddc8ac33b058fce35185e3",
+  "initial-sdk-evidence/currentSdkTests/TEST-com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest.xml": "3cdd1bbd0fb96bea5034e403b0c110a21af91379a726762a0f9c0f83425090cb",
+  "initial-sdk-evidence/currentSdkTests/TEST-com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest.xml": "262793febd187556ca0d35d4170a90ced886ae92051f905a5f826ab055599e58",
+  "initial-sdk-evidence/minimumSdkTests/TEST-com.sijunyang.bracketpairguides.ui.editor.highlighting.NativeGuideAdvisoryIdeContractTest.xml": "a874c47644f7aab6e1bc5643426c503ea11f7c262a4112225794509fff12e2db",
+  "initial-sdk-evidence/minimumSdkTests/TEST-com.sijunyang.bracketpairguides.plugin.RuntimeIdentityIdeContractTest.xml": "df8ea389d946806902a01f0873c7fb712b154b9de1e64bbd0c78f593e831655f",
+  "initial-sdk-evidence/minimumSdkTests/TEST-com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest.xml": "3c4bcb382a39ec78fbeaa18bac1490e8fe779e1b1c25919b40d620a75ebffbf6",
+  "initial-sdk-evidence/minimumSdkTests/TEST-com.sijunyang.bracketpairguides.runtime.session.ScalarPrefixCaptureIdeContractTest.xml": "6e037d632360821b7d5d19d29557123e3feed55e2cf60f401501a01d0930f9be",
+  "initial-sdk-evidence/minimumSdkTests/TEST-com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest.xml": "2225f2f395bf09b6e699f17a98de01055e40254e63779e277f4b36aff81c8ef7",
+  "initial-sdk-evidence/minimumSdkTests/TEST-com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest.xml": "e56dfe20331ae71cd9146e85b1dcc447baa7d45531861a5d1a4cec8b1e1397de"
+}

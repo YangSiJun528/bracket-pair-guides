@@ -1,0 +1,81 @@
+{
+  "status": "passed-main-review",
+  "head": "8d853ea08d92150c127efe43d807771542ef84d6",
+  "productionSourceCommit": "f65ed4e3fddbb8cdb1142af9cb72cf2e2f7ebade",
+  "sourceUnchanged": true,
+  "counts": {
+    "analysis-core/test": 47,
+    "analysis-model/test": 4,
+    "analysis-runtime/test": 3,
+    "build-logic/test": 52,
+    "editor-ui/test": 4,
+    "plugin/currentSdkTests": 35,
+    "plugin/minimumSdkTests": 35,
+    "plugin/test": 4
+  },
+  "tests": 184,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "allPrior182CaseIdentitiesRetained": true,
+  "newCases": [
+    [
+      "build-logic/test",
+      "com.sijunyang.buildlogic.BenchmarkReportIntegrationTest",
+      "absolutePathsExportAllCasesAndReuseConfigurationCache"
+    ],
+    [
+      "build-logic/test",
+      "com.sijunyang.buildlogic.BenchmarkReportIntegrationTest",
+      "relativePathsExportAllCasesAndReuseConfigurationCache"
+    ]
+  ],
+  "buildLogicAndBothSdkXmlFreshThisRun": true,
+  "sdk": {
+    "minimumSdkTests": {
+      "tests": 35,
+      "runtime": "ACTUAL_IDE=IC-241.19416.15;EXPECTED=2024.1.7\nACTUAL_JAVA=/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/jbr/Contents/Home;17.0.12+1-b1207.37",
+      "freshXml": true
+    },
+    "currentSdkTests": {
+      "tests": 35,
+      "runtime": "ACTUAL_IDE=IU-263.6259.32;EXPECTED=263.6259.32\nACTUAL_JAVA=/Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64/jbr/Contents/Home;25.0.4.1+1-b623.69",
+      "freshXml": true
+    }
+  },
+  "sdkFree": {
+    "counts": {
+      "analysis-core": 47,
+      "analysis-model": 4
+    },
+    "tests": 51,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "freshRerun": true,
+    "noIntellijSdk": "Separate tools/pure-build configuration and compiler-input guards passed"
+  },
+  "releaseZip": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/distributions/bracket-pair-guides-0.0.6.zip",
+  "releaseSha256": "3af98835450aaea492c213841fefc8c386c3435fabb6f2352d6484a0572ddc78",
+  "ownerJars": {
+    "bracket-pair-guides/lib/analysis-core-0.0.6.jar": 99,
+    "bracket-pair-guides/lib/analysis-model-0.0.6.jar": 12,
+    "bracket-pair-guides/lib/analysis-runtime-0.0.6.jar": 116,
+    "bracket-pair-guides/lib/editor-ui-0.0.6.jar": 219,
+    "bracket-pair-guides/lib/plugin-0.0.6.jar": 5
+  },
+  "productionClasses": 451,
+  "duplicateClasses": 0,
+  "rejectedExperimentClassAbsent": true,
+  "seconds": 797.784434332978,
+  "sdkFreeSeconds": 18.088739333034027,
+  "configurationCache": {
+    "defaultEnabled": true,
+    "rootReusable": false,
+    "rootDiscardedProblems": 184,
+    "pureReusable": false,
+    "pureDiscardedProblems": 3,
+    "reason": "Existing verifyProductionModules/verifyPluginPackaging resolved task introspection explicitly declares notCompatibleWithConfigurationCache. ExportBenchmarkBmf store/reuse is tested separately."
+  },
+  "performancePass": null
+}

@@ -1,0 +1,6 @@
+{
+  "error": "Initial launcher used wrong run_owned signature; TypeError occurred before Docker or Gradle invocation",
+  "timedRunStarted": false,
+  "corrected": "Pass a command record dictionary to existing helper",
+  "recordedUtc": "2026-10-08T20:06:23.249754+00:00"
+}

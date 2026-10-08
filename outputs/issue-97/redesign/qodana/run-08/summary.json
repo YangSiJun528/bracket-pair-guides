@@ -1,0 +1,22 @@
+{
+  "exitCode": 0,
+  "timedOut": false,
+  "failThreshold": 0,
+  "findings": 0,
+  "sarif": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/qodana/local/results.65jyaI/qodana.sarif.json",
+  "sarifSha256": "812ce0a5fcbb41aaf09d2966b03d218e46e3ddc67e05ef1e62791375e449f171",
+  "sourceManifestSha256": "8b588ff00baf5e8a59085e5cbe72300361749ba4a60c397573755e27c87da4b5",
+  "sourceRevision": "8d853ea08d92150c127efe43d807771542ef84d6",
+  "sourceUnchanged": true,
+  "seconds": 327.5204325839877,
+  "imageId": "sha256:3db2bdb1d846ddeca9f600a6737bc82b3993067e07e572ba7bf791d9fe41a9bf",
+  "upload": false,
+  "tools": [
+    {
+      "name": "QDJVM",
+      "fullName": "Qodana for JVM",
+      "version": "262.11550",
+      "semanticVersion": null
+    }
+  ]
+}

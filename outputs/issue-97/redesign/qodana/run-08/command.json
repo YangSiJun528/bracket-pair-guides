@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+  "command": [
+    "bash",
+    "outputs/issue-97/redesign/qodana/run_local.sh"
+  ],
+  "directory": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/qodana/run-08/run",
+  "timeoutSeconds": 1800,
+  "status": "running",
+  "startedUtc": "2026-10-08T20:06:23.377370+00:00",
+  "ownedPid": 72316,
+  "ownedProcessGroup": 72316,
+  "timedOut": false,
+  "elapsedSeconds": 327.5204325839877,
+  "exitCode": 0,
+  "finishedUtc": "2026-10-08T20:11:50.898759+00:00"
+}

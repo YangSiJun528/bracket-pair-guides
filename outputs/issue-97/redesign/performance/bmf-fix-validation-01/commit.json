@@ -1,0 +1,12 @@
+{
+  "recordedUtc": "2026-10-08T19:44:00.973364+00:00",
+  "exitCode": 0,
+  "paths": [
+    ".github/workflows/benchmark-jobs.yml",
+    "benchmarks/guide_bencher.md",
+    "build-logic/src/main/groovy/com/sijunyang/buildlogic/ModuleBoundariesPlugin.groovy",
+    "build-logic/src/test/java/com/sijunyang/buildlogic/BenchmarkReportTest.java",
+    "build-logic/src/test/java/com/sijunyang/buildlogic/BenchmarkReportIntegrationTest.java"
+  ],
+  "head": "8d853ea08d92150c127efe43d807771542ef84d6"
+}

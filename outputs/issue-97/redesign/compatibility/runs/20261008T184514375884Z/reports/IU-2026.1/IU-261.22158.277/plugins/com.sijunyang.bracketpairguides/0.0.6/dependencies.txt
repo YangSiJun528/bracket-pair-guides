@@ -1,0 +1,112 @@
+com.sijunyang.bracketpairguides:0.0.6
+\--- com.intellij:261.22158.277
+     +--- (optional) Git4Idea:261.22158.277
+     |    +--- com.intellij:261.22158.277 (*) [declaring module intellij.platform.vcs.dvcs]
+     |    +--- (optional) com.jetbrains.performancePlugin:261.22158.277
+     |    |    \--- com.intellij:261.22158.277 (*) [declaring module com.intellij.modules.lang]
+     |    \--- (optional) org.jetbrains.plugins.terminal:261.22158.277
+     |         +--- (failed) intellij.platform.frontend.split (optional): Dependency 'dependency on module 'intellij.platform.frontend.split' declared in content module 'intellij.terminal.frontend.split' of 'org.jetbrains.plugins.terminal'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-261.22158.277, Local Plugin Repository
+     |         +--- com.intellij:261.22158.277 (*) [declaring module com.intellij.modules.lang]
+     |         \--- (optional) com.jetbrains.sh:261.22158.277 [declaring module intellij.sh.core]
+     |              +--- (failed) com.intellij.modules.python (optional): Dependency 'dependency on plugin 'com.intellij.modules.python' declared in content module 'intellij.sh.python' of 'com.jetbrains.sh'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-261.22158.277, Local Plugin Repository
+     |              +--- (failed) intellij.platform.frontend.split (optional): Dependency 'dependency on module 'intellij.platform.frontend.split' declared in content module 'intellij.terminal.frontend.split' of 'org.jetbrains.plugins.terminal'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-261.22158.277, Local Plugin Repository
+     |              +--- (failed) intellij.rd.client (optional): Dependency 'dependency on module 'intellij.rd.client' declared in content module 'intellij.sh.frontend.split' of 'com.jetbrains.sh'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-261.22158.277, Local Plugin Repository
+     |              +--- com.intellij:261.22158.277 (*) [declaring module com.intellij.modules.lang]
+     |              +--- (optional) com.intellij.copyright:261.22158.277
+     |              |    \--- com.intellij:261.22158.277 (*) [declaring module com.intellij.modules.lang]
+     |              +--- (optional) org.intellij.plugins.markdown:261.22158.277
+     |              |    +--- (failed) intellij.platform.frontend.split (optional): Dependency 'dependency on module 'intellij.platform.frontend.split' declared in content module 'intellij.terminal.frontend.split' of 'org.jetbrains.plugins.terminal'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-261.22158.277, Local Plugin Repository
+     |              |    +--- com.intellij:261.22158.277 (*) [declaring module com.intellij.modules.lang]
+     |              |    +--- (optional) com.intellij.platform.images:261.22158.277
+     |              |    |    +--- com.intellij:261.22158.277 (*) [declaring module intellij.xml.psi.impl]
+     |              |    |    \--- (optional) com.intellij.copyright:261.22158.277 (*)
+     |              |    +--- (optional) org.toml.lang:261.22158.277
+     |              |    |    +--- (failed) intellij.platform.frontend.split (optional): Dependency 'dependency on module 'intellij.platform.frontend.split' declared in content module 'intellij.terminal.frontend.split' of 'org.jetbrains.plugins.terminal'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-261.22158.277, Local Plugin Repository
+     |              |    |    +--- com.intellij:261.22158.277 (*) [declaring module com.intellij.modules.lang]
+     |              |    |    +--- (optional) tanvd.grazi:261.22158.277
+     |              |    |    |    +--- com.intellij:261.22158.277 (*) [declaring module intellij.spellchecker]
+     |              |    |    |    +--- (optional) org.intellij.plugins.markdown:261.22158.277 (*)
+     |              |    |    |    +--- (optional) intellij.java.backend:261.22158.277 [product module]
+     |              |    |    |    |    +--- intellij.java:261.22158.277 [product module]
+     |              |    |    |    |    |    +--- com.intellij.java:261.22158.277 [declaring module intellij.java.psi]
+     |              |    |    |    |    |    |    +--- (failed) com.intellij.jetbrains.client (optional): Dependency 'dependency on plugin 'com.intellij.jetbrains.client' declared in content module 'intellij.java.frontend.split' of 'com.intellij.java'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-261.22158.277, Local Plugin Repository
+     |              |    |    |    |    |    |    +--- (failed) com.intellij.modules.idea.community (optional): Dependency 'dependency on plugin 'com.intellij.modules.idea.community' declared in content module 'intellij.java.promo' of 'com.intellij.java'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-261.22158.277, Local Plugin Repository
+     |              |    |    |    |    |    |    +--- (failed) intellij.platform.frontend.split (optional): Dependency 'dependency on module 'intellij.platform.frontend.split' declared in content module 'intellij.terminal.frontend.split' of 'org.jetbrains.plugins.terminal'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-261.22158.277, Local Plugin Repository
+     |              |    |    |    |    |    |    +--- com.intellij:261.22158.277 (*) [declaring module com.intellij.modules.lang]
+     |              |    |    |    |    |    |    +--- (optional) com.intellij.copyright:261.22158.277 (*)
+     |              |    |    |    |    |    |    +--- (optional) com.intellij.modules.ultimate:261.22158.277
+     |              |    |    |    |    |    |    |    \--- com.intellij:261.22158.277 (*) [declaring module com.intellij.modules.lang]
+     |              |    |    |    |    |    |    +--- (optional) org.jetbrains.plugins.terminal:261.22158.277 (*)
+     |              |    |    |    |    |    |    +--- (optional) training:261.22158.277
+     |              |    |    |    |    |    |    |    +--- com.intellij:261.22158.277 (*) [declaring module intellij.platform.tips]
+     |              |    |    |    |    |    |    |    +--- (optional) Git4Idea:261.22158.277 (*)
+     |              |    |    |    |    |    |    |    +--- (optional) org.jetbrains.kotlin:261.22158.277
+     |              |    |    |    |    |    |    |    |    +--- intellij.java.backend:261.22158.277 (*) [product module]
+     |              |    |    |    |    |    |    |    |    \--- com.intellij:261.22158.277 (*) [declaring module intellij.platform.ml.impl]
+     |              |    |    |    |    |    |    |    +--- (optional) com.intellij.java:261.22158.277 (*) [declaring module intellij.java.featuresTrainer]
+     |              |    |    |    |    |    |    |    \--- (optional) intellij.kotlin.featuresTrainer:261.22158.277 [product module]
+     |              |    |    |    |    |    |    |         +--- training:261.22158.277 (*)
+     |              |    |    |    |    |    |    |         \--- com.intellij.java:261.22158.277 (*) [declaring module intellij.java.featuresTrainer]
+     |              |    |    |    |    |    |    +--- (optional) intellij.java:261.22158.277 (*) [product module]
+     |              |    |    |    |    |    |    +--- (optional) intellij.java.backend:261.22158.277 (*) [product module]
+     |              |    |    |    |    |    |    +--- (optional) intellij.java.typeMigration:261.22158.277 [product module]
+     |              |    |    |    |    |    |    |    +--- intellij.java:261.22158.277 (*) [product module]
+     |              |    |    |    |    |    |    |    +--- com.intellij.java:261.22158.277 (*) [declaring module intellij.java.impl]
+     |              |    |    |    |    |    |    |    \--- com.intellij:261.22158.277 (*) [declaring module intellij.platform.analysis]
+     |              |    |    |    |    |    |    +--- (optional) com.jetbrains.performancePlugin:261.22158.277 (*) [declaring module intellij.performanceTesting.vcs]
+     |              |    |    |    |    |    |    \--- (optional) com.jetbrains.remoteDevelopment:261.22158.277 [declaring module intellij.platform.backend.split]
+     |              |    |    |    |    |    |         +--- com.intellij:261.22158.277 (*) [declaring module intellij.rd.platform]
+     |              |    |    |    |    |    |         +--- (optional) Docker:261.22158.277
+     |              |    |    |    |    |    |         |    +--- (failed) intellij.platform.frontend.split (optional): Dependency 'dependency on module 'intellij.platform.frontend.split' declared in content module 'intellij.terminal.frontend.split' of 'org.jetbrains.plugins.terminal'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-261.22158.277, Local Plugin Repository
+     |              |    |    |    |    |    |         |    +--- com.intellij:261.22158.277 (*) [declaring module intellij.libraries.ktor.client]
+     |              |    |    |    |    |    |         |    +--- (optional) com.intellij.modules.ultimate:261.22158.277 (*)
+     |              |    |    |    |    |    |         |    +--- (optional) intellij.clouds.docker.shared:261.22158.277 [product module]
+     |              |    |    |    |    |    |         |    |    +--- Docker:261.22158.277 (*) [declaring module intellij.clouds.docker.agent]
+     |              |    |    |    |    |    |         |    |    \--- com.intellij:261.22158.277 (*) [declaring module intellij.libraries.ktor.client]
+     |              |    |    |    |    |    |         |    +--- (optional) intellij.java.backend:261.22158.277 (*) [product module]
+     |              |    |    |    |    |    |         |    +--- (optional) com.intellij.java:261.22158.277 (*) [declaring module intellij.java.remoteServers]
+     |              |    |    |    |    |    |         |    \--- (optional) intellij.yaml.backend:261.22158.277 [product module]
+     |              |    |    |    |    |    |         |         +--- intellij.json.backend:261.22158.277 [product module]
+     |              |    |    |    |    |    |         |         |    +--- com.intellij.modules.json:261.22158.277 [declaring module intellij.json]
+     |              |    |    |    |    |    |         |         |    |    +--- (failed) intellij.platform.frontend.split (optional): Dependency 'dependency on module 'intellij.platform.frontend.split' declared in content module 'intellij.terminal.frontend.split' of 'org.jetbrains.plugins.terminal'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-261.22158.277, Local Plugin Repository
+     |              |    |    |    |    |    |         |         |    |    +--- com.intellij:261.22158.277 (*) [declaring module com.intellij.modules.lang]
+     |              |    |    |    |    |    |         |         |    |    \--- (optional) intellij.json.backend:261.22158.277 (*) [product module]
+     |              |    |    |    |    |    |         |         |    \--- com.intellij:261.22158.277 (*) [declaring module intellij.platform.backend]
+     |              |    |    |    |    |    |         |         +--- com.intellij:261.22158.277 (*) [declaring module intellij.platform.backend]
+     |              |    |    |    |    |    |         |         \--- org.jetbrains.plugins.yaml:261.22158.277 [declaring module intellij.yaml]
+     |              |    |    |    |    |    |         |              +--- (failed) intellij.platform.frontend.split (optional): Dependency 'dependency on module 'intellij.platform.frontend.split' declared in content module 'intellij.terminal.frontend.split' of 'org.jetbrains.plugins.terminal'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-261.22158.277, Local Plugin Repository
+     |              |    |    |    |    |    |         |              +--- com.intellij.modules.json:261.22158.277 (*) [declaring module intellij.json]
+     |              |    |    |    |    |    |         |              +--- (optional) org.jetbrains.plugins.go-template:261.22158.185
+     |              |    |    |    |    |    |         |              |    \--- com.intellij:261.22158.277 (*) [declaring module com.intellij.modules.lang]
+     |              |    |    |    |    |    |         |              +--- (optional) intellij.json.backend:261.22158.277 (*) [product module]
+     |              |    |    |    |    |    |         |              +--- (optional) com.intellij:261.22158.277 (*) [declaring module intellij.platform.backend]
+     |              |    |    |    |    |    |         |              \--- (optional) intellij.yaml.backend:261.22158.277 (*) [product module]
+     |              |    |    |    |    |    |         +--- (optional) Git4Idea:261.22158.277 (*)
+     |              |    |    |    |    |    |         +--- (optional) com.jetbrains.performancePlugin:261.22158.277 (*)
+     |              |    |    |    |    |    |         +--- (optional) org.intellij.plugins.markdown:261.22158.277 (*)
+     |              |    |    |    |    |    |         +--- (optional) intellij.clouds.docker.remoteRun:261.22158.277 [product module]
+     |              |    |    |    |    |    |         |    +--- Docker:261.22158.277 (*) [declaring module intellij.clouds.docker]
+     |              |    |    |    |    |    |         |    \--- intellij.clouds.docker.shared:261.22158.277 (*) [product module]
+     |              |    |    |    |    |    |         +--- (optional) com.jetbrains.sh:261.22158.277 (*) [declaring module intellij.sh.terminal]
+     |              |    |    |    |    |    |         +--- (optional) intellij.station.core:261.22158.277 [product module]
+     |              |    |    |    |    |    |         |    \--- com.intellij:261.22158.277 (*) [declaring module intellij.libraries.rd.core]
+     |              |    |    |    |    |    |         \--- (optional) org.jetbrains.plugins.terminal:261.22158.277 (*) [declaring module intellij.terminal.backend]
+     |              |    |    |    |    |    \--- com.intellij:261.22158.277 (*) [declaring module intellij.platform.analysis]
+     |              |    |    |    |    +--- com.intellij.java:261.22158.277 (*) [declaring module intellij.java.manifest]
+     |              |    |    |    |    +--- intellij.java.typeMigration:261.22158.277 (*) [product module]
+     |              |    |    |    |    \--- com.intellij:261.22158.277 (*) [declaring module intellij.platform.vcs.impl.lang]
+     |              |    |    |    +--- (optional) intellij.json.backend:261.22158.277 (*) [product module]
+     |              |    |    |    +--- (optional) intellij.properties.backend:261.22158.277 [product module]
+     |              |    |    |    |    +--- com.intellij:261.22158.277 (*) [declaring module intellij.platform.backend]
+     |              |    |    |    |    \--- com.intellij.properties:261.22158.277 [declaring module intellij.properties]
+     |              |    |    |    |         +--- (optional) com.intellij.copyright:261.22158.277 (*)
+     |              |    |    |    |         \--- (optional) com.intellij:261.22158.277 (*) [declaring module intellij.platform.backend]
+     |              |    |    |    +--- (optional) com.intellij.properties:261.22158.277 (*) [declaring module intellij.properties.backend.psi]
+     |              |    |    |    \--- (optional) intellij.yaml.backend:261.22158.277 (*) [product module]
+     |              |    |    \--- (optional) intellij.json.backend:261.22158.277 (*) [product module]
+     |              |    +--- (optional) intellij.json.backend:261.22158.277 (*) [product module]
+     |              |    \--- (optional) intellij.yaml.backend:261.22158.277 (*) [product module]
+     |              \--- (optional) org.jetbrains.plugins.terminal:261.22158.277 (*)
+     +--- (optional) XPathView:261.22158.277
+     |    \--- com.intellij:261.22158.277 (*)
+     \--- (optional) com.jetbrains.remoteDevelopment:261.22158.277 (*)

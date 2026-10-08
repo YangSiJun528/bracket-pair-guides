@@ -1,0 +1,52 @@
+com.sijunyang.bracketpairguides:0.0.6
+\--- com.intellij:242.26775.15
+     +--- (failed) com.intellij.platform.experimental.backend (optional): Dependency 'dependency on plugin 'com.intellij.platform.experimental.backend' declared in content module 'intellij.platform.kernel.backend' of 'com.intellij'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IC-242.26775.15, Local Plugin Repository
+     +--- (optional) com.intellij.copyright:242.26775.15
+     |    \--- com.intellij:242.26775.15 (*) [declaring module com.intellij.modules.lang]
+     +--- (optional) com.intellij.platform.images:242.26775.15
+     |    \--- com.intellij:242.26775.15 (*) [declaring module com.intellij.modules.lang]
+     +--- (optional) org.jetbrains.kotlin:242.26775.15
+     |    +--- com.intellij.java:242.26775.15
+     |    |    +--- (optional) com.intellij.copyright:242.26775.15 (*)
+     |    |    +--- (optional) com.intellij:242.26775.15 (*)
+     |    |    +--- (optional) com.intellij.platform.images:242.26775.15 (*)
+     |    |    +--- (optional) training:242.26775.15
+     |    |    |    +--- com.intellij:242.26775.15 (*) [declaring module intellij.platform.lvcs.impl]
+     |    |    |    \--- (optional) Git4Idea:242.26775.15
+     |    |    |         +--- com.intellij:242.26775.15 (*) [declaring module intellij.platform.collaborationTools]
+     |    |    |         +--- (optional) com.jetbrains.performancePlugin:242.26775.15
+     |    |    |         |    \--- com.intellij:242.26775.15 (*) [declaring module com.intellij.modules.lang]
+     |    |    |         \--- (optional) org.jetbrains.plugins.terminal:242.26775.15
+     |    |    |              +--- com.intellij:242.26775.15 (*) [declaring module com.intellij.modules.lang]
+     |    |    |              \--- (optional) com.jetbrains.sh:242.26775.15
+     |    |    |                   +--- (failed) com.intellij.modules.python (optional): Dependency 'dependency on plugin 'com.intellij.modules.python' declared in content module 'intellij.sh.python' of 'com.jetbrains.sh'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IC-242.26775.15, Local Plugin Repository
+     |    |    |                   +--- com.intellij:242.26775.15 (*) [declaring module com.intellij.modules.lang]
+     |    |    |                   +--- (optional) com.intellij.copyright:242.26775.15 (*)
+     |    |    |                   +--- (optional) org.intellij.plugins.markdown:242.26775.15
+     |    |    |                   |    +--- com.intellij:242.26775.15 (*) [declaring module com.intellij.modules.lang]
+     |    |    |                   |    +--- (optional) com.intellij.platform.images:242.26775.15 (*)
+     |    |    |                   |    +--- (optional) org.intellij.intelliLang:242.26775.15
+     |    |    |                   |    |    +--- (optional) XPathView:242.22855.32
+     |    |    |                   |    |    |    \--- com.intellij:242.26775.15 (*)
+     |    |    |                   |    |    +--- (optional) com.intellij.java:242.26775.15 (*)
+     |    |    |                   |    |    \--- (optional) com.intellij:242.26775.15 (*)
+     |    |    |                   |    +--- (optional) org.jetbrains.plugins.yaml:242.26775.15
+     |    |    |                   |    |    \--- com.intellij:242.26775.15 (*) [declaring module com.intellij.modules.lang]
+     |    |    |                   |    \--- (optional) org.toml.lang:242.26775.15
+     |    |    |                   |         +--- com.intellij:242.26775.15 (*) [declaring module com.intellij.modules.lang]
+     |    |    |                   |         \--- (optional) tanvd.grazi:242.26775.15
+     |    |    |                   |              +--- com.intellij:242.26775.15 (*) [declaring module intellij.platform.vcs.impl]
+     |    |    |                   |              +--- (optional) com.intellij.java:242.26775.15 (*)
+     |    |    |                   |              +--- (optional) com.intellij.properties:242.26775.15
+     |    |    |                   |              |    +--- com.intellij:242.26775.15 (*) [declaring module com.intellij.modules.xml]
+     |    |    |                   |              |    \--- (optional) com.intellij.copyright:242.26775.15 (*)
+     |    |    |                   |              +--- (optional) org.intellij.plugins.markdown:242.26775.15 (*)
+     |    |    |                   |              \--- (optional) org.jetbrains.plugins.yaml:242.26775.15 (*)
+     |    |    |                   \--- (optional) org.jetbrains.plugins.terminal:242.26775.15 (*)
+     |    |    \--- (optional) com.jetbrains.performancePlugin:242.26775.15 (*) [declaring module intellij.performanceTesting.vcs]
+     |    \--- com.intellij:242.26775.15 (*) [declaring module intellij.platform.collaborationTools]
+     +--- (optional) intellij.java.featuresTrainer:242.26775.15 [product module]
+     |    \--- training:242.26775.15 (*)
+     \--- (optional) kotlin.features-trainer:242.26775.15 [product module]
+          +--- training:242.26775.15 (*)
+          \--- intellij.java.featuresTrainer:242.26775.15 (*) [product module]
