@@ -1,0 +1,4 @@
+beforeCount=0
+state=0:1:true:true:true:true:16:true:true:2
+settings=false:true:true:true
+advisory(count:visible:expired:fadedIn:disposed:present:componentShowing:type)=1:true:false:false:false:true:true:com.intellij.ui.BalloonImpl

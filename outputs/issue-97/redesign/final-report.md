@@ -65,7 +65,7 @@ UI에서 core/runtime의 계산·capture·builder·구체 인덱스를 직접 �
 
 ## 현재 확인된 검증
 
-기존 구현 세부사항 중심 테스트를 새 핵심 계약 테스트로 교체했습니다. 같은 소스에서 실제 실행한 결과만 아래 표에 기록합니다.
+기존 구현 세부사항 중심 테스트를 새 핵심 계약 테스트로 교체했습니다. 아래 각 행은 해당 기록의 소스 manifest에 고정된 개별 결과입니다. 서로 다른 실행의 통과를 최신 커밋 `694c798`의 일괄 통과로 합산하지 않습니다.
 
 | 검증 | 관측 결과 | 근거 |
 |---|---|---|
@@ -77,9 +77,19 @@ UI에서 core/runtime의 계산·capture·builder·구체 인덱스를 직접 �
 | root check 03 | 전체 FAILED: SDK 측정 harness 컴파일 실패 | [원본 로그](full-check-03/check.log) |
 | 후속 SDK harness 컴파일 | PASS | [컴파일 로그](final-check-04/harness-compile.log) |
 | 후속 SDK 없는 model/core fresh build | PASS, 14 tasks executed | [pure 로그](final-check-04/pure.log) |
-| Driver compare06 | 12개 실제 PNG가 검토된 baseline과 바이트 동일; 정확 ARGB 비교 PASS | [검증 기록](driver/compare-06/verification.json) |
-| 최신 root check·Qodana | 진행 중, 최종 판정 대기 | [check 로그](qodana-fixes-02/check.log) |
-| 후속 소스 Driver·paint mutation | 대기 | 이전 Driver 결과로 대체하지 않음 |
+| Driver compare06 | 해당 소스의 12개 실제 PNG가 검토된 baseline과 바이트 동일; 정확 ARGB 비교 PASS | [검증 기록](driver/compare-06/verification.json) |
+| 후속 Driver compare07 | FAILED: horizontal-only의 569픽셀 차이, bbox (48,4)..(111,33); 다른 11개 정확 일치 | [원본 로그](driver/compare-07/gradle.log) |
+| Driver compare09 | FAILED: horizontal-only 30초 readiness timeout; 지연된 JDK 28,125파일 indexing이 실제 로그에 기록됨 | [setup 실패 원본](driver/compare-09/plugin/build/visual-test-artifacts/horizontal-only-daemon-observed.txt) |
+| 표준 초기 index 준비 보완 후 Driver compare10 | FAILED: 모든 기능 assertion은 통과했으나 native 두 이미지 각2,218픽셀·edit20픽셀의 기존 oracle 불일치 | [픽셀 기록](driver/compare-10/pixel-comparison.json) |
+| 독립 baseline counterfactual01 | 변경 없는 production072533f + 동일12scenario에서 기능 assertions 통과; candidate10과12개 모두ARGB·PNG바이트 정확 일치. old-golden 통과가 아닌 진단 capture | [교차 비교](driver/baseline-counterfactual-01/cross-production-comparison.json) |
+| 의도적 settled oracle 정정 | 독립 baseline 실제 이미지로 3개만 정정, 기존 3개 보존; 9개 불변·정확 픽셀 기준 불변 | [독립 검토](driver/settled-oracle-review/review.json) |
+| 정정 후 Driver compare11 | 대기 | 결과 반영 전 통과 주장 없음 |
+| Qodana03 | PASS: 기존 failThreshold0, 지적0건 | [검증 기록](qodana/run-03/summary.json) |
+| 후속 root check04 | PASS134, SDK-free45, actual SDK29; 최신 Driver 보완 전 snapshot | [검증 기록](final-check-04/summary.json) |
+| current SDK01 | PASS29, minimum과 동일 testcase; 실제IU263/JBR25 | [검증 기록](current-sdk-01/summary.json) |
+| 최신 root check05 | 준비됨, 아직 미실행 | [명령 계획](final-check-05/plan.json) |
+| Driver compare11 | PASS:12개 정확 ARGB/PNG 및 모든 기능 assertions | [검증 기록](driver/compare-11/verification.json) |
+| paint-fill-removal mutation08 | 기대한 음성 검증:9개 시각 비교만 FAILED;3개 no-guide 시나리오는 정확 일치 | [검증 기록](driver/mutation-08/verification.json) |
 | 최종 지원 IDE 전체 matrix | 대기 | [직렬 검증 절차](compatibility/README.md) |
 | 정식 변경 전후 성능 비교 | 미실행 | smoke를 성능 통과로 취급하지 않음 |
 
@@ -91,7 +101,13 @@ SDK 29개 계약은 실제 worker/read/EDT publication, 중복 demand, source �
 
 컴파일 차단은 잘못된 계층 참조를 막는 증거이며 모든 알고리즘·스레드 버그의 부재를 뜻하지 않습니다. `afterAdded`의 지원되는 재진입은 검증하지만, SDK가 금지한 `beforeRemoved` 중 nested marker 추가나 임의 listener 예외의 완전한 rollback까지 보장하지 않습니다.
 
+unrelated-write retry는 core 입력 adapter에서 `RetryCapture`를 발생시키는 계약으로 검증합니다. 실제 SDK의 unrelated host write를 입력 chunk 사이에 배치해 전체 attempt 재시작을 결정적으로 확인하는 통합 계약은 아직 없습니다. 이를 SDK retry 통과로 취급하지 않습니다.
+
 native A→B→A는 proof gate 단위 계약과 Driver의 실제 native settings/markup·pixels 관측으로 분리됩니다. 지연된 실제 native SDK traversal의 stale completion을 결정적으로 거절하는 통합 계약은 아직 없습니다. XML roundtrip은 실제 직렬화·재적재를 검증하며 별도 IDE 프로세스 재시작 시험을 대신하지 않습니다.
+
+Driver compare07의 차이는 괄호·가이드 밖 `Contract`·`run` 식별자 영역이었습니다. compare09는 daemon 관측을 추가한 뒤, 초기 분석과 겹쳐 진행된 JDK 자동발견·root indexing으로 capture readiness가 실패했습니다. 표준 초기 프로젝트 준비 대기를 추가한 compare10에서는 horizontal-only가 기존 oracle과 정확 일치했습니다.
+
+compare10의 나머지 세 oracle 차이는 독립 unchanged-production counterfactual에서도 동일하게 재현됐습니다. 두 native scenario에서는 이전 caret의 identifier-usage 배경이 사라졌고, 편집 후에는 SDK native indent guide가 갱신됐습니다. 모든 12개 baseline/candidate 영상이 정확 일치함을 확인하고 메인이 이미지를 독립 검토한 뒤 3개만 baseline production의 settled capture로 정정했습니다. 이전 이미지·실패 원본·검토 결정을 보존하며 정확 픽셀 기준은 변하지 않았습니다. 이는 기존 oracle 통과나 최종 Driver 통과가 아니고, 정정 후 compare11은12개 정확 ARGB/PNG와 기능 assertions를 통과했습니다. Mutation08은 가이드 그리기를 제거한 격리 복사본에서9개 시각 비교만 실패하여 렌더링 제거 검출을 입증했습니다.
 
 정식 성능 비교는 아직 없습니다. 초기 SDK smoke에서 자동 startup에 의한 소유하지 않은 계산 가능성을 발견해 측정 전용 descriptor에서 양측의 자동 startup/pass만 제외하고 서비스는 유지하도록 격리했습니다. 모든 workload의 전후 attachment 검사와 실제 owned job/read·markup 관측이 필요합니다. 이 범위는 실제 plugin registration/lifecycle의 대체 증거가 아니며, 그것은 SDK·Driver·패키징·IDE 호환성 검증으로 따로 확인합니다. 이전 구현의 성능 결과도 재구현의 통과 증거로 승계하지 않습니다.
 

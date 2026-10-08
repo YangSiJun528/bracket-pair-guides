@@ -1,0 +1,32 @@
+[
+  {
+    "side": "baseline",
+    "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides",
+    "command": [
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=2",
+      "--no-configuration-cache",
+      ":benchmarks:jmhJar",
+      "--console=plain"
+    ],
+    "startedUtc": "2026-10-08T10:55:41.746017+00:00",
+    "exitCode": 0,
+    "seconds": 6.732491083967034
+  },
+  {
+    "side": "candidate",
+    "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "command": [
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=2",
+      "--no-configuration-cache",
+      ":benchmarks:jmhJar",
+      "--console=plain"
+    ],
+    "startedUtc": "2026-10-08T10:55:48.479244+00:00",
+    "exitCode": 0,
+    "seconds": 5.867455540981609
+  }
+]

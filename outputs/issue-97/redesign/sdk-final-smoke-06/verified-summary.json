@@ -1,0 +1,276 @@
+{
+  "candidateRevision": "694c7981686f85e38e30cf3289071d1c56ba9a1c",
+  "baselineRevision": "072533fa3e223d53f937a15d50fe8637add8b2cb",
+  "passed": 16,
+  "scope": "Setup only: one warmup, five repeats, one cancellation trial; not formal performance acceptance",
+  "sourceUnchanged": true,
+  "allExitZero": true,
+  "pairs": [
+    {
+      "workload": "analysis",
+      "equalActualEnvironment": true,
+      "equalCorpusMetadata": true,
+      "sides": {
+        "baseline": {
+          "jsonlSha256": "b7598230f1a63576c562c9213f312c6319a1b2528b1671b484657c3393b34aa6",
+          "xmlSha256": "56a851c22a5f47e7466d465e6e9b9aca326b23a7a138e00dda72db2a502bf95f",
+          "counts": {
+            "cancellation": 5,
+            "completed": 1,
+            "corpus": 5,
+            "editor-release": 5,
+            "environment": 1,
+            "result": 25,
+            "sample": 25
+          },
+          "harnessClassSha256": "e0d5fc66d0c2eeae2f058f20f695ca46cc79d9137bc28c95d745e2f34888b8fe"
+        },
+        "candidate": {
+          "jsonlSha256": "9a639c8ce4b6f44a4724d6e800b7ac9750e1b2a88e8cf15afd59ebe719be0d6b",
+          "xmlSha256": "7f6c9977d32a22d254c5fcbe9b5b811130095ec6b17358075d4d119c77912f48",
+          "counts": {
+            "cancellation": 5,
+            "completed": 1,
+            "corpus": 5,
+            "editor-release": 5,
+            "environment": 1,
+            "result": 25,
+            "sample": 25
+          },
+          "harnessClassSha256": "a553d5511c9b81f04f88b22e547748853c1593623bf3178ad9d3cf41db74f3bb"
+        }
+      }
+    },
+    {
+      "workload": "write-wait",
+      "equalActualEnvironment": true,
+      "equalCorpusMetadata": true,
+      "sides": {
+        "baseline": {
+          "jsonlSha256": "157fe96cf40c1aa9eab3e8cbfbe48046559da3656a2e0f96f1b092eb65bbeb37",
+          "xmlSha256": "6cc0ee3e3bcad1551a61826a1be68af696f733be5d5bb139eaf9f5934d6bfa4b",
+          "counts": {
+            "completed": 1,
+            "corpus": 5,
+            "editor-release": 5,
+            "environment": 1,
+            "write-wait": 25
+          },
+          "harnessClassSha256": "e0d5fc66d0c2eeae2f058f20f695ca46cc79d9137bc28c95d745e2f34888b8fe"
+        },
+        "candidate": {
+          "jsonlSha256": "ed2d58363cb8cad4c56dbedf9dfe3998dc745c697bee4dcd32df78ee94c20a48",
+          "xmlSha256": "97abb178b6c6fb4afbe3eaa5d28dd2cdb2eae2d5c6e0b54a42333d7fbec6c6d1",
+          "counts": {
+            "completed": 1,
+            "corpus": 5,
+            "editor-release": 5,
+            "environment": 1,
+            "write-wait": 25
+          },
+          "harnessClassSha256": "a553d5511c9b81f04f88b22e547748853c1593623bf3178ad9d3cf41db74f3bb"
+        }
+      }
+    },
+    {
+      "workload": "execution",
+      "equalActualEnvironment": true,
+      "equalCorpusMetadata": true,
+      "sides": {
+        "baseline": {
+          "jsonlSha256": "4b0ddaab5725cc0d5570e06d976b0486a0a157524e8b4732ad20eeb12785c4c0",
+          "xmlSha256": "7900d1a9cf4f96084b4aa5203e44b53f803681a14ae1ccf208348ed3423e5d00",
+          "counts": {
+            "completed": 1,
+            "corpus": 2,
+            "editor-release": 2,
+            "environment": 1,
+            "execution": 10,
+            "execution-lifecycle": 10
+          },
+          "harnessClassSha256": "e0d5fc66d0c2eeae2f058f20f695ca46cc79d9137bc28c95d745e2f34888b8fe"
+        },
+        "candidate": {
+          "jsonlSha256": "5dd019aa4036ca56a7e4ebe72ed8a827e0b268c70be3e838e214ef026a1e1797",
+          "xmlSha256": "9679509bb9d25af613914611f6069cd5c5faf585d5106eac1a80518376391633",
+          "counts": {
+            "completed": 1,
+            "corpus": 2,
+            "editor-release": 2,
+            "environment": 1,
+            "execution": 10,
+            "execution-lifecycle": 10
+          },
+          "harnessClassSha256": "a553d5511c9b81f04f88b22e547748853c1593623bf3178ad9d3cf41db74f3bb"
+        }
+      }
+    },
+    {
+      "workload": "repair",
+      "equalActualEnvironment": true,
+      "equalCorpusMetadata": true,
+      "sides": {
+        "baseline": {
+          "jsonlSha256": "124e21d22ba3aceeb050650c12693dffe5337f73e99885dea11f92ebe0f5685c",
+          "xmlSha256": "bef7aececda814ae0e1b2168bdb45a3a0ec185deb5ce621a27b78bbeec31a991",
+          "counts": {
+            "completed": 1,
+            "corpus": 12,
+            "editor-release": 6,
+            "environment": 1,
+            "result": 30,
+            "sample": 30
+          },
+          "harnessClassSha256": "e0d5fc66d0c2eeae2f058f20f695ca46cc79d9137bc28c95d745e2f34888b8fe"
+        },
+        "candidate": {
+          "jsonlSha256": "f95d9a744bd2fb937d72e1f32a6bacd12c100b9a61be20b3a9c2f22e15df5f79",
+          "xmlSha256": "e8cba3b26b37700e4cd8167f65b67a590b6f798096ffc6d5a922ee8e5986ca22",
+          "counts": {
+            "completed": 1,
+            "corpus": 12,
+            "editor-release": 6,
+            "environment": 1,
+            "result": 30,
+            "sample": 30
+          },
+          "harnessClassSha256": "a553d5511c9b81f04f88b22e547748853c1593623bf3178ad9d3cf41db74f3bb"
+        }
+      }
+    },
+    {
+      "workload": "native",
+      "equalActualEnvironment": true,
+      "equalCorpusMetadata": true,
+      "sides": {
+        "baseline": {
+          "jsonlSha256": "8352243296b2a33b9721de1c6f85629b7d14998bd9c752028d5fae2d554f3656",
+          "xmlSha256": "10229422fc672302e93e585eaf905a5e9559802c384644c85d635fed53d4b8b9",
+          "counts": {
+            "completed": 1,
+            "corpus": 6,
+            "editor-release": 3,
+            "environment": 1,
+            "native-control-coverage": 12,
+            "result": 60,
+            "sample": 60
+          },
+          "harnessClassSha256": "e0d5fc66d0c2eeae2f058f20f695ca46cc79d9137bc28c95d745e2f34888b8fe"
+        },
+        "candidate": {
+          "jsonlSha256": "32c4e9886063aa9753f3fb63243ca59383def6e981790209985950c74bd633ae",
+          "xmlSha256": "ddf6e96397ef8ab8d8b54030388be15b781af87906f06d5e7c0aa4bd01f0df3a",
+          "counts": {
+            "completed": 1,
+            "corpus": 6,
+            "editor-release": 3,
+            "environment": 1,
+            "native-control-coverage": 12,
+            "result": 60,
+            "sample": 60
+          },
+          "harnessClassSha256": "a553d5511c9b81f04f88b22e547748853c1593623bf3178ad9d3cf41db74f3bb"
+        }
+      }
+    },
+    {
+      "workload": "payload",
+      "equalActualEnvironment": true,
+      "equalCorpusMetadata": true,
+      "sides": {
+        "baseline": {
+          "jsonlSha256": "a2a14d0f04d6865df63e6ea62804ba381a19022a5bb66177dd1fb7582516426f",
+          "xmlSha256": "ef696eaaff5aa2167e9c1a0fe768917d82b7eb84883eb5f8aca5c7b8f746ac49",
+          "counts": {
+            "completed": 1,
+            "corpus": 5,
+            "editor-release": 5,
+            "environment": 1,
+            "payload": 5,
+            "payload-release": 5,
+            "sample": 5
+          },
+          "harnessClassSha256": "e0d5fc66d0c2eeae2f058f20f695ca46cc79d9137bc28c95d745e2f34888b8fe"
+        },
+        "candidate": {
+          "jsonlSha256": "837a8666e39237eaf92efe8d5806b40685b76097af57751bc81e6f1785ac19d3",
+          "xmlSha256": "235356732a9678c43501bd59f72f7222063651339dd80bccc6d7eeebe53fbb84",
+          "counts": {
+            "completed": 1,
+            "corpus": 5,
+            "editor-release": 5,
+            "environment": 1,
+            "payload": 5,
+            "payload-release": 5,
+            "sample": 5
+          },
+          "harnessClassSha256": "a553d5511c9b81f04f88b22e547748853c1593623bf3178ad9d3cf41db74f3bb"
+        }
+      }
+    },
+    {
+      "workload": "capture-release",
+      "equalActualEnvironment": true,
+      "equalCorpusMetadata": true,
+      "sides": {
+        "baseline": {
+          "jsonlSha256": "8c8e2d498993688de0a582a8c6886bc6e0509e57ff97c9e4a98b1bb1c1f03ea0",
+          "xmlSha256": "c9f86ddeaa7801e3e20e2916f4893ceaf24cb0b31f04ef75d3398d46dc42e68e",
+          "counts": {
+            "capture-release": 6,
+            "completed": 1,
+            "corpus": 6,
+            "editor-release": 6,
+            "environment": 1
+          },
+          "harnessClassSha256": "e0d5fc66d0c2eeae2f058f20f695ca46cc79d9137bc28c95d745e2f34888b8fe"
+        },
+        "candidate": {
+          "jsonlSha256": "be0370b21cd0d27cf941e4fced10bc42774863edc32b7e665daef34d84b74d61",
+          "xmlSha256": "38f5d1533e73118af96feeada72263ae2a2867f650182121ed5003ac7a4d8982",
+          "counts": {
+            "capture-release": 6,
+            "completed": 1,
+            "corpus": 6,
+            "editor-release": 6,
+            "environment": 1
+          },
+          "harnessClassSha256": "a553d5511c9b81f04f88b22e547748853c1593623bf3178ad9d3cf41db74f3bb"
+        }
+      }
+    },
+    {
+      "workload": "edit-restoration",
+      "equalActualEnvironment": true,
+      "equalCorpusMetadata": true,
+      "sides": {
+        "baseline": {
+          "jsonlSha256": "86f3cdd96e2b5a41fef9c5c63071060dfc14bad5545a02b2901db4c9d0ba988e",
+          "xmlSha256": "af449eb3ce98c3011dfa9ae87693f0948d8d5b777afadffa8e6659c82cc001c3",
+          "counts": {
+            "completed": 1,
+            "corpus": 42,
+            "edit-restoration": 30,
+            "edit-restoration-cleanup": 36,
+            "editor-release": 36,
+            "environment": 1
+          },
+          "harnessClassSha256": "e0d5fc66d0c2eeae2f058f20f695ca46cc79d9137bc28c95d745e2f34888b8fe"
+        },
+        "candidate": {
+          "jsonlSha256": "3d7e38d5d486e4d093fb329db928e441237b4a9364c504bdd7bd1d3345b4299b",
+          "xmlSha256": "834a905565ac4d6166919096e7f432dd2341ad8fa9e3a6f05e8d16bcc6c86a98",
+          "counts": {
+            "completed": 1,
+            "corpus": 42,
+            "edit-restoration": 30,
+            "edit-restoration-cleanup": 36,
+            "editor-release": 36,
+            "environment": 1
+          },
+          "harnessClassSha256": "a553d5511c9b81f04f88b22e547748853c1593623bf3178ad9d3cf41db74f3bb"
+        }
+      }
+    }
+  ]
+}

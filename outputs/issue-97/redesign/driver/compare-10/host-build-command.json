@@ -1,0 +1,12 @@
+{
+  "command": [
+    "./gradlew",
+    "--no-daemon",
+    "--max-workers=2",
+    "--no-configuration-cache",
+    "spotlessApply",
+    ":plugin:compileVisualTestKotlin",
+    ":plugin:buildVisualTestPlugin",
+    "--console=plain"
+  ]
+}

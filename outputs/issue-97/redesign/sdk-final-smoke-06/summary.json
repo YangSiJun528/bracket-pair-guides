@@ -1,0 +1,8 @@
+{
+  "candidateRevision": "694c7981686f85e38e30cf3289071d1c56ba9a1c",
+  "baselineRevision": "072533fa3e223d53f937a15d50fe8637add8b2cb",
+  "passed": 16,
+  "scope": "1 warmup / 5 repeat / 1 cancellation setup smoke; not formal performance",
+  "sourceUnchanged": true,
+  "allExitZero": true
+}

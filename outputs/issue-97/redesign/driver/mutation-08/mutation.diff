@@ -1,0 +1,11 @@
+--- /results/BracketGuideDrawing.original.kt	2026-10-08 11:32:27.051377561 +0000
++++ /results/BracketGuideDrawing.mutated.kt	2026-10-08 11:32:27.105203604 +0000
+@@ -343,7 +343,7 @@
+                 graphics,
+                 RenderingHints.VALUE_ANTIALIAS_DEFAULT,
+             ) {
+-                graphics.fill(outline)
++                graphics.fill(Path2D.Double())
+             }
+         }
+ 

@@ -1,0 +1,84 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-model:compileKotlin UP-TO-DATE
+> Task :analysis-model:compileJava NO-SOURCE
+> Task :analysis-model:processResources NO-SOURCE
+> Task :analysis-model:classes UP-TO-DATE
+> Task :analysis-model:jar UP-TO-DATE
+> Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-core:compileKotlin UP-TO-DATE
+> Task :analysis-core:compileJava UP-TO-DATE
+> Task :analysis-runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:compileKotlin UP-TO-DATE
+> Task :editor-ui:compileJava UP-TO-DATE
+> Task :analysis-runtime:compileKotlin UP-TO-DATE
+> Task :analysis-runtime:compileJava UP-TO-DATE
+> Task :analysis-runtime:processResources NO-SOURCE
+> Task :analysis-runtime:classes UP-TO-DATE
+> Task :analysis-runtime:jar UP-TO-DATE
+> Task :editor-ui:processResources NO-SOURCE
+> Task :editor-ui:classes UP-TO-DATE
+> Task :editor-ui:jar UP-TO-DATE
+> Task :plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :plugin:compileKotlin NO-SOURCE
+> Task :plugin:compileJava NO-SOURCE
+> Task :plugin:initializeIntellijPlatformPlugin
+> Task :plugin:patchPluginXml UP-TO-DATE
+> Task :plugin:processResources UP-TO-DATE
+> Task :plugin:classes UP-TO-DATE
+> Task :plugin:generateManifest UP-TO-DATE
+> Task :plugin:jar UP-TO-DATE
+> Task :analysis-core:processResources NO-SOURCE
+> Task :analysis-core:classes UP-TO-DATE
+> Task :analysis-core:jar UP-TO-DATE
+> Task :plugin:compileTestKotlin UP-TO-DATE
+> Task :plugin:compileTestJava NO-SOURCE
+> Task :plugin:processTestResources UP-TO-DATE
+> Task :plugin:testClasses UP-TO-DATE
+> Task :plugin:instrumentTestCode UP-TO-DATE
+> Task :plugin:instrumentCode UP-TO-DATE
+> Task :plugin:instrumentedJar UP-TO-DATE
+> Task :plugin:composedJar UP-TO-DATE
+> Task :plugin:prepareSdkMeasurementPluginJar UP-TO-DATE
+> Task :plugin:prepareSdkMeasurementTestResources UP-TO-DATE
+> Task :plugin:prepareTestSandbox UP-TO-DATE
+> Task :plugin:prepareTest
+
+> Task :plugin:test
+CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
+
+10월 08, 2026 7:47:50 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: Index dispose started
+10월 08, 2026 7:47:50 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: dirty file ids stored. Ids & filenames: {}
+10월 08, 2026 7:47:50 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: read dirty file ids: []
+10월 08, 2026 7:47:50 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: dirty file ids stored. Ids & filenames: {}
+10월 08, 2026 7:47:50 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: StubIndexExtension-s were unloaded
+10월 08, 2026 7:47:50 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: Start shutting down /Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides/plugin/build/sdk-measurement/sandbox/system-test/index/rep.names
+10월 08, 2026 7:47:50 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: Finished shutting down /Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides/plugin/build/sdk-measurement/sandbox/system-test/index/rep.names
+10월 08, 2026 7:47:50 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: Index dispose completed in 22ms.
+10월 08, 2026 7:47:50 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: VFS dispose started
+10월 08, 2026 7:47:50 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: VFS closing
+10월 08, 2026 7:47:50 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: VFS dispose completed in 0 ms.
+
+[Incubating] Problems report is available at: file:///Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 15s
+26 actionable tasks: 2 executed, 24 up-to-date

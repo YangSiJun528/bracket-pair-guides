@@ -13,6 +13,7 @@ import com.intellij.driver.sdk.ui.components.ideFrame
 import com.intellij.driver.sdk.waitFor
 import com.intellij.driver.sdk.waitForCodeAnalysis
 import com.intellij.driver.sdk.waitForProjectOpen
+import com.intellij.driver.sdk.waitForIndicators
 import com.intellij.ide.starter.driver.engine.runIdeWithDriver
 import com.intellij.ide.starter.ide.IdeDistributionFactory
 import com.intellij.ide.starter.ide.IdeInstaller
@@ -90,6 +91,23 @@ class EditorVisualContractTest {
             )
             val bridge = utility<EditorContractRemote>()
             val nativeBefore = bridge.configure()
+            val setupDaemonBefore = bridge.daemonDiagnostics()
+            try {
+                // One-file highlighting can finish while asynchronous JDK roots are still scanning.
+                // The standard Driver wait observes background indicators and stable smart mode.
+                waitForIndicators(currentProject, 5.minutes)
+                waitForCodeAnalysis(
+                    currentProject,
+                    checkNotNull(findFile("src/Contract.java", currentProject)),
+                    5.minutes,
+                )
+                waitFor(5.minutes, 100.milliseconds, "Project setup did not reach committed smart analysis") {
+                    bridge.daemonDiagnostics().startsWith("ready=true;")
+                }
+            } finally {
+                Files.writeString(artifacts.resolve("setup-daemon-observed.txt"),
+                    "beforeProjectReadiness:\n$setupDaemonBefore\nafterProjectReadiness:\n${bridge.daemonDiagnostics()}\n")
+            }
             val rootUi = this.ui
             ideFrame {
                 val editor = codeEditor()

@@ -14,7 +14,13 @@ xvfb-run -a -s '-screen 0 1920x1080x24 -dpi 96' ./gradlew :plugin:visualTest
 
 Inspect `plugin/build/reports/tests/visualTest` and the actual images in
 `plugin/build/visual-test-artifacts`. A missing image, missing baseline or failed
-IDE startup is a failure, not a skipped visual assertion.
+IDE startup is a failure, not a skipped visual assertion. Inspect
+`setup-daemon-observed.txt` and each `*-daemon-observed.txt` as well. Initial
+setup waits for standard Driver background indicators and stable smart mode,
+then file analysis. Each capture separately requires committed, non-indexing,
+completed daemon state before and after screenshots at the same stamp, followed
+by two identical images. The 30-second capture budget remains unchanged; do not
+replace these observations with sleeps or forced daemon/caret events.
 
 ## Prepare new baseline candidates
 
@@ -41,3 +47,16 @@ environment and review decision, then run comparison again.
 
 A rendering removal/disable mutation must make the relevant comparison fail.
 Keep the failure evidence when establishing a newly written visual contract.
+
+When a difference appears to be a native SDK decoration, establish causality
+before revising an oracle. The redesign's three settled-state corrections used
+unchanged baseline production `072533f` with the identical Driver suite and
+rendering environment. All twelve baseline/candidate images matched exactly;
+the previous nine unaffected oracles also remained exact. The evidence is in
+`outputs/issue-97/redesign/driver/baseline-counterfactual-01/cross-production-comparison.json`;
+independent review and the preserved three previous images are in
+`outputs/issue-97/redesign/driver/settled-oracle-review/`. Diagnostic capture alone
+is not an old-oracle comparison pass. Preserve failures, inspect the semantic
+SDK state, and independently review any intentional correction before rerunning
+exact comparison and the paint-removal mutation. Never force stale SDK markup
+to reproduce an intermediate image.

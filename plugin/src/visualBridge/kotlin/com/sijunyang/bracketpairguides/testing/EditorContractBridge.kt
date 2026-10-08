@@ -5,6 +5,7 @@ import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerEx
 import com.intellij.openapi.editor.impl.DocumentMarkupModel
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.project.DumbService
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.codeInsight.codeVision.settings.CodeVisionSettings
 import com.intellij.ide.ui.LafManager
@@ -260,6 +261,7 @@ object EditorContractBridge {
         val selected = FileEditorManager.getInstance(project).selectedEditor
         val selectedMatches = (selected as? TextEditor)?.editor === editor
         val indexing = DumbService.getInstance(project).isDumb
+        val sdk = ProjectRootManager.getInstance(project).projectSdk
         val committed = PsiDocumentManager.getInstance(project).isCommitted(document)
         val completed = selected != null && selectedMatches &&
             DaemonCodeAnalyzerEx.isHighlightingCompleted(selected, project)
@@ -267,6 +269,7 @@ object EditorContractBridge {
         val highlighters = DocumentMarkupModel.forDocument(document, project, false).allHighlighters
         "ready=$ready;stamp=${document.modificationStamp};selectedMatches=$selectedMatches;" +
             "indexing=$indexing;committed=$committed;highlightingCompleted=$completed;" +
+            "projectSdk=${sdk?.name};projectSdkHome=${sdk?.homePath};" +
             "documentMarkupCount=${highlighters.size}\n" +
             highlighters.take(128).joinToString("\n") { mark ->
                 val attributes = mark.getTextAttributes(editor.colorsScheme)

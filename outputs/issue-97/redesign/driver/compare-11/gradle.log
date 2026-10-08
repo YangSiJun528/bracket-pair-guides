@@ -1,0 +1,76 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :build-logic:compileJava NO-SOURCE
+> Task :build-logic:compileGroovy FROM-CACHE
+> Task :build-logic:pluginDescriptors
+> Task :build-logic:processResources
+> Task :build-logic:classes
+> Task :build-logic:jar
+> Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-model:compileKotlin FROM-CACHE
+> Task :analysis-model:compileJava NO-SOURCE
+> Task :analysis-model:processResources NO-SOURCE
+> Task :analysis-model:classes UP-TO-DATE
+> Task :analysis-model:jar
+> Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-core:compileKotlin FROM-CACHE
+> Task :analysis-core:compileJava FROM-CACHE
+> Task :analysis-runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:compileKotlin FROM-CACHE
+> Task :editor-ui:compileJava FROM-CACHE
+> Task :analysis-runtime:compileKotlin FROM-CACHE
+> Task :analysis-runtime:compileJava FROM-CACHE
+> Task :analysis-runtime:processResources NO-SOURCE
+> Task :analysis-runtime:classes UP-TO-DATE
+> Task :analysis-runtime:jar
+> Task :editor-ui:processResources NO-SOURCE
+> Task :editor-ui:classes UP-TO-DATE
+> Task :editor-ui:jar
+> Task :plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :plugin:compileKotlin FROM-CACHE
+> Task :plugin:compileJava NO-SOURCE
+> Task :plugin:initializeIntellijPlatformPlugin
+> Task :plugin:patchPluginXml FROM-CACHE
+> Task :plugin:processResources
+> Task :plugin:classes
+> Task :plugin:generateManifest FROM-CACHE
+> Task :plugin:jar
+> Task :plugin:instrumentCode FROM-CACHE
+> Task :plugin:compileVisualBridgeKotlin FROM-CACHE
+> Task :plugin:compileVisualBridgeJava NO-SOURCE
+> Task :plugin:processVisualBridgeResources
+> Task :plugin:visualBridgeClasses
+> Task :plugin:visualTestBridgeJar
+> Task :analysis-core:processResources NO-SOURCE
+> Task :analysis-core:classes UP-TO-DATE
+> Task :analysis-core:jar
+> Task :plugin:instrumentedJar FROM-CACHE
+> Task :plugin:composedJar FROM-CACHE
+> Task :plugin:prepareSandbox
+> Task :plugin:buildSearchableOptions SKIPPED
+> Task :plugin:prepareJarSearchableOptions SKIPPED
+> Task :plugin:jarSearchableOptions SKIPPED
+> Task :plugin:buildPlugin
+> Task :plugin:buildVisualTestPlugin
+> Task :plugin:cleanVisualTestArtifacts UP-TO-DATE
+> Task :plugin:compileVisualTestKotlin FROM-CACHE
+> Task :plugin:compileVisualTestJava NO-SOURCE
+> Task :plugin:prepareSandbox_visualTest
+> Task :plugin:processVisualTestResources
+> Task :plugin:visualTestClasses
+> Task :plugin:visualTest
+
+
+(java:222): dbind-WARNING **: 11:31:55.900: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+[Incubating] Problems report is available at: file:///workspace/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 3m 1s
+35 actionable tasks: 18 executed, 16 from cache, 1 up-to-date

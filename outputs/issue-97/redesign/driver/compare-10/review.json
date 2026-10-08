@@ -1,0 +1,50 @@
+{
+  "exitCode": 1,
+  "scope": "stable semantic pixel mismatch, not a pass",
+  "exactBaselineCount": 9,
+  "mismatches": {
+    "native-visuals-unmanaged": {
+      "changedPixels": 2218,
+      "bboxXYXY": [
+        72,
+        59,
+        152,
+        139
+      ],
+      "observedNativeBraceCount": 2,
+      "observedIdentifierUsageCount": 0
+    },
+    "native-highlight-suppressed": {
+      "changedPixels": 2218,
+      "bboxXYXY": [
+        72,
+        59,
+        152,
+        139
+      ],
+      "observedNativeBraceCount": 0,
+      "observedIdentifierUsageCount": 0
+    },
+    "edited-geometry": {
+      "changedPixels": 20,
+      "bboxXYXY": [
+        62,
+        79,
+        63,
+        99
+      ],
+      "oldNativeIndentRange": [
+        47,
+        91
+      ],
+      "observedNativeIndentRange": [
+        47,
+        103
+      ]
+    }
+  },
+  "actualReadiness": "every captured frame before/after readytrue with same document stamp",
+  "causeAssessment": "SDK semantic decorations differ; old golden capture readiness unknown, stale-baseline hypothesis under independent baseline-production investigation",
+  "mutationExecuted": false,
+  "recordedUtc": "2026-10-08T11:06:23.480618+00:00"
+}

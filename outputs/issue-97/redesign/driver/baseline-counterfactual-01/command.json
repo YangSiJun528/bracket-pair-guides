@@ -1,0 +1,32 @@
+{
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--init",
+    "--pull",
+    "never",
+    "--platform",
+    "linux/amd64",
+    "--name",
+    "issue97-deep-visual-baseline-counterfactual-01",
+    "--entrypoint",
+    "/bin/bash",
+    "-v",
+    "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides:/source:ro",
+    "-v",
+    "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/driver/baseline-counterfactual-01:/results",
+    "-v",
+    "/Users/sijun-yang/Documents/GitHub/bracket-pair-guides/build/visual-test-background/cache/gradle:/cache/gradle",
+    "bracket-pair-guides-visual-test:ubuntu24-amd64",
+    "/results/run.sh"
+  ],
+  "startedUtc": "2026-10-08T11:17:14.406546+00:00",
+  "status": "completed-needs-review",
+  "expectedOutcome": "functional assertions and diagnostic capture, not golden-image pass",
+  "baselineRevision": "072533fa3e223d53f937a15d50fe8637add8b2cb",
+  "productionUnchanged": true,
+  "exactSharedDriverAndCorpus": true,
+  "exitCode": 0,
+  "seconds": 292.6299998750328
+}

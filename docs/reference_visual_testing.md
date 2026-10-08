@@ -80,8 +80,16 @@ opens the real dialog, edits the fixture, and observes SDK markup/notifications.
 | Fixture | `plugin/src/visualTest/testData/Contract.java` |
 
 Exact equality of dimensions and every ARGB pixel is the only image oracle.
-There are no tolerances, percentage deltas or previous-run acceptance. Two
-successive exact captures establish stability before comparison. Missing
+There are no tolerances, percentage deltas or previous-run acceptance. Initial
+setup uses Driver's standard background-indicator/stable-smart-mode wait before
+waiting for file analysis. This includes asynchronously discovered JDK roots;
+one highlighted file does not establish completion of project indexing.
+Before and after every screenshot, the selected editor must match, indexing must
+be inactive, the document must be committed, and all daemon dirty scopes must be
+complete at the same document stamp. Two successive exact captures then establish
+stability within the unchanged 30-second capture budget. Setup and per-capture
+readiness, stamps, document highlighters and editor markup are retained, including
+on failure. Missing
 reviewed baselines fail the comparison. Candidate capture never writes into
 `src/visualTest/resources/baselines` and is prohibited in CI.
 
@@ -89,6 +97,22 @@ Original test implementations and the eleven old PNGs were removed under the
 approved redesign. Historical raw evidence remains in Git/outputs; it is not a
 pass for the new suite. New images require review against these behavior
 contracts, rather than accepting whatever the candidate happens to paint.
+
+Three initial redesign oracles were deliberately corrected after establishing
+settled SDK state. The two native scenarios had retained identifier-usage fills
+from a previous caret location; the edited image omitted a recalculated native
+indent-guide segment. Unchanged production at `072533f`, using the same twelve
+scenarios and readiness policy, produced images identical in every ARGB pixel and
+PNG byte to the redesigned implementation. Nine initial images were unchanged;
+the two native images differed by 2,218 pixels each and the edited image by 20.
+This counterfactual capture is diagnostic evidence, not a pass against the old
+oracles. Independent review selected the baseline-production captures for those
+three corrections; no production behavior, tolerance, crop or pixel comparison
+was changed. The previous images and decision are preserved in
+`outputs/issue-97/redesign/driver/settled-oracle-review/`, and the cross-production
+comparison is in `driver/baseline-counterfactual-01/cross-production-comparison.json`
+under the same redesign output root. This correction does not waive fresh exact
+comparison or a rendering-removal mutation.
 
 CI uploads standard test/image artifacts with read-only repository permission.
 There is no privileged PR-comment or external-image reporter.

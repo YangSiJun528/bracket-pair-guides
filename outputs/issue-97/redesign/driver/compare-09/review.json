@@ -1,0 +1,8 @@
+{
+  "exitCode": 1,
+  "scope": "setup/readiness failure, not accepted pixels",
+  "failure": "horizontal-only capture30s timeout while JDK21 root indexing progressed",
+  "evidence": "idea.log indexer28125files37267ms; daemon diagnostics committedtrue but indexingtrue",
+  "mutationExecuted": false,
+  "recordedUtc": "2026-10-08T11:06:23.480618+00:00"
+}
