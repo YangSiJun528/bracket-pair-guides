@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.runtime.nativeproof.NativeEvidenceContractTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-08T12:27:08.462Z" hostname="sijun-yangui-MacBookPro.local" time="0.025">
+  <properties/>
+  <testcase name="duplicate paint does not replace pending proof" classname="com.sijunyang.bracketpairguides.runtime.nativeproof.NativeEvidenceContractTest" time="0.023"/>
+  <testcase name="source episode caret visibility and close revoke proof authority" classname="com.sijunyang.bracketpairguides.runtime.nativeproof.NativeEvidenceContractTest" time="0.0"/>
+  <testcase name="A to B to A never resurrects an old proof even with equal geometry" classname="com.sijunyang.bracketpairguides.runtime.nativeproof.NativeEvidenceContractTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

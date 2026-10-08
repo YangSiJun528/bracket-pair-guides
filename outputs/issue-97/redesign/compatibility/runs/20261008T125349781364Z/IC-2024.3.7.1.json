@@ -1,0 +1,110 @@
+{
+  "target": "IC-2024.3.7.1",
+  "strictPass": true,
+  "failureLevels": [
+    "COMPATIBILITY_PROBLEMS",
+    "DEPRECATED_API_USAGES",
+    "EXPERIMENTAL_API_USAGES",
+    "INTERNAL_API_USAGES",
+    "OVERRIDE_ONLY_API_USAGES",
+    "NON_EXTENDABLE_API_USAGES",
+    "MISSING_DEPENDENCIES",
+    "INVALID_PLUGIN"
+  ],
+  "diskBefore": {
+    "path": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "freeBytes": 24369070080,
+    "minimumBytes": 9663676416,
+    "admitted": true
+  },
+  "archiveShaBefore": "609f09d3db8c14cf66aafc77b1f24bdfa9062a874d877f42013e406436f161ef",
+  "resolveCommand": [
+    "./gradlew",
+    "--no-daemon",
+    "--no-parallel",
+    "--max-workers=2",
+    "--no-configuration-cache",
+    "--init-script",
+    "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/runs/20261008T125349781364Z/inputs/ide-acquisition.init.gradle",
+    ":plugin:resolveCompatibilityIde",
+    "-PcompatibilityIdeType=IC",
+    "-PcompatibilityIdeVersion=2024.3.7.1",
+    "--info"
+  ],
+  "resolveExit": 0,
+  "identity": {
+    "path": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/a1cf4aee6582baf0399ff9a0e01fee14/transformed/ideaIC-2024.3.7.1-aarch64",
+    "productCode": "IC",
+    "version": "2024.3.7.1",
+    "buildNumber": "243.28141.41",
+    "productInfo": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/a1cf4aee6582baf0399ff9a0e01fee14/transformed/ideaIC-2024.3.7.1-aarch64/Resources/product-info.json",
+    "productInfoSha256": "5b01f62f9ee452cbf59e757f7b2bfd3970756488aaede0c42c95f4b3adb4359d"
+  },
+  "acquiredThisTarget": true,
+  "createdArtifactInventory": {
+    "selectedTransformRoot": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/a1cf4aee6582baf0399ff9a0e01fee14",
+    "selectedTargetInstallers": [
+      "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/idea/ideaIC/2024.3.7.1/5ad09914b7dc0e9f9e3a60d421ff7b2fada1d28d/ideaIC-2024.3.7.1-aarch64.dmg"
+    ]
+  },
+  "verifyCommand": [
+    "./gradlew",
+    "--no-daemon",
+    "--no-parallel",
+    "--max-workers=2",
+    "--no-configuration-cache",
+    "--offline",
+    "--init-script",
+    "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/runs/20261008T125349781364Z/inputs/serial-verifier.init.gradle",
+    ":plugin:verifyPlugin",
+    "-PverifierTarget=IC-2024.3.7.1",
+    "-PverifierIdePath=/Users/sijun-yang/.gradle/caches/9.8.0/transforms/a1cf4aee6582baf0399ff9a0e01fee14/transformed/ideaIC-2024.3.7.1-aarch64",
+    "-PverifierMatrixPath=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/runs/20261008T125349781364Z/inputs/current-matrix-02.json",
+    "-PverifierReportPath=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/runs/20261008T125349781364Z/reports/IC-2024.3.7.1",
+    "--info"
+  ],
+  "verifyExit": 0,
+  "archiveShaAfter": "609f09d3db8c14cf66aafc77b1f24bdfa9062a874d877f42013e406436f161ef",
+  "verdicts": [
+    {
+      "path": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/runs/20261008T125349781364Z/reports/IC-2024.3.7.1/IC-243.28141.41/plugins/com.sijunyang.bracketpairguides/0.0.6/verification-verdict.txt",
+      "text": "Compatible"
+    }
+  ],
+  "status": "finished",
+  "retirement": {
+    "eligibleCreatedArtifacts": [
+      {
+        "kind": "transform",
+        "path": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/a1cf4aee6582baf0399ff9a0e01fee14",
+        "productInfoSha256": "5b01f62f9ee452cbf59e757f7b2bfd3970756488aaede0c42c95f4b3adb4359d"
+      },
+      {
+        "kind": "installer",
+        "path": "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/idea/ideaIC/2024.3.7.1/5ad09914b7dc0e9f9e3a60d421ff7b2fada1d28d/ideaIC-2024.3.7.1-aarch64.dmg",
+        "sizeBytes": 950743474,
+        "mtimeNs": 1791464402608140671
+      }
+    ],
+    "removed": [
+      {
+        "kind": "transform",
+        "path": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/a1cf4aee6582baf0399ff9a0e01fee14",
+        "productInfoSha256": "5b01f62f9ee452cbf59e757f7b2bfd3970756488aaede0c42c95f4b3adb4359d"
+      },
+      {
+        "kind": "installer",
+        "path": "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/idea/ideaIC/2024.3.7.1/5ad09914b7dc0e9f9e3a60d421ff7b2fada1d28d/ideaIC-2024.3.7.1-aarch64.dmg",
+        "sizeBytes": 950743474,
+        "mtimeNs": 1791464402608140671
+      }
+    ],
+    "preservedForConsumers": []
+  },
+  "diskAfter": {
+    "path": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "freeBytes": 24367112192,
+    "minimumBytes": 9663676416,
+    "admitted": true
+  }
+}

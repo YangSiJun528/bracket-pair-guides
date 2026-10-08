@@ -180,7 +180,9 @@ def pure(run, _frozen):
             matching = [v[name]['value'] for k, v in bmf.items() if k.startswith(row['benchmark'] + ' ') and json.loads(k[len(row['benchmark']) + 1:]) == row['params']]
             require(matching == [metric['score']], 'BMF/JMH value mismatch')
             stats([metric['score']])
-            metrics[name] = {'median': metric['score'], 'observedSubsetP95': None, 'observed': 1, 'trials': 1,
+            metrics[name] = {'estimateKind': 'jmh-mean-score-over-2-forks-x-3-measurement-iterations',
+                             'internalMedianSlotMeaning': 'JMH mean score, not a JVM trial median',
+                             'median': metric['score'], 'observedSubsetP95': None, 'observed': 1, 'trials': 1,
                              'scoreError': metric.get('scoreError'), 'scoreConfidence': metric.get('scoreConfidence'), 'rawData': metric['rawData']}
         result[key] = {'count': 1, 'metrics': metrics}
     return result, None
@@ -233,7 +235,7 @@ def main():
         ratios = [p['ratio'] for p in pairs if p['ratio'] is not None]
         deltas = [p['absoluteDelta'] for p in pairs if p['absoluteDelta'] is not None]
         require(len(pairs) == 6, 'Six paired summaries required')
-        entry = {'metric': key, 'pairs': pairs, 'pairedMedianRatio': statistics.median(ratios) if len(ratios) == 6 else None,
+        entry = {'metric': key, 'estimateKind': 'jmh-mean-score' if phase == 'pure' else 'sdk-per-fixture-jvm-trial-summary', 'pairs': pairs, 'pairedMedianRatio': statistics.median(ratios) if len(ratios) == 6 else None,
                  'pairedMedianAbsoluteDelta': statistics.median(deltas) if len(deltas) == 6 else None,
                  'pairsWithIncrease': sum(p['absoluteDelta'] is not None and p['absoluteDelta'] > 0 for p in pairs),
                  'anyObservedIncrease': any(p['absoluteDelta'] is not None and p['absoluteDelta'] > 0 for p in pairs)}
@@ -244,15 +246,17 @@ def main():
             investigate.append(key)
     report = {'schema': 1, 'status': 'evidence-summary-main-judgment-required', 'performancePass': None,
               'campaign': str(path), 'campaignSha256': sha(path / 'campaign.json'), 'phase': phase,
-              'policy': 'Six paired JVM summaries, no pooling/retries; p95 nearest rank on observed trials; null/censor/unsupported separate; allocation scopes never added. All increases reported; >20% paired median flagged for investigation, never auto-waived or auto-failed.',
+              'comparisonUnit': 'six paired JMH invocations, each case/run score is the JMH mean over 2 forks x 3 measurement iterations' if phase == 'pure' else 'six paired fresh fixture JVMs, each repeated cell has 30 trials summarized by median and nearest-rank p95',
+              'policy': 'Six paired comparison units; JMH uses mean scores in the internal median slot, SDK uses per-fixture JVM trial summaries. No fork/trial pooling or retries; p95 nearest rank on observed SDK trials; null/censor/unsupported separate; allocation scopes never added. All increases reported; >20% paired median flagged for investigation, never auto-waived or auto-failed.',
               'frozenInputs': campaign['freeze'], 'runs': provenance, 'comparisons': table,
               'anyIncrease': increases, 'over20PercentInvestigation': investigate}
     require(not args.output.exists(), 'Fresh report output required')
     args.output.mkdir(parents=True)
     (args.output / 'report.json').write_text(json.dumps(report, indent=2, allow_nan=False) + '\n')
     lines = ['# Local comparison evidence', '', 'Status: main judgment required; no automatic performance pass.', '',
-             'Six JVM pairs; no pooled trials. P95 is the nearest-rank observed-subset percentile; censored/null trials remain in JSON. Resource cells have one observation per JVM. Allocation scopes must not be summed.', '',
-             '| Metric | Median paired C/B | Median paired delta | Pairs increased / 6 |', '|---|---:|---:|---:|']
+             ('JMH: six paired invocations. Each case/run estimate is the JMH mean score over 2 forks x 3 measurement iterations, not an individual JVM median. Forks and iterations are not additional independent pairs. The internal median field is only a shared storage slot.' if phase == 'pure' else 'SDK: six paired fresh fixture JVMs. Repeated cells use each JVM’s 30-trial median and nearest-rank p95 (rank 29 when all 30 are observed). Censored/null trials remain in JSON; resource cells have one observation per JVM.'), '',
+             'No fork/trial pooling. Allocation scopes must not be summed. Table ratios and deltas are summarized across six paired run estimates.', '',
+             '| Metric (JMH internal median = mean score; SDK = trial summary) | Median of six paired C/B ratios | Median of six paired estimate deltas | Pairs increased / 6 |', '|---|---:|---:|---:|']
     for entry in table:
         ratio = entry['pairedMedianRatio']
         lines.append(f'| {entry["metric"]} | {ratio if ratio is not None else "unavailable"} | {entry["pairedMedianAbsoluteDelta"]} | {entry["pairsWithIncrease"]} |')

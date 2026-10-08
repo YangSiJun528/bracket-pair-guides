@@ -1,0 +1,65 @@
+{
+  "target": "IU-263.6259.32",
+  "strictPass": true,
+  "failureLevels": [
+    "COMPATIBILITY_PROBLEMS",
+    "DEPRECATED_API_USAGES",
+    "EXPERIMENTAL_API_USAGES",
+    "INTERNAL_API_USAGES",
+    "OVERRIDE_ONLY_API_USAGES",
+    "NON_EXTENDABLE_API_USAGES",
+    "MISSING_DEPENDENCIES",
+    "INVALID_PLUGIN"
+  ],
+  "diskBefore": {
+    "path": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "freeBytes": 25371742208,
+    "minimumBytes": 9663676416,
+    "admitted": true
+  },
+  "archiveShaBefore": "609f09d3db8c14cf66aafc77b1f24bdfa9062a874d877f42013e406436f161ef",
+  "identity": {
+    "path": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64",
+    "productCode": "IU",
+    "version": "2026.3",
+    "buildNumber": "263.6259.32",
+    "productInfo": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64/Resources/product-info.json",
+    "productInfoSha256": "a4af0ec6a4fc7ebfe05fe6cf2dd62a00bd09dc68d45ed89abaf528ea43875520"
+  },
+  "acquiredThisTarget": false,
+  "createdArtifactInventory": {
+    "selectedTransformRoot": null,
+    "selectedTargetInstallers": []
+  },
+  "verifyCommand": [
+    "./gradlew",
+    "--no-daemon",
+    "--no-parallel",
+    "--max-workers=2",
+    "--no-configuration-cache",
+    "--offline",
+    "--init-script",
+    "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/runs/20261008T125349781364Z/inputs/serial-verifier.init.gradle",
+    ":plugin:verifyPlugin",
+    "-PverifierTarget=IU-263.6259.32",
+    "-PverifierIdePath=/Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64",
+    "-PverifierMatrixPath=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/runs/20261008T125349781364Z/inputs/current-matrix-02.json",
+    "-PverifierReportPath=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/runs/20261008T125349781364Z/reports/IU-263.6259.32",
+    "--info"
+  ],
+  "verifyExit": 0,
+  "archiveShaAfter": "609f09d3db8c14cf66aafc77b1f24bdfa9062a874d877f42013e406436f161ef",
+  "verdicts": [
+    {
+      "path": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/runs/20261008T125349781364Z/reports/IU-263.6259.32/IU-263.6259.32/plugins/com.sijunyang.bracketpairguides/0.0.6/verification-verdict.txt",
+      "text": "Compatible"
+    }
+  ],
+  "status": "finished",
+  "diskAfter": {
+    "path": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "freeBytes": 25350946816,
+    "minimumBytes": 9663676416,
+    "admitted": true
+  }
+}

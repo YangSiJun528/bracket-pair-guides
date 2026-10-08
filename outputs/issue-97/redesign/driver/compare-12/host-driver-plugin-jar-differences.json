@@ -1,0 +1,13 @@
+{
+  "entrySetsEqual": true,
+  "changedEntries": [
+    {
+      "path": "META-INF/MANIFEST.MF",
+      "hostSha256": "f3650d3be62dbe75de3927abfdcb10226971857462b7b53c2a9e58c34ce062de",
+      "driverSha256": "3604d1e3432f25405509bd7feb19e2147961bcd252dd93b9efd0e9299c932c6b",
+      "host": "Manifest-Version: 1.0\r\nCreated-By: Gradle 9.8.0\r\nVersion: 0.0.6\r\nBuild-JVM: 21.0.12.1 (Eclipse Adoptium 21.0.12.1+1-LTS)\r\nBuild-OS: Mac OS X 26.5.2 aarch64\r\nBuild-Plugin: IntelliJ Platform Gradle Plugin\r\nBuild-Plugin-Version: 2.19.0\r\nPlatform-Type: IC\r\nPlatform-Version: 2024.1.7\r\nPlatform-Build: 241.19416.15\r\nKotlin-Available: true\r\nKotlin-Stdlib-Bundled: false\r\nKotlin-Version: 2.3.21\r\n\r\n",
+      "driver": "Manifest-Version: 1.0\r\nCreated-By: Gradle 9.8.0\r\nVersion: 0.0.6\r\nBuild-JVM: 21.0.12.1 (Ubuntu 21.0.12.1+1-1-24.04.4-Ubuntu)\r\nBuild-OS: Linux 7.0.12-linuxkit amd64\r\nBuild-Plugin: IntelliJ Platform Gradle Plugin\r\nBuild-Plugin-Version: 2.19.0\r\nPlatform-Type: IC\r\nPlatform-Version: 2024.1.7\r\nPlatform-Build: 241.19416.15\r\nKotlin-Available: true\r\nKotlin-Stdlib-Bundled: false\r\nKotlin-Version: 2.3.21\r\n\r\n"
+    }
+  ],
+  "allClassesEqual": true
+}

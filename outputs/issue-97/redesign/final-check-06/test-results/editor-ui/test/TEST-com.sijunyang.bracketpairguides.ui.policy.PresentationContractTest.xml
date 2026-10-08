@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.ui.policy.PresentationContractTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-08T09:44:15.179Z" hostname="sijun-yangui-MacBookPro.local" time="0.045">
+  <properties/>
+  <testcase name="unsupported surface requests no computation or display" classname="com.sijunyang.bracketpairguides.ui.policy.PresentationContractTest" time="0.043"/>
+  <testcase name="focus changes display without discarding analysis coverage" classname="com.sijunyang.bracketpairguides.ui.policy.PresentationContractTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,1158 @@
+<html>
+  <head>
+    <title>Verification result IU-263.6259.32</title>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.9.1.min.js" type="text/javascript">
+    </script>
+    <script src="https://code.jquery.com/ui/1.9.2/jquery-ui.min.js" type="text/javascript">
+    </script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" type="text/css"/>
+    <style type="text/css">
+.shortDescription {
+    padding: 2px;
+}
+
+.updates div div:nth-child(odd) {
+    background: #eee;
+}
+
+.uMarker, .pMarker {
+    white-space: pre;
+    font-weight: bold;
+}
+
+.updateOk .uMarker {
+    background: #0f0;
+    color: #0f0;
+}
+
+.updateHasProblems .uMarker {
+    background: #f00;
+    color: #f00;
+}
+
+.warnings .uMarker {
+    background: #ffeb00;
+    color: #ffeb00;
+}
+
+.missingDeps .uMarker {
+    background: #7fd8ff;
+    color: #7fd8ff;
+}
+
+.badPlugin .uMarker {
+    background: #5f3103;
+    color: #5f3103;
+}
+
+.notFound .uMarker {
+    background: #e5c2ef;
+    color: #e5c2ef;
+}
+
+.failedToDownload .uMarker {
+    background: #ffa87a;
+    color: #ffa87a;
+}
+
+.excluded .uMarker {
+    background: #888 !important;
+}
+
+.problematicOnly .excluded, .problematicOnly .updateOk, .problematicOnly .pluginOk {
+    display: none;
+}
+
+.pluginOk .pMarker {
+    background: #0f0;
+    color: #0f0;
+}
+
+.pluginHasProblems .pMarker {
+    background: #f00;
+    color: #f00;
+}
+
+.warnings .pMarker {
+    background: #ffeb00;
+    color: #ffeb00;
+}
+
+.missingDeps .pMarker {
+    background: #7fd8ff;
+    color: #7fd8ff;
+}
+
+.badPlugin .pMarker {
+    background: #5f3103;
+    color: #5f3103;
+}
+
+.notFound .pMarker {
+    background: #e5c2ef;
+    color: #e5c2ef;
+}
+
+.failedToDownload .pMarker {
+    background: #ffa87a;
+    color: #ffa87a;
+}
+
+.shortDescription a {
+    color: #2B587A !important;
+}
+
+.longDescription {
+    display: none;
+    margin-left: 100px;
+    padding: 2px;
+}
+    </style>
+  </head>
+  <body>
+    <h2>IU-263.6259.32</h2>
+    <div class="plugin pluginOk">
+      <h3><span class="pMarker">    </span>com.sijunyang.bracketpairguides</h3>
+      <div>
+        <div class="update updateOk">
+          <h3><span class="uMarker">    </span>0.0.6<small>com.sijunyang.bracketpairguides:0.0.6</small><small>Compatible</small></h3>
+          <div>
+            <div class="shortDescription">
+              Dependencies used on verification <a href="#" class="detailsLink">details</a>
+              <div class="longDescription">
+                <pre>
+com.sijunyang.bracketpairguides:0.0.6
+\--- com.intellij:263.6259.32
+     +--- (failed) com.intellij.modules.xml (optional): Dependency 'dependency on plugin 'com.intellij.modules.xml' declared in content module 'intellij.spellchecker.xml' of 'com.intellij'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     +--- (optional) Git4Idea:263.6259.32
+     |    +--- (failed) com.intellij.jetbrains.client (optional): Dependency 'com.intellij.jetbrains.client (plugin, v2)' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.ide.impl]
+     |    +--- (optional) com.jetbrains.performancePlugin:263.6259.32
+     |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.caffeine]
+     |    |    +--- (optional) training:263.6259.32 [declaring module intellij.libraries.assertj.core]
+     |    |    |    +--- (failed) com.intellij.tipsOfTheDay (optional): Dependency 'dependency on plugin 'com.intellij.tipsOfTheDay' declared in content module 'intellij.featuresTrainer.tips' of 'training'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    +--- (failed) intellij.tips (optional): Dependency 'dependency on module 'intellij.tips' declared in content module 'intellij.featuresTrainer.tips' of 'training'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.guava]
+     |    |    |    +--- intellij.xml.psi:263.6259.32 [product module]
+     |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlinx.collections.immutable]
+     |    |    |    |    \--- intellij.xml.parser:263.6259.32 [product module]
+     |    |    |    |         +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlinx.collections.immutable]
+     |    |    |    |         \--- intellij.xml.syntax:263.6259.32 [product module]
+     |    |    |    |              \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.jetbrains.annotations]
+     |    |    |    +--- (optional) Git4Idea:263.6259.32 (*)
+     |    |    |    +--- (optional) org.jetbrains.kotlin:263.6259.32
+     |    |    |    |    +--- (failed) com.intellij.completion.ml.ranking (optional): Dependency 'dependency on plugin 'com.intellij.completion.ml.ranking' declared in content module 'intellij.gradle.java.groovy.ml' of 'org.jetbrains.plugins.gradle'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    +--- (failed) com.intellij.modules.nativeDebug (optional): Dependency 'dependency on plugin 'com.intellij.modules.nativeDebug' declared in content module 'intellij.kotlin.ultimate.native.debugger' of 'org.jetbrains.kotlin'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    +--- (failed) intellij.cidr.core (optional): Dependency 'dependency on module 'intellij.cidr.core' declared in content module 'intellij.kotlin.ultimate.native' of 'org.jetbrains.kotlin'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    +--- (failed) intellij.cidr.debugger.backend (optional): Dependency 'dependency on module 'intellij.cidr.debugger.backend' declared in content module 'intellij.kotlin.ultimate.native.debugger' of 'org.jetbrains.kotlin'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    +--- (failed) intellij.cidr.debugger.core (optional): Dependency 'dependency on module 'intellij.cidr.debugger.core' declared in content module 'intellij.kotlin.ultimate.native.debugger' of 'org.jetbrains.kotlin'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    +--- (failed) intellij.cidr.runner (optional): Dependency 'dependency on module 'intellij.cidr.runner' declared in content module 'intellij.kotlin.ultimate.native.debugger' of 'org.jetbrains.kotlin'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    +--- (failed) intellij.cidr.util.execution (optional): Dependency 'dependency on module 'intellij.cidr.util.execution' declared in content module 'intellij.kotlin.ultimate.native.debugger' of 'org.jetbrains.kotlin'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    +--- com.intellij.java:263.6259.32
+     |    |    |    |    |    +--- (failed) com.intellij.jetbrains.client (optional): Dependency 'com.intellij.jetbrains.client (plugin, v2)' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    +--- (failed) com.intellij.modules.idea.community (optional): Dependency 'dependency on plugin 'com.intellij.modules.idea.community' declared in content module 'intellij.java.promo' of 'com.intellij.java'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    +--- (failed) com.intellij.modules.xml (optional): Dependency 'dependency on plugin 'com.intellij.modules.xml' declared in content module 'intellij.spellchecker.xml' of 'com.intellij'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module com.intellij.modules.lang]
+     |    |    |    |    |    +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) com.intellij.copyright:263.6259.32
+     |    |    |    |    |    |    +--- (failed) com.intellij.modules.xml: Dependency 'dependency on plugin 'com.intellij.modules.xml' declared in content module 'intellij.spellchecker.xml' of 'com.intellij'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlinx.collections.immutable]
+     |    |    |    |    |    |    +--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- intellij.xml.psi.impl:263.6259.32 [product module]
+     |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.caffeine]
+     |    |    |    |    |    |    |    +--- intellij.libraries.xml.resolver:263.6259.32 [product module]
+     |    |    |    |    |    |    |    +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    \--- intellij.xml.syntax:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.platform.vcs:263.6259.32 [product module]
+     |    |    |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.caffeine]
+     |    |    |    |    |    |    \--- (optional) intellij.platform.vcs.impl:263.6259.32 [product module]
+     |    |    |    |    |    |         +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.backend]
+     |    |    |    |    |    |         +--- intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         \--- intellij.platform.vcs.log:263.6259.32 [product module]
+     |    |    |    |    |    |              +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.backend]
+     |    |    |    |    |    |              +--- intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |              \--- intellij.platform.vcs.log.graph:263.6259.32 [product module]
+     |    |    |    |    |    |                   \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.jetbrains.annotations]
+     |    |    |    |    |    +--- (optional) com.intellij.modules.ultimate:263.6259.32
+     |    |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.core]
+     |    |    |    |    |    +--- (optional) intellij.debuggerMcp:263.6259.32
+     |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlinx.coroutines.core]
+     |    |    |    |    |    |    \--- com.intellij.mcpServer:263.6259.32 [declaring module intellij.mcpserver]
+     |    |    |    |    |    |         +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlinx.io]
+     |    |    |    |    |    |         +--- (optional) Git4Idea:263.6259.32 (*)
+     |    |    |    |    |    |         +--- (optional) intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         +--- (optional) intellij.platform.vcs.dvcs.impl:263.6259.32 [product module]
+     |    |    |    |    |    |         |    +--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    |    |    |         |    +--- intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    +--- intellij.platform.vcs.dvcs:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.backend]
+     |    |    |    |    |    |         |    |    +--- intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    \--- intellij.platform.vcs.log:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    +--- intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    +--- intellij.platform.vcs.log:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    \--- intellij.platform.vcs.log.impl:263.6259.32 [product module]
+     |    |    |    |    |    |         |         +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.caffeine]
+     |    |    |    |    |    |         |         +--- intellij.platform.sqlite:263.6259.32 [product module]
+     |    |    |    |    |    |         |         |    +--- intellij.libraries.sqlite.native:263.6259.32 [product module]
+     |    |    |    |    |    |         |         |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.util.ex]
+     |    |    |    |    |    |         |         +--- intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |         +--- intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |         +--- intellij.platform.vcs.log:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |         +--- intellij.platform.vcs.log.graph:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |         \--- intellij.platform.vcs.log.graph.impl:263.6259.32 [product module]
+     |    |    |    |    |    |         |              +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |         |              \--- intellij.platform.vcs.log.graph:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         +--- (optional) intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         +--- (optional) com.jetbrains.sh:263.6259.32 [declaring module intellij.sh.core]
+     |    |    |    |    |    |         |    +--- (failed) com.intellij.modules.python (optional): Dependency 'dependency on plugin 'com.intellij.modules.python' declared in content module 'intellij.python.sharedIndexes' of 'intellij.indexing.shared.core'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |         |    +--- com.intellij:263.6259.32 (*) [declaring module com.intellij.modules.lang]
+     |    |    |    |    |    |         |    +--- (optional) com.intellij.copyright:263.6259.32 (*)
+     |    |    |    |    |    |         |    +--- (optional) org.jetbrains.plugins.terminal:263.6259.32
+     |    |    |    |    |    |         |    |    +--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    |    |    |         |    |    +--- intellij.libraries.pty4j:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    \--- intellij.libraries.jna:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.platform.backend.split:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.remoteController:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.bouncy.castle.provider]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.split:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.platform.split.statistics:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.core]
+     |    |    |    |    |    |         |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.rd.platform]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.split.connection:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.bouncy.castle.provider]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.libraries.codeWithMe.lobby.server.api:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.libraries.ice4j:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.libraries.jitsi.utils:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.libraries.jna:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.libraries.jnaerator.runtime:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.libraries.quiche.jna.stubs:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.libraries.tls.channel:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.platform.split.connection.base:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.bouncy.castle.provider]
+     |    |    |    |    |    |         |    |    |    |    \--- intellij.platform.split.statistics:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.split.connection.base:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.split.statistics:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.structureView:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.undo.split:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.rd.core]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    \--- intellij.xml.impl:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |         +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.aalto.xml]
+     |    |    |    |    |    |         |    |    |         +--- intellij.libraries.xerces:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |         +--- intellij.xml.analysis:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |         |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.analysis]
+     |    |    |    |    |    |         |    |    |         |    \--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |         +--- intellij.xml.analysis.impl:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |         |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |         |    |    |         |    +--- intellij.libraries.xerces:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |         |    +--- intellij.xml.analysis:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |         |    +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |         |    +--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |         |    \--- intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |         +--- intellij.xml.dom:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |         |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |         |    |    |         |    +--- intellij.xml.analysis:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |         |    \--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |         +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |         +--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |         +--- intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |         +--- intellij.xml.syntax:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |         \--- intellij.xml.ui.common:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |              +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |         |    |    |              +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |              +--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |              \--- intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.platform.frontend.split:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    +--- (failed) intellij.frontend.split.customization: Dependency 'intellij.frontend.split.customization (module, v2)' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |         |    |    |    +--- (failed) intellij.remoteDev.icons: Dependency 'intellij.remoteDev.icons (module, v2)' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |         |    |    |    +--- intellij.libraries.jsch.agent.proxy.sshj:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.jsch.agent.proxy]
+     |    |    |    |    |    |         |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.frontend]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.frontend.split.base:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- (failed) intellij.frontend.split.customization: Dependency 'intellij.frontend.split.customization (module, v2)' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |         |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.libraries.daemon.client:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.ktor.client.cio]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.platform.daemon.client:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- intellij.libraries.daemon.client:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlinx.serialization.core]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.platform.daemon.light:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- intellij.libraries.daemon.client:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.core]
+     |    |    |    |    |    |         |    |    |    |    |    \--- intellij.platform.daemon.client:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.platform.ijent.ssh:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- com.intellij.modules.ultimate:263.6259.32 (*) [declaring module com.intellij.modules.ultimate]
+     |    |    |    |    |    |         |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.jsch.agent.proxy]
+     |    |    |    |    |    |         |    |    |    |    |    +--- intellij.platform.ssh:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- intellij.libraries.jsch.agent.proxy.sshj:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.jzlib]
+     |    |    |    |    |    |         |    |    |    |    |    |    \--- intellij.platform.ssh.core:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |         \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.guava]
+     |    |    |    |    |    |         |    |    |    |    |    \--- intellij.platform.ssh.core:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.platform.ijent.ssh.daemon:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- com.intellij.modules.ultimate:263.6259.32 (*) [declaring module com.intellij.modules.ultimate]
+     |    |    |    |    |    |         |    |    |    |    |    +--- intellij.libraries.daemon.client:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.jetbrains.annotations]
+     |    |    |    |    |    |         |    |    |    |    |    +--- intellij.platform.daemon.client:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- intellij.platform.daemon.connection.ssh.prompts:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- intellij.libraries.daemon.client:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.core]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- intellij.platform.daemon.statistics:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.core]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- intellij.platform.ssh:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- intellij.platform.ssh.core:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    \--- intellij.platform.ssh.ui:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |         +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |         |    |    |    |    |    |         \--- intellij.platform.ssh:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- intellij.platform.ijent.ssh:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- intellij.platform.ssh:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    \--- intellij.platform.ssh.core:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.platform.split.connection.base:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    \--- intellij.platform.undo.split:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.frontend.split.connection:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- (failed) intellij.remoteDev.icons: Dependency 'intellij.remoteDev.icons (module, v2)' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |         |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.bouncy.castle.provider]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.platform.frontend.split.base:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.platform.kernel.base.frontend.split:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- (failed) com.intellij.jetbrains.client: Dependency 'com.intellij.jetbrains.client (plugin, v2)' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |         |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.platform.remoteController:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.platform.split.connection:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.platform.split.connection.base:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    \--- intellij.platform.split.statistics:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.kernel.frontend.split:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.platform.kernel.base.frontend.split:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.kernel.impl]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.platform.rpc.split:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlinx.coroutines.core]
+     |    |    |    |    |    |         |    |    |    |    \--- intellij.platform.split:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.remoteController:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.split:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.split.connection:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.split.connection.base:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.split.statistics:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.ssh:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.undo.split:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    \--- intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.platform.remoteController.backend:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.libraries.daemon.client:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.backend]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.backend.split:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.daemon.client:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.remoteController:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.remoteController.cli:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.commons.cli]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.split.connection:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.split.connection.base:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.platform.split.statistics:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    \--- intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.platform.split:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    \--- (optional) com.jetbrains.sh:263.6259.32 (*) [declaring module intellij.sh.core]
+     |    |    |    |    |    |         |    +--- (optional) org.intellij.plugins.markdown:263.6259.32 [declaring module intellij.markdown]
+     |    |    |    |    |    |         |    |    +--- (failed) com.intellij.modules.xml (optional): Dependency 'dependency on plugin 'com.intellij.modules.xml' declared in content module 'intellij.spellchecker.xml' of 'com.intellij'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |         |    |    +--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    |    |    |         |    |    +--- (optional) com.intellij.modules.jcef:263.6259.32
+     |    |    |    |    |    |         |    |    |    +--- (failed) com.intellij.modules.arch.arm64: Dependency 'com.intellij.modules.arch.arm64 (plugin+module, v2)' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |         |    |    |    +--- (failed) com.intellij.modules.os.mac: Dependency 'com.intellij.modules.os.mac (plugin+module, v2)' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |         |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module com.intellij.modules.platform]
+     |    |    |    |    |    |         |    |    |    +--- (optional) intellij.libraries.jcef:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    \--- (optional) intellij.platform.ui.jcef:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |         +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.jbr]
+     |    |    |    |    |    |         |    |    |         \--- intellij.libraries.jcef:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) com.intellij.platform.images:263.6259.32
+     |    |    |    |    |    |         |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.commons.imaging]
+     |    |    |    |    |    |         |    |    |    +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- (optional) com.intellij.copyright:263.6259.32 (*)
+     |    |    |    |    |    |         |    |    |    +--- (optional) com.intellij.modules.jcef:263.6259.32 (*)
+     |    |    |    |    |    |         |    |    |    +--- (optional) intellij.libraries.jcef:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    \--- (optional) intellij.platform.ui.jcef:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) org.toml.lang:263.6259.32
+     |    |    |    |    |    |         |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module com.intellij.modules.lang]
+     |    |    |    |    |    |         |    |    |    +--- (optional) tanvd.grazi:263.6259.32 [declaring module intellij.grazie.core]
+     |    |    |    |    |    |         |    |    |    |    +--- (failed) com.intellij.modules.xml (optional): Dependency 'dependency on plugin 'com.intellij.modules.xml' declared in content module 'intellij.spellchecker.xml' of 'com.intellij'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.libraries.jna:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.spellchecker]
+     |    |    |    |    |    |         |    |    |    |    +--- (optional) intellij.java.backend:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- (failed) com.intellij.modules.xml: Dependency 'dependency on plugin 'com.intellij.modules.xml' declared in content module 'intellij.spellchecker.xml' of 'com.intellij'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |         |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.frontback.impl]
+     |    |    |    |    |    |         |    |    |    |    |    +--- intellij.java.impl:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- (failed) com.intellij.modules.xml: Dependency 'dependency on plugin 'com.intellij.modules.xml' declared in content module 'intellij.spellchecker.xml' of 'com.intellij'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.frontback.impl]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.externalSystem]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    \--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- intellij.java.manifest:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- intellij.java.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.psi]
+     |    |    |    |    |    |         |    |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.backend]
+     |    |    |    |    |    |         |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.spellchecker]
+     |    |    |    |    |    |         |    |    |    |    +--- (optional) com.intellij.java:263.6259.32 (*) [declaring module intellij.java.psi]
+     |    |    |    |    |    |         |    |    |    |    +--- (optional) intellij.json.backend:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- com.intellij.modules.json:263.6259.32 [declaring module intellij.json]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.caffeine]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- (optional) intellij.json.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- (optional) intellij.platform.frontend.split:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    \--- (optional) intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.caffeine]
+     |    |    |    |    |    |         |    |    |    |    +--- (optional) org.intellij.plugins.markdown:263.6259.32 (*) [declaring module intellij.markdown]
+     |    |    |    |    |    |         |    |    |    |    +--- (optional) intellij.platform.todo:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    |    |    |         |    |    |    |    |    \--- intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- (optional) intellij.properties.backend:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- (failed) com.intellij.modules.xml: Dependency 'dependency on plugin 'com.intellij.modules.xml' declared in content module 'intellij.spellchecker.xml' of 'com.intellij'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |         |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |         |    |    |    |    |    +--- intellij.platform.structuralSearch:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- intellij.xml.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    \--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    +--- com.intellij.properties:263.6259.32 [declaring module intellij.properties]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- (failed) com.intellij.modules.xml (optional): Dependency 'dependency on plugin 'com.intellij.modules.xml' declared in content module 'intellij.spellchecker.xml' of 'com.intellij'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlinx.collections.immutable]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- (optional) com.intellij.copyright:263.6259.32 (*)
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- (optional) intellij.platform.structuralSearch:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- (optional) intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    +--- (optional) intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    |    \--- (optional) intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    |    \--- intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- (optional) com.intellij.properties:263.6259.32 (*) [declaring module intellij.properties.backend.psi]
+     |    |    |    |    |    |         |    |    |    |    +--- (optional) intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- (optional) intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- (optional) intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    +--- (optional) intellij.xml.ui.common:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |    \--- (optional) org.jetbrains.plugins.yaml:263.6259.32 [declaring module intellij.yaml]
+     |    |    |    |    |    |         |    |    |    |         +--- (failed) org.jetbrains.plugins.go-template (optional): Dependency 'dependency on plugin 'org.jetbrains.plugins.go-template' declared in content module 'intellij.yaml.helm' of 'org.jetbrains.plugins.yaml'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |         |    |    |    |         +--- com.intellij.modules.json:263.6259.32 (*) [declaring module intellij.json]
+     |    |    |    |    |    |         |    |    |    |         +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |         |    |    |    |         +--- (optional) intellij.json.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |         +--- (optional) intellij.platform.frontend.split:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    |         \--- (optional) intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    +--- (optional) intellij.json.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    |    \--- (optional) intellij.platform.frontend.split:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.java.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) com.intellij.java:263.6259.32 (*) [declaring module intellij.java.indexing]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.json.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.libraries.jcef:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.platform.frontend.split:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.platform.ui.jcef:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.textmate:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module fleet.fastutil]
+     |    |    |    |    |    |         |    |    |    +--- intellij.textmate.core:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.jetbrains.annotations]
+     |    |    |    |    |    |         |    |    |    \--- intellij.textmate.joni:263.6259.32 [product module]
+     |    |    |    |    |    |         |    |    |         +--- com.intellij.modules.json:263.6259.32 (*) [declaring module intellij.libraries.joni]
+     |    |    |    |    |    |         |    |    |         \--- intellij.textmate.core:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.xml.analysis:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    +--- (optional) intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         |    |    \--- (optional) org.jetbrains.plugins.yaml:263.6259.32 (*) [declaring module intellij.yaml]
+     |    |    |    |    |    |         |    \--- (optional) intellij.platform.frontend.split:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         +--- (optional) org.jetbrains.plugins.terminal:263.6259.32 (*) [declaring module intellij.terminal.backend]
+     |    |    |    |    |    |         \--- (optional) intellij.vcs.git.backend:263.6259.32 [product module]
+     |    |    |    |    |    |              +--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    |    |    |              +--- intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |              +--- intellij.platform.vcs.dvcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |              +--- intellij.platform.vcs.dvcs.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |              +--- intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |              +--- intellij.platform.vcs.log:263.6259.32 (*) [product module]
+     |    |    |    |    |    |              +--- intellij.platform.vcs.log.graph.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |              +--- intellij.platform.vcs.log.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |              \--- intellij.vcs.git.shared:263.6259.32 [product module]
+     |    |    |    |    |    |                   \--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    |    |    +--- (optional) org.jetbrains.plugins.terminal:263.6259.32 (*)
+     |    |    |    |    |    +--- (optional) training:263.6259.32 (*)
+     |    |    |    |    |    +--- (optional) intellij.java.aetherDependencyResolver:263.6259.32 [product module]
+     |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.commons.codec]
+     |    |    |    |    |    |    \--- intellij.java.aetherDependencyResolver.plugin:263.6259.32 [declaring module intellij.libraries.maven.resolver.provider]
+     |    |    |    |    |    |         +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.commons.codec]
+     |    |    |    |    |    |         \--- (optional) com.intellij.modules.ultimate:263.6259.32 (*)
+     |    |    |    |    |    +--- (optional) intellij.java.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.java.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.java.manifest:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.java.aetherDependencyResolver.plugin:263.6259.32 (*) [declaring module intellij.libraries.maven.resolver.provider]
+     |    |    |    |    |    +--- (optional) com.intellij.mcpServer:263.6259.32 (*) [declaring module intellij.mcpserver]
+     |    |    |    |    |    +--- (optional) com.jetbrains.performancePlugin:263.6259.32 (*) [declaring module intellij.performanceTesting.vcs]
+     |    |    |    |    |    +--- (optional) intellij.platform.backend.split:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.platform.bookmarks:263.6259.32 [product module]
+     |    |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    |    |    +--- (optional) intellij.platform.execution.dashboard:263.6259.32 [product module]
+     |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    |    |    |    \--- intellij.platform.execution.serviceView:263.6259.32 [product module]
+     |    |    |    |    |    |         +--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    |    |    |         \--- intellij.platform.navbar.frontend:263.6259.32 [product module]
+     |    |    |    |    |    |              +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.analysis]
+     |    |    |    |    |    |              \--- intellij.platform.navbar:263.6259.32 [product module]
+     |    |    |    |    |    |                   \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.jetbrains.annotations]
+     |    |    |    |    |    +--- (optional) intellij.platform.frontend.split:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.platform.frontend.split.base:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.platform.smRunner:263.6259.32 [product module]
+     |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |    \--- intellij.platform.testRunner:263.6259.32 [product module]
+     |    |    |    |    |    |         \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    +--- (optional) intellij.platform.structuralSearch:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.platform.testRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.platform.todo:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.platform.todo.backend:263.6259.32 [product module]
+     |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    |    |    |    \--- intellij.platform.todo:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.platform.vcs.impl.lang:263.6259.32 [product module]
+     |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |    +--- intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    \--- intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.xml.analysis:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.xml.dom:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.xml.dom.impl:263.6259.32 [product module]
+     |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.cglib]
+     |    |    |    |    |    |    +--- intellij.xml.analysis:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- intellij.xml.dom:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- intellij.xml.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    \--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.xml.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    \--- (optional) intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.analysis]
+     |    |    |    |    +--- (optional) Coverage:263.6259.32
+     |    |    |    |    |    +--- intellij.java.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.execution.impl]
+     |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    +--- intellij.platform.testRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) JUnit:263.6259.32
+     |    |    |    |    |    |    +--- intellij.java.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.debugger.impl]
+     |    |    |    |    |    |    +--- intellij.java.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |    +--- intellij.platform.smRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- intellij.platform.testRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) com.intellij.modules.json:263.6259.32 (*) [declaring module intellij.json]
+     |    |    |    |    |    |    +--- (optional) intellij.platform.execution.dashboard:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.properties.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    \--- (optional) com.intellij.properties:263.6259.32 (*) [declaring module intellij.properties.backend.psi]
+     |    |    |    |    |    \--- (optional) TestNG-J:263.6259.32
+     |    |    |    |    |         +--- com.intellij.java:263.6259.32 (*)
+     |    |    |    |    |         +--- intellij.java.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |         +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.jgoodies.forms]
+     |    |    |    |    |         +--- intellij.platform.smRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |         +--- intellij.platform.testRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |         \--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) Git4Idea:263.6259.32 (*)
+     |    |    |    |    +--- (optional) JUnit:263.6259.32 (*)
+     |    |    |    |    +--- (optional) JavaScript:263.6259.32
+     |    |    |    |    |    +--- (failed) com.intellij.completion.ml.ranking (optional): Dependency 'dependency on plugin 'com.intellij.completion.ml.ranking' declared in content module 'intellij.gradle.java.groovy.ml' of 'org.jetbrains.plugins.gradle'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    +--- (failed) com.intellij.jetbrains.client (optional): Dependency 'com.intellij.jetbrains.client (plugin, v2)' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    +--- (failed) com.intellij.modules.webstorm (optional): Dependency 'dependency on plugin 'com.intellij.modules.webstorm' declared in content module 'intellij.javascript.newProject' of 'JavaScript'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    +--- (failed) com.intellij.modules.xml (optional): Dependency 'dependency on plugin 'com.intellij.modules.xml' declared in content module 'intellij.spellchecker.xml' of 'com.intellij'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    +--- (failed) com.intellij.plugins.watcher (optional): Dependency 'dependency on plugin 'com.intellij.plugins.watcher' declared in content module 'intellij.css.watcher' of 'com.intellij.css'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    +--- (failed) intellij.devkit.core (optional): Dependency 'dependency on module 'intellij.devkit.core' declared in content module 'intellij.javascript.devkit' of 'JavaScript'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    +--- (optional) Git4Idea:263.6259.32 (*)
+     |    |    |    |    |    +--- (optional) JavaScriptDebugger:263.6259.32
+     |    |    |    |    |    |    +--- (failed) com.intellij.modules.webstorm (optional): Dependency 'dependency on plugin 'com.intellij.modules.webstorm' declared in content module 'intellij.javascript.newProject' of 'JavaScript'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    +--- (failed) com.intellij.modules.xml (optional): Dependency 'dependency on plugin 'com.intellij.modules.xml' declared in content module 'intellij.spellchecker.xml' of 'com.intellij'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    +--- (failed) intellij.javaee.jsp.shared (optional): Dependency 'dependency on module 'intellij.javaee.jsp.shared' declared in content module 'intellij.javascript.debugger.javaee.jsp' of 'JavaScriptDebugger'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    +--- (optional) JavaScript:263.6259.32 (*)
+     |    |    |    |    |    |    +--- (optional) com.intellij.modules.ultimate:263.6259.32 (*)
+     |    |    |    |    |    |    +--- (optional) com.jetbrains.plugins.webDeployment:263.6259.32
+     |    |    |    |    |    |    |    +--- (failed) com.intellij.modules.phpstorm (optional): Dependency 'dependency on plugin 'com.intellij.modules.phpstorm' declared in content module 'intellij.webDeployment/phpStorm' of 'com.jetbrains.plugins.webDeployment'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    |    +--- (failed) com.intellij.modules.xml: Dependency 'dependency on plugin 'com.intellij.modules.xml' declared in content module 'intellij.spellchecker.xml' of 'com.intellij'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    |    +--- com.intellij.modules.ultimate:263.6259.32 (*) [declaring module com.intellij.modules.ultimate]
+     |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.bouncy.castle.provider]
+     |    |    |    |    |    |    |    +--- intellij.platform.ssh:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.platform.ssh.core:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.platform.ssh.ui:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    \--- intellij.platform.vcs.log.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.css:263.6259.32 [product module]
+     |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlinx.collections.immutable]
+     |    |    |    |    |    |    |    \--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.css.common.psi:263.6259.32 [product module]
+     |    |    |    |    |    |    |    +--- intellij.css:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.jackson]
+     |    |    |    |    |    |    |    +--- intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.platform.structureView.impl:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    \--- intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    \--- intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.javaee.platform:263.6259.32 [product module]
+     |    |    |    |    |    |    |    +--- intellij.java.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.frontback.psi]
+     |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.jsp.base]
+     |    |    |    |    |    |    |    +--- intellij.xml.dom:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    \--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.javaee.platform.impl:263.6259.32 [product module]
+     |    |    |    |    |    |    |    +--- com.intellij.modules.ultimate:263.6259.32 (*) [declaring module com.intellij.modules.ultimate]
+     |    |    |    |    |    |    |    +--- intellij.java.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.debugger.impl]
+     |    |    |    |    |    |    |    +--- intellij.javaee.app.servers:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.database:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    |    +--- intellij.database.util:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |    |    |    |    +--- intellij.grid:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.core]
+     |    |    |    |    |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.remoteServers.impl]
+     |    |    |    |    |    |    |    |    +--- intellij.javaee.application:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    |    +--- intellij.javaee.platform:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.core]
+     |    |    |    |    |    |    |    |    |    \--- intellij.xml.dom:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.javaee.platform:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.core]
+     |    |    |    |    |    |    |    +--- intellij.javaee.application:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.javaee.ejb:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.frontback.psi]
+     |    |    |    |    |    |    |    |    +--- intellij.javaee.application:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.javaee.platform:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.analysis]
+     |    |    |    |    |    |    |    |    \--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.javaee.platform:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.javaee.web:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.javaee.app.servers:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.javaee.ejb:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.javaee.platform:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.jsp]
+     |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlinx.collections.immutable]
+     |    |    |    |    |    |    |    |    +--- intellij.xml.dom:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    \--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlinx.collections.immutable]
+     |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:263.6259.32 (*) [declaring module intellij.platform.commercial.verifier]
+     |    |    |    |    |    |    |    +--- intellij.xml.analysis:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.xml.dom.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.xml.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    \--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.javascript.analysis.impl:263.6259.32 [product module]
+     |    |    |    |    |    |    |    +--- intellij.javascript.common:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.javascript.psi.impl:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    |    +--- intellij.javascript.parser:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |    |    |    |    |    \--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- com.intellij.modules.json:263.6259.32 (*) [declaring module intellij.json]
+     |    |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |    |    |    |    +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    \--- intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- com.intellij.modules.json:263.6259.32 (*) [declaring module intellij.json]
+     |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |    |    |    +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    \--- intellij.xml.ui.common:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.javascript.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.javascript.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- com.intellij.modules.json:263.6259.32 (*) [declaring module intellij.json]
+     |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.webide]
+     |    |    |    |    |    |    |    +--- intellij.xml.analysis.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    \--- intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.javascript.backend:263.6259.32 [product module]
+     |    |    |    |    |    |    |    +--- (failed) com.intellij.modules.xml: Dependency 'dependency on plugin 'com.intellij.modules.xml' declared in content module 'intellij.spellchecker.xml' of 'com.intellij'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    |    +--- intellij.javascript.analysis.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.javascript.common:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.javascript.emmet:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.javascript.common:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.javascript.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.javascript.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.jetbrains.annotations]
+     |    |    |    |    |    |    |    |    +--- intellij.xml.emmet:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.jetbrains.annotations]
+     |    |    |    |    |    |    |    |    |    +--- intellij.libraries.xerces:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    \--- intellij.xml.ui.common:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    \--- intellij.xml.ui.common:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.javascript.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.javascript.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.javascript.structureView:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.javascript.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.javascript.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlinx.collections.immutable]
+     |    |    |    |    |    |    |    |    +--- intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    \--- intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.javascript.testing:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.javascript.analysis.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.javascript.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.javascript.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.guava]
+     |    |    |    |    |    |    |    |    \--- intellij.platform.smRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.json.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.caffeine]
+     |    |    |    |    |    |    |    +--- intellij.libraries.completion.ranking.js:263.6259.32 [product module]
+     |    |    |    |    |    |    |    +--- intellij.libraries.completion.ranking.typescript:263.6259.32 [product module]
+     |    |    |    |    |    |    |    +--- intellij.libraries.jna:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.libraries.pty4j:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- JavaScript:263.6259.32 (*) [declaring module intellij.libraries.semver4j]
+     |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:263.6259.32 (*) [declaring module intellij.platform.commercial.verifier]
+     |    |    |    |    |    |    |    +--- intellij.platform.problemView.shared:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module fleet.rpc]
+     |    |    |    |    |    |    |    +--- intellij.platform.smRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.platform.testRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.xml.analysis:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.xml.emmet:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.xml.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    \--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.javascript.common:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.javascript.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.javascript.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.javascript.testing:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) com.intellij.modules.json:263.6259.32 (*) [declaring module intellij.json]
+     |    |    |    |    |    |    +--- (optional) intellij.json.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.libraries.jcef:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) com.intellij:263.6259.32 (*) [declaring module intellij.platform.core]
+     |    |    |    |    |    |    +--- (optional) intellij.platform.ssh:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.platform.testRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.platform.ui.jcef:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    \--- (optional) intellij.xml.structureView.impl:263.6259.32 [product module]
+     |    |    |    |    |    |         +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlinx.collections.immutable]
+     |    |    |    |    |    |         +--- intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         +--- intellij.xml.dom:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         +--- intellij.xml.dom.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         +--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         +--- intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |         \--- intellij.xml.structureView:263.6259.32 [product module]
+     |    |    |    |    |    |              +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.backend]
+     |    |    |    |    |    |              \--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) com.intellij.copyright:263.6259.32 (*)
+     |    |    |    |    |    +--- (optional) com.intellij.css:263.6259.32
+     |    |    |    |    |    |    +--- (failed) com.intellij.plugins.watcher (optional): Dependency 'dependency on plugin 'com.intellij.plugins.watcher' declared in content module 'intellij.css.watcher' of 'com.intellij.css'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module com.intellij.modules.jetbrains]
+     |    |    |    |    |    |    +--- intellij.css:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- intellij.platform.structureView.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- intellij.xml.ui.common:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) com.intellij.copyright:263.6259.32 (*)
+     |    |    |    |    |    |    +--- (optional) com.intellij.platform.images:263.6259.32 (*)
+     |    |    |    |    |    |    +--- (optional) intellij.css.actions:263.6259.32 [product module]
+     |    |    |    |    |    |    |    +--- intellij.css.analysis:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.css.common:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    |    +--- intellij.css:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- intellij.css.common.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlinx.collections.immutable]
+     |    |    |    |    |    |    |    |    |    +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    \--- intellij.xml.ui.common:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.css.common.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.guava]
+     |    |    |    |    |    |    |    |    \--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.css.backend:263.6259.32 [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.css.common:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.css.common.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.backend]
+     |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:263.6259.32 (*) [declaring module intellij.platform.commercial.verifier]
+     |    |    |    |    |    |    |    |    \--- intellij.platform.structuralSearch:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.css.common:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.css.common.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |    |    +--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    \--- intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.css.analysis:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.css.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.css.common:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.css.common.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) org.jetbrains.kotlin:263.6259.32 (*) [declaring module intellij.platform.commercial.verifier]
+     |    |    |    |    |    |    +--- (optional) intellij.platform.frontend.split:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.platform.structuralSearch:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.xml.analysis:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.xml.analysis.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.xml.emmet:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    \--- (optional) intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) com.intellij.diagram:263.6259.32
+     |    |    |    |    |    |    +--- (failed) com.intellij.modules.rider (optional): Dependency 'dependency on plugin 'com.intellij.modules.rider' declared in content module 'intellij.diagram.rider' of 'com.intellij.diagram'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    +--- (failed) intellij.rider.icons (optional): Dependency 'dependency on module 'intellij.rider.icons' declared in content module 'intellij.diagram.rider' of 'com.intellij.diagram'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    +--- (failed) intellij.rider.languages (optional): Dependency 'dependency on module 'intellij.rider.languages' declared in content module 'intellij.diagram.rider' of 'com.intellij.diagram'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    +--- (failed) intellij.rider.model.generated (optional): Dependency 'dependency on module 'intellij.rider.model.generated' declared in content module 'intellij.diagram.rider' of 'com.intellij.diagram'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    +--- (failed) intellij.rider.rdclient.dotnet (optional): Dependency 'dependency on module 'intellij.rider.rdclient.dotnet' declared in content module 'intellij.diagram.rider' of 'com.intellij.diagram'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.graph.impl]
+     |    |    |    |    |    |    +--- intellij.platform.navbar.frontend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) com.intellij.modules.ultimate:263.6259.32 (*)
+     |    |    |    |    |    |    +--- (optional) com.intellij.gradle:263.6259.32 [declaring module intellij.gradle]
+     |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.externalSystem.impl]
+     |    |    |    |    |    |    |    +--- intellij.platform.smRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- intellij.platform.testRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- (optional) com.intellij.modules.ultimate:263.6259.32 (*)
+     |    |    |    |    |    |    |    +--- (optional) org.intellij.groovy:263.6259.32
+     |    |    |    |    |    |    |    |    +--- (failed) AntSupport (optional): Dependency 'dependency on plugin 'AntSupport' declared in content module 'intellij.groovy.ant' of 'org.intellij.groovy'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    |    |    +--- com.intellij.groovy.scripting:263.6259.32
+     |    |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*)
+     |    |    |    |    |    |    |    |    |    \--- intellij.libraries.jna:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.java.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.debugger.impl]
+     |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |    |    |    +--- intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.properties.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- com.intellij.properties:263.6259.32 (*) [declaring module intellij.properties.backend.psi]
+     |    |    |    |    |    |    |    |    +--- (optional) ByteCodeViewer:263.6259.32
+     |    |    |    |    |    |    |    |    |    +--- intellij.java.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.frontback.psi.impl]
+     |    |    |    |    |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.asm]
+     |    |    |    |    |    |    |    |    +--- (optional) Git4Idea:263.6259.32 (*)
+     |    |    |    |    |    |    |    |    +--- (optional) JUnit:263.6259.32 (*)
+     |    |    |    |    |    |    |    |    +--- (optional) com.intellij.copyright:263.6259.32 (*)
+     |    |    |    |    |    |    |    |    +--- (optional) com.intellij.modules.ultimate:263.6259.32 (*)
+     |    |    |    |    |    |    |    |    +--- (optional) intellij.java.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- (optional) intellij.platform.smRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- (optional) intellij.platform.structuralSearch:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- (optional) intellij.platform.testRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- (optional) intellij.vcs.git.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- (optional) intellij.xml.dom:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    \--- (optional) intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- (optional) org.jetbrains.plugins.gradle:263.6259.32 [declaring module intellij.gradle.java]
+     |    |    |    |    |    |    |    |    +--- (failed) com.intellij.completion.ml.ranking (optional): Dependency 'dependency on plugin 'com.intellij.completion.ml.ranking' declared in content module 'intellij.gradle.java.groovy.ml' of 'org.jetbrains.plugins.gradle'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    |    |    +--- com.intellij.gradle:263.6259.32 (*) [declaring module intellij.gradle]
+     |    |    |    |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.debugger.impl.shared]
+     |    |    |    |    |    |    |    |    +--- intellij.java.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    |    |    |    |    |    +--- intellij.platform.smRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- intellij.platform.testRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- com.intellij.properties:263.6259.32 (*) [declaring module intellij.properties.backend.psi]
+     |    |    |    |    |    |    |    |    +--- (optional) Coverage:263.6259.32 (*)
+     |    |    |    |    |    |    |    |    +--- (optional) com.jetbrains.performancePlugin:263.6259.32 (*)
+     |    |    |    |    |    |    |    |    +--- (optional) org.intellij.groovy:263.6259.32 (*)
+     |    |    |    |    |    |    |    |    +--- (optional) org.jetbrains.idea.gradle.dsl:263.6259.32
+     |    |    |    |    |    |    |    |    |    +--- com.intellij.gradle:263.6259.32 (*) [declaring module intellij.gradle]
+     |    |    |    |    |    |    |    |    |    +--- intellij.java.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.frontback.psi]
+     |    |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.commons.lang3]
+     |    |    |    |    |    |    |    |    |    +--- (optional) org.intellij.groovy:263.6259.32 (*)
+     |    |    |    |    |    |    |    |    |    +--- (optional) com.android.tools.gradle.dcl:263.6259.32 [declaring module intellij.android.gradle.declarative.lang]
+     |    |    |    |    |    |    |    |    |    |    +--- com.intellij.gradle:263.6259.32 (*) [declaring module intellij.gradle]
+     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.plugins.gradle:263.6259.32 (*) [declaring module intellij.gradle.java]
+     |    |    |    |    |    |    |    |    |    |    +--- intellij.java.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:263.6259.32 (*) [declaring module intellij.kotlin.base.util]
+     |    |    |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.commons.lang3]
+     |    |    |    |    |    |    |    |    |    |    \--- com.intellij.java:263.6259.32 (*) [declaring module intellij.platform.uast]
+     |    |    |    |    |    |    |    |    |    +--- (optional) org.jetbrains.kotlin:263.6259.32 (*) [declaring module intellij.kotlin.base.psi]
+     |    |    |    |    |    |    |    |    |    \--- (optional) org.toml.lang:263.6259.32 (*) [declaring module intellij.toml.core]
+     |    |    |    |    |    |    |    |    +--- (optional) org.jetbrains.idea.maven:263.6259.32 [declaring module intellij.maven]
+     |    |    |    |    |    |    |    |    |    +--- (failed) Error-prone plugin (optional): Dependency 'dependency on plugin 'Error-prone plugin' declared in content module 'intellij.maven.errorProne.compiler' of 'org.jetbrains.idea.maven'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java]
+     |    |    |    |    |    |    |    |    |    +--- intellij.java.aetherDependencyResolver:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- intellij.java.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.jetbrains.annotations]
+     |    |    |    |    |    |    |    |    |    +--- intellij.platform.smRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- intellij.platform.testRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- intellij.properties.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- com.intellij.properties:263.6259.32 (*) [declaring module intellij.properties.backend.psi]
+     |    |    |    |    |    |    |    |    |    +--- intellij.xml.analysis:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- intellij.xml.dom:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- intellij.xml.dom.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- intellij.xml.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    |    +--- (optional) JUnit:263.6259.32 (*)
+     |    |    |    |    |    |    |    |    |    +--- (optional) TestNG-J:263.6259.32 (*)
+     |    |    |    |    |    |    |    |    |    +--- (optional) com.intellij.modules.ultimate:263.6259.32 (*)
+     |    |    |    |    |    |    |    |    |    +--- (optional) com.jetbrains.performancePlugin:263.6259.32 (*)
+     |    |    |    |    |    |    |    |    |    +--- (optional) org.intellij.groovy:263.6259.32 (*)
+     |    |    |    |    |    |    |    |    |    +--- (optional) tanvd.grazi:263.6259.32 (*) [declaring module intellij.grazie.core]
+     |    |    |    |    |    |    |    |    |    \--- (optional) intellij.java.aetherDependencyResolver.plugin:263.6259.32 (*) [declaring module intellij.repository.search.completion]
+     |    |    |    |    |    |    |    |    +--- (optional) intellij.properties.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    |    +--- (optional) intellij.java.aetherDependencyResolver.plugin:263.6259.32 (*) [declaring module intellij.repository.search.completion]
+     |    |    |    |    |    |    |    |    \--- (optional) org.toml.lang:263.6259.32 (*) [declaring module intellij.toml.core]
+     |    |    |    |    |    |    |    +--- (optional) com.intellij.java:263.6259.32 (*) [declaring module intellij.java.frontback.psi.impl]
+     |    |    |    |    |    |    |    +--- (optional) org.jetbrains.kotlin:263.6259.32 (*) [declaring module intellij.kotlin.base.codeInsight]
+     |    |    |    |    |    |    |    +--- (optional) intellij.properties.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    +--- (optional) com.intellij.properties:263.6259.32 (*) [declaring module intellij.properties.backend.psi]
+     |    |    |    |    |    |    |    +--- (optional) intellij.java.aetherDependencyResolver.plugin:263.6259.32 (*) [declaring module intellij.repository.search.completion]
+     |    |    |    |    |    |    |    \--- (optional) org.toml.lang:263.6259.32 (*) [declaring module intellij.toml.core]
+     |    |    |    |    |    |    +--- (optional) intellij.java.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) com.intellij.java:263.6259.32 (*) [declaring module intellij.java.psi]
+     |    |    |    |    |    |    +--- (optional) org.jetbrains.idea.maven:263.6259.32 (*) [declaring module intellij.maven]
+     |    |    |    |    |    |    +--- (optional) intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.platform.vcs.log.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) intellij.properties.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    \--- (optional) com.intellij.properties:263.6259.32 (*) [declaring module intellij.properties.backend.psi]
+     |    |    |    |    |    +--- (optional) com.intellij.modules.ultimate:263.6259.32 (*)
+     |    |    |    |    |    +--- (optional) com.jetbrains.performancePlugin:263.6259.32 (*)
+     |    |    |    |    |    +--- (optional) intellij.indexing.shared.core:263.6259.32
+     |    |    |    |    |    |    +--- (failed) com.intellij.modules.python (optional): Dependency 'dependency on plugin 'com.intellij.modules.python' declared in content module 'intellij.python.sharedIndexes' of 'intellij.indexing.shared.core'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-263.6259.32, Local Plugin Repository
+     |    |    |    |    |    |    +--- com.intellij.configurationScript:263.6259.32
+     |    |    |    |    |    |    |    +--- intellij.json.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlin.reflect]
+     |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.caffeine]
+     |    |    |    |    |    |    +--- (optional) Git4Idea:263.6259.32 (*)
+     |    |    |    |    |    |    +--- (optional) intellij.java.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- (optional) com.intellij.java:263.6259.32 (*) [declaring module intellij.java.execution.impl]
+     |    |    |    |    |    |    +--- (optional) com.jetbrains.performancePlugin:263.6259.32 (*) [declaring module intellij.performanceTesting.backend]
+     |    |    |    |    |    |    +--- (optional) intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    \--- (optional) intellij.vcs.git.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) org.jetbrains.plugins.terminal:263.6259.32 (*)
+     |    |    |    |    |    +--- (optional) training:263.6259.32 (*)
+     |    |    |    |    |    +--- (optional) intellij.css:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.css.actions:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.css.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.css.common:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.css.common.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) tanvd.grazi:263.6259.32 (*) [declaring module intellij.grazie.core]
+     |    |    |    |    |    +--- (optional) intellij.java.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) com.intellij.java:263.6259.32 (*) [declaring module intellij.java.psi]
+     |    |    |    |    |    +--- (optional) intellij.javascript.analysis.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.javascript.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.javascript.common:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.javascript.emmet:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.javascript.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.javascript.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.javascript.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.javascript.testing:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) com.intellij.modules.json:263.6259.32 (*) [declaring module intellij.json]
+     |    |    |    |    |    +--- (optional) intellij.json.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.libraries.completion.ranking.js:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.libraries.completion.ranking.typescript:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) com.intellij:263.6259.32 (*) [declaring module intellij.libraries.guava]
+     |    |    |    |    |    +--- (optional) intellij.libraries.jna:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.libraries.pty4j:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) org.intellij.plugins.markdown:263.6259.32 (*) [declaring module intellij.markdown]
+     |    |    |    |    |    +--- (optional) com.intellij.mcpServer:263.6259.32 (*) [declaring module intellij.mcpserver]
+     |    |    |    |    |    +--- (optional) org.jetbrains.kotlin:263.6259.32 (*) [declaring module intellij.platform.commercial.verifier]
+     |    |    |    |    |    +--- (optional) com.intellij.modules.jcef:263.6259.32 (*) [declaring module intellij.platform.ide.impl.jcef]
+     |    |    |    |    |    +--- (optional) intellij.platform.problemView.shared:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.platform.smRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.platform.structuralSearch:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.platform.testRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) com.jetbrains.sh:263.6259.32 (*) [declaring module intellij.sh.core]
+     |    |    |    |    |    +--- (optional) intellij.vcs.git.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.vcs.git.shared:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.xml.analysis:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.xml.analysis.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.xml.emmet:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.xml.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.xml.langInjection:263.6259.32 [product module]
+     |    |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.backend]
+     |    |    |    |    |    |    +--- intellij.xml.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    +--- intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    |    \--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- (optional) intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    \--- (optional) intellij.xml.ui.common:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) NodeJS:263.6259.32
+     |    |    |    |    |    +--- JavaScript:263.6259.32 (*)
+     |    |    |    |    |    +--- JavaScriptDebugger:263.6259.32 (*)
+     |    |    |    |    |    +--- com.intellij:263.6259.32 (*)
+     |    |    |    |    |    +--- com.intellij.modules.ultimate:263.6259.32 (*)
+     |    |    |    |    |    +--- intellij.javascript.analysis.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- intellij.javascript.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- intellij.javascript.common:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- intellij.javascript.parser:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- intellij.javascript.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- intellij.javascript.testing:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- com.intellij.modules.json:263.6259.32 (*) [declaring module intellij.json]
+     |    |    |    |    |    +--- intellij.json.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- intellij.platform.smRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- intellij.platform.testRunner:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    \--- intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) TestNG-J:263.6259.32 (*)
+     |    |    |    |    +--- (optional) com.intellij.LineProfiler:263.6259.32
+     |    |    |    |    |    +--- intellij.java.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.psi]
+     |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.analysis]
+     |    |    |    |    |    +--- intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    |    \--- intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) com.intellij.copyright:263.6259.32 (*)
+     |    |    |    |    +--- (optional) com.intellij.java-i18n:263.6259.32
+     |    |    |    |    |    +--- intellij.java.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- intellij.java.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.indexing]
+     |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.jsp.base]
+     |    |    |    |    |    +--- intellij.properties.backend:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- com.intellij.properties:263.6259.32 (*) [declaring module intellij.properties.psi]
+     |    |    |    |    |    +--- intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    |    \--- intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) org.intellij.groovy:263.6259.32 (*)
+     |    |    |    |    +--- (optional) org.jetbrains.java.decompiler:263.6259.32
+     |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.frontback.psi]
+     |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.analysis]
+     |    |    |    |    +--- (optional) training:263.6259.32 (*)
+     |    |    |    |    +--- (optional) org.jetbrains.plugins.gradle:263.6259.32 (*) [declaring module intellij.gradle.java]
+     |    |    |    |    +--- (optional) com.intellij.gradle:263.6259.32 (*) [declaring module intellij.gradle.toolingExtension]
+     |    |    |    |    +--- (optional) tanvd.grazi:263.6259.32 (*) [declaring module intellij.grazie.core]
+     |    |    |    |    +--- (optional) intellij.java.aetherDependencyResolver:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) intellij.java.backend:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) intellij.java.impl:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) intellij.java.manifest:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) intellij.javascript.backend:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) JavaScriptDebugger:263.6259.32 (*) [declaring module intellij.javascript.debugger.backend]
+     |    |    |    |    +--- (optional) intellij.javascript.testing:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) intellij.kotlin.base.compilerConfiguration:263.6259.32 [product module]
+     |    |    |    |    |    +--- org.jetbrains.kotlin:263.6259.32 (*) [declaring module intellij.libraries.kotlinc.kotlin.compiler.common]
+     |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.core]
+     |    |    |    |    +--- (optional) intellij.kotlin.base.facet:263.6259.32 [product module]
+     |    |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java]
+     |    |    |    |    |    +--- intellij.java.impl:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- intellij.kotlin.base.compilerConfiguration:263.6259.32 (*) [product module]
+     |    |    |    |    |    +--- org.jetbrains.kotlin:263.6259.32 (*) [declaring module intellij.kotlin.base.platforms]
+     |    |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.gson]
+     |    |    |    |    +--- (optional) org.jetbrains.idea.maven:263.6259.32 (*) [declaring module intellij.maven]
+     |    |    |    |    +--- (optional) com.intellij.mcpServer:263.6259.32 (*) [declaring module intellij.mcpserver]
+     |    |    |    |    +--- (optional) com.jetbrains.performancePlugin:263.6259.32 (*) [declaring module intellij.performanceTesting.vcs]
+     |    |    |    |    +--- (optional) intellij.platform.frontend.split:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) intellij.platform.smRunner:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) intellij.platform.structuralSearch:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) intellij.platform.structureView.backend:263.6259.32 [product module]
+     |    |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    |    |    \--- intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) intellij.platform.testRunner:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) intellij.java.aetherDependencyResolver.plugin:263.6259.32 (*) [declaring module intellij.repository.search.completion]
+     |    |    |    |    +--- (optional) org.toml.lang:263.6259.32 (*) [declaring module intellij.toml.core]
+     |    |    |    |    +--- (optional) intellij.vcs.git.backend:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) intellij.xml.analysis:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) intellij.xml.parser:263.6259.32 (*) [product module]
+     |    |    |    |    +--- (optional) intellij.xml.psi:263.6259.32 (*) [product module]
+     |    |    |    |    \--- (optional) intellij.xml.psi.impl:263.6259.32 (*) [product module]
+     |    |    |    +--- (optional) com.intellij.java:263.6259.32 (*) [declaring module intellij.java.featuresTrainer]
+     |    |    |    +--- (optional) intellij.kotlin.featuresTrainer:263.6259.32 [product module]
+     |    |    |    |    +--- training:263.6259.32 (*)
+     |    |    |    |    +--- com.intellij.java:263.6259.32 (*) [declaring module intellij.java.featuresTrainer]
+     |    |    |    |    +--- intellij.kotlin.base.facet:263.6259.32 (*) [product module]
+     |    |    |    |    +--- org.jetbrains.kotlin:263.6259.32 (*) [declaring module intellij.kotlin.base.util]
+     |    |    |    |    \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlinx.serialization.core]
+     |    |    |    +--- (optional) intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    |    +--- (optional) intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    |    +--- (optional) intellij.platform.vcs.log:263.6259.32 (*) [product module]
+     |    |    |    +--- (optional) intellij.platform.vcs.log.impl:263.6259.32 (*) [product module]
+     |    |    |    +--- (optional) intellij.vcs.git.backend:263.6259.32 (*) [product module]
+     |    |    |    \--- (optional) intellij.vcs.git.shared:263.6259.32 (*) [product module]
+     |    |    +--- (optional) intellij.libraries.jcef:263.6259.32 (*) [product module]
+     |    |    +--- (optional) intellij.platform.backend.split:263.6259.32 (*) [product module]
+     |    |    +--- (optional) intellij.platform.frontend.split:263.6259.32 (*) [product module]
+     |    |    +--- (optional) intellij.platform.frontend.split.connection:263.6259.32 (*) [product module]
+     |    |    +--- (optional) intellij.platform.problemView.shared:263.6259.32 (*) [product module]
+     |    |    +--- (optional) intellij.platform.problemView.ui:263.6259.32 [product module]
+     |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.fastutil]
+     |    |    |    +--- intellij.platform.problemView.collector:263.6259.32 [product module]
+     |    |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.kotlinx.coroutines.core]
+     |    |    |    |    \--- intellij.platform.problemView.shared:263.6259.32 (*) [product module]
+     |    |    |    \--- intellij.platform.problemView.shared:263.6259.32 (*) [product module]
+     |    |    +--- (optional) intellij.platform.recentFiles.frontend:263.6259.32 [product module]
+     |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    \--- intellij.platform.recentFiles:263.6259.32 [product module]
+     |    |    |         \--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    +--- (optional) intellij.platform.split:263.6259.32 (*) [product module]
+     |    |    +--- (optional) intellij.platform.split.connection:263.6259.32 (*) [product module]
+     |    |    +--- (optional) intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    +--- (optional) intellij.platform.structureView.frontend:263.6259.32 [product module]
+     |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module fleet.rhizomedb]
+     |    |    |    \--- intellij.platform.structureView:263.6259.32 (*) [product module]
+     |    |    +--- (optional) intellij.platform.ui.jcef:263.6259.32 (*) [product module]
+     |    |    +--- (optional) intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    +--- (optional) intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    \--- (optional) intellij.profiler.asyncOne:263.6259.32 [product module]
+     |    +--- (optional) org.jetbrains.plugins.terminal:263.6259.32 (*)
+     |    +--- (optional) intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    +--- (optional) intellij.platform.vcs.backend.split:263.6259.32 [product module]
+     |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.rd.core]
+     |    |    +--- intellij.platform.backend.split:263.6259.32 (*) [product module]
+     |    |    +--- intellij.platform.split:263.6259.32 (*) [product module]
+     |    |    +--- intellij.platform.vcs:263.6259.32 (*) [product module]
+     |    |    +--- intellij.platform.vcs.common.split:263.6259.32 [product module]
+     |    |    |    +--- com.intellij:263.6259.32 (*) [declaring module intellij.platform.diff.impl]
+     |    |    |    \--- intellij.platform.vcs.protocol.split.generated:263.6259.32 [product module]
+     |    |    |         \--- com.intellij:263.6259.32 (*) [declaring module intellij.libraries.rd.core]
+     |    |    +--- intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    |    \--- intellij.platform.vcs.protocol.split.generated:263.6259.32 (*) [product module]
+     |    +--- (optional) intellij.platform.vcs.dvcs:263.6259.32 (*) [product module]
+     |    +--- (optional) intellij.platform.vcs.dvcs.impl:263.6259.32 (*) [product module]
+     |    +--- (optional) intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     |    +--- (optional) intellij.platform.vcs.log:263.6259.32 (*) [product module]
+     |    +--- (optional) intellij.platform.vcs.log.graph:263.6259.32 (*) [product module]
+     |    +--- (optional) intellij.platform.vcs.log.graph.impl:263.6259.32 (*) [product module]
+     |    +--- (optional) intellij.platform.vcs.log.impl:263.6259.32 (*) [product module]
+     |    +--- (optional) intellij.vcs.git.backend:263.6259.32 (*) [product module]
+     |    \--- (optional) intellij.vcs.git.shared:263.6259.32 (*) [product module]
+     +--- (optional) com.intellij.modules.asyncProfiler:263.6259.32
+     |    \--- com.intellij:263.6259.32 (*) [declaring module com.intellij.modules.platform]
+     +--- (optional) com.intellij.modules.pty4j:263.6259.32
+     |    +--- com.intellij.modules.jna:263.6259.32 [declaring module com.intellij.modules.jna]
+     |    |    \--- com.intellij:263.6259.32 (*) [declaring module com.intellij.modules.platform]
+     |    \--- intellij.libraries.jna:263.6259.32 (*) [product module]
+     +--- (optional) com.intellij.modules.skiko:263.6259.32
+     |    \--- com.intellij:263.6259.32 (*) [declaring module com.intellij.modules.platform]
+     +--- (optional) com.intellij.modules.ultimate:263.6259.32 (*)
+     +--- (optional) org.jetbrains.plugins.terminal:263.6259.32 (*)
+     +--- (optional) intellij.libraries.pty4j:263.6259.32 (*) [product module]
+     +--- (optional) intellij.libraries.skiko:263.6259.32 [product module]
+     +--- (optional) intellij.platform.backend.split:263.6259.32 (*) [product module]
+     +--- (optional) intellij.platform.execution.dashboard:263.6259.32 (*) [product module]
+     +--- (optional) intellij.platform.structureView:263.6259.32 (*) [product module]
+     +--- (optional) intellij.platform.testRunner:263.6259.32 (*) [product module]
+     +--- (optional) intellij.platform.ui.jcef:263.6259.32 (*) [product module]
+     +--- (optional) intellij.platform.vcs:263.6259.32 (*) [product module]
+     +--- (optional) intellij.platform.vcs.dvcs.impl:263.6259.32 (*) [product module]
+     +--- (optional) intellij.platform.vcs.impl:263.6259.32 (*) [product module]
+     +--- (optional) intellij.platform.vcs.log:263.6259.32 (*) [product module]
+     +--- (optional) intellij.platform.vcs.log.impl:263.6259.32 (*) [product module]
+     +--- (optional) intellij.profiler.asyncOne:263.6259.32 (*) [product module]
+     +--- (optional) intellij.vcs.git.backend:263.6259.32 (*) [product module]
+     +--- (optional) intellij.xml.dom:263.6259.32 (*) [product module]
+     +--- (optional) intellij.xml.impl:263.6259.32 (*) [product module]
+     +--- (optional) intellij.xml.parser:263.6259.32 (*) [product module]
+     +--- (optional) intellij.xml.psi:263.6259.32 (*) [product module]
+     \--- (optional) intellij.xml.psi.impl:263.6259.32 (*) [product module]                </pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+//$( "#tabs" ).tabs();
+$(".plugin").accordion({active: false, collapsible: true, heightStyle: 'content'});
+$(".update").accordion({active: false, collapsible: true, heightStyle: 'content'});
+
+$(".detailsLink").click(function () {
+    var longDiv = $(this).parent().find(".longDescription");
+
+    if (longDiv.css('display') !== 'block') {
+        longDiv.css('display', 'block')
+    } else {
+        longDiv.css('display', 'none')
+    }
+
+    return false
+});
+
+$(".updateHasProblems .uMarker").attr('title', "Problems found");
+$(".excluded .uMarker").attr('title', "Excluded");
+
+$(".pluginHasProblem .pMarker").attr('title', "Problems found");
+$(".pluginOk .pMarker").attr('title', "Excluded");
+    </script>
+  </body>
+</html>

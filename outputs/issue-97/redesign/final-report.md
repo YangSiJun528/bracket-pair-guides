@@ -1,6 +1,8 @@
 # 이슈 #97 재설계 구현·검증 보고서 — 초안
 
-**초안입니다. 최종 검증과 성능 판정은 아직 완료되지 않았습니다.** 아래 결과는 각각의 기록에 고정된 소스에 대한 관측이며, 후속 수정에 자동으로 승계하지 않습니다. 마지막 검증된 커밋은 `be4f6201556710d2dc3f4895e7555f55fa9a8727`이며, 이후 listener/session 소유권 수정 3파일은 적용했지만 재검증 전입니다. final-check05의 source manifest는 `9d2af2e3ebd59bb709f10776165fc8b16fd69ba14ed247e11a2a025cfb002e68`입니다. 첫 공식 IDE matrix는 아래와 같이 실패·미완료이며 새 전체 matrix와 정식 성능은 대기 중입니다. 이전 check05/Qodana03/Driver11 결과를 이 3파일 수정의 통과로 자동 승계하지 않습니다.
+**초안입니다. 정식 성능 비교·분석과 최종 보고가 남아 있습니다.** 현재 HEAD는 `8ea07aa86cf939d9a5e945bec180079ecc28eb60`입니다. Listener/session 소유권 3파일 수정 후 실제 minimum/current SDK29, root check06, Qodana04가 통과했습니다. Driver12도 정확한 12개 ARGB·PNG 비교와 기능 assertions를 통과했습니다. 새 공식13IDE matrix02는 동일 release ZIP에서13/13 strict PASS이며, 별도 actual minimum/current SDK도 각각29개 재실행·동일 identities로 통과했습니다. 정식 성능은 미실행입니다. 각 결과는 해당 소스 manifest에만 적용합니다.
+
+현재 release ZIP SHA256은 `609f09d3db8c14cf66aafc77b1f24bdfa9062a874d877f42013e406436f161ef`, visual ZIP SHA256은 `1bbb6cb4162255d973a5f3c34b99da54e4dc272173488db1060a4d8778b64b77`입니다.
 
 ## 구현 구조
 
@@ -65,35 +67,28 @@ UI에서 core/runtime의 계산·capture·builder·구체 인덱스를 직접 �
 
 ## 현재 확인된 검증
 
-기존 구현 세부사항 중심 테스트를 새 핵심 계약 테스트로 교체했습니다. 아래 각 행은 해당 기록의 소스 manifest에 고정된 개별 결과입니다. 서로 다른 실행의 통과를 현재 listener 수정 소스의 일괄 통과로 합산하지 않습니다.
+기존 구현 세부사항 중심 테스트를 새 핵심 계약 테스트로 교체했습니다. 아래 각 행은 해당 기록의 소스 manifest에 고정된 개별 결과입니다. 서로 다른 실행의 통과를 현재 소스의 검증 범위를 넘어 일괄 통과로 합산하지 않습니다.
 
-| 검증 | 관측 결과 | 근거 |
+| 검증 | 현재 관측 결과 | 근거 |
 |---|---|---|
-| 컴파일 경계 TestKit | 32개 PASS, 실패·오류·skip 0 | [check05 집계](final-check-05/summary.json) |
-| 패키징 검증 TestKit | 9개 PASS, 실패·오류·skip 0 | [check05 집계](final-check-05/summary.json) |
-| BMF 보고·gate 계약 | 9개 PASS, 실패·오류·skip 0 | [check05 집계](final-check-05/summary.json) |
-| 소스 단위 계약 | 55개 PASS: model4/core41/UI3/runtime3/plugin4 | [check05 집계](final-check-05/summary.json) |
-| 실제 minimum SDK 계약 | 29개 PASS, 실패·오류·skip 0 | [check05 집계](final-check-05/summary.json) |
-| root check 03 | 전체 FAILED: SDK 측정 harness 컴파일 실패 | [원본 로그](full-check-03/check.log) |
-| 후속 SDK harness 컴파일 | PASS | [컴파일 로그](final-check-04/harness-compile.log) |
-| SDK 없는 model/core 독립 fresh build | PASS45, 14 tasks executed; check05 선택 소스·빌드 파일과 정확 일치 | [fresh 로그](final-check-04/pure.log), [동일성](final-check-05/pure-source-parity.json) |
-| Driver compare06 | 해당 소스의 12개 실제 PNG가 검토된 baseline과 바이트 동일; 정확 ARGB 비교 PASS | [검증 기록](driver/compare-06/verification.json) |
-| 후속 Driver compare07 | FAILED: horizontal-only의 569픽셀 차이, bbox (48,4)..(111,33); 다른 11개 정확 일치 | [원본 로그](driver/compare-07/gradle.log) |
-| Driver compare09 | FAILED: horizontal-only 30초 readiness timeout; 지연된 JDK 28,125파일 indexing이 실제 로그에 기록됨 | [setup 실패 원본](driver/compare-09/plugin/build/visual-test-artifacts/horizontal-only-daemon-observed.txt) |
-| 표준 초기 index 준비 보완 후 Driver compare10 | FAILED: 모든 기능 assertion은 통과했으나 native 두 이미지 각2,218픽셀·edit20픽셀의 기존 oracle 불일치 | [픽셀 기록](driver/compare-10/pixel-comparison.json) |
-| 독립 baseline counterfactual01 | 변경 없는 production072533f + 동일12scenario에서 기능 assertions 통과; candidate10과12개 모두ARGB·PNG바이트 정확 일치. old-golden 통과가 아닌 진단 capture | [교차 비교](driver/baseline-counterfactual-01/cross-production-comparison.json) |
-| 의도적 settled oracle 정정 | 독립 baseline 실제 이미지로 3개만 정정, 기존 3개 보존; 9개 불변·정확 픽셀 기준 불변 | [독립 검토](driver/settled-oracle-review/review.json) |
-| 정정 후 Driver compare11 | 기능 assertions 및 12개 정확 ARGB·PNG 일치 PASS | [원본 검증](driver/compare-11/verification.json) |
-| Qodana03 | PASS: 기존 failThreshold0, 지적0건 | [검증 기록](qodana/run-03/summary.json) |
-| 후속 root check04 | PASS134, SDK-free45, actual SDK29; 최신 Driver 보완 전 snapshot | [검증 기록](final-check-04/summary.json) |
-| current SDK01 | PASS29, minimum과 동일 testcase; 실제IU263/JBR25 | [검증 기록](current-sdk-01/summary.json) |
-| 최신 root check05 | exit0, 618.2745초, 134개 case·실패/오류/skip0, sourceUnchanged=true; 변경 없는 task 재사용 포함 | [실행 집계](final-check-05/summary.json) |
-| paint-fill-removal mutation08 | 의도적 exit1·JUnit 실패1: 최종9개 pixel 비교가 제거를 검출, no-guide3개 정확 유지. 전체 테스트 통과가 아님 | [음성 대조군 검증](driver/mutation-08/verification.json) |
-| 첫 공식13IDE matrix | FAILED exit1·1490.48초: IC5 strict PASS, IU4 같은 one-argument listener deprecated 실패, 나머지4 disk-guard NOT RUN. old be4f620/ZIP b1442ca6... 결과 | [원본 실행](compatibility/runs/20261008T115340939459Z/) |
-| 지원 listener/session 소유권 수정 | 검토한 production3파일 patch 적용, 아직 재검증 전 | [정확 patch·검토](compatibility/document-listener-fix/session-ownership-review.md) |
-| task-owned cache 정리 | task-created IDE3/installers3만 정리, pre-existing 삭제0, reports·제품 정보·해시 보존,23.34GiB회수 | [정리 기록](compatibility/owned-cache-retirement-01/) |
-| 수정 후 source-check06·공식13IDE 전체 matrix | 대기; 기존 타깃 통과를 새 ZIP 결과로 재사용하지 않음 | [직렬 검증 절차](compatibility/README.md) |
-| 정식 변경 전후 성능 비교 | 미실행 | smoke를 성능 통과로 취급하지 않음 |
+| 실제 Kotlin/Java 컴파일 경계 | 32개 PASS; 실제 classpath·전이 의존성·출력 우회 및 긍정 대조군 포함 | [check06 집계](final-check-06/summary.json) |
+| 패키징·BMF 보고 정책 | 각각9개 PASS | [check06 집계](final-check-06/summary.json) |
+| 소스 단위 계약 | 55개 PASS: model4/core41/UI3/runtime3/plugin4 | [check06 집계](final-check-06/summary.json) |
+| SDK 없는 model/core 독립 build | fresh45 PASS; check06 선택 소스·빌드 파일과 정확 일치 | [fresh 로그](final-check-04/pure.log), [동일성](final-check-06/pure-source-parity.json) |
+| 실제 minimum/current SDK | 각각29 PASS·동일 testcase identities, 실패/오류/skip0 | [실행 기록](listener-lifetime-01/) |
+| root check06 | PASS134,583.4669초, 실패/오류/skip0, sourceUnchanged=true; 변경 없는 task 재사용 포함 | [집계](final-check-06/summary.json) |
+| 최종 패키징 |451 classes, duplicate owner0/test leak0 | [실행 기록](listener-lifetime-01/) |
+| Qodana04 | PASS0 findings,358.0148초,sourceUnchanged=true,failThreshold0 | [집계](qodana/run-04/summary.json) |
+| Driver compare12 | 기능 assertions 및12개 정확 ARGB·PNG바이트 일치 PASS,239.8648초,sourceUnchanged=true | [검증](driver/compare-12/verification.json), [실행](driver/compare-12/command.json) |
+| Driver production 동일성 | 모든 production class/resource 바이트 동일; 전체 host/Linux ZIP은 다름. plugin JAR MANIFEST의 Build-JVM/Build-OS만 차이 | [동일성](driver/compare-12/production-equivalence.json) |
+| paint-removal mutation08 (이전 소스) | 의도적 exit1·JUnit 실패1:9개 pixel 비교가 제거 검출, no-guide3개 정확 유지. 전체 테스트 통과가 아님 | [음성 대조군](driver/mutation-08/verification.json) |
+| 수정 후 공식13IDE 전체 matrix02 |13/13 strict PASS, pendingTargets=[], 동일 source8ea07aa/release609f09d3...; outer exit0·2690.359957초 | [집계](compatibility/runs/20261008T125349781364Z/summary.json), [실행](compatibility/serial-command-02.json) |
+| matrix02 실제 SDK 재실행 | minimum/current 각각29 PASS·동일 identities, sdkTasksPassed=true | [집계](compatibility/runs/20261008T125349781364Z/summary.json) |
+| 정식 변경 전후 성능 비교 | NOT RUN; smoke는 성능 통과가 아님 | [계획](performance-plan.json) |
+
+첫 공식 matrix01은 이전 be4f620/ZIP b1442ca6...에서 exit1·1490.48초로 실패했습니다. IC5 strict PASS, IU4는 같은 one-argument listener deprecated 호출로 실패했고 나머지4는 disk guard로 미실행입니다. [원본 보고서](compatibility/runs/20261008T115340939459Z/)를 보존합니다. 이후 [지원 listener/session 소유권 3파일 수정](compatibility/document-listener-fix/session-ownership-review.md)을 적용하고 위 SDK·check06·Qodana04·Driver12를 실행했습니다. [Task-owned cache 정리](compatibility/owned-cache-retirement-01/)는 생성한 IDE3/installers3만 삭제해23.34GiB를 회수했고, pre-existing 항목과 원본 reports·제품 정보·해시는 보존했습니다. 새 matrix02는 이전 타깃 통과를 재사용하지 않고 동일 최종 ZIP의13개 strict 검증과 actual minimum/current SDK29개씩을 실행해 통과했습니다.
+
+이전 check03의 SDK harness 컴파일 실패와 후속 [check04 컴파일](final-check-04/harness-compile.log), Driver07/09/10 실패, Qodana 실패는 원본 증거로 남아 있습니다. Driver oracle 정정 근거와 음성 대조군 범위는 아래 한계에 구분합니다.
 
 컴파일 경계는 실제 Kotlin/Java compiler classpath, 전이 의존성, 공유 출력과 부정·긍정 compile probe를 확인합니다. 패키징은 owner 클래스·리소스·런타임 의존성의 별도 계약입니다. SDK 없는 빌드는 독립 `tools/pure-build`를 사용합니다. 기존 official Gradle Plugin Verifier, SDK runner, IntelliJ Driver, JMH/BMF 도구를 유지하며, 검증 실패와 원본 로그를 보존합니다.
 
@@ -113,4 +108,4 @@ compare10의 나머지 세 oracle 차이는 독립 unchanged-production counterf
 
 정식 성능 비교는 아직 없습니다. 초기 SDK smoke에서 자동 startup에 의한 소유하지 않은 계산 가능성을 발견해 측정 전용 descriptor에서 양측의 자동 startup/pass만 제외하고 서비스는 유지하도록 격리했습니다. 모든 workload의 전후 attachment 검사와 실제 owned job/read·markup 관측이 필요합니다. 이 범위는 실제 plugin registration/lifecycle의 대체 증거가 아니며, 그것은 SDK·Driver·패키징·IDE 호환성 검증으로 따로 확인합니다. 이전 구현의 성능 결과도 재구현의 통과 증거로 승계하지 않습니다.
 
-이전 root check05, Qodana03, Driver11과 음성 paint mutation08의 관측 결과는 해당 소스 증거로 보존합니다. 첫 공식 matrix의 deprecated listener 실패에 따라 지원되는 parent-disposable 등록과 session acquire/release 소유권을 적용했습니다. source-check06과 새 전체 공식13IDE matrix는 아직 대기 중입니다. 이 수정 후 동일 release ZIP·소스의 검증과 동조건 정식 성능·할당·retention 비교가 여전히 필요합니다. 원격 push, PR 생성, 병합 및 외부 업로드는 수행하지 않습니다.
+이전 root check05, Qodana03, Driver11과 음성 paint mutation08의 관측 결과는 해당 소스 증거로 보존합니다. 첫 공식 matrix의 deprecated listener 실패에 따라 지원되는 parent-disposable 등록과 session acquire/release 소유권을 적용했습니다. 수정 후 actual min/current SDK29, root check06, Qodana04와 패키징이 통과했습니다. Driver12는 동일 production class/resource의 Linux 재빌드에서 정확12개 이미지와 기능 assertions를 통과했습니다. 전체 ZIP의 동일성은 주장하지 않으며, compatibility에는 위 exact host release ZIP을 사용합니다. 새 전체 공식13IDE matrix02는 run20261008T125349781364Z에서 동일 release ZIP으로13/13 strict PASS를 기록했으며, actual minimum/current SDK도 각각29개 재실행·동일 identities로 통과했습니다. 남은 전체 검증은 동조건 정식 성능·할당·retention 비교와 그 분석 및 최종 보고입니다. 원격 push, PR 생성, 병합 및 외부 업로드는 수행하지 않습니다.

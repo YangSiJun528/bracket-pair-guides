@@ -1,0 +1,98 @@
+{
+  "exitCode": 0,
+  "seconds": 583.4668570409995,
+  "sourceRevision": "8ea07aa86cf939d9a5e945bec180079ecc28eb60",
+  "sourceManifestSha256": "ab0982b2526b667c4fc6ab81bfe2fa572bb13d1f1b3b165b2adde378bd816389",
+  "sourceUnchanged": true,
+  "suites": [
+    {
+      "module": "analysis-model",
+      "task": "test",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.model.ResultContractTest.xml": "e8283ae858426a558b80f2a240b06bb7c618ebf85f34fb881e7d9f224e994eeb"
+      }
+    },
+    {
+      "module": "analysis-core",
+      "task": "test",
+      "tests": 41,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.core.TokenSemanticsContractTest.xml": "6885c6efb53d41736e3c5e7e64a93ac505fc179c17bc637ca2ab3ac57c09dc2f",
+        "TEST-com.sijunyang.bracketpairguides.core.CalculationContractTest.xml": "33afb5278d2fe3b3f150aeda432a6817bb71c3fdf1164200485539409810fb77",
+        "TEST-com.sijunyang.bracketpairguides.core.LateCancellationContractTest.xml": "57be33e286a072d3260c7d9d73f30733b02da90964181db4b194f9547efbed2c",
+        "TEST-com.sijunyang.bracketpairguides.core.InputBoundaryContractTest.xml": "fa1fc2ccf5e19e331820671dfd3cb7db1da5ae4730fb3dd5bf65fe8eb586fc0c"
+      }
+    },
+    {
+      "module": "editor-ui",
+      "task": "test",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.ui.work.GuideDemandContractTest.xml": "5a16db3f8edf1eada3de8f8f488471381681b434018689303e2aa6e26f78d4a4",
+        "TEST-com.sijunyang.bracketpairguides.ui.policy.PresentationContractTest.xml": "15dc3f3caee84fcedd67ebd14a2783634391f3d2439eae4a94d2d500d9353c18"
+      }
+    },
+    {
+      "module": "analysis-runtime",
+      "task": "test",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.runtime.nativeproof.NativeEvidenceContractTest.xml": "53b517a29c21836d1b4a831b51cc9dad4d27f783dfeb6876a8d527fbb127a3b2"
+      }
+    },
+    {
+      "module": "plugin",
+      "task": "test",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.architecture.ResponsibilityBoundaryTest.xml": "9012500c6b88c98bac5e8e47b629377f1c4e3555103930ce7a771bed2864b42a"
+      }
+    },
+    {
+      "module": "plugin",
+      "task": "minimumSdkTests",
+      "tests": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.ui.editor.highlighting.NativeGuideAdvisoryIdeContractTest.xml": "ae0d3ed8029b693148715b6d370ee203e841a06ebee7d8a313f8d8661e577e6d",
+        "TEST-com.sijunyang.bracketpairguides.plugin.RuntimeIdentityIdeContractTest.xml": "d8ae9dd1c0b73131638b055c24154d1e4e4223d1117dd8adc65a0a6b0418790d",
+        "TEST-com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest.xml": "7d38e6ea9720df1e96dffb6f4a9a9731b917bb5760b6b15eab5bfc5a6720a46e",
+        "TEST-com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest.xml": "02bd222c9b0f97b6103af5c1862c5a5b1724b5bd20529e57e5f1881734c37111",
+        "TEST-com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest.xml": "f157b2c9dccb4ccb1ad0d8ab53b123833d262a5779bfcb36654809d12279a8b0"
+      }
+    },
+    {
+      "module": "build-logic",
+      "task": "test",
+      "tests": 50,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.buildlogic.BenchmarkReportTest.xml": "8cfa11ae88cba9c00aeadceedd370b093e1d326cf54a9d64f127ed4bcfa7c1bc",
+        "TEST-com.sijunyang.buildlogic.CompilationBoundaryTest.xml": "52ad4137206a11f5056d3b056581b71291d3202c94d3aee09c2b05e453e7cb15",
+        "TEST-com.sijunyang.buildlogic.PackagedOwnerTest.xml": "9fcf9752b8ecc99198884f4222b04e17e5dce5b89a807e09db844e2ae8ea0962"
+      }
+    }
+  ],
+  "totalCases": 134,
+  "scope": "Actual task outcomes retained; up-to-date unchanged tests may be reused. SDK-free45 has independent fresh execution plus exact source parity; current SDK29 separately in listener-lifetime-01."
+}

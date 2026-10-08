@@ -1,0 +1,18 @@
+{
+  "command": [
+    "./gradlew",
+    "--no-daemon",
+    "--no-parallel",
+    "--max-workers=2",
+    "--no-configuration-cache",
+    "--init-script",
+    "outputs/issue-97/redesign/compatibility/serial-verifier.init.gradle",
+    "-PverifierMatrixPath=outputs/issue-97/redesign/compatibility/current-matrix-02.json",
+    ":plugin:recordSerialVerifierMatrix",
+    "--console=plain"
+  ],
+  "startedUtc": "2026-10-08T12:51:53.203110+00:00",
+  "status": "passed",
+  "exitCode": 0,
+  "seconds": 7.240852499962784
+}

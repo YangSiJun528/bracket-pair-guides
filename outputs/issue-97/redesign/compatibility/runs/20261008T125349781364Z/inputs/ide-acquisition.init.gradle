@@ -1,0 +1,24 @@
+// Acquisition only. Reuse official testIde platform resolution; never run a new fixture harness.
+gradle.projectsEvaluated {
+    def root = gradle.rootProject
+    if (root.name != 'bracket-pair-guides') return
+    def p = root.findProject(':plugin')
+    if (p == null) throw new GradleException('Production plugin project missing')
+    def expected = ['analysis-core', 'analysis-model', 'analysis-runtime', 'benchmarks', 'editor-ui', 'plugin']
+    if (root.subprojects*.name.sort() != expected) throw new GradleException('Physical project declarations changed')
+    def testing = p.extensions.getByName('intellijPlatformTesting')
+    def code = p.providers.gradleProperty('compatibilityIdeType').get()
+    def version = p.providers.gradleProperty('compatibilityIdeVersion').get()
+    def field = [IC: 'IntellijIdeaCommunity', IU: 'IntellijIdea'][code]
+    if (field == null) throw new GradleException('Only IC/IU acquisition supported')
+    def type = testing.class.classLoader.loadClass('org.jetbrains.intellij.platform.gradle.IntelliJPlatformType').getField(field).get(null)
+    def selected = testing.testIde.register('compatibilityAcquisition') { parameters ->
+        parameters.type.set(type)
+        parameters.version.set(version)
+    }
+    p.tasks.register('resolveCompatibilityIde') {
+        group = 'verification'
+        description = 'Resolve one selected IDE platformPath without tests or verifier execution.'
+        doLast { logger.lifecycle('Resolved compatibility IDE platformPath: ' + selected.get().task.get().platformPath) }
+    }
+}
