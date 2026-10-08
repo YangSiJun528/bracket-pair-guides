@@ -1,0 +1,76 @@
+> Task :build-logic:compileJava NO-SOURCE
+> Task :build-logic:compileGroovy UP-TO-DATE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+> Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-model:compileKotlin UP-TO-DATE
+> Task :analysis-model:compileJava NO-SOURCE
+> Task :analysis-model:processResources NO-SOURCE
+> Task :analysis-model:classes UP-TO-DATE
+> Task :analysis-model:jar UP-TO-DATE
+> Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-core:compileKotlin UP-TO-DATE
+> Task :analysis-core:compileJava UP-TO-DATE
+> Task :analysis-runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:compileKotlin UP-TO-DATE
+> Task :editor-ui:compileJava UP-TO-DATE
+> Task :analysis-runtime:compileKotlin UP-TO-DATE
+> Task :analysis-runtime:compileJava UP-TO-DATE
+> Task :analysis-runtime:processResources NO-SOURCE
+> Task :analysis-runtime:classes UP-TO-DATE
+> Task :analysis-runtime:jar UP-TO-DATE
+> Task :analysis-runtime:compileTestKotlin UP-TO-DATE
+> Task :analysis-runtime:compileTestJava NO-SOURCE
+> Task :analysis-runtime:processTestResources NO-SOURCE
+> Task :analysis-runtime:testClasses UP-TO-DATE
+> Task :editor-ui:processResources NO-SOURCE
+> Task :editor-ui:classes UP-TO-DATE
+> Task :editor-ui:jar UP-TO-DATE
+> Task :editor-ui:compileTestKotlin UP-TO-DATE
+> Task :editor-ui:compileTestJava NO-SOURCE
+> Task :editor-ui:processTestResources NO-SOURCE
+> Task :editor-ui:testClasses UP-TO-DATE
+> Task :plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :plugin:compileKotlin UP-TO-DATE
+> Task :plugin:compileJava NO-SOURCE
+> Task :plugin:initializeIntellijPlatformPlugin
+> Task :plugin:patchPluginXml UP-TO-DATE
+> Task :plugin:processResources UP-TO-DATE
+> Task :plugin:classes UP-TO-DATE
+> Task :plugin:generateManifest UP-TO-DATE
+> Task :plugin:jar UP-TO-DATE
+> Task :plugin:compileTestKotlin UP-TO-DATE
+> Task :plugin:compileTestJava NO-SOURCE
+> Task :plugin:processTestResources UP-TO-DATE
+> Task :plugin:testClasses UP-TO-DATE
+
+> Task :plugin:compileSdkPerformanceKotlin FAILED
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+e: file:///Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest.kt:131:73 Type mismatch: inferred type is FileType but VirtualFile was expected
+
+[Incubating] Problems report is available at: file:///Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':plugin:compileSdkPerformanceKotlin' (registered by plugin 'org.jetbrains.kotlin.jvm').
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 5s
+25 actionable tasks: 2 executed, 23 up-to-date

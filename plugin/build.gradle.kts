@@ -259,3 +259,35 @@ listOf("minimumSdkTests" to "2024.1.7", "currentSdkTests" to "263.6259.32").forE
 }
 
 tasks.test { exclude("**/*IdeContractTest.class") }
+
+// A separate opt-in fixture source set; never part of release packaging or ordinary check.
+val sdkPerformance = sourceSets.create("sdkPerformance") {
+    compileClasspath += sourceSets.test.get().compileClasspath
+    compileClasspath += files(sdkOwners.map { it.extensions.getByType<SourceSetContainer>().getByName("test").output })
+}
+intellijPlatformTesting.testIde.register("sdkPerformance") {
+    type = IntelliJPlatformType.IntellijIdeaCommunity
+    version = "2024.1.7"
+    testFramework(TestFrameworkType.Platform)
+    task {
+        description = "Runs explicitly selected real SDK comparison measurements; serial main orchestration only."
+        testClassesDirs = sdkPerformance.output.classesDirs
+        // Keep official PathClassLoader/selected IDE bootstrap entries intact.
+        classpath +=
+            sdkPerformance.output +
+            files(sdkOwners.map { it.extensions.getByType<SourceSetContainer>().getByName("test").output })
+        filter { includeTestsMatching("*SdkComparisonMeasurementTest") }
+        maxParallelForks = 1
+        systemProperty("issue97.perf.host", "com.sijunyang.bracketpairguides.comparison.CandidateComparisonHost")
+        providers.systemPropertiesPrefixedBy("issue97.perf.").get().forEach { (name, value) ->
+            systemProperty(name, value)
+        }
+        systemProperty("contract.ide.baseline", "241")
+        systemProperty("contract.ide.version", "2024.1.7")
+        outputs.upToDateWhen { false }
+        doFirst {
+            require(systemProperties["issue97.perf.workload"] != null) { "Explicit -Dissue97.perf.workload required" }
+            require(systemProperties["issue97.perf.output"] != null) { "Explicit -Dissue97.perf.output required" }
+        }
+    }
+}

@@ -2,6 +2,11 @@ package com.sijunyang.bracketpairguides.visual
 
 import com.intellij.driver.client.Remote
 import com.intellij.driver.client.utility
+import com.intellij.driver.model.OnDispatcher
+import com.intellij.driver.sdk.ui.components.UiComponent
+import com.intellij.driver.sdk.ui.components.checkBox
+import com.intellij.driver.sdk.ui.components.settingsDialog
+import com.intellij.driver.sdk.ui.ui
 import com.intellij.driver.sdk.findFile
 import com.intellij.driver.sdk.openFile
 import com.intellij.driver.sdk.singleProject
@@ -26,6 +31,7 @@ import org.junit.jupiter.api.Test
 import java.awt.image.BufferedImage
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 import javax.imageio.ImageIO
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
@@ -43,7 +49,7 @@ class EditorVisualContractTest {
         val artifacts = required("visual.test.artifacts.dir").also(Files::createDirectories)
         val project = required("visual.test.project.dir")
         Files.createDirectories(project.resolve("src"))
-        Files.copy(Path.of("src/visualTest/testData/Contract.java"), project.resolve("src/Contract.java"))
+        Files.copy(Path.of("src/visualTest/testData/Contract.java"), project.resolve("src/Contract.java"), StandardCopyOption.REPLACE_EXISTING)
         val context = Starter.newContext(
             "editor-contract",
             TestCase(
@@ -84,6 +90,7 @@ class EditorVisualContractTest {
             )
             val bridge = utility<EditorContractRemote>()
             val nativeBefore = bridge.configure()
+            val rootUi = this.ui
             ideFrame {
                 val editor = codeEditor()
                 fun capture(name: String) {
@@ -108,14 +115,17 @@ class EditorVisualContractTest {
                     "native-visuals-unmanaged", "native-highlight-suppressed", "default-palette", "custom-palette",
                 )
                 for (scenario in scenarios) {
+                    val advisoryBefore = bridge.advisoryState().substringBefore(':').toInt()
                     bridge.scenario(scenario)
                     waitFor(1.minutes, 100.milliseconds, "Visual contract markup not ready: $scenario") {
                         val state = bridge.state().split(':')
                         val tokens = state[6].toInt()
                         when (scenario) {
-                            "plugin-disabled" -> state[1].toInt() == 0 && tokens == 0
-                            "default-palette" -> tokens > 0
-                            "bracket-colorization-off" -> state[1].toInt() > 0 && tokens == 0
+                            "plugin-disabled" -> state[1].toInt() == 0 && tokens == 0 && state[9].toInt() == 0
+                            "pair-border-only", "pair-background-only" -> tokens > 0 && state[9].toInt() == 2 && state[1].toInt() == 0
+                            "bracket-colorization-off" -> state[1].toInt() > 0 && tokens == 0 && state[9].toInt() == 2
+                            "horizontal-only", "vertical-only" -> state[1].toInt() > 0 && tokens > 0 && state[9].toInt() == 0
+                            "all-components", "default-palette", "custom-palette" -> state[1].toInt() > 0 && tokens > 0 && state[9].toInt() == 2
                             else -> state[1].toInt() > 0 && tokens > 0
                         }
                     }
@@ -131,13 +141,87 @@ class EditorVisualContractTest {
                         },
                         native,
                     )
+                    if (scenario == "native-visuals-unmanaged") {
+                        try {
+                            waitFor(1.minutes, 100.milliseconds, "Real painted guide did not deliver its native conflict advisory") {
+                                val advisory = bridge.advisoryState().split(':')
+                                advisory[0].toInt() > advisoryBefore && advisory[1] == "true" && advisory[2] == "false"
+                            }
+                        } catch (failure: Throwable) {
+                            Files.writeString(artifacts.resolve("native-advisory-failure.txt"),
+                                "beforeCount=$advisoryBefore\nstate=${bridge.state()}\nsettings=${bridge.settingsState()}\n" +
+                                    "advisory(count:visible:expired:fadedIn:disposed:present:componentShowing:type)=${bridge.advisoryState()}\n")
+                            throw failure
+                        }
+                        Files.writeString(artifacts.resolve("native-advisory-observed.txt"),
+                            "beforeCount=$advisoryBefore\nstate=${bridge.state()}\nsettings=${bridge.settingsState()}\n" +
+                                "advisory(count:visible:expired:fadedIn:disposed:present:componentShowing:type)=${bridge.advisoryState()}\n")
+                    }
                     capture(scenario)
+                    bridge.dismissAdvisory()
                 }
+                assertTrue(!equalPixels(checkNotNull(captures["default-palette"]), checkNotNull(captures["custom-palette"])),
+                    "Changing only palette colors produced identical rendered components")
+
+                // Exercise the registered real configurable, draft binding and Apply transaction.
+                bridge.scenario("native-highlight-suppressed")
+                waitFor(1.minutes, 100.milliseconds, "Managed native state not ready before opening Settings") {
+                    bridge.settingsState() == "true:false:true:true" && bridge.state().split(':')[1].toInt() > 0
+                }
+                val advisoryBeforeSettings = bridge.advisoryState().substringBefore(':').toInt()
+                bridge.openSettings()
+                val settings = rootUi.settingsDialog()
+                settings.apply {
+                    val manage = checkBox {
+                        and(byClass("JBCheckBox"), byAccessibleName(MANAGE_NATIVE_LABEL))
+                    }
+                    waitFor(30.seconds, 100.milliseconds, "Registered integration checkbox not ready") {
+                        manage.present() && manage.isVisible() && manage.isEnabled() && manage.isSelected()
+                    }
+                    waitFor(30.seconds, 100.milliseconds, "Settings focus did not hide guides and retain token colors") {
+                        val state = bridge.state().split(':')
+                        state[7] == "false" && state[1].toInt() == 0 && state[6].toInt() > 0 && state[9].toInt() == 0
+                    }
+                    manage.activate()
+                    waitFor(30.seconds, 100.milliseconds, "Integration checkbox draft did not change") { !manage.isSelected() }
+                    assertEquals("true:false:true:true", bridge.settingsState(), "A draft toggle must not commit before Apply")
+                    val apply = x { byAccessibleName("Apply") }
+                    waitFor(30.seconds, 100.milliseconds, "Settings Apply not enabled") { apply.isEnabled() }
+                    apply.activate()
+                    waitFor(30.seconds, 100.milliseconds, "Actual Settings Apply did not commit native restoration") {
+                        !apply.isEnabled() && bridge.settingsState() == "false:$nativeBefore"
+                    }
+                    x { byAccessibleName("Cancel") }.activate()
+                    waitFor(30.seconds, 100.milliseconds, "Settings dialog did not close") { notPresent() }
+                }
+                bridge.focusEditor(true)
+                waitFor(1.minutes, 100.milliseconds, "Applied integration change did not restore guides on focus alone") {
+                    val state = bridge.state().split(':')
+                    state[7] == "true" && state[1].toInt() > 0 && state[6].toInt() > 0 &&
+                        bridge.settingsState() == "false:$nativeBefore"
+                }
+                try {
+                    waitFor(1.minutes, 100.milliseconds, "Settings-restored native visuals did not deliver a new visible advisory episode") {
+                        val advisory = bridge.advisoryState().split(':')
+                        advisory[0].toInt() > advisoryBeforeSettings && advisory[1] == "true" && advisory[2] == "false"
+                    }
+                } catch (failure: Throwable) {
+                    Files.writeString(artifacts.resolve("settings-advisory-failure.txt"),
+                        "beforeCount=$advisoryBeforeSettings\nstate=${bridge.state()}\nsettings=${bridge.settingsState()}\n" +
+                            "advisory(count:visible:expired:fadedIn:disposed:present:componentShowing:type)=${bridge.advisoryState()}\n")
+                    throw failure
+                }
+                bridge.dismissAdvisory()
+                capture("settings-applied-unmanaged")
+                assertTrue(equalPixels(checkNotNull(captures["native-visuals-unmanaged"]),
+                    checkNotNull(captures.remove("settings-applied-unmanaged"))),
+                    "Actual Settings Apply and focus restoration changed unmanaged pixels without a caret move")
+
                 bridge.scenario("all-components")
                 bridge.focusEditor(false)
                 waitFor(30.seconds, 100.milliseconds, "Focus loss retained active guide markup") {
                     val state = bridge.state().split(':')
-                    state[7] == "false" && state[1].toInt() == 0 && state[6].toInt() > 0
+                    state[7] == "false" && state[1].toInt() == 0 && state[6].toInt() > 0 && state[9].toInt() == 0
                 }
                 bridge.focusEditor(true)
                 waitFor(30.seconds, 100.milliseconds, "Focus restoration did not restore guide") {
@@ -147,7 +231,7 @@ class EditorVisualContractTest {
                 bridge.showEditor(false)
                 waitFor(30.seconds, 100.milliseconds, "Hidden editor retained plugin markup") {
                     val state = bridge.state().split(':')
-                    state[8] == "false" && state[1].toInt() == 0 && state[6].toInt() == 0
+                    state[8] == "false" && state[1].toInt() == 0 && state[6].toInt() == 0 && state[9].toInt() == 0
                 }
                 bridge.showEditor(true)
                 bridge.focusEditor(true)
@@ -173,10 +257,11 @@ class EditorVisualContractTest {
                     state[0].toLong() == changedStamp && state[1].toInt() > 0
                 }
                 capture("edited-geometry")
+                assertTrue(!equalPixels(checkNotNull(captures["all-components"]), checkNotNull(captures["edited-geometry"])), "Closing indentation edit did not change guide geometry")
                 assertEquals(nativeBefore, bridge.disable(), "Native settings ownership must be released")
                 waitFor(30.seconds, 100.milliseconds, "Disable retained plugin markup") {
                     val state = bridge.state().split(':')
-                    state[1].toInt() == 0 && state[6].toInt() == 0
+                    state[1].toInt() == 0 && state[6].toInt() == 0 && state[9].toInt() == 0
                 }
             }
         }
@@ -190,6 +275,11 @@ class EditorVisualContractTest {
             }.keys
             assertTrue(failures.isEmpty(), "Missing/mismatched reviewed baseline: $failures; actual images: $artifacts")
         }
+    }
+
+    /** Activates the real Swing control on EDT, preserving its normal listeners and binding. */
+    private fun UiComponent.activate() {
+        driver.withContext(OnDispatcher.EDT) { cast(component, SettingsControl::class).doClick() }
     }
 
     private fun required(name: String): Path = Path.of(checkNotNull(System.getProperty(name)) { "Missing $name" })
@@ -207,6 +297,7 @@ class EditorVisualContractTest {
     }
 
     companion object {
+        private const val MANAGE_NATIVE_LABEL = "Adjust IntelliJ guide rendering while Bracket Pair Guides is enabled"
         private const val ENVIRONMENT = "ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1"
         private fun equalPixels(left: BufferedImage, right: BufferedImage): Boolean =
             left.width == right.width && left.height == right.height &&
@@ -219,10 +310,19 @@ class EditorVisualContractTest {
 internal interface EditorContractRemote {
     fun configure(): String
     fun scenario(name: String): String
+    fun openSettings()
+    fun settingsState(): String
+    fun advisoryState(): String
+    fun dismissAdvisory()
     fun caretCycle(): String
     fun focusEditor(focused: Boolean): String
     fun showEditor(visible: Boolean): String
     fun disable(): String
     fun insertIndent(): Long
     fun state(): String
+}
+
+@Remote("javax.swing.AbstractButton")
+private interface SettingsControl {
+    fun doClick()
 }

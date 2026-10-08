@@ -4,6 +4,7 @@ import com.intellij.openapi.editor.Editor
 import com.sijunyang.bracketpairguides.model.BracketGuide
 import com.sijunyang.bracketpairguides.model.BracketPair
 import com.sijunyang.bracketpairguides.ui.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.ui.presentation.RenderFrames.Frame
 
 /** Tracked active-pair state and its editor markup for one editor session. */
 internal class ActiveGuidePresentation(
@@ -26,6 +27,8 @@ internal class ActiveGuidePresentation(
     val guideAnchorLine: Int?
         get() = trackedPair.anchorLine ?: pendingAnchorLine
 
+    fun isDisplayed(guide: BracketGuide): Boolean = currentGuide() == guide
+
     val isVisible: Boolean
         get() = markup.isVisible
 
@@ -34,15 +37,17 @@ internal class ActiveGuidePresentation(
         indexedGuide: BracketGuide?,
         allowGuideFallback: Boolean,
         preferences: BracketGuidePreferences,
+        frame: Frame,
     ) {
+        frame.check()
         val previousGuide = currentGuide()
         val currentAnchorLine = guideAnchorLine
-        clear(preserveGuide = true)
+        clear(preserveGuide = true, frame = frame)
         if (pair == null || !preferences.enabled ||
             (!preferences.showsGuide && !preferences.showsActivePair) ||
             !pair.hasWellFormedTokenRange(editor.document.textLength)
         ) {
-            markup.clearGuide()
+            markup.clearGuide(frame)
             return
         }
 
@@ -57,14 +62,17 @@ internal class ActiveGuidePresentation(
             )
         trackedPair.track(pair, guide)
         pendingAnchorLine = if (guide == null) currentAnchorLine else null
-        markup.showGuide(guide, preferences)
-        markup.showPair(pair, preferences)
+        markup.showGuide(guide, preferences, frame)
+        frame.check()
+        markup.showPair(pair, preferences, frame)
+        frame.check()
     }
 
-    fun refreshProvisional(caretOffset: Int, preferences: BracketGuidePreferences) {
+    fun refreshProvisional(caretOffset: Int, preferences: BracketGuidePreferences, frame: Frame) {
+        frame.check()
         val pair = trackedPair.adjusted
         if (pair?.contains(caretOffset) != true) {
-            clear(preserveGuide = false)
+            clear(preserveGuide = false, frame = frame)
             return
         }
 
@@ -92,15 +100,22 @@ internal class ActiveGuidePresentation(
                     )
                 }
             }
-        markup.showGuide(guide, preferences)
+        markup.showGuide(guide, preferences, frame)
+        frame.check()
         trackedPair.refresh(pair, guide)
     }
 
     /** An affected guide is hidden before the document callback returns. */
-    fun refreshAfterDocumentChange(change: DocumentChange, caretOffset: Int, preferences: BracketGuidePreferences) {
+    fun refreshAfterDocumentChange(
+        change: DocumentChange,
+        caretOffset: Int,
+        preferences: BracketGuidePreferences,
+        frame: Frame,
+    ) {
+        frame.check()
         val previousPair = trackedPair.current
         if (previousPair == null || change.altersToken(previousPair)) {
-            clear(preserveGuide = false)
+            clear(preserveGuide = false, frame = frame)
             return
         }
 
@@ -108,7 +123,7 @@ internal class ActiveGuidePresentation(
         if (pair?.contains(caretOffset) != true ||
             !pair.hasWellFormedTokenRange(editor.document.textLength)
         ) {
-            clear(preserveGuide = false)
+            clear(preserveGuide = false, frame = frame)
             return
         }
 
@@ -135,28 +150,34 @@ internal class ActiveGuidePresentation(
                 }
             }
         // Missing geometry hides guide pixels immediately; adjusted pair tokens remain visible.
-        markup.showGuide(guide, preferences)
-        markup.showPair(pair, preferences)
+        markup.showGuide(guide, preferences, frame)
+        frame.check()
+        markup.showPair(pair, preferences, frame)
+        frame.check()
         trackedPair.refresh(pair, guide)
     }
 
-    fun hideGuide() {
+    fun hideGuide(frame: Frame) {
+        frame.check()
         pendingAnchorLine = guideAnchorLine
-        markup.clearGuide()
         currentPair?.let { trackedPair.refresh(it, null) }
+        markup.clearGuide(frame)
     }
 
-    fun publishRepair(guide: BracketGuide, preferences: BracketGuidePreferences): Boolean {
+    fun publishRepair(guide: BracketGuide, preferences: BracketGuidePreferences, frame: Frame): Boolean {
+        frame.check()
         if (currentPair != guide.pair || adjustedPair != guide.pair || !needsGuideRepair) return false
         trackedPair.refresh(guide.pair, guide)
-        markup.showGuide(guide, preferences)
+        markup.showGuide(guide, preferences, frame)
+        frame.check()
         return true
     }
 
-    fun clear(preserveGuide: Boolean) {
+    fun clear(preserveGuide: Boolean, frame: Frame? = null) {
+        frame?.check()
         trackedPair.clear()
         pendingAnchorLine = null
-        markup.clear(preserveGuide)
+        markup.clear(preserveGuide, frame)
     }
 
     private fun createGuide(

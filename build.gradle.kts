@@ -12,6 +12,7 @@ spotless {
             "*/src/test/kotlin/**/*.kt",
             "plugin/src/visualTest/kotlin/**/*.kt",
             "plugin/src/visualBridge/kotlin/**/*.kt",
+            "plugin/src/sdkPerformance/kotlin/**/*.kt",
         )
         targetExclude("plugin/src/test/testData/**")
         ktlint("1.8.0")

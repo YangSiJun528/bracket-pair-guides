@@ -1,0 +1,109 @@
+// Record a fresh redesign matrix; verify only task-selected existing IDE paths.
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+import java.security.MessageDigest
+import java.time.Instant
+
+def hashFile = { File file ->
+    def digest = MessageDigest.getInstance('SHA-256')
+    file.withInputStream { input ->
+        byte[] buffer = new byte[1048576]
+        int count
+        while ((count = input.read(buffer)) != -1) digest.update(buffer, 0, count)
+    }
+    digest.digest().encodeHex().toString()
+}
+def sourceHashes = { root ->
+    def files = [] as Set
+    ['settings.gradle.kts', 'build.gradle.kts', 'gradle.properties', 'gradle/libs.versions.toml',
+     'gradle/wrapper/gradle-wrapper.properties', 'build-logic/settings.gradle.kts',
+     'build-logic/build.gradle.kts'].each { name ->
+        def file = root.file(name)
+        if (file.isFile()) files.add(file)
+    }
+    ['analysis-core', 'analysis-model', 'analysis-runtime', 'benchmarks', 'editor-ui', 'plugin'].each { module ->
+        files.add(root.file(module + '/build.gradle.kts'))
+        ['src/main', 'src/test'].each { source -> files.addAll(root.fileTree(module + '/' + source).files) }
+    }
+    files.addAll(root.fileTree('build-logic/src/main').files)
+    def result = [:]
+    files.sort { a, b -> a.path <=> b.path }.each { file ->
+        result[root.projectDir.toPath().relativize(file.toPath()).toString()] = hashFile(file)
+    }
+    result
+}
+
+gradle.projectsEvaluated {
+    def root = gradle.rootProject
+    // Init scripts also apply to included build-logic: it has no production plugin project.
+    if (root.name != 'bracket-pair-guides') return
+    def expected = ['analysis-core', 'analysis-model', 'analysis-runtime', 'benchmarks', 'editor-ui', 'plugin']
+    def actual = root.subprojects*.name.sort()
+    if (actual != expected) throw new GradleException('Review physical project declarations: ' + actual)
+    def p = root.findProject(':plugin')
+    if (p == null) throw new GradleException('Production plugin project missing')
+    def verification = p.extensions.getByName('intellijPlatform').pluginVerification
+    def manifest = root.file(p.providers.gradleProperty('verifierMatrixPath').getOrElse('outputs/issue-97/redesign/compatibility/current-matrix.json'))
+    def target = p.providers.gradleProperty('verifierTarget').orNull
+    def idePath = p.providers.gradleProperty('verifierIdePath').orNull
+    p.tasks.register('recordSerialVerifierMatrix') {
+        group = 'verification'
+        doLast {
+            if (manifest.exists()) throw new GradleException('Matrix already recorded; preserve it and use a new explicit verifierMatrixPath: ' + manifest)
+            def absent = p.providers.provider { null }
+            def recommended = verification.ides.orRecommendedFromStringProvider(absent).get()
+            def types = verification.class.classLoader.loadClass('org.jetbrains.intellij.platform.gradle.IntelliJPlatformType')
+            def explicit = []
+            (p.file('build.gradle.kts').text =~ /create\(IntelliJPlatformType\.(\w+), "([^"]+)"\)/).each { match ->
+                explicit.add(types.getField(match[1]).get(null).code + '-' + match[2])
+            }
+            if (explicit.size() != 4) throw new GradleException('Review explicit declarations: extraction expects four explicit create targets')
+            def archive = p.tasks.named('buildPlugin').get().archiveFile.get().asFile
+            if (!archive.isFile()) throw new GradleException('Build final release ZIP separately before freezing metadata')
+            def head = root.providers.exec { commandLine('git', 'rev-parse', 'HEAD') }.standardOutput.asText.get().trim()
+            def record = [schema: 'issue97-deep-redesign-verifier-v1', recordedAt: Instant.now().toString(), gitHead: head,
+                recommended: recommended, explicit: explicit, targets: (recommended + explicit).unique(),
+                failureLevels: verification.failureLevel.get()*.toString(), gradleProjects: actual,
+                sourceSha256: sourceHashes(root), archive: archive.absolutePath, archiveSha256: hashFile(archive),
+                declaration: 'Fresh recommended() plus every explicit create declaration in plugin/build.gradle.kts',
+                pluginApi: '2.19.0', historicalTargetCount: 13]
+            def requiredLevels = ['COMPATIBILITY_PROBLEMS', 'DEPRECATED_API_USAGES', 'EXPERIMENTAL_API_USAGES',
+                'INTERNAL_API_USAGES', 'OVERRIDE_ONLY_API_USAGES', 'NON_EXTENDABLE_API_USAGES',
+                'MISSING_DEPENDENCIES', 'INVALID_PLUGIN']
+            if (record.failureLevels != requiredLevels) throw new GradleException('All eight strict levels required')
+            if (record.targets.isEmpty()) throw new GradleException('Fresh declaration produced no targets')
+            record.targetCountChangedRequiresReview = record.targets.size() != record.historicalTargetCount
+            manifest.parentFile.mkdirs()
+            manifest.text = JsonOutput.prettyPrint(JsonOutput.toJson(record)) + '\n'
+            logger.lifecycle('Frozen full verifier matrix (' + record.targets.size() + ' targets): ' + manifest)
+            if (record.targetCountChangedRequiresReview) logger.lifecycle('Fresh full matrix count changed; review every target before serial execution. No declared target was removed.')
+        }
+    }
+    if (target != null || idePath != null) {
+        if (!target || !idePath || !manifest.isFile()) throw new GradleException('Provide target/path and a fresh frozen matrix')
+        def matrix = new JsonSlurper().parse(manifest)
+        if (matrix.schema != 'issue97-deep-redesign-verifier-v1' || !matrix.targets.contains(target)) throw new GradleException('Target outside fresh redesign matrix')
+        def ide = p.file(idePath)
+        if (!ide.isDirectory()) throw new GradleException('Existing extracted selected IDE required')
+        p.tasks.named('verifyPlugin').configure { verifier ->
+            if (verifier.failureLevel.get()*.toString() != matrix.failureLevels) throw new GradleException('Strict levels differ from frozen metadata')
+            verifier.ides.setFrom(p.files(ide))
+            verifier.verificationReportsDirectory.set(root.layout.projectDirectory.dir(
+                p.providers.gradleProperty('verifierReportPath').getOrElse('outputs/issue-97/redesign/compatibility/reports/' + target)))
+            verifier.outputs.upToDateWhen { false }
+            verifier.doFirst {
+                if (verifier.ides.files.size() != 1) throw new GradleException('Expected exactly one task-selected IDE')
+                if (sourceHashes(root) != matrix.sourceSha256) throw new GradleException('Current sources differ from frozen source manifest')
+                def archive = p.tasks.named('buildPlugin').get().archiveFile.get().asFile
+                if (!archive.isFile() || hashFile(archive) != matrix.archiveSha256) throw new GradleException('Current release ZIP differs from frozen hash')
+                def infoFile = ['product-info.json', 'Resources/product-info.json', 'Contents/Resources/product-info.json'].collect { new File(ide, it) }.find { it.isFile() }
+                if (!infoFile) throw new GradleException('Selected IDE product-info.json missing')
+                def info = new JsonSlurper().parse(infoFile)
+                def version = target.substring(target.indexOf('-') + 1)
+                def actualVersion = version ==~ /\d{3}\..*/ ? info.buildNumber : info.version
+                if (info.productCode != target.substring(0, target.indexOf('-')) || actualVersion != version) throw new GradleException('Selected target/product/version mismatch')
+                logger.lifecycle('Frozen target ' + target + '; actual product ' + info.productCode + '; version ' + info.version + '; build ' + info.buildNumber + '; path ' + ide)
+            }
+        }
+    }
+}

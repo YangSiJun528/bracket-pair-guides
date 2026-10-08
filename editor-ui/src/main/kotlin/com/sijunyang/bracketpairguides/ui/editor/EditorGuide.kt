@@ -3,6 +3,7 @@ package com.sijunyang.bracketpairguides.ui.editor
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
+import com.sijunyang.bracketpairguides.model.BracketGuide
 import com.sijunyang.bracketpairguides.model.AnalysisLimit
 import com.sijunyang.bracketpairguides.model.result.AnalysisResult
 import com.sijunyang.bracketpairguides.model.BraceMatcherAvailability
@@ -27,7 +28,9 @@ import com.sijunyang.bracketpairguides.ui.work.NativeConflictEvidence
 import com.sijunyang.bracketpairguides.ui.work.RepairIntent
 import com.sijunyang.bracketpairguides.ui.work.RepairUpdate
 import com.sijunyang.bracketpairguides.ui.work.ViewApplication
-import java.util.concurrent.atomic.AtomicBoolean
+import com.sijunyang.bracketpairguides.ui.presentation.RenderFrames
+import com.sijunyang.bracketpairguides.ui.presentation.RenderFrames.Frame
+import com.sijunyang.bracketpairguides.ui.presentation.ObsoleteRendering
 
 /** Owns geometry and markup only. Runtime alone owns calculation acceptance and jobs. */
 internal class EditorGuide(
@@ -38,7 +41,7 @@ internal class EditorGuide(
     private val advisory: NativeGuideAdvisory,
     factory: GuideWorkFactory,
 ) : GuideView, AutoCloseable {
-    private val closed = AtomicBoolean()
+    private val frames = RenderFrames()
     private var revision = 0L
     private var guideRevision = 0L
     private var view: BracketView? = null
@@ -48,9 +51,7 @@ internal class EditorGuide(
     private var tabSize = editor.settings.getTabSize(editor.project).coerceAtLeast(1)
     private var plan = EditorPresentationPolicy.resolve(capabilities, options, activity)
     private var display = plan.presentation.applyTo(options)
-    private val active = ActiveGuidePresentation(editor) { _, guide ->
-        if (!closed.get() && advisory.interest(options).enabled) work.observeNativeGuide(DisplayedGuide(guideRevision, guide))
-    }
+    private val active = ActiveGuidePresentation(editor) { _, guide -> observeDisplayedGuide(guide) }
     private val tokens = VisibleTokenDecorations(editor)
     private val work = factory.attach(editor, this)
     private var checkpoint = demand(GuideChange.CONFIGURATION)
@@ -61,64 +62,74 @@ internal class EditorGuide(
     val drawsGuides: Boolean get() = display.enabled && display.showsGuide
     val isVisible: Boolean get() = activity.visible
 
+    private fun observeDisplayedGuide(guide: BracketGuide) {
+        if (!frames.isClosed && active.isDisplayed(guide) && advisory.interest(options).enabled)
+            work.observeNativeGuide(DisplayedGuide(guideRevision, guide))
+    }
     fun start() { reconcile(GuideChange.CONFIGURATION) }
     fun wakeUp() = work.refresh()
     fun requestAnalysis() = work.refresh()
 
     fun caretMoved() {
         assertEdt()
-        if (closed.get()) return
+        if (frames.isClosed) return
         guideRevision++
-        synchronizeLayout()
-        renderActive()
-        reconcile(GuideChange.PRESENTATION)
+        try { render { frame -> synchronizeLayout(frame); renderActive(frame) } }
+        finally { reconcile(GuideChange.PRESENTATION) }
     }
 
     fun documentChanged(change: DocumentChange) {
         assertEdt()
-        if (closed.get()) return
+        if (frames.isClosed) return
         guideRevision++
         view = null
         exactRepair = true
         try {
-            synchronizeLayout()
-            tokens.documentChanged()
-            active.refreshAfterDocumentChange(change, caretOffset(), display)
+            render { frame ->
+                synchronizeLayout(frame)
+                tokens.documentChanged(frame)
+                active.refreshAfterDocumentChange(change, caretOffset(), display, frame)
+            }
         } finally {
-            // Never let an SDK rendering failure retain publication authority for the old source.
             var next = checkpoint.copy(guideRevision = guideRevision, repair = null, change = GuideChange.CONTENT)
-            try { next = demand(GuideChange.CONTENT) } finally { checkpoint = next; work.reconcile(next) }
+            try { next = demand(GuideChange.CONTENT) }
+            finally { checkpoint = next; if (!frames.isClosed) work.reconcile(next) }
         }
         repaint()
     }
 
     fun visibleAreaChanged() {
         assertEdt()
-        if (closed.get()) return
-        if (synchronizeLayout()) { reconcile(GuideChange.CONTENT); return }
-        val current = view ?: return
-        if (tokens.replaceIfOutsideWindow(current, editor.calculateVisibleRange(), stickyRanges(), display)) repaint()
+        if (frames.isClosed) return
+        render { frame ->
+            if (synchronizeLayout(frame)) { reconcile(GuideChange.CONTENT); return@render }
+            val current = view ?: return@render
+            if (tokens.replaceIfOutsideWindow(current, editor.calculateVisibleRange(), stickyRanges(), display, frame)) repaint()
+        }
     }
 
     fun updateOptions(next: BracketGuidePreferences, refreshColors: Boolean) {
         assertEdt()
-        if (closed.get()) return
+        if (frames.isClosed) return
         val previous = options
         options = next
         plan = EditorPresentationPolicy.resolve(capabilities, options, activity)
         display = plan.presentation.applyTo(options)
         guideRevision++
-        if (previous.disabledLanguageIds != next.disabledLanguageIds) { view = null; active.clear(false); tokens.dispose() }
         revision++
-        synchronizeLayout()
-        renderCurrent()
-        if (refreshColors) tokens.updateAttributes(display)
-        reconcile(GuideChange.CONFIGURATION)
+        try {
+            render { frame ->
+                if (previous.disabledLanguageIds != next.disabledLanguageIds) { view = null; clearMarkup(frame) }
+                synchronizeLayout(frame)
+                renderCurrent(frame)
+                if (refreshColors) tokens.updateAttributes(display, frame)
+            }
+        } finally { reconcile(GuideChange.CONFIGURATION) }
     }
 
     fun updateSurface(nextCapabilities: EditorCapabilities, nextActivity: EditorActivity) {
         assertEdt()
-        if (closed.get() || capabilities == nextCapabilities && activity == nextActivity) return
+        if (frames.isClosed || capabilities == nextCapabilities && activity == nextActivity) return
         capabilities = nextCapabilities
         activity = nextActivity
         updateOptions(options, false)
@@ -126,8 +137,9 @@ internal class EditorGuide(
 
     override fun applyAnalysis(update: AnalysisUpdate): ViewApplication {
         assertEdt()
-        if (closed.get() || !activity.visible || !plan.analysis.pairs || update.demandRevision != revision) return ViewApplication.OBSOLETE
-        val expectedRevision = guideRevision
+        if (frames.isClosed || !activity.visible || !plan.analysis.pairs || update.demandRevision != revision)
+            return ViewApplication.OBSOLETE
+        val frame = frames.begin()
         try {
             when (val result = update.result) {
                 is AnalysisResult.Available -> {
@@ -135,74 +147,108 @@ internal class EditorGuide(
                     repairAllowed = result.limit != AnalysisLimit.GUIDE_CAPACITY
                     exactRepair = false
                     matcherAvailability = result.matcherAvailability
-                    renderCurrent()
+                    renderCurrent(frame)
                 }
                 is AnalysisResult.Unavailable -> {
                     view = null
                     repairAllowed = false
                     matcherAvailability = result.matcherAvailability
-                    clearMarkup()
+                    clearMarkup(frame)
                 }
             }
-            if (closed.get() || expectedRevision != guideRevision || update.demandRevision != revision) {
-                clearMarkup()
-                return ViewApplication.OBSOLETE
-            }
+            frame.check()
             reconcile(GuideChange.PRESENTATION)
+            frame.check()
             UnsupportedBackendNotificationProvider.update(editor)
+            frame.check()
             repaint()
+            frame.commit()
             return ViewApplication.APPLIED
+        } catch (_: ObsoleteRendering) {
+            frame.rollback()
+            reconcile(GuideChange.PRESENTATION)
+            return ViewApplication.OBSOLETE
         } catch (failure: Throwable) {
-            view = null
-            clearMarkup()
+            failed(frame, failure)
             throw failure
         }
     }
 
     override fun applyRepair(update: RepairUpdate): ViewApplication {
         assertEdt()
-        if (closed.get() || update.guideRevision != guideRevision || !drawsGuides ||
-            update.guide.pair != active.currentPair || update.guide.pair != active.adjustedPair) return ViewApplication.OBSOLETE
-        if (!active.publishRepair(update.guide, display)) return ViewApplication.OBSOLETE
-        repaint()
-        return if (!closed.get() && update.guideRevision == guideRevision) ViewApplication.APPLIED else ViewApplication.OBSOLETE
+        if (frames.isClosed || update.guideRevision != guideRevision || !drawsGuides ||
+            update.guide.pair != active.currentPair || update.guide.pair != active.adjustedPair)
+            return ViewApplication.OBSOLETE
+        val frame = frames.begin()
+        try {
+            if (!active.publishRepair(update.guide, display, frame)) { frame.commit(); return ViewApplication.OBSOLETE }
+            repaint()
+            frame.commit()
+            return ViewApplication.APPLIED
+        } catch (_: ObsoleteRendering) {
+            frame.rollback()
+            reconcile(GuideChange.PRESENTATION)
+            return ViewApplication.OBSOLETE
+        } catch (failure: Throwable) {
+            failed(frame, failure)
+            throw failure
+        }
     }
 
     override fun reportNativeConflict(evidence: NativeConflictEvidence) {
         assertEdt()
-        if (!closed.get() && evidence.guideRevision == guideRevision && drawsGuides) advisory.accept(editor, evidence)
+        if (!frames.isClosed && evidence.guideRevision == guideRevision && drawsGuides) advisory.accept(editor, evidence)
     }
 
-    private fun renderCurrent() {
-        if (!activity.visible || !plan.analysis.pairs) { view = null; clearMarkup(); return }
-        val expected = guideRevision
-        val current = view
-        renderActive()
-        if (closed.get() || expected != guideRevision || current !== view) return
-        if (current != null && plan.analysis.tokens) tokens.replace(current, editor.calculateVisibleRange(), stickyRanges(), display)
-        else tokens.dispose()
+    private inline fun render(action: (Frame) -> Unit) {
+        val frame = frames.begin()
+        try { frame.check(); action(frame); frame.commit() }
+        catch (_: ObsoleteRendering) { frame.rollback() }
+        catch (failure: Throwable) { failed(frame, failure); throw failure }
     }
 
-    private fun renderActive() {
-        if (!display.enabled || !display.showsActivePair && !display.showsGuide) { active.clear(false); return }
-        val current = view
-        if (current == null) active.refreshProvisional(caretOffset(), display)
-        else {
-            val expected = guideRevision
-            val pair = current.activePairAt(caretOffset())
-            val geometry = pair?.let(current::guideFor)
-            if (closed.get() || expected != guideRevision || current !== view) return
-            active.replace(pair, geometry, true, display)
+    private fun failed(frame: Frame, failure: Throwable) {
+        try { frame.rollback() } catch (cleanup: Throwable) { failure.addSuppressed(cleanup) }
+        if (frame.isCurrent) {
+            view = null
+            try { clearMarkup(frame) } catch (cleanup: Throwable) { failure.addSuppressed(cleanup) }
         }
+    }
+
+    private fun renderCurrent(frame: Frame) {
+        frame.check()
+        if (!activity.visible || !plan.analysis.pairs) { view = null; clearMarkup(frame); return }
+        renderActive(frame)
+        frame.check()
+        val current = view
+        if (current != null && plan.analysis.tokens)
+            tokens.replace(current, editor.calculateVisibleRange(), stickyRanges(), display, frame)
+        else tokens.dispose(frame)
+    }
+
+    private fun renderActive(frame: Frame) {
+        frame.check()
+        if (!display.enabled || !display.showsActivePair && !display.showsGuide) { active.clear(false, frame); return }
+        val current = view
+        if (current == null) active.refreshProvisional(caretOffset(), display, frame)
+        else {
+            val pair = current.activePairAt(caretOffset())
+            frame.check()
+            val geometry = pair?.let(current::guideFor)
+            frame.check()
+            active.replace(pair, geometry, true, display, frame)
+        }
+        frame.check()
         repaint()
     }
 
-    private fun synchronizeLayout(): Boolean {
+    private fun synchronizeLayout(frame: Frame): Boolean {
+        frame.check()
         val changedSource = highlighter !== editor.highlighter
-        if (changedSource) { highlighter = editor.highlighter; view = null; clearMarkup(); guideRevision++ }
+        if (changedSource) { highlighter = editor.highlighter; view = null; guideRevision++; clearMarkup(frame) }
         val currentTabSize = editor.settings.getTabSize(editor.project).coerceAtLeast(1)
         val changedLayout = tabSize != currentTabSize
-        if (changedLayout) { tabSize = currentTabSize; view = null; active.hideGuide(); guideRevision++ }
+        if (changedLayout) { tabSize = currentTabSize; view = null; guideRevision++; active.hideGuide(frame) }
         return changedSource || changedLayout
     }
 
@@ -215,13 +261,17 @@ internal class EditorGuide(
     )
 
     private fun reconcile(change: GuideChange) {
-        if (closed.get()) return
+        if (frames.isClosed) return
         checkpoint = demand(change)
         work.reconcile(checkpoint)
     }
     private fun stickyRanges(): List<TextRange> = if (capabilities.activePair) StickyLineSourceRanges.calculate(editor) else emptyList()
     private fun caretOffset(): Int = editor.caretModel.primaryCaret.offset
-    private fun clearMarkup() { active.clear(false); tokens.dispose() }
+    private fun clearMarkup(frame: Frame? = null) {
+        active.clear(false, frame)
+        frame?.check()
+        tokens.dispose(frame)
+    }
     private fun repaint() {
         val area = editor.scrollingModel.visibleArea
         if (area.isEmpty) editor.contentComponent.repaint() else editor.contentComponent.repaint(area)
@@ -229,7 +279,7 @@ internal class EditorGuide(
     private fun assertEdt() = ApplicationManager.getApplication().assertIsDispatchThread()
 
     override fun close() {
-        if (!closed.compareAndSet(false, true)) return
+        if (!frames.close()) return
         work.close()
         view = null
         if (!ApplicationManager.getApplication().isDisposed || ApplicationManager.getApplication().isDispatchThread) {

@@ -1,0 +1,58 @@
+Starting a Gradle Daemon, 4 stopped Daemons could not be reused, use --status for details
+> Task :compileJava NO-SOURCE
+> Task :compileGroovy UP-TO-DATE
+> Task :pluginDescriptors UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+
+> Task :compileTestJava
+Note: /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build-logic/src/test/java/com/sijunyang/buildlogic/PackagedOwnerTest.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :compileTestGroovy NO-SOURCE
+> Task :pluginUnderTestMetadata
+> Task :processTestResources NO-SOURCE
+> Task :testClasses
+> Task :test
+
+CompilationBoundaryTest > actualUiTestSourceInjectionIsRejected FAILED
+    java.lang.AssertionError at CompilationBoundaryTest.java:217
+
+CompilationBoundaryTest > missingProductionOwnerIsRejected FAILED
+    java.lang.AssertionError at CompilationBoundaryTest.java:217
+
+CompilationBoundaryTest > transitiveApiExportIsRejected FAILED
+    java.lang.AssertionError at CompilationBoundaryTest.java:217
+
+CompilationBoundaryTest > kotlinCompilerPluginInjectionIsRejected FAILED
+    java.lang.AssertionError at CompilationBoundaryTest.java:217
+
+CompilationBoundaryTest > actualUiTestFriendInjectionIsRejected FAILED
+    java.lang.AssertionError at CompilationBoundaryTest.java:217
+
+CompilationBoundaryTest > sharedSourceIsRejected FAILED
+    java.lang.AssertionError at CompilationBoundaryTest.java:217
+
+32 tests completed, 6 failed
+
+> Task :test FAILED
+
+[Incubating] Problems report is available at: file:///Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build-logic/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':test'.
+> There were failing tests. See the report at: file:///Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build-logic/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 12m 31s
+6 actionable tasks: 3 executed, 3 up-to-date

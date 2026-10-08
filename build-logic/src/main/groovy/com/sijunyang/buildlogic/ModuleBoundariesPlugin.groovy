@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.GradleException
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.tasks.compile.JavaCompile
 import java.security.MessageDigest
 import java.util.jar.JarFile
@@ -50,7 +51,7 @@ class ModuleBoundariesPlugin implements Plugin<Project> {
             job.set(root.providers.gradleProperty('benchmarkJob').orElse('all'))
         }
         owners.each { owner ->
-            owner.tasks.withType(JavaCompile).matching { it.name == 'compileJava' }.configureEach {
+            owner.tasks.withType(JavaCompile).matching { it.name == 'compileJava' || owner.name == 'editor-ui' && it.name == 'compileTestJava' }.configureEach {
                 options.sourcepath = owner.files()
             }
         }
@@ -85,6 +86,42 @@ class ModuleBoundariesPlugin implements Plugin<Project> {
         }
         require(methods.size() == 1, "effective Kotlin input ${getter} is unavailable/ambiguous")
         methods[0].invoke(task)
+    }
+
+    // The pinned KGP's legacy KotlinPluginData getter can be null even when a plugin
+    // is loaded. Bind the effective -Xplugin input to resolved module identities AND
+    // known bytes; filenames and applied plugin IDs are not evidence of isolation.
+    static final Map<String, String> DEFAULT_COMPILER_ARTIFACTS = [
+        'org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:2.3.21': 'a04ff06efb4a5ae07a928da94f9b5d061230c96d7febdaeb8bc7438e1aa31811',
+        'org.jetbrains.kotlin:kotlin-scripting-compiler-impl-embeddable:2.3.21': '89e78a3326e1205a9420a19441a4f382f7a72241d52c96425e89e5b130387286',
+        'org.jetbrains.kotlin:kotlin-scripting-jvm:2.3.21': '8cb637132fc7fa511c700ee7f2b63b282630167f5ebd699a263a0b67b5d486ab',
+        'org.jetbrains.kotlin:kotlin-scripting-common:2.3.21': '69885751bdce7d4e1d1b9758baf4bc0fe03b24827abd7b7687e5a7c0b4d029ed',
+        'org.jetbrains.kotlin:kotlin-stdlib:2.3.21': '6f64eac736db9434dd6925b4a518b9d1d17177652320c37916cf9ba3ce7d7d7a',
+        'org.jetbrains.kotlin:kotlin-script-runtime:2.3.21': 'ec61bf1229c837fa9f4255f34ca69816138b73158e7ae9b8d964cf92ca6dfd2e',
+        'org.jetbrains:annotations:13.0': 'ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478',
+    ]
+
+    static void verifyCompilerPlugins(Project owner, Object compiler, String sourceSet, String reason, StringBuilder evidence) {
+        def configuration = owner.configurations.findByName('kotlinCompilerPluginClasspath' + sourceSet)
+        require(configuration != null && configuration.canBeResolved, reason + ': effective configuration unavailable')
+        def artifacts = configuration.incoming.artifacts.artifacts
+        def resolvedFiles = [] as Set
+        artifacts.each { artifact ->
+            def id = artifact.id.componentIdentifier
+            require(id instanceof ModuleComponentIdentifier, reason + ': foreign artifact origin')
+            def coordinate = "${id.group}:${id.module}:${id.version}".toString()
+            def expectedHash = DEFAULT_COMPILER_ARTIFACTS[coordinate]
+            require(expectedHash != null && digest(artifact.file.bytes) == expectedHash, reason + ': unapproved artifact ' + coordinate)
+            resolvedFiles.add(artifact.file.canonicalFile)
+        }
+        require(configuration.files.collect { it.canonicalFile }.toSet() == resolvedFiles, reason + ': unowned artifact input')
+        def arguments = kotlinInput(compiler, 'getSerializedCompilerArgumentsIgnoreClasspathIssues')
+        require(arguments instanceof Collection, reason + ': effective arguments unavailable')
+        def pluginArguments = arguments.findAll { it.startsWith('-Xplugin=') }
+        def pluginFiles = pluginArguments.collectMany { it.substring('-Xplugin='.length()).split(',').collect { path -> new File(path).canonicalFile } }
+        require(pluginFiles.size() == pluginFiles.toSet().size() && pluginFiles.toSet() == resolvedFiles, reason + ': effective plugin paths differ')
+        require(!arguments.any { it == '-P' || it.startsWith('-P=') || it.startsWith('-Xcompiler-plugin') || it.startsWith('-Xplugin') && !it.startsWith('-Xplugin=') }, reason + ': plugin option injection')
+        evidence.append("${owner.name}.${sourceSet}.effective-compiler-plugins=${pluginFiles.collect { it.path }.sort()}\n")
     }
 
     static Set<String> classNames(Collection<File> paths) {
@@ -147,9 +184,7 @@ class ModuleBoundariesPlugin implements Plugin<Project> {
             require(kotlin.compilerOptions.freeCompilerArgs.get().empty, "${p.name} unsupported Kotlin argument injection")
             def friends = kotlinInput(kotlin, 'getFriendPathsSet')
             require(friends != null && friends.get().empty, "${p.name} production friend paths")
-            def pluginProvider = kotlinInput(kotlin, 'getKotlinPluginData')
-            def plugins = pluginProvider == null ? null : pluginProvider.orNull
-            require(plugins == null || plugins.classpath.empty, "${p.name} production compiler plugin injection")
+            verifyCompilerPlugins(p, kotlin, 'Main', "${p.name} production compiler plugin injection", evidence)
             def commonSources = kotlinInput(kotlin, 'getCommonSourceSet')
             def scripts = kotlinInput(kotlin, 'getScriptSources')
             require(scripts.empty, "${p.name} production script source injection")
@@ -187,10 +222,38 @@ class ModuleBoundariesPlugin implements Plugin<Project> {
             }
             // UI test compilation must respect the same implementation boundary.
             if (p.name == 'editor-ui') {
-                def testVisible = classNames(p.configurations.testCompileClasspath.files)
-                ['analysis-core', 'analysis-runtime'].each { forbidden ->
-                    require(testVisible.intersect(ownerClasses[forbidden] ?: [] as Set).empty, 'UI test classpath sees ' + forbidden)
+                def testJava = p.tasks.named('compileTestJava').get()
+                def testKotlin = p.tasks.named('compileTestKotlin').get()
+                def testInputs = [p.configurations.testCompileClasspath.files, testJava.classpath.files, testKotlin.libraries.files]
+                testInputs.eachWithIndex { cp, i ->
+                    def testVisible = classNames(cp)
+                    ['analysis-core', 'analysis-runtime'].each { forbidden ->
+                        require(testVisible.intersect(ownerClasses[forbidden] ?: [] as Set).empty, 'UI test classpath sees ' + forbidden)
+                        (outputs[forbidden] ?: []).each { out -> require(cp.every { !inside(it, out) && !inside(out, it) }, 'UI test compiler shares forbidden output') }
+                    }
+                    evidence.append("editor-ui.test-compiler-${i}\n")
+                    cp.each { evidence.append(it.canonicalPath).append('\n') }
                 }
+                require(testJava.options.sourcepath != null && testJava.options.sourcepath.empty, 'UI test javac sourcepath must be explicitly empty')
+                require(testJava.options.compilerArgs.empty && (testJava.options.bootstrapClasspath == null || testJava.options.bootstrapClasspath.empty) &&
+                    (testJava.options.annotationProcessorPath == null || testJava.options.annotationProcessorPath.empty), 'UI test Java compiler injection')
+                require(testKotlin.compilerOptions.freeCompilerArgs.get().empty, 'UI test Kotlin compiler argument injection')
+                def late = kotlinInput(testKotlin, 'getExecutionTimeFreeCompilerArgs')
+                require(late == null || late.empty, 'UI test execution-time Kotlin argument injection')
+                verifyCompilerPlugins(p, testKotlin, 'Test', 'UI test compiler plugin injection', evidence)
+                require(kotlinInput(testKotlin, 'getScriptSources').empty, 'UI test script source injection')
+                def testFriends = kotlinInput(testKotlin, 'getFriendPathsSet').get()
+                def ownFriends = outputs['editor-ui'].collect { it.canonicalFile } as Set
+                ownFriends.add(p.tasks.named('jar').get().archiveFile.get().asFile.canonicalFile)
+                def normalizedFriends = testFriends.collect { friend ->
+                    def file = new File(friend.toString())
+                    (file.isAbsolute() ? file : new File(p.layout.buildDirectory.get().asFile, friend.toString())).canonicalFile
+                }
+                require(normalizedFriends.every { ownFriends.contains(it) }, 'UI test foreign friend path')
+                evidence.append("editor-ui.test-friend-inputs=${normalizedFriends.collect { it.path }.sort()}\n")
+                def testSources = testJava.source.files + testKotlin.javaSources.files + kotlinInput(testKotlin, 'getSourceFiles').files + kotlinInput(testKotlin, 'getCommonSourceSet').files
+                require(testSources.every { inside(it, new File(p.projectDir, 'src/test')) }, 'UI test foreign compiler source')
+
             }
         }
         def report = new File(root.layout.buildDirectory.get().asFile, 'module-verification/compiler-inputs.txt')

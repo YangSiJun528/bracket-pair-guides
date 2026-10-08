@@ -15,9 +15,9 @@ independently reviewed image and exact pixel comparison.
 | `plugin-disabled` | Plugin markup is absent and previously owned native settings are restored. |
 | `native-visuals-unmanaged` | Original native brace/scope highlighting remains alongside plugin visuals. |
 | `native-highlight-suppressed` | Native brace gate is suppressed, with regular indent guides retained. |
-| `default-palette` | Token colors use the persisted default level palette. |
-| `custom-palette` | Custom token, guide, border and background colors remain independent. |
-| `edited-geometry` | An indentation edit produces current repaired guide geometry. |
+| `default-palette` | All components use the default level palette, width 3 and background opacity 45%. |
+| `custom-palette` | The same components, width and opacity use independent custom token, guide, border and background colors. |
+| `edited-geometry` | Closing indentation changes from column 8 to 10; the repaired active guide follows column 10. |
 
 The same session observes actual Swing focus loss/restoration and component
 visibility loss/restoration. Focus loss removes active guide markup while
@@ -25,12 +25,31 @@ retaining token colors; hidden editors remove all plugin markup and visible
 editors resume it. An A/B/A caret cycle must settle to the exact original
 `all-components` pixels. This does not prove a particular stale background task
 entered or completed. Runtime authority unit tests cover stale proof rejection.
-Immediate hiding before the document edit callback returns is asserted by the
-UI-owned IDE contract; a later Driver screenshot alone cannot prove that timing.
+The Driver edit transport also asserts that the affected guide highlighter is
+absent inside the write command immediately after the document edit returns.
+The UI-owned IDE contract checks the corresponding synchronous content-demand
+boundary. A later screenshot alone cannot prove hiding timing.
 
-The production settings command applies all preference changes. A test-only
-bridge transports primitives, sets deterministic appearance, edits the fixture
-and observes actual markup. It is packaged only in the Driver archive.
+The registered Settings dialog is opened through the public SDK. Driver activates
+the real integration checkbox and Apply control. The draft toggle must leave
+persisted options and native settings unchanged until Apply. Apply must restore
+the native values; closing the dialog and restoring focus, without moving the
+caret or requesting analysis, must reproduce the unmanaged scenario pixels.
+
+In the unmanaged scenario, the suite observes a new notification from the native
+conflict group through the public project notification bus and its actual balloon
+visibility. The pinned Driver adapter observes `BalloonImpl.isVisible` and its Swing
+component showing state; the interface exposes animation history rather than visibility. Production delivers that notification only after a painted vertical guide
+requests runtime proof and the proof is accepted. This checks the connected paint,
+proof and advisory path, without reading private tickets or substituting evidence.
+It does not identify which stale task entered/completed or prove every native IDE
+rendering case. The balloon is then dismissed through its public SDK operation to
+keep later captures deterministic.
+
+Scenario setup uses the production settings command; the Settings transaction
+uses the actual configurable controls. A test-only bridge transports primitives,
+sets deterministic appearance (including disabled caret painting and zero scroll),
+opens the real dialog, edits the fixture, and observes SDK markup/notifications. It is packaged only in the Driver archive.
 
 ## Rendering identity
 

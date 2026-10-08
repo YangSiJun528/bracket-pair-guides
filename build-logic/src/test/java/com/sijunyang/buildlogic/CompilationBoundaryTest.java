@@ -21,6 +21,20 @@ public class CompilationBoundaryTest {
     private static final String PREFIX = "com.sijunyang.bracketpairguides.";
     @Rule public TemporaryFolder temporary = new TemporaryFolder();
     private Path fixture;
+    private static final List<String> BLOCKED_CORE =
+            List.of(
+                    "core.api.BracketCalculator",
+                    "core.input.BracketInput",
+                    "core.input.TokenBatch",
+                    "core.internal.BracketIndexes",
+                    "core.internal.IndexedBracketView",
+                    "core.internal.GuidePositionIndex.Builder",
+                    "core.internal.SnapshotCalculation");
+    private static final List<String> BLOCKED_RUNTIME =
+            List.of(
+                    "runtime.bootstrap.RuntimeGuideWorkFactory",
+                    "runtime.capture.EditorSource",
+                    "runtime.capture.BracketTokenCapture");
 
     @Before
     public void copyRealBuild() throws IOException {
@@ -103,11 +117,10 @@ public class CompilationBoundaryTest {
             String task = ":editor-ui:compile" + (kotlin ? "Kotlin" : "Java");
             probe("editor-ui", PREFIX + "model.OffsetRange", kotlin);
             run(false, task, "--rerun-tasks");
-            for (String blocked :
-                    List.of(
-                            PREFIX + "core.api.BracketCalculator",
-                            PREFIX + "core.input.BracketInput",
-                            PREFIX + "runtime.bootstrap.RuntimeGuideWorkFactory")) {
+            var blockedSymbols = new ArrayList<String>(BLOCKED_CORE);
+            blockedSymbols.addAll(BLOCKED_RUNTIME);
+            for (String relative : blockedSymbols) {
+                String blocked = PREFIX + relative;
                 probe("editor-ui", blocked, kotlin);
                 BuildResult failed = run(true, task, "--rerun-tasks");
                 assertProbeDiagnostic(failed, blocked, kotlin);
@@ -117,22 +130,36 @@ public class CompilationBoundaryTest {
 
     @Test
     public void ownerPositiveControlsProveSymbolsExistAndJavaCanSeeThem() throws IOException {
-        for (String type :
-                List.of(
-                        "core.api.BracketCalculator",
-                        "core.input.BracketInput",
-                        "core.input.TokenBatch")) {
+        for (String owner : List.of("analysis-core", "analysis-runtime")) {
+            List<String> symbols = owner.equals("analysis-core") ? BLOCKED_CORE : BLOCKED_RUNTIME;
             for (boolean kotlin : List.of(false, true)) {
-                probe("analysis-core", PREFIX + type, kotlin);
+                probe(owner, PREFIX + symbols.get(0), kotlin);
+                Path path =
+                        fixture.resolve(
+                                owner
+                                        + "/src/main/"
+                                        + (kotlin
+                                                ? "kotlin/BoundaryProbe.kt"
+                                                : "java/BoundaryProbe.java"));
+                var contents = new StringBuilder(kotlin ? "" : "final class BoundaryProbe {\n");
+                for (int i = 0; i < symbols.size(); i++) {
+                    String type = PREFIX + symbols.get(i);
+                    contents.append(
+                            kotlin
+                                    ? "private val boundaryProbe"
+                                            + i
+                                            + ": kotlin.reflect.KClass<*> = "
+                                            + type
+                                            + "::class\n"
+                                    : "Class<?> value" + i + " = " + type + ".class;\n");
+                }
+                if (!kotlin) contents.append("}\n");
+                Files.writeString(path, contents);
                 run(
                         false,
-                        ":analysis-core:compile" + (kotlin ? "Kotlin" : "Java"),
+                        ":" + owner + ":compile" + (kotlin ? "Kotlin" : "Java"),
                         "--rerun-tasks");
             }
-        }
-        for (boolean kotlin : List.of(false, true)) {
-            probe("analysis-runtime", PREFIX + "runtime.bootstrap.RuntimeGuideWorkFactory", kotlin);
-            run(false, ":analysis-runtime:compile" + (kotlin ? "Kotlin" : "Java"), "--rerun-tasks");
         }
     }
 
@@ -155,12 +182,22 @@ public class CompilationBoundaryTest {
                         : symbol.contains(".runtime.") ? "runtime" : "intellij";
         var diagnostic =
                 java.util.regex.Pattern.compile(
-                                "(?s)BoundaryProbe\\."
+                                "(?im)^[^\r\n]*BoundaryProbe\\."
                                         + suffix
-                                        + ".{0,1200}(?:Unresolved reference|unresolved reference|does not exist|cannot find symbol)")
+                                        + "[^\r\n]*(?:Unresolved reference|unresolved reference|does not exist|cannot find symbol)[^\r\n]*$")
                         .matcher(failed.getOutput());
         assertThat(diagnostic.find()).as("Compiler must diagnose the actual probe file").isTrue();
-        assertThat(failed.getOutput()).contains(owner);
+        assertThat(diagnostic.group())
+                .as("The same compiler diagnostic must name the missing owner")
+                .contains(owner);
+        assertThat(failed.getTasks())
+                .anySatisfy(
+                        task -> {
+                            assertThat(task.getPath())
+                                    .endsWith(kotlin ? ":compileKotlin" : ":compileJava");
+                            assertThat(task.getOutcome())
+                                    .isEqualTo(org.gradle.testkit.runner.TaskOutcome.FAILED);
+                        });
     }
 
     @Test
@@ -188,26 +225,33 @@ public class CompilationBoundaryTest {
 
     private void rejectAndRestore(String file, String contamination, String reason)
             throws IOException {
+        rejectAndRestore(file, contamination, reason, true);
+    }
+
+    private void rejectAndRestore(
+            String file, String contamination, String reason, boolean inspectWithoutCompilation)
+            throws IOException {
         run(false, "verifyProductionModules");
         String original = Files.readString(fixture.resolve(file));
+        // Keep producer tasks in the real graph: Kotlin friendPathsSet is a finalized
+        // output provider and cannot legally be queried when its producer is -x excluded.
+        // Existing clean compiled bytes are retained; only mutated compiler execution is
+        // disabled, so malformed flags cannot mask the actual-input policy diagnostic.
+        Path init =
+                temporary
+                        .newFile("skip-mutated-compilation-" + System.nanoTime() + ".gradle")
+                        .toPath();
+        Files.writeString(
+                init,
+                "allprojects { tasks.configureEach { t -> "
+                        + "if (t.name in ['compileJava', 'compileKotlin']) { t.onlyIf { false } } } }\n");
+        String[] auditArguments =
+                inspectWithoutCompilation
+                        ? new String[] {"verifyProductionModules", "--init-script", init.toString()}
+                        : new String[] {"verifyProductionModules"};
+        run(false, auditArguments);
         append(file, contamination);
-        var skips = new ArrayList<String>();
-        skips.add("verifyProductionModules");
-        // Inspect mutated effective inputs without unrelated compiler-option errors hiding the
-        // policy result.
-        for (String owner :
-                List.of(
-                        "analysis-model",
-                        "analysis-core",
-                        "editor-ui",
-                        "analysis-runtime",
-                        "plugin")) {
-            skips.add("-x");
-            skips.add(":" + owner + ":compileJava");
-            skips.add("-x");
-            skips.add(":" + owner + ":compileKotlin");
-        }
-        assertThat(run(true, skips.toArray(String[]::new)).getOutput())
+        assertThat(run(true, auditArguments).getOutput())
                 .contains("Module boundary violation:", reason);
         Files.writeString(fixture.resolve(file), original);
         run(false, "verifyProductionModules");
@@ -235,7 +279,7 @@ public class CompilationBoundaryTest {
         rejectAndRestore(
                 "editor-ui/build.gradle.kts",
                 "sourceSets.main { java.srcDir(project(\":analysis-core\").file(\"src/main/kotlin\")) }",
-                "shared source root");
+                "editor-ui foreign compiler source");
     }
 
     @Test
@@ -388,10 +432,10 @@ public class CompilationBoundaryTest {
 
     @Test
     public void kotlinCompilerPluginInjectionIsRejected() throws IOException {
+        String mutation =
+                "buildscript { dependencies { classpath(\"org.jetbrains.kotlin:kotlin-serialization:2.3.21\") } }; apply(plugin = \"org.jetbrains.kotlin.plugin.serialization\")\n";
         rejectAndRestore(
-                "editor-ui/build.gradle.kts",
-                "buildscript { dependencies { classpath(\"org.jetbrains.kotlin:kotlin-serialization:2.3.21\") } }; apply(plugin = \"org.jetbrains.kotlin.plugin.serialization\")",
-                "compiler plugin injection");
+                "editor-ui/build.gradle.kts", mutation, "compiler plugin injection", false);
     }
 
     @Test
@@ -416,5 +460,46 @@ public class CompilationBoundaryTest {
                 "settings.gradle.kts",
                 "project(\":analysis-runtime\").name = \"missing-runtime-owner\"",
                 "production owner set");
+    }
+
+    @Test
+    public void actualUiTestJavaClasspathInjectionIsRejected() throws IOException {
+        rejectAndRestore(
+                "editor-ui/build.gradle.kts",
+                "tasks.named<JavaCompile>(\"compileTestJava\") { classpath += project(\":analysis-core\").files(project(\":analysis-core\").layout.buildDirectory.dir(\"classes/kotlin/main\")) }",
+                "UI test classpath sees analysis-core");
+    }
+
+    @Test
+    public void actualUiTestKotlinClasspathInjectionIsRejected() throws IOException {
+        rejectAndRestore(
+                "editor-ui/build.gradle.kts",
+                "tasks.named<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>(\"compileTestKotlin\") { libraries.from(project(\":analysis-runtime\").layout.buildDirectory.dir(\"classes/kotlin/main\")) }",
+                "UI test classpath sees analysis-runtime");
+    }
+
+    @Test
+    public void actualUiTestFriendInjectionIsRejected() throws IOException {
+        rejectAndRestore(
+                "editor-ui/build.gradle.kts",
+                "tasks.named<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>(\"compileTestKotlin\") { friendPaths.from(project(\":analysis-core\").layout.buildDirectory.dir(\"classes/kotlin/main\")) }",
+                "UI test foreign friend path");
+    }
+
+    @Test
+    public void actualUiTestSourceInjectionIsRejected() throws IOException {
+        rejectAndRestore(
+                "editor-ui/build.gradle.kts",
+                "tasks.named<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>(\"compileTestKotlin\") { source(rootProject.file(\"analysis-core/src/main/kotlin\")) }",
+                "UI test foreign compiler source");
+    }
+
+    @Test
+    public void propertyCannotDisableProductionOwners() throws IOException {
+        run(false, "verifyProductionModules", "-PpureBuild=true");
+        assertThat(
+                        Files.readString(
+                                fixture.resolve("build/module-verification/compiler-inputs.txt")))
+                .contains("analysis-runtime.java", "plugin.java", "editor-ui.java");
     }
 }

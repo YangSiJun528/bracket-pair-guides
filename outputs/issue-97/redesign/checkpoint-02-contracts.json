@@ -1,0 +1,180 @@
+{
+  "observedAt": "2026-10-08T06:57:17.508147+00:00",
+  "commit": "5767d6a + uncommitted rendering/contracts changes",
+  "suites": {
+    "minimumSdk": {
+      "xmlCount": 4,
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "class": "com.sijunyang.bracketpairguides.plugin.RuntimeIdentityIdeContractTest",
+          "name": "testSelectedIdeActuallyRunsWithReadAccessAndComposition"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest",
+          "name": "testCloseDuringRealMatcherReadRejectsPublicationAfterCaptureUnwinds"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest",
+          "name": "testSecondaryRepairPublishesWhileDelayedFullCaptureIsStillBlocked"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest",
+          "name": "testSourceEditAfterInFlightReadRejectsOldResultAndPublishesNewCoordinates"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+          "name": "testImmediateCloseCancelsPendingPublication"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+          "name": "testDocumentGenerationSurvivesStampResetAndDormantReacquire"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+          "name": "testHiddenDemandReleasesAcceptedPayloadAndWakeUpDoesNotRecapture"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+          "name": "testReentrantEditCannotAcceptOldResult"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+          "name": "testRetainedClosedWorkDoesNotRetainEditorViewOrPayload"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+          "name": "testRicherAcceptedResultSurvivesCoverageReduction"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+          "name": "testReadsAreBackgroundAndPublicationIsEdtAndDuplicateDemandIsInert"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+          "name": "testCloseDuringPublicationPreventsAnyLaterWork"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+          "name": "testNoFacetDemandReleasesAcceptedPayloadAndWakeUpDoesNotRecapture"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+          "name": "testFreshResultInsideRepairMarkupCallbackOwnsItsResourcesAfterOldRollback"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+          "name": "testHiddenPresentationReleasesReadOnlyLookup"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+          "name": "testRenderingFailurePropagatesAndLeavesNoMarkup"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+          "name": "testFailureAfterFreshReentrantApplyPropagatesWithoutClearingFreshMarkup"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+          "name": "testAffectedEditHidesGuideBeforeSingleCompleteContentDemand"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+          "name": "testCloseRevokesViewAndIsIdempotent"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+          "name": "testReentrantCloseDuringResultQueryLeavesNoMarkup"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+          "name": "testCloseInsideActualRepairMarkupCallbackLeavesNoOrphanHighlighter"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+          "name": "testFreshTokenResultInsideMarkupCallbackSurvivesOldTokenRollback"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+          "name": "testDisabledPresentationReleasesReadOnlyLookup"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+          "name": "testLimitedFullResultPreservesSuccessfulCurrentRepairGeometry"
+        },
+        {
+          "class": "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+          "name": "testCloseInsideBeforeRemovedRevokesOldTokenRenderingAndLeavesNoMarkup"
+        }
+      ]
+    },
+    "buildPolicy": {
+      "xmlCount": 2,
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "class": "com.sijunyang.buildlogic.BenchmarkReportTest",
+          "name": "allEightParameterIdentitiesAndUnitsSurvive"
+        },
+        {
+          "class": "com.sijunyang.buildlogic.BenchmarkReportTest",
+          "name": "missingCaseCannotPassCoverage"
+        },
+        {
+          "class": "com.sijunyang.buildlogic.BenchmarkReportTest",
+          "name": "duplicateCaseCannotMergeIntoAnotherMetric"
+        },
+        {
+          "class": "com.sijunyang.buildlogic.BenchmarkReportTest",
+          "name": "allocationUnitsCannotBeSilentlyReinterpreted"
+        },
+        {
+          "class": "com.sijunyang.buildlogic.BenchmarkReportTest",
+          "name": "nonfiniteMeasurementsAreRejected"
+        },
+        {
+          "class": "com.sijunyang.buildlogic.PackagedOwnerTest",
+          "name": "descriptorCannotRegisterMissingClass"
+        },
+        {
+          "class": "com.sijunyang.buildlogic.PackagedOwnerTest",
+          "name": "duplicateClassIsRejected"
+        },
+        {
+          "class": "com.sijunyang.buildlogic.PackagedOwnerTest",
+          "name": "foreignBytecodeInOwnerJarIsRejected"
+        },
+        {
+          "class": "com.sijunyang.buildlogic.PackagedOwnerTest",
+          "name": "missingProductionOwnerSetIsRejected"
+        },
+        {
+          "class": "com.sijunyang.buildlogic.PackagedOwnerTest",
+          "name": "staleBytesWithSameClassNameAreRejected"
+        },
+        {
+          "class": "com.sijunyang.buildlogic.PackagedOwnerTest",
+          "name": "missingOwnerJarIsRejected"
+        },
+        {
+          "class": "com.sijunyang.buildlogic.PackagedOwnerTest",
+          "name": "missingIconIsRejected"
+        },
+        {
+          "class": "com.sijunyang.buildlogic.PackagedOwnerTest",
+          "name": "exactOwnerBytesAreAccepted"
+        },
+        {
+          "class": "com.sijunyang.buildlogic.PackagedOwnerTest",
+          "name": "missingLicenseIsRejected"
+        }
+      ]
+    }
+  }
+}

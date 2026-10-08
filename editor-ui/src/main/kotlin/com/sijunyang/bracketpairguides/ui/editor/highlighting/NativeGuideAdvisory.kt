@@ -13,6 +13,7 @@ import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.options.ShowSettingsUtil
+import com.intellij.util.xmlb.annotations.Property
 import com.sijunyang.bracketpairguides.ui.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.ui.settings.NativeGuideConflictSettingsListener
 import com.sijunyang.bracketpairguides.ui.settings.ui.BracketGuideSettingsPage
@@ -36,7 +37,7 @@ class NativeGuideAdvisory :
     private var lastOptions = BracketGuidePreferences()
     private var notification: Notification? = null
 
-    data class Suppression(@JvmField val suppressedForCurrentConflict: Boolean = false)
+    data class Suppression(@JvmField @field:Property val suppressedForCurrentConflict: Boolean = false)
 
     fun interest(options: BracketGuidePreferences): NativeInterest {
         lastOptions = options

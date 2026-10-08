@@ -1,0 +1,37 @@
+{
+  "minimumSdkTests": {
+    "counts": {
+      "tests": 26,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "xmlSha256": {
+      "TEST-com.sijunyang.bracketpairguides.plugin.RuntimeIdentityIdeContractTest.xml": "a570b09b37ea526c45cea2cc8ac29d1d0a09146a9d927b8d67c5d4e31815fc28",
+      "TEST-com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest.xml": "8ff1921b68a5e57b7c9419ab41ba2cdc2b7e2fb4e3f1a188348e77ec275b3427",
+      "TEST-com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest.xml": "ac0dcb6b0a3cd4f1eb3d17ce573b6c9e1ff64b61bd86bd137eee237be9a82135",
+      "TEST-com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest.xml": "37ae0ea74b05a96bb70fbeacf7175541eb9e36432f119b3de99db2b9abdec45f",
+      "TEST-com.sijunyang.bracketpairguides.ui.editor.highlighting.NativeGuideAdvisoryIdeContractTest.xml": "7e0a25a6559ef17841a4d8dd608eba2c0f4a043d3742233515739d48cc16c36f"
+    }
+  },
+  "compilerPluginInjection": {
+    "counts": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "xmlSha256": {
+      "TEST-com.sijunyang.buildlogic.CompilationBoundaryTest.xml": "dfb2d61fe1b2c8e53fe9cd6248885de5e91416a0fabc2da0af7dc31cad19024f"
+    }
+  },
+  "integrationCommand": "verifyProductionModules :plugin:compileSdkPerformanceKotlin :plugin:compileVisualBridgeKotlin :plugin:compileVisualTestKotlin :plugin:minimumSdkTests verifyPluginPackaging",
+  "integrationExitCode": 0,
+  "formatLog": "format-07.log",
+  "limitations": [
+    "Full TestKit/check not yet rerun",
+    "Driver capture01 failed; updated code only compiled",
+    "Current SDK/compatibility/Qodana/timed comparison not yet run",
+    "Local CI settings approved and installed; no remote execution"
+  ]
+}

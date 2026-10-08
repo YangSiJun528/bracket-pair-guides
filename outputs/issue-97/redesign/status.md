@@ -10,20 +10,26 @@
 
 ## Current stage
 
-First implementation checkpoint is ready. 43 model/core contracts, 3 UI pure contracts, 3 native authority contracts, 4 bytecode architecture contracts and 15 actual minimum-IDE contracts passed (68 total, zero skipped/failed). The actual IDE was IC-241.19416.15 with bundled JBR 17.0.12. SDK-free pure execution separately passed before formatting; the independent pure root check remains to be run. Actual production compiler input isolation and final archive byte/resource identity passed. Spotless passed. See checkpoint-01.json and checkpoint-checks-03.log.
+Implementation checkpoint `5767d6a` is committed; the next local checkpoint records reviewed post-checkpoint fixes. Integration07 passed the actual compiler-input audit, measurement and Driver source compilation, release packaging and all26 minimum-IDE contracts (zero failed/skipped), including actual XML persistence/reload. SDK identity is IC-241.19416.15 with bundled JBR17.0.12. Evidence: integration-checks-07.json and checkpoint-03-contracts.json.
 
-Not complete: TestKit intentional compile failures/contamination mutations, expanded packaging/BMF policy tests, full root check, current IDE, Driver, full verifier matrix, Qodana and paired performance are pending. Driver currently has a known pair-only readiness issue. Follow-up UI rendering ownership and in-flight/secondary repair tests are prepared but not yet applied.
+Actual Kotlin/Java UI core/runtime negatives and owner/model positive controls passed in the first full TestKit run. The full run had26/32 passes; targeted harness repairs left one actual compiler-plugin audit gap. Diagnostic05 proved the gap using a real serialization plugin. The guard now audits effective serialized compiler inputs with resolved artifact identity/hash pins; the normal input audit and real plugin mutation both passed07. The entire32-case suite still requires rerun.
+
+Independent SDK-free check passed43 model/core contracts; Packaging9+BMF9 passed targeted02. Eight pure benchmark semantic fingerprints matched. New common SDK measurement sources are byte-identical across the candidate and baseline. Baseline production remains unchanged. No timed comparison has been run.
+
+Driver capture01 failed the advisory observation despite a visible actual balloon. It also exposed static service lookup and persistence warnings, now fixed. Updated Driver compiles but must run again. No new baseline image has been accepted. Full root check, current SDK, passing Driver, visual-archive separation, full verifier matrix, Qodana and paired performance remain incomplete.
+
+CI configuration authorization resolved: the user explicitly approved “로컬 CI 설정 반영만 승인” for the reviewed proposal. Installing the local workflow with its existing Bencher/upload/PR-check settings is authorized. Actual remote execution, uploads, project writes, push and PR creation remain unauthorized. The exact approved proposal and validation limitations remain recorded; no live remote gate pass is claimed.
 
 ## Ownership
 
-| Owner | Files |
+| Owner | Current files and responsibility |
 |---|---|
-| core_design | analysis-model and analysis-core production/test sources and module READMEs; no Gradle edits |
-| runtime_design | editor-ui and analysis-runtime production/new tests; plugin/src/main and module READMEs; no Gradle edits |
-| build_validation | Gradle/settings/build-logic/CI/tools/benchmarks; delete plugin legacy tests; new plugin integration/Driver tests and testing docs |
-| main | outputs/issue-97/redesign, cross-module contract decisions, integration review and all shared build/measurement runs |
+| core_design | model/core (now stable), baseline additive adapters, identical shared actual-SDK performance fixture/workloads installed in both checkouts |
+| runtime_design | UI/runtime production and SDK contracts (stable), plugin main composition, UI test-only measurement bridge; Driver bridge/tests/visual docs; verification-only compatibility runner inputs |
+| build_validation | Gradle/settings/build-logic/CI/tools/JMH; candidate runtime test-only performance adapter; proposed CI policy and validators |
+| main | design integration, all actual build/test/IDE/measurement execution and result review; outputs except explicitly delegated proposal/compatibility inputs |
 
-No concurrent shared Gradle execution or performance measurement. Agents request checks from main. No agent commits without a coordinated checkpoint.
+Delegations use gpt-6.1-sol / medium. No concurrent shared Gradle execution or performance measurement. All measurements are serialized and separated from other heavy tasks. Agents request checks from main. Before local commits, pause every writer because the configured pre-commit hook stashes unstaged tracked changes. No remote action is authorized.
 
 ## Required final evidence
 

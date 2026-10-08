@@ -1,0 +1,18 @@
+{
+  "shellSyntax": 4,
+  "jqPositive": 1,
+  "jqRejectedMutants": [
+    "missing-case",
+    "duplicate-case",
+    "latency-unit",
+    "allocation-unit",
+    "negative",
+    "nonfinite",
+    "extra-param",
+    "wrong-method"
+  ],
+  "rawRoundTrip": true,
+  "yamlSyntaxAndPolicyShape": true,
+  "workflowInstalled": false,
+  "externalActionsExecuted": false
+}

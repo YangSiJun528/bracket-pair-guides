@@ -26,7 +26,13 @@ xvfb-run -a -s '-screen 0 1920x1080x24 -dpi 96' ./gradlew :plugin:captureVisualT
 
 This command produces candidates in the artifacts directory and does not
 establish comparison success. Review all twelve images for the expected geometry,
-current repair and native restoration. Investigate unexpected pixel changes;
+current repair and native restoration. In particular, verify that the closing
+indentation edit moves the active guide from column 8 to 10; a text-only movement
+is not sufficient. Default/custom palette images must contain identical component
+choices, width and opacity while showing the intended independent colors.
+The same run must also pass the real Settings checkbox/Apply/focus transaction
+and public native-conflict notification/balloon observations; captured images alone
+do not replace those contracts. Investigate unexpected pixel changes;
 do not weaken equality or automatically copy candidates to make a failure pass.
 After review, copy the accepted images to
 `plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/`

@@ -1,119 +1,49 @@
 # Editor presentation policy
 
-Bracket analysis and visible presentation have different lifetimes. Moving focus
-away from an editor should remove its active guide without discarding a valid
-bracket snapshot. A secondary code viewer may need token colors without needing
-an active-pair index or custom guide geometry at all.
+Calculation answers which bracket pairs and guide geometry exist. Presentation determines which of those answers an editor should show. Focus, visibility, and rendering ownership can change without changing the document's bracket structure.
 
-## Execution safety precedes surface policy
+## Support and activity
 
-`EditorEffectGuard` checks the originating execution context before scheduling
-UI work or creating a session. Intention preview computation uses a copied PSI
-file and a mock editor on a background thread. It must produce no plugin UI
-effects, including token markup and `invokeLater` calls. A real editor displaying
-the resulting preview is a separate surface and can receive token colors.
+`EditorEffectGuard` checks the originating execution context before session creation or work scheduling. Intention-preview computation with copied PSI and a mock editor must create no plugin effects. A real editor displaying preview output is a separate supported surface.
 
-`EditorSurfaceClassifier` accepts factory-owned `EditorEx` instances and reads
-their editor kind and one-line mode. It does not probe support by attempting
-rendering or swallowing unsupported-operation exceptions. Read-only status does
-not disqualify a main editor: a viewer can still have an interactive caret.
+`EditorSurfaceClassifier` classifies factory-owned `EditorEx` instances by editor kind and one-line mode. Main editors support token colors, active endpoint emphasis, and both guide directions. One-line main editors support horizontal guides only. Preview, diff, console, and untyped editors use a conservative colors-only policy. A read-only main editor can still have an interactive caret. Unsupported or calculation-only editors have no presentation capability.
 
-## Stable support and transient activity
+`EditorPresentationPolicy` resolves capabilities, persisted preferences, and captured activity into an `EditorPlan`. Analysis coverage follows supported features and preferences, independently of focus. Presentation additionally requires visibility; guides and active endpoint emphasis require activity. `EditorActivitySource` captures Swing visibility, focus, and associated popup ownership on EDT. Background calculation does not read those facts. The resulting transient preference view is never persisted or shared between editors.
 
-`EditorPresentationPolicy` is a pure function of capabilities, persisted
-preferences, and captured activity. Its `EditorPlan` contains two results:
+## One presentation owner
 
-- Analysis coverage depends on capabilities and preferences, independent of
-  focus and visibility.
-- Presentation policy additionally depends on current visibility and whether
-  the editor owns focus, directly or through a child popup.
+`ui.editor.EditorGuide` owns visible token windows, tracked pair markers, guide geometry, presentation revisions, and markup for one editor. It retains a read-only `BracketView` for rendering, while runtime owns source identity and accepted-result authority. UI owns no calculation job or coroutine scope.
 
-Main editors support token colors, active endpoint emphasis, and both guide
-directions. One-line main editors support horizontal guides only. Preview, diff,
-console, and untyped editors use a conservative colors-only policy. These are
-plugin defaults, not platform prohibitions. An unsupported or calculation-only
-editor has no presentation capability.
+`GuideDemand` is the UI-owned desired-state contract. `EditorGuide` submits one complete demand when content, configuration, or presentation changes. It does not sequence full-analysis cancellation and repair scheduling. `GuideWork` hides that ordering; `GuideView` receives result and repair updates on EDT.
 
-`EditorActivitySource` reads Swing visibility, focus, and associated IntelliJ
-popup ownership on EDT. Background analysis never reads those UI facts. Each
-session applies a transient preference view derived from its presentation
-policy; that view is never persisted or shared with another editor.
+Losing focus removes active guides and endpoint emphasis while token colors and a current view remain available in the visible editor. Regaining activity can reuse the current result. Hiding removes markup and revokes background work; runtime releases accepted values and UI releases its view. Becoming visible requests current work again. A late result must satisfy current demand and presentation ownership before it can display anything.
 
-## Session transitions
+## Rendering can reenter
 
-`EditorGuideSession` owns the policy and the accepted analysis for one editor.
-Two views of the same document can therefore have different presentation and
-analysis requirements.
+IntelliJ markup calls can synchronously invoke listeners. `RenderFrames` assigns each render an authority frame, and nested rendering or close makes the outer frame obsolete. Presentation helpers check that authority around SDK effects. Each frame tracks the marks it creates; rollback disposes only marks still owned by that frame, leaving marks adopted by newer rendering intact.
 
-Losing focus removes the active guide and endpoint emphasis while preserving
-token colors. Hiding an editor removes its markup. Regaining activity reuses a
-current snapshot; it does not invalidate analysis just because focus changed.
-Results arriving from a background pass are checked against current document,
-lexer, settings, and coverage, then displayed according to the current policy.
-An old request cannot revive a guide in an inactive editor.
+`EditorGuide.applyAnalysis` and `applyRepair` return `ViewApplication.APPLIED` only after current rendering commits. An obsolete frame returns `OBSOLETE`. Rendering failures clean up owned effects and propagate rather than claiming success. Runtime checks validity again after the callback before recording acceptance. Runtime lifecycle locking never encloses SDK rendering.
 
-A document edit adjusts tracked endpoint ranges and hides an affected guide
-before the callback returns on EDT. `GuidePositionFallback` uses only geometry:
-a same-line pair has column zero, and an edit outside the tracked pair can reuse
-its guide. Neither `guideAfterChange` nor `guideFor` scans document text, PSI, or
-tokens.
+This design localizes ownership rules; it does not make synchronous listener behavior harmless by assumption. Reentrant close, document/configuration changes, failed highlighter creation, and newer-frame adoption are separate contract cases to validate.
 
-Missing indentation starts an immediate `GuideRepairExecution` job, independent
-of full analysis. It captures immutable line prefixes in short cancellable read
-actions and computes indentation after releasing read access. Post-edit repair
-preserves the 256-line and 32,768-consumed-character bounds, earliest-line tie
-rule, and zero-column early stop. A refused exact repair leaves the guide hidden.
-Ordinary provisional repair preserves its closing-line, previous-anchor, then
-forward candidate order; its bounded approximation is not an authoritative
-snapshot.
+## Edits and immediate repair
 
-The session owns the repair job and the tracked-pair generation. An edit, caret,
-settings, tab-layout, or lifecycle change cancels superseded work. EDT publication
-also validates the captured source stamp and the exact session/pair ownership.
-An authoritative snapshot cancels repair and wins. Adjusted endpoint emphasis
-can remain visible while the affected guide is hidden. The trade-off is recorded
-in [Hide affected guides before background repair](adr/0001-hide-affected-guides-before-background-repair.md).
+A document callback updates tracked endpoints and hides affected guide geometry synchronously before submitting a content demand. `GuidePositionFallback` uses safe geometry: same-line pairs use column zero, and an edit outside a tracked pair can retain its geometry. Presentation callbacks do not scan document indentation, PSI, or tokens to repair a guide.
 
-## Secondary-editor lifecycle
+If geometry is missing, the demand includes a `RepairIntent`. Runtime starts the separate repair lane immediately, without the 75 ms secondary full-analysis delay. Core calculates after bounded prefix capture releases read access. Repair preserves the 256-line and 32,768-consumed-character budgets, earliest-line tie rule, and zero-column early stop. Exact repair can refuse; the guide then remains hidden. Provisional repair considers the closing line, previous anchor, and forward candidates in that order and does not establish authoritative pairing.
 
-Normal editors request work through IntelliJ's highlighting pass; secondary
-editors request it through `SecondaryEditorAnalysis` because some code viewers
-never receive daemon passes. Both are adapters to `EditorAnalysisExecution`,
-which owns capture, background calculation, and EDT publication. A pass may run
-under the daemon's read lock, but its independent worker begins on
-`Dispatchers.Default` without inheriting that lock.
+An edit, caret, settings, layout, or lifetime transition revokes obsolete repair interest. Application requires current source and guide revision plus the same tracked/adjusted pair. Full analysis revokes competing repair and provides authoritative geometry. Endpoint emphasis may remain while an affected guide is hidden. This behavior preserves [ADR 0001](adr/0001-hide-affected-guides-before-background-repair.md).
 
-Full analysis for secondary editors has a 75 ms debounce. Semantic supersession
-cancels the previous request immediately, before that delay. Compatible requests
-can share a pending richer calculation; current accepted coverage can also be
-reused. The delay does not apply to main-editor full analysis or guide repair.
+## Event and native adapters
 
-The scheduler observes existing and newly created editors. It requests analysis
-when a secondary editor becomes visible, its document or highlighter changes,
-or relevant settings change. Hidden editors defer new work until shown. Editor
-release cancels pending work and removes listeners and session-owned markup.
+`ui.editor.events.EditorGuideEvents` observes existing and new editor surfaces, settings, visibility, and source changes. Normal daemon passes reach `GuideWork.refresh` through the plugin highlighting-pass adapter. Secondary surfaces submit demands even when the daemon does not supply a pass. Runtime starts an independent worker, so a daemon read lock is not inherited.
 
-Recognition still requires a compatible language lexer and brace matcher. This
-policy does not add support for HTML/JCEF code blocks or independent terminal
-renderers, and does not introduce time-based animation.
+Native paint evidence crosses `GuideWork.observeNativeGuide` only as displayed geometry and revision. Runtime owns inspection and proof validity; `NativeGuideAdvisory` owns notification episodes and suppression. A stale native proof cannot be reinterpreted as evidence for a newly displayed guide.
+
+Recognition still depends on installed language lexers and brace matchers. Surface policy does not add support for HTML/JCEF code blocks or independent terminal renderers, and introduces no time-based animation.
 
 ## Verification boundaries
 
-Pure tests cover capabilities, settings, activity, and independent guide
-directions. Platform fixtures cover real editor kinds, read-only main editors,
-shared documents, delayed results, visibility transitions, and secondary-editor
-refresh without a daemon pass. Repair fixtures assert immediate hiding, eventual
-geometry, cancellation, stale-result rejection, and EDT writes while calculation
-is paused outside read access. Existing Intention preview tests also verify
-that the pass factory and event initialization produce no effects during preview
-computation.
+Policy contracts cover supported features, activity, and independent guide directions. Real SDK contracts cover editor kinds, shared documents, focus/visibility, reentrant or failing markup, immediate hiding, stale-result rejection, and lifetime release. Driver visual inspection checks rendered colors and geometry in actual editor surfaces. Pure calculation tests establish neither Swing rendering nor IDE compatibility; visual checks alone establish neither source validity nor cancellation.
 
-The Driver suite checks that moving focus to Settings removes active
-presentation while preserving token colors, then restores the existing exact
-editor baseline after returning. Headless fixture tests supply activity
-explicitly; production eligibility does not special-case unit-test mode.
-
-[Analysis execution](explanation_analysis_execution.md) explains the host and
-pure calculation seams and their extension points. The
-[performance reference](reference_performance_limits.md) lists capture and
-repair bounds.
+Current validation records identify completed and unexecuted checks. [Analysis execution](explanation_analysis_execution.md) explains worker/source authority, and [Module architecture](explanation_module_architecture.md) explains why UI cannot import calculation implementations.

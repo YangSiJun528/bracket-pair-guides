@@ -1,0 +1,41 @@
+[
+  {
+    "name": "compiler-targeted-02",
+    "command": [
+      "./gradlew",
+      "-p",
+      "build-logic",
+      "test",
+      "--tests",
+      "com.sijunyang.buildlogic.CompilationBoundaryTest.actualUiTestSourceInjectionIsRejected",
+      "--tests",
+      "com.sijunyang.buildlogic.CompilationBoundaryTest.missingProductionOwnerIsRejected",
+      "--tests",
+      "com.sijunyang.buildlogic.CompilationBoundaryTest.transitiveApiExportIsRejected",
+      "--tests",
+      "com.sijunyang.buildlogic.CompilationBoundaryTest.kotlinCompilerPluginInjectionIsRejected",
+      "--tests",
+      "com.sijunyang.buildlogic.CompilationBoundaryTest.actualUiTestFriendInjectionIsRejected",
+      "--tests",
+      "com.sijunyang.buildlogic.CompilationBoundaryTest.sharedSourceIsRejected",
+      "--tests",
+      "com.sijunyang.buildlogic.PackagedOwnerTest",
+      "--tests",
+      "com.sijunyang.buildlogic.BenchmarkReportTest",
+      "--no-configuration-cache",
+      "--console=plain"
+    ],
+    "exitCode": 1
+  },
+  {
+    "name": "sdk-comparison-compile-01",
+    "command": [
+      "./gradlew",
+      ":analysis-runtime:compileTestKotlin",
+      ":plugin:compileSdkPerformanceKotlin",
+      "--no-configuration-cache",
+      "--console=plain"
+    ],
+    "exitCode": 0
+  }
+]

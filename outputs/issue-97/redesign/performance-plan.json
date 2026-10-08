@@ -1,0 +1,62 @@
+{
+  "recordedBeforeMeasurements": "2026-10-08T07:07:40.295425+00:00",
+  "baselineCommit": "072533f",
+  "candidateCheckpoint": "5767d6a + final reviewed follow-ups; freeze hashes before each measurement series",
+  "scope": "local same-machine relative comparison, not Bencher historical bare-metal evidence",
+  "serialOnly": true,
+  "backgroundWork": "no Gradle compilation, IDE verifier, Driver, Qodana or other benchmark during timed samples",
+  "pure": {
+    "tool": "JMH 1.37",
+    "java": "Temurin 17.0.17+10 aarch64",
+    "heap": "-Xms2g -Xmx2g",
+    "threads": 1,
+    "forks": 2,
+    "warmupIterations": 2,
+    "warmupSeconds": 1,
+    "measurementIterations": 3,
+    "measurementSeconds": 1,
+    "profiler": "gc",
+    "freshJvmPairs": 6,
+    "pairOrder": [
+      "baseline-candidate",
+      "candidate-baseline",
+      "baseline-candidate",
+      "candidate-baseline",
+      "baseline-candidate",
+      "candidate-baseline"
+    ],
+    "cases": 40,
+    "metrics": [
+      "ns/op",
+      "B/op"
+    ],
+    "perJobTimeoutSeconds": 240,
+    "functionalPrerequisite": "8 exact semantic fingerprints already matched; preserve selected jar SHA256",
+    "cancellationCaveat": "8 cancellation cases cancel at the eighth architecture-specific checkpoint; compare cancellation behavior/cost, not equal-work algorithm throughput"
+  },
+  "sdk": {
+    "tool": "new identical opt-in actual IntelliJ fixture + two thin test-only adapters",
+    "warmup": 100,
+    "repeat": 30,
+    "cancellationTrials": 30,
+    "categories": [
+      "analysis",
+      "write-wait",
+      "execution",
+      "repair",
+      "native",
+      "retained-payload",
+      "capture-release"
+    ],
+    "boundary": "direct capture/calculation separately from actual UI execution; no factory-vs-direct comparison",
+    "requireSame": "actual IDE/JBR/heap, original corpora/boundary sizes/iteration math; record unavailable observations explicitly",
+    "retention": "raw reachability and retained-heap results are different claims; distinguish GC deadline failures from structural retention"
+  },
+  "assessment": {
+    "existingGate": "latency upper20%, latest1 and 240s JMH/300s remote budgets unchanged; allocation20% added to new CI proposal",
+    "localRule": "report every reproducible added allocation and latency increase, including under20%; investigate >20% paired median regressions, do not silently waive or dilute samples",
+    "uncertainty": "keep per-pair ratios/raw forks and distinguish unstable timing from repeatable effects; no threshold changes after viewing results",
+    "failurePolicy": "preserve failed/time-out samples; any smoke run is setup evidence only, never a full performance pass"
+  },
+  "notYetRun": true
+}

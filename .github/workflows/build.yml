@@ -79,7 +79,7 @@ jobs:
         run: ./gradlew -p tools/pure-build :analysis-model:build :analysis-core:build
 
       - name: Run Tests
-        run: ./gradlew check
+        run: ./gradlew check :plugin:currentSdkTests
 
       - name: Collect Failed Test Reports
         if: ${{ failure() }}

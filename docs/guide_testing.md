@@ -3,10 +3,10 @@
 Run commands from the repository root. Build, Driver, compatibility checks and
 performance measurements share resources; run them serially.
 
-## Run fast owner tests
+## Run owner and structural tests
 
 ```sh
-./gradlew -p tools/pure-build :analysis-model:build :analysis-core:build
+./gradlew -p tools/pure-build check :analysis-model:build :analysis-core:build
 ./gradlew spotlessCheck check
 ```
 
@@ -31,7 +31,9 @@ Classes ending `IdeContractTest` belong to their production module's `src/test`
 but execute through the official plugin test sandbox. Ordinary owner `test`
 tasks exclude those classes. The UI test compile classpath excludes core and
 runtime implementations; collecting compiled test outputs in the real IDE
-runner does not change compile access.
+runner does not change compile access. The existing CI Test step runs both
+`check` and `:plugin:currentSdkTests`; local execution evidence must still show
+the actual selected platform and executed cases.
 
 Inspect the XML test results and `ACTUAL_IDE`/`ACTUAL_JAVA` output. A configured
 IDE version alone does not establish which platform executed the test.

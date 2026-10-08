@@ -1,0 +1,36 @@
+> Task :build-logic:compileJava NO-SOURCE
+
+> Task :build-logic:compileGroovy FAILED
+startup failed:
+/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build-logic/src/main/groovy/com/sijunyang/buildlogic/ModuleBoundariesPlugin.groovy: 208: The current scope already contains a variable of the name friends
+ @ line 208, column 21.
+                   def friends = kotlinInput(testKotlin, 'getFriendPathsSet').get()
+                       ^
+
+/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build-logic/src/main/groovy/com/sijunyang/buildlogic/ModuleBoundariesPlugin.groovy: 210: The current scope already contains a variable of the name sources
+ @ line 210, column 21.
+                   def sources = testJava.source.files + testKotlin.javaSources.files + kotlinInput(testKotlin, 'getSourceFiles').files + kotlinInput(testKotlin, 'getCommonSourceSet').files
+                       ^
+
+2 errors
+
+
+[Incubating] Problems report is available at: file:///Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':build-logic:compileGroovy' (registered by plugin class 'org.gradle.api.plugins.GroovyBasePlugin').
+> Compilation failed; see the compiler error output for details.
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 2s
+1 actionable task: 1 executed

@@ -150,11 +150,10 @@ internal class BraceLanguageCatalog {
     }
 
     private companion object {
-        val DEFAULT_MATCHER =
-            BraceMatchingUtil.getBraceMatcher(
-                UnknownFileType.INSTANCE,
-                Language.ANY,
-            )
+        val DEFAULT_MATCHER by lazy {
+            // SDK service lookup must run on demand, never during class initialization.
+            BraceMatchingUtil.getBraceMatcher(UnknownFileType.INSTANCE, Language.ANY)
+        }
     }
 }
 

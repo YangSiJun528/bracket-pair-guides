@@ -44,6 +44,14 @@ abstract class BenchmarkReportTask extends DefaultTask {
         input.each { row ->
             check(row instanceof Map && row.benchmark instanceof String, 'invalid benchmark row')
             def method = row.benchmark.tokenize('.').last()
+            check(row.benchmark == 'com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.' + method, 'foreign benchmark owner')
+            check(row.jmhVersion == '1.37' && row.jdkVersion instanceof String && row.jdkVersion ==~ /17(?:\..*)?/, 'JMH/JVM contract changed')
+            check(row.forks == 2 && row.threads == 1 && row.warmupIterations == 2 && row.measurementIterations == 3 &&
+                row.warmupTime == '1 s' && row.measurementTime == '1 s' && row.warmupBatchSize == 1 && row.measurementBatchSize == 1,
+                'JMH run geometry changed')
+            check(row.jvmArgs instanceof List && row.jvmArgs.count { it.toString().startsWith('-Xms') } == 1 &&
+                row.jvmArgs.count { it.toString().startsWith('-Xmx') } == 1 && row.jvmArgs.containsAll(['-Xms2g', '-Xmx2g']), 'JMH heap changed')
+            check(sampleGeometry(row.primaryMetric?.rawData) && sampleGeometry(row.secondaryMetrics?.get('gc.alloc.rate.norm')?.rawData), 'JMH sample geometry changed')
             check(row.params instanceof Map && row.params.keySet() == (['distribution', 'pairCount'] as Set), 'parameter contract changed')
             def key = "${method}|${row.params.distribution}|${row.params.pairCount}".toString()
             check(expected.contains(key) && seen.add(key), 'missing/duplicate/unexpected case ' + key)
@@ -61,6 +69,11 @@ abstract class BenchmarkReportTask extends DefaultTask {
         output
     }
 
+    private static boolean sampleGeometry(Object samples) {
+        samples instanceof List && samples.size() == 2 && samples.every { fork ->
+            fork instanceof List && fork.size() == 3 && fork.every { it instanceof Number && Double.isFinite(it.doubleValue()) && it >= 0 }
+        }
+    }
     private static double finite(Object score) {
         check(score instanceof Number && Double.isFinite(score.doubleValue()), 'nonfinite/non-numeric metric')
         score.doubleValue()

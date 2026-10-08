@@ -1,0 +1,33 @@
+[
+  {
+    "name": "integration-compile-07",
+    "command": [
+      "./gradlew",
+      "verifyProductionModules",
+      ":plugin:compileSdkPerformanceKotlin",
+      ":plugin:compileVisualBridgeKotlin",
+      ":plugin:compileVisualTestKotlin",
+      ":plugin:minimumSdkTests",
+      "verifyPluginPackaging",
+      "--no-configuration-cache",
+      "--console=plain"
+    ],
+    "exitCode": 0,
+    "seconds": 36.13062500953674
+  },
+  {
+    "name": "compiler-plugin-probe-07",
+    "command": [
+      "./gradlew",
+      "-p",
+      "build-logic",
+      "test",
+      "--tests",
+      "com.sijunyang.buildlogic.CompilationBoundaryTest.kotlinCompilerPluginInjectionIsRejected",
+      "--no-configuration-cache",
+      "--console=plain"
+    ],
+    "exitCode": 0,
+    "seconds": 55.085981130599976
+  }
+]

@@ -66,11 +66,60 @@ class CalculationWorkload(pairCount: Int, distribution: String) {
         }
     }
 
+    /** Independent pre-measurement behavior comparison; never called by a JMH measured method. */
+    fun semanticFingerprint(): String {
+        fun digest(value: String): String = java.security.MessageDigest.getInstance("SHA-256")
+            .digest(value.toByteArray(Charsets.UTF_8)).joinToString("") { "%02x".format(it.toInt() and 255) }
+        val available = ready as? AnalysisResult.Available
+        val limit = when (val outcome = ready) {
+            is AnalysisResult.Available -> outcome.limit
+            is AnalysisResult.Unavailable -> outcome.limit
+        }
+        return buildString {
+            appendLine("text=${digest(text)}")
+            appendLine("length=${text.length}")
+            appendLine("lines=${input.lineCount}")
+            appendLine("state=${if (available == null) "unavailable" else "available"}")
+            appendLine("coverage=${ready.coverage}")
+            appendLine("matcher=${ready.matcherAvailability.name}")
+            appendLine("limit=$limit")
+            if (available != null) {
+                val all = available.view.visibleTokens(OffsetRange(0, text.length), 1, Int.MAX_VALUE)
+                val contents = buildString {
+                    for (index in 0 until all.size) {
+                        append(
+                            "${all.offsetAt(index)},${all.lengthAt(index)},${all.depthAt(index)};",
+                        )
+                    }
+                }
+                appendLine("tokens=${all.size}:${all.isCapped}:${digest(contents)}")
+                val offsets = listOf(
+                    0,
+                    1,
+                    text.length / 4,
+                    text.length / 2,
+                    3 * text.length / 4,
+                    text.length - 1,
+                    text.length,
+                )
+                    .map { it.coerceIn(0, text.length) }.distinct().sorted()
+                for (offset in offsets) {
+                    val pair = available.view.activePairAt(offset)
+                    appendLine("sample=$offset:$pair:${pair?.let(available.view::guideFor)}")
+                }
+            }
+            appendLine("repair=${repair()}")
+            appendLine("query=${query()}")
+            appendLine("cancel=${cancel()}")
+        }
+    }
+
     private class RecordedInput(private val text: String) : BracketInput {
         private val starts = buildList {
             add(0)
             text.forEachIndexed { index, ch -> if (ch == '\n') add(index + 1) }
         }
+        val lineCount: Int get() = starts.size
         private val open = TokenKind()
         private val close = TokenKind()
         private val group = TokenGroup(0, 0)

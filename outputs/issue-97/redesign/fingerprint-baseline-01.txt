@@ -1,0 +1,152 @@
+CASE siblings/64
+text=bad058db165d7dff54f0b204fceecd2318bca5896b55e3b3bbacc36e26fa3073
+length=768
+lines=193
+state=available
+coverage=AnalysisCoverage(tokens=true, activePair=true, guidePosition=true)
+matcher=AVAILABLE
+limit=null
+tokens=128:false:0df294b0688bd3be8ca5ab746d8104e6e5f47a2658c49c17b13fc57500bc5a19
+sample=0:null:null
+sample=1:BracketPair(openOffset=0, openTokenLength=1, closeOffset=10, closeTokenLength=1, depth=0, openLine=0, closeLine=2):BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=10, closeTokenLength=1, depth=0, openLine=0, closeLine=2), guideColumn=0, anchorLine=2)
+sample=192:null:null
+sample=384:null:null
+sample=576:null:null
+sample=767:null:null
+sample=768:null:null
+repair=BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=10, closeTokenLength=1, depth=0, openLine=0, closeLine=2), guideColumn=0, anchorLine=2)
+query=640
+cancel=true
+CASE siblings/4096
+text=2df676a2b5a39e454e1e1e53b397e2966cf920dfd5a29c991bb1e5c9da475d2b
+length=49152
+lines=12289
+state=available
+coverage=AnalysisCoverage(tokens=true, activePair=true, guidePosition=true)
+matcher=AVAILABLE
+limit=null
+tokens=8192:false:66633b79fa20f46c87467e0b03127c0e06d84c3c318c99a5a7b3829f79a3968e
+sample=0:null:null
+sample=1:BracketPair(openOffset=0, openTokenLength=1, closeOffset=10, closeTokenLength=1, depth=0, openLine=0, closeLine=2):BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=10, closeTokenLength=1, depth=0, openLine=0, closeLine=2), guideColumn=0, anchorLine=2)
+sample=12288:null:null
+sample=24576:null:null
+sample=36864:null:null
+sample=49151:null:null
+sample=49152:null:null
+repair=BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=10, closeTokenLength=1, depth=0, openLine=0, closeLine=2), guideColumn=0, anchorLine=2)
+query=509
+cancel=true
+CASE nested/64
+text=9b9a57d840b6a0916d957550e84005f4d7f079dec7634db7f113df270fa5688b
+length=137
+lines=3
+state=available
+coverage=AnalysisCoverage(tokens=true, activePair=true, guidePosition=true)
+matcher=AVAILABLE
+limit=null
+tokens=128:false:7b1959df3dd3a5187f4f0e93f3b80fcc26cb56cd73abadecc27bf205a8339e06
+sample=0:null:null
+sample=1:BracketPair(openOffset=0, openTokenLength=1, closeOffset=136, closeTokenLength=1, depth=0, openLine=0, closeLine=2):BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=136, closeTokenLength=1, depth=0, openLine=0, closeLine=2), guideColumn=0, anchorLine=2)
+sample=34:BracketPair(openOffset=33, openTokenLength=1, closeOffset=103, closeTokenLength=1, depth=33, openLine=0, closeLine=2):BracketGuide(pair=BracketPair(openOffset=33, openTokenLength=1, closeOffset=103, closeTokenLength=1, depth=33, openLine=0, closeLine=2), guideColumn=0, anchorLine=2)
+sample=68:BracketPair(openOffset=63, openTokenLength=1, closeOffset=73, closeTokenLength=1, depth=63, openLine=0, closeLine=2):BracketGuide(pair=BracketPair(openOffset=63, openTokenLength=1, closeOffset=73, closeTokenLength=1, depth=63, openLine=0, closeLine=2), guideColumn=0, anchorLine=2)
+sample=102:BracketPair(openOffset=34, openTokenLength=1, closeOffset=102, closeTokenLength=1, depth=34, openLine=0, closeLine=2):BracketGuide(pair=BracketPair(openOffset=34, openTokenLength=1, closeOffset=102, closeTokenLength=1, depth=34, openLine=0, closeLine=2), guideColumn=0, anchorLine=2)
+sample=136:BracketPair(openOffset=0, openTokenLength=1, closeOffset=136, closeTokenLength=1, depth=0, openLine=0, closeLine=2):BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=136, closeTokenLength=1, depth=0, openLine=0, closeLine=2), guideColumn=0, anchorLine=2)
+sample=137:null:null
+repair=BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=136, closeTokenLength=1, depth=0, openLine=0, closeLine=2), guideColumn=0, anchorLine=2)
+query=64
+cancel=true
+CASE nested/4096
+text=4cc26dd9932ced2b78f3ca94c05966983d2b03562ef9bae845aa0e8ae370aed2
+length=8201
+lines=3
+state=available
+coverage=AnalysisCoverage(tokens=true, activePair=true, guidePosition=true)
+matcher=AVAILABLE
+limit=null
+tokens=8192:false:b62148ae6b4d1997bf5e68f92f738dd24bd4b742392e1962550a7166616ac84d
+sample=0:null:null
+sample=1:BracketPair(openOffset=0, openTokenLength=1, closeOffset=8200, closeTokenLength=1, depth=0, openLine=0, closeLine=2):BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=8200, closeTokenLength=1, depth=0, openLine=0, closeLine=2), guideColumn=0, anchorLine=2)
+sample=2050:BracketPair(openOffset=2049, openTokenLength=1, closeOffset=6151, closeTokenLength=1, depth=2049, openLine=0, closeLine=2):BracketGuide(pair=BracketPair(openOffset=2049, openTokenLength=1, closeOffset=6151, closeTokenLength=1, depth=2049, openLine=0, closeLine=2), guideColumn=0, anchorLine=2)
+sample=4100:BracketPair(openOffset=4095, openTokenLength=1, closeOffset=4105, closeTokenLength=1, depth=4095, openLine=0, closeLine=2):BracketGuide(pair=BracketPair(openOffset=4095, openTokenLength=1, closeOffset=4105, closeTokenLength=1, depth=4095, openLine=0, closeLine=2), guideColumn=0, anchorLine=2)
+sample=6150:BracketPair(openOffset=2050, openTokenLength=1, closeOffset=6150, closeTokenLength=1, depth=2050, openLine=0, closeLine=2):BracketGuide(pair=BracketPair(openOffset=2050, openTokenLength=1, closeOffset=6150, closeTokenLength=1, depth=2050, openLine=0, closeLine=2), guideColumn=0, anchorLine=2)
+sample=8200:BracketPair(openOffset=0, openTokenLength=1, closeOffset=8200, closeTokenLength=1, depth=0, openLine=0, closeLine=2):BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=8200, closeTokenLength=1, depth=0, openLine=0, closeLine=2), guideColumn=0, anchorLine=2)
+sample=8201:null:null
+repair=BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=8200, closeTokenLength=1, depth=0, openLine=0, closeLine=2), guideColumn=0, anchorLine=2)
+query=1024
+cancel=true
+CASE sparse/64
+text=264db3aa71b04f2249c183961b2c4b470d4599d15e3d0067955ece0708a1cb35
+length=2116
+lines=67
+state=available
+coverage=AnalysisCoverage(tokens=true, activePair=true, guidePosition=true)
+matcher=AVAILABLE
+limit=null
+tokens=2:false:9424be865a3e1ae2089c9805e799819d635e8586039210506818fe191ec08f4a
+sample=0:null:null
+sample=1:BracketPair(openOffset=0, openTokenLength=1, closeOffset=2114, closeTokenLength=1, depth=0, openLine=0, closeLine=65):BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=2114, closeTokenLength=1, depth=0, openLine=0, closeLine=65), guideColumn=0, anchorLine=65)
+sample=529:BracketPair(openOffset=0, openTokenLength=1, closeOffset=2114, closeTokenLength=1, depth=0, openLine=0, closeLine=65):BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=2114, closeTokenLength=1, depth=0, openLine=0, closeLine=65), guideColumn=0, anchorLine=65)
+sample=1058:BracketPair(openOffset=0, openTokenLength=1, closeOffset=2114, closeTokenLength=1, depth=0, openLine=0, closeLine=65):BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=2114, closeTokenLength=1, depth=0, openLine=0, closeLine=65), guideColumn=0, anchorLine=65)
+sample=1587:BracketPair(openOffset=0, openTokenLength=1, closeOffset=2114, closeTokenLength=1, depth=0, openLine=0, closeLine=65):BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=2114, closeTokenLength=1, depth=0, openLine=0, closeLine=65), guideColumn=0, anchorLine=65)
+sample=2115:null:null
+sample=2116:null:null
+repair=BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=2114, closeTokenLength=1, depth=0, openLine=0, closeLine=65), guideColumn=0, anchorLine=65)
+query=1
+cancel=true
+CASE sparse/4096
+text=2b39f944391538adb712528dbcabd40fd62892e18baae3403682e520b91fe44b
+length=135172
+lines=4099
+state=available
+coverage=AnalysisCoverage(tokens=true, activePair=true, guidePosition=true)
+matcher=AVAILABLE
+limit=null
+tokens=2:false:f93d7de3f4b5cb47dc25a4084514831df16bf239f371dcd6311f05dbf2cb3682
+sample=0:null:null
+sample=1:BracketPair(openOffset=0, openTokenLength=1, closeOffset=135170, closeTokenLength=1, depth=0, openLine=0, closeLine=4097):BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=135170, closeTokenLength=1, depth=0, openLine=0, closeLine=4097), guideColumn=0, anchorLine=4097)
+sample=33793:BracketPair(openOffset=0, openTokenLength=1, closeOffset=135170, closeTokenLength=1, depth=0, openLine=0, closeLine=4097):BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=135170, closeTokenLength=1, depth=0, openLine=0, closeLine=4097), guideColumn=0, anchorLine=4097)
+sample=67586:BracketPair(openOffset=0, openTokenLength=1, closeOffset=135170, closeTokenLength=1, depth=0, openLine=0, closeLine=4097):BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=135170, closeTokenLength=1, depth=0, openLine=0, closeLine=4097), guideColumn=0, anchorLine=4097)
+sample=101379:BracketPair(openOffset=0, openTokenLength=1, closeOffset=135170, closeTokenLength=1, depth=0, openLine=0, closeLine=4097):BracketGuide(pair=BracketPair(openOffset=0, openTokenLength=1, closeOffset=135170, closeTokenLength=1, depth=0, openLine=0, closeLine=4097), guideColumn=0, anchorLine=4097)
+sample=135171:null:null
+sample=135172:null:null
+repair=null
+query=1
+cancel=true
+CASE malformed/64
+text=ded8f7fe942823c8c310bddf071358d33ebebaab371e9e370ac5538e8efbc9a6
+length=192
+lines=65
+state=available
+coverage=AnalysisCoverage(tokens=true, activePair=true, guidePosition=true)
+matcher=AVAILABLE
+limit=null
+tokens=0:false:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+sample=0:null:null
+sample=1:null:null
+sample=48:null:null
+sample=96:null:null
+sample=144:null:null
+sample=191:null:null
+sample=192:null:null
+repair=null
+query=0
+cancel=true
+CASE malformed/4096
+text=2a31448a06aca05db3eb78b0af6c7bb033f73e990d42284ca7d8a0bf2a867e05
+length=12288
+lines=4097
+state=available
+coverage=AnalysisCoverage(tokens=true, activePair=true, guidePosition=true)
+matcher=AVAILABLE
+limit=null
+tokens=0:false:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+sample=0:null:null
+sample=1:null:null
+sample=3072:null:null
+sample=6144:null:null
+sample=9216:null:null
+sample=12287:null:null
+sample=12288:null:null
+repair=null
+query=0
+cancel=true

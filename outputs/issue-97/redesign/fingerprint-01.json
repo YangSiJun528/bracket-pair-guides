@@ -1,0 +1,17 @@
+{
+  "java": "/Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home/bin/java",
+  "version": "openjdk version \"17.0.17\" 2025-10-21\nOpenJDK Runtime Environment Temurin-17.0.17+10 (build 17.0.17+10)\nOpenJDK 64-Bit Server VM Temurin-17.0.17+10 (build 17.0.17+10, mixed mode, sharing)\n",
+  "sides": {
+    "baseline": {
+      "jar": "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides/benchmarks/build/libs/benchmarks-0.0.6-jmh.jar",
+      "sha256": "0d2169b3dd8d503acf486c36361692c3ac36868b1d2ae94a35d6dcb98a4a2afe",
+      "exitCode": 0
+    },
+    "candidate": {
+      "jar": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/benchmarks/build/libs/benchmarks-0.0.6-jmh.jar",
+      "sha256": "eff09b1af28a852b4972ff11a84b88d87a8eaaca681b015864fc54a9eb9c9589",
+      "exitCode": 0
+    }
+  },
+  "equal": true
+}
