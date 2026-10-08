@@ -1,0 +1,53 @@
+> Task :build-logic:compileJava NO-SOURCE
+> Task :build-logic:compileGroovy
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes
+> Task :build-logic:jar
+> Task :spotlessJava
+> Task :spotlessJavaApply
+
+> Task :spotlessKotlin
+Format was not able to resolve all violations which (theoretically) can be autocorrected in file /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/ui/settings/ui/BracketGuideSettingsPage.kt
+Format was not able to resolve all violations which (theoretically) can be autocorrected in file /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/ui/settings/ui/BracketGuideSettingsPage.kt
+
+> Task :spotlessKotlinApply FAILED
+
+[Incubating] Problems report is available at: file:///Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':spotlessKotlinApply' (registered in build file 'build.gradle.kts').
+> There were 15 lint error(s), they must be fixed or suppressed.
+  analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/core/api/BracketCalculator.kt:L3 ktlint(standard:no-wildcard-imports) Wildcard import
+  analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/core/internal/CalculationAttempt.kt:L3 ktlint(standard:no-wildcard-imports) Wildcard import
+  analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/core/internal/IndexedBracketSnapshot.kt:L1 ktlint(standard:filename) File 'IndexedBracketSnapshot.kt' contains a single class, and possibly related top level declarations for that class. The file should be named after the class, 'IndexedBracketView.kt'
+  analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/core/CalculationContractTest.kt:L4 ktlint(standard:no-wildcard-imports) Wildcard import
+  analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/core/InputBoundaryContractTest.kt:L4 ktlint(standard:no-wildcard-imports) Wildcard import
+  analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/core/LateCancellationContractTest.kt:L7 ktlint(standard:no-wildcard-imports) Wildcard import
+  analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/core/RecordedInput.kt:L3 ktlint(standard:no-wildcard-imports) Wildcard import
+  analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/core/TokenSemanticsContractTest.kt:L4 ktlint(standard:no-wildcard-imports) Wildcard import
+  analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/model/result/BracketView.kt:L3 ktlint(standard:no-wildcard-imports) Wildcard import
+  analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/runtime/capture/EditorSource.kt:L10 ktlint(standard:no-wildcard-imports) Wildcard import
+  analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/runtime/session/EditorAnalysisSession.kt:L29 ktlint(standard:no-wildcard-imports) Wildcard import
+  analysis-runtime/src/test/kotlin/com/sijunyang/bracketpairguides/runtime/nativeproof/NativeEvidenceContractTest.kt:L6 ktlint(standard:no-wildcard-imports) Wildcard import
+  analysis-runtime/src/test/kotlin/com/sijunyang/bracketpairguides/runtime/session/AnalysisSessionIdeContractTest.kt:L14 ktlint(standard:no-wildcard-imports) Wildcard import
+  editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/ui/editor/EditorGuide.kt:L20 ktlint(standard:no-wildcard-imports) Wildcard import
+  editor-ui/src/test/kotlin/com/sijunyang/bracketpairguides/ui/editor/EditorGuideIdeContractTest.kt:L6 ktlint(standard:no-wildcard-imports) Wildcard import
+  Resolve these lints or suppress with `suppressLintsFor`
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 10s
+8 actionable tasks: 6 executed, 2 up-to-date

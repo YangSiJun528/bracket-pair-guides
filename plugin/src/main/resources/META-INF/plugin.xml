@@ -37,34 +37,27 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity
-                implementation="com.sijunyang.bracketpairguides.editor.events.NativeMatchedBraceStartupActivity"/>
-
-        <postStartupActivity
-                implementation="com.sijunyang.bracketpairguides.editor.highlighting.EditorSurfaceStartupActivity"/>
+                implementation="com.sijunyang.bracketpairguides.plugin.GuideStartup"/>
 
         <highlightingPassFactory
-                implementation="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuidePassRegistration"/>
+                implementation="com.sijunyang.bracketpairguides.plugin.BracketGuidePassRegistration"/>
 
         <editorNotificationProvider
-                implementation="com.sijunyang.bracketpairguides.editor.highlighting.UnsupportedBackendNotificationProvider"/>
+                implementation="com.sijunyang.bracketpairguides.ui.editor.highlighting.UnsupportedBackendNotificationProvider"/>
 
         <applicationService
-                serviceImplementation="com.sijunyang.bracketpairguides.settings.BracketGuideSettings"/>
+                serviceImplementation="com.sijunyang.bracketpairguides.ui.settings.BracketGuideSettings"/>
 
         <applicationService
-                serviceInterface="com.sijunyang.bracketpairguides.editor.highlighting.EditorAnalysisRequests"
-                serviceImplementation="com.sijunyang.bracketpairguides.editor.highlighting.EditorAnalysisExecution"/>
+                serviceInterface="com.sijunyang.bracketpairguides.ui.work.InstalledBraceLanguages"
+                serviceImplementation="com.sijunyang.bracketpairguides.runtime.capture.InstalledBraceLanguageCatalog"/>
 
         <applicationService
-                serviceInterface="com.sijunyang.bracketpairguides.settings.InstalledBraceLanguages"
-                serviceImplementation="com.sijunyang.bracketpairguides.analysis.intellij.InstalledBraceLanguageCatalog"/>
+                serviceImplementation="com.sijunyang.bracketpairguides.ui.editor.events.NativeVisualSettingsCoordinator"/>
 
         <applicationService
-                serviceImplementation="com.sijunyang.bracketpairguides.editor.events.NativeVisualSettingsCoordinator"/>
-
-        <applicationService
-                serviceInterface="com.sijunyang.bracketpairguides.settings.NativeGuideConflictSettingsListener"
-                serviceImplementation="com.sijunyang.bracketpairguides.editor.highlighting.NativeGuideConflictNotification"/>
+                serviceInterface="com.sijunyang.bracketpairguides.ui.settings.NativeGuideConflictSettingsListener"
+                serviceImplementation="com.sijunyang.bracketpairguides.ui.editor.highlighting.NativeGuideAdvisory"/>
 
         <notificationGroup
                 id="Bracket Pair Guides Native Visual Conflict"
@@ -73,7 +66,7 @@
 
         <applicationConfigurable
                 parentId="editor"
-                instance="com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPage"
+                instance="com.sijunyang.bracketpairguides.ui.settings.ui.BracketGuideSettingsPage"
                 id="com.sijunyang.bracketpairguides.settings.PluginConfigurable"
                 displayName="Bracket Pair Guides"/>
     </extensions>

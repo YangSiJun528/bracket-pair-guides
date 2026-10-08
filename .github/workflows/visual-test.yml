@@ -1,42 +1,18 @@
-# Run the deterministic IntelliJ Driver visual regression scenarios for pull requests.
-
-# Version the workflow name with the image contract. workflow_run uses the reporter
-# from the default branch: the 220 x 239 v2 captures must not reach the previous
-# "Visual Test Scenarios" reporter, which requires 220 x 240 images.
-name: Visual Test Scenarios v2
+name: Visual Contracts
 on:
-  workflow_dispatch:
-    inputs:
-      commit_sha:
-        description: Full 40-character lowercase commit SHA to test
-        required: true
-        type: string
   pull_request:
     branches: [ main ]
-    # Reevaluate skip-ci on label changes, just like the regular Build workflow.
-    types: [ opened, synchronize, reopened, ready_for_review, converted_to_draft, labeled, unlabeled ]
-    paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
-      - 'LICENSE'
-
+    types: [ opened, synchronize, reopened, ready_for_review ]
+  workflow_dispatch:
 permissions:
   contents: read
-
 concurrency:
-  group: visual-test-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.run_id }}
+  group: visual-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
-
 jobs:
-  visualTest:
-    name: Visual Test
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'pull_request' &&
-      github.event.pull_request.draft == false &&
-      !contains(github.event.pull_request.labels.*.name, 'skip-ci') &&
-      (github.event.pull_request.stack == null ||
-      github.event.pull_request.stack.position == github.event.pull_request.stack.size))
+  visual:
+    name: Driver / exact reviewed pixels
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
@@ -44,301 +20,25 @@ jobs:
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
       TZ: UTC
-      VISUAL_TEST_COMMIT_SHA: >-
-        ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha ||
-        github.event.pull_request.head.sha }}
       VISUAL_TEST_ENVIRONMENT: ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1
-
     steps:
-      - name: Validate Commit SHA
-        shell: bash
-        run: |
-          if [[ ! "$VISUAL_TEST_COMMIT_SHA" =~ ^[0-9a-f]{40}$ ]]; then
-            echo "commit_sha must be a full 40-character lowercase hexadecimal SHA" >&2
-            exit 1
-          fi
-
-      - name: Fetch Sources
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@v7
         with:
-          ref: ${{ env.VISUAL_TEST_COMMIT_SHA }}
           persist-credentials: false
-
-      - name: Verify Exact Checkout
-        shell: bash
-        run: |
-          checked_out_sha="$(git rev-parse HEAD)"
-          if [[ "$checked_out_sha" != "$VISUAL_TEST_COMMIT_SHA" ]]; then
-            echo "Expected $VISUAL_TEST_COMMIT_SHA, checked out $checked_out_sha" >&2
-            exit 1
-          fi
-
-      - name: Setup Java
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+      - uses: actions/setup-java@v6.0.1
         with:
           distribution: zulu
           java-version: 21
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Run exact comparison; never record baselines
+        run: xvfb-run -a -s '-screen 0 1920x1080x24 -dpi 96' ./gradlew :plugin:visualTest
+      - uses: actions/upload-artifact@v7
+        if: always()
         with:
-          cache-read-only: true
-
-      - name: Run Visual Tests
-        id: visual-test
-        continue-on-error: true
-        shell: bash
-        run: |
-          set -o pipefail
-          mkdir -p plugin/build
-          xvfb-run \
-            --auto-servernum \
-            --server-args="-screen 0 1920x1080x24 -dpi 96 -nolisten tcp -ac" \
-            ./gradlew --no-daemon visualTest --stacktrace \
-            2>&1 | tee plugin/build/visual-test-gradle.log
-
-      - name: Upload Horizontal Only Current
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: horizontal-only-actual.png
-          path: plugin/build/visual-test-artifacts/horizontal-only-actual.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Vertical Only Current
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: vertical-only-actual.png
-          path: plugin/build/visual-test-artifacts/vertical-only-actual.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Pair Border Only Current
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: pair-border-only-actual.png
-          path: plugin/build/visual-test-artifacts/pair-border-only-actual.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Pair Background Only Current
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: pair-background-only-actual.png
-          path: plugin/build/visual-test-artifacts/pair-background-only-actual.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload All Components Current
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: all-components-actual.png
-          path: plugin/build/visual-test-artifacts/all-components-actual.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Bracket Colorization Off Current
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: bracket-colorization-off-actual.png
-          path: plugin/build/visual-test-artifacts/bracket-colorization-off-actual.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Plugin Disabled Current
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: plugin-disabled-actual.png
-          path: plugin/build/visual-test-artifacts/plugin-disabled-actual.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Native Visuals Unmanaged Current
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: native-visuals-unmanaged-actual.png
-          path: plugin/build/visual-test-artifacts/native-visuals-unmanaged-actual.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Native Highlight Suppressed Current
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: native-highlight-suppressed-actual.png
-          path: plugin/build/visual-test-artifacts/native-highlight-suppressed-actual.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Default Palette Current
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: default-palette-actual.png
-          path: plugin/build/visual-test-artifacts/default-palette-actual.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Custom Palette Current
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: custom-palette-actual.png
-          path: plugin/build/visual-test-artifacts/custom-palette-actual.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      # Baselines are emitted by the harness only for mismatched scenarios. They are
-      # uploaded only after a failing run so a successful report has no redundant
-      # copies of committed baseline images.
-      - name: Upload Horizontal Only Baseline
-        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: horizontal-only-baseline.png
-          path: plugin/build/visual-test-artifacts/horizontal-only-baseline.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Vertical Only Baseline
-        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: vertical-only-baseline.png
-          path: plugin/build/visual-test-artifacts/vertical-only-baseline.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Pair Border Only Baseline
-        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: pair-border-only-baseline.png
-          path: plugin/build/visual-test-artifacts/pair-border-only-baseline.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Pair Background Only Baseline
-        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: pair-background-only-baseline.png
-          path: plugin/build/visual-test-artifacts/pair-background-only-baseline.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload All Components Baseline
-        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: all-components-baseline.png
-          path: plugin/build/visual-test-artifacts/all-components-baseline.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Bracket Colorization Off Baseline
-        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: bracket-colorization-off-baseline.png
-          path: plugin/build/visual-test-artifacts/bracket-colorization-off-baseline.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Plugin Disabled Baseline
-        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: plugin-disabled-baseline.png
-          path: plugin/build/visual-test-artifacts/plugin-disabled-baseline.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Native Visuals Unmanaged Baseline
-        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: native-visuals-unmanaged-baseline.png
-          path: plugin/build/visual-test-artifacts/native-visuals-unmanaged-baseline.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Native Highlight Suppressed Baseline
-        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: native-highlight-suppressed-baseline.png
-          path: plugin/build/visual-test-artifacts/native-highlight-suppressed-baseline.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Default Palette Baseline
-        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: default-palette-baseline.png
-          path: plugin/build/visual-test-artifacts/default-palette-baseline.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Custom Palette Baseline
-        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: custom-palette-baseline.png
-          path: plugin/build/visual-test-artifacts/custom-palette-baseline.png
-          archive: false
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Diagnostics
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: visual-test-diagnostics
+          name: visual-contract-evidence
           path: |
-            plugin/build/reports/tests/visualTest
-            plugin/build/test-results/visualTest
-            plugin/build/visual-test-artifacts
-            !plugin/build/visual-test-artifacts/*-actual.png
-            !plugin/build/visual-test-artifacts/*-baseline.png
-            !plugin/build/visual-test-artifacts/*metrics*.json
-            plugin/build/visual-test-gradle.log
-            out/perf-startup/tests/*/*/log
-            out/perf-startup/tests/*/*/reports
-          if-no-files-found: ignore
+            plugin/build/visual-test-artifacts/
+            plugin/build/reports/tests/visualTest/
+            plugin/build/test-results/visualTest/
+          if-no-files-found: error
           retention-days: 14
-
-      - name: Propagate Visual Test Result
-        if: ${{ always() && steps.visual-test.outcome == 'failure' }}
-        shell: bash
-        run: exit 1

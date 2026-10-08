@@ -1,0 +1,116 @@
+package com.sijunyang.bracketpairguides.ui.editor.events
+
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.Service
+import com.sijunyang.bracketpairguides.ui.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.ui.preferences.NativeHighlightMode
+import com.sijunyang.bracketpairguides.ui.settings.BracketGuideSettings
+import com.sijunyang.bracketpairguides.ui.settings.NativeGuideConflictSettingsListener
+
+/** Commits normalized preferences and applies their effects as one EDT transaction. */
+@Service(Service.Level.APP)
+internal class BracketGuideSettingsController {
+    private fun settings() = BracketGuideSettings.getInstance()
+    private fun applyNativeVisualSettings(options: BracketGuidePreferences) =
+        NativeVisualSettingsCoordinator.getInstance().apply(options)
+    private fun applyRuntimeChange(previous: BracketGuidePreferences, current: BracketGuidePreferences) =
+        GuideSettingsChange(previous, current).apply()
+    private fun reportNativeGuideConflictSettings(previous: BracketGuidePreferences, current: BracketGuidePreferences) =
+        ApplicationManager.getApplication().getService(
+            NativeGuideConflictSettingsListener::class.java,
+        ).settingsChanged(previous, current)
+    private fun runOnEdt(action: () -> Unit) {
+        val application = ApplicationManager.getApplication()
+        if (application.isDispatchThread) action() else application.invokeAndWait { action() }
+    }
+
+    /** The single production entry point for a committed preference snapshot. */
+    fun applySettings(options: BracketGuidePreferences) {
+        runOnEdt {
+            // Apply is also the user's explicit request to reconcile IntelliJ's
+            // native editor settings. Do this even when our persisted snapshot
+            // is unchanged so a missed startup write or external drift recovers.
+            commit(options, NativeReconciliation.ALWAYS)
+        }
+    }
+
+    /** Reconciles an externally changed native setting without synthesizing a preference change. */
+    internal fun reconcileNativeSettings() {
+        runOnEdt {
+            commit(settings().options, NativeReconciliation.ALWAYS)
+        }
+    }
+
+    /** Records lifecycle-time overrides only if the same child still owns them. */
+    internal fun nativeVisualSettingsWereOverridden(targets: Set<NativeVisualSettingTarget>) {
+        runOnEdt {
+            val current = settings().options
+            commit(
+                current.afterExternalOverrides(targets),
+                NativeReconciliation.NONE,
+            )
+        }
+    }
+
+    private fun commit(requested: BracketGuidePreferences, nativeReconciliation: NativeReconciliation) {
+        val persistedSettings = settings()
+        val previous = persistedSettings.options
+        persistedSettings.replace(requested)
+        var current = persistedSettings.options
+        if (current == previous && nativeReconciliation != NativeReconciliation.ALWAYS) return
+
+        if (nativeReconciliation != NativeReconciliation.NONE) {
+            val reconciled = applyNativeVisualSettings(current)
+            persistedSettings.replace(reconciled)
+            current = persistedSettings.options
+        }
+        reportNativeGuideConflictSettings(previous, current)
+        if (current == previous) return
+
+        applyRuntimeChange(previous, current)
+    }
+
+    private enum class NativeReconciliation {
+        NONE,
+        ALWAYS,
+    }
+
+    private fun BracketGuidePreferences.afterExternalOverrides(
+        targets: Set<NativeVisualSettingTarget>,
+    ): BracketGuidePreferences {
+        if (!enabled || !intelliJIntegration.manageNativeVisuals) return this
+        var integration = intelliJIntegration
+        if (
+            NativeVisualSettingTarget.MATCHED_BRACES in targets &&
+            integration.nativeHighlightMode ==
+            NativeHighlightMode.SUPPRESS_MATCHED_BRACE_AND_CURRENT_SCOPE
+        ) {
+            integration =
+                integration.copy(
+                    nativeHighlightMode =
+                    NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED,
+                )
+        }
+        if (
+            NativeVisualSettingTarget.CURRENT_SCOPE in targets &&
+            integration.nativeHighlightMode == NativeHighlightMode.SUPPRESS_CURRENT_SCOPE_ONLY
+        ) {
+            integration =
+                integration.copy(
+                    nativeHighlightMode =
+                    NativeHighlightMode.LEAVE_INTELLIJ_HIGHLIGHTING_UNCHANGED,
+                )
+        }
+        return if (integration == intelliJIntegration) {
+            this
+        } else {
+            copy(intelliJIntegration = integration)
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        fun getInstance(): BracketGuideSettingsController =
+            ApplicationManager.getApplication().getService(BracketGuideSettingsController::class.java)
+    }
+}

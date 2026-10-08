@@ -1,0 +1,17 @@
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Settings file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/settings.gradle.kts' line: 16
+
+* What went wrong:
+Error resolving plugin [id: 'org.gradle.toolchains.foojay-resolver-convention', version: '1.0.0']
+> Project with path ':plugin' could not be found in project ':build-logic'.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1s

@@ -1,0 +1,31 @@
+package com.sijunyang.bracketpairguides.ui.editor.events
+
+import com.intellij.openapi.editor.EditorFactory
+import com.sijunyang.bracketpairguides.ui.editor.EditorGuides
+import com.sijunyang.bracketpairguides.ui.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.ui.preferences.hasDifferentAnalysisFrom
+
+/** A committed preference transition and its effects on live editor sessions. */
+internal data class GuideSettingsChange(val previous: BracketGuidePreferences, val current: BracketGuidePreferences) {
+    val isEmpty: Boolean
+        get() = previous == current
+
+    val requiresAnalysisRefresh: Boolean
+        get() = current.hasDifferentAnalysisFrom(previous)
+
+    fun apply() {
+        if (isEmpty) return
+
+        val sessionEditors =
+            EditorFactory.getInstance().allEditors.filter { editor ->
+                !editor.isDisposed && EditorGuides.get(editor) != null
+            }
+        for (editor in sessionEditors) {
+            EditorGuides.get(editor)?.updateOptions(
+                current,
+                refreshColors = false,
+            )
+        }
+        if (requiresAnalysisRefresh) DaemonRefresh.request()
+    }
+}

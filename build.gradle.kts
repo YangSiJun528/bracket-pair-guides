@@ -1,5 +1,6 @@
 plugins {
     base
+    id("bracket.module-boundaries")
     id("com.diffplug.spotless")
     id("org.jetbrains.kotlin.jvm") apply false
 }
@@ -10,6 +11,7 @@ spotless {
             "*/src/main/kotlin/**/*.kt",
             "*/src/test/kotlin/**/*.kt",
             "plugin/src/visualTest/kotlin/**/*.kt",
+            "plugin/src/visualBridge/kotlin/**/*.kt",
         )
         targetExclude("plugin/src/test/testData/**")
         ktlint("1.8.0")
@@ -27,6 +29,7 @@ spotless {
         target(
             "*.gradle.kts",
             "*/build.gradle.kts",
+            "tools/pure-build/*.gradle.kts",
         )
         targetExclude("plugin/src/test/testData/**")
         ktlint("1.8.0")
@@ -63,11 +66,15 @@ tasks.named("check") {
         ":analysis-model:check",
         ":analysis-core:check",
         "verifyProductionModules",
-        "testProductionModuleVerification",
+        gradle.includedBuild("bracket-guide-build-logic").task(":check"),
     )
     if (findProject(":plugin") != null) {
-        dependsOn(":editor-ui:check", ":analysis-runtime:check", ":plugin:check", ":benchmarks:jmhJar")
+        dependsOn(
+            ":editor-ui:check",
+            ":analysis-runtime:check",
+            ":plugin:check",
+            ":plugin:minimumSdkTests",
+            ":benchmarks:jmhJar",
+        )
     }
 }
-
-apply(from = "gradle/production-modules.gradle")

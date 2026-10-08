@@ -1,4 +1,3 @@
-import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
@@ -10,13 +9,16 @@ import org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask
 import org.jetbrains.intellij.platform.gradle.tasks.TestIdeUiTask
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.intellij.platform")
 }
 
+val visualBridge = sourceSets.create("visualBridge") {
+    compileClasspath += sourceSets.main.get().output + sourceSets.main.get().compileClasspath
+    runtimeClasspath += sourceSets.main.get().runtimeClasspath
+}
 val visualTestSourceSet = sourceSets.create("visualTest") {
     compileClasspath += sourceSets.main.get().output
     runtimeClasspath += sourceSets.main.get().output
@@ -29,9 +31,7 @@ val visualTestImplementation = configurations.getByName(
 // The Driver bridge needs the plugin classloader, but belongs only in UI-test archives.
 val visualTestBridgeJar = tasks.register<Jar>("visualTestBridgeJar") {
     archiveClassifier.set("visual-test-bridge")
-    from(sourceSets.test.get().output) {
-        include("com/sijunyang/bracketpairguides/testing/**")
-    }
+    from(visualBridge.output)
 }
 val releasePlugin = tasks.named<BuildPluginTask>("buildPlugin")
 val buildVisualTestPlugin = tasks.register<Zip>("buildVisualTestPlugin") {
@@ -132,8 +132,6 @@ dependencies {
     implementation(project(":analysis-model"))
     implementation(project(":editor-ui"))
     implementation(project(":analysis-runtime"))
-    // Integration fixtures deliberately exercise the implementation behind the production seam.
-    testImplementation(project(":analysis-core"))
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.assertj:assertj-core:3.27.7")
     testImplementation("com.tngtech.archunit:archunit-junit4:1.5.1")
@@ -196,12 +194,12 @@ intellijPlatformTesting.testIdeUi.register("visualTest") {
     }
 }
 
-intellijPlatformTesting.testIdeUi.register("recordVisualTestBaseline") {
+intellijPlatformTesting.testIdeUi.register("captureVisualTestCandidates") {
     type = IntelliJPlatformType.IntellijIdeaCommunity
     version = "2024.2.6"
 
     task {
-        description = "Explicitly records visual baselines for the pinned IDE."
+        description = "Captures candidate images for review without accepting or overwriting baselines."
         group = "verification"
         testClassesDirs = visualTestSourceSet.output.classesDirs
         classpath = visualTestSourceSet.runtimeClasspath
@@ -209,11 +207,7 @@ intellijPlatformTesting.testIdeUi.register("recordVisualTestBaseline") {
         filter { excludeTestsMatching("*.ManualQaLauncher") }
         javaLauncher.set(visualTestJavaLauncher)
         maxParallelForks = 1
-        systemProperty("visual.test.record-baseline", true)
-        systemProperty(
-            "visual.test.force-baseline-overwrite",
-            providers.gradleProperty("forceVisualBaselineOverwrite").orElse("false").get(),
-        )
+        systemProperty("visual.test.capture-candidates", true)
         systemProperty(
             "visual.test.artifacts.dir",
             visualTestArtifactsDirectory.get().asFile.absolutePath,
@@ -231,44 +225,37 @@ intellijPlatformTesting.testIdeUi.register("recordVisualTestBaseline") {
     }
 }
 
-// Use the same Gradle UI-test runtime and Starter setup as visualTest.
-intellijPlatformTesting.testIdeUi.register("runManualQa") {
-    type = IntelliJPlatformType.IntellijIdeaCommunity
-    version = "2024.2.6"
-
-    task {
-        description = "Opens the visual-test environment for manual QA, without running scenarios."
-        group = "verification"
-        testClassesDirs = visualTestSourceSet.output.classesDirs
-        classpath = visualTestSourceSet.runtimeClasspath
-        useJUnitPlatform()
-        filter { includeTestsMatching("*.ManualQaLauncher") }
-        javaLauncher.set(visualTestJavaLauncher)
-        maxParallelForks = 1
-        outputs.upToDateWhen { false }
-        testLogging.showStandardStreams = true
-        systemProperty(
-            "manual.qa.root",
-            rootProject.layout.projectDirectory.dir("outputs/manual-qa-starter").asFile.absolutePath,
-        )
+val sdkOwners = listOf(project(":editor-ui"), project(":analysis-runtime"), project)
+listOf("minimumSdkTests" to "2024.1.7", "currentSdkTests" to "263.6259.32").forEach { (name, selectedVersion) ->
+    intellijPlatformTesting.testIde.register(name) {
+        type =
+            if (name ==
+                "minimumSdkTests"
+            ) {
+                IntelliJPlatformType.IntellijIdeaCommunity
+            } else {
+                IntelliJPlatformType.IntellijIdea
+            }
+        version = selectedVersion
+        testFramework(TestFrameworkType.Platform)
+        task {
+            description = "Runs module-owned actual IDE contracts against $selectedVersion."
+            testClassesDirs =
+                files(
+                    sdkOwners.map {
+                        it.extensions.getByType<SourceSetContainer>().getByName("test").output.classesDirs
+                    },
+                )
+            // Preserve the official selected SDK/bootstrap classpath. Owner fixture outputs
+            // need no owner SDK/runtime jars: those would shadow the selected IDE.
+            classpath += files(sdkOwners.map { it.extensions.getByType<SourceSetContainer>().getByName("test").output })
+            filter { includeTestsMatching("*IdeContractTest") }
+            maxParallelForks = 1
+            systemProperty("contract.ide.baseline", if (name == "minimumSdkTests") "241" else "263")
+            systemProperty("contract.ide.version", selectedVersion)
+            outputs.upToDateWhen { false }
+        }
     }
 }
 
-// Fixture tests compose all modules and intentionally exercise internal implementation seams.
-// Production compile tasks never receive these friends.
-val fixtureOwners = setOf(":analysis-model", ":analysis-core", ":editor-ui", ":analysis-runtime")
-val fixtureFriendArtifacts = configurations.testCompileClasspath.get().incoming.artifactView {
-    componentFilter { identifier ->
-        identifier is ProjectComponentIdentifier && identifier.projectPath in fixtureOwners
-    }
-}.files
-
-tasks.named<KotlinCompile>("compileTestKotlin") {
-    dependsOn(fixtureFriendArtifacts)
-    compilerOptions.freeCompilerArgs.add(
-        fixtureFriendArtifacts.elements.map { locations ->
-            check(locations.isNotEmpty()) { "Fixture friend artifacts must not be empty" }
-            "-Xfriend-paths=" + locations.joinToString(",") { it.asFile.absolutePath }
-        },
-    )
-}
+tasks.test { exclude("**/*IdeContractTest.class") }

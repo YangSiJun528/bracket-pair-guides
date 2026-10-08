@@ -19,20 +19,20 @@ changes.
 
 | Boundary | Current value | Result when crossed | Owner |
 |---|---:|---|---|
-| Host code-insight file size | IntelliJ's configured `idea.max.intellisense.filesize`; default 2,500 KiB | `Unavailable(IDE_CODE_INSIGHT_FILE_SIZE)` | `EditorAnalysisExecution` via `SingleRootFileViewProvider` |
+| Host code-insight file size | IntelliJ's configured `idea.max.intellisense.filesize`; default 2,500 KiB | `Unavailable(IDE_CODE_INSIGHT_FILE_SIZE)` | `EditorAnalysisSession` via `SingleRootFileViewProvider` |
 | Completed pairs | 100,000 | `Unavailable(PAIR_CAPACITY)` with no pair prefix | `BracketRecognitionLimits.completedPairs` |
 | Pending openers | 50,000 | `Unavailable(PENDING_OPEN_CAPACITY)` before the next stack node is allocated | `BracketRecognitionLimits.MAXIMUM_PENDING_OPENS` |
-| Retained exact guide payload | 4 MiB | `Limited(GUIDE_CAPACITY)` with exact token and active-pair facets but no guide | `GuideIndexShape` |
+| Retained exact guide payload | 4 MiB | `Available(limit = GUIDE_CAPACITY)` with exact token and active-pair facets but no guide | `GuideIndexShape` |
 | Exact guide span under that payload | 1,032,192 lines | Same guide-only limitation | `GuideIndexShape` |
-| Background post-edit guide repair | 256 lines and 32,768 consumed prefix characters, including the first non-whitespace character of each nonblank line | Leave the synchronously hidden guide hidden on exact repair refusal | `GuideRepairCalculation` |
+| Background post-edit guide repair | 256 lines and 32,768 consumed prefix characters, including the first non-whitespace character of each nonblank line | Leave the synchronously hidden guide hidden on exact repair refusal | `BracketCalculator.repair` |
 | Token capture chunk | 512 visited lexer tokens | Resume at the next exact token boundary in another read action | `BracketTokenCapture` |
 | Captured-token storage seed | Initially 32 entries; then adapt to the previous successful chunk's captured-token density, within the 512-token visit bound | Grow admitted storage when the seed is insufficient; this is not a recognition limit | `BracketTokenCapture` |
 | Native traversal body | 8,192 owned state-machine operations and a cooperative 2 ms deadline, checked every 32 operations | Yield and restore the exact token cursor in another validated read action; callbacks and preparation can exceed the deadline | `NativeMarkerInspection` / `NativeBraceMatching.WorkBudget` |
-| Initial full-analysis guide capture | Up to 128 lines, each with at most 128 characters | Continue unresolved whitespace prefixes separately | `IncrementalAnalysis` |
+| Initial full-analysis guide capture | Up to 128 lines, each with at most 128 characters | Continue unresolved whitespace prefixes separately | `CalculationAttempt` / IntelliJ input adapter |
 | Whitespace continuation capture | 4,096 characters per read action | Continue until indentation is resolved or repair admission refuses it | `DocumentTextCapture` callers |
-| Cached demanded matcher rules | 2,048 answers per recognition attempt | Evict the oldest cached answer; recompute if demanded again | `IncrementalAnalysis` |
+| Cached demanded matcher rules | 2,048 answers per recognition attempt | Evict the oldest cached answer; recompute if demanded again | `CalculationAttempt` / IntelliJ input adapter |
 | Strongly cached platform token kinds | 1,024 kinds per capture adapter | Evict the oldest cache entry; live pure identities remain resolvable | `BracketTokenCapture` |
-| Secondary-editor full-analysis debounce | 75 ms | Combine compatible pending requests; cancel semantic supersession immediately | `EditorAnalysisExecution` |
+| Secondary-editor full-analysis debounce | 75 ms | Combine compatible pending requests; cancel semantic supersession immediately | `EditorAnalysisSession` |
 | Token highlighters per editor presentation | 2,048 | Reserve displayed Sticky Lines tokens, then publish a focused ordinary-viewport slice from the remaining shared budget | `VisibleTokenDecorations` |
 | Reported viewport normalization | 16,384 characters | Center a bounded reported range on the caret or viewport midpoint | `VisibleTokenDecorations` |
 | Token-window padding | 256 to 4,096 characters | Clamp padding to the range | `VisibleTokenDecorations` |

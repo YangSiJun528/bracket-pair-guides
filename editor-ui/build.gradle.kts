@@ -1,3 +1,4 @@
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
@@ -25,5 +26,13 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.assertj:assertj-core:3.27.7")
     api(project(":analysis-model"))
-    intellijPlatform { intellijIdeaCommunity("2024.1.7") }
+    intellijPlatform {
+        intellijIdeaCommunity("2024.1.7")
+        testFramework(TestFrameworkType.Platform)
+        testBundledPlugin("com.intellij.java")
+        testBundledPlugin("org.jetbrains.kotlin")
+    }
 }
+
+// Actual IDE fixtures execute through the plugin-owned official testIde sandbox.
+tasks.test { exclude("**/*IdeContractTest.class") }

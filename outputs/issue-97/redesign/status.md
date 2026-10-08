@@ -10,7 +10,9 @@
 
 ## Current stage
 
-Worktree prepared. Contract coordination and implementation dispatch next. No new implementation checks have passed yet.
+First implementation checkpoint is ready. 43 model/core contracts, 3 UI pure contracts, 3 native authority contracts, 4 bytecode architecture contracts and 15 actual minimum-IDE contracts passed (68 total, zero skipped/failed). The actual IDE was IC-241.19416.15 with bundled JBR 17.0.12. SDK-free pure execution separately passed before formatting; the independent pure root check remains to be run. Actual production compiler input isolation and final archive byte/resource identity passed. Spotless passed. See checkpoint-01.json and checkpoint-checks-03.log.
+
+Not complete: TestKit intentional compile failures/contamination mutations, expanded packaging/BMF policy tests, full root check, current IDE, Driver, full verifier matrix, Qodana and paired performance are pending. Driver currently has a known pair-only readiness issue. Follow-up UI rendering ownership and in-flight/secondary repair tests are prepared but not yet applied.
 
 ## Ownership
 
