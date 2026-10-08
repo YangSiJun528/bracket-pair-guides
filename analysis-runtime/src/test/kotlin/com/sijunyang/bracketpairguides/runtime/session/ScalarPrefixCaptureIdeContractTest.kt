@@ -7,9 +7,13 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.ui.UIUtil
+import com.sijunyang.bracketpairguides.core.api.BracketCalculator
 import com.sijunyang.bracketpairguides.core.input.CalculationControl
+import com.sijunyang.bracketpairguides.core.input.RepairRequest
 import com.sijunyang.bracketpairguides.core.input.RetryCapture
 import com.sijunyang.bracketpairguides.model.AnalysisCoverage
+import com.sijunyang.bracketpairguides.model.BracketPair
+import com.sijunyang.bracketpairguides.model.result.AnalysisResult
 import com.sijunyang.bracketpairguides.runtime.capture.AnalysisCaptureObserver
 import com.sijunyang.bracketpairguides.runtime.capture.AnalysisReadEpoch
 import com.sijunyang.bracketpairguides.runtime.capture.EditorSource
@@ -148,6 +152,35 @@ class ScalarPrefixCaptureIdeContractTest : BasePlatformTestCase() {
             assertTrue(failed[2].second is SourceChanged)
         } finally {
             canceled.set(false)
+            Disposer.dispose(epoch)
+        }
+    }
+    fun testRepairThenFullAnalysisSurvivesAttemptRestartAfterUnrelatedWrite() {
+        myFixture.configureByText("Scalar.java", "class C {\n    void f() { }\n}")
+        val epoch = AnalysisReadEpoch()
+        val calculation = DocumentCalculation(myFixture.editor.document)
+        try {
+            val input = source(epoch, calculation)
+            val calculator = BracketCalculator()
+            val pair = BracketPair(8, 1, myFixture.editor.document.textLength - 1, 1, 0, 0, 2)
+            worker {
+                val guide = checkNotNull(calculator.repair(input, RepairRequest(pair, true), control))
+                assertEquals(pair, guide.pair)
+                assertEquals(0, guide.guideColumn)
+                val result = calculator.analyze(input, demand.coverage, control) as AnalysisResult.Available
+                assertEquals(pair, result.view.activePairAt(10))
+            }
+            val unrelated = EditorFactory.getInstance().createDocument("other")
+            WriteCommandAction.runWriteCommandAction(project) { unrelated.insertString(0, "new") }
+            assertTrue(worker { runCatching { input.tokensAt(0) }.exceptionOrNull() } is RetryCapture)
+            worker {
+                val result = calculator.analyze(input, demand.coverage, control) as AnalysisResult.Available
+                assertEquals(pair, result.view.activePairAt(10))
+                val guide = checkNotNull(calculator.repair(input, RepairRequest(pair, true), control))
+                assertEquals(pair, guide.pair)
+                assertEquals(0, guide.guideColumn)
+            }
+        } finally {
             Disposer.dispose(epoch)
         }
     }

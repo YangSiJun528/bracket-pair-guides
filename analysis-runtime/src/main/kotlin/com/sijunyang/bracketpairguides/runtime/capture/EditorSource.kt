@@ -71,7 +71,7 @@ internal class EditorSource(
         observer = currentCoroutineContext()[AnalysisCaptureObserver]
         attemptEpoch = epoch.current
         return capture(AnalysisCaptureObserver.INITIAL_STATE, layout = true) {
-            tokens = BracketTokenCapture(this)
+            tokens = null
             DocumentFacts(
                 editor.document.textLength,
                 editor.document.lineCount,
@@ -82,7 +82,11 @@ internal class EditorSource(
     }
 
     override suspend fun tokensAt(offset: Int): TokenBatch = capture(AnalysisCaptureObserver.TOKENS) {
-        checkNotNull(tokens).capture(offset, checkCanceled = control::checkCanceled)
+        (
+            tokens ?: BracketTokenCapture(this).also {
+                tokens = it
+            }
+            ).capture(offset, checkCanceled = control::checkCanceled)
     }
 
     override suspend fun areCompatible(open: TokenKind, close: TokenKind, group: TokenGroup): Boolean =
