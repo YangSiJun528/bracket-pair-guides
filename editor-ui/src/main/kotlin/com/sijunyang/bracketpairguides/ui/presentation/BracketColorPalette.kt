@@ -39,9 +39,6 @@ internal object BracketColorPalette {
     fun guideLineRgb(settings: BracketGuidePreferences, depth: Int): Int =
         componentRgb(settings, depth, settings.guideLineColors)
 
-    fun pairBorderRgb(settings: BracketGuidePreferences, depth: Int): Int =
-        componentRgb(settings, depth, settings.pairBorderColors)
-
     fun pairBorderColor(settings: BracketGuidePreferences, depth: Int): Color = componentColor(
         settings = settings,
         depth = depth,

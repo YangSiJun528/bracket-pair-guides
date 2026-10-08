@@ -258,16 +258,15 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
         assertFalse(changed.isValid)
         assertEquals(listOf(expectedColor, expectedColor), endpoints().map { it.getTextAttributes(editor.colorsScheme)!!.effectColor })
         val extraEffectEndpoint = endpoints().first()
-        val extraAttributes = extraEffectEndpoint.getTextAttributes(editor.colorsScheme)!!.clone()
+        val expectedAttributes = extraEffectEndpoint.getTextAttributes(editor.colorsScheme)!!.clone()
+        val extraAttributes = expectedAttributes.clone()
         extraAttributes.setAdditionalEffects(mapOf(EffectType.WAVE_UNDERSCORE to Color.RED))
         (extraEffectEndpoint as RangeHighlighterEx).setTextAttributes(extraAttributes)
         guide.caretMoved()
         assertEquals(4, queries)
         assertFalse(extraEffectEndpoint.isValid)
         for (endpoint in endpoints()) {
-            var hasAdditionalEffects = false
-            endpoint.getTextAttributes(editor.colorsScheme)!!.forEachAdditionalEffect { _, _ -> hasAdditionalEffects = true }
-            assertFalse(hasAdditionalEffects)
+            assertEquals(expectedAttributes, endpoint.getTextAttributes(editor.colorsScheme))
         }
     }
 

@@ -4,7 +4,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.ex.MarkupModelEx
 import com.intellij.openapi.editor.markup.HighlighterLayer
-import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.markup.TextAttributes
@@ -24,7 +23,7 @@ internal class ActivePairMarkup(
     val guide: BracketGuide? get() = guideMark?.highlighter?.takeIf(RangeHighlighter::isValid)
         ?.customRenderer?.let { it as? BracketGuideDrawing }?.guide
 
-    /** Adopt only fully valid unchanged SDK effects; unsupported styles take the normal path. */
+    /** Adopt only fully valid unchanged SDK effects using the normal endpoint style comparison. */
     fun adoptUnchanged(pair: BracketPair, preferences: BracketGuidePreferences, frame: Frame): Boolean {
         frame.check()
         val mark = guideMark ?: return false
@@ -39,36 +38,14 @@ internal class ActivePairMarkup(
         if (!preferences.showsActivePair) {
             if (pairMarks.isNotEmpty()) return false
         } else {
-            // Background blending/theme and uncommon styles deliberately use the full render path.
-            if (!preferences.showActivePairBorder || BracketColorPalette.hasVisiblePairBackground(preferences) ||
-                pairMarks.size != 2) return false
-            val expectedRgb = BracketColorPalette.pairBorderRgb(preferences, pair.depth) or (0xFF shl 24)
-            for (index in 0..1) {
-                val endpoint = pairMarks[index]
-                if (!endpoint.isReusable) return false
-                val range = endpoint.highlighter
-                val offset = if (index == 0) pair.openOffset else pair.closeOffset
-                val length = if (index == 0) pair.openTokenLength else pair.closeTokenLength
-                val attributes = range.getTextAttributes(editor.colorsScheme) ?: return false
-                if (range.startOffset != offset || range.endOffset != offset + length ||
-                    range.layer != ACTIVE_PAIR_LAYER || range.targetArea != HighlighterTargetArea.EXACT_RANGE ||
-                    range.isGreedyToLeft || range.isGreedyToRight || range.textAttributesKey != null ||
-                    attributes.effectType != EffectType.BOXED || attributes.effectColor?.rgb != expectedRgb ||
-                    attributes.backgroundColor != null || attributes.foregroundColor != null ||
-                    attributes.errorStripeColor != null || attributes.fontType != 0 || hasAdditionalEffects(attributes)) return false
-            }
+            val attributes = BracketColorPalette.activePairTextAttributes(editor.colorsScheme, preferences, pair.depth)
+            if (!canReusePair(pair, attributes)) return false
         }
         frame.check()
         frame.adopt(mark)
         for (endpoint in pairMarks) frame.adopt(endpoint)
         frame.check()
         return true
-    }
-
-    private fun hasAdditionalEffects(attributes: TextAttributes): Boolean {
-        var present = false
-        attributes.forEachAdditionalEffect { _, _ -> present = true }
-        return present
     }
 
     fun showGuide(guide: BracketGuide?, preferences: BracketGuidePreferences, frame: Frame) {
