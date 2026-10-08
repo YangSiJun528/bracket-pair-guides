@@ -2,8 +2,6 @@ package com.sijunyang.bracketpairguides.visual
 
 import com.intellij.driver.client.Remote
 import com.intellij.driver.client.utility
-import com.intellij.driver.model.OnDispatcher
-import com.intellij.driver.sdk.ui.components.UiComponent
 import com.intellij.driver.sdk.ui.components.checkBox
 import com.intellij.driver.sdk.ui.components.settingsDialog
 import com.intellij.driver.sdk.ui.ui
@@ -182,24 +180,42 @@ class EditorVisualContractTest {
                         val state = bridge.state().split(':')
                         state[7] == "false" && state[1].toInt() == 0 && state[6].toInt() > 0 && state[9].toInt() == 0
                     }
-                    manage.activate()
+                    manage.click()
                     waitFor(30.seconds, 100.milliseconds, "Integration checkbox draft did not change") { !manage.isSelected() }
                     assertEquals("true:false:true:true", bridge.settingsState(), "A draft toggle must not commit before Apply")
                     val apply = x { byAccessibleName("Apply") }
-                    waitFor(30.seconds, 100.milliseconds, "Settings Apply not enabled") { apply.isEnabled() }
-                    apply.activate()
+                    try {
+                        waitFor(30.seconds, 100.milliseconds, "Settings Apply not enabled after an actual checkbox click") { apply.isEnabled() }
+                    } catch (failure: Throwable) {
+                        Files.writeString(artifacts.resolve("settings-draft-failure.txt"),
+                            "selected=${manage.isSelected()}\napplyEnabled=${apply.isEnabled()}\n" +
+                                "settings=${bridge.settingsState()}\nstate=${bridge.state()}\n")
+                        throw failure
+                    }
+                    apply.click()
                     waitFor(30.seconds, 100.milliseconds, "Actual Settings Apply did not commit native restoration") {
                         !apply.isEnabled() && bridge.settingsState() == "false:$nativeBefore"
                     }
-                    x { byAccessibleName("Cancel") }.activate()
+                    x { byAccessibleName("Cancel") }.click()
                     waitFor(30.seconds, 100.milliseconds, "Settings dialog did not close") { notPresent() }
                 }
+                Files.writeString(artifacts.resolve("settings-focus-before.txt"), bridge.focusDiagnostics())
                 bridge.focusEditor(true)
-                waitFor(1.minutes, 100.milliseconds, "Applied integration change did not restore guides on focus alone") {
-                    val state = bridge.state().split(':')
-                    state[7] == "true" && state[1].toInt() > 0 && state[6].toInt() > 0 &&
-                        bridge.settingsState() == "false:$nativeBefore"
+                try {
+                    waitFor(1.minutes, 100.milliseconds, "Applied integration change did not restore guides on focus alone") {
+                        val state = bridge.state().split(':')
+                        state[7] == "true" && state[1].toInt() > 0 && state[6].toInt() > 0 &&
+                            bridge.settingsState() == "false:$nativeBefore"
+                    }
+                } catch (failure: Throwable) {
+                    Files.writeString(artifacts.resolve("settings-focus-failure.txt"),
+                        "state=${bridge.state()}\nsettings=${bridge.settingsState()}\nadvisory=${bridge.advisoryState()}\n" +
+                            bridge.focusDiagnostics())
+                    throw failure
                 }
+                Files.writeString(artifacts.resolve("settings-focus-observed.txt"),
+                    "state=${bridge.state()}\nsettings=${bridge.settingsState()}\nadvisory=${bridge.advisoryState()}\n" +
+                        bridge.focusDiagnostics())
                 try {
                     waitFor(1.minutes, 100.milliseconds, "Settings-restored native visuals did not deliver a new visible advisory episode") {
                         val advisory = bridge.advisoryState().split(':')
@@ -239,11 +255,25 @@ class EditorVisualContractTest {
                     val state = bridge.state().split(':')
                     state[8] == "true" && state[7] == "true" && state[1].toInt() > 0 && state[6].toInt() > 0
                 }
+                Files.writeString(artifacts.resolve("caret-cycle-before.txt"),
+                    "state=${bridge.state()}\nsettings=${bridge.settingsState()}\nnativeBraceCount=${bridge.nativeBraceCount()}\n" +
+                        bridge.focusDiagnostics() + "\n" + bridge.markupDiagnostics())
                 bridge.caretCycle()
-                waitFor(1.minutes, 100.milliseconds, "Caret A/B/A did not restore markup") {
-                    bridge.state().split(':')[1].toInt() > 0
+                try {
+                    waitFor(1.minutes, 100.milliseconds, "Caret A/B/A did not restore markup with managed native brace decorations absent") {
+                        bridge.state().split(':')[1].toInt() > 0 &&
+                            bridge.settingsState() == "true:false:true:true" && bridge.nativeBraceCount() == 0
+                    }
+                } catch (failure: Throwable) {
+                    Files.writeString(artifacts.resolve("caret-cycle-failure.txt"),
+                        "state=${bridge.state()}\nsettings=${bridge.settingsState()}\nnativeBraceCount=${bridge.nativeBraceCount()}\n" +
+                            bridge.focusDiagnostics() + "\n" + bridge.markupDiagnostics())
+                    throw failure
                 }
                 capture("all-components-after-caret-cycle")
+                Files.writeString(artifacts.resolve("caret-cycle-observed.txt"),
+                    "state=${bridge.state()}\nsettings=${bridge.settingsState()}\nnativeBraceCount=${bridge.nativeBraceCount()}\n" +
+                        bridge.focusDiagnostics() + "\n" + bridge.markupDiagnostics())
                 assertTrue(
                     equalPixels(
                         checkNotNull(captures["all-components"]),
@@ -275,11 +305,6 @@ class EditorVisualContractTest {
             }.keys
             assertTrue(failures.isEmpty(), "Missing/mismatched reviewed baseline: $failures; actual images: $artifacts")
         }
-    }
-
-    /** Activates the real Swing control on EDT, preserving its normal listeners and binding. */
-    private fun UiComponent.activate() {
-        driver.withContext(OnDispatcher.EDT) { cast(component, SettingsControl::class).doClick() }
     }
 
     private fun required(name: String): Path = Path.of(checkNotNull(System.getProperty(name)) { "Missing $name" })
@@ -316,13 +341,12 @@ internal interface EditorContractRemote {
     fun dismissAdvisory()
     fun caretCycle(): String
     fun focusEditor(focused: Boolean): String
+    fun focusDiagnostics(): String
     fun showEditor(visible: Boolean): String
     fun disable(): String
     fun insertIndent(): Long
     fun state(): String
+    fun nativeBraceCount(): Int
+    fun markupDiagnostics(): String
 }
 
-@Remote("javax.swing.AbstractButton")
-private interface SettingsControl {
-    fun doClick()
-}

@@ -72,15 +72,22 @@ suspend fun ComparisonFixture.runNativeWorkload() {
             withContext(Dispatchers.EDT) { editor.settings.isBlockCursor = false }
             if (corpus.forceLazy) forceNativeLazyLanguage(editor, corpus.pairOffset)
             val result = host.analyze(editor, "all")
-            val pair = checkNotNull(result.sample(corpus.pairOffset))
-            check(pair.open == corpus.pairOffset)
+            // BracketView uses strict containment; query inside the original requested opener.
+            val pairLookupOffset = corpus.pairOffset + 1
+            val pair = checkNotNull(result.sample(pairLookupOffset)) {
+                "No original native pair: corpus=${corpus.name}, expectedOpen=${corpus.pairOffset}, lookup=$pairLookupOffset"
+            }
+            check(pair.open == corpus.pairOffset) {
+                "Wrong native pair: corpus=${corpus.name}, expectedOpen=${corpus.pairOffset}, lookup=$pairLookupOffset, actual=$pair"
+            }
             emit("kind" to "corpus", "workload" to "native", "corpus" to corpus.name,
                 "sha256Utf8" to fingerprint(corpus.text), "filename" to corpus.filename,
-                "characters" to corpus.text.length, "pairOffset" to corpus.pairOffset, "pair" to pair,
+                "characters" to corpus.text.length, "pairOffset" to corpus.pairOffset,
+                "pairLookupOffset" to pairLookupOffset, "pair" to pair,
                 "forcedLazyLanguageBranch" to corpus.forceLazy,
                 "scope" to "actual SDK native source resolver; analysis, setup, UI eligibility and painting excluded")
             for ((mode, caret) in corpus.carets) {
-                repeat(warmups) { host.native(editor, result, corpus.pairOffset, caret, true) }
+                repeat(warmups) { host.native(editor, result, pairLookupOffset, caret, true) }
                 val writers = if (corpus.forceLazy) listOf("none", "late-traversal", "late-lazy-lexer")
                     else listOf("none", "late-traversal")
                 for (writer in writers) {
@@ -95,8 +102,9 @@ suspend fun ComparisonFixture.runNativeWorkload() {
                         try {
                             resolved = measure("native", "${corpus.name}:$mode", index,
                                 mapOf("mode" to mode, "writerMode" to writer, "pairOffset" to corpus.pairOffset,
+                                    "pairLookupOffset" to pairLookupOffset,
                                     "caretOffset" to caret, "resolveCurrentScope" to true), reads) {
-                                try { host.native(editor, result, corpus.pairOffset, caret, true) }
+                                try { host.native(editor, result, pairLookupOffset, caret, true) }
                                 finally { probe.resolutionEnded() }
                             }
                         } catch (failure: Throwable) {
@@ -143,10 +151,10 @@ suspend fun ComparisonFixture.runNativeWorkload() {
     }
 }
 
-private data class RepairCorpus(val name: String, val text: String, val editOffset: Int,
+internal data class RepairCorpus(val name: String, val text: String, val editOffset: Int,
     val candidateLines: Int, val consumedPrefixCharacters: Int, val refuses: Boolean, val column: Int)
 
-private fun repairCorpora(): List<RepairCorpus> {
+internal fun repairCorpora(): List<RepairCorpus> {
     fun body(name: String, lines: Int, indent: Int, refuses: Boolean = false): RepairCorpus = RepairCorpus(
         name, "{\n" + (" ".repeat(indent) + "value\n").repeat(lines) + " ".repeat(indent) + "}",
         2, lines + 1, (lines + 1) * (indent + 1), refuses, indent)

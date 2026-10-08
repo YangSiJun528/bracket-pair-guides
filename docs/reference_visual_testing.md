@@ -23,14 +23,19 @@ The same session observes actual Swing focus loss/restoration and component
 visibility loss/restoration. Focus loss removes active guide markup while
 retaining token colors; hidden editors remove all plugin markup and visible
 editors resume it. An A/B/A caret cycle must settle to the exact original
-`all-components` pixels. This does not prove a particular stale background task
+`all-components` pixels. Before capturing that settled state, the suite also
+requires managed native settings and no actual matched/unmatched brace
+highlighters, identified by the keys used by IntelliJ's brace handler. Editor,
+settings, focus and SDK markup diagnostics are retained around the cycle; two
+unchanged frames alone do not establish native readiness.
+This does not prove a particular stale background task
 entered or completed. Runtime authority unit tests cover stale proof rejection.
 The Driver edit transport also asserts that the affected guide highlighter is
 absent inside the write command immediately after the document edit returns.
 The UI-owned IDE contract checks the corresponding synchronous content-demand
 boundary. A later screenshot alone cannot prove hiding timing.
 
-The registered Settings dialog is opened through the public SDK. Driver activates
+The registered Settings dialog is opened through the public SDK. Driver clicks
 the real integration checkbox and Apply control. The draft toggle must leave
 persisted options and native settings unchanged until Apply. Apply must restore
 the native values; closing the dialog and restoring focus, without moving the
@@ -39,7 +44,11 @@ caret or requesting analysis, must reproduce the unmanaged scenario pixels.
 In the unmanaged scenario, the suite observes a new notification from the native
 conflict group through the public project notification bus and its actual balloon
 visibility. The pinned Driver adapter observes `BalloonImpl.isVisible` and its Swing
-component showing state; the interface exposes animation history rather than visibility. Production delivers that notification only after a painted vertical guide
+component showing state; the interface exposes animation history rather than visibility.
+The pinned Linux run observed `isVisible=true`, `isShowing=true`, and
+`wasFadedIn=false` for a displayed advisory, so animation completion is not the
+visibility oracle. Mutating bridge commands use non-modal write-safe dispatch;
+only read-only state observations use arbitrary modality while Settings is open. Production delivers that notification only after a painted vertical guide
 requests runtime proof and the proof is accepted. This checks the connected paint,
 proof and advisory path, without reading private tickets or substituting evidence.
 It does not identify which stale task entered/completed or prove every native IDE

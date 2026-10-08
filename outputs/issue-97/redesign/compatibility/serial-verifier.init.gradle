@@ -17,7 +17,7 @@ def sourceHashes = { root ->
     def files = [] as Set
     ['settings.gradle.kts', 'build.gradle.kts', 'gradle.properties', 'gradle/libs.versions.toml',
      'gradle/wrapper/gradle-wrapper.properties', 'build-logic/settings.gradle.kts',
-     'build-logic/build.gradle.kts'].each { name ->
+     'build-logic/build.gradle.kts', 'plugin/sdk-measurement.gradle'].each { name ->
         def file = root.file(name)
         if (file.isFile()) files.add(file)
     }

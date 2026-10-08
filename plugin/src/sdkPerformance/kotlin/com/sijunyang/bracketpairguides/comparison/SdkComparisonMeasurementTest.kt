@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.EDT
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.EditorKind
@@ -73,7 +74,7 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
             require(it.matches(Regex("[0-9a-f]{40}"))) { "Full measured production revision required" }
         }
         private val gson = Gson().newBuilder().serializeNulls().create()
-        private val allocation = (ManagementFactory.getThreadMXBean() as? ThreadMXBean)?.takeIf {
+        override val allocation = (ManagementFactory.getThreadMXBean() as? ThreadMXBean)?.takeIf {
             it.isThreadAllocatedMemorySupported
         }?.also { if (!it.isThreadAllocatedMemoryEnabled) it.isThreadAllocatedMemoryEnabled = true }
         private val selected = System.getProperty("issue97.perf.workload")
@@ -84,6 +85,8 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
             Files.createFile(output) // Refuse stale append/mixed-run evidence.
         }
         suspend fun runSelected() {
+            withContext(Dispatchers.EDT) { host.assertNoUnownedAttachments() }
+            val descriptor = verifyMeasurementDescriptor(host)
             val idea = ApplicationInfo.getInstance()
             check(idea.build.baselineVersion == 241 && idea.fullVersion == "2024.1.7") {
                 "Expected the frozen 2024.1.7 SDK fixture, got ${idea.build.asString()} / ${idea.fullVersion}"
@@ -92,6 +95,7 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
                 check(idea.build.asString() == it) { "Selected SDK build differs from expected $it" }
             }
             emit("kind" to "environment", "schema" to 2, "implementation" to host.implementation,
+                "descriptorIsolation" to descriptor,
                 "workload" to selected, "ide" to idea.build.asString(), "ideVersion" to idea.fullVersion,
                 "java" to System.getProperty("java.runtime.version"), "javaHome" to System.getProperty("java.home"),
                 "javaVendor" to System.getProperty("java.vendor"),
@@ -115,16 +119,19 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
                 "write-wait" -> writer()
                 "execution" -> execution()
                 "repair" -> runRepairWorkload()
+                "edit-restoration" -> runEditRestorationWorkload()
                 "native" -> runNativeWorkload()
                 "payload" -> payload()
                 "capture-release" -> captureRelease()
                 else -> error("Unknown SDK workload: $selected")
             }
+            withContext(Dispatchers.EDT) { host.assertNoUnownedAttachments() }
             emit("kind" to "completed", "workload" to selected,
-                "coverage" to "complete-for-declared-scope",
+                "coverage" to if (selected == "edit-restoration") "observation-complete-origin-unknown-and-refusal-censoring" else "complete-for-declared-scope",
                 "pump" to pump.snapshot())
         }
         override suspend fun editor(name: String, text: String, mode: String): Editor = withContext(Dispatchers.EDT) {
+            host.assertNoUnownedAttachments()
             val file = myFixture.configureByText(name, text)
             PsiDocumentManager.getInstance(project).commitAllDocuments()
             val document = checkNotNull(PsiDocumentManager.getInstance(project).getDocument(file))
@@ -135,11 +142,21 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
             }
         }
         override suspend fun release(editor: Editor) = withContext(NonCancellable + Dispatchers.EDT) {
-            EditorFactory.getInstance().releaseEditor(editor)
+            try {
+                host.assertNoUnownedAttachments()
+            } finally {
+                EditorFactory.getInstance().releaseEditor(editor)
+            }
+            check(editor.isDisposed && EditorFactory.getInstance().allEditors.none { it === editor }) {
+                "Measured editor remains registered after release"
+            }
+            host.assertNoUnownedAttachments()
+            emit("kind" to "editor-release", "editorIdentity" to System.identityHashCode(editor),
+                "disposed" to editor.isDisposed, "registered" to false, "unownedAttachments" to false)
         }
         override suspend fun edit(editor: Editor, offset: Int, length: Int, replacement: String) =
             withContext(Dispatchers.EDT) {
-                ApplicationManager.getApplication().runWriteAction {
+                WriteCommandAction.runWriteCommandAction(project) {
                     editor.document.replaceString(offset, offset + length, replacement)
                     PsiDocumentManager.getInstance(project).commitDocument(editor.document)
                 }
@@ -412,6 +429,7 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
         }
 
         private suspend fun viewer(name: String, text: String, mode: String): Editor = withContext(Dispatchers.EDT) {
+            host.assertNoUnownedAttachments()
             val file = myFixture.configureByText(name, text)
             PsiDocumentManager.getInstance(project).commitAllDocuments()
             EditorFactory.getInstance().createViewer(myFixture.editor.document, project,
@@ -502,7 +520,7 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
                     check(release["nonClearedBatches"] == 0 && release["nonClearedArrays"] == 0) {
                         "Consumed batch/array release was not observed for $name-$units"
                     }
-                } finally { handle?.close(); release(editor) }
+                } finally { try { handle?.close() } finally { release(editor) } }
             }
         }
         private suspend fun inspectChunk(handle: CaptureHandle, offset: Int, evidence: ResourceEvidence): ChunkFacts {

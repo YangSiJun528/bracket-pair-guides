@@ -1,0 +1,34 @@
+[
+  {
+    "name": "format",
+    "command": [
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=2",
+      "--no-configuration-cache",
+      "spotlessApply",
+      "spotlessCheck",
+      "--console=plain"
+    ],
+    "exitCode": 0,
+    "seconds": 7.827493190765381
+  },
+  {
+    "name": "integration",
+    "command": [
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=2",
+      "--no-configuration-cache",
+      ":plugin:minimumSdkTests",
+      ":plugin:compileVisualBridgeKotlin",
+      ":plugin:compileVisualTestKotlin",
+      ":plugin:buildVisualTestPlugin",
+      "verifyProductionModules",
+      "verifyPluginPackaging",
+      "--console=plain"
+    ],
+    "exitCode": 1,
+    "seconds": 21.605463981628418
+  }
+]

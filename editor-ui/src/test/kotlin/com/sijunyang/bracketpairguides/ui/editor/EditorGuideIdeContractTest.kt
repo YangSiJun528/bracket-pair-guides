@@ -2,7 +2,16 @@ package com.sijunyang.bracketpairguides.ui.editor
 
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.RangeMarker
+import com.intellij.openapi.editor.ex.DocumentEx
 import com.intellij.openapi.editor.ex.MarkupModelEx
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.HighlighterColors
+import com.intellij.openapi.editor.colors.EditorColorsScheme
+import com.intellij.openapi.editor.colors.EditorColorsManager
+import com.intellij.openapi.editor.markup.HighlighterLayer
+import com.intellij.openapi.editor.markup.RangeHighlighter
+import java.awt.Color
 import com.intellij.openapi.editor.ex.RangeHighlighterEx
 import com.intellij.openapi.editor.impl.event.MarkupModelListener
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -128,6 +137,90 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
         }
         assertEquals(listOf(repaired), drawings.map { it.guide })
     }
+    fun testUnchangedCaretCallbackPreservesAllActualMarkupWithoutSdkCallbacks() {
+        open(BracketGuidePreferences(showActivePairBorder = true))
+        val pair = BracketPair(8, 1, myFixture.editor.document.textLength - 1, 1, 0, 0, 2)
+        val result = AnalysisResult.Available(object : BracketView {
+            override fun activePairAt(offset: Int) = pair
+            override fun guideFor(pair: BracketPair) = BracketGuide(pair, 0)
+            override fun visibleTokens(range: OffsetRange, focus: Int, maximum: Int): TokenWindow = object : TokenWindow {
+                override val size = 2
+                override val isCapped = false
+                override val stableFocusStartOffset = 0
+                override val stableFocusEndOffset = myFixture.editor.document.textLength
+                override fun offsetAt(index: Int) = if (index == 0) pair.openOffset else pair.closeOffset
+                override fun lengthAt(index: Int) = 1
+                override fun depthAt(index: Int) = pair.depth
+            }
+        }, demands.last().coverage, BraceMatcherAvailability.AVAILABLE)
+        assertEquals(ViewApplication.APPLIED, guide.applyAnalysis(AnalysisUpdate(demands.last().revision, result)))
+        val before = myFixture.editor.markupModel.allHighlighters.toList()
+        assertEquals(5, before.size)
+        fun documentMarkers(): List<RangeMarker> {
+            val markers = mutableListOf<RangeMarker>()
+            (myFixture.editor.document as DocumentEx).processRangeMarkers { marker ->
+                markers += marker
+                true
+            }
+            return markers
+        }
+        val beforeMarkers = documentMarkers()
+        var callbacks = 0
+        (myFixture.editor.markupModel as MarkupModelEx).addMarkupModelListener(testRootDisposable, object : MarkupModelListener {
+            override fun afterAdded(highlighter: RangeHighlighterEx) { callbacks++ }
+            override fun beforeRemoved(highlighter: RangeHighlighterEx) { callbacks++ }
+            override fun attributesChanged(highlighter: RangeHighlighterEx, renderersChanged: Boolean, fontStyleOrColorChanged: Boolean) { callbacks++ }
+        })
+        guide.caretMoved()
+        val after = myFixture.editor.markupModel.allHighlighters.toList()
+        assertEquals(before.size, after.size)
+        assertTrue(before.all { previous -> previous.isValid && after.any { it === previous } })
+        assertEquals(0, callbacks)
+        val afterMarkers = documentMarkers()
+        assertEquals(beforeMarkers.size, afterMarkers.size)
+        assertTrue(beforeMarkers.all { previous -> previous.isValid && afterMarkers.any { it === previous } })
+    }
+
+    fun testEndpointStyleThemeAndPairChangesStillReplaceIncompatibleMarkup() {
+        var options = BracketGuidePreferences(colorBracketTokens = false, showActivePairBorder = true, showActivePairBackground = true)
+        open(options)
+        val editor = myFixture.editor
+        val pair = BracketPair(8, 1, editor.document.textLength - 1, 1, 0, 0, 2)
+        assertEquals(ViewApplication.APPLIED, guide.applyAnalysis(AnalysisUpdate(demands.last().revision, available(pair, BracketGuide(pair, 0)))))
+        fun endpoints(): List<RangeHighlighter> = editor.markupModel.allHighlighters.filter { it.layer == HighlighterLayer.ELEMENT_UNDER_CARET }
+        val original = endpoints()
+        val originalColors = original.map { it.getTextAttributes(editor.colorsScheme)?.effectColor }
+        options = options.copy(useIndependentComponentColors = true, pairBorderColors = List(6) { 0xFF1122 })
+        guide.updateOptions(options, false)
+        val recolored = endpoints()
+        assertEquals(2, recolored.size)
+        assertTrue(original.all { !it.isValid })
+        assertTrue(recolored.map { it.getTextAttributes(editor.colorsScheme)?.effectColor } != originalColors)
+
+        val previousBackgrounds = recolored.map { it.getTextAttributes(editor.colorsScheme)?.backgroundColor }
+        // The editor delegates its scheme and does not support cloning; clone the actual global scheme.
+        val previousEditorBackground = editor.colorsScheme.defaultBackground
+        val scheme = EditorColorsManager.getInstance().globalScheme.clone() as EditorColorsScheme
+        val text = scheme.getAttributes(HighlighterColors.TEXT).clone()
+        text.backgroundColor = if (previousEditorBackground == Color.BLACK) Color.WHITE else Color.BLACK
+        scheme.setAttributes(HighlighterColors.TEXT, text)
+        (editor as EditorEx).setColorsScheme(scheme)
+        guide.updateOptions(options, true)
+        val themed = endpoints()
+        assertEquals(2, themed.size)
+        assertTrue(recolored.all { !it.isValid })
+        assertTrue(themed.map { it.getTextAttributes(editor.colorsScheme)?.backgroundColor } != previousBackgrounds)
+
+        val innerOpen = editor.document.text.indexOf('{', pair.openOffset + 1)
+        val nextPair = BracketPair(innerOpen, 1, innerOpen + 1, 1, 1, 1, 1)
+        editor.caretModel.moveToOffset(innerOpen + 1)
+        assertEquals(ViewApplication.APPLIED, guide.applyAnalysis(AnalysisUpdate(demands.last().revision, available(nextPair, BracketGuide(nextPair, 0)))))
+        val moved = endpoints()
+        assertTrue(themed.all { !it.isValid })
+        assertEquals(setOf(nextPair.openOffset, nextPair.closeOffset), moved.map { it.startOffset }.toSet())
+        assertTrue(moved.all { it.endOffset - it.startOffset == 1 })
+    }
+
     private fun installTrackedLookup(): GCWatcher {
         val lookup = object : BracketView {
             override fun activePairAt(offset: Int): BracketPair? = null

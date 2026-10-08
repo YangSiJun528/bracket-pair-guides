@@ -6,11 +6,18 @@ import kotlin.coroutines.CoroutineContext
 /** New test-only common contract. Opaque owners never become production interfaces. */
 interface ComparisonHost : AutoCloseable {
     val implementation: String
+
+    /** EDT only, outside every owned session lifetime; fails closed for hosts without a registry observer. */
+    fun assertNoUnownedAttachments(): Unit = error("Host does not supply actual registry isolation evidence")
     fun newReads(): ReadRecorder
     suspend fun analyze(editor: Editor, mode: String): AnalysisHandle
     suspend fun repair(editor: Editor, result: AnalysisHandle, offset: Int, exact: Boolean): RepairShape?
     suspend fun capture(editor: Editor, mode: String): CaptureHandle
     fun execution(editor: Editor, mode: String, reads: ReadRecorder, onPublication: () -> Unit): ExecutionHandle
+
+    /** Creates a live initial request via actual owned registry/event routing; setup excluded from edit timing. */
+    fun editSession(editor: Editor, reads: ReadRecorder): EditHandle =
+        error("Host does not supply actual edit lifecycle")
     suspend fun native(
         editor: Editor,
         result: AnalysisHandle,
@@ -75,6 +82,7 @@ data class PairShape(
     val depth: Int,
 )
 data class RepairShape(val pair: PairShape, val guideColumn: Int)
+data class GuideShape(val pair: PairShape, val guideColumn: Int, val anchorLine: Int)
 data class NativeShape(val available: Boolean, val directMarkers: Int, val scopeMarkers: Int)
 interface CaptureHandle : AutoCloseable {
     /** Retained deliberately during release probes; individual returned payloads must not retain SDK inputs. */
@@ -86,6 +94,13 @@ interface ExecutionHandle : AutoCloseable {
     fun request()
     fun markupCount(): Int
     fun refresh()
+    fun markup(): List<Any>
+    fun workerActive(): Boolean
+}
+
+/** Client-owned live-edit observations; no forced request or refresh operations. */
+interface EditHandle : AutoCloseable {
+    fun visibleGuide(): GuideShape?
     fun markup(): List<Any>
     fun workerActive(): Boolean
 }

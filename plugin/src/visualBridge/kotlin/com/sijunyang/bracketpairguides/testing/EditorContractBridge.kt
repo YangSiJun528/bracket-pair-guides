@@ -17,8 +17,13 @@ import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.colors.EditorColorsManager
+import com.intellij.openapi.editor.colors.CodeInsightColors
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.wm.IdeFocusManager
+import java.awt.KeyboardFocusManager
+import javax.swing.SwingUtilities
 import com.intellij.openapi.wm.WindowManager
 import com.sijunyang.bracketpairguides.plugin.GuidePlugin
 import com.sijunyang.bracketpairguides.ui.preferences.BracketGuidePreferences
@@ -32,6 +37,9 @@ object EditorContractBridge {
     private var observingNotifications = false
     private var advisoryCount = 0
     private var advisory: Notification? = null
+    private var focusRequestSequence = 0L
+    private var focusRequestStatus = "none"
+    private var requestFocusInWindowResult: Boolean? = null
 
     @JvmStatic
     @Suppress("UnstableApiUsage")
@@ -121,13 +129,13 @@ object EditorContractBridge {
     }
 
     @JvmStatic
-    fun settingsState(): String = edt {
+    fun settingsState(): String = readEdt {
         "${GuideUiSettings.current().intelliJIntegration.manageNativeVisuals}:${nativeState()}"
     }
 
     /** Public notification-bus and actual balloon lifecycle observations, never proof-state getters. */
     @JvmStatic
-    fun advisoryState(): String = edt {
+    fun advisoryState(): String = readEdt {
         val balloon = advisory?.balloon
         // The pinned Driver SDK exposes visibility on BalloonImpl, not the Balloon interface.
         val componentShowing = (balloon as? BalloonImpl)?.component?.isShowing == true
@@ -154,12 +162,40 @@ object EditorContractBridge {
     @JvmStatic
     fun focusEditor(focused: Boolean): String = edt {
         val editor = editor()
-        if (focused) editor.contentComponent.requestFocusInWindow()
-        else checkNotNull(WindowManager.getInstance().findVisibleFrame()).rootPane.apply {
-            isFocusable = true
-            requestFocusInWindow()
-        }
+        val target = if (focused) editor.contentComponent else
+            checkNotNull(WindowManager.getInstance().findVisibleFrame()).rootPane.apply { isFocusable = true }
+        requestFocusInWindowResult = target.requestFocusInWindow()
+        val sequence = ++focusRequestSequence
+        focusRequestStatus = "waiting-for-focus-settlement"
+        val manager = IdeFocusManager.getInstance(editor.project)
+        manager.doWhenFocusSettlesDown({
+            if (editor.isDisposed) {
+                if (sequence == focusRequestSequence) focusRequestStatus = "editor-disposed"
+            } else {
+                if (sequence == focusRequestSequence) focusRequestStatus = "requested"
+                manager.requestFocus(target, true)
+                    .doWhenDone { if (sequence == focusRequestSequence) focusRequestStatus = "done" }
+                    .doWhenRejected(Runnable { if (sequence == focusRequestSequence) focusRequestStatus = "rejected" })
+            }
+        }, ModalityState.nonModal())
         stateOnEdt(editor)
+    }
+
+    /** Public SDK focus/window facts, with no presentation or runtime implementation lookup. */
+    @JvmStatic
+    fun focusDiagnostics(): String = readEdt {
+        val editor = editor()
+        val content = editor.contentComponent
+        val keyboard = KeyboardFocusManager.getCurrentKeyboardFocusManager()
+        val owner = keyboard.focusOwner
+        val manager = IdeFocusManager.getInstance(editor.project)
+        "requestSequence=$focusRequestSequence\nrequestFocusInWindow=$requestFocusInWindowResult\n" +
+            "requestStatus=$focusRequestStatus\nfocusOwnerClass=${owner?.javaClass?.name}\n" +
+            "ownerDescendsFromEditor=${owner != null && SwingUtilities.isDescendingFrom(owner, content)}\n" +
+            "editorHasFocus=${content.hasFocus()}\neditorShowing=${content.isShowing}\n" +
+            "selectedEditor=${editor.project?.let { FileEditorManager.getInstance(it).selectedTextEditor === editor }}\n" +
+            "caretOffset=${editor.caretModel.offset}\nactiveWindowClass=${keyboard.activeWindow?.javaClass?.name}\n" +
+            "focusManagerOwnerClass=${manager.focusOwner?.javaClass?.name}\nmodality=${ModalityState.current()}"
     }
 
     @JvmStatic
@@ -186,8 +222,32 @@ object EditorContractBridge {
         editor.document.modificationStamp
     }
 
+    /** Actual platform brace decorations are identified by the keys used by its SDK handler. */
     @JvmStatic
-    fun state(): String = edt { stateOnEdt(editor()) }
+    fun nativeBraceCount(): Int = readEdt {
+        editor().markupModel.allHighlighters.count { highlighter ->
+            highlighter.isValid && (highlighter.textAttributesKey === CodeInsightColors.MATCHED_BRACE_ATTRIBUTES ||
+                highlighter.textAttributesKey === CodeInsightColors.UNMATCHED_BRACE_ATTRIBUTES)
+        }
+    }
+
+    @JvmStatic
+    fun markupDiagnostics(): String = readEdt {
+        val editor = editor()
+        val all = editor.markupModel.allHighlighters
+        "highlighters=${all.size},reported=${minOf(all.size, 256)}\n" +
+            all.take(256).joinToString("\n") { highlighter ->
+                val attributes = highlighter.getTextAttributes(editor.colorsScheme)
+                "valid=${highlighter.isValid},range=${highlighter.startOffset}..${highlighter.endOffset}," +
+                    "layer=${highlighter.layer},key=${highlighter.textAttributesKey?.externalName}," +
+                    "foreground=${attributes?.foregroundColor?.rgb},background=${attributes?.backgroundColor?.rgb}," +
+                    "effect=${attributes?.effectType},effectColor=${attributes?.effectColor?.rgb}," +
+                    "renderer=${highlighter.customRenderer?.javaClass?.name}"
+            }
+    }
+
+    @JvmStatic
+    fun state(): String = readEdt { stateOnEdt(editor()) }
 
     private fun stateOnEdt(editor: Editor): String {
         val rendered = editor.markupModel.allHighlighters.count {
@@ -213,11 +273,16 @@ object EditorContractBridge {
         FileDocumentManager.getInstance().getFile(it.document)?.name == "Contract.java" && !it.isDisposed
     })
 
-    private fun <T> edt(action: () -> T): T {
+    private fun <T> edt(action: () -> T): T = onEdt(ModalityState.nonModal(), action)
+
+    // Observations must remain available while Settings owns a modal event loop.
+    private fun <T> readEdt(action: () -> T): T = onEdt(ModalityState.any(), action)
+
+    private fun <T> onEdt(modality: ModalityState, action: () -> T): T {
         val application = ApplicationManager.getApplication()
         if (application.isDispatchThread) return action()
         val answer = AtomicReference<Result<T>>()
-        application.invokeAndWait({ answer.set(runCatching(action)) }, ModalityState.any())
+        application.invokeAndWait({ answer.set(runCatching(action)) }, modality)
         return answer.get().getOrThrow()
     }
 }

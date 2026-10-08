@@ -43,3 +43,19 @@ Delegations use gpt-6.1-sol / medium. No concurrent shared Gradle execution or p
 ## Existing unresolved evidence
 
 Previous timing/allocation signals and bounded XML classifier retention remain unresolved; redesign is not assumed to fix them. Historical results are not evidence of new code correctness.
+
+## Validation continuation — 2026-10-08
+
+- Local CI configuration approval was applied; no external action performed.
+- Checkpoint cba8b1169de112552414409fc7a7a884c9ce31d0 records effective compiler boundaries and SDK contracts.
+- SDK setup smoke02 passed twelve baseline/candidate commands for analysis, write-wait, execution, repair, native, capture-release; payload smoke01 passed both. These are setup checks, not performance results.
+- New edit-restoration smoke01: baseline passed, candidate failed an exclusive composition precondition. Investigating genuine fixture automatic plugin attachment and possible unrelated workers before any formal comparison.
+- Driver capture02 passed actual advisory visibility and failed Settings Apply; real UI click fix installed. Capture03 passed Apply/Cancel then failed focus-only restoration. Capture04 now records actual focus ownership and supported focus-settlement request. No visual baseline is accepted yet.
+- Formal comparison plan now names all eight SDK workloads and six independent AB/BA JVM pairs. No threshold, repeat or warmup count reduced.
+
+## Isolated fixtures and reviewed Driver baseline
+
+- `pure-final-04` reran standalone SDK-free check/build: model4+core39, zero failed/skipped.
+- Driver `capture-04` passed; main inspected all12images and accepted baselines with image/source hashes. `compare-05` failed A/B/A equality (native brace colors remained). Stronger readiness now observes actual native brace-key highlighters and managed native flags. `compare-06` passed all12 exactARGB comparisons and all12 PNG byte hashes match. Prior failure is preserved; universal race freedom is not claimed.
+- `sdk-isolated-smoke-03` rejected original descriptors still visible in official test-resource roots. Measurement-only overlays now replace only those descriptors, byte-verify every other resource and preserve ordinary test outputs. `sdk-isolated-smoke-04` all16commands pass: both actual IC241/JBR17/2GiB, equal common source hashes, actual loaded isolated descriptors, successful editor/session cleanup. See independent audit.md. No smoke timing is a formal performance result.
+- The smoke uncovered two unnecessary active endpoint highlighter replacements on unchanged MAIN callbacks (1543/1545 identities vs baseline1545/1545). Runtime agent is implementing local resource reuse and fresh SDK contracts before final correctness/performance runs. Production code until that follow-up remains cba8b11.

@@ -24,7 +24,7 @@ IntelliJ markup calls can synchronously invoke listeners. `RenderFrames` assigns
 
 `EditorGuide.applyAnalysis` and `applyRepair` return `ViewApplication.APPLIED` only after current rendering commits. An obsolete frame returns `OBSOLETE`. Rendering failures clean up owned effects and propagate rather than claiming success. Runtime checks validity again after the callback before recording acceptance. Runtime lifecycle locking never encloses SDK rendering.
 
-This design localizes ownership rules; it does not make synchronous listener behavior harmless by assumption. Reentrant close, document/configuration changes, failed highlighter creation, and newer-frame adoption are separate contract cases to validate.
+This design localizes ownership rules; it does not make synchronous listener behavior harmless by assumption. Reentrant close, document/configuration changes, failed highlighter creation, and newer-frame adoption are separate contract cases to validate. Supported `afterAdded` callbacks can reenter rendering, but IntelliJ forbids adding range markers from a `beforeRemoved` callback. Frame cleanup preserves resources owned by newer rendering within supported SDK operations; it cannot guarantee rollback after arbitrary listener exceptions or forbidden nested SDK mutations.
 
 ## Edits and immediate repair
 
@@ -44,6 +44,6 @@ Recognition still depends on installed language lexers and brace matchers. Surfa
 
 ## Verification boundaries
 
-Policy contracts cover supported features, activity, and independent guide directions. Real SDK contracts cover editor kinds, shared documents, focus/visibility, reentrant or failing markup, immediate hiding, stale-result rejection, and lifetime release. Driver visual inspection checks rendered colors and geometry in actual editor surfaces. Pure calculation tests establish neither Swing rendering nor IDE compatibility; visual checks alone establish neither source validity nor cancellation.
+Policy contracts cover supported features, activity, and independent guide directions. Headless SDK contracts use explicit activity inputs and actual editor markup to cover editor kinds, shared documents, reentrant or failing markup, immediate hiding, stale-result rejection, and lifetime release. Driver contracts separately exercise genuine Swing focus and visibility transitions, Settings Apply, and rendered colors and geometry in actual editor surfaces. Pure calculation tests establish neither Swing rendering nor IDE compatibility; visual checks alone establish neither source validity nor cancellation.
 
 Current validation records identify completed and unexecuted checks. [Analysis execution](explanation_analysis_execution.md) explains worker/source authority, and [Module architecture](explanation_module_architecture.md) explains why UI cannot import calculation implementations.

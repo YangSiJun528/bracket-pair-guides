@@ -1,0 +1,7 @@
+{
+  "purpose": "fresh actual Driver candidate capture after static service/persistence/visibility fixes",
+  "priorFailurePreserved": "capture-01",
+  "doesNotAcceptBaselines": true,
+  "environmentUnchanged": true,
+  "collectionExcludes": "IDE system caches only; test output, config, log, screenshots and reports remain"
+}

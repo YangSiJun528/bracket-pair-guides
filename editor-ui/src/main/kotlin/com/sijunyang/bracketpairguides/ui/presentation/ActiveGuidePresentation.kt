@@ -42,12 +42,12 @@ internal class ActiveGuidePresentation(
         frame.check()
         val previousGuide = currentGuide()
         val currentAnchorLine = guideAnchorLine
-        clear(preserveGuide = true, frame = frame)
+        // Keep compatible tracking and SDK effects until their replacement can adopt them.
         if (pair == null || !preferences.enabled ||
             (!preferences.showsGuide && !preferences.showsActivePair) ||
             !pair.hasWellFormedTokenRange(editor.document.textLength)
         ) {
-            markup.clearGuide(frame)
+            clear(preserveGuide = false, frame = frame)
             return
         }
 

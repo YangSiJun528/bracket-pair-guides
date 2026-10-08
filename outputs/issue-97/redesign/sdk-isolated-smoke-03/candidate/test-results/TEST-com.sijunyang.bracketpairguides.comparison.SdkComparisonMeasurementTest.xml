@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest" tests="1" skipped="0" failures="1" errors="0" timestamp="2026-10-08T08:50:37.312Z" hostname="sijun-yangui-MacBookPro.local" time="3.104">
+  <properties/>
+  <testcase name="testSdkComparison" classname="com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest" time="3.103">
+    <failure message="java.lang.AssertionError: SDK comparison failed" type="java.lang.AssertionError">java.lang.AssertionError: SDK comparison failed
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest.testSdkComparison(SdkComparisonMeasurementTest.kt:59)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at junit.framework.TestCase.runTest(TestCase.java:177)
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$11(UsefulTestCase.java:483)
+	at com.intellij.testFramework.UsefulTestCase.lambda$wrapTestRunnable$13(UsefulTestCase.java:504)
+	at com.intellij.testFramework.UsefulTestCase.runTestRunnable(UsefulTestCase.java:408)
+	at com.intellij.testFramework.fixtures.BasePlatformTestCase.runTestRunnable(BasePlatformTestCase.java:109)
+	at com.intellij.testFramework.UsefulTestCase.defaultRunBare(UsefulTestCase.java:424)
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$12(UsefulTestCase.java:491)
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$3(EdtTestUtil.java:80)
+	at com.intellij.openapi.application.impl.RwLockHolder.runWriteIntentReadAction(RwLockHolder.kt:70)
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$4(EdtTestUtil.java:79)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:308)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:792)
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:739)
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:733)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399)
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86)
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:761)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:326)
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:117)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:113)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:105)
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:92)
+Caused by: java.lang.IllegalStateException: Original/foreign own descriptor remains visible: [(jar:file:/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/sandbox/plugins_sdkPerformance/bracket-pair-guides/lib/plugin.jar!/META-INF/plugin.xml, bb3c21f1281d4210e85df47c3887e5dc16f5bd0edfacef5fae0007fdff1e6e44), (file:/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/resources/sdkPerformance/META-INF/plugin.xml, 409ae6a0277fbcda7c23b853f71c73aa98ba767f3bc039a4d644bc0a34406cbf), (file:/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/resources/test/META-INF/plugin.xml, 409ae6a0277fbcda7c23b853f71c73aa98ba767f3bc039a4d644bc0a34406cbf)]
+	at com.sijunyang.bracketpairguides.comparison.SdkDescriptorEvidenceKt.verifyMeasurementDescriptor(SdkDescriptorEvidence.kt:87)
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest$Fixture.runSelected(SdkComparisonMeasurementTest.kt:89)
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest$Fixture$runSelected$1.invokeSuspend(SdkComparisonMeasurementTest.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:108)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:584)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:793)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:697)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:684)
+</failure>
+  </testcase>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Configuration file for j.u.l.LogManager does not exist: /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/test-log.properties
+
+17:50:40,360 SEVERE                 #TestFramework - Test failed 
+java.lang.AssertionError: SDK comparison failed 
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest.testSdkComparison(SdkComparisonMeasurementTest.kt:59) 
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) 
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) 
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) 
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) 
+	at junit.framework.TestCase.runTest(TestCase.java:177) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$11(UsefulTestCase.java:483) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$wrapTestRunnable$13(UsefulTestCase.java:504) 
+	at com.intellij.testFramework.UsefulTestCase.runTestRunnable(UsefulTestCase.java:408) 
+	at com.intellij.testFramework.fixtures.BasePlatformTestCase.runTestRunnable(BasePlatformTestCase.java:109) 
+	at com.intellij.testFramework.UsefulTestCase.defaultRunBare(UsefulTestCase.java:424) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$12(UsefulTestCase.java:491) 
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$3(EdtTestUtil.java:80) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWriteIntentReadAction(RwLockHolder.kt:70) 
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$4(EdtTestUtil.java:79) 
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:308) 
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:792) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:739) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:733) 
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399) 
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86) 
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:761) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:326) 
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:117) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:113) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:105) 
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:92) 
+Caused by: java.lang.IllegalStateException: Original/foreign own descriptor remains visible: [(jar:file:/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/sandbox/plugins_sdkPerformance/bracket-pair-guides/lib/plugin.jar!/META-INF/plugin.xml, bb3c21f1281d4210e85df47c3887e5dc16f5bd0edfacef5fae0007fdff1e6e44), (file:/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/resources/sdkPerformance/META-INF/plugin.xml, 409ae6a0277fbcda7c23b853f71c73aa98ba767f3bc039a4d644bc0a34406cbf), (file:/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/resources/test/META-INF/plugin.xml, 409ae6a0277fbcda7c23b853f71c73aa98ba767f3bc039a4d644bc0a34406cbf)] 
+	at com.sijunyang.bracketpairguides.comparison.SdkDescriptorEvidenceKt.verifyMeasurementDescriptor(SdkDescriptorEvidence.kt:87) 
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest$Fixture.runSelected(SdkComparisonMeasurementTest.kt:89) 
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest$Fixture$runSelected$1.invokeSuspend(SdkComparisonMeasurementTest.kt) 
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33) 
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:108) 
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:584) 
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:793) 
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:697) 
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:684) 
+ 
+
+]]></system-err>
+</testsuite>

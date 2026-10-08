@@ -76,7 +76,7 @@ jobs:
           cache-read-only: true
 
       - name: Build SDK-free Analysis Modules
-        run: ./gradlew -p tools/pure-build :analysis-model:build :analysis-core:build
+        run: ./gradlew -p tools/pure-build check :analysis-model:build :analysis-core:build
 
       - name: Run Tests
         run: ./gradlew check :plugin:currentSdkTests

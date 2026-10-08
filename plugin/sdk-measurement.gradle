@@ -1,0 +1,162 @@
+import groovy.json.JsonOutput
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
+import javax.xml.parsers.DocumentBuilderFactory
+
+// Opt-in SDK measurement asset only. Never changes processResources, composedJar,
+// release packaging, SDK/Java plugins, or the descriptor used by ordinary tests.
+def policyFiles = [file('sdk-measurement.gradle'), file('src/test/kotlin/com/sijunyang/bracketpairguides/comparison/sdk-measurement.gradle')].findAll { it.isFile() }
+if (policyFiles.size() != 1) throw new GradleException('Measurement descriptor policy path is unavailable/ambiguous')
+def selectedOwnerJar = tasks.named('composedJar')
+def measuredJar = layout.buildDirectory.file('sdk-measurement/plugin.jar')
+def evidenceFile = layout.buildDirectory.file('sdk-measurement/descriptor-evidence.json')
+tasks.register('prepareSdkMeasurementPluginJar') {
+    dependsOn(selectedOwnerJar)
+    inputs.file(selectedOwnerJar.flatMap { it.archiveFile }).withPropertyName('productionOwnerJar')
+    inputs.file(policyFiles[0]).withPropertyName('measurementDescriptorPolicy')
+    outputs.files(measuredJar, evidenceFile)
+    doLast {
+        def sha = { byte[] bytes -> MessageDigest.getInstance('SHA-256').digest(bytes).encodeHex().toString() }
+        def source = selectedOwnerJar.get().archiveFile.get().asFile
+        def target = measuredJar.get().asFile
+        def evidence = evidenceFile.get().asFile
+        def originalEntries = [:]
+        byte[] originalDescriptor
+        byte[] measuredDescriptor
+        def removed = []
+        new ZipFile(source).withCloseable { zip ->
+            zip.entries().each { entry ->
+                if (originalEntries.containsKey(entry.name)) throw new GradleException('Duplicate production owner archive entry: ' + entry.name)
+                originalEntries[entry.name] = zip.getInputStream(entry).bytes
+            }
+            originalDescriptor = originalEntries['META-INF/plugin.xml']
+            if (originalDescriptor == null) throw new GradleException('Production owner descriptor is missing')
+            def parser = DocumentBuilderFactory.newInstance()
+            parser.setFeature('http://apache.org/xml/features/disallow-doctype-decl', true)
+            def parsed = parser.newDocumentBuilder().parse(new ByteArrayInputStream(originalDescriptor))
+            if (parsed.getElementsByTagName('id').item(0)?.textContent != 'com.sijunyang.bracketpairguides') {
+                throw new GradleException('Measurement isolation may only modify this plugin descriptor')
+            }
+            def originalText = new String(originalDescriptor, StandardCharsets.UTF_8)
+            def pattern = ~/(?s)<(postStartupActivity|highlightingPassFactory)\b[^>]*\/>/
+            def changedText = originalText.replaceAll(pattern) { full, kind ->
+                def implementation = (full =~ /\bimplementation\s*=\s*"([^"]+)"/)
+                if (!implementation.find() || !implementation.group(1).startsWith('com.sijunyang.bracketpairguides.')) {
+                    throw new GradleException('Unexpected automatic registration owner: ' + full)
+                }
+                removed.add([tag: kind, implementation: implementation.group(1), xml: full])
+                ''
+            }
+            ['postStartupActivity', 'highlightingPassFactory'].each { kind ->
+                def expected = parsed.getElementsByTagName(kind).length
+                if (expected < 1 || removed.count { it.tag == kind } != expected) {
+                    throw new GradleException('Automatic registration removal is incomplete: ' + kind)
+                }
+            }
+            measuredDescriptor = changedText.getBytes(StandardCharsets.UTF_8)
+            def changedParsed = parser.newDocumentBuilder().parse(new ByteArrayInputStream(measuredDescriptor))
+            if (changedParsed.getElementsByTagName('postStartupActivity').length != 0 || changedParsed.getElementsByTagName('highlightingPassFactory').length != 0) {
+                throw new GradleException('Automatic registration remained in measured descriptor')
+            }
+            target.parentFile.mkdirs()
+            new ZipOutputStream(new FileOutputStream(target)).withCloseable { output ->
+                zip.entries().each { entry ->
+                    def replacement = new ZipEntry(entry.name)
+                    replacement.time = entry.time
+                    output.putNextEntry(replacement)
+                    output.write(entry.name == 'META-INF/plugin.xml' ? measuredDescriptor : originalEntries[entry.name])
+                    output.closeEntry()
+                }
+            }
+        }
+        def changedEntries = []
+        new ZipFile(target).withCloseable { zip ->
+            def names = zip.entries().collect { it.name }
+            if (names.size() != originalEntries.size() || names.toSet() != originalEntries.keySet()) {
+                throw new GradleException('Measurement archive entry inventory changed')
+            }
+            zip.entries().each { entry ->
+                if (!Arrays.equals(zip.getInputStream(entry).bytes, originalEntries[entry.name])) changedEntries.add(entry.name)
+            }
+        }
+        if (changedEntries != ['META-INF/plugin.xml']) throw new GradleException('Measurement archive changed non-descriptor bytes: ' + changedEntries)
+        evidence.text = JsonOutput.prettyPrint(JsonOutput.toJson([
+            schema: 1,
+            mode: 'manual-registry-events-no-auto-startup-pass',
+            originalJar: source.canonicalPath,
+            measuredJar: target.canonicalPath,
+            originalJarSha256: sha(source.bytes),
+            measuredJarSha256: sha(target.bytes),
+            originalDescriptorSha256: sha(originalDescriptor),
+            measuredDescriptorSha256: sha(measuredDescriptor),
+            removedEntries: removed,
+            changedEntries: changedEntries,
+            nonDescriptorEntriesUnchanged: true,
+            archiveEntries: originalEntries.size(),
+            scope: 'Only this plugin automatic startup activities/highlighting pass factory are suppressed; manual registry and document-event pipeline remain actual production implementations. Whole-plugin startup is covered separately by Driver.',
+        ])) + '\n'
+    }
+}
+
+// The IntelliJ Gradle plugin also injects the production descriptor into each
+// test resource root. Substitute task-owned overlays only for this measurement;
+// ordinary process*Resources outputs are preserved byte-for-byte on disk.
+def resourceOverlayDirectory = layout.buildDirectory.dir('sdk-measurement/test-resources')
+def resourceEvidenceFile = layout.buildDirectory.file('sdk-measurement/test-resources-evidence.json')
+tasks.register('prepareSdkMeasurementTestResources', org.gradle.api.tasks.Sync) {
+    dependsOn('prepareSdkMeasurementPluginJar')
+    inputs.file(measuredJar).withPropertyName('isolatedDescriptorOwner')
+    inputs.file(policyFiles[0]).withPropertyName('measurementDescriptorPolicy')
+    def measuredSourceSets = ['test', 'sdkPerformance'].collect { sourceSets.findByName(it) }.findAll { it != null }
+    measuredSourceSets.each { source ->
+        inputs.dir(source.output.resourcesDir).withPropertyName('originalResources_' + source.name)
+        dependsOn(source.processResourcesTaskName)
+        from(source.output.resourcesDir) {
+            into(source.name)
+            exclude('META-INF/plugin.xml')
+        }
+    }
+    into(resourceOverlayDirectory)
+    outputs.file(resourceEvidenceFile)
+    doLast {
+        def sha = { byte[] bytes -> MessageDigest.getInstance('SHA-256').digest(bytes).encodeHex().toString() }
+        byte[] descriptor
+        new ZipFile(measuredJar.get().asFile).withCloseable { zip -> descriptor = zip.getInputStream(zip.getEntry('META-INF/plugin.xml')).bytes }
+        def originalProof = new groovy.json.JsonSlurper().parse(evidenceFile.get().asFile)
+        def roots = measuredSourceSets.collect { source ->
+            def original = source.output.resourcesDir.canonicalFile
+            def overlay = resourceOverlayDirectory.get().dir(source.name).asFile.canonicalFile
+            def originalDescriptor = new File(original, 'META-INF/plugin.xml')
+            if (!originalDescriptor.isFile() || sha(originalDescriptor.bytes) != originalProof.originalDescriptorSha256) {
+                throw new GradleException('Unexpected injected own test descriptor: ' + originalDescriptor)
+            }
+            def targetDescriptor = new File(overlay, 'META-INF/plugin.xml')
+            targetDescriptor.parentFile.mkdirs()
+            targetDescriptor.bytes = descriptor
+            def inventory = { File directory ->
+                def entries = [:]
+                directory.eachFileRecurse { file ->
+                    if (file.isFile()) entries[directory.toPath().relativize(file.toPath()).toString().replace('\\', '/')] = file
+                }
+                entries
+            }
+            def originalFiles = inventory(original)
+            def overlayFiles = inventory(overlay)
+            if (originalFiles.keySet() != overlayFiles.keySet()) throw new GradleException('Measurement resource inventory changed: ' + source.name)
+            originalFiles.each { path, file ->
+                if (path != 'META-INF/plugin.xml' && !Arrays.equals(file.bytes, overlayFiles[path].bytes)) {
+                    throw new GradleException('Measurement non-descriptor resource changed: ' + path)
+                }
+            }
+            [sourceSet: source.name, originalRoot: original.path, overlayRoot: overlay.path,
+             originalDescriptorSha256: sha(originalDescriptor.bytes), measuredDescriptorSha256: sha(descriptor),
+             entries: originalFiles.size(), changedEntries: ['META-INF/plugin.xml'], nonDescriptorEntriesUnchanged: true]
+        }
+        resourceEvidenceFile.get().asFile.text = JsonOutput.prettyPrint(JsonOutput.toJson([
+            schema: 1, mode: 'manual-registry-events-no-auto-startup-pass', roots: roots,
+        ])) + '\n'
+    }
+}

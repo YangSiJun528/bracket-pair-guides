@@ -1,12 +1,14 @@
 package com.sijunyang.bracketpairguides.comparison
 
 import com.intellij.openapi.editor.Editor
+import com.sun.management.ThreadMXBean
 
 /** Shared fresh harness services, identical for baseline and candidate. */
 interface ComparisonFixture {
     val host: ComparisonHost
     val warmups: Int
     val repeats: Int
+    val allocation: ThreadMXBean?
     val cancellationTrials: Int
     suspend fun editor(name: String, text: String, mode: String = "all"): Editor
     suspend fun release(editor: Editor)

@@ -167,7 +167,8 @@ def source_manifest():
     files = set()
     for name in ['settings.gradle.kts', 'build.gradle.kts', 'gradle.properties',
                  'gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties',
-                 'build-logic/settings.gradle.kts', 'build-logic/build.gradle.kts']:
+                 'build-logic/settings.gradle.kts', 'build-logic/build.gradle.kts',
+                 'plugin/sdk-measurement.gradle']:
         path = ROOT / name
         if path.is_file(): files.add(path)
     for module in PROJECTS:
@@ -217,7 +218,7 @@ def main():
     parser.add_argument('--freeze-testcases', action='store_true')
     parser.add_argument('--minimum-results', type=Path, default=ROOT / 'plugin/build/test-results/minimumSdkTests')
     parser.add_argument('--current-results', type=Path, default=ROOT / 'plugin/build/test-results/currentSdkTests')
-    parser.add_argument('--expected-sdk-tests', type=int, default=26)
+    parser.add_argument('--expected-sdk-tests', type=int, default=28)
     parser.add_argument('--expected-target-count', type=int, default=13,
                         help='Review a changed fresh recommendation matrix before explicitly accepting its full count')
     parser.add_argument('--execute', action='store_true')

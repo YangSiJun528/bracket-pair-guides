@@ -74,8 +74,8 @@ The guide index retains one indentation `Int` per covered line plus a
 power-of-two minimum tree whose leaves summarize 256-line blocks. Its combined
 primitive arrays must stay within 4 MiB. The platform's own indent-guide
 calculation also uses a per-line integer array, but that array is temporary;
-this plugin retains its guide index in the snapshot, so it needs a separate
-retained-payload bound. The value covers those primitive-array payloads; it is
+this plugin retains its guide index in an accepted analysis result, so it needs a
+separate retained-payload bound. The value covers those primitive-array payloads; it is
 not a total-heap guarantee and does not include object headers or allocations
 inside a third-party matcher.
 
@@ -85,9 +85,9 @@ inside a third-party matcher.
 |---|---|
 | Initial analysis or structural edit | One token pass `O(T)`; token and active endpoint indexes are each `O(P log P)` when requested; multiline envelope discovery is `O(P)`; guide index construction is `O(G + W)` |
 | Exact guide query | Scan at most two partial 256-line blocks and query intervening block minima in `O(log(G / 256))` |
-| Caret movement with a current snapshot | `O(log P)` active-pair lookup; moving to another pair replaces at most one guide and two active-symbol ranges |
-| Caret movement without a current snapshot | Range-marker adjustment and interval containment only; no token iteration or matcher callback on the EDT |
-| Ordinary viewport or displayed Sticky Lines change | Query bounded token ranges from the current snapshot, deduplicate overlaps, and reuse matching highlighters; no recognition or matcher callback |
+| Caret movement with a current `BracketView` | `O(log P)` active-pair lookup; moving to another pair replaces at most one guide and two active-symbol ranges |
+| Caret movement without a current `BracketView` | Range-marker adjustment and interval containment only; no token iteration or matcher callback on the EDT |
+| Ordinary viewport or displayed Sticky Lines change | Query bounded token ranges from the current `BracketView`, deduplicate overlaps, and reuse matching highlighters; no recognition or matcher callback |
 | Document insertion, replacement, or deletion | Adjust tracked endpoints, remove bounded Sticky-only token decorations, hide affected guide geometry, and request immediate background repair; no text scan, token-index iteration, or matcher callback on the EDT |
 | Enable a guide while exact guide coverage is pending | Geometry-only reuse or immediate bounded provisional repair for the already tracked pair; indentation scanning runs in the background |
 | Theme or palette change | Refresh explicit palette attributes and theme-dependent background blending; no pair recognition |
@@ -110,7 +110,7 @@ positions before the opener and after the closer.
 - Token presentation retains only the bounded ordinary viewport window and the
   bounded source lines currently displayed by Sticky Lines. Both share the
   2,048-highlighter cap.
-- Token-only snapshots detach token lengths and nesting depth, use 28 retained
+- Token-only results detach token lengths and nesting depth, use 28 retained
   bytes per pair, and release the seven-column pair table.
 - The larger active index is built before detached token metadata is retained,
   reducing peak overlap.
@@ -123,18 +123,21 @@ positions before the opener and after the closer.
 After an edit, stale proportional pair and index structures are released.
 Affected guide geometry is removed before the EDT update returns. A separate
 immediate repair job computes indentation for the surviving tracked pair;
-replacement full analysis may later discover a different pair. When every pair-dependent feature
-is disabled, the session retains a compact accepted stamp rather than
-proportional indexes.
+replacement full analysis may later discover a different pair. When every
+pair-dependent feature is disabled or the editor is hidden, `EditorAnalysisSession` revokes work and
+releases its accepted result; `EditorGuide` releases its displayed `BracketView`.
 
-Equivalent split-editor results may share immutable `BracketIndexes` after full
-content comparison. Each editor still owns its own snapshot stamp, active-pair
-memo, range markers, presentation decorations, and markup. Recognition and
-transient index construction are not single-flight.
+Equivalent split-editor results may share core-internal immutable `BracketIndexes`
+within the same document reuse revision, after exact content and index-layout
+comparison; guide reuse also requires the same tab size. Each runtime session
+still owns its source identity and accepted-result authority, each `BracketView`
+owns its query memo, and each UI view owns its range markers, presentation
+decorations, and markup. `CalculationCache` retains indexes only weakly.
+Recognition and transient index construction are not single-flight.
 
 ## Cancellation and matcher behavior
 
-The shared execution module launches independent background jobs. Recognition,
+The `analysis-runtime` module launches independent background jobs. Recognition,
 index construction, and repair check coroutine cancellation and platform
 cancellation between token, sorting, copying, and line-scanning operations.
 Read actions capture bounded immutable data; pairing, sorting, and indentation

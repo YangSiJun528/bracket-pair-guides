@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-08T08:16:14.730Z" hostname="sijun-yangui-MacBookPro.local" time="2.978">
+  <properties/>
+  <testcase name="testSdkComparison" classname="com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest" time="2.978"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Configuration file for j.u.l.LogManager does not exist: /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/test-log.properties
+[    455]   WARN - #c.i.s.ComponentManagerImpl - org.jetbrains.yaml.YAMLFileBasedIndexUtil <clinit> requests com.intellij.openapi.fileTypes.FileTypeManager instance. Class initialization must not depend on services. Consider using instance of the service on-demand instead.
+[   2194]   WARN - #c.i.s.ComponentManagerImpl - com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalog <clinit> requests com.intellij.codeInsight.highlighting.FileTypeBraceMatcher instance. Class initialization must not depend on services. Consider using instance of the service on-demand instead.
+]]></system-err>
+</testsuite>

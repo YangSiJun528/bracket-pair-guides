@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.ex.MarkupModelEx
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.editor.markup.RangeHighlighter
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.sijunyang.bracketpairguides.model.BracketGuide
 import com.sijunyang.bracketpairguides.model.BracketPair
 import com.sijunyang.bracketpairguides.ui.preferences.BracketGuidePreferences
@@ -65,10 +66,19 @@ internal class ActivePairMarkup(
 
     fun showPair(pair: BracketPair, preferences: BracketGuidePreferences, frame: Frame) {
         frame.check()
-        clearPair(frame)
         if (!pair.hasWellFormedTokenRange(editor.document.textLength) || !preferences.enabled ||
-            !preferences.showActivePairBorder && !BracketColorPalette.hasVisiblePairBackground(preferences)) return
+            !preferences.showActivePairBorder && !BracketColorPalette.hasVisiblePairBackground(preferences)) {
+            clearPair(frame)
+            return
+        }
         val attributes = BracketColorPalette.activePairTextAttributes(editor.colorsScheme, preferences, pair.depth)
+        if (canReusePair(pair, attributes)) {
+            frame.check()
+            for (mark in pairMarks) frame.adopt(mark)
+            frame.check()
+            return
+        }
+        clearPair(frame)
         val marks = ArrayList<Mark>(2)
         for ((offset, length) in listOf(pair.openOffset to pair.openTokenLength, pair.closeOffset to pair.closeTokenLength)) {
             frame.check()
@@ -94,6 +104,22 @@ internal class ActivePairMarkup(
             marks += checkNotNull(created)
         }
         pairMarks = marks
+    }
+
+    private fun canReusePair(pair: BracketPair, attributes: TextAttributes): Boolean {
+        if (pairMarks.size != 2) return false
+        for (index in 0..1) {
+            val mark = pairMarks[index]
+            if (!mark.isReusable) return false
+            val highlighter = mark.highlighter
+            val offset = if (index == 0) pair.openOffset else pair.closeOffset
+            val length = if (index == 0) pair.openTokenLength else pair.closeTokenLength
+            if (highlighter.startOffset != offset || highlighter.endOffset != offset + length ||
+                highlighter.layer != ACTIVE_PAIR_LAYER || highlighter.targetArea != HighlighterTargetArea.EXACT_RANGE ||
+                highlighter.isGreedyToLeft || highlighter.isGreedyToRight || highlighter.textAttributesKey != null ||
+                highlighter.getTextAttributes(editor.colorsScheme) != attributes) return false
+        }
+        return true
     }
 
     fun clear(preserveGuide: Boolean, frame: Frame? = null) {

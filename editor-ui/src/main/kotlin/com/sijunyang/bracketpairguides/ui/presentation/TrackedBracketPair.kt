@@ -36,6 +36,11 @@ internal class TrackedBracketPair(private val editor: Editor) {
         }
 
     fun track(pair: BracketPair, guide: BracketGuide?) {
+        val existing = range
+        if (existing?.isValid == true && !existing.isGreedyToLeft && !existing.isGreedyToRight && adjusted == pair) {
+            refresh(pair, guide)
+            return
+        }
         clear()
         current = pair
         range =

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.plugin.RuntimeIdentityIdeContractTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-08T09:13:31.418Z" hostname="sijun-yangui-MacBookPro.local" time="0.18">
+  <properties/>
+  <testcase name="testSelectedIdeActuallyRunsWithReadAccessAndComposition" classname="com.sijunyang.bracketpairguides.plugin.RuntimeIdentityIdeContractTest" time="0.18"/>
+  <system-out><![CDATA[ACTUAL_IDE=IC-241.19416.15;EXPECTED=2024.1.7
+ACTUAL_JAVA=/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/jbr/Contents/Home;17.0.12+1-b1207.37
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

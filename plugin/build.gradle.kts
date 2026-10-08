@@ -261,21 +261,49 @@ listOf("minimumSdkTests" to "2024.1.7", "currentSdkTests" to "263.6259.32").forE
 tasks.test { exclude("**/*IdeContractTest.class") }
 
 // A separate opt-in fixture source set; never part of release packaging or ordinary check.
+apply(from = "sdk-measurement.gradle")
+val sdkMeasurementJar = layout.buildDirectory.file("sdk-measurement/plugin.jar")
+val sdkMeasurementEvidence = layout.buildDirectory.file("sdk-measurement/descriptor-evidence.json")
+val prepareSdkMeasurementPluginJar = tasks.named("prepareSdkMeasurementPluginJar")
+val prepareSdkMeasurementTestResources = tasks.named("prepareSdkMeasurementTestResources")
 val sdkPerformance = sourceSets.create("sdkPerformance") {
     compileClasspath += sourceSets.test.get().compileClasspath
     compileClasspath += files(sdkOwners.map { it.extensions.getByType<SourceSetContainer>().getByName("test").output })
 }
 intellijPlatformTesting.testIde.register("sdkPerformance") {
+    sandboxDirectory.set(layout.buildDirectory.dir("sdk-measurement/sandbox"))
+    prepareSandboxTask {
+        dependsOn(prepareSdkMeasurementPluginJar)
+        pluginJar.set(sdkMeasurementJar)
+        doLast {
+            val installed = pluginDirectory.file("lib/plugin.jar").get().asFile
+            require(installed.readBytes().contentEquals(sdkMeasurementJar.get().asFile.readBytes())) {
+                "SDK measurement sandbox did not install the isolated descriptor archive"
+            }
+        }
+    }
     type = IntelliJPlatformType.IntellijIdeaCommunity
     version = "2024.1.7"
     testFramework(TestFrameworkType.Platform)
     task {
         description = "Runs explicitly selected real SDK comparison measurements; serial main orchestration only."
+        dependsOn(prepareSdkMeasurementPluginJar, prepareSdkMeasurementTestResources)
         testClassesDirs = sdkPerformance.output.classesDirs
         // Keep official PathClassLoader/selected IDE bootstrap entries intact.
         classpath +=
             sdkPerformance.output +
             files(sdkOwners.map { it.extensions.getByType<SourceSetContainer>().getByName("test").output })
+        val originalMeasurementClasspath = classpath
+        val ownResourceRoots = listOfNotNull(
+            sourceSets.test.get().output.resourcesDir,
+            sdkPerformance.output.resourcesDir,
+        )
+            .map { it.canonicalFile }.toSet()
+        classpath = originalMeasurementClasspath.filter { it.canonicalFile !in ownResourceRoots } +
+            files(
+                layout.buildDirectory.dir("sdk-measurement/test-resources/test"),
+                layout.buildDirectory.dir("sdk-measurement/test-resources/sdkPerformance"),
+            )
         filter { includeTestsMatching("*SdkComparisonMeasurementTest") }
         maxParallelForks = 1
         systemProperty("issue97.perf.host", "com.sijunyang.bracketpairguides.comparison.CandidateComparisonHost")
@@ -284,6 +312,12 @@ intellijPlatformTesting.testIde.register("sdkPerformance") {
         }
         systemProperty("contract.ide.baseline", "241")
         systemProperty("contract.ide.version", "2024.1.7")
+        systemProperty("issue97.perf.descriptorMode", "manual-registry-events-no-auto-startup-pass")
+        systemProperty("issue97.perf.descriptorEvidence", sdkMeasurementEvidence.get().asFile.absolutePath)
+        systemProperty(
+            "issue97.perf.descriptorResourcesEvidence",
+            layout.buildDirectory.file("sdk-measurement/test-resources-evidence.json").get().asFile.absolutePath,
+        )
         outputs.upToDateWhen { false }
         doFirst {
             require(systemProperties["issue97.perf.workload"] != null) { "Explicit -Dissue97.perf.workload required" }

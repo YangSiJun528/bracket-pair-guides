@@ -1,0 +1,56 @@
+[
+  {
+    "name": "baseline",
+    "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides",
+    "command": [
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=1",
+      "--no-configuration-cache",
+      "--console=plain",
+      "-Pkotlin.compiler.execution.strategy=in-process",
+      "-Dorg.gradle.jvmargs=-Xmx4g",
+      "-Dissue97.perf.workload=edit-restoration",
+      "-Dissue97.perf.output=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/sdk-isolated-smoke-03/baseline.jsonl",
+      "-Dissue97.perf.sourceRevision=072533fa3e223d53f937a15d50fe8637add8b2cb",
+      "-Dissue97.perf.host=com.sijunyang.bracketpairguides.comparison.BaselineComparisonHost",
+      "-Dissue97.perf.warmup=1",
+      "-Dissue97.perf.repeat=5",
+      "-Dissue97.perf.cancelTrials=1",
+      "-Dissue97.perf.expectedIdeBuild=IC-241.19416.15",
+      "-I",
+      "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/sdk-comparison.init.gradle",
+      ":plugin:test",
+      "--tests",
+      "com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest.testSdkComparison"
+    ],
+    "exitCode": 1,
+    "seconds": 30.41010308265686
+  },
+  {
+    "name": "candidate",
+    "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "command": [
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=1",
+      "--no-configuration-cache",
+      "--console=plain",
+      "-Pkotlin.compiler.execution.strategy=in-process",
+      "-Dorg.gradle.jvmargs=-Xmx4g",
+      "-Dissue97.perf.workload=edit-restoration",
+      "-Dissue97.perf.output=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/sdk-isolated-smoke-03/candidate.jsonl",
+      "-Dissue97.perf.sourceRevision=cba8b1169de112552414409fc7a7a884c9ce31d0",
+      "-Dissue97.perf.host=com.sijunyang.bracketpairguides.comparison.CandidateComparisonHost",
+      "-Dissue97.perf.warmup=1",
+      "-Dissue97.perf.repeat=5",
+      "-Dissue97.perf.cancelTrials=1",
+      "-Dissue97.perf.expectedIdeBuild=IC-241.19416.15",
+      ":plugin:sdkPerformance",
+      "--tests",
+      "com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest.testSdkComparison"
+    ],
+    "exitCode": 1,
+    "seconds": 22.597935914993286
+  }
+]

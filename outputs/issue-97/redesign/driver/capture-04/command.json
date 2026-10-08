@@ -1,0 +1,26 @@
+{
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--init",
+    "--pull",
+    "never",
+    "--platform",
+    "linux/amd64",
+    "--name",
+    "issue97-deep-visual-capture-04",
+    "--entrypoint",
+    "/bin/bash",
+    "-v",
+    "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides:/source:ro",
+    "-v",
+    "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/driver/capture-04:/results",
+    "-v",
+    "/Users/sijun-yang/Documents/GitHub/bracket-pair-guides/build/visual-test-background/cache/gradle:/cache/gradle",
+    "bracket-pair-guides-visual-test:ubuntu24-amd64",
+    "/results/run.sh"
+  ],
+  "exitCode": 0,
+  "seconds": 188.10862112045288
+}

@@ -4,7 +4,7 @@ This ledger records observed results, not intended coverage. Historical issue-97
 
 | Obligation | Current evidence | Status |
 |---|---|---|
-| SDK-free model/core compilation | pure-check-03.log; independent tools/pure-build check, 43 contracts | Passed for recorded source snapshot |
+| SDK-free model/core compilation | pure-final-04.log + pure-final-04/summary.json; fresh independent tools/pure-build check/build, 43 contracts | Passed for recorded source snapshot |
 | Fresh pure contracts | pure-tests-02.log; checkpoint-01.json; model 4 + core 39, zero failed/skipped | Passed; later additions await rerun |
 | Packaging/BMF policy tests | compiler-targeted-02.log; Packaging9+BMF9 | 18 passed for recorded snapshot; full check pending |
 | Full integration compilation | integration-compile-03.log and checkpoint-checks-01/03.log | Passed |
@@ -16,8 +16,8 @@ This ledger records observed results, not intended coverage. Historical issue-97
 | Formatting, bytecode architecture and complete check | Spotless and 4 ArchUnit rules passed | Full root check pending |
 | Final release archive and visual bridge separation | actual compiled/instrumented inputs, composed archive and ZIP identity passed | Visual bridge delta pending |
 | Supported IDE compatibility matrix | official IntelliJ Plugin Verifier, unchanged eight failure categories | Not run |
-| Driver pixel contracts and state transitions | driver/capture-01: actual IC242 run failed advisory observation; screenshot shows visible advisory, IDE log exposes static service lookup and XMLB state warning | Fixes installed, rerun pending; no baseline accepted |
-| Paired latency/allocation/resource comparison | fingerprint-01 exact8input/results match; performance-plan.json preregistered6 AB/BA pairs; baseline shared SDK compile04 passed, candidate shared SDK/Driver compile07 passed | Timing/allocation not run |
+| Driver pixel contracts and state transitions | driver/capture-04 passed and12images visually reviewed; compare05 failed A/B/A native rendering; compare06 passed exact12ARGB/image-byte equality after actual native-markup readiness | Passed for recorded source; endpoint reuse follow-up and paint-removal mutation pending |
+| Paired latency/allocation/resource comparison | fingerprint-01 exact8input/results match; performance-plan.json preregistered6 AB/BA pairs; sdk-isolated-smoke-04 all16commands passed with loaded descriptor/resource isolation + cleanup proof | Formal timing/allocation not run; same-caret endpoint churn found and being fixed |
 | Qodana inspection | zero-failure gate, local-only execution | Not run |
 
 ## Findings being resolved

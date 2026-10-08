@@ -6,7 +6,7 @@ Only the main agent executes Gradle and acquires IDEs.
 
 After final production/test sources are frozen, build the release ZIP and run the
 existing official `:plugin:minimumSdkTests` and `:plugin:currentSdkTests`. Preserve
-both passing XML sets. The current expected suite is 26 unique cases per SDK;
+both passing XML sets. The current expected suite is 28 unique cases per SDK;
 the exact identities must agree. The identity contract records the actual
 IC-241.19416.15/JBR and IU-263.6259.32/JBR, rather than treating configured task
 properties as evidence of execution.
@@ -38,7 +38,7 @@ python3 outputs/issue-97/redesign/compatibility/run_serial_verifiers.py \
 ```
 
 Execution runs the existing official minimum/current SDK tasks once more against
-these frozen sources, checks all 26 identities and actual IDE/JBR evidence, then
+these frozen sources, checks all 28 identities and actual IDE/JBR evidence, then
 runs the official `verifyPlugin` task on every frozen target. Each verifier task
 receives exactly one existing, product/version-validated selected IDE path. No
 new runtime test harness or alternate classpath is installed. All commands,
