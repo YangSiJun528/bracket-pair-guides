@@ -1,0 +1,260 @@
+Initialized native services in: /Users/sijun-yang/.gradle/native
+Initialized jansi services in: /Users/sijun-yang/.gradle/native
+The current JVM process isn't compatible with build requirement. The maximum heap size is insufficient.
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Starting process 'Gradle build daemon'. Working directory: /Users/sijun-yang/.gradle/daemon/9.8.0 Command: /Users/sijun-yang/.sdkman/candidates/java/25.0.3-amzn/bin/java --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --sun-misc-unsafe-memory-access=allow --enable-native-access=ALL-UNNAMED -XX:MaxMetaspaceSize=384m -XX:+HeapDumpOnOutOfMemoryError -Xms256m -Xmx512m -Dfile.encoding=UTF-8 -Duser.country=KR -Duser.language=ko -Duser.variant -cp /Users/sijun-yang/.gradle/wrapper/dists/gradle-9.8.0-bin/3m7h6ceboy5k31n8kzwzuxssm/gradle-9.8.0/lib/gradle-daemon-main-9.8.0.jar -javaagent:/Users/sijun-yang/.gradle/wrapper/dists/gradle-9.8.0-bin/3m7h6ceboy5k31n8kzwzuxssm/gradle-9.8.0/lib/agents/gradle-instrumentation-agent-9.8.0.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+Successfully started process 'Gradle build daemon'
+An attempt to start the daemon took 0.56 secs.
+The client will now receive all logging from the daemon (pid: 16737). The daemon log file: /Users/sijun-yang/.gradle/daemon/9.8.0/daemon-16737.out.log
+Daemon will be stopped at the end of the build 
+Using 2 worker leases.
+Operational build model parameters: {cachingModelBuilding=false, configurationCache=false, configurationCacheDisabledReason=null, configurationCacheParallelLoad=false, configurationCacheParallelStore=false, configureOnDemand=false, invalidateCoupledProjects=false, isolatedProjects=false, isolatedProjectsDiagnostics=false, isolatedProjectsDangerouslyIgnoreProblems=false, modelAsProjectDependency=false, modelBuilding=false, parallelModelBuilding=false, parallelProjectConfiguration=false, parallelProjectExecution=false, vintage=true}
+Received JVM installation metadata from '/Users/sijun-yang/.sdkman/candidates/java/25.0.3-amzn': {JAVA_HOME=/Users/sijun-yang/.sdkman/candidates/java/25.0.3-amzn, JAVA_VERSION=25.0.3, JAVA_VENDOR=Amazon.com Inc., RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=25.0.3+9-LTS, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=25.0.3+9-LTS, VM_VENDOR=Amazon.com Inc., OS_ARCH=aarch64}
+Watching the file system is configured to be enabled if available
+Now considering [/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides] as hierarchies to watch
+File system watching is active
+Starting Build
+Now considering [/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build-logic, /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides] as hierarchies to watch
+Using local directory build cache for build ':build-logic' (location = /Users/sijun-yang/.gradle/caches/build-cache-1, remove unused entries = after 3 days).
+
+> Configure project :build-logic
+Evaluating project ':build-logic' using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build-logic/build.gradle.kts'.
+Resolved plugin [id: 'org.gradle.groovy']
+Resolved plugin [id: 'org.gradle.java-gradle-plugin']
+Resolved plugin [id: 'org.gradle.toolchains.foojay-resolver-convention', version: '1.0.0']
+Resolved plugin [id: 'org.jetbrains.intellij.platform.settings', version: '2.19.0']
+[org.jetbrains.intellij.platform] Configuring plugin: org.jetbrains.intellij.platform.settings
+Settings evaluated using settings file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/settings.gradle.kts'.
+Using local directory build cache for the root build (location = /Users/sijun-yang/.gradle/caches/build-cache-1, remove unused entries = after 3 days).
+Projects loaded. Root project using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build.gradle.kts'.
+Included projects: [root project 'bracket-pair-guides', project ':analysis-core', project ':analysis-model', project ':analysis-runtime', project ':benchmarks', project ':editor-ui', project ':plugin']
+Starting process 'command '/usr/libexec/java_home''. Working directory: /Users/sijun-yang/.gradle/daemon/9.8.0 Command: /usr/libexec/java_home -V
+Successfully started process 'command '/usr/libexec/java_home''
+Starting process 'command '/Users/sijun-yang/.sdkman/candidates/java/17.0.18-amzn/bin/java''. Working directory: /Users/sijun-yang/.gradle/.tmp/tmp-jvm1401348076239837950probe Command: /Users/sijun-yang/.sdkman/candidates/java/17.0.18-amzn/bin/java -Xmx32m -Xms32m -cp . JavaProbe
+Successfully started process 'command '/Users/sijun-yang/.sdkman/candidates/java/17.0.18-amzn/bin/java''
+Received JVM installation metadata from '/Users/sijun-yang/.sdkman/candidates/java/17.0.18-amzn': {JAVA_HOME=/Users/sijun-yang/.sdkman/candidates/java/17.0.18-amzn, JAVA_VERSION=17.0.18, JAVA_VENDOR=Amazon.com Inc., RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=17.0.18+8-LTS, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=17.0.18+8-LTS, VM_VENDOR=Amazon.com Inc., OS_ARCH=aarch64}
+Starting process 'command '/Users/sijun-yang/.sdkman/candidates/java/24.0.2-amzn/bin/java''. Working directory: /Users/sijun-yang/.gradle/.tmp/tmp-jvm18086468435917051570probe Command: /Users/sijun-yang/.sdkman/candidates/java/24.0.2-amzn/bin/java -Xmx32m -Xms32m -cp . JavaProbe
+Successfully started process 'command '/Users/sijun-yang/.sdkman/candidates/java/24.0.2-amzn/bin/java''
+Received JVM installation metadata from '/Users/sijun-yang/.sdkman/candidates/java/24.0.2-amzn': {JAVA_HOME=/Users/sijun-yang/.sdkman/candidates/java/24.0.2-amzn, JAVA_VERSION=24.0.2, JAVA_VENDOR=Amazon.com Inc., RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=24.0.2+12-FR, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=24.0.2+12-FR, VM_VENDOR=Amazon.com Inc., OS_ARCH=aarch64}
+Starting process 'command '/Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home/bin/java''. Working directory: /Users/sijun-yang/.gradle/.tmp/tmp-jvm7152123374474536327probe Command: /Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home/bin/java -Xmx32m -Xms32m -cp . JavaProbe
+Successfully started process 'command '/Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home/bin/java''
+Received JVM installation metadata from '/Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home': {JAVA_HOME=/Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home, JAVA_VERSION=17.0.17, JAVA_VENDOR=Eclipse Adoptium, RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=17.0.17+10, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=17.0.17+10, VM_VENDOR=Eclipse Adoptium, OS_ARCH=aarch64}
+Starting process 'command '/Users/sijun-yang/.sdkman/candidates/java/8.0.472-amzn/bin/java''. Working directory: /Users/sijun-yang/.gradle/.tmp/tmp-jvm4640208688482794723probe Command: /Users/sijun-yang/.sdkman/candidates/java/8.0.472-amzn/bin/java -Xmx32m -Xms32m -cp . JavaProbe
+Successfully started process 'command '/Users/sijun-yang/.sdkman/candidates/java/8.0.472-amzn/bin/java''
+Received JVM installation metadata from '/Users/sijun-yang/.sdkman/candidates/java/8.0.472-amzn': {JAVA_HOME=/Users/sijun-yang/.sdkman/candidates/java/8.0.472-amzn/jre, JAVA_VERSION=1.8.0_472, JAVA_VENDOR=Amazon.com Inc., RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=1.8.0_472-b08, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=25.472-b08, VM_VENDOR=Amazon.com Inc., OS_ARCH=aarch64}
+Starting process 'command '/Users/sijun-yang/Library/Java/JavaVirtualMachines/jbr-21.0.10/Contents/Home/bin/java''. Working directory: /Users/sijun-yang/.gradle/.tmp/tmp-jvm4301854759430109793probe Command: /Users/sijun-yang/Library/Java/JavaVirtualMachines/jbr-21.0.10/Contents/Home/bin/java -Xmx32m -Xms32m -cp . JavaProbe
+Successfully started process 'command '/Users/sijun-yang/Library/Java/JavaVirtualMachines/jbr-21.0.10/Contents/Home/bin/java''
+Received JVM installation metadata from '/Users/sijun-yang/Library/Java/JavaVirtualMachines/jbr-21.0.10/Contents/Home': {JAVA_HOME=/Users/sijun-yang/Library/Java/JavaVirtualMachines/jbr-21.0.10/Contents/Home, JAVA_VERSION=21.0.10, JAVA_VENDOR=JetBrains s.r.o., RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=21.0.10+7-b1163.108, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=21.0.10+7-b1163.108, VM_VENDOR=JetBrains s.r.o., OS_ARCH=aarch64}
+Starting process 'command '/Users/sijun-yang/.sdkman/candidates/java/21.0.10-amzn/bin/java''. Working directory: /Users/sijun-yang/.gradle/.tmp/tmp-jvm4508625796687801631probe Command: /Users/sijun-yang/.sdkman/candidates/java/21.0.10-amzn/bin/java -Xmx32m -Xms32m -cp . JavaProbe
+Successfully started process 'command '/Users/sijun-yang/.sdkman/candidates/java/21.0.10-amzn/bin/java''
+Received JVM installation metadata from '/Users/sijun-yang/.sdkman/candidates/java/21.0.10-amzn': {JAVA_HOME=/Users/sijun-yang/.sdkman/candidates/java/21.0.10-amzn, JAVA_VERSION=21.0.10, JAVA_VENDOR=Amazon.com Inc., RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=21.0.10+7-LTS, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=21.0.10+7-LTS, VM_VENDOR=Amazon.com Inc., OS_ARCH=aarch64}
+
+> Task :build-logic:compileJava NO-SOURCE
+Skipping task ':build-logic:compileJava' as it has no source files and no previous output files.
+
+> Task :build-logic:compileGroovy UP-TO-DATE
+Build cache key for task ':build-logic:compileGroovy' is d90fee85102ad0b1fd0a03a1287cf242
+Skipping task ':build-logic:compileGroovy' as it is up-to-date.
+
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+Caching disabled for task ':build-logic:pluginDescriptors' because:
+  Not worth caching
+Skipping task ':build-logic:pluginDescriptors' as it is up-to-date.
+
+> Task :build-logic:processResources UP-TO-DATE
+Caching disabled for task ':build-logic:processResources' because:
+  Not worth caching
+Skipping task ':build-logic:processResources' as it is up-to-date.
+
+> Task :build-logic:classes UP-TO-DATE
+Skipping task ':build-logic:classes' as it has no actions.
+
+> Task :build-logic:jar UP-TO-DATE
+Caching disabled for task ':build-logic:jar' because:
+  Not worth caching
+Skipping task ':build-logic:jar' as it is up-to-date.
+
+> Configure project :
+Evaluating root project 'bracket-pair-guides' using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build.gradle.kts'.
+Resolved plugin [id: 'org.gradle.base']
+Resolved plugin [id: 'bracket.module-boundaries']
+Resolved plugin [id: 'com.diffplug.spotless', version: '8.10.3']
+Resolved plugin [id: 'org.jetbrains.kotlin.jvm', version: '2.3.21', apply: false]
+Starting process 'command '/Users/sijun-yang/.sdkman/candidates/java/11.0.30-amzn/bin/java''. Working directory: /Users/sijun-yang/.gradle/.tmp/tmp-jvm16535564376768760643probe Command: /Users/sijun-yang/.sdkman/candidates/java/11.0.30-amzn/bin/java -Xmx32m -Xms32m -cp . JavaProbe
+Successfully started process 'command '/Users/sijun-yang/.sdkman/candidates/java/11.0.30-amzn/bin/java''
+Received JVM installation metadata from '/Users/sijun-yang/.sdkman/candidates/java/11.0.30-amzn': {JAVA_HOME=/Users/sijun-yang/.sdkman/candidates/java/11.0.30-amzn, JAVA_VERSION=11.0.30, JAVA_VENDOR=Amazon.com Inc., RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=11.0.30+7-LTS, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=11.0.30+7-LTS, VM_VENDOR=Amazon.com Inc., OS_ARCH=aarch64}
+Tasks to be executed: [task ':build-logic:compileJava', task ':build-logic:compileGroovy', task ':build-logic:pluginDescriptors', task ':build-logic:processResources', task ':build-logic:classes', task ':build-logic:jar']
+Tasks that were excluded: []
+Resolve mutations for :build-logic:compileJava (Thread[#90,included builds,5,main]) started.
+:build-logic:compileJava (Thread[#90,included builds,5,main]) started.
+Resolve mutations for :build-logic:compileGroovy (Thread[#90,included builds,5,main]) started.
+:build-logic:compileGroovy (Thread[#90,included builds,5,main]) started.
+Resolve mutations for :build-logic:pluginDescriptors (Thread[#90,included builds,5,main]) started.
+:build-logic:pluginDescriptors (Thread[#90,included builds,5,main]) started.
+Resolve mutations for :build-logic:processResources (Thread[#90,included builds,5,main]) started.
+:build-logic:processResources (Thread[#90,included builds,5,main]) started.
+Resolve mutations for :build-logic:classes (Thread[#90,included builds,5,main]) started.
+:build-logic:classes (Thread[#90,included builds,5,main]) started.
+Resolve mutations for :build-logic:jar (Thread[#90,included builds,5,main]) started.
+:build-logic:jar (Thread[#90,included builds,5,main]) started.
+
+> Configure project :analysis-core
+Evaluating project ':analysis-core' using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/analysis-core/build.gradle.kts'.
+Resolved plugin [id: 'org.gradle.java-library']
+Resolved plugin [id: 'org.jetbrains.kotlin.jvm', version: '2.3.21']
+Build 42625a50-5dcd-4b1b-a8d2-40295fce3914 is started
+Using Kotlin Gradle Plugin gradle813 variant
+kotlin scripting plugin: created the scripting discovery configuration: kotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: testKotlinScriptDef
+
+> Configure project :analysis-model
+Evaluating project ':analysis-model' using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/analysis-model/build.gradle.kts'.
+Resolved plugin [id: 'org.gradle.java-library']
+Resolved plugin [id: 'org.jetbrains.kotlin.jvm', version: '2.3.21']
+Using Kotlin Gradle Plugin gradle813 variant
+kotlin scripting plugin: created the scripting discovery configuration: kotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: testKotlinScriptDef
+
+> Configure project :analysis-runtime
+Evaluating project ':analysis-runtime' using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/analysis-runtime/build.gradle.kts'.
+Resolved plugin [id: 'org.gradle.java-library']
+Resolved plugin [id: 'org.jetbrains.kotlin.jvm', version: '2.3.21']
+Resolved plugin [id: 'org.jetbrains.intellij.platform.base']
+Using Kotlin Gradle Plugin gradle813 variant
+kotlin scripting plugin: created the scripting discovery configuration: kotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: testKotlinScriptDef
+[org.jetbrains.intellij.platform] Configuring plugin: org.jetbrains.intellij.platform.base
+[org.jetbrains.intellij.platform] Registering task: initializeIntellijPlatformPlugin
+[org.jetbrains.intellij.platform] Registering task: dumpProductsReleases
+[org.jetbrains.intellij.platform] Registering task: printBundledModules
+[org.jetbrains.intellij.platform] Registering task: printBundledPlugins
+[org.jetbrains.intellij.platform] Registering task: printProductsReleases
+
+> Configure project :benchmarks
+Evaluating project ':benchmarks' using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/benchmarks/build.gradle.kts'.
+Resolved plugin [id: 'org.jetbrains.kotlin.jvm', version: '2.3.21']
+Resolved plugin [id: 'me.champeau.jmh', version: '0.7.3']
+Using Kotlin Gradle Plugin gradle813 variant
+kotlin scripting plugin: created the scripting discovery configuration: kotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: testKotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: jmhKotlinScriptDef
+
+> Configure project :editor-ui
+Evaluating project ':editor-ui' using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/editor-ui/build.gradle.kts'.
+Resolved plugin [id: 'org.gradle.java-library']
+Resolved plugin [id: 'org.jetbrains.kotlin.jvm', version: '2.3.21']
+Resolved plugin [id: 'org.jetbrains.intellij.platform.base']
+Using Kotlin Gradle Plugin gradle813 variant
+kotlin scripting plugin: created the scripting discovery configuration: kotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: testKotlinScriptDef
+[org.jetbrains.intellij.platform] Configuring plugin: org.jetbrains.intellij.platform.base
+[org.jetbrains.intellij.platform] Registering task: initializeIntellijPlatformPlugin
+[org.jetbrains.intellij.platform] Registering task: dumpProductsReleases
+[org.jetbrains.intellij.platform] Registering task: printBundledModules
+[org.jetbrains.intellij.platform] Registering task: printBundledPlugins
+[org.jetbrains.intellij.platform] Registering task: printProductsReleases
+
+> Configure project :plugin
+Evaluating project ':plugin' using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build.gradle.kts'.
+Resolved plugin [id: 'org.jetbrains.kotlin.jvm', version: '2.3.21']
+Resolved plugin [id: 'org.jetbrains.intellij.platform']
+Using Kotlin Gradle Plugin gradle813 variant
+kotlin scripting plugin: created the scripting discovery configuration: kotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: testKotlinScriptDef
+[org.jetbrains.intellij.platform] Configuring plugin: org.jetbrains.intellij.platform
+[org.jetbrains.intellij.platform] Registering task: patchPluginXml
+[org.jetbrains.intellij.platform] Configuring plugin: org.jetbrains.intellij.platform.base
+[org.jetbrains.intellij.platform] Registering task: initializeIntellijPlatformPlugin
+[org.jetbrains.intellij.platform] Registering task: dumpProductsReleases
+[org.jetbrains.intellij.platform] Registering task: printBundledModules
+[org.jetbrains.intellij.platform] Registering task: printBundledPlugins
+[org.jetbrains.intellij.platform] Registering task: printProductsReleases
+[org.jetbrains.intellij.platform] Configuring plugin: org.jetbrains.intellij.platform.module
+[org.jetbrains.intellij.platform] Registering task: generateManifest
+[org.jetbrains.intellij.platform] Registering task: jar
+[org.jetbrains.intellij.platform] Registering task: instrumentCode
+[org.jetbrains.intellij.platform] Registering task: instrumentTestCode
+[org.jetbrains.intellij.platform] Registering task: instrumentedJar
+[org.jetbrains.intellij.platform] Registering task: composedJar
+[org.jetbrains.intellij.platform] Registering task: prepareSandbox
+[org.jetbrains.intellij.platform] Registering task: cleanSandbox
+[org.jetbrains.intellij.platform] Registering task: prepareTestSandbox
+[org.jetbrains.intellij.platform] Registering task: prepareTest
+[org.jetbrains.intellij.platform] Registering task: test
+[org.jetbrains.intellij.platform] Registering task: verifyPluginProjectConfiguration
+[org.jetbrains.intellij.platform] Registering task: patchPluginXml
+[org.jetbrains.intellij.platform] Registering task: processResources
+[org.jetbrains.intellij.platform] Registering task: buildSearchableOptions
+[org.jetbrains.intellij.platform] Registering task: prepareJarSearchableOptions
+[org.jetbrains.intellij.platform] Registering task: jarSearchableOptions
+[org.jetbrains.intellij.platform] Registering task: buildPluginVariants
+[org.jetbrains.intellij.platform] Registering task: buildPlugin
+[org.jetbrains.intellij.platform] Registering task: prepareTestIdePerformanceSandbox
+[org.jetbrains.intellij.platform] Registering task: testIdePerformance
+[org.jetbrains.intellij.platform] Registering task: generateSplitModeRunConfigurations
+[org.jetbrains.intellij.platform] Registering task: prepareSandbox_runIde
+[org.jetbrains.intellij.platform] Registering task: prepareSandbox_runIdeBackend
+[org.jetbrains.intellij.platform] Registering task: prepareSandbox_runIdeFrontend
+[org.jetbrains.intellij.platform] Registering task: runIde
+[org.jetbrains.intellij.platform] Registering task: runIdeBackend
+[org.jetbrains.intellij.platform] Registering task: runIdeFrontend
+[org.jetbrains.intellij.platform] Registering task: runIdeSplitMode
+[org.jetbrains.intellij.platform] Registering task: verifyPlugin
+[org.jetbrains.intellij.platform] Registering task: verifyPluginSignature
+[org.jetbrains.intellij.platform] Registering task: verifyPluginStructure
+[org.jetbrains.intellij.platform] Registering task: signPlugin
+[org.jetbrains.intellij.platform] Registering task: publishPlugin
+kotlin scripting plugin: created the scripting discovery configuration: visualBridgeKotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: visualTestKotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: sdkPerformanceKotlinScriptDef
+All projects evaluated.
+Task path ':plugin:resolveCompatibilityIde' matched project ':plugin'
+Task name matched 'resolveCompatibilityIde'
+Selected primary task 'resolveCompatibilityIde' from project :plugin
+Tasks to be executed: [task ':plugin:resolveCompatibilityIde']
+Tasks that were excluded: []
+Resolve mutations for :plugin:resolveCompatibilityIde (Thread[#90,included builds,5,main]) started.
+:plugin:resolveCompatibilityIde (Thread[#90,included builds,5,main]) started.
+
+> Task :plugin:resolveCompatibilityIde
+Custom actions are attached to task ':plugin:resolveCompatibilityIde'.
+Caching disabled for task ':plugin:resolveCompatibilityIde' because:
+  Gradle would require more information to cache this task
+Task ':plugin:resolveCompatibilityIde' is not up-to-date because:
+  Task has not declared any outputs despite executing actions.
+[org.jetbrains.intellij.platform] Reading product releases listing from cache: /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/.intellijPlatform/productReleases/65b46622bac51a7dcbe68955a6e4a031e5f9669042ff225079054e580c770e3f.json
+[org.jetbrains.intellij.platform] Filtering releases with since='null', until='null', types='IU', channels=''
+Downloading https://download.jetbrains.com/idea/idea-2025.3.6.1-aarch64.dmg to /Users/sijun-yang/.gradle/.tmp/gradle_download15675511956573045640bin
+Caching disabled for ExtractorTransformer: /Users/sijun-yang/.gradle/caches/modules-2/files-2.1/idea/idea/2025.3.6.1/a3157ef29fa6fe544e779de4537fc1d6def558de/idea-2025.3.6.1-aarch64.dmg because:
+  Caching not enabled.
+[org.jetbrains.intellij.platform] Extracting archive '/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/idea/idea/2025.3.6.1/a3157ef29fa6fe544e779de4537fc1d6def558de/idea-2025.3.6.1-aarch64.dmg' to directory '/Users/sijun-yang/.gradle/caches/9.8.0/transforms/5cbd307de769e26472124b33d7237b57/transformed/idea-2025.3.6.1-aarch64'.
+[org.jetbrains.intellij.platform] Extracting DMG archive '/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/idea/idea/2025.3.6.1/a3157ef29fa6fe544e779de4537fc1d6def558de/idea-2025.3.6.1-aarch64.dmg' to temporary directory.
+Starting process 'command 'hdiutil''. Working directory: /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides Command: hdiutil info -plist
+Successfully started process 'command 'hdiutil''
+Starting process 'command 'hdiutil''. Working directory: /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides Command: hdiutil attach -readonly -noautoopen -noautofsck -noverify -nobrowse -mountpoint -quiet /var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/757125741044492684 /Users/sijun-yang/.gradle/caches/modules-2/files-2.1/idea/idea/2025.3.6.1/a3157ef29fa6fe544e779de4537fc1d6def558de/idea-2025.3.6.1-aarch64.dmg
+Successfully started process 'command 'hdiutil''
+Starting process 'command 'rsync''. Working directory: /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides Command: rsync -av --quiet --exclude=Applications --exclude=/.* /var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/757125741044492684/ /Users/sijun-yang/.gradle/caches/9.8.0/transforms/5cbd307de769e26472124b33d7237b57/transformed/idea-2025.3.6.1-aarch64
+Successfully started process 'command 'rsync''
+[org.jetbrains.intellij.platform] Unmounting DMG volume '/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/757125741044492684'.
+Starting process 'command 'hdiutil''. Working directory: /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides Command: hdiutil detach -force -quiet /var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/757125741044492684
+Successfully started process 'command 'hdiutil''
+[org.jetbrains.intellij.platform] Resolving the content directory in '/Users/sijun-yang/.gradle/caches/9.8.0/transforms/5cbd307de769e26472124b33d7237b57/transformed/idea-2025.3.6.1-aarch64'.
+[org.jetbrains.intellij.platform] The content directory is '/Users/sijun-yang/.gradle/caches/9.8.0/transforms/5cbd307de769e26472124b33d7237b57/transformed/idea-2025.3.6.1-aarch64/IntelliJ IDEA.app/Contents'.
+[org.jetbrains.intellij.platform] Copying the content from '/Users/sijun-yang/.gradle/caches/9.8.0/transforms/5cbd307de769e26472124b33d7237b57/transformed/idea-2025.3.6.1-aarch64/IntelliJ IDEA.app/Contents' to '/Users/sijun-yang/.gradle/caches/9.8.0/transforms/5cbd307de769e26472124b33d7237b57/transformed/idea-2025.3.6.1-aarch64'.
+[org.jetbrains.intellij.platform] Extracting to '/Users/sijun-yang/.gradle/caches/9.8.0/transforms/5cbd307de769e26472124b33d7237b57/transformed/idea-2025.3.6.1-aarch64' completed.
+[org.jetbrains.intellij.platform] LocalIvyArtifactPathComponentMetadataRule has been registered.
+Resolved compatibility IDE platformPath: /Users/sijun-yang/.gradle/caches/9.8.0/transforms/5cbd307de769e26472124b33d7237b57/transformed/idea-2025.3.6.1-aarch64
+Build 42625a50-5dcd-4b1b-a8d2-40295fce3914 is closed
+
+[Incubating] Problems report is available at: file:///Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 2m 9s
+5 actionable tasks: 1 executed, 4 up-to-date
+Watched directory hierarchies: [/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides]

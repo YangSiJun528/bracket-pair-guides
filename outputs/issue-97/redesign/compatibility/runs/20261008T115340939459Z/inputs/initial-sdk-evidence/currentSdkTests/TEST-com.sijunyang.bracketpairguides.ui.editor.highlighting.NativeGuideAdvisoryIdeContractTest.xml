@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.ui.editor.highlighting.NativeGuideAdvisoryIdeContractTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-08T10:23:26.348Z" hostname="sijun-yangui-MacBookPro.local" time="0.063">
+  <properties/>
+  <testcase name="testSuppressionSurvivesXmlReloadUntilConflictCapabilityEnds" classname="com.sijunyang.bracketpairguides.ui.editor.highlighting.NativeGuideAdvisoryIdeContractTest" time="0.063"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

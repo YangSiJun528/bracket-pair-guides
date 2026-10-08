@@ -1,0 +1,14 @@
+{
+  "command": [
+    "python3",
+    "outputs/issue-97/redesign/compatibility/run_serial_verifiers.py",
+    "--execute",
+    "--cleanup-created-ides"
+  ],
+  "startedUtc": "2026-10-08T11:53:40.616677+00:00",
+  "status": "failed",
+  "targetCount": 13,
+  "allEightStrictFailureLevelsRetained": true,
+  "exitCode": 1,
+  "seconds": 1490.4797167080105
+}

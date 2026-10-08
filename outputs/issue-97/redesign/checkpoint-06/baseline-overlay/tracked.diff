@@ -1,0 +1,47 @@
+diff --git a/benchmarks/build.gradle.kts b/benchmarks/build.gradle.kts
+index e211f7523cdb83987443437e0ab6444c6824a554..724137eb765db9d8ed9efd91d51fc840715190fa 100644
+--- a/benchmarks/build.gradle.kts
++++ b/benchmarks/build.gradle.kts
+@@ -48,6 +48,9 @@ dependencies {
+     // Production modules use the Kotlin runtime bundled with IntelliJ. This
+     // standalone benchmark process needs its own runtime on the JMH classpath.
+     implementation(kotlin("stdlib"))
++    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
++    implementation(project(":analysis-model"))
++    implementation(project(":analysis-core"))
+ 
+     // Privileged implementation probes use each production owner directly.
+     jmhImplementation(project(":analysis-model"))
+@@ -70,6 +73,11 @@ val benchmarkJobs = linkedMapOf(
+     "cancellation" to "LongArraySortCancellationBenchmark",
+     "pairing" to "PairingMachineBenchmark",
+     "preferences" to "PreferenceNormalizationBenchmark",
++    "analyzeCold" to "CalculationContractBenchmark",
++    "analyzeReuse" to "CalculationContractBenchmark",
++    "visibleQuery" to "CalculationContractBenchmark",
++    "repair" to "CalculationContractBenchmark",
++    "cancelledAttempt" to "CalculationContractBenchmark",
+ )
+ if (benchmarkJob.isPresent) {
+     require(benchmarkJob.get() in benchmarkJobs) {
+@@ -95,6 +103,9 @@ jmh {
+     timeOnIteration = "1s"
+     fork = 2
+     threads = 1
++    if (benchmarkJob.isPresent && benchmarkJobs[benchmarkJob.get()] == "CalculationContractBenchmark") {
++        jvmArgs = listOf("-Xms2g", "-Xmx2g")
++    }
+     failOnError = true
+     profilers = listOf("gc")
+     resultFormat = "JSON"
+@@ -110,7 +121,9 @@ jmh {
+             .asFile
+ 
+     if (benchmarkJob.isPresent) {
+-        includes = listOf(".*\\.${benchmarkJobs.getValue(benchmarkJob.get())}\\..*")
++        includes = if (benchmarkJobs.getValue(benchmarkJob.get()) == "CalculationContractBenchmark") {
++            listOf(".*\\.CalculationContractBenchmark\\.${benchmarkJob.get()}")
++        } else listOf(".*\\.${benchmarkJobs.getValue(benchmarkJob.get())}\\..*")
+         if (benchmarkJob.get().startsWith("sort-")) {
+             benchmarkParameters.put(
+                 "distribution",

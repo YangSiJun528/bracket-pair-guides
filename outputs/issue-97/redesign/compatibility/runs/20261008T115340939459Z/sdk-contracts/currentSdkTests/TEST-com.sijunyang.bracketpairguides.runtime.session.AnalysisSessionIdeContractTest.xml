@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-08T11:54:12.228Z" hostname="sijun-yangui-MacBookPro.local" time="1.749">
+  <properties/>
+  <testcase name="testImmediateCloseCancelsPendingPublication" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.073"/>
+  <testcase name="testDocumentGenerationSurvivesStampResetAndDormantReacquire" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.065"/>
+  <testcase name="testHiddenDemandReleasesAcceptedPayloadAndWakeUpDoesNotRecapture" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.225"/>
+  <testcase name="testReentrantEditCannotAcceptOldResult" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.261"/>
+  <testcase name="testRetainedClosedWorkDoesNotRetainEditorViewOrPayload" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.148"/>
+  <testcase name="testSharedDocumentEditorsKeepIndependentPublicationAndCloseLifetimes" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.27"/>
+  <testcase name="testRicherAcceptedResultSurvivesCoverageReduction" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.155"/>
+  <testcase name="testReadsAreBackgroundAndPublicationIsEdtAndDuplicateDemandIsInert" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.157"/>
+  <testcase name="testCloseDuringPublicationPreventsAnyLaterWork" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.153"/>
+  <testcase name="testNoFacetDemandReleasesAcceptedPayloadAndWakeUpDoesNotRecapture" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.239"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[[   7569]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[   7990]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+]]></system-err>
+</testsuite>

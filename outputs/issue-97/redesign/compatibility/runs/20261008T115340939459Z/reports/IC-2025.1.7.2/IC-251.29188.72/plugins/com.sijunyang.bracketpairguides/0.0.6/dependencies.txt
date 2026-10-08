@@ -1,0 +1,69 @@
+com.sijunyang.bracketpairguides:0.0.6
+\--- com.intellij:251.29188.72
+     +--- (failed) com.intellij.platform.experimental.backend (optional): Dependency 'dependency on plugin 'com.intellij.platform.experimental.backend' declared in content module 'intellij.terminal.backend' of 'org.jetbrains.plugins.terminal'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IC-251.29188.72, Local Plugin Repository
+     +--- (failed) com.intellij.platform.experimental.frontend (optional): Dependency 'dependency on plugin 'com.intellij.platform.experimental.frontend' declared in content module 'intellij.terminal.frontend' of 'org.jetbrains.plugins.terminal'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IC-251.29188.72, Local Plugin Repository
+     +--- (optional) Git4Idea:251.29188.72
+     |    +--- com.intellij:251.29188.72 (*) [declaring module intellij.platform.collaborationTools]
+     |    +--- (optional) com.jetbrains.performancePlugin:251.29188.72
+     |    |    \--- com.intellij:251.29188.72 (*) [declaring module com.intellij.modules.lang]
+     |    \--- (optional) org.jetbrains.plugins.terminal:251.29188.72
+     |         +--- (failed) com.intellij.platform.experimental.backend (optional): Dependency 'dependency on plugin 'com.intellij.platform.experimental.backend' declared in content module 'intellij.terminal.backend' of 'org.jetbrains.plugins.terminal'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IC-251.29188.72, Local Plugin Repository
+     |         +--- (failed) com.intellij.platform.experimental.frontend (optional): Dependency 'dependency on plugin 'com.intellij.platform.experimental.frontend' declared in content module 'intellij.terminal.frontend' of 'org.jetbrains.plugins.terminal'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IC-251.29188.72, Local Plugin Repository
+     |         +--- com.intellij:251.29188.72 (*) [declaring module com.intellij.modules.lang]
+     |         \--- (optional) com.jetbrains.sh:251.29188.72
+     |              +--- (failed) com.intellij.modules.python (optional): Dependency 'dependency on plugin 'com.intellij.modules.python' declared in content module 'intellij.sh.python' of 'com.jetbrains.sh'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IC-251.29188.72, Local Plugin Repository
+     |              +--- com.intellij:251.29188.72 (*) [declaring module com.intellij.modules.lang]
+     |              +--- (optional) com.intellij.copyright:251.29188.72
+     |              |    \--- com.intellij:251.29188.72 (*) [declaring module com.intellij.modules.lang]
+     |              +--- (optional) org.intellij.plugins.markdown:251.29188.72
+     |              |    +--- com.intellij:251.29188.72 (*) [declaring module com.intellij.modules.lang]
+     |              |    +--- (optional) com.intellij.modules.json:251.29188.72
+     |              |    |    \--- com.intellij:251.29188.72 (*) [declaring module com.intellij.modules.lang]
+     |              |    +--- (optional) com.intellij.platform.images:251.29188.72
+     |              |    |    \--- com.intellij:251.29188.72 (*) [declaring module com.intellij.modules.lang]
+     |              |    +--- (optional) org.intellij.intelliLang:251.29188.72
+     |              |    |    +--- (optional) XPathView:251.23774.318
+     |              |    |    |    \--- com.intellij:251.29188.72 (*)
+     |              |    |    +--- (optional) com.intellij.java:251.29188.72
+     |              |    |    |    +--- (failed) com.intellij.platform.experimental.frontend (optional): Dependency 'dependency on plugin 'com.intellij.platform.experimental.frontend' declared in content module 'intellij.terminal.frontend' of 'org.jetbrains.plugins.terminal'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IC-251.29188.72, Local Plugin Repository
+     |              |    |    |    +--- (optional) com.intellij.copyright:251.29188.72 (*)
+     |              |    |    |    +--- (optional) com.intellij:251.29188.72 (*)
+     |              |    |    |    +--- (optional) com.intellij.platform.images:251.29188.72 (*)
+     |              |    |    |    +--- (optional) org.jetbrains.plugins.terminal:251.29188.72 (*)
+     |              |    |    |    +--- (optional) training:251.29188.72
+     |              |    |    |    |    +--- com.intellij:251.29188.72 (*) [declaring module intellij.platform.tips]
+     |              |    |    |    |    \--- (optional) Git4Idea:251.29188.72 (*)
+     |              |    |    |    \--- (optional) com.jetbrains.performancePlugin:251.29188.72 (*) [declaring module intellij.performanceTesting.vcs]
+     |              |    |    \--- (optional) com.intellij:251.29188.72 (*)
+     |              |    +--- (optional) org.toml.lang:251.29188.72
+     |              |    |    +--- com.intellij:251.29188.72 (*) [declaring module com.intellij.modules.lang]
+     |              |    |    +--- (optional) com.intellij.modules.json:251.29188.72 (*)
+     |              |    |    \--- (optional) tanvd.grazi:251.29188.72
+     |              |    |         +--- com.intellij:251.29188.72 (*) [declaring module intellij.platform.vcs.impl]
+     |              |    |         +--- (optional) com.intellij.java:251.29188.72 (*)
+     |              |    |         +--- (optional) com.intellij.modules.json:251.29188.72 (*)
+     |              |    |         +--- (optional) com.intellij.properties:251.29188.72
+     |              |    |         |    +--- com.intellij:251.29188.72 (*) [declaring module com.intellij.modules.xml]
+     |              |    |         |    \--- (optional) com.intellij.copyright:251.29188.72 (*)
+     |              |    |         +--- (optional) org.intellij.plugins.markdown:251.29188.72 (*)
+     |              |    |         \--- (optional) intellij.yaml.backend:251.29188.72 [product module]
+     |              |    |              +--- (failed) com.intellij.platform.experimental.backend: Dependency 'dependency on plugin 'com.intellij.platform.experimental.backend' declared in content module 'intellij.terminal.backend' of 'org.jetbrains.plugins.terminal'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IC-251.29188.72, Local Plugin Repository
+     |              |    |              +--- com.intellij.modules.json:251.29188.72 (*) [declaring module com.intellij.modules.json]
+     |              |    |              +--- com.intellij:251.29188.72 (*) [declaring module com.intellij.modules.lang]
+     |              |    |              \--- org.jetbrains.plugins.yaml:251.29188.72 [declaring module intellij.yaml]
+     |              |    |                   +--- (failed) com.intellij.jetbrains.client (optional): Dependency 'dependency on plugin 'com.intellij.jetbrains.client' declared in content module 'intellij.yaml.frontend.split' of 'org.jetbrains.plugins.yaml'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IC-251.29188.72, Local Plugin Repository
+     |              |    |                   +--- (failed) com.intellij.platform.experimental.backend (optional): Dependency 'dependency on plugin 'com.intellij.platform.experimental.backend' declared in content module 'intellij.terminal.backend' of 'org.jetbrains.plugins.terminal'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IC-251.29188.72, Local Plugin Repository
+     |              |    |                   +--- com.intellij:251.29188.72 (*) [declaring module com.intellij.modules.lang]
+     |              |    |                   \--- com.intellij.modules.json:251.29188.72 (*) [declaring module intellij.json.split]
+     |              |    \--- (optional) intellij.yaml.backend:251.29188.72 (*) [product module]
+     |              \--- (optional) org.jetbrains.plugins.terminal:251.29188.72 (*)
+     +--- (optional) com.intellij.copyright:251.29188.72 (*)
+     +--- (optional) com.intellij.platform.images:251.29188.72 (*)
+     +--- (optional) org.jetbrains.kotlin:251.29188.72
+     |    +--- com.intellij.java:251.29188.72 (*)
+     |    \--- com.intellij:251.29188.72 (*) [declaring module intellij.platform.collaborationTools]
+     +--- (optional) intellij.java.featuresTrainer:251.29188.72 [product module]
+     |    \--- training:251.29188.72 (*)
+     \--- (optional) kotlin.features-trainer:251.29188.72 [product module]
+          +--- training:251.29188.72 (*)
+          \--- intellij.java.featuresTrainer:251.29188.72 (*) [product module]

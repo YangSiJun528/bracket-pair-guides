@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-08T11:41:56.887Z" hostname="sijun-yangui-MacBookPro.local" time="0.543">
+  <properties/>
+  <testcase name="testCloseDuringRealMatcherReadRejectsPublicationAfterCaptureUnwinds" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest" time="0.152"/>
+  <testcase name="testSecondaryRepairPublishesWhileDelayedFullCaptureIsStillBlocked" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest" time="0.167"/>
+  <testcase name="testSourceEditAfterInFlightReadRejectsOldResultAndPublishesNewCoordinates" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest" time="0.224"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

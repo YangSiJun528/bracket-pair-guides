@@ -1,0 +1,22 @@
+{
+  "recordedUtc": "2026-10-08T12:11:07.602339+00:00",
+  "status": "implementation-authorized-after-current-frozen-matrix-finishes",
+  "selectedDraft": "proposed-session-ownership.patch",
+  "failedTargetsObserved": [
+    "IU-263.6259.32",
+    "IU-2026.2.3"
+  ],
+  "reason": "DocumentCalculation uses deprecated one-argument Document.addDocumentListener. Retain all eight strict verifier failure categories. Session should own acquisition and idempotent release; no new public interface/flag.",
+  "existingRun": "../runs/20261008T115340939459Z",
+  "existingSourceAndZipMustRemainUnchangedUntilRunnerEnds": true,
+  "rerunAfterChange": [
+    "root check including actual minimum SDK29",
+    "current SDK29",
+    "release/visual packaging audit",
+    "strict full13 IDE matrix",
+    "Qodana at failThreshold0",
+    "Driver exact12 on unchanged visual oracles",
+    "final same-condition SDK/JMH performance freeze"
+  ],
+  "limitations": "No arbitrary OOM recovery or universal race-freedom claim. Earlier passes remain tied to earlier source/ZIP."
+}

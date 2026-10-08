@@ -1,0 +1,44 @@
+{
+  "recordedUtc": "2026-10-08T12:03:24.920390+00:00",
+  "head": "be4f6201556710d2dc3f4895e7555f55fa9a8727",
+  "records": {
+    "qodana/run-03/source.json": {
+      "allNonOutputChangedFiles": [
+        "docs/guide_visual_testing.md",
+        "docs/reference_visual_testing.md",
+        "plugin/src/visualTest/resources/baselines/README.md",
+        "plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/edited-geometry.png",
+        "plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/native-highlight-suppressed.png",
+        "plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/native-visuals-unmanaged.png"
+      ],
+      "codeFileCount": 151,
+      "allKotlinJavaGradleGroovyExactlyEqual": true,
+      "changedCodeFiles": []
+    },
+    "driver/compare-11/source.json": {
+      "allNonOutputChangedFiles": [],
+      "codeFileCount": 151,
+      "allKotlinJavaGradleGroovyExactlyEqual": true,
+      "changedCodeFiles": []
+    },
+    "sdk-final-smoke-06/source.json": {
+      "allNonOutputChangedFiles": [
+        "docs/guide_visual_testing.md",
+        "docs/reference_visual_testing.md",
+        "plugin/src/visualBridge/kotlin/com/sijunyang/bracketpairguides/testing/EditorContractBridge.kt",
+        "plugin/src/visualTest/kotlin/com/sijunyang/bracketpairguides/visual/EditorVisualContractTest.kt",
+        "plugin/src/visualTest/resources/baselines/README.md",
+        "plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/edited-geometry.png",
+        "plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/native-highlight-suppressed.png",
+        "plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/native-visuals-unmanaged.png"
+      ],
+      "codeFileCount": 151,
+      "allKotlinJavaGradleGroovyExactlyEqual": false,
+      "changedCodeFiles": [
+        "plugin/src/visualBridge/kotlin/com/sijunyang/bracketpairguides/testing/EditorContractBridge.kt",
+        "plugin/src/visualTest/kotlin/com/sijunyang/bracketpairguides/visual/EditorVisualContractTest.kt"
+      ]
+    }
+  },
+  "interpretation": "Exact file equality only. Earlier execution outcomes remain attached to their own source manifests; this does not claim an additional execution."
+}

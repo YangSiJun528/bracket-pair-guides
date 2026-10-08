@@ -1,0 +1,19 @@
+{
+  "target": "IU-2026.2.3",
+  "productIdentity": {
+    "path": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/66530b40a6833c6c4f74ca91344d9933/transformed/idea-2026.2.3-aarch64",
+    "productCode": "IU",
+    "version": "2026.2.3",
+    "buildNumber": "262.10968.63",
+    "productInfo": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/66530b40a6833c6c4f74ca91344d9933/transformed/idea-2026.2.3-aarch64/Resources/product-info.json",
+    "productInfoSha256": "2763a8523a7b51b48a7b9f5b4998bf6ea4d981233f8b24d6ce095d89a00c7d03"
+  },
+  "installersBeforeRetirement": [
+    {
+      "path": "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/idea/idea/2026.2.3/3c12b9b854f9bd0298378619af1748576436afb4/idea-2026.2.3-aarch64.dmg",
+      "sha256": "aac3cdc6d8441b94052473fee37a9679242a36f49f60fdce6cceaa3e7ad46e33",
+      "sizeBytes": 1531497578
+    }
+  ],
+  "reason": "Failed original-source IDE inputs were inspected: same deprecated listener call. Preserve all reports and installer/product identities; retire only cache artifacts acquired by this completed task to recover local disk before corrected-source validation. No pre-existing cache/checkout is eligible."
+}
