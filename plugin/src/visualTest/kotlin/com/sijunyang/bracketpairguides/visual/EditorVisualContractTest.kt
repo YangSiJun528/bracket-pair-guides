@@ -304,8 +304,8 @@ class EditorVisualContractTest {
                 Files.writeString(artifacts.resolve("caret-cycle-before.txt"),
                     "state=${bridge.state()}\nsettings=${bridge.settingsState()}\nnativeBraceCount=${bridge.nativeBraceCount()}\n" +
                         bridge.focusDiagnostics() + "\n" + bridge.markupDiagnostics())
-                bridge.caretCycle()
                 try {
+                    bridge.caretCycle()
                     waitFor(1.minutes, 100.milliseconds, "Caret A/B/A did not restore markup with managed native brace decorations absent") {
                         bridge.state().split(':')[1].toInt() > 0 &&
                             bridge.settingsState() == "true:false:true:true" && bridge.nativeBraceCount() == 0
@@ -315,6 +315,8 @@ class EditorVisualContractTest {
                         "state=${bridge.state()}\nsettings=${bridge.settingsState()}\nnativeBraceCount=${bridge.nativeBraceCount()}\n" +
                             bridge.focusDiagnostics() + "\n" + bridge.markupDiagnostics())
                     throw failure
+                } finally {
+                    Files.writeString(artifacts.resolve("caret-cycle-synchronous.txt"), bridge.caretCycleDiagnostics())
                 }
                 capture("all-components-after-caret-cycle")
                 Files.writeString(artifacts.resolve("caret-cycle-observed.txt"),
@@ -413,6 +415,7 @@ internal interface EditorContractRemote {
     fun advisoryState(): String
     fun dismissAdvisory()
     fun caretCycle(): String
+    fun caretCycleDiagnostics(): String
     fun focusEditor(focused: Boolean): String
     fun focusDiagnostics(): String
     fun showEditor(visible: Boolean): String

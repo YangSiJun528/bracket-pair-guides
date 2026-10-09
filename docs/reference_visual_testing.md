@@ -22,8 +22,17 @@ independently reviewed image and exact pixel comparison.
 The same session observes actual Swing focus loss/restoration and component
 visibility loss/restoration. Focus loss removes active guide markup while
 retaining token colors; hidden editors remove all plugin markup and visible
-editors resume it. An A/B/A caret cycle must settle to the exact original
-`all-components` pixels. Before capturing that settled state, the suite also
+editors resume it. A warmed caret cycle moves between inner and outer multiline
+pairs and the original empty same-line pair, returning to the inner pair after
+each transition (A/B/A/C/A). Each actual caret move must return with the same
+valid guide highlighter, the new pair's exact endpoint ranges and unchanged token
+ranges in the same EDT callback. It issues no explicit analysis request, event
+pump or analysis wait. Editor identity, stamp, showing and focus remain unchanged;
+`caret-cycle-synchronous.txt` retains each observation and native brace counts.
+This checks immediate SDK presentation state, not every intermediate painted frame
+or the absence of native highlights throughout the transition. An empty same-line
+pair need not paint a nonempty guide segment. The cycle must settle to the exact
+original `all-components` pixels. Before capturing that settled state, the suite also
 requires managed native settings and no actual matched/unmatched brace
 highlighters, identified by the keys used by IntelliJ's brace handler. Editor,
 settings, focus and SDK markup diagnostics are retained around the cycle; two

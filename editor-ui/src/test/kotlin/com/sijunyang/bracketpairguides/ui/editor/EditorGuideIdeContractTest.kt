@@ -13,6 +13,8 @@ import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import java.awt.Color
+import java.awt.image.BufferedImage
+import java.awt.image.DataBufferInt
 import com.intellij.openapi.editor.ex.RangeHighlighterEx
 import com.intellij.openapi.editor.impl.event.MarkupModelListener
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -30,6 +32,8 @@ import com.sijunyang.bracketpairguides.ui.policy.EditorActivity
 import com.sijunyang.bracketpairguides.ui.policy.EditorCapabilities
 import com.sijunyang.bracketpairguides.ui.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.ui.presentation.BracketGuideDrawing
+import com.sijunyang.bracketpairguides.ui.presentation.BracketColorPalette
+import com.sijunyang.bracketpairguides.ui.presentation.GuideAppearance
 import com.sijunyang.bracketpairguides.ui.presentation.DocumentChange
 import com.sijunyang.bracketpairguides.ui.work.AnalysisUpdate
 import com.sijunyang.bracketpairguides.ui.work.DisplayedGuide
@@ -53,8 +57,11 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
             super.tearDown()
         }
     }
-    private fun open(preferences: BracketGuidePreferences = BracketGuidePreferences(colorBracketTokens = false)) {
-        myFixture.configureByText("Contract.java", "class C {\n    void f() {}\n}")
+    private fun open(
+        preferences: BracketGuidePreferences = BracketGuidePreferences(colorBracketTokens = false),
+        text: String = "class C {\n    void f() {}\n}",
+    ) {
+        myFixture.configureByText("Contract.java", text)
         myFixture.editor.caretModel.moveToOffset(10)
         val factory = object : GuideWorkFactory {
             override fun attach(editor: Editor, view: GuideView): GuideWork = object : GuideWork {
@@ -78,6 +85,121 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
         )
         guide.start()
     }
+    private fun warmPairSwitch(preferences: BracketGuidePreferences): List<BracketGuide> {
+        val text = "class C {\n    void f() {\n        value();\n    }\n    void g() {\n        value();\n    }\n}"
+        open(preferences, text)
+        val editor = myFixture.editor
+        editor.component.setSize(800, 600)
+        editor.component.doLayout()
+        editor.contentComponent.setSize(800, 600)
+        val geometry = listOf("f()", "g()").map { method ->
+            val start = text.indexOf('{', text.indexOf(method))
+            val end = text.indexOf('}', start)
+            val pair = BracketPair(start, 1, end, 1, 1,
+                editor.document.getLineNumber(start), editor.document.getLineNumber(end))
+            BracketGuide(pair, 4, pair.closeLine)
+        }
+        val offsets = geometry.flatMap { listOf(it.pair.openOffset, it.pair.closeOffset) }.sorted()
+        val lookup = object : BracketView {
+            override fun activePairAt(offset: Int): BracketPair? = geometry.firstOrNull {
+                offset > it.pair.openOffset && offset < it.pair.closeOffset + it.pair.closeTokenLength
+            }?.pair
+            override fun guideFor(pair: BracketPair): BracketGuide = geometry.single { it.pair == pair }
+            override fun visibleTokens(range: OffsetRange, focus: Int, maximum: Int): TokenWindow = object : TokenWindow {
+                override val size = offsets.size
+                override val isCapped = false
+                override val stableFocusStartOffset = 0
+                override val stableFocusEndOffset = text.length
+                override fun offsetAt(index: Int) = offsets[index]
+                override fun lengthAt(index: Int) = 1
+                override fun depthAt(index: Int) = 1
+            }
+        }
+        editor.caretModel.moveToOffset(geometry.first().pair.openOffset + 1)
+        assertEquals(ViewApplication.APPLIED, guide.applyAnalysis(AnalysisUpdate(demands.last().revision,
+            AnalysisResult.Available(lookup, demands.last().coverage, BraceMatcherAvailability.AVAILABLE))))
+        return geometry
+    }
+
+    private fun paintGuide(highlighter: RangeHighlighter, renderer: BracketGuideDrawing): IntArray {
+        val image = BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB)
+        val graphics = image.createGraphics()
+        try {
+            graphics.clipRect(0, 0, image.width, image.height)
+            renderer.paint(myFixture.editor, highlighter, graphics)
+        } finally { graphics.dispose() }
+        return (image.raster.dataBuffer as DataBufferInt).data.copyOf()
+    }
+
+    private fun assertCurrentPairPaint(highlighter: RangeHighlighter, expected: BracketGuide,
+        preferences: BracketGuidePreferences): IntArray {
+        val drawing = highlighter.customRenderer as BracketGuideDrawing
+        assertEquals(expected, drawing.guide)
+        val actual = paintGuide(highlighter, drawing)
+        val expectedDrawing = BracketGuideDrawing(expected,
+            GuideAppearance(preferences.showVerticalGuide, preferences.showHorizontalGuides,
+                preferences.guideLineWidth, preferences.guideOpacityPercent),
+            BracketColorPalette.guideLineColor(preferences, expected.pair.depth))
+        assertTrue("Actual SDK-coordinate rendering must paint guide pixels", actual.any { it != 0 })
+        assertTrue("Current renderer must paint the new geometry, not the old pair",
+            actual.contentEquals(paintGuide(highlighter, expectedDrawing)))
+        val endpoints = myFixture.editor.markupModel.allHighlighters
+            .filter { it.layer == HighlighterLayer.ELEMENT_UNDER_CARET }
+            .sortedBy { it.startOffset }
+        assertEquals(listOf(expected.pair.openOffset, expected.pair.closeOffset), endpoints.map { it.startOffset })
+        assertEquals(listOf(expected.pair.openOffset + 1, expected.pair.closeOffset + 1), endpoints.map { it.endOffset })
+        assertTrue(endpoints.all { it.isValid })
+        return actual
+    }
+
+    fun testWarmPairSwitchImmediatelyReusesGuideRendererAndPaintsCurrentGeometry() {
+        val preferences = BracketGuidePreferences(colorBracketTokens = true, showActivePairBorder = true)
+        val geometry = warmPairSwitch(preferences)
+        val editor = myFixture.editor
+        val original = editor.markupModel.allHighlighters.single { it.customRenderer is BracketGuideDrawing }
+        val renderer = original.customRenderer
+        val tokens = editor.markupModel.allHighlighters.filter {
+            it !== original && it.layer != HighlighterLayer.ELEMENT_UNDER_CARET
+        }
+        assertTrue("Enabled token presentation must have real SDK resources", tokens.isNotEmpty())
+        val firstPixels = assertCurrentPairPaint(original, geometry.first(), preferences)
+        for (expected in listOf(geometry.last(), geometry.first())) {
+            editor.caretModel.moveToOffset(expected.pair.openOffset + 1)
+            // This fixture has no EditorGuideEvents adapter; invoke the actual UI entry once.
+            guide.caretMoved()
+            val current = editor.markupModel.allHighlighters.single { it.customRenderer is BracketGuideDrawing }
+            assertSame(original, current)
+            assertSame(renderer, current.customRenderer)
+            assertTrue(original.isValid)
+            val pixels = assertCurrentPairPaint(current, expected, preferences)
+            if (expected == geometry.last()) assertFalse(firstPixels.contentEquals(pixels))
+            assertTrue(tokens.all { token -> token.isValid && editor.markupModel.allHighlighters.any { it === token } })
+            assertNull(demands.last().repair)
+        }
+    }
+
+    fun testFreshNestedPairTransitionKeepsGuideRendererAndFreshEndpointAuthority() {
+        val preferences = BracketGuidePreferences(colorBracketTokens = true, showActivePairBorder = true)
+        val geometry = warmPairSwitch(preferences)
+        val editor = myFixture.editor
+        val original = editor.markupModel.allHighlighters.single { it.customRenderer is BracketGuideDrawing }
+        val renderer = original.customRenderer
+        var reentered = false
+        afterFirstAdded {
+            reentered = true
+            editor.caretModel.moveToOffset(geometry.first().pair.openOffset + 1)
+            guide.caretMoved()
+        }
+        editor.caretModel.moveToOffset(geometry.last().pair.openOffset + 1)
+        guide.caretMoved()
+        assertTrue(reentered)
+        val current = editor.markupModel.allHighlighters.single { it.customRenderer is BracketGuideDrawing }
+        assertSame(original, current)
+        assertSame(renderer, current.customRenderer)
+        assertCurrentPairPaint(current, geometry.first(), preferences)
+        assertNull(demands.last().repair)
+    }
+
     fun testAffectedEditHidesGuideBeforeSingleCompleteContentDemand() {
         open()
         val document = myFixture.editor.document

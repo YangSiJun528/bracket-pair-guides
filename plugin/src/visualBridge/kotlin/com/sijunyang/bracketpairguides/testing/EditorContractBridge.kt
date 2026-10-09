@@ -53,6 +53,7 @@ object EditorContractBridge {
     private var tabOriginalTokens = emptyList<String>()
     private var tabOtherTokens = emptyList<String>()
     private var lastTabObservation = "not-started"
+    private var lastCaretCycleObservation = "not-started"
 
     @JvmStatic
     @Suppress("UnstableApiUsage")
@@ -161,16 +162,74 @@ object EditorContractBridge {
     @JvmStatic
     fun dismissAdvisory() = edt { advisory?.hideBalloon(); Unit }
 
+    /** Actual cached pair transitions, observed before this non-modal EDT turn can return. */
     @JvmStatic
     fun caretCycle(): String = edt {
         val editor = editor()
-        val plugin = ApplicationManager.getApplication().getService(GuidePlugin::class.java)
-        listOf(LogicalPosition(3, 15), LogicalPosition(6, 20), LogicalPosition(3, 15)).forEach {
-            editor.caretModel.moveToLogicalPosition(it)
-            plugin.request(editor)
+        val manager = FileEditorManager.getInstance(checkNotNull(editor.project))
+        val stamp = editor.document.modificationStamp
+        val tokens = tokenRanges(editor)
+        fun guides() = editor.markupModel.allHighlighters.filter {
+            it.isValid && it.customRenderer?.javaClass?.name?.startsWith("com.sijunyang.bracketpairguides.") == true
         }
-        stateOnEdt(editor)
+        fun endpoints() = editor.markupModel.allHighlighters.filter {
+            val attributes = it.getTextAttributes(editor.colorsScheme)
+            it.isValid && it.textAttributesKey == null && it.layer == HighlighterLayer.ELEMENT_UNDER_CARET &&
+                it.endOffset - it.startOffset == 1 &&
+                (attributes?.effectType == EffectType.BOXED || attributes?.backgroundColor != null)
+        }.map { "${it.startOffset}..${it.endOffset}" }.sorted()
+        fun brace(line: Int, character: Char): Int {
+            val document = editor.document
+            val start = document.getLineStartOffset(line)
+            val text = document.charsSequence.subSequence(start, document.getLineEndOffset(line))
+            val column = text.indexOf(character)
+            check(column >= 0) { "Fixture line $line lacks expected $character" }
+            return start + column
+        }
+        val inner = listOf(brace(2, '{'), brace(4, '}')).map { "$it..${it + 1}" }.sorted()
+        val outer = listOf(brace(1, '{'), brace(5, '}')).map { "$it..${it + 1}" }.sorted()
+        val sameLine = listOf(brace(6, '{'), brace(6, '}')).map { "$it..${it + 1}" }.sorted()
+        val observations = mutableListOf<String>()
+        fun observe(phase: String): String =
+            "phase=$phase;onEdt=${ApplicationManager.getApplication().isDispatchThread};" +
+                "editorIdentity=${System.identityHashCode(editor)};selected=${manager.selectedTextEditor === editor};" +
+                "stamp=${editor.document.modificationStamp};showing=${editor.contentComponent.isShowing};" +
+                "focused=${editor.contentComponent.isFocusOwner};caret=${editor.caretModel.offset};" +
+                "guideIdentities=${guides().map(System::identityHashCode)};endpoints=${endpoints()};" +
+                "tokens=${tokenRanges(editor)};nativeBraceCount=${nativeBraceCount()};state=${stateOnEdt(editor)}"
+        observations += observe("warm-before")
+        lastCaretCycleObservation = observations.joinToString("\n")
+        check(manager.selectedTextEditor === editor && editor.contentComponent.isShowing && editor.contentComponent.isFocusOwner)
+        check(tokens.isNotEmpty()) { "Caret cycle requires a warm token window" }
+        val originalGuide = guides().single()
+        check(endpoints() == inner) { "Caret cycle must start at the warmed inner pair" }
+        val steps = listOf(
+            Triple("inner-A", LogicalPosition(3, 15), inner),
+            Triple("outer-B", LogicalPosition(5, 4), outer),
+            Triple("inner-A-return", LogicalPosition(3, 15), inner),
+            Triple("same-line-C", LogicalPosition(6, 20), sameLine),
+            Triple("inner-A-final", LogicalPosition(3, 15), inner),
+        )
+        for ((phase, position, expectedEndpoints) in steps) {
+            editor.caretModel.moveToLogicalPosition(position)
+            // No explicit analysis request, event pump or analysis wait precedes this snapshot.
+            observations += observe(phase)
+            lastCaretCycleObservation = observations.joinToString("\n")
+            check(manager.selectedTextEditor === editor && editor.contentComponent.isShowing && editor.contentComponent.isFocusOwner)
+            check(editor.document.modificationStamp == stamp)
+            check(tokenRanges(editor) == tokens) { "Caret change altered token markup: $lastCaretCycleObservation" }
+            check(originalGuide.isValid && guides().singleOrNull() === originalGuide) {
+                "Cached pair change cleared the full-document guide highlighter: $lastCaretCycleObservation"
+            }
+            check(endpoints() == expectedEndpoints) {
+                "Caret move returned without the new pair endpoints: $lastCaretCycleObservation"
+            }
+        }
+        lastCaretCycleObservation
     }
+
+    @JvmStatic
+    fun caretCycleDiagnostics(): String = readEdt { lastCaretCycleObservation }
 
     @JvmStatic
     fun focusEditor(focused: Boolean): String = edt {
