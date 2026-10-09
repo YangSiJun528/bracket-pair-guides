@@ -1,0 +1,634 @@
+{
+  "adapter": "json",
+  "alerts": [],
+  "branch": {
+    "created": "2026-10-09T03:53:53Z",
+    "head": {
+      "created": "2026-10-09T03:53:53Z",
+      "start_point": {
+        "branch": "01a0b487-e1f1-7a71-9a76-9714d8c3d54a",
+        "head": "01a0b487-e1f1-7a71-9a76-9726de40b178",
+        "version": {
+          "hash": "472358da706e61a87990385b7ebda9b3c813bd0b",
+          "number": 8
+        }
+      },
+      "uuid": "01a11ecb-c56e-7383-8d9a-45d53d92857a",
+      "version": {
+        "hash": "120360c713e7fde9c72b23ffd1677db14587501b",
+        "number": 9
+      }
+    },
+    "modified": "2026-10-09T03:53:53Z",
+    "name": "pr-98",
+    "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+    "slug": "pr-98",
+    "uuid": "01a11ecb-c56d-7760-9d33-3ffe0b2be709"
+  },
+  "counts": {
+    "alerts": {
+      "active": 0,
+      "total": 0
+    },
+    "results": [
+      {
+        "benchmarks": 8,
+        "measures": 2
+      }
+    ]
+  },
+  "created": "2026-10-09T03:53:53Z",
+  "end_time": "2026-10-09T03:55:40Z",
+  "job": "01a11ecb-c5af-70b2-95cd-6e137374498f",
+  "project": {
+    "claimed": "2026-09-18T11:45:44Z",
+    "created": "2026-09-18T11:45:47Z",
+    "modified": "2026-09-18T11:46:01Z",
+    "name": "bracket-pair-guides",
+    "organization": "01a0b456-36bf-7421-ac1b-765337ab3520",
+    "slug": "bracket-pair-guides",
+    "uuid": "01a0b456-44b6-7380-8760-dbddf30c539d",
+    "visibility": "public"
+  },
+  "results": [
+    [
+      {
+        "benchmark": {
+          "created": "2026-10-09T03:55:40Z",
+          "modified": "2026-10-09T03:55:40Z",
+          "name": "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeCold {\"distribution\":\"malformed\",\"pairCount\":\"4096\"}",
+          "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+          "slug": "com-sijunyang-bracketpairguides-benchmarks-calculationc-tmmg8sv0",
+          "uuid": "01a11ecd-685e-7293-8239-d076059858a6"
+        },
+        "iteration": 0,
+        "measures": [
+          {
+            "boundary": {},
+            "measure": {
+              "created": "2026-09-18T12:12:09Z",
+              "modified": "2026-09-18T12:12:09Z",
+              "name": "Latency",
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "slug": "latency",
+              "units": "nanoseconds (ns)",
+              "uuid": "01a0b46e-68f0-7703-ad9d-d6ccfa945be5"
+            },
+            "metric": {
+              "uuid": "01a11ecd-6863-7201-89e0-a6d5890102d4",
+              "value": 551210.9937299016
+            },
+            "threshold": {
+              "created": "2026-10-09T03:53:53Z",
+              "model": {
+                "created": "2026-10-09T03:53:53Z",
+                "max_sample_size": 1,
+                "test": "percentage",
+                "upper_boundary": 0.2,
+                "uuid": "01a11ecb-c572-7672-b746-0909d91459a7"
+              },
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "uuid": "01a11ecb-c572-7672-b746-08fac5344f58"
+            }
+          },
+          {
+            "boundary": {},
+            "measure": {
+              "created": "2026-10-09T03:53:53Z",
+              "modified": "2026-10-09T03:53:53Z",
+              "name": "allocation_bop",
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "slug": "allocation-bop",
+              "units": "Measure (units)",
+              "uuid": "01a11ecb-c57a-7140-94a6-1bfa50f2782e"
+            },
+            "metric": {
+              "uuid": "01a11ecd-6863-7201-89e0-a6eff9ff3ba8",
+              "value": 829385.7988627254
+            },
+            "threshold": {
+              "created": "2026-10-09T03:53:53Z",
+              "model": {
+                "created": "2026-10-09T03:53:53Z",
+                "max_sample_size": 1,
+                "test": "percentage",
+                "upper_boundary": 0.2,
+                "uuid": "01a11ecb-c57b-7b31-9cd7-201bb7804ddd"
+              },
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "uuid": "01a11ecb-c57b-7b31-9cd7-200c1aaa95e4"
+            }
+          }
+        ]
+      },
+      {
+        "benchmark": {
+          "created": "2026-10-09T03:55:40Z",
+          "modified": "2026-10-09T03:55:40Z",
+          "name": "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeCold {\"distribution\":\"malformed\",\"pairCount\":\"64\"}",
+          "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+          "slug": "com-sijunyang-bracketpairguides-benchmarks-calculationcontractbe",
+          "uuid": "01a11ecd-6854-7691-8458-207cd4d22c0f"
+        },
+        "iteration": 0,
+        "measures": [
+          {
+            "boundary": {},
+            "measure": {
+              "created": "2026-09-18T12:12:09Z",
+              "modified": "2026-09-18T12:12:09Z",
+              "name": "Latency",
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "slug": "latency",
+              "units": "nanoseconds (ns)",
+              "uuid": "01a0b46e-68f0-7703-ad9d-d6ccfa945be5"
+            },
+            "metric": {
+              "uuid": "01a11ecd-6863-7201-89e0-a689a00f1573",
+              "value": 6979.594629590242
+            },
+            "threshold": {
+              "created": "2026-10-09T03:53:53Z",
+              "model": {
+                "created": "2026-10-09T03:53:53Z",
+                "max_sample_size": 1,
+                "test": "percentage",
+                "upper_boundary": 0.2,
+                "uuid": "01a11ecb-c572-7672-b746-0909d91459a7"
+              },
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "uuid": "01a11ecb-c572-7672-b746-08fac5344f58"
+            }
+          },
+          {
+            "boundary": {},
+            "measure": {
+              "created": "2026-10-09T03:53:53Z",
+              "modified": "2026-10-09T03:53:53Z",
+              "name": "allocation_bop",
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "slug": "allocation-bop",
+              "units": "Measure (units)",
+              "uuid": "01a11ecb-c57a-7140-94a6-1bfa50f2782e"
+            },
+            "metric": {
+              "uuid": "01a11ecd-6863-7201-89e0-a673e384bb2d",
+              "value": 11540.041531511544
+            },
+            "threshold": {
+              "created": "2026-10-09T03:53:53Z",
+              "model": {
+                "created": "2026-10-09T03:53:53Z",
+                "max_sample_size": 1,
+                "test": "percentage",
+                "upper_boundary": 0.2,
+                "uuid": "01a11ecb-c57b-7b31-9cd7-201bb7804ddd"
+              },
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "uuid": "01a11ecb-c57b-7b31-9cd7-200c1aaa95e4"
+            }
+          }
+        ]
+      },
+      {
+        "benchmark": {
+          "created": "2026-10-09T03:55:40Z",
+          "modified": "2026-10-09T03:55:40Z",
+          "name": "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeCold {\"distribution\":\"nested\",\"pairCount\":\"4096\"}",
+          "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+          "slug": "com-sijunyang-bracketpairguides-benchmarks-calculationc-tmmg8se0",
+          "uuid": "01a11ecd-6861-79d2-8219-da2446ff2bc5"
+        },
+        "iteration": 0,
+        "measures": [
+          {
+            "boundary": {},
+            "measure": {
+              "created": "2026-09-18T12:12:09Z",
+              "modified": "2026-09-18T12:12:09Z",
+              "name": "Latency",
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "slug": "latency",
+              "units": "nanoseconds (ns)",
+              "uuid": "01a0b46e-68f0-7703-ad9d-d6ccfa945be5"
+            },
+            "metric": {
+              "uuid": "01a11ecd-6864-7642-ae7f-b6d33aedeb57",
+              "value": 1809351.4694770072
+            },
+            "threshold": {
+              "created": "2026-10-09T03:53:53Z",
+              "model": {
+                "created": "2026-10-09T03:53:53Z",
+                "max_sample_size": 1,
+                "test": "percentage",
+                "upper_boundary": 0.2,
+                "uuid": "01a11ecb-c572-7672-b746-0909d91459a7"
+              },
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "uuid": "01a11ecb-c572-7672-b746-08fac5344f58"
+            }
+          },
+          {
+            "boundary": {},
+            "measure": {
+              "created": "2026-10-09T03:53:53Z",
+              "modified": "2026-10-09T03:53:53Z",
+              "name": "allocation_bop",
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "slug": "allocation-bop",
+              "units": "Measure (units)",
+              "uuid": "01a11ecb-c57a-7140-94a6-1bfa50f2782e"
+            },
+            "metric": {
+              "uuid": "01a11ecd-6864-7642-ae7f-b6e193d567ec",
+              "value": 1683443.552742753
+            },
+            "threshold": {
+              "created": "2026-10-09T03:53:53Z",
+              "model": {
+                "created": "2026-10-09T03:53:53Z",
+                "max_sample_size": 1,
+                "test": "percentage",
+                "upper_boundary": 0.2,
+                "uuid": "01a11ecb-c57b-7b31-9cd7-201bb7804ddd"
+              },
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "uuid": "01a11ecb-c57b-7b31-9cd7-200c1aaa95e4"
+            }
+          }
+        ]
+      },
+      {
+        "benchmark": {
+          "created": "2026-10-09T03:55:40Z",
+          "modified": "2026-10-09T03:55:40Z",
+          "name": "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeCold {\"distribution\":\"nested\",\"pairCount\":\"64\"}",
+          "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+          "slug": "com-sijunyang-bracketpairguides-benchmarks-calculationc-tmmg8s4w",
+          "uuid": "01a11ecd-685c-72a1-97e4-cba3210dee18"
+        },
+        "iteration": 0,
+        "measures": [
+          {
+            "boundary": {},
+            "measure": {
+              "created": "2026-09-18T12:12:09Z",
+              "modified": "2026-09-18T12:12:09Z",
+              "name": "Latency",
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "slug": "latency",
+              "units": "nanoseconds (ns)",
+              "uuid": "01a0b46e-68f0-7703-ad9d-d6ccfa945be5"
+            },
+            "metric": {
+              "uuid": "01a11ecd-6863-7201-89e0-a6b8ca421cca",
+              "value": 22284.08507701254
+            },
+            "threshold": {
+              "created": "2026-10-09T03:53:53Z",
+              "model": {
+                "created": "2026-10-09T03:53:53Z",
+                "max_sample_size": 1,
+                "test": "percentage",
+                "upper_boundary": 0.2,
+                "uuid": "01a11ecb-c572-7672-b746-0909d91459a7"
+              },
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "uuid": "01a11ecb-c572-7672-b746-08fac5344f58"
+            }
+          },
+          {
+            "boundary": {},
+            "measure": {
+              "created": "2026-10-09T03:53:53Z",
+              "modified": "2026-10-09T03:53:53Z",
+              "name": "allocation_bop",
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "slug": "allocation-bop",
+              "units": "Measure (units)",
+              "uuid": "01a11ecb-c57a-7140-94a6-1bfa50f2782e"
+            },
+            "metric": {
+              "uuid": "01a11ecd-6863-7201-89e0-a6c9171cb660",
+              "value": 24984.133521161883
+            },
+            "threshold": {
+              "created": "2026-10-09T03:53:53Z",
+              "model": {
+                "created": "2026-10-09T03:53:53Z",
+                "max_sample_size": 1,
+                "test": "percentage",
+                "upper_boundary": 0.2,
+                "uuid": "01a11ecb-c57b-7b31-9cd7-201bb7804ddd"
+              },
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "uuid": "01a11ecb-c57b-7b31-9cd7-200c1aaa95e4"
+            }
+          }
+        ]
+      },
+      {
+        "benchmark": {
+          "created": "2026-10-09T03:55:40Z",
+          "modified": "2026-10-09T03:55:40Z",
+          "name": "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeCold {\"distribution\":\"siblings\",\"pairCount\":\"4096\"}",
+          "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+          "slug": "com-sijunyang-bracketpairguides-benchmarks-calculationc-tmmg8st3",
+          "uuid": "01a11ecd-685b-7d73-b994-5dd1312e80b5"
+        },
+        "iteration": 0,
+        "measures": [
+          {
+            "boundary": {},
+            "measure": {
+              "created": "2026-09-18T12:12:09Z",
+              "modified": "2026-09-18T12:12:09Z",
+              "name": "Latency",
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "slug": "latency",
+              "units": "nanoseconds (ns)",
+              "uuid": "01a0b46e-68f0-7703-ad9d-d6ccfa945be5"
+            },
+            "metric": {
+              "uuid": "01a11ecd-6863-7201-89e0-a6a208d96952",
+              "value": 2065574.7624518897
+            },
+            "threshold": {
+              "created": "2026-10-09T03:53:53Z",
+              "model": {
+                "created": "2026-10-09T03:53:53Z",
+                "max_sample_size": 1,
+                "test": "percentage",
+                "upper_boundary": 0.2,
+                "uuid": "01a11ecb-c572-7672-b746-0909d91459a7"
+              },
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "uuid": "01a11ecb-c572-7672-b746-08fac5344f58"
+            }
+          },
+          {
+            "boundary": {},
+            "measure": {
+              "created": "2026-10-09T03:53:53Z",
+              "modified": "2026-10-09T03:53:53Z",
+              "name": "allocation_bop",
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "slug": "allocation-bop",
+              "units": "Measure (units)",
+              "uuid": "01a11ecb-c57a-7140-94a6-1bfa50f2782e"
+            },
+            "metric": {
+              "uuid": "01a11ecd-6863-7201-89e0-a69ac4216a00",
+              "value": 2908590.0047902265
+            },
+            "threshold": {
+              "created": "2026-10-09T03:53:53Z",
+              "model": {
+                "created": "2026-10-09T03:53:53Z",
+                "max_sample_size": 1,
+                "test": "percentage",
+                "upper_boundary": 0.2,
+                "uuid": "01a11ecb-c57b-7b31-9cd7-201bb7804ddd"
+              },
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "uuid": "01a11ecb-c57b-7b31-9cd7-200c1aaa95e4"
+            }
+          }
+        ]
+      },
+      {
+        "benchmark": {
+          "created": "2026-10-09T03:55:40Z",
+          "modified": "2026-10-09T03:55:40Z",
+          "name": "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeCold {\"distribution\":\"siblings\",\"pairCount\":\"64\"}",
+          "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+          "slug": "com-sijunyang-bracketpairguides-benchmarks-calculationc-tmmg8sn3",
+          "uuid": "01a11ecd-685f-7730-8146-2b882df57f19"
+        },
+        "iteration": 0,
+        "measures": [
+          {
+            "boundary": {},
+            "measure": {
+              "created": "2026-09-18T12:12:09Z",
+              "modified": "2026-09-18T12:12:09Z",
+              "name": "Latency",
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "slug": "latency",
+              "units": "nanoseconds (ns)",
+              "uuid": "01a0b46e-68f0-7703-ad9d-d6ccfa945be5"
+            },
+            "metric": {
+              "uuid": "01a11ecd-6863-7201-89e0-a6f3a77737c3",
+              "value": 33325.448326804755
+            },
+            "threshold": {
+              "created": "2026-10-09T03:53:53Z",
+              "model": {
+                "created": "2026-10-09T03:53:53Z",
+                "max_sample_size": 1,
+                "test": "percentage",
+                "upper_boundary": 0.2,
+                "uuid": "01a11ecb-c572-7672-b746-0909d91459a7"
+              },
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "uuid": "01a11ecb-c572-7672-b746-08fac5344f58"
+            }
+          },
+          {
+            "boundary": {},
+            "measure": {
+              "created": "2026-10-09T03:53:53Z",
+              "modified": "2026-10-09T03:53:53Z",
+              "name": "allocation_bop",
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "slug": "allocation-bop",
+              "units": "Measure (units)",
+              "uuid": "01a11ecb-c57a-7140-94a6-1bfa50f2782e"
+            },
+            "metric": {
+              "uuid": "01a11ecd-6863-7201-89e0-a7071f6e67cc",
+              "value": 47848.199441904006
+            },
+            "threshold": {
+              "created": "2026-10-09T03:53:53Z",
+              "model": {
+                "created": "2026-10-09T03:53:53Z",
+                "max_sample_size": 1,
+                "test": "percentage",
+                "upper_boundary": 0.2,
+                "uuid": "01a11ecb-c57b-7b31-9cd7-201bb7804ddd"
+              },
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "uuid": "01a11ecb-c57b-7b31-9cd7-200c1aaa95e4"
+            }
+          }
+        ]
+      },
+      {
+        "benchmark": {
+          "created": "2026-10-09T03:55:40Z",
+          "modified": "2026-10-09T03:55:40Z",
+          "name": "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeCold {\"distribution\":\"sparse\",\"pairCount\":\"4096\"}",
+          "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+          "slug": "com-sijunyang-bracketpairguides-benchmarks-calculationc-tmmg8swl",
+          "uuid": "01a11ecd-6862-72a0-b9ba-b046399a66e7"
+        },
+        "iteration": 0,
+        "measures": [
+          {
+            "boundary": {},
+            "measure": {
+              "created": "2026-09-18T12:12:09Z",
+              "modified": "2026-09-18T12:12:09Z",
+              "name": "Latency",
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "slug": "latency",
+              "units": "nanoseconds (ns)",
+              "uuid": "01a0b46e-68f0-7703-ad9d-d6ccfa945be5"
+            },
+            "metric": {
+              "uuid": "01a11ecd-6864-7642-ae7f-b70c52075153",
+              "value": 509283.7773742533
+            },
+            "threshold": {
+              "created": "2026-10-09T03:53:53Z",
+              "model": {
+                "created": "2026-10-09T03:53:53Z",
+                "max_sample_size": 1,
+                "test": "percentage",
+                "upper_boundary": 0.2,
+                "uuid": "01a11ecb-c572-7672-b746-0909d91459a7"
+              },
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "uuid": "01a11ecb-c572-7672-b746-08fac5344f58"
+            }
+          },
+          {
+            "boundary": {},
+            "measure": {
+              "created": "2026-10-09T03:53:53Z",
+              "modified": "2026-10-09T03:53:53Z",
+              "name": "allocation_bop",
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "slug": "allocation-bop",
+              "units": "Measure (units)",
+              "uuid": "01a11ecb-c57a-7140-94a6-1bfa50f2782e"
+            },
+            "metric": {
+              "uuid": "01a11ecd-6864-7642-ae7f-b6f34097dc35",
+              "value": 529315.6163429952
+            },
+            "threshold": {
+              "created": "2026-10-09T03:53:53Z",
+              "model": {
+                "created": "2026-10-09T03:53:53Z",
+                "max_sample_size": 1,
+                "test": "percentage",
+                "upper_boundary": 0.2,
+                "uuid": "01a11ecb-c57b-7b31-9cd7-201bb7804ddd"
+              },
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "uuid": "01a11ecb-c57b-7b31-9cd7-200c1aaa95e4"
+            }
+          }
+        ]
+      },
+      {
+        "benchmark": {
+          "created": "2026-10-09T03:55:40Z",
+          "modified": "2026-10-09T03:55:40Z",
+          "name": "com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.analyzeCold {\"distribution\":\"sparse\",\"pairCount\":\"64\"}",
+          "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+          "slug": "com-sijunyang-bracketpairguides-benchmarks-calculationc-tmmg8soj",
+          "uuid": "01a11ecd-6860-7f12-8387-33688ed2925b"
+        },
+        "iteration": 0,
+        "measures": [
+          {
+            "boundary": {},
+            "measure": {
+              "created": "2026-09-18T12:12:09Z",
+              "modified": "2026-09-18T12:12:09Z",
+              "name": "Latency",
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "slug": "latency",
+              "units": "nanoseconds (ns)",
+              "uuid": "01a0b46e-68f0-7703-ad9d-d6ccfa945be5"
+            },
+            "metric": {
+              "uuid": "01a11ecd-6864-7642-ae7f-b6b91ba438b3",
+              "value": 8988.072443751831
+            },
+            "threshold": {
+              "created": "2026-10-09T03:53:53Z",
+              "model": {
+                "created": "2026-10-09T03:53:53Z",
+                "max_sample_size": 1,
+                "test": "percentage",
+                "upper_boundary": 0.2,
+                "uuid": "01a11ecb-c572-7672-b746-0909d91459a7"
+              },
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "uuid": "01a11ecb-c572-7672-b746-08fac5344f58"
+            }
+          },
+          {
+            "boundary": {},
+            "measure": {
+              "created": "2026-10-09T03:53:53Z",
+              "modified": "2026-10-09T03:53:53Z",
+              "name": "allocation_bop",
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "slug": "allocation-bop",
+              "units": "Measure (units)",
+              "uuid": "01a11ecb-c57a-7140-94a6-1bfa50f2782e"
+            },
+            "metric": {
+              "uuid": "01a11ecd-6864-7642-ae7f-b6cc1091d8c3",
+              "value": 13131.411921859348
+            },
+            "threshold": {
+              "created": "2026-10-09T03:53:53Z",
+              "model": {
+                "created": "2026-10-09T03:53:53Z",
+                "max_sample_size": 1,
+                "test": "percentage",
+                "upper_boundary": 0.2,
+                "uuid": "01a11ecb-c57b-7b31-9cd7-201bb7804ddd"
+              },
+              "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+              "uuid": "01a11ecb-c57b-7b31-9cd7-200c1aaa95e4"
+            }
+          }
+        ]
+      }
+    ]
+  ],
+  "start_time": "2026-10-09T03:53:54Z",
+  "testbed": {
+    "created": "2026-09-18T12:12:09Z",
+    "modified": "2026-09-18T12:12:09Z",
+    "name": "bencher-intel-v1-jdk17",
+    "project": "01a0b456-44b6-7380-8760-dbddf30c539d",
+    "slug": "bencher-intel-v1-jdk17",
+    "spec": {
+      "architecture": "x86_64",
+      "cpu": 4,
+      "created": "2026-03-10T05:29:05Z",
+      "disk": 137438953472,
+      "fallback": "2026-03-10T05:29:05Z",
+      "memory": 51539607552,
+      "modified": "2026-03-10T05:29:05Z",
+      "name": "Intel v1",
+      "network": false,
+      "os": "linux",
+      "sandbox": "firecracker",
+      "slug": "intel-v1",
+      "uuid": "eaf61c35-a989-4097-bdd0-ef1dc30a7009"
+    },
+    "uuid": "01a0b46e-68ee-7b30-ae0a-e81a3a5769e2"
+  },
+  "uuid": "01a11ecb-c5af-70b2-95cd-6e300ce8430d"
+}

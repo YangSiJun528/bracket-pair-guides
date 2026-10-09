@@ -9,8 +9,12 @@ macOS captures are not compatible with these baselines.
 ```sh
 export VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1
 export LANG=C.UTF-8 LC_ALL=C.UTF-8 TZ=UTC
-xvfb-run -a -s '-screen 0 1920x1080x24 -dpi 96' ./gradlew :plugin:visualTest
+xvfb-run -a --auth-file "$HOME/.Xauthority" -s '-screen 0 1920x1080x24 -dpi 96 -nolisten tcp' ./gradlew :plugin:visualTest
 ```
+
+The pinned Starter removes `XAUTHORITY` from the IDE child environment. Store the
+Xvfb cookie in the inherited user home's default `.Xauthority` file so X11
+authentication remains enabled without that variable. Keep TCP listening disabled.
 
 Inspect `plugin/build/reports/tests/visualTest` and the actual images in
 `plugin/build/visual-test-artifacts`. A missing image, missing baseline or failed
@@ -27,7 +31,7 @@ replace these observations with sleeps or forced daemon/caret events.
 Run only for an intentional suite or rendering change, outside CI:
 
 ```sh
-xvfb-run -a -s '-screen 0 1920x1080x24 -dpi 96' ./gradlew :plugin:captureVisualTestCandidates
+xvfb-run -a --auth-file "$HOME/.Xauthority" -s '-screen 0 1920x1080x24 -dpi 96 -nolisten tcp' ./gradlew :plugin:captureVisualTestCandidates
 ```
 
 This command produces candidates in the artifacts directory and does not
