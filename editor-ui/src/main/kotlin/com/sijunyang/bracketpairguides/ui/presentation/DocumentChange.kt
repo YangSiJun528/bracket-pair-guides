@@ -1,5 +1,6 @@
 package com.sijunyang.bracketpairguides.ui.presentation
 
+import com.intellij.openapi.editor.event.DocumentEvent
 import com.sijunyang.bracketpairguides.model.BracketPair
 
 /**
@@ -7,7 +8,12 @@ import com.sijunyang.bracketpairguides.model.BracketPair
  * [offset] and [oldLength] belong to the document state before the change;
  * [newLength] describes the replacement now present in the document.
  */
-internal data class DocumentChange(val offset: Int, val oldLength: Int, val newLength: Int) {
+internal data class DocumentChange(
+    val offset: Int,
+    val oldLength: Int,
+    val newLength: Int,
+    val horizontalWhitespaceOnly: Boolean = false,
+) {
     init {
         require(offset >= 0) { "offset must not be negative" }
         require(oldLength >= 0) { "oldLength must not be negative" }
@@ -34,6 +40,24 @@ internal data class DocumentChange(val offset: Int, val oldLength: Int, val newL
         val oldEnd = offset.toLong() + oldLength
         val pairEnd = pair.closeOffset.toLong() + pair.closeTokenLength
         return oldEnd <= pair.openOffset.toLong() || offset.toLong() >= pairEnd
+    }
+
+    companion object {
+        /** Capture bounded event facts only; never copy fragments or scan document indentation. */
+        fun from(event: DocumentEvent): DocumentChange {
+            val bounded = event.oldLength.toLong() + event.newLength <= MAX_FRAGMENT_CHARACTERS
+            val whitespace =
+                bounded && horizontalWhitespace(event.oldFragment) && horizontalWhitespace(event.newFragment)
+            return DocumentChange(event.offset, event.oldLength, event.newLength, whitespace)
+        }
+
+        private fun horizontalWhitespace(fragment: CharSequence): Boolean {
+            for (index in 0 until fragment.length) {
+                if (fragment[index] != ' ' && fragment[index] != '\t') return false
+            }
+            return true
+        }
+        private const val MAX_FRAGMENT_CHARACTERS = 256
     }
 
     private fun overlaps(changeStart: Long, changeEnd: Long, tokenStart: Int, tokenLength: Int): Boolean {

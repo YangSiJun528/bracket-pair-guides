@@ -12,3 +12,13 @@ the 256-line and 32,768-consumed-character limits and runs separately from the
 75 ms secondary full-analysis debounce; the guide may remain hidden until a
 valid repair or authoritative snapshot arrives. The alternatives were keeping
 the bounded synchronous scan or maintaining incremental repair state.
+
+On 2026-10-09, Tab/Shift+Tab QA identified unnecessary hiding when a body's
+indentation changed strictly to the right of the existing guide column. A bounded
+horizontal-whitespace edit can now preserve geometry after proving its minimum
+column and earliest anchor unchanged. This refines which edits affect geometry;
+it does not delay hiding of unproven or changed geometry. Event classification
+and SDK logical-coordinate lookup replace no background indentation calculation.
+The [presentation policy](../explanation_editor_presentation_policy.md) specifies
+the proof and conservative admission bounds. Content validity and cancellation
+still advance for every edit, even while this tracked geometry remains visible.

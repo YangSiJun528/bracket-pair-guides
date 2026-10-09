@@ -356,6 +356,21 @@ class EditorVisualContractTest {
                     checkNotNull(captures.remove("all-components-after-tab-cycle"))),
                     "Real tab A/B/A changed settled all-components pixels")
 
+                try {
+                    bridge.indentationCycle()
+                } finally {
+                    Files.writeString(artifacts.resolve("indentation-cycle-synchronous.txt"), bridge.indentationDiagnostics())
+                }
+                waitFor(1.minutes, 100.milliseconds, "Body indentation round-trip did not restore active markup and native readiness") {
+                    val state = bridge.state().split(':')
+                    state[7] == "true" && state[8] == "true" && state[1].toInt() > 0 &&
+                        state[6].toInt() > 0 && state[9].toInt() == 2 && bridge.nativeBraceCount() == 0
+                }
+                capture("all-components-after-indentation-cycle")
+                assertTrue(equalPixels(checkNotNull(captures["all-components"]),
+                    checkNotNull(captures.remove("all-components-after-indentation-cycle"))),
+                    "Actual Tab/Shift+Tab round-trip changed original all-components pixels")
+
                 val changedStamp = bridge.insertIndent()
                 waitFor(1.minutes, 100.milliseconds, "Edited guide was not repaired") {
                     val state = bridge.state().split(':')
@@ -426,6 +441,8 @@ internal interface EditorContractRemote {
     fun tabSwitchDiagnostics(): String
     fun closeOtherTab(): String
     fun disable(): String
+    fun indentationCycle(): String
+    fun indentationDiagnostics(): String
     fun insertIndent(): Long
     fun state(): String
     fun nativeBraceCount(): Int

@@ -121,6 +121,7 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
                 "execution" -> execution()
                 "repair" -> runRepairWorkload()
                 "edit-restoration" -> runEditRestorationWorkload()
+                "indentation" -> runIndentationWorkload()
                 "native" -> runNativeWorkload()
                 "payload" -> payload()
                 "capture-release" -> captureRelease()

@@ -57,6 +57,18 @@ baseline. `tab-switch-observed.txt` retains both synchronous observations and
 failure diagnostics; it does not prove that a painted frame never flickers under
 all event interleavings.
 
+A body indentation round-trip invokes the actual `EditorTab` and
+`EditorUnindentSelection` handlers with no selection, starting at the body prefix
+(column 12) inside the warmed pair (guide column 8). Each action must keep the
+same valid guide mark before its write command returns, preserve endpoint/token
+correspondence, and change the actual indentation; the second action restores the
+original document exactly. `indentation-cycle-synchronous.txt` records the actual
+DocumentEvent fragments and start columns. After ordinary native/daemon readiness,
+the original `all-components` image must match exactly. The existing closing-line
+edit must still hide affected geometry synchronously and match `edited-geometry`
+after repair. These add interaction coverage without another baseline image and
+do not promise retention when the guide position itself must change.
+
 The registered Settings dialog is opened through the public SDK. Driver clicks
 the real integration checkbox and Apply control. The draft toggle must leave
 persisted options and native settings unchanged until Apply. Apply must restore

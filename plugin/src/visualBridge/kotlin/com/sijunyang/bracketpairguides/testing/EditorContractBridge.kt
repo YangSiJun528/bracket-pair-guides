@@ -1,6 +1,12 @@
 package com.sijunyang.bracketpairguides.testing
 
 import com.intellij.codeInsight.CodeInsightSettings
+import com.intellij.ide.DataManager
+import com.intellij.openapi.actionSystem.IdeActions
+import com.intellij.openapi.editor.actionSystem.EditorActionManager
+import com.intellij.openapi.editor.event.DocumentEvent
+import com.intellij.openapi.editor.event.DocumentListener
+import com.intellij.openapi.util.Disposer
 import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerEx
 import com.intellij.openapi.editor.impl.DocumentMarkupModel
 import com.intellij.openapi.fileEditor.TextEditor
@@ -54,6 +60,7 @@ object EditorContractBridge {
     private var tabOtherTokens = emptyList<String>()
     private var lastTabObservation = "not-started"
     private var lastCaretCycleObservation = "not-started"
+    private var lastIndentationObservation = "not-started"
 
     @JvmStatic
     @Suppress("UnstableApiUsage")
@@ -409,6 +416,137 @@ object EditorContractBridge {
         GuideUiSettings.apply(GuideUiSettings.current().copy(enabled = false))
         nativeState()
     }
+
+    /** Actual Tab/Shift+Tab commands; callbacks cannot be hidden by later worker publication. */
+    @JvmStatic
+    fun indentationCycle(): String = edt {
+        val editor = editor()
+        val project = checkNotNull(editor.project)
+        val manager = FileEditorManager.getInstance(project)
+        val document = editor.document
+        val originalText = document.text
+        val bodyLine = 3
+        val initialStamp = document.modificationStamp
+        val observations = mutableListOf<String>()
+        val events = mutableListOf<String>()
+        var phase = "setup"
+        fun fragment(value: CharSequence): String = value.toString()
+            .replace("\\", "\\\\").replace("\t", "\\t").replace("\n", "\\n").replace("\r", "\\r")
+        fun firstBodyCharacter(): Int {
+            val start = document.getLineStartOffset(bodyLine)
+            val text = document.charsSequence.subSequence(start, document.getLineEndOffset(bodyLine))
+            val column = text.indexOfFirst { it != ' ' && it != '\t' }
+            check(column >= 0)
+            return start + column
+        }
+        fun bodyIndent(): Int = editor.offsetToLogicalPosition(firstBodyCharacter()).column
+        fun guideMarks() = editor.markupModel.allHighlighters.filter {
+            it.isValid && it.customRenderer?.javaClass?.name?.startsWith("com.sijunyang.bracketpairguides.") == true
+        }
+        fun endpointRanges() = editor.markupModel.allHighlighters.filter {
+            val attributes = it.getTextAttributes(editor.colorsScheme)
+            it.isValid && it.textAttributesKey == null && it.layer == HighlighterLayer.ELEMENT_UNDER_CARET &&
+                it.endOffset - it.startOffset == 1 &&
+                (attributes?.effectType == EffectType.BOXED || attributes?.backgroundColor != null)
+        }.map { "${it.startOffset}..${it.endOffset}" }.sorted()
+        fun expectedEndpoints(): List<String> = listOf(2 to '{', 4 to '}').map { (line, brace) ->
+            val start = document.getLineStartOffset(line)
+            val text = document.charsSequence.subSequence(start, document.getLineEndOffset(line))
+            val column = text.indexOf(brace)
+            check(column >= 0)
+            val offset = start + column
+            "$offset..${offset + 1}"
+        }.sorted()
+        fun observe(): String = "phase=$phase;onEdt=${ApplicationManager.getApplication().isDispatchThread};" +
+            "editorIdentity=${System.identityHashCode(editor)};selected=${manager.selectedTextEditor === editor};" +
+            "stamp=${document.modificationStamp};showing=${editor.contentComponent.isShowing};" +
+            "focused=${editor.contentComponent.isFocusOwner};caret=${editor.caretModel.logicalPosition};" +
+            "selection=${editor.selectionModel.selectionStart}..${editor.selectionModel.selectionEnd};" +
+            "bodyIndent=${bodyIndent()};guides=${guideMarks().map(System::identityHashCode)};" +
+            "endpoints=${endpointRanges()};tokens=${tokenLocations(editor)};nativeBraceCount=${nativeBraceCount()}"
+        fun save() {
+            lastIndentationObservation = observations.joinToString("\n") + "\nDocumentEvents:\n" + events.joinToString("\n")
+        }
+        check(manager.selectedTextEditor === editor && editor.contentComponent.isShowing && editor.contentComponent.isFocusOwner)
+        editor.selectionModel.removeSelection()
+        editor.caretModel.moveToOffset(firstBodyCharacter())
+        val originalIndent = bodyIndent()
+        check(originalIndent == 12) { "Expected the original body prefix at column12" }
+        val originalGuide = guideMarks().single()
+        val originalTokens = tokenLocations(editor)
+        check(originalTokens.isNotEmpty() && endpointRanges() == expectedEndpoints())
+        observations += observe()
+        save()
+        val lifetime = Disposer.newDisposable("visual-indent-document-events")
+        document.addDocumentListener(object : DocumentListener {
+            override fun beforeDocumentChange(event: DocumentEvent) {
+                val position = editor.offsetToLogicalPosition(event.offset)
+                events += "phase=$phase;before;offset=${event.offset};line=${position.line};column=${position.column};" +
+                    "oldLength=${event.oldLength};newLength=${event.newLength};" +
+                    "oldFragment=[${fragment(event.oldFragment)}];newFragment=[${fragment(event.newFragment)}]"
+            }
+            override fun documentChanged(event: DocumentEvent) {
+                val position = editor.offsetToLogicalPosition(event.offset.coerceAtMost(document.textLength))
+                events += "phase=$phase;after;offset=${event.offset};line=${position.line};postLogicalColumn=${position.column};" +
+                    "stamp=${document.modificationStamp}"
+            }
+        }, lifetime)
+        try {
+            val actions = listOf("Tab" to IdeActions.ACTION_EDITOR_TAB,
+                "Shift+Tab" to IdeActions.ACTION_EDITOR_UNINDENT_SELECTION)
+            for ((name, actionId) in actions) {
+                phase = name
+                val beforeStamp = document.modificationStamp
+                WriteCommandAction.runWriteCommandAction(project) {
+                    EditorActionManager.getInstance().getActionHandler(actionId).execute(editor,
+                        editor.caretModel.currentCaret, DataManager.getInstance().getDataContext(editor.contentComponent))
+                    // Inspect while still holding the command's write access, before any async acceptance.
+                    observations += observe()
+                    save()
+                    check(document.modificationStamp != beforeStamp) { "Actual $name action did not edit indentation" }
+                    check(manager.selectedTextEditor === editor && editor.contentComponent.isShowing && editor.contentComponent.isFocusOwner)
+                    check(originalGuide.isValid && guideMarks().singleOrNull() === originalGuide) {
+                        "Body indentation action cleared unchanged guide geometry: $lastIndentationObservation"
+                    }
+                    val delta = bodyIndent() - originalIndent
+                    val expectedTokens = originalTokens.map {
+                        if (it.line == bodyLine) it.copy(column = it.column + delta) else it
+                    }
+                    check(tokenLocations(editor) == expectedTokens) { "Indent action lost token correspondence: $lastIndentationObservation" }
+                    check(endpointRanges() == expectedEndpoints()) { "Indent action lost tracked pair endpoints: $lastIndentationObservation" }
+                    if (name == "Tab") check(bodyIndent() > originalIndent) { "Actual Tab did not grow the body prefix" }
+                    else check(document.text == originalText && bodyIndent() == originalIndent) {
+                        "Actual Shift+Tab did not restore original fixture text: $lastIndentationObservation"
+                    }
+                }
+            }
+            check(document.modificationStamp != initialStamp)
+            editor.selectionModel.removeSelection()
+            editor.caretModel.moveToLogicalPosition(LogicalPosition(3, 15))
+            phase = "original-text-and-caret-restored"
+            observations += observe()
+            save()
+            lastIndentationObservation
+        } finally {
+            save()
+            Disposer.dispose(lifetime)
+        }
+    }
+
+    @JvmStatic
+    fun indentationDiagnostics(): String = readEdt { lastIndentationObservation }
+
+    private data class TokenLocation(val line: Int, val column: Int, val length: Int, val text: String, val key: String)
+
+    private fun tokenLocations(editor: Editor): List<TokenLocation> = editor.markupModel.allHighlighters
+        .filter { it.isValid && it.textAttributesKey?.externalName?.startsWith("BRACKET_PAIR_GUIDES_BRACKET_DEPTH_") == true }
+        .sortedBy { it.startOffset }
+        .map {
+            val position = editor.offsetToLogicalPosition(it.startOffset)
+            TokenLocation(position.line, position.column, it.endOffset - it.startOffset,
+                editor.document.charsSequence.subSequence(it.startOffset, it.endOffset).toString(),
+                checkNotNull(it.textAttributesKey).externalName)
+        }
 
     @JvmStatic
     fun insertIndent(): Long = edt {

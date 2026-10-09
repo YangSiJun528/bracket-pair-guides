@@ -40,6 +40,13 @@ by exact comparison with the existing `all-components` image. No new baseline is
 needed. When verifying this fix, preserve a failure from the pre-fix runtime or a
 controlled reverse mutation; a passing settled screenshot alone is insufficient.
 
+Inspect `indentation-cycle-synchronous.txt` for the actual Tab/Shift+Tab body
+round-trip. The guide must survive both commands before asynchronous publication
+can run, the event coordinates must correspond to real indentation edits, and
+restored text/pixels must match the original fixture. Preserve the failure with
+the pre-fix production code; do not replace the actions with direct text insertion
+or relax the existing closing-line immediate-hide assertion.
+
 ## Prepare new baseline candidates
 
 Run only for an intentional suite or rendering change, outside CI:
