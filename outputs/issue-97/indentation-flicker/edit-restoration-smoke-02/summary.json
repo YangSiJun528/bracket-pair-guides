@@ -1,0 +1,15 @@
+{
+  "corpora": [
+    "257-line-refusal",
+    "32769-character-refusal",
+    "exact-256-line-budget",
+    "exact-32768-character-budget",
+    "ordinary-small-body",
+    "same-line-special-case"
+  ],
+  "measuredSamples": 12,
+  "warmupSessions": 6,
+  "cleanupRecords": 18,
+  "completed": true,
+  "scope": "Candidate-only unchanged workload correctness smoke; no comparative performance conclusion or restoration-lane attribution."
+}

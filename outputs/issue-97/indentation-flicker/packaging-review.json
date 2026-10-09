@@ -1,0 +1,47 @@
+{
+  "sourceRevision": "60305549e301681222ef2783c953ae2d616d5cd6",
+  "archive": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/distributions/bracket-pair-guides-0.1.0.zip",
+  "sha256": "ed735c744f9f94ba69b243c00dd6e01bdd5b8b8e77079a0a328994572a949776",
+  "bytes": 728193,
+  "descriptor": {
+    "id": "com.sijunyang.bracketpairguides",
+    "version": "0.1.0",
+    "ideaVersion": {
+      "since-build": "241"
+    }
+  },
+  "jars": [
+    "bracket-pair-guides/lib/analysis-core-0.1.0.jar",
+    "bracket-pair-guides/lib/analysis-model-0.1.0.jar",
+    "bracket-pair-guides/lib/analysis-runtime-0.1.0.jar",
+    "bracket-pair-guides/lib/editor-ui-0.1.0.jar",
+    "bracket-pair-guides/lib/plugin-0.1.0.jar"
+  ],
+  "uniqueClasses": 452,
+  "duplicateClasses": 0,
+  "measurementOrDriverClassesInRelease": false,
+  "driverReleaseClassesByteIdentical": true,
+  "resourceDifferencesBetweenHostAndDriver": [
+    "bracket-pair-guides/lib/plugin-0.1.0.jar/META-INF/MANIFEST.MF"
+  ],
+  "changedClassesSincePreviousTabFixArchive": [
+    "com/sijunyang/bracketpairguides/ui/editor/events/EditorGuideEvents$Companion.class",
+    "com/sijunyang/bracketpairguides/ui/editor/events/EditorGuideEvents$StickyMarkupObservation.class",
+    "com/sijunyang/bracketpairguides/ui/editor/events/EditorGuideEvents$caretPositionChanged$1.class",
+    "com/sijunyang/bracketpairguides/ui/editor/events/EditorGuideEvents$createObservation$1.class",
+    "com/sijunyang/bracketpairguides/ui/editor/events/EditorGuideEvents$documentChanged$2.class",
+    "com/sijunyang/bracketpairguides/ui/editor/events/EditorGuideEvents$focusListener$1$1.class",
+    "com/sijunyang/bracketpairguides/ui/editor/events/EditorGuideEvents$globalSchemeChange$1.class",
+    "com/sijunyang/bracketpairguides/ui/editor/events/EditorGuideEvents$observeActivity$listener$1$1.class",
+    "com/sijunyang/bracketpairguides/ui/editor/events/EditorGuideEvents$observeActivity$propertyListener$1$1.class",
+    "com/sijunyang/bracketpairguides/ui/editor/events/EditorGuideEvents$observeActivity$propertyListener$1$2.class",
+    "com/sijunyang/bracketpairguides/ui/editor/events/EditorGuideEvents$onEdt$1.class",
+    "com/sijunyang/bracketpairguides/ui/editor/events/EditorGuideEvents$requestVisibleRefreshes$1.class",
+    "com/sijunyang/bracketpairguides/ui/editor/events/EditorGuideEvents$stickyLinesChanged$1.class",
+    "com/sijunyang/bracketpairguides/ui/editor/events/EditorGuideEvents$visibleAreaChanged$1.class",
+    "com/sijunyang/bracketpairguides/ui/editor/events/EditorGuideEvents.class",
+    "com/sijunyang/bracketpairguides/ui/presentation/DocumentChange$Companion.class",
+    "com/sijunyang/bracketpairguides/ui/presentation/DocumentChange.class",
+    "com/sijunyang/bracketpairguides/ui/presentation/GuidePositionFallback.class"
+  ]
+}

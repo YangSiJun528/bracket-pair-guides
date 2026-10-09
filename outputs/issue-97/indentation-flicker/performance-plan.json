@@ -1,0 +1,25 @@
+{
+  "pairs": 6,
+  "order": [
+    "AB",
+    "BA",
+    "AB",
+    "BA",
+    "AB",
+    "BA"
+  ],
+  "warmup": 5,
+  "repeat": 30,
+  "sameHarness": true,
+  "primary": [
+    "per-JVM median action EDT duration",
+    "per-JVM median action EDT allocated bytes",
+    "synchronous guide retention per action"
+  ],
+  "secondary": [
+    "p95 nearest-rank action EDT duration",
+    "async allocation/read observations"
+  ],
+  "flagCriterion": "Flag median paired candidate/baseline primary ratio above1.20; preserve all raw runs and report limits. No reruns to discard a regression.",
+  "concurrency": "no other builds,IDE,Driver or performance workload during measurement"
+}

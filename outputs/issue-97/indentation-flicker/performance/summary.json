@@ -1,0 +1,798 @@
+{
+  "runs": [
+    {
+      "pair": 1,
+      "position": 1,
+      "side": "A",
+      "sourceRevision": "c9be822bfc0d74e7785406d3b664fa72ade0714a",
+      "actions": {
+        "EditorTab": {
+          "count": 30,
+          "guidePresentCount": 0,
+          "previousMarkValidCount": 0,
+          "actionEdtNs": {
+            "median": 2477437.5,
+            "p95NearestRank": 3380541,
+            "min": 1784125,
+            "max": 4088750
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 94424.0,
+            "p95NearestRank": 128640,
+            "min": 94120,
+            "max": 129208
+          }
+        },
+        "EditorUnindentSelection": {
+          "count": 30,
+          "guidePresentCount": 0,
+          "previousMarkValidCount": 0,
+          "actionEdtNs": {
+            "median": 2049187.5,
+            "p95NearestRank": 2854667,
+            "min": 1330958,
+            "max": 3164208
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 93248.0,
+            "p95NearestRank": 94632,
+            "min": 93248,
+            "max": 101864
+          }
+        }
+      },
+      "asyncAllocatedBytesMedian": 118492.0
+    },
+    {
+      "pair": 1,
+      "position": 2,
+      "side": "B",
+      "sourceRevision": "60305549e301681222ef2783c953ae2d616d5cd6",
+      "actions": {
+        "EditorTab": {
+          "count": 30,
+          "guidePresentCount": 30,
+          "previousMarkValidCount": 30,
+          "actionEdtNs": {
+            "median": 1995500.0,
+            "p95NearestRank": 2781500,
+            "min": 1596584,
+            "max": 3348042
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 85264.0,
+            "p95NearestRank": 90488,
+            "min": 85120,
+            "max": 98576
+          }
+        },
+        "EditorUnindentSelection": {
+          "count": 30,
+          "guidePresentCount": 30,
+          "previousMarkValidCount": 30,
+          "actionEdtNs": {
+            "median": 1706354.5,
+            "p95NearestRank": 2214667,
+            "min": 1180875,
+            "max": 2570458
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 91856.0,
+            "p95NearestRank": 93768,
+            "min": 91856,
+            "max": 102056
+          }
+        }
+      },
+      "asyncAllocatedBytesMedian": 58552.0
+    },
+    {
+      "pair": 2,
+      "position": 1,
+      "side": "B",
+      "sourceRevision": "60305549e301681222ef2783c953ae2d616d5cd6",
+      "actions": {
+        "EditorTab": {
+          "count": 30,
+          "guidePresentCount": 30,
+          "previousMarkValidCount": 30,
+          "actionEdtNs": {
+            "median": 1798104.0,
+            "p95NearestRank": 2567209,
+            "min": 1393916,
+            "max": 2821583
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 85124.0,
+            "p95NearestRank": 95104,
+            "min": 84704,
+            "max": 98096
+          }
+        },
+        "EditorUnindentSelection": {
+          "count": 30,
+          "guidePresentCount": 30,
+          "previousMarkValidCount": 30,
+          "actionEdtNs": {
+            "median": 1572687.5,
+            "p95NearestRank": 2151875,
+            "min": 1175958,
+            "max": 2466500
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 91520.0,
+            "p95NearestRank": 92832,
+            "min": 91520,
+            "max": 95000
+          }
+        }
+      },
+      "asyncAllocatedBytesMedian": 58552.0
+    },
+    {
+      "pair": 2,
+      "position": 2,
+      "side": "A",
+      "sourceRevision": "c9be822bfc0d74e7785406d3b664fa72ade0714a",
+      "actions": {
+        "EditorTab": {
+          "count": 30,
+          "guidePresentCount": 0,
+          "previousMarkValidCount": 0,
+          "actionEdtNs": {
+            "median": 2078958.5,
+            "p95NearestRank": 3106500,
+            "min": 1440083,
+            "max": 3330250
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 94556.0,
+            "p95NearestRank": 128512,
+            "min": 94120,
+            "max": 128752
+          }
+        },
+        "EditorUnindentSelection": {
+          "count": 30,
+          "guidePresentCount": 0,
+          "previousMarkValidCount": 0,
+          "actionEdtNs": {
+            "median": 1783875.0,
+            "p95NearestRank": 2819750,
+            "min": 1139250,
+            "max": 3797542
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 93248.0,
+            "p95NearestRank": 94376,
+            "min": 93248,
+            "max": 94800
+          }
+        }
+      },
+      "asyncAllocatedBytesMedian": 118864.0
+    },
+    {
+      "pair": 3,
+      "position": 1,
+      "side": "A",
+      "sourceRevision": "c9be822bfc0d74e7785406d3b664fa72ade0714a",
+      "actions": {
+        "EditorTab": {
+          "count": 30,
+          "guidePresentCount": 0,
+          "previousMarkValidCount": 0,
+          "actionEdtNs": {
+            "median": 1896354.0,
+            "p95NearestRank": 2984542,
+            "min": 1501584,
+            "max": 3280750
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 94528.0,
+            "p95NearestRank": 128712,
+            "min": 94120,
+            "max": 129208
+          }
+        },
+        "EditorUnindentSelection": {
+          "count": 30,
+          "guidePresentCount": 0,
+          "previousMarkValidCount": 0,
+          "actionEdtNs": {
+            "median": 1651687.5,
+            "p95NearestRank": 2681667,
+            "min": 1288709,
+            "max": 2725541
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 93248.0,
+            "p95NearestRank": 94376,
+            "min": 93248,
+            "max": 94560
+          }
+        }
+      },
+      "asyncAllocatedBytesMedian": 121648.0
+    },
+    {
+      "pair": 3,
+      "position": 2,
+      "side": "B",
+      "sourceRevision": "60305549e301681222ef2783c953ae2d616d5cd6",
+      "actions": {
+        "EditorTab": {
+          "count": 30,
+          "guidePresentCount": 30,
+          "previousMarkValidCount": 30,
+          "actionEdtNs": {
+            "median": 1855229.0,
+            "p95NearestRank": 2656083,
+            "min": 1401292,
+            "max": 3167250
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 85280.0,
+            "p95NearestRank": 95608,
+            "min": 84872,
+            "max": 98288
+          }
+        },
+        "EditorUnindentSelection": {
+          "count": 30,
+          "guidePresentCount": 30,
+          "previousMarkValidCount": 30,
+          "actionEdtNs": {
+            "median": 1604604.0,
+            "p95NearestRank": 2199917,
+            "min": 1267042,
+            "max": 2243083
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 91640.0,
+            "p95NearestRank": 92616,
+            "min": 91488,
+            "max": 97248
+          }
+        }
+      },
+      "asyncAllocatedBytesMedian": 58716.0
+    },
+    {
+      "pair": 4,
+      "position": 1,
+      "side": "B",
+      "sourceRevision": "60305549e301681222ef2783c953ae2d616d5cd6",
+      "actions": {
+        "EditorTab": {
+          "count": 30,
+          "guidePresentCount": 30,
+          "previousMarkValidCount": 30,
+          "actionEdtNs": {
+            "median": 1784958.0,
+            "p95NearestRank": 2476709,
+            "min": 1372250,
+            "max": 2663667
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 85320.0,
+            "p95NearestRank": 86456,
+            "min": 84944,
+            "max": 98136
+          }
+        },
+        "EditorUnindentSelection": {
+          "count": 30,
+          "guidePresentCount": 30,
+          "previousMarkValidCount": 30,
+          "actionEdtNs": {
+            "median": 1623875.0,
+            "p95NearestRank": 2705792,
+            "min": 1068000,
+            "max": 4051291
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 91856.0,
+            "p95NearestRank": 92984,
+            "min": 91856,
+            "max": 102056
+          }
+        }
+      },
+      "asyncAllocatedBytesMedian": 58600.0
+    },
+    {
+      "pair": 4,
+      "position": 2,
+      "side": "A",
+      "sourceRevision": "c9be822bfc0d74e7785406d3b664fa72ade0714a",
+      "actions": {
+        "EditorTab": {
+          "count": 30,
+          "guidePresentCount": 0,
+          "previousMarkValidCount": 0,
+          "actionEdtNs": {
+            "median": 2177916.5,
+            "p95NearestRank": 3002208,
+            "min": 1398000,
+            "max": 3287958
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 94528.0,
+            "p95NearestRank": 128448,
+            "min": 93888,
+            "max": 128944
+          }
+        },
+        "EditorUnindentSelection": {
+          "count": 30,
+          "guidePresentCount": 0,
+          "previousMarkValidCount": 0,
+          "actionEdtNs": {
+            "median": 1944563.0,
+            "p95NearestRank": 2712209,
+            "min": 1139083,
+            "max": 3054959
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 93232.0,
+            "p95NearestRank": 94512,
+            "min": 93232,
+            "max": 95240
+          }
+        }
+      },
+      "asyncAllocatedBytesMedian": 118712.0
+    },
+    {
+      "pair": 5,
+      "position": 1,
+      "side": "A",
+      "sourceRevision": "c9be822bfc0d74e7785406d3b664fa72ade0714a",
+      "actions": {
+        "EditorTab": {
+          "count": 30,
+          "guidePresentCount": 0,
+          "previousMarkValidCount": 0,
+          "actionEdtNs": {
+            "median": 2052458.5,
+            "p95NearestRank": 2543083,
+            "min": 1727083,
+            "max": 2721042
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 94392.0,
+            "p95NearestRank": 128512,
+            "min": 94120,
+            "max": 128712
+          }
+        },
+        "EditorUnindentSelection": {
+          "count": 30,
+          "guidePresentCount": 0,
+          "previousMarkValidCount": 0,
+          "actionEdtNs": {
+            "median": 1693520.5,
+            "p95NearestRank": 2508917,
+            "min": 1235875,
+            "max": 2561583
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 93248.0,
+            "p95NearestRank": 94376,
+            "min": 93248,
+            "max": 98568
+          }
+        }
+      },
+      "asyncAllocatedBytesMedian": 120308.0
+    },
+    {
+      "pair": 5,
+      "position": 2,
+      "side": "B",
+      "sourceRevision": "60305549e301681222ef2783c953ae2d616d5cd6",
+      "actions": {
+        "EditorTab": {
+          "count": 30,
+          "guidePresentCount": 30,
+          "previousMarkValidCount": 30,
+          "actionEdtNs": {
+            "median": 1940854.0,
+            "p95NearestRank": 2912083,
+            "min": 1451209,
+            "max": 2997458
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 85036.0,
+            "p95NearestRank": 89192,
+            "min": 84704,
+            "max": 98096
+          }
+        },
+        "EditorUnindentSelection": {
+          "count": 30,
+          "guidePresentCount": 30,
+          "previousMarkValidCount": 30,
+          "actionEdtNs": {
+            "median": 1564604.5,
+            "p95NearestRank": 2201666,
+            "min": 1170375,
+            "max": 2514084
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 91520.0,
+            "p95NearestRank": 92648,
+            "min": 91520,
+            "max": 101600
+          }
+        }
+      },
+      "asyncAllocatedBytesMedian": 58560.0
+    },
+    {
+      "pair": 6,
+      "position": 1,
+      "side": "B",
+      "sourceRevision": "60305549e301681222ef2783c953ae2d616d5cd6",
+      "actions": {
+        "EditorTab": {
+          "count": 30,
+          "guidePresentCount": 30,
+          "previousMarkValidCount": 30,
+          "actionEdtNs": {
+            "median": 2001146.0,
+            "p95NearestRank": 2615959,
+            "min": 1634083,
+            "max": 2756750
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 85144.0,
+            "p95NearestRank": 90872,
+            "min": 84848,
+            "max": 98528
+          }
+        },
+        "EditorUnindentSelection": {
+          "count": 30,
+          "guidePresentCount": 30,
+          "previousMarkValidCount": 30,
+          "actionEdtNs": {
+            "median": 1798979.5,
+            "p95NearestRank": 2789834,
+            "min": 1197542,
+            "max": 3681542
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 91752.0,
+            "p95NearestRank": 97784,
+            "min": 91520,
+            "max": 101720
+          }
+        }
+      },
+      "asyncAllocatedBytesMedian": 58552.0
+    },
+    {
+      "pair": 6,
+      "position": 2,
+      "side": "A",
+      "sourceRevision": "c9be822bfc0d74e7785406d3b664fa72ade0714a",
+      "actions": {
+        "EditorTab": {
+          "count": 30,
+          "guidePresentCount": 0,
+          "previousMarkValidCount": 0,
+          "actionEdtNs": {
+            "median": 2147666.5,
+            "p95NearestRank": 3109541,
+            "min": 1643833,
+            "max": 3264958
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 94352.0,
+            "p95NearestRank": 107240,
+            "min": 93920,
+            "max": 129208
+          }
+        },
+        "EditorUnindentSelection": {
+          "count": 30,
+          "guidePresentCount": 0,
+          "previousMarkValidCount": 0,
+          "actionEdtNs": {
+            "median": 1749709.0,
+            "p95NearestRank": 2345416,
+            "min": 1131708,
+            "max": 2571208
+          },
+          "actionEdtAllocatedBytes": {
+            "median": 93248.0,
+            "p95NearestRank": 94376,
+            "min": 93248,
+            "max": 96808
+          }
+        }
+      },
+      "asyncAllocatedBytesMedian": 118844.0
+    }
+  ],
+  "comparisons": [
+    {
+      "action": "EditorTab",
+      "metric": "actionEdtNs",
+      "pairs": [
+        {
+          "pair": 1,
+          "baselineMedian": 2477437.5,
+          "candidateMedian": 1995500.0,
+          "medianRatio": 0.8054693609828704,
+          "baselineP95": 3380541,
+          "candidateP95": 2781500,
+          "p95Ratio": 0.8227972978289569
+        },
+        {
+          "pair": 2,
+          "baselineMedian": 2078958.5,
+          "candidateMedian": 1798104.0,
+          "medianRatio": 0.8649061537303414,
+          "baselineP95": 3106500,
+          "candidateP95": 2567209,
+          "p95Ratio": 0.8263991630452278
+        },
+        {
+          "pair": 3,
+          "baselineMedian": 1896354.0,
+          "candidateMedian": 1855229.0,
+          "medianRatio": 0.9783136481901585,
+          "baselineP95": 2984542,
+          "candidateP95": 2656083,
+          "p95Ratio": 0.8899465981715118
+        },
+        {
+          "pair": 4,
+          "baselineMedian": 2177916.5,
+          "candidateMedian": 1784958.0,
+          "medianRatio": 0.819571365568882,
+          "baselineP95": 3002208,
+          "candidateP95": 2476709,
+          "p95Ratio": 0.8249624942708833
+        },
+        {
+          "pair": 5,
+          "baselineMedian": 2052458.5,
+          "candidateMedian": 1940854.0,
+          "medianRatio": 0.9456239919101896,
+          "baselineP95": 2543083,
+          "candidateP95": 2912083,
+          "p95Ratio": 1.1450994717828715
+        },
+        {
+          "pair": 6,
+          "baselineMedian": 2147666.5,
+          "candidateMedian": 2001146.0,
+          "medianRatio": 0.9317768843533202,
+          "baselineP95": 3109541,
+          "candidateP95": 2615959,
+          "p95Ratio": 0.8412685344878874
+        }
+      ],
+      "medianOfBaselineJvmMedians": 2113312.5,
+      "medianOfCandidateJvmMedians": 1898041.5,
+      "medianPairedRatio": 0.8983415190418308,
+      "medianPairedP95Ratio": 0.8338338487665575,
+      "flagOver120Percent": false
+    },
+    {
+      "action": "EditorTab",
+      "metric": "actionEdtAllocatedBytes",
+      "pairs": [
+        {
+          "pair": 1,
+          "baselineMedian": 94424.0,
+          "candidateMedian": 85264.0,
+          "medianRatio": 0.9029907650597305,
+          "baselineP95": 128640,
+          "candidateP95": 90488,
+          "p95Ratio": 0.7034203980099503
+        },
+        {
+          "pair": 2,
+          "baselineMedian": 94556.0,
+          "candidateMedian": 85124.0,
+          "medianRatio": 0.9002495875460045,
+          "baselineP95": 128512,
+          "candidateP95": 95104,
+          "p95Ratio": 0.7400398406374502
+        },
+        {
+          "pair": 3,
+          "baselineMedian": 94528.0,
+          "candidateMedian": 85280.0,
+          "medianRatio": 0.9021665538253216,
+          "baselineP95": 128712,
+          "candidateP95": 95608,
+          "p95Ratio": 0.7428056436074336
+        },
+        {
+          "pair": 4,
+          "baselineMedian": 94528.0,
+          "candidateMedian": 85320.0,
+          "medianRatio": 0.9025897088693298,
+          "baselineP95": 128448,
+          "candidateP95": 86456,
+          "p95Ratio": 0.6730817140009965
+        },
+        {
+          "pair": 5,
+          "baselineMedian": 94392.0,
+          "candidateMedian": 85036.0,
+          "medianRatio": 0.9008814306297144,
+          "baselineP95": 128512,
+          "candidateP95": 89192,
+          "p95Ratio": 0.6940363545816733
+        },
+        {
+          "pair": 6,
+          "baselineMedian": 94352.0,
+          "candidateMedian": 85144.0,
+          "medianRatio": 0.902408004069866,
+          "baselineP95": 107240,
+          "candidateP95": 90872,
+          "p95Ratio": 0.8473703841850055
+        }
+      ],
+      "medianOfBaselineJvmMedians": 94476.0,
+      "medianOfCandidateJvmMedians": 85204.0,
+      "medianPairedRatio": 0.9022872789475938,
+      "medianPairedP95Ratio": 0.7217301193237002,
+      "flagOver120Percent": false
+    },
+    {
+      "action": "EditorUnindentSelection",
+      "metric": "actionEdtNs",
+      "pairs": [
+        {
+          "pair": 1,
+          "baselineMedian": 2049187.5,
+          "candidateMedian": 1706354.5,
+          "medianRatio": 0.8326980815567145,
+          "baselineP95": 2854667,
+          "candidateP95": 2214667,
+          "p95Ratio": 0.7758057244505226
+        },
+        {
+          "pair": 2,
+          "baselineMedian": 1783875.0,
+          "candidateMedian": 1572687.5,
+          "medianRatio": 0.8816130614532969,
+          "baselineP95": 2819750,
+          "candidateP95": 2151875,
+          "p95Ratio": 0.7631438957354375
+        },
+        {
+          "pair": 3,
+          "baselineMedian": 1651687.5,
+          "candidateMedian": 1604604.0,
+          "medianRatio": 0.9714936996253831,
+          "baselineP95": 2681667,
+          "candidateP95": 2199917,
+          "p95Ratio": 0.8203542796327806
+        },
+        {
+          "pair": 4,
+          "baselineMedian": 1944563.0,
+          "candidateMedian": 1623875.0,
+          "medianRatio": 0.8350847979726036,
+          "baselineP95": 2712209,
+          "candidateP95": 2705792,
+          "p95Ratio": 0.9976340318906102
+        },
+        {
+          "pair": 5,
+          "baselineMedian": 1693520.5,
+          "candidateMedian": 1564604.5,
+          "medianRatio": 0.9238769179351535,
+          "baselineP95": 2508917,
+          "candidateP95": 2201666,
+          "p95Ratio": 0.8775364031572188
+        },
+        {
+          "pair": 6,
+          "baselineMedian": 1749709.0,
+          "candidateMedian": 1798979.5,
+          "medianRatio": 1.0281592539102216,
+          "baselineP95": 2345416,
+          "candidateP95": 2789834,
+          "p95Ratio": 1.1894836566306362
+        }
+      ],
+      "medianOfBaselineJvmMedians": 1766792.0,
+      "medianOfCandidateJvmMedians": 1614239.5,
+      "medianPairedRatio": 0.9027449896942252,
+      "medianPairedP95Ratio": 0.8489453413949997,
+      "flagOver120Percent": false
+    },
+    {
+      "action": "EditorUnindentSelection",
+      "metric": "actionEdtAllocatedBytes",
+      "pairs": [
+        {
+          "pair": 1,
+          "baselineMedian": 93248.0,
+          "candidateMedian": 91856.0,
+          "medianRatio": 0.9850720658888126,
+          "baselineP95": 94632,
+          "candidateP95": 93768,
+          "p95Ratio": 0.9908698960182603
+        },
+        {
+          "pair": 2,
+          "baselineMedian": 93248.0,
+          "candidateMedian": 91520.0,
+          "medianRatio": 0.9814687714481812,
+          "baselineP95": 94376,
+          "candidateP95": 92832,
+          "p95Ratio": 0.9836399084513012
+        },
+        {
+          "pair": 3,
+          "baselineMedian": 93248.0,
+          "candidateMedian": 91640.0,
+          "medianRatio": 0.9827556623198352,
+          "baselineP95": 94376,
+          "candidateP95": 92616,
+          "p95Ratio": 0.9813511909807578
+        },
+        {
+          "pair": 4,
+          "baselineMedian": 93232.0,
+          "candidateMedian": 91856.0,
+          "medianRatio": 0.985241118929123,
+          "baselineP95": 94512,
+          "candidateP95": 92984,
+          "p95Ratio": 0.983832740815981
+        },
+        {
+          "pair": 5,
+          "baselineMedian": 93248.0,
+          "candidateMedian": 91520.0,
+          "medianRatio": 0.9814687714481812,
+          "baselineP95": 94376,
+          "candidateP95": 92648,
+          "p95Ratio": 0.9816902602356531
+        },
+        {
+          "pair": 6,
+          "baselineMedian": 93248.0,
+          "candidateMedian": 91752.0,
+          "medianRatio": 0.9839567604667124,
+          "baselineP95": 94376,
+          "candidateP95": 97784,
+          "p95Ratio": 1.0361108756463508
+        }
+      ],
+      "medianOfBaselineJvmMedians": 93248.0,
+      "medianOfCandidateJvmMedians": 91696.0,
+      "medianPairedRatio": 0.9833562113932739,
+      "medianPairedP95Ratio": 0.9837363246336411,
+      "flagOver120Percent": false
+    }
+  ],
+  "matchingEnvironment": {
+    "ide": "IC-241.19416.15",
+    "java": "17.0.12+1-b1207.37",
+    "os": "Mac OS X",
+    "arch": "aarch64",
+    "maxHeapBytes": 2147483648,
+    "warmups": 5,
+    "repeats": 30
+  },
+  "totalMeasuredActions": 720,
+  "limitations": [
+    "One warmed Java corpus, actual editor actions with headless ACTIVE; Driver separately checks focused painting.",
+    "Median of six paired fresh-JVM ratios; p95 retained as secondary, not pooled percentiles.",
+    "EDT action and inherited coroutine allocation scopes are non-additive.",
+    "No whole IDE allocation, long-prefix cost guarantee, or zero-flicker claim across all edits."
+  ]
+}
