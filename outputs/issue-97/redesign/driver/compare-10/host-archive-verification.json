@@ -1,0 +1,13 @@
+{
+  "release": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/distributions/bracket-pair-guides-0.0.6.zip",
+  "releaseSha256": "b1442ca6dfa508738e6cb12c93cf8f4757d2e7f9bce3181c4a73dd9c943b507e",
+  "visual": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/visual-test-distributions/bracket-pair-guides-0.0.6-visual-test.zip",
+  "visualSha256": "78ce0ebaf3fb10a3b0ada45edd6edfefdce8836c1a5e82d6c9857afa25565ae2",
+  "extraEntries": [
+    "bracket-pair-guides/lib/bracket-pair-guides-0.0.6-visual-test-bridge.jar"
+  ],
+  "allReleaseBytesEqual": true,
+  "releaseClassCount": 451,
+  "noMeasurementOrBridgeClassesInRelease": true,
+  "scope": "Latest host archive after Driver global-readiness setup; no compatibility/visual pass inference"
+}

@@ -1,0 +1,894 @@
+{
+  "setup": {
+    "initScript": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+    "initScriptPurpose": "Forwards issue93.measure* system properties into forked test JVM; -D alone is insufficient.",
+    "baselineRevision": "84d1a43141b1933c81e027ef01d1579fc4679e6e",
+    "candidateRevision": "explicit --candidate-head required; no prior artifact reuse",
+    "workingDirectories": {
+      "baseline": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+      "candidate": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides"
+    }
+  },
+  "primaryAnalysis": {
+    "commands": [
+      {
+        "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+        "argv": [
+          "./gradlew",
+          "--no-configuration-cache",
+          "--init-script",
+          "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+          ":plugin:test",
+          "--rerun",
+          "--tests",
+          "*.AnalysisBaselineMeasurementTest",
+          "-Dissue93.measure=true",
+          "-Dissue93.measure.implementation=incremental",
+          "-Dissue93.measure.warmups=100",
+          "-Dissue93.measure.repeats=30",
+          "-Dissue93.measure.cancelTrials=30",
+          "-Dissue93.measure.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+          "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+        ],
+        "side": "baseline",
+        "freshJvm": 1
+      },
+      {
+        "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+        "argv": [
+          "./gradlew",
+          "--no-configuration-cache",
+          "--init-script",
+          "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+          ":plugin:test",
+          "--rerun",
+          "--tests",
+          "*.AnalysisBaselineMeasurementTest",
+          "-Dissue93.measure=true",
+          "-Dissue93.measure.implementation=incremental",
+          "-Dissue93.measure.warmups=100",
+          "-Dissue93.measure.repeats=30",
+          "-Dissue93.measure.cancelTrials=30",
+          "-Dissue93.measure.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+          "-Dissue93.measure.revision=issue-97-working-tree"
+        ],
+        "side": "candidate",
+        "freshJvm": 1
+      },
+      {
+        "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+        "argv": [
+          "./gradlew",
+          "--no-configuration-cache",
+          "--init-script",
+          "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+          ":plugin:test",
+          "--rerun",
+          "--tests",
+          "*.AnalysisBaselineMeasurementTest",
+          "-Dissue93.measure=true",
+          "-Dissue93.measure.implementation=incremental",
+          "-Dissue93.measure.warmups=100",
+          "-Dissue93.measure.repeats=30",
+          "-Dissue93.measure.cancelTrials=30",
+          "-Dissue93.measure.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+          "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+        ],
+        "side": "baseline",
+        "freshJvm": 2
+      },
+      {
+        "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+        "argv": [
+          "./gradlew",
+          "--no-configuration-cache",
+          "--init-script",
+          "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+          ":plugin:test",
+          "--rerun",
+          "--tests",
+          "*.AnalysisBaselineMeasurementTest",
+          "-Dissue93.measure=true",
+          "-Dissue93.measure.implementation=incremental",
+          "-Dissue93.measure.warmups=100",
+          "-Dissue93.measure.repeats=30",
+          "-Dissue93.measure.cancelTrials=30",
+          "-Dissue93.measure.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+          "-Dissue93.measure.revision=issue-97-working-tree"
+        ],
+        "side": "candidate",
+        "freshJvm": 2
+      },
+      {
+        "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+        "argv": [
+          "./gradlew",
+          "--no-configuration-cache",
+          "--init-script",
+          "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+          ":plugin:test",
+          "--rerun",
+          "--tests",
+          "*.AnalysisBaselineMeasurementTest",
+          "-Dissue93.measure=true",
+          "-Dissue93.measure.implementation=incremental",
+          "-Dissue93.measure.warmups=100",
+          "-Dissue93.measure.repeats=30",
+          "-Dissue93.measure.cancelTrials=30",
+          "-Dissue93.measure.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+          "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+        ],
+        "side": "baseline",
+        "freshJvm": 3
+      },
+      {
+        "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+        "argv": [
+          "./gradlew",
+          "--no-configuration-cache",
+          "--init-script",
+          "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+          ":plugin:test",
+          "--rerun",
+          "--tests",
+          "*.AnalysisBaselineMeasurementTest",
+          "-Dissue93.measure=true",
+          "-Dissue93.measure.implementation=incremental",
+          "-Dissue93.measure.warmups=100",
+          "-Dissue93.measure.repeats=30",
+          "-Dissue93.measure.cancelTrials=30",
+          "-Dissue93.measure.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+          "-Dissue93.measure.revision=issue-97-working-tree"
+        ],
+        "side": "candidate",
+        "freshJvm": 3
+      }
+    ]
+  },
+  "workloads": [
+    {
+      "name": "write-wait",
+      "commands": [
+        {
+          "side": "baseline",
+          "freshJvm": 1,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.AnalysisWriteWaitMeasurementTest",
+            "-Dissue93.measure=true",
+            "-Dissue93.measure.implementation=incremental",
+            "-Dissue93.measure.warmups=100",
+            "-Dissue93.measure.writeWait.repeats=30",
+            "-Dissue93.measure.writeWait.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "baseline",
+          "freshJvm": 2,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.AnalysisWriteWaitMeasurementTest",
+            "-Dissue93.measure=true",
+            "-Dissue93.measure.implementation=incremental",
+            "-Dissue93.measure.warmups=100",
+            "-Dissue93.measure.writeWait.repeats=30",
+            "-Dissue93.measure.writeWait.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "baseline",
+          "freshJvm": 3,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.AnalysisWriteWaitMeasurementTest",
+            "-Dissue93.measure=true",
+            "-Dissue93.measure.implementation=incremental",
+            "-Dissue93.measure.warmups=100",
+            "-Dissue93.measure.writeWait.repeats=30",
+            "-Dissue93.measure.writeWait.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 1,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.AnalysisWriteWaitMeasurementTest",
+            "-Dissue93.measure=true",
+            "-Dissue93.measure.implementation=incremental",
+            "-Dissue93.measure.warmups=100",
+            "-Dissue93.measure.writeWait.repeats=30",
+            "-Dissue93.measure.writeWait.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 2,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.AnalysisWriteWaitMeasurementTest",
+            "-Dissue93.measure=true",
+            "-Dissue93.measure.implementation=incremental",
+            "-Dissue93.measure.warmups=100",
+            "-Dissue93.measure.writeWait.repeats=30",
+            "-Dissue93.measure.writeWait.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 3,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.AnalysisWriteWaitMeasurementTest",
+            "-Dissue93.measure=true",
+            "-Dissue93.measure.implementation=incremental",
+            "-Dissue93.measure.warmups=100",
+            "-Dissue93.measure.writeWait.repeats=30",
+            "-Dissue93.measure.writeWait.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "execution",
+      "commands": [
+        {
+          "side": "baseline",
+          "freshJvm": 1,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.EditorExecutionMeasurementTest",
+            "-Dissue93.measure.execution=true",
+            "-Dissue93.measure.execution.warmups=100",
+            "-Dissue93.measure.execution.repeats=30",
+            "-Dissue93.measure.execution.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "baseline",
+          "freshJvm": 2,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.EditorExecutionMeasurementTest",
+            "-Dissue93.measure.execution=true",
+            "-Dissue93.measure.execution.warmups=100",
+            "-Dissue93.measure.execution.repeats=30",
+            "-Dissue93.measure.execution.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "baseline",
+          "freshJvm": 3,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.EditorExecutionMeasurementTest",
+            "-Dissue93.measure.execution=true",
+            "-Dissue93.measure.execution.warmups=100",
+            "-Dissue93.measure.execution.repeats=30",
+            "-Dissue93.measure.execution.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 1,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.EditorExecutionMeasurementTest",
+            "-Dissue93.measure.execution=true",
+            "-Dissue93.measure.execution.warmups=100",
+            "-Dissue93.measure.execution.repeats=30",
+            "-Dissue93.measure.execution.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 2,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.EditorExecutionMeasurementTest",
+            "-Dissue93.measure.execution=true",
+            "-Dissue93.measure.execution.warmups=100",
+            "-Dissue93.measure.execution.repeats=30",
+            "-Dissue93.measure.execution.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 3,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.EditorExecutionMeasurementTest",
+            "-Dissue93.measure.execution=true",
+            "-Dissue93.measure.execution.warmups=100",
+            "-Dissue93.measure.execution.repeats=30",
+            "-Dissue93.measure.execution.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "repair",
+      "commands": [
+        {
+          "side": "baseline",
+          "freshJvm": 1,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.GuideRepairMeasurementTest",
+            "-Dissue93.measure.guideRepair=true",
+            "-Dissue93.measure.guideRepair.warmups=100",
+            "-Dissue93.measure.guideRepair.repeats=30",
+            "-Dissue93.measure.guideRepair.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "baseline",
+          "freshJvm": 2,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.GuideRepairMeasurementTest",
+            "-Dissue93.measure.guideRepair=true",
+            "-Dissue93.measure.guideRepair.warmups=100",
+            "-Dissue93.measure.guideRepair.repeats=30",
+            "-Dissue93.measure.guideRepair.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "baseline",
+          "freshJvm": 3,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.GuideRepairMeasurementTest",
+            "-Dissue93.measure.guideRepair=true",
+            "-Dissue93.measure.guideRepair.warmups=100",
+            "-Dissue93.measure.guideRepair.repeats=30",
+            "-Dissue93.measure.guideRepair.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 1,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.GuideRepairMeasurementTest",
+            "-Dissue93.measure.guideRepair=true",
+            "-Dissue93.measure.guideRepair.warmups=100",
+            "-Dissue93.measure.guideRepair.repeats=30",
+            "-Dissue93.measure.guideRepair.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 2,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.GuideRepairMeasurementTest",
+            "-Dissue93.measure.guideRepair=true",
+            "-Dissue93.measure.guideRepair.warmups=100",
+            "-Dissue93.measure.guideRepair.repeats=30",
+            "-Dissue93.measure.guideRepair.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 3,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.GuideRepairMeasurementTest",
+            "-Dissue93.measure.guideRepair=true",
+            "-Dissue93.measure.guideRepair.warmups=100",
+            "-Dissue93.measure.guideRepair.repeats=30",
+            "-Dissue93.measure.guideRepair.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "native",
+      "commands": [
+        {
+          "side": "baseline",
+          "freshJvm": 1,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.NativeConflictMeasurementTest",
+            "-Dissue93.measure.native=true",
+            "-Dissue93.measure.warmups=100",
+            "-Dissue93.measure.native.repeats=30",
+            "-Dissue93.measure.native.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "baseline",
+          "freshJvm": 2,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.NativeConflictMeasurementTest",
+            "-Dissue93.measure.native=true",
+            "-Dissue93.measure.warmups=100",
+            "-Dissue93.measure.native.repeats=30",
+            "-Dissue93.measure.native.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "baseline",
+          "freshJvm": 3,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.NativeConflictMeasurementTest",
+            "-Dissue93.measure.native=true",
+            "-Dissue93.measure.warmups=100",
+            "-Dissue93.measure.native.repeats=30",
+            "-Dissue93.measure.native.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 1,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.NativeConflictMeasurementTest",
+            "-Dissue93.measure.native=true",
+            "-Dissue93.measure.warmups=100",
+            "-Dissue93.measure.native.repeats=30",
+            "-Dissue93.measure.native.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 2,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.NativeConflictMeasurementTest",
+            "-Dissue93.measure.native=true",
+            "-Dissue93.measure.warmups=100",
+            "-Dissue93.measure.native.repeats=30",
+            "-Dissue93.measure.native.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 3,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.NativeConflictMeasurementTest",
+            "-Dissue93.measure.native=true",
+            "-Dissue93.measure.warmups=100",
+            "-Dissue93.measure.native.repeats=30",
+            "-Dissue93.measure.native.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "payload",
+      "commands": [
+        {
+          "side": "baseline",
+          "freshJvm": 1,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.AnalysisPayloadMeasurementTest",
+            "-Dissue93.measure.payload=true",
+            "-Dissue93.measure.payload.implementations=incremental",
+            "-Dissue93.measure.payload.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "baseline",
+          "freshJvm": 2,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.AnalysisPayloadMeasurementTest",
+            "-Dissue93.measure.payload=true",
+            "-Dissue93.measure.payload.implementations=incremental",
+            "-Dissue93.measure.payload.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "baseline",
+          "freshJvm": 3,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.AnalysisPayloadMeasurementTest",
+            "-Dissue93.measure.payload=true",
+            "-Dissue93.measure.payload.implementations=incremental",
+            "-Dissue93.measure.payload.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 1,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.AnalysisPayloadMeasurementTest",
+            "-Dissue93.measure.payload=true",
+            "-Dissue93.measure.payload.implementations=incremental",
+            "-Dissue93.measure.payload.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 2,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.AnalysisPayloadMeasurementTest",
+            "-Dissue93.measure.payload=true",
+            "-Dissue93.measure.payload.implementations=incremental",
+            "-Dissue93.measure.payload.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 3,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.AnalysisPayloadMeasurementTest",
+            "-Dissue93.measure.payload=true",
+            "-Dissue93.measure.payload.implementations=incremental",
+            "-Dissue93.measure.payload.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capture-release",
+      "commands": [
+        {
+          "side": "baseline",
+          "freshJvm": 1,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.CaptureReleaseMeasurementTest",
+            "-Dissue93.measure.captureRelease=true",
+            "-Dissue93.measure.captureRelease.units=2000,20000,100000",
+            "-Dissue93.measure.captureRelease.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "baseline",
+          "freshJvm": 2,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.CaptureReleaseMeasurementTest",
+            "-Dissue93.measure.captureRelease=true",
+            "-Dissue93.measure.captureRelease.units=2000,20000,100000",
+            "-Dissue93.measure.captureRelease.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "baseline",
+          "freshJvm": 3,
+          "cwd": "/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/bpg-issue97-baseline-xwnhgf5x",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.CaptureReleaseMeasurementTest",
+            "-Dissue93.measure.captureRelease=true",
+            "-Dissue93.measure.captureRelease.units=2000,20000,100000",
+            "-Dissue93.measure.captureRelease.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=84d1a43141b1933c81e027ef01d1579fc4679e6e"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 1,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.CaptureReleaseMeasurementTest",
+            "-Dissue93.measure.captureRelease=true",
+            "-Dissue93.measure.captureRelease.units=2000,20000,100000",
+            "-Dissue93.measure.captureRelease.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 2,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.CaptureReleaseMeasurementTest",
+            "-Dissue93.measure.captureRelease=true",
+            "-Dissue93.measure.captureRelease.units=2000,20000,100000",
+            "-Dissue93.measure.captureRelease.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        },
+        {
+          "side": "candidate",
+          "freshJvm": 3,
+          "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+          "argv": [
+            "./gradlew",
+            "--no-configuration-cache",
+            "--init-script",
+            "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/measure.init.gradle",
+            ":plugin:test",
+            "--rerun",
+            "--tests",
+            "*.CaptureReleaseMeasurementTest",
+            "-Dissue93.measure.captureRelease=true",
+            "-Dissue93.measure.captureRelease.units=2000,20000,100000",
+            "-Dissue93.measure.captureRelease.output=/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-performance/planned-output.jsonl",
+            "-Dissue93.measure.revision=issue-97-working-tree"
+          ]
+        }
+      ]
+    }
+  ]
+}

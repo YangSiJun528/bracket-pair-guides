@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.runtime.session.ScalarPrefixCaptureIdeContractTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-08T18:22:47.848Z" hostname="sijun-yangui-MacBookPro.local" time="0.178">
+  <properties/>
+  <testcase name="testRepairThenFullAnalysisSurvivesAttemptRestartAfterUnrelatedWrite" classname="com.sijunyang.bracketpairguides.runtime.session.ScalarPrefixCaptureIdeContractTest" time="0.05"/>
+  <testcase name="testScalarRejectsCancellationChangedSourceAndUnrelatedWriteEpoch" classname="com.sijunyang.bracketpairguides.runtime.session.ScalarPrefixCaptureIdeContractTest" time="0.067"/>
+  <testcase name="testScalarAndContinuationUseActualBoundedBackgroundReads" classname="com.sijunyang.bracketpairguides.runtime.session.ScalarPrefixCaptureIdeContractTest" time="0.061"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

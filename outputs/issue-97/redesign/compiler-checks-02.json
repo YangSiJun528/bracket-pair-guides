@@ -1,0 +1,26 @@
+[
+  {
+    "name": "actual-inputs-02",
+    "command": [
+      "./gradlew",
+      "verifyProductionModules",
+      "--no-configuration-cache",
+      "--console=plain"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "compilation-boundaries-01",
+    "command": [
+      "./gradlew",
+      "-p",
+      "build-logic",
+      "test",
+      "--tests",
+      "com.sijunyang.buildlogic.CompilationBoundaryTest",
+      "--no-configuration-cache",
+      "--console=plain"
+    ],
+    "exitCode": 1
+  }
+]

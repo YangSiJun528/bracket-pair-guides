@@ -1,0 +1,34 @@
+{
+  "version": "v0.6.12",
+  "sourceFiles": [
+    {
+      "url": "https://github.com/bencherdev/bencher/blob/v0.6.12/lib/bencher_json/src/project/measure/built_in.rs",
+      "sha256": "cb5a23d499b611323c78da46181bd9e6af5ff8fd27148033e312a2acc33561b1"
+    },
+    {
+      "url": "https://github.com/bencherdev/bencher/blob/v0.6.12/lib/bencher_json/src/project/measure/mod.rs",
+      "sha256": "2867ad903b99d381e7f123fc561380eed8e8539c6a8d20ddc1408ddfeafa6414"
+    },
+    {
+      "url": "https://github.com/bencherdev/bencher/blob/v0.6.12/lib/bencher_json/src/project/report.rs",
+      "sha256": "b2fd8ca20a30fe241e4d3649d064164a8507d8477c345a53c9ce891ebde9c2ee"
+    },
+    {
+      "url": "https://github.com/bencherdev/bencher/blob/v0.6.12/lib/bencher_json/src/runner/job.rs",
+      "sha256": "e6a2e1d8c0e64334bb942cb247e112edef9b462f38b52a802f7ab055683d59be"
+    },
+    {
+      "url": "https://github.com/bencherdev/bencher/blob/v0.6.12/lib/bencher_valid/src/slug.rs",
+      "sha256": "89c7dd4c2ae836c0bb877c52674850abb2d38894e8ec2ccc8a2c8113f9f179c6"
+    }
+  ],
+  "findings": {
+    "latencyDisplayName": "Latency",
+    "latencyStableSlug": "latency",
+    "allocationSlug": "allocation-bop (generated from allocation_bop; resolved to UUID before comparisons)",
+    "reportResultShape": "results: Vec<Vec<JsonReportResult>>, measure.metric/threshold/boundary in pinned client",
+    "jobHasUuid": true,
+    "jobHasReportBackreference": false
+  },
+  "externalProjectActions": false
+}

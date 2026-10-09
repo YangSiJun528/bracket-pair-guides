@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculationTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:14:34.348Z" hostname="sijun-yangui-MacBookPro.local" time="0.008">
+  <properties/>
+  <testcase name="zeroMinimumStopsBeforeLongLaterIndentationAndTiesChooseTheEarliestLine" classname="com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculationTest" time="0.004"/>
+  <testcase name="exactRepairAdmits256LinesAndRefuses257WithoutPartialGeometry" classname="com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculationTest" time="0.001"/>
+  <testcase name="canceledCalculationCannotProduceAPublicationPayload" classname="com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculationTest" time="0.0"/>
+  <testcase name="provisionalStrategyKeepsClosingIndentOnBudgetExhaustion" classname="com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculationTest" time="0.001"/>
+  <testcase name="exactRepairCountsTheFirstContentCharacterAndRefusesBeyondTheSharedCharacterCap" classname="com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculationTest" time="0.001"/>
+  <testcase name="blankLinesConsumeWhitespaceAndResolveToTheFirstCandidateWhenFullyScanned" classname="com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculationTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

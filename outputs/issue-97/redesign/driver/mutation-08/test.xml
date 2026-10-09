@@ -1,0 +1,845 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.visual.EditorVisualContractTest" tests="1" skipped="0" failures="1" errors="0" timestamp="2026-10-08T11:33:58.974Z" hostname="0daba2d24909" time="147.734">
+  <properties/>
+  <testcase name="geometryRepairAndDisableMatchReviewedBaselines()" classname="com.sijunyang.bracketpairguides.visual.EditorVisualContractTest" time="147.589">
+    <failure message="org.opentest4j.AssertionFailedError: Missing/mismatched reviewed baseline: [horizontal-only, vertical-only, all-components, bracket-colorization-off, native-visuals-unmanaged, native-highlight-suppressed, default-palette, custom-palette, edited-geometry]; actual images: /workspace/plugin/build/visual-test-artifacts ==&gt; expected: &lt;true&gt; but was: &lt;false&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: Missing/mismatched reviewed baseline: [horizontal-only, vertical-only, all-components, bracket-colorization-off, native-visuals-unmanaged, native-highlight-suppressed, default-palette, custom-palette, edited-geometry]; actual images: /workspace/plugin/build/visual-test-artifacts ==&gt; expected: &lt;true&gt; but was: &lt;false&gt;
+	at org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:232)
+	at com.sijunyang.bracketpairguides.visual.EditorVisualContractTest.geometryRepairAndDisableMatchReviewedBaselines(EditorVisualContractTest.kt:350)
+</failure>
+  </testcase>
+  <system-out><![CDATA[[11:33:59]: Starter DI was initialized
+[11:33:59]: Resolving IDE build for editor-contract...
+[11:33:59]: Starting external process for `git-repo-root-get`
+  Working directory: null
+  Arguments: [git rev-parse --show-toplevel HEAD]
+  STDOUT will be redirected to: string. STDERR will be redirected to: ignored. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:34:00]:   ... started external process `git-repo-root-get` with process ID = 345
+[11:34:00]:   ... failed external process `git-repo-root-get` with exit code 128
+[11:34:00]: Using IDE paths for 'editor-contract': IDE Test Paths at /workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract
+[11:34:00]: IDE to run for 'editor-contract': IDE{IC, 242.26775.15, Linux, home=build/driver-distribution-18184494413189631324}
+[11:34:00]: Cleaning system dir for com.intellij.ide.starter.ide.IDETestContext@404db674 at IDE Test Paths at /workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract
+[11:34:00]: Setting IDE system property: [ij.load.shell.env=false]
+[11:34:00]: Setting IDE system property: [ide.instant.shutdown=false]
+[11:34:00]: Setting IDE system property: [feature.usage.event.log.send.on.ide.close=false]
+[11:34:00]: Setting IDE system property: [linux.native.menu.force.disable=true]
+[11:34:00]: Setting IDE system property: [jdk.gtk.verbose=true]
+[11:34:00]: Setting IDE system property: [jdk.gtk.version=2]
+[11:34:00]: Setting IDE system property: [vcs.log.index.enable=false]
+[11:34:00]: Setting IDE system property: [ide.slow.operations.assertion=false]
+[11:34:00]: Setting IDE system property: [integrationTests.profiler=async]
+[11:34:00]: Setting IDE system property: [idea.config.path=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/config]
+[11:34:00]: Setting IDE system property: [idea.system.path=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/system]
+[11:34:00]: Setting IDE system property: [idea.plugins.path=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/plugins]
+[11:34:00]: Setting IDE system property: [idea.local.statistics.without.report=true]
+[11:34:00]: Setting IDE system property: [idea.updates.url=http://127.0.0.1]
+[11:34:00]: Setting IDE system property: [kotest.assertions.collection.enumerate.size=2147483647]
+[11:34:00]: Starter configuration storage: {JUNIT_RUNNER_USE_INSTALLER=, INSTALLER_INCLUDE_RUNTIME_MODULE_REPOSITORY=false, ENABLE_CLASS_FILE_VERIFICATION=, LINUX_IGNORE_XVFB_RUN=false, USE_LATEST_DOWNLOADED_IDE_BUILD=}
+[11:34:00]: Extracting /workspace/plugin/build/visual-test-distributions/bracket-pair-guides-0.0.6-visual-test.zip to /workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/plugins
+[11:34:00]: Setting IDE system property: [idea.trust.all.projects=true]
+[11:34:00]: Setting IDE system property: [ide.experimental.ui=true]
+[11:34:00]: Setting IDE system property: [ide.native.launcher=true]
+[11:34:00]: Setting IDE system property: [ide.show.tips.on.startup.default.value=false]
+[11:34:00]: Setting IDE system property: [sun.java2d.uiScale=1]
+[11:34:00]: Setting IDE system property: [ide.ui.scale=1]
+[11:34:00]: Setting IDE system property: [awt.useSystemAAFontSettings=on]
+[11:34:00]: Setting IDE system property: [swing.aatext=true]
+[11:34:00]: Setting IDE system property: [user.language=en]
+[11:34:00]: Setting IDE system property: [user.country=US]
+[11:34:00]: Setting IDE system property: [user.timezone=UTC]
+[11:34:00]: Creating reports dir 'reports'
+[11:34:00]: Creating reports dir 'snapshots'
+[11:34:00]: Creating reports dir 'log'
+[11:34:00]: Starting external process for `exec-java-cmd`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/java -version]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:34:00]:   ... started external process `exec-java-cmd` with process ID = 352
+[11:34:01]:   ... successfully finished external process for `exec-java-cmd` with exit code 0
+[11:34:01]: 
+    Result of calling [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/java, -version]:
+    openjdk version "21.0.5" 2024-10-15
+OpenJDK Runtime Environment JBR-21.0.5+13-509.30-jcef (build 21.0.5+13-b509.30)
+OpenJDK 64-Bit Server VM JBR-21.0.5+13-509.30-jcef (build 21.0.5+13-b509.30, mixed mode)
+    
+[11:34:01]: Found following 21.0.5+13-b509.30 in the product: IC 242.26775.15
+[11:34:01]: Setting IDE system property: [jb.consents.confirmation.enabled=false]
+[11:34:01]: Setting IDE system property: [jb.privacy.policy.text=<!--999.999-->]
+[11:34:01]: Setting IDE system property: [jb.privacy.policy.ai.assistant.text=<!--999.999-->]
+[11:34:01]: Setting IDE system property: [writerside.eula.reviewed.and.accepted=true]
+[11:34:01]: Setting IDE system property: [ide.newUsersOnboarding=false]
+[11:34:01]: Setting IDE system property: [freeze.reporter.profiling=false]
+[11:34:01]: Setting IDE system property: [idea.fatal.error.notification=true]
+[11:34:01]: Setting IDE system property: [idea.is.integration.test=true]
+[11:34:01]: Setting IDE system property: [ide.performance.screenshot=heartbeat]
+[11:34:01]: Setting IDE system property: [idea.diagnostic.opentelemetry.metrics.max-files-to-keep=120]
+[11:34:01]: Setting IDE system property: [full.scanning.on.startup.can.be.skipped=false]
+[11:34:01]: No profiler is specified.
+[11:34:01]: Setting IDE system property: [snapshots.path=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/snapshots]
+[11:34:01]: Setting IDE system property: [java.rmi.server.hostname=127.0.0.1]
+[11:34:01]: Setting IDE system property: [com.sun.management.jmxremote=true]
+[11:34:01]: Setting IDE system property: [com.sun.management.jmxremote.port=7777]
+[11:34:01]: Setting IDE system property: [com.sun.management.jmxremote.authenticate=false]
+[11:34:01]: Setting IDE system property: [com.sun.management.jmxremote.ssl=false]
+[11:34:01]: Setting IDE system property: [com.sun.management.jmxremote.serial.filter.pattern='java.**;javax.**;com.intellij.driver.model.**']
+[11:34:01]: Setting IDE system property: [expose.ui.hierarchy.url=true]
+[11:34:01]: Setting IDE system property: [memory.snapshots.path=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/log]
+[11:34:01]: Setting IDE system property: [idea.diagnostic.opentelemetry.file=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/log/opentelemetry.json]
+[11:34:01]: Setting IDE system property: [idea.log.path=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/log]
+[11:34:01]: Setting IDE system property: [testscript.filename=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/system/editor-contract.text]
+[11:34:01]: Setting IDE system property: [testscript.must.exist.process.with.non.success.code.on.ide.error=true]
+[11:34:01]: Write vmoptions patch to /workspace/plugin/build/driver-distribution-18184494413189631324/idea.vmoptions
+[11:34:01]: Starting IDE for editor-contract with timeout 10m
+  VM Options: [VMOptions{ env={IDEA_VM_OPTIONS=/workspace/plugin/build/driver-distribution-18184494413189631324/idea.vmoptions} -Dij.load.shell.env=false -Dide.instant.shutdown=false -Dfeature.usage.event.log.send.on.ide.close=false -Dlinux.native.menu.force.disable=true -Djdk.gtk.verbose=true -Djdk.gtk.version=2 -Dvcs.log.index.enable=false -Dide.slow.operations.assertion=false -DintegrationTests.profiler=async -Didea.config.path=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/config -Didea.system.path=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/system -Didea.plugins.path=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/plugins -Didea.local.statistics.without.report=true -Didea.updates.url=http://127.0.0.1 -Dkotest.assertions.collection.enumerate.size=2147483647 -Didea.trust.all.projects=true -Dide.experimental.ui=true -Dide.native.launcher=true -Dide.show.tips.on.startup.default.value=false -Dsun.java2d.uiScale=1 -Dide.ui.scale=1 -Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Duser.language=en -Duser.country=US -Duser.timezone=UTC -Djb.consents.confirmation.enabled=false -Djb.privacy.policy.text=<!--999.999--> -Djb.privacy.policy.ai.assistant.text=<!--999.999--> -Dwriterside.eula.reviewed.and.accepted=true -Dide.newUsersOnboarding=false -Dfreeze.reporter.profiling=false -Didea.fatal.error.notification=true -Didea.is.integration.test=true -Dide.performance.screenshot=heartbeat -XX:ErrorFile=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/log/jvm-crash/java_error_in_idea_%p.log -XX:HeapDumpPath=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/log/heap-dump/heap-dump.hprof -Xlog:gc*:file=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/reports/gcLog.log -Didea.diagnostic.opentelemetry.metrics.max-files-to-keep=120 -Dfull.scanning.on.startup.can.be.skipped=false -Dsnapshots.path=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/snapshots -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.port=7777 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.serial.filter.pattern='java.**;javax.**;com.intellij.driver.model.**' -Dexpose.ui.hierarchy.url=true -Dmemory.snapshots.path=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/log -Didea.diagnostic.opentelemetry.file=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/log/opentelemetry.json -Didea.log.path=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/log -Dtestscript.filename=/workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/system/editor-contract.text -Dtestscript.must.exist.process.with.non.success.code.on.ide.error=true } // VMOptions ]
+  On Java : [/usr/lib/jvm/java-21-openjdk-amd64]
+
+[11:34:01]: Starting external process for `run-ide-editor-contract`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/bin/idea.sh /workspace/plugin/build/visual-test-project]
+  STDOUT will be redirected to: string. STDERR will be redirected to: stdout. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, SHLVL=1, IDEA_VM_OPTIONS=/workspace/plugin/build/driver-distribution-18184494413189631324/idea.vmoptions, GRADLE_USER_HOME=/cache/gradle, TZ=UTC, LC_ALL=en_US.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:34:01]:   ... started external process `run-ide-editor-contract` with process ID = 372
+[11:34:04]:   [ide-editor-contract-err] WARNING: the GTK 2 library is deprecated and its support will be removed in a future release
+[11:34:04]:   [ide-editor-contract-err] Looking for GTK3 library...
+[11:34:04]:   [ide-editor-contract-err] 
+[11:34:04]:   [ide-editor-contract-err] (process:372): Gtk-WARNING **: 11:34:04.820: Locale not supported by C library.
+[11:34:04]:   [ide-editor-contract-err] 	Using the fallback 'C' locale.
+[11:34:05]:   [ide-editor-contract-err] 
+[11:34:05]:   [ide-editor-contract-err] (java:372): dbind-WARNING **: 11:34:05.104: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+[11:34:05]:   [ide-editor-contract-err] GTK3 library loaded.
+[11:34:07]:   [ide-editor-contract-err] Warning: Not allowed as a service: java.awt.Window.CustomTitleBarPeer
+[11:34:07]:   [ide-editor-contract-err] 	at com.jetbrains.JBR$WindowDecorations__Holder.<clinit>(JBR.java:642)
+[11:34:07]:   [ide-editor-contract-err] 	at com.jetbrains.JBR.getWindowDecorations(JBR.java:662)
+[11:34:07]:   [ide-editor-contract-err] 	at com.intellij.platform.ide.bootstrap.StartupUtil$startApplication$3.invokeSuspend(startup.kt:171)
+[11:34:07]:   [ide-editor-contract-err] 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+[11:34:07]:   [ide-editor-contract-err] 	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+[11:34:07]:   [ide-editor-contract-err] 	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:608)
+[11:34:07]:   [ide-editor-contract-err] 	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:873)
+[11:34:07]:   [ide-editor-contract-err] 	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:763)
+[11:34:07]:   [ide-editor-contract-err] 	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:750)
+[11:34:07]:   [ide-editor-contract-err] Warning: Service not supported: com.jetbrains.WindowDecorations
+[11:34:07]:   [ide-editor-contract-err] 	at com.jetbrains.JBR$WindowDecorations__Holder.<clinit>(JBR.java:642)
+[11:34:07]:   [ide-editor-contract-err] 	at com.jetbrains.JBR.getWindowDecorations(JBR.java:662)
+[11:34:07]:   [ide-editor-contract-err] 	at com.intellij.platform.ide.bootstrap.StartupUtil$startApplication$3.invokeSuspend(startup.kt:171)
+[11:34:07]:   [ide-editor-contract-err] 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+[11:34:07]:   [ide-editor-contract-err] 	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+[11:34:07]:   [ide-editor-contract-err] 	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:608)
+[11:34:07]:   [ide-editor-contract-err] 	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:873)
+[11:34:07]:   [ide-editor-contract-err] 	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:763)
+[11:34:07]:   [ide-editor-contract-err] 	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:750)
+[11:34:08]:   [ide-editor-contract-err] 2026-10-08 11:34:08,485 [   4332]   WARN - #c.i.u.x.Binding - No accessors for com.intellij.platform.experiment.ab.impl.experiment.ABExperimentGroupStorage. This means that state class cannot be serialized properly. Please see https://jb.gg/ij-psoc
+[11:34:10]:   [ide-editor-contract-err] 2026-10-08 11:34:10,226 [   6073]   WARN - c.i.o.u.r.overrides - Conflicting registry key definition for key kotlin.mpp.tests.force.gradle: it was defined by plugin org.jetbrains.kotlin but redefined by plugin org.jetbrains.kotlin. Consider adding overrides="true" for one of the plugins, see the documentation for com.intellij.openapi.util.registry.RegistryKeyBean.overrides for more details.
+[11:34:11]:   [ide-editor-contract-err] 2026-10-08 11:34:11,666 [   7513]   WARN - #c.i.i.s.p.i.BundledSharedIndexProvider - Bundled shared index is not found at: /cache/gradle/caches/9.8.0/transforms/030f3d5bb2f5b98f44f1488e012241dd/transformed/ideaIC-2024.2.6/jdk-shared-indexes
+[11:34:11]: ?[35mUI Hierarchy: http://localhost:63342/api/remote-driver/?[0m
+[11:34:11]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:34:11]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:34:11]:   ... started external process `jcmd-run` with process ID = 483
+[11:34:12]:   [ide-editor-contract-err] Warning: Service not supported: com.jetbrains.WindowMove
+[11:34:12]:   [ide-editor-contract-err] 	at com.jetbrains.JBR$WindowMove__Holder.<clinit>(JBR.java:679)
+[11:34:12]:   [ide-editor-contract-err] 	at com.jetbrains.JBR.isWindowMoveSupported(JBR.java:689)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.wm.impl.IdeRootPane$Companion.getHideNativeLinuxTitleSupported$intellij_platform_ide_impl(IdeRootPane.kt:324)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.wm.impl.IdeRootPane$Companion.getHideNativeLinuxTitle(IdeRootPane.kt:319)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.wm.impl.IdeRootPane$Companion.isMenuButtonInToolbar(IdeRootPane.kt:313)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.wm.impl.IdeRootPane.<init>(IdeRootPane.kt:171)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.wm.impl.IdeRootPane.<init>(IdeRootPane.kt:70)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.wm.impl.ProjectFrameHelper.createIdeRootPane$intellij_platform_ide_impl(ProjectFrameHelper.kt:157)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.wm.impl.ProjectFrameHelper.<init>(ProjectFrameHelper.kt:85)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.project.impl.ProjectUiFrameAllocator$createFrameManager$4.invokeSuspend(ProjectFrameAllocator.kt:280)
+[11:34:12]:   [ide-editor-contract-err] 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+[11:34:12]:   [ide-editor-contract-err] 	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.application.impl.DispatchedRunnable.run(DispatchedRunnable.kt:44)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.application.TransactionGuardImpl.runWithWritingAllowed(TransactionGuardImpl.java:229)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.application.TransactionGuardImpl.access$100(TransactionGuardImpl.java:22)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.application.TransactionGuardImpl$2.run(TransactionGuardImpl.java:211)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.application.impl.AnyThreadWriteThreadingSupport.runWithImplicitRead(AnyThreadWriteThreadingSupport.kt:122)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.application.impl.ApplicationImpl.runWithImplicitRead(ApplicationImpl.java:1162)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.application.impl.FlushQueue.doRun(FlushQueue.java:78)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.application.impl.FlushQueue.runNextEvent(FlushQueue.java:119)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.application.impl.FlushQueue.flushNow(FlushQueue.java:41)
+[11:34:12]:   [ide-editor-contract-err] 	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318)
+[11:34:12]:   [ide-editor-contract-err] 	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:781)
+[11:34:12]:   [ide-editor-contract-err] 	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:728)
+[11:34:12]:   [ide-editor-contract-err] 	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:722)
+[11:34:12]:   [ide-editor-contract-err] 	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+[11:34:12]:   [ide-editor-contract-err] 	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:87)
+[11:34:12]:   [ide-editor-contract-err] 	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:750)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.ide.IdeEventQueue.defaultDispatchEvent(IdeEventQueue.kt:696)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.ide.IdeEventQueue._dispatchEvent$lambda$16(IdeEventQueue.kt:590)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.application.impl.AnyThreadWriteThreadingSupport.runWithoutImplicitRead(AnyThreadWriteThreadingSupport.kt:117)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.ide.IdeEventQueue._dispatchEvent(IdeEventQueue.kt:590)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.ide.IdeEventQueue.access$_dispatchEvent(IdeEventQueue.kt:73)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1$1$1.compute(IdeEventQueue.kt:357)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1$1$1.compute(IdeEventQueue.kt:356)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.progress.impl.CoreProgressManager.computePrioritized(CoreProgressManager.java:843)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1$1.invoke(IdeEventQueue.kt:356)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1$1.invoke(IdeEventQueue.kt:351)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.ide.IdeEventQueueKt$performActivity$runnableWithWIL$1.invoke$lambda$0(IdeEventQueue.kt:1035)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.application.WriteIntentReadAction.lambda$run$0(WriteIntentReadAction.java:24)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.application.impl.AnyThreadWriteThreadingSupport.runWriteIntentReadAction(AnyThreadWriteThreadingSupport.kt:84)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.application.impl.ApplicationImpl.runWriteIntentReadAction(ApplicationImpl.java:910)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.application.WriteIntentReadAction.compute(WriteIntentReadAction.java:55)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.application.WriteIntentReadAction.run(WriteIntentReadAction.java:23)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.ide.IdeEventQueueKt$performActivity$runnableWithWIL$1.invoke(IdeEventQueue.kt:1035)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.ide.IdeEventQueueKt$performActivity$runnableWithWIL$1.invoke(IdeEventQueue.kt:1035)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.ide.IdeEventQueueKt.performActivity$lambda$1(IdeEventQueue.kt:1036)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.openapi.application.TransactionGuardImpl.performActivity(TransactionGuardImpl.java:106)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.ide.IdeEventQueueKt.performActivity(IdeEventQueue.kt:1036)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$10(IdeEventQueue.kt:351)
+[11:34:12]:   [ide-editor-contract-err] 	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:397)
+[11:34:12]:   [ide-editor-contract-err] 	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207)
+[11:34:12]:   [ide-editor-contract-err] 	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128)
+[11:34:12]:   [ide-editor-contract-err] 	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:117)
+[11:34:12]:   [ide-editor-contract-err] 	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:113)
+[11:34:12]:   [ide-editor-contract-err] 	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:105)
+[11:34:12]:   [ide-editor-contract-err] 	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:92)
+[11:34:13]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:34:13]: List all java processes IDs:
+[11:34:13]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:34:13]: 483 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:34:13]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:34:13]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:34:13]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:34:13]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:34:16]:   [ide-editor-contract-err] 2026-10-08 11:34:16,031 [  11878]   WARN - #c.i.s.ComponentManagerImpl - `preload=NOT_HEADLESS` must be used only for core services (service=org.jetbrains.kotlin.idea.search.refIndex.KotlinCompilerReferenceIndexService, plugin=org.jetbrains.kotlin)
+[11:34:16]:   [ide-editor-contract-err] 2026-10-08 11:34:16,044 [  11891]   WARN - #c.i.s.ComponentManagerImpl - `preload=TRUE` must be used only for core services (service=org.jetbrains.idea.maven.project.MavenProjectsManagerEx, plugin=org.jetbrains.idea.maven)
+[11:34:16]:   [ide-editor-contract-err] 2026-10-08 11:34:16,053 [  11900]   WARN - #c.i.s.ComponentManagerImpl - `preload=TRUE` must be used only for core services (service=org.jetbrains.idea.maven.navigator.MavenProjectsNavigator, plugin=org.jetbrains.idea.maven)
+[11:34:16]:   [ide-editor-contract-err] 2026-10-08 11:34:16,054 [  11901]   WARN - #c.i.s.ComponentManagerImpl - `preload=TRUE` must be used only for core services (service=org.jetbrains.idea.maven.tasks.MavenShortcutsManager, plugin=org.jetbrains.idea.maven)
+[11:34:16]:   [ide-editor-contract-err] 2026-10-08 11:34:16,063 [  11910]   WARN - #c.i.s.ComponentManagerImpl - `preload=NOT_HEADLESS` must be used only for core services (service=com.jetbrains.rdserver.toolWindow.BackendServerToolWindowManager, plugin=com.jetbrains.codeWithMe)
+[11:34:16]:   [ide-editor-contract-err] 2026-10-08 11:34:16,064 [  11911]   WARN - #c.i.s.ComponentManagerImpl - `preload=TRUE` must be used only for core services (service=com.intellij.cwm.plugin.users.BackendUserManager, plugin=com.jetbrains.codeWithMe)
+[11:34:16]:   [ide-editor-contract-err] 2026-10-08 11:34:16,065 [  11912]   WARN - #c.i.s.ComponentManagerImpl - `preload=TRUE` must be used only for core services (service=com.intellij.cwm.plugin.ports.CwmPortForwardingToolWindowManager, plugin=com.jetbrains.codeWithMe)
+[11:34:16]:   [ide-editor-contract-err] 2026-10-08 11:34:16,065 [  11912]   WARN - #c.i.s.ComponentManagerImpl - `preload=TRUE` must be used only for core services (service=com.intellij.cwm.plugin.users.BackendCWMUserFocusHost, plugin=com.jetbrains.codeWithMe)
+[11:34:16]:   [ide-editor-contract-err] 2026-10-08 11:34:16,066 [  11913]   WARN - #c.i.s.ComponentManagerImpl - `preload=TRUE` must be used only for core services (service=com.intellij.cwm.plugin.following.FollowMeManagerService, plugin=com.jetbrains.codeWithMe)
+[11:34:16]:   [ide-editor-contract-err] 2026-10-08 11:34:16,066 [  11913]   WARN - #c.i.s.ComponentManagerImpl - `preload=TRUE` must be used only for core services (service=com.intellij.cwm.plugin.following.BackendProjectViewSync, plugin=com.jetbrains.codeWithMe)
+[11:34:16]:   [ide-editor-contract-err] 2026-10-08 11:34:16,066 [  11913]   WARN - #c.i.s.ComponentManagerImpl - `preload=TRUE` must be used only for core services (service=com.intellij.cwm.plugin.following.BackendFollowMeEditorsHost, plugin=com.jetbrains.codeWithMe)
+[11:34:16]:   [ide-editor-contract-err] 2026-10-08 11:34:16,066 [  11913]   WARN - #c.i.s.ComponentManagerImpl - `preload=TRUE` must be used only for core services (service=com.intellij.cwm.plugin.following.BackendFollowMeDebuggerHost, plugin=com.jetbrains.codeWithMe)
+[11:34:16]:   [ide-editor-contract-err] 2026-10-08 11:34:16,066 [  11913]   WARN - #c.i.s.ComponentManagerImpl - `preload=TRUE` must be used only for core services (service=com.intellij.cwm.plugin.following.FollowMeLookupSynchronizer, plugin=com.jetbrains.codeWithMe)
+[11:34:16]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:34:16]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:34:16]:   ... started external process `jcmd-run` with process ID = 513
+[11:34:17]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:34:17]: List all java processes IDs:
+[11:34:17]: 513 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:34:17]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:34:17]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:34:17]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:34:17]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:34:17]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:34:19]:   [ide-editor-contract-err] 2026-10-08 11:34:19,049 [  14896]   WARN - java.util.prefs - Prefs file removed in background /root/.java/.userPrefs/prefs.xml
+[11:34:20]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:34:20]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:34:20]:   ... started external process `jcmd-run` with process ID = 549
+[11:34:21]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:34:21]: List all java processes IDs:
+[11:34:21]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:34:21]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:34:21]: 549 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:34:21]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:34:21]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:34:21]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:34:24]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:34:24]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:34:24]:   ... started external process `jcmd-run` with process ID = 577
+[11:34:26]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:34:26]: List all java processes IDs:
+[11:34:26]: 577 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:34:26]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:34:26]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:34:26]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:34:26]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:34:26]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:34:28]:   [ide-editor-contract-err] 2026-10-08 11:34:28,922 [  24769]   WARN - #c.i.o.a.i.ActionUpdater - 6479 ms total to grab EDT 5 times to expand ToolWindowHeader$2#expandGroup@ToolwindowTitle (com.intellij.toolWindow.ToolWindowHeader$2). Use `ActionUpdateThread.BGT`.
+[11:34:29]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:34:29]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:34:29]:   ... started external process `jcmd-run` with process ID = 605
+[11:34:31]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:34:31]: List all java processes IDs:
+[11:34:31]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:34:31]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:34:31]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:34:31]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:34:31]: 605 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:34:31]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:34:34]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:34:34]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:34:34]:   ... started external process `jcmd-run` with process ID = 630
+[11:34:35]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:34:35]: List all java processes IDs:
+[11:34:35]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:34:35]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:34:35]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:34:35]: 630 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:34:35]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:34:35]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:34:38]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:34:38]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:34:38]:   ... started external process `jcmd-run` with process ID = 709
+[11:34:39]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:34:39]: List all java processes IDs:
+[11:34:39]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:34:39]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:34:39]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:34:39]: 709 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:34:39]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:34:39]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:34:42]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:34:42]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:34:42]:   ... started external process `jcmd-run` with process ID = 735
+[11:34:43]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:34:43]: List all java processes IDs:
+[11:34:43]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:34:43]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:34:43]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:34:43]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:34:43]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:34:43]: 735 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:34:46]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:34:46]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:34:46]:   ... started external process `jcmd-run` with process ID = 772
+[11:34:48]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:34:48]: List all java processes IDs:
+[11:34:48]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:34:48]: 772 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:34:48]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:34:48]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:34:48]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:34:48]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:34:51]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:34:51]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:34:51]:   ... started external process `jcmd-run` with process ID = 799
+[11:34:52]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:34:52]: List all java processes IDs:
+[11:34:52]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:34:52]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:34:52]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:34:52]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:34:52]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:34:52]: 799 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:34:52]:   [ide-editor-contract-err] 2026-10-08 11:34:52,600 [  48447]   WARN - #c.i.o.a.i.ActionUpdater - 8852 ms to call on BGT ExecutorRegistryImpl$ExecutorAction#presentation@NewUiRunToolbar (com.intellij.execution.ExecutorRegistryImpl$ExecutorAction(id=Debug))
+[11:34:52]:   [ide-editor-contract-err] 2026-10-08 11:34:52,599 [  48446]   WARN - #c.i.o.a.i.ActionUpdater - 8936 ms to call on BGT ExecutorRegistryImpl$ExecutorAction#presentation@NewUiRunToolbar (com.intellij.execution.ExecutorRegistryImpl$ExecutorAction(id=Run))
+[11:34:53]:   [ide-editor-contract-err] 2026-10-08 11:34:53,417 [  49264]   WARN - #c.j.p.c.WaitForFinishedCodeAnalysis - Print Analyzer status failed
+[11:34:55]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:34:55]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:34:55]:   ... started external process `jcmd-run` with process ID = 823
+[11:34:56]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:34:56]: List all java processes IDs:
+[11:34:56]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:34:56]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:34:56]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:34:56]: 823 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:34:56]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:34:56]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:34:59]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:34:59]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:34:59]:   ... started external process `jcmd-run` with process ID = 848
+[11:35:00]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:35:00]: List all java processes IDs:
+[11:35:00]: 848 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:35:00]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:35:00]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:35:00]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:35:00]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:35:00]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:35:03]:   [ide-editor-contract-err] 2026-10-08 11:35:03,103 [  58950]   WARN - #c.j.p.c.WaitForFinishedCodeAnalysis - Print Analyzer status failed
+[11:35:03]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:35:03]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:35:03]:   ... started external process `jcmd-run` with process ID = 874
+[11:35:04]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:35:04]: List all java processes IDs:
+[11:35:04]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:35:04]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:35:04]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:35:04]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:35:04]: 874 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:35:04]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:35:07]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:35:07]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:35:07]:   ... started external process `jcmd-run` with process ID = 899
+[11:35:08]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:35:08]: List all java processes IDs:
+[11:35:08]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:35:08]: 899 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:35:08]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:35:08]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:35:08]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:35:08]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:35:11]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:35:11]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:35:11]:   ... started external process `jcmd-run` with process ID = 926
+[11:35:12]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:35:12]: List all java processes IDs:
+[11:35:12]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:35:12]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:35:12]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:35:12]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:35:12]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:35:12]: 926 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:35:15]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:35:15]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:35:15]:   ... started external process `jcmd-run` with process ID = 955
+[11:35:17]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:35:17]: List all java processes IDs:
+[11:35:17]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:35:17]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:35:17]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:35:17]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:35:17]: 955 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:35:17]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:35:18]:   [ide-editor-contract-err] 2026-10-08 11:35:18,024 [  73871]   WARN - #c.j.p.c.TakeScreenshotCommand - Screenshot saved to:
+[11:35:18]:   [ide-editor-contract-err] file:///workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/log/screenshots/heartbeat/frame0.png
+[11:35:18]:   [ide-editor-contract-err] 2026-10-08 11:35:18,618 [  74465]   WARN - #c.j.p.c.TakeScreenshotCommand - Screenshot saved to:
+[11:35:18]:   [ide-editor-contract-err] file:///workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/log/screenshots/heartbeat/frame1.png
+[11:35:20]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:35:20]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:35:20]:   ... started external process `jcmd-run` with process ID = 980
+[11:35:21]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:35:21]: List all java processes IDs:
+[11:35:21]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:35:21]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:35:21]: 980 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:35:21]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:35:21]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:35:21]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:35:24]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:35:24]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:35:24]:   ... started external process `jcmd-run` with process ID = 1005
+[11:35:25]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:35:25]: List all java processes IDs:
+[11:35:25]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:35:25]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:35:25]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:35:25]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:35:25]: 1005 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:35:25]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:35:28]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:35:28]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:35:28]:   ... started external process `jcmd-run` with process ID = 1030
+[11:35:29]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:35:29]: List all java processes IDs:
+[11:35:29]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:35:29]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:35:29]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:35:29]: 1030 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:35:29]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:35:29]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:35:32]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:35:32]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:35:32]:   ... started external process `jcmd-run` with process ID = 1055
+[11:35:33]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:35:33]: List all java processes IDs:
+[11:35:33]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:35:33]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:35:33]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:35:33]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:35:33]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:35:33]: 1055 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:35:36]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:35:36]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:35:36]:   ... started external process `jcmd-run` with process ID = 1084
+[11:35:37]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:35:37]: List all java processes IDs:
+[11:35:37]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:35:37]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:35:37]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:35:37]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:35:37]: 1084 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:35:37]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:35:40]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:35:40]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:35:40]:   ... started external process `jcmd-run` with process ID = 1108
+[11:35:41]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:35:41]: List all java processes IDs:
+[11:35:41]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:35:41]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:35:41]: 1108 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:35:41]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:35:41]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:35:41]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:35:44]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:35:44]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:35:44]:   ... started external process `jcmd-run` with process ID = 1134
+[11:35:45]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:35:45]: List all java processes IDs:
+[11:35:45]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:35:45]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:35:45]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:35:45]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:35:45]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:35:45]: 1134 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:35:48]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:35:48]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:35:48]:   ... started external process `jcmd-run` with process ID = 1158
+[11:35:50]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:35:50]: List all java processes IDs:
+[11:35:50]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:35:50]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:35:50]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:35:50]: 1158 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:35:50]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:35:50]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:35:53]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:35:53]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:35:53]:   ... started external process `jcmd-run` with process ID = 1185
+[11:35:54]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:35:54]: List all java processes IDs:
+[11:35:54]: 1185 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:35:54]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:35:54]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:35:54]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:35:54]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:35:54]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:35:57]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:35:57]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:35:57]:   ... started external process `jcmd-run` with process ID = 1217
+[11:35:58]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:35:58]: List all java processes IDs:
+[11:35:58]: 1217 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:35:58]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:35:58]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:35:58]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:35:58]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:35:58]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:36:01]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:36:01]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:36:01]:   ... started external process `jcmd-run` with process ID = 1241
+[11:36:02]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:36:02]: List all java processes IDs:
+[11:36:02]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:36:02]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:36:02]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:36:02]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:36:02]: 1241 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:36:02]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:36:04]:   [ide-editor-contract-err] 2026-10-08 11:36:04,412 [ 120259]   WARN - #c.i.o.o.e.ConfigurableExtensionPointUtil - ignore deprecated groupId: language for id: preferences.language.Kotlin.scripting
+[11:36:05]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:36:05]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:36:05]:   ... started external process `jcmd-run` with process ID = 1265
+[11:36:06]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:36:06]: List all java processes IDs:
+[11:36:06]: 1265 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:36:06]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:36:06]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:36:06]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:36:06]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:36:06]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:36:09]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:36:09]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:36:09]:   ... started external process `jcmd-run` with process ID = 1297
+[11:36:10]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:36:10]: List all java processes IDs:
+[11:36:10]: 1297 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:36:10]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:36:10]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:36:10]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:36:10]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:36:10]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:36:13]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:36:13]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:36:13]:   ... started external process `jcmd-run` with process ID = 1330
+[11:36:14]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:36:14]: List all java processes IDs:
+[11:36:14]: 1330 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:36:14]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:36:14]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:36:14]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:36:14]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:36:14]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:36:17]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:36:17]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:36:17]:   ... started external process `jcmd-run` with process ID = 1355
+[11:36:18]:   [ide-editor-contract-err] 2026-10-08 11:36:18,465 [ 134312]   WARN - #c.i.u.x.Binding - No accessors for org.jetbrains.kotlin.cli.common.arguments.InternalArgument. This means that state class cannot be serialized properly. Please see https://jb.gg/ij-psoc
+[11:36:18]:   [ide-editor-contract-err] 2026-10-08 11:36:18,659 [ 134506]   WARN - #c.j.p.c.TakeScreenshotCommand - Screenshot saved to:
+[11:36:18]:   [ide-editor-contract-err] file:///workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/log/screenshots/heartbeat_1/frame0.png
+[11:36:19]:   [ide-editor-contract-err] 2026-10-08 11:36:19,034 [ 134881]   WARN - #c.j.p.c.TakeScreenshotCommand - Screenshot saved to:
+[11:36:19]:   [ide-editor-contract-err] file:///workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/log/screenshots/heartbeat_1/frame1.png
+[11:36:19]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:36:19]: List all java processes IDs:
+[11:36:19]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:36:19]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:36:19]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:36:19]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:36:19]: 1355 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:36:19]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:36:19]:   [ide-editor-contract-err] 2026-10-08 11:36:19,341 [ 135188]   WARN - #c.j.p.c.TakeScreenshotCommand - Screenshot saved to:
+[11:36:19]:   [ide-editor-contract-err] file:///workspace/plugin/out/perf-startup/tests/IC-242.26775.15/editor-contract/log/screenshots/heartbeat_1/dialog0.png
+[11:36:22]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:36:22]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:36:22]:   ... started external process `jcmd-run` with process ID = 1380
+[11:36:23]:   ... successfully finished external process for `jcmd-run` with exit code 0
+[11:36:23]: List all java processes IDs:
+[11:36:23]: 51 /workspace/gradle/wrapper/gradle-wrapper.jar --no-daemon --no-watch-fs --max-workers=2 --no-configuration-cache :plugin:visualTest --console=plain --stacktrace
+[11:36:23]: 1380 jdk.jcmd/sun.tools.jcmd.JCmd
+[11:36:23]: 372 com.intellij.idea.Main /workspace/plugin/build/visual-test-project
+[11:36:23]: 85 org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+[11:36:23]: 297 worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+[11:36:23]: 222 org.jetbrains.kotlin.daemon.KotlinCompileDaemon --daemon-runFilesPath /root/.kotlin/daemon --daemon-autoshutdownIdleSeconds=7200 --daemon-compilerClasspath /cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-compat/2.3.21/d96ec659bcf373765197eddfcf19995bfeed9896/kotlin-build-tools-compat-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-impl/2.3.21/c6c11fd63ff15677c11f14dbdbad624f8d8dbf04/kotlin-build-tools-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/2.3.21/7a050c09910ee587944bc2a7413e2d97d751f647/kotlin-tooling-core-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-cri-impl/2.3.21/15fb91d42e1985323b900ed0e0c24e70e601387a/kotlin-build-tools-cri-impl-2.3.21.jar:/cache/gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.3.21/9b0a49a4d4c570c63a3a2553816bf0539536ab69/kotlin-build-tools-api-2.3.21.jar:/cache/gradle/caches/
+[11:36:25]:   ... successfully finished external process for `run-ide-editor-contract` with exit code 0
+[11:36:25]: IDE run editor-contract completed in 2m 23.883867733s
+[11:36:25]: VMOptions were changed:
+[11:36:25]: new lines:
+[11:36:25]:   -Xmx2048m
+[11:36:25]: removed lines:
+
+[11:36:25]: Run VM options validation
+[11:36:25]: Finished VM options validation
+[11:36:25]: Successfully finished publishArtifacts run for editor-contract
+[11:36:25]: IDEStartResult(runContext=IDERunContext(testContext=com.intellij.ide.starter.ide.IDETestContext@404db674, commandLine=fun openTestCaseProject(com.intellij.ide.starter.runner.IDERunContext): com.intellij.ide.starter.runner.IDECommandLine, commands=com.intellij.tools.ide.performanceTesting.commands.CommandChain@2b316e8a, runTimeout=10m, useStartupScript=true, verboseOutput=false, launchName=, expectedKill=false, expectedExitCode=0, collectNativeThreads=false), executionTime=2m 23.883867733s, vmOptionsDiff=VMOptionsDiff(newLines=[-Xmx2048m], missingLines=[]), failureError=null, clientResult=null)
+[11:36:25]: IDERunContext(testContext=com.intellij.ide.starter.ide.IDETestContext@404db674, commandLine=fun openTestCaseProject(com.intellij.ide.starter.runner.IDERunContext): com.intellij.ide.starter.runner.IDECommandLine, commands=com.intellij.tools.ide.performanceTesting.commands.CommandChain@2b316e8a, runTimeout=10m, useStartupScript=true, verboseOutput=false, launchName=, expectedKill=false, expectedExitCode=0, collectNativeThreads=false)
+[11:36:26]: Guessing java process ID on Linux (pid of the java process wrapper - 372)
+[11:36:26]: Starting external process for `jcmd-run`
+  Working directory: /workspace/plugin/build/driver-distribution-18184494413189631324/idea
+  Arguments: [/workspace/plugin/build/driver-distribution-18184494413189631324/idea/jbr/bin/jcmd]
+  STDOUT will be redirected to: string. STDERR will be redirected to: string. STDIN is empty: true
+  Environment variables: [VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1, DEBIAN_FRONTEND=noninteractive, XAUTHORITY=/tmp/xvfb-run.5cRMC7/Xauthority, SHLVL=1, GRADLE_USER_HOME=/cache/gradle, JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, TZ=UTC, LC_ALL=C.UTF-8, HOME=/root, DISPLAY=:99, OLDPWD=/workspace, PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, PWD=/workspace, _=/usr/bin/xvfb-run, LANG=C.UTF-8, HOSTNAME=0daba2d24909]
+
+[11:36:26]:   ... started external process `jcmd-run` with process ID = 1411
+[11:36:26]: TestCleanupListener triggered on execution finished for `geometryRepairAndDisableMatchReviewedBaselines()`
+]]></system-out>
+  <system-err><![CDATA[[11:34:00]: There is a problem in detecting git repo root. Trying to acquire working dir path: '/workspace/plugin'
+[11:34:13]: Couldn't find appropriate java process id for pid 372
+[11:34:13]: Retrying in 3s ...
+[11:34:17]: Couldn't find appropriate java process id for pid 372
+[11:34:17]: Retrying in 3s ...
+[11:34:21]: Couldn't find appropriate java process id for pid 372
+[11:34:21]: Retrying in 3s ...
+[11:34:26]: Couldn't find appropriate java process id for pid 372
+[11:34:26]: Retrying in 3s ...
+[11:34:31]: Couldn't find appropriate java process id for pid 372
+[11:34:31]: Retrying in 3s ...
+[11:34:35]: Couldn't find appropriate java process id for pid 372
+[11:34:35]: Retrying in 3s ...
+[11:34:39]: Couldn't find appropriate java process id for pid 372
+[11:34:39]: Retrying in 3s ...
+[11:34:43]: Couldn't find appropriate java process id for pid 372
+[11:34:43]: Retrying in 3s ...
+[11:34:48]: Couldn't find appropriate java process id for pid 372
+[11:34:48]: Retrying in 3s ...
+[11:34:52]: Couldn't find appropriate java process id for pid 372
+[11:34:52]: Retrying in 3s ...
+[11:34:56]: Couldn't find appropriate java process id for pid 372
+[11:34:56]: Retrying in 3s ...
+[11:35:00]: Couldn't find appropriate java process id for pid 372
+[11:35:00]: Retrying in 3s ...
+[11:35:04]: Couldn't find appropriate java process id for pid 372
+[11:35:04]: Retrying in 3s ...
+[11:35:08]: Couldn't find appropriate java process id for pid 372
+[11:35:08]: Retrying in 3s ...
+[11:35:12]: Couldn't find appropriate java process id for pid 372
+[11:35:12]: Retrying in 3s ...
+[11:35:17]: Couldn't find appropriate java process id for pid 372
+[11:35:17]: Retrying in 3s ...
+[11:35:21]: Couldn't find appropriate java process id for pid 372
+[11:35:21]: Retrying in 3s ...
+[11:35:25]: Couldn't find appropriate java process id for pid 372
+[11:35:25]: Retrying in 3s ...
+[11:35:29]: Couldn't find appropriate java process id for pid 372
+[11:35:29]: Retrying in 3s ...
+[11:35:33]: Couldn't find appropriate java process id for pid 372
+[11:35:33]: Retrying in 3s ...
+[11:35:37]: Couldn't find appropriate java process id for pid 372
+[11:35:37]: Retrying in 3s ...
+[11:35:41]: Couldn't find appropriate java process id for pid 372
+[11:35:41]: Retrying in 3s ...
+[11:35:45]: Couldn't find appropriate java process id for pid 372
+[11:35:45]: Retrying in 3s ...
+[11:35:50]: Couldn't find appropriate java process id for pid 372
+[11:35:50]: Retrying in 3s ...
+[11:35:54]: Couldn't find appropriate java process id for pid 372
+[11:35:54]: Retrying in 3s ...
+[11:35:58]: Couldn't find appropriate java process id for pid 372
+[11:35:58]: Retrying in 3s ...
+[11:36:02]: Couldn't find appropriate java process id for pid 372
+[11:36:02]: Retrying in 3s ...
+[11:36:06]: Couldn't find appropriate java process id for pid 372
+[11:36:06]: Retrying in 3s ...
+[11:36:10]: Couldn't find appropriate java process id for pid 372
+[11:36:10]: Retrying in 3s ...
+[11:36:14]: Couldn't find appropriate java process id for pid 372
+[11:36:14]: Retrying in 3s ...
+[11:36:19]: Couldn't find appropriate java process id for pid 372
+[11:36:19]: Retrying in 3s ...
+[11:36:23]: Couldn't find appropriate java process id for pid 372
+[11:36:23]: Retrying in 3s ...
+[11:36:25]: No logic for publishing artifacts has been implemented.
+If you want to publish artifacts somewhere (e.g. in CI build) - implement [CIServer] interface and register it via KodeinDI as specified in Readme.
+[11:36:25]: No logic for publishing artifacts has been implemented.
+If you want to publish artifacts somewhere (e.g. in CI build) - implement [CIServer] interface and register it via KodeinDI as specified in Readme.
+[11:36:25]: No logic for publishing artifacts has been implemented.
+If you want to publish artifacts somewhere (e.g. in CI build) - implement [CIServer] interface and register it via KodeinDI as specified in Readme.
+[11:36:25]: No logic for publishing artifacts has been implemented.
+If you want to publish artifacts somewhere (e.g. in CI build) - implement [CIServer] interface and register it via KodeinDI as specified in Readme.
+Oct 08, 2026 11:36:25 AM io.qameta.allure.AllureLifecycle prepareAttachment
+SEVERE: Could not add attachment: no test is running
+Oct 08, 2026 11:36:25 AM io.qameta.allure.AllureLifecycle prepareAttachment
+SEVERE: Could not add attachment: no test is running
+Oct 08, 2026 11:36:25 AM io.qameta.allure.AllureLifecycle prepareAttachment
+SEVERE: Could not add attachment: no test is running
+Oct 08, 2026 11:36:25 AM io.qameta.allure.AllureLifecycle prepareAttachment
+SEVERE: Could not add attachment: no test is running
+Oct 08, 2026 11:36:25 AM io.qameta.allure.AllureLifecycle prepareAttachment
+SEVERE: Could not add attachment: no test is running
+]]></system-err>
+</testsuite>

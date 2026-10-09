@@ -1,0 +1,55 @@
+{
+  "recordedUtc": "2026-10-08T11:24:58.142938+00:00",
+  "reviewer": "main agent, direct old/new image inspection plus actual SDK markup diagnostics",
+  "decision": "Correct three earlier oracles using unchanged baseline production under fully settled same Driver conditions. Not an acceptance of candidate-only output.",
+  "independentEvidence": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/driver/baseline-counterfactual-01/cross-production-comparison.json",
+  "baselineProduction": "072533fa3e223d53f937a15d50fe8637add8b2cb",
+  "all12CrossProductionByteEqual": true,
+  "remaining9OracleBytesUnchanged": true,
+  "semanticReview": [
+    "native brace caret has no perform identifier target; both implementations have no lingering usage backgrounds",
+    "unmanaged actual matched braces2 versus managed0 remains visible and verified",
+    "after indentation edit, actual native IndentGuideRenderer bounds update47..91 to47..103; twenty gray pixels belong to retained regular indent guide",
+    "plugin edited active guide remains column10 with matching actual baseline and candidate pixels"
+  ],
+  "updates": [
+    {
+      "name": "native-visuals-unmanaged",
+      "previousSha256": "a19675ac9d4aeb1f44308259fd56c2f6975d2cd684cf9f57727ba9e85b062a2e",
+      "acceptedBaselineProductionSha256": "d65f06888f934e156b19f17fdcf480a5f711eb62132cedfe7c1721f1df403306",
+      "candidateIndependentExactSha256": "d65f06888f934e156b19f17fdcf480a5f711eb62132cedfe7c1721f1df403306",
+      "changedArgbPixels": 2218
+    },
+    {
+      "name": "native-highlight-suppressed",
+      "previousSha256": "c0b1a94289d81c50b2a037c0d4ec27ab590ac95627b80d2bf2905d93e38ec17e",
+      "acceptedBaselineProductionSha256": "7740876545161bdd4630e5b0e376aff889009406a11694600184a84380a7476c",
+      "candidateIndependentExactSha256": "7740876545161bdd4630e5b0e376aff889009406a11694600184a84380a7476c",
+      "changedArgbPixels": 2218
+    },
+    {
+      "name": "edited-geometry",
+      "previousSha256": "050fca89e82ac09e4a07476b08a651cd3982d7ad1eed91d5e5ea9b8a613e4e67",
+      "acceptedBaselineProductionSha256": "ed7b7b0ae4f2e0b043f6afca47a74e5951ff74f50e8d12ad737184672e31c4b1",
+      "candidateIndependentExactSha256": "ed7b7b0ae4f2e0b043f6afca47a74e5951ff74f50e8d12ad737184672e31c4b1",
+      "changedArgbPixels": 20
+    }
+  ],
+  "unchanged": [
+    "all12scenarios and functional assertions",
+    "exact ARGB equality and dimensions",
+    "crop,font,IDE,JBR,display,locale",
+    "30second capture limit,250ms polls,two identical captures",
+    "production code"
+  ],
+  "retainedFailures": [
+    "compare07",
+    "compare09",
+    "compare10"
+  ],
+  "pending": [],
+  "followupEvidence": {
+    "positive": "../compare-11/verification.json",
+    "negative": "../mutation-08/verification.json"
+  }
+}

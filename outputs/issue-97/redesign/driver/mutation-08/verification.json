@@ -1,0 +1,36 @@
+{
+  "expectedNegativeVerified": true,
+  "gradleExit": 1,
+  "test": {
+    "name": "com.sijunyang.bracketpairguides.visual.EditorVisualContractTest",
+    "tests": "1",
+    "skipped": "0",
+    "failures": "1",
+    "errors": "0",
+    "timestamp": "2026-10-08T11:33:58.974Z",
+    "hostname": "0daba2d24909",
+    "time": "147.734"
+  },
+  "failure": "org.opentest4j.AssertionFailedError: Missing/mismatched reviewed baseline: [horizontal-only, vertical-only, all-components, bracket-colorization-off, native-visuals-unmanaged, native-highlight-suppressed, default-palette, custom-palette, edited-geometry]; actual images: /workspace/plugin/build/visual-test-artifacts ==> expected: <true> but was: <false>",
+  "classification": "only final exact-pixel oracle failed after all functional assertions and14capturetransports; not compile/startup/timeout failure",
+  "changedPixels": {
+    "all-components": 108,
+    "bracket-colorization-off": 108,
+    "custom-palette": 330,
+    "default-palette": 330,
+    "edited-geometry": 92,
+    "horizontal-only": 89,
+    "native-highlight-suppressed": 108,
+    "native-visuals-unmanaged": 108,
+    "pair-background-only": 0,
+    "pair-border-only": 0,
+    "plugin-disabled": 0,
+    "vertical-only": 22
+  },
+  "originalProductionSha256": "5ad38de911dfab4fe121245958ffbc4b4ce7282d507197f851a0ba181ff6fb97",
+  "mutatedCopySha256": "b0e06b248aff4f5c8d36d3bfde68747b98bad102cc80d582b1151aba17e6265c",
+  "actualWorktreeProductionUnchanged": true,
+  "sourceManifestSha256": "9d2af2e3ebd59bb709f10776165fc8b16fd69ba14ed247e11a2a025cfb002e68",
+  "xmlSha256": "0665c6a1738c7c51426c72438ddcc9b19c9ba8e08202aa12e36fd1efb50ead75",
+  "mutationOnlyInDisposableDockerWorkspace": true
+}

@@ -1,0 +1,28 @@
+import groovy.json.JsonOutput
+
+gradle.projectsEvaluated {
+    def props = System.properties.findAll { key, value -> key == 'issue93.measure' || key.toString().startsWith('issue93.measure.') }
+    gradle.rootProject.project(':plugin').tasks.withType(org.gradle.api.tasks.testing.Test).configureEach {
+        systemProperties(props)
+        doFirst { task ->
+            // One record before the forked test JVM starts, outside measured fixture intervals.
+            def safeJvmArgs = task.allJvmArgs.findAll { argument ->
+                def optionName = argument.startsWith('-D') ? argument.substring(2).split('=', 2)[0] : argument
+                !(optionName.toLowerCase(Locale.ROOT) =~ /password|passwd|secret|credential|auth.?token|access.?token|api.?key/)
+            }
+            def launcher = task.javaLauncher.get()
+            logger.lifecycle('ISSUE97_VERIFIED_TEST_JVM ' + JsonOutput.toJson([
+                schema: 1,
+                task: task.path,
+                javaLauncherExecutable: launcher.executablePath.asFile.absolutePath,
+                javaVersion: launcher.metadata.javaRuntimeVersion,
+                javaVendor: launcher.metadata.vendor,
+                minHeapSize: task.minHeapSize,
+                maxHeapSize: task.maxHeapSize,
+                allJvmArgs: safeJvmArgs,
+                omittedSensitiveOptionCount: task.allJvmArgs.size() - safeJvmArgs.size(),
+                scope: 'actual Gradle Test task launcher and non-sensitive JVM options; once before measured fixture work',
+            ]))
+        }
+    }
+}

@@ -1,0 +1,9 @@
+{
+  "authorization": "로컬 CI 설정 반영만 승인",
+  "scope": "Install exactly reviewed proposal as local workflow configuration only; no project lookup, remote jobs, uploads, push or PR action authorized",
+  "approvedProposalSha256": "d88f33deca43626231b23bd1d094ed4b10cf83924174a1567c877888362d50bf",
+  "installedWorkflowSha256": "567d4e805eedb9778aa634243d7061424c802d98faf679d0d12711051e4aa44a",
+  "contentDifference": "Removed the first review-only comment line; YAML policy unchanged",
+  "externalExecution": false,
+  "localYamlPolicyEquality": true
+}

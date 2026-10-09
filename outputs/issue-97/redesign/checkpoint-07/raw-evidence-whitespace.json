@@ -1,0 +1,304 @@
+{
+  "recordedUtc": "2026-10-08T22:35:10.745805+00:00",
+  "fullGitDiffCheckExit": 2,
+  "authoredMarkdownPythonJsonShellDiffCheckExit": 0,
+  "rawBytesModified": false,
+  "reason": "Tool-generated logs, telemetry and Driver system-out XML retain original whitespace so hash-bound evidence is not rewritten. This is not a production/test/lint rule change.",
+  "warnings": [
+    {
+      "file": "outputs/issue-97/redesign/compatibility/record-matrix-03/process.log",
+      "line": 2,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IC-2024.1.7-verify.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IC-2024.2.6-verify.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IC-2024.3.7.1-resolve.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IC-2024.3.7.1-verify.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IC-2025.1.7.2-resolve.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IC-2025.1.7.2-verify.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IC-2025.2.6.3-verify.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IU-2025.3-resolve.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IU-2025.3-verify.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IU-2025.3.6.1-resolve.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IU-2025.3.6.1-verify.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IU-2026.1-resolve.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IU-2026.1-verify.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IU-2026.1.5-resolve.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IU-2026.1.5-verify.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IU-2026.2-resolve.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IU-2026.2-verify.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IU-2026.2.3-resolve.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IU-2026.2.3-verify.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IU-263.4732.28-resolve.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IU-263.4732.28-verify.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/IU-263.6259.32-verify.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/reports/IC-2024.1.7/IC-241.19416.15/plugins/com.sijunyang.bracketpairguides/0.0.6/telemetry.txt",
+      "line": 9,
+      "message": "new blank line at EOF."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/reports/IC-2024.2.6/IC-242.26775.15/plugins/com.sijunyang.bracketpairguides/0.0.6/telemetry.txt",
+      "line": 9,
+      "message": "new blank line at EOF."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/reports/IC-2024.3.7.1/IC-243.28141.41/plugins/com.sijunyang.bracketpairguides/0.0.6/telemetry.txt",
+      "line": 9,
+      "message": "new blank line at EOF."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/reports/IC-2025.1.7.2/IC-251.29188.72/plugins/com.sijunyang.bracketpairguides/0.0.6/telemetry.txt",
+      "line": 9,
+      "message": "new blank line at EOF."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/reports/IC-2025.2.6.3/IC-252.28539.97/plugins/com.sijunyang.bracketpairguides/0.0.6/telemetry.txt",
+      "line": 9,
+      "message": "new blank line at EOF."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/reports/IU-2025.3.6.1/IU-253.33813.55/plugins/com.sijunyang.bracketpairguides/0.0.6/telemetry.txt",
+      "line": 9,
+      "message": "new blank line at EOF."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/reports/IU-2025.3/IU-253.28294.334/plugins/com.sijunyang.bracketpairguides/0.0.6/telemetry.txt",
+      "line": 9,
+      "message": "new blank line at EOF."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/reports/IU-2026.1.5/IU-261.27258.48/plugins/com.sijunyang.bracketpairguides/0.0.6/telemetry.txt",
+      "line": 9,
+      "message": "new blank line at EOF."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/reports/IU-2026.1/IU-261.22158.277/plugins/com.sijunyang.bracketpairguides/0.0.6/telemetry.txt",
+      "line": 9,
+      "message": "new blank line at EOF."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/reports/IU-2026.2.3/IU-262.10968.63/plugins/com.sijunyang.bracketpairguides/0.0.6/telemetry.txt",
+      "line": 9,
+      "message": "new blank line at EOF."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/reports/IU-2026.2/IU-262.8665.258/plugins/com.sijunyang.bracketpairguides/0.0.6/telemetry.txt",
+      "line": 9,
+      "message": "new blank line at EOF."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/reports/IU-263.4732.28/IU-263.4732.28/plugins/com.sijunyang.bracketpairguides/0.0.6/telemetry.txt",
+      "line": 9,
+      "message": "new blank line at EOF."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/reports/IU-263.6259.32/IU-263.6259.32/plugins/com.sijunyang.bracketpairguides/0.0.6/telemetry.txt",
+      "line": 9,
+      "message": "new blank line at EOF."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/sdk-contracts/currentSdkTests/task.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/compatibility/runs/20261008T184514375884Z/sdk-contracts/minimumSdkTests/task.log",
+      "line": 10,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/driver/compare-13/gradle.log",
+      "line": 2,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/driver/compare-13/plugin/build/test-results/visualTest/TEST-com.sijunyang.bracketpairguides.visual.EditorVisualContractTest.xml",
+      "line": 57,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/driver/compare-13/plugin/build/test-results/visualTest/TEST-com.sijunyang.bracketpairguides.visual.EditorVisualContractTest.xml",
+      "line": 62,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/driver/compare-13/plugin/build/test-results/visualTest/TEST-com.sijunyang.bracketpairguides.visual.EditorVisualContractTest.xml",
+      "line": 103,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/driver/compare-13/plugin/build/test-results/visualTest/TEST-com.sijunyang.bracketpairguides.visual.EditorVisualContractTest.xml",
+      "line": 106,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/driver/compare-13/runner/process.log",
+      "line": 2,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/final-check-10/run/process.log",
+      "line": 2,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/final-check-10/sdk-free/process.log",
+      "line": 2,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/performance/bmf-final-01/baseline-reuse/process.log",
+      "line": 2,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/performance/bmf-final-01/baseline-store/process.log",
+      "line": 2,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/performance/bmf-final-01/candidate-reuse/process.log",
+      "line": 2,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/performance/bmf-final-01/candidate-store/process.log",
+      "line": 2,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/performance/bmf-integration-02/baseline-reuse/process.log",
+      "line": 2,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/performance/bmf-integration-02/baseline-store/process.log",
+      "line": 2,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/performance/bmf-integration-02/candidate-reuse/process.log",
+      "line": 2,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/performance/bmf-integration-02/candidate-store/process.log",
+      "line": 2,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/qodana/run-08/run/process.log",
+      "line": 13,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/qodana/run-08/run/process.log",
+      "line": 14,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/qodana/run-08/run/process.log",
+      "line": 24,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/qodana/run-08/run/process.log",
+      "line": 25,
+      "message": "trailing whitespace."
+    },
+    {
+      "file": "outputs/issue-97/redesign/qodana/run-08/run/process.log",
+      "line": 26,
+      "message": "trailing whitespace."
+    }
+  ]
+}

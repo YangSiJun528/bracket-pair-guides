@@ -1,0 +1,349 @@
+Spotless.................................................................Passed
+[codex/issue-97-deep-redesign 5767d6a] architecture: rebuild five modules behind owned contracts
+ 364 files changed, 8858 insertions(+), 35987 deletions(-)
+ delete mode 100644 .github/tests/visual-test-report.test.cjs
+ delete mode 100644 .github/workflows/visual-test-report.yml
+ create mode 100644 analysis-core/README.md
+ rename analysis-core/src/main/java/com/sijunyang/bracketpairguides/{analysis/pairing/core => core/internal}/BracketRole.java (67%)
+ rename analysis-core/src/main/java/com/sijunyang/bracketpairguides/{analysis/pairing/core => core/internal}/CancellationProbe.java (53%)
+ rename analysis-core/src/main/java/com/sijunyang/bracketpairguides/{analysis/pairing/core => core/internal}/PairSink.java (77%)
+ rename analysis-core/src/main/java/com/sijunyang/bracketpairguides/{analysis/pairing/core => core/internal}/PairTable.java (98%)
+ rename analysis-core/src/main/java/com/sijunyang/bracketpairguides/{analysis/pairing/core => core/internal}/PairingMachine.java (99%)
+ rename analysis-core/src/main/java/com/sijunyang/bracketpairguides/{analysis/pairing/core => core/internal}/PairingRules.java (60%)
+ rename analysis-core/src/main/java/com/sijunyang/bracketpairguides/{analysis/pairing/core => core/internal}/StructuralRole.java (87%)
+ delete mode 100644 analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/CapturedBracketTokens.kt
+ delete mode 100644 analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/BracketIndexes.kt
+ create mode 100644 analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/core/api/BracketCalculator.kt
+ create mode 100644 analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/core/input/AnalysisInput.kt
+ create mode 100644 analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/core/input/TokenBatch.kt
+ rename analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/active => core/internal}/ActiveBracketPairIndex.kt (97%)
+ create mode 100644 analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/core/internal/BracketIndexes.kt
+ rename analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/pairing => core/internal}/BracketRecognitionLimits.kt (83%)
+ rename analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/token => core/internal}/BracketTokenIndex.kt (97%)
+ create mode 100644 analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/core/internal/CalculationAttempt.kt
+ create mode 100644 analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/core/internal/CalculationCache.kt
+ rename analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/sorting => core/internal}/CancellableLongArraySort.kt (98%)
+ rename analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/pairing => core/internal}/DocumentBracketRecognition.kt (53%)
+ rename analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/guide => core/internal}/GuideIndexShape.kt (97%)
+ rename analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/guide => core/internal}/GuideLineEnvelope.kt (92%)
+ rename analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/guide => core/internal}/GuidePositionIndex.kt (97%)
+ rename analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/guide => core/internal}/GuideRepairCalculation.kt (95%)
+ rename analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/snapshot => core/internal}/IndexLayout.kt (67%)
+ rename analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/snapshot/IndexedBracketSnapshot.kt => core/internal/IndexedBracketView.kt} (81%)
+ rename analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/guide => core/internal}/LineIndentation.kt (90%)
+ rename analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/pairing => core/internal}/PairCollection.kt (75%)
+ rename analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/snapshot => core/internal}/SnapshotCalculation.kt (85%)
+ rename analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/guide => core/internal}/VisualColumn.kt (91%)
+ delete mode 100644 analysis-core/src/test/java/com/sijunyang/bracketpairguides/analysis/pairing/core/PairTableTest.java
+ delete mode 100644 analysis-core/src/test/java/com/sijunyang/bracketpairguides/analysis/pairing/core/PairingMachineTest.java
+ delete mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/active/ActiveBracketPairIndexTest.kt
+ delete mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/guide/GuideLineEnvelopeTest.kt
+ delete mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/guide/GuidePositionIndexBuilderTest.kt
+ delete mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/guide/GuidePositionIndexTest.kt
+ delete mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/guide/GuideRepairCalculationTest.kt
+ delete mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/guide/LineIndentationTest.kt
+ delete mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/guide/PureGuidePositionTestAdapter.kt
+ delete mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/CapturedBracketTokensTest.kt
+ delete mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/PairCollectionTest.kt
+ delete mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/PairTableFixtures.kt
+ delete mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/IndexLayoutTest.kt
+ delete mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/IndexedBracketSnapshotTest.kt
+ delete mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/SnapshotCalculationTest.kt
+ delete mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/sorting/CancellableLongArraySortTest.kt
+ delete mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/token/BracketTokenIndexTest.kt
+ create mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/core/CalculationContractTest.kt
+ create mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/core/InputBoundaryContractTest.kt
+ create mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/core/LateCancellationContractTest.kt
+ create mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/core/RecordedInput.kt
+ create mode 100644 analysis-core/src/test/kotlin/com/sijunyang/bracketpairguides/core/TokenSemanticsContractTest.kt
+ create mode 100644 analysis-model/README.md
+ delete mode 100644 analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/AnalysisStamp.kt
+ delete mode 100644 analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/AnalysisOutcome.kt
+ delete mode 100644 analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/BracketSnapshot.kt
+ rename analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis => model}/AnalysisCoverage.kt (93%)
+ rename analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/snapshot => model}/AnalysisLimit.kt (76%)
+ rename analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis => model}/BraceMatcherAvailability.kt (90%)
+ rename analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis => model}/BracketModels.kt (97%)
+ create mode 100644 analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/model/OffsetRange.kt
+ create mode 100644 analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/model/result/BracketView.kt
+ delete mode 100644 analysis-model/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/AnalysisStampContractTest.kt
+ delete mode 100644 analysis-model/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/BraceLanguageFamilyTest.kt
+ create mode 100644 analysis-model/src/test/kotlin/com/sijunyang/bracketpairguides/model/ResultContractTest.kt
+ create mode 100644 analysis-runtime/README.md
+ rename analysis-runtime/src/main/java/com/sijunyang/bracketpairguides/{analysis/intellij => runtime/capture}/AnalysisPluginLifecycleListener.java (94%)
+ rename analysis-runtime/src/main/java/com/sijunyang/bracketpairguides/{editor/highlighting => runtime/nativeproof}/NativeBraceMatching.java (99%)
+ delete mode 100644 analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/AnalysisInput.kt
+ delete mode 100644 analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/BracketAnalysis.kt
+ delete mode 100644 analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/IncrementalAnalysis.kt
+ delete mode 100644 analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/InstalledBraceLanguageCatalog.kt
+ delete mode 100644 analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/AnalysisPublication.kt
+ delete mode 100644 analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/DocumentBracketIndexes.kt
+ delete mode 100644 analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/EditorAnalysisExecution.kt
+ delete mode 100644 analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/GuideRepairExecution.kt
+ delete mode 100644 analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeGuideConflictNotification.kt
+ create mode 100644 analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/runtime/bootstrap/RuntimeGuideWorkFactory.kt
+ rename analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/intellij => runtime/capture}/AnalysisCaptureObserver.kt (96%)
+ rename analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/intellij => runtime/capture}/AnalysisReadEpoch.kt (91%)
+ rename analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/intellij => runtime/capture}/BracketTokenCapture.kt (55%)
+ rename analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/intellij => runtime/capture}/DocumentTextCapture.kt (94%)
+ create mode 100644 analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/runtime/capture/EditorSource.kt
+ create mode 100644 analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/runtime/capture/InstalledBraceLanguageCatalog.kt
+ rename analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/pairing => runtime/capture/matcher}/BraceLanguageCatalog.kt (94%)
+ rename analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/pairing => runtime/capture/matcher}/BracePairTopology.kt (95%)
+ rename analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/{analysis/pairing => runtime/capture/matcher}/DocumentBraceGrammar.kt (90%)
+ rename analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/{editor/highlighting => runtime/nativeproof}/NativeBraceContext.kt (99%)
+ rename analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/{editor/highlighting => runtime/nativeproof}/NativeCaptureObserver.kt (94%)
+ rename analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/{editor/highlighting => runtime/nativeproof}/NativeConflictProbe.kt (85%)
+ rename analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/{editor/highlighting => runtime/nativeproof}/NativeCursor.kt (98%)
+ create mode 100644 analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/runtime/nativeproof/NativeEvidenceGate.kt
+ rename analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/{editor/highlighting => runtime/nativeproof}/NativeGuideConflictDetector.kt (84%)
+ rename {editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/policy => analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/runtime/nativeproof}/NativeGuideConflictPolicy.kt (96%)
+ rename analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/{editor/highlighting => runtime/nativeproof}/NativeLazyHighlighter.kt (98%)
+ rename analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/{editor/highlighting => runtime/nativeproof}/NativeMarkerInspection.kt (98%)
+ create mode 100644 analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/runtime/session/DocumentCalculation.kt
+ create mode 100644 analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/runtime/session/EditorAnalysisSession.kt
+ create mode 100644 analysis-runtime/src/test/kotlin/com/sijunyang/bracketpairguides/runtime/nativeproof/NativeEvidenceContractTest.kt
+ create mode 100644 analysis-runtime/src/test/kotlin/com/sijunyang/bracketpairguides/runtime/session/AnalysisSessionIdeContractTest.kt
+ delete mode 100644 benchmarks/bencher/Dockerfile
+ delete mode 100644 benchmarks/bencher/Dockerfile.dockerignore
+ delete mode 100644 benchmarks/bencher/benchmark_gate.py
+ delete mode 100644 benchmarks/bencher/normalize_results.py
+ delete mode 100644 benchmarks/bencher/resolve_project.py
+ delete mode 100644 benchmarks/bencher/run.sh
+ delete mode 100644 benchmarks/bencher/run_jobs.py
+ delete mode 100644 benchmarks/bencher/test_benchmark_gate.py
+ delete mode 100644 benchmarks/bencher/test_normalize_results.py
+ delete mode 100644 benchmarks/bencher/test_resolve_project.py
+ delete mode 100644 benchmarks/bencher/test_run_jobs.py
+ delete mode 100644 benchmarks/check_job_results.py
+ create mode 100644 benchmarks/src/jmh/java/com/sijunyang/bracketpairguides/benchmarks/CalculationContractBenchmark.java
+ delete mode 100644 benchmarks/src/jmh/java/com/sijunyang/bracketpairguides/benchmarks/LongArraySamples.java
+ delete mode 100644 benchmarks/src/jmh/java/com/sijunyang/bracketpairguides/benchmarks/LongArraySortBenchmark.java
+ delete mode 100644 benchmarks/src/jmh/java/com/sijunyang/bracketpairguides/benchmarks/LongArraySortCancellationBenchmark.java
+ delete mode 100644 benchmarks/src/jmh/java/com/sijunyang/bracketpairguides/benchmarks/PairingMachineBenchmark.java
+ delete mode 100644 benchmarks/src/jmh/java/com/sijunyang/bracketpairguides/benchmarks/PreferenceNormalizationBenchmark.java
+ create mode 100644 benchmarks/src/main/kotlin/com/sijunyang/bracketpairguides/benchmarks/CalculationWorkload.kt
+ create mode 100644 build-logic/build.gradle.kts
+ create mode 100644 build-logic/settings.gradle.kts
+ create mode 100644 build-logic/src/main/groovy/com/sijunyang/buildlogic/BenchmarkReportTask.groovy
+ create mode 100644 build-logic/src/main/groovy/com/sijunyang/buildlogic/ModuleBoundariesPlugin.groovy
+ create mode 100644 build-logic/src/test/java/com/sijunyang/buildlogic/BenchmarkReportTest.java
+ create mode 100644 build-logic/src/test/java/com/sijunyang/buildlogic/CompilationBoundaryTest.java
+ create mode 100644 build-logic/src/test/java/com/sijunyang/buildlogic/PackagedOwnerTest.java
+ create mode 100644 docs/guide_testing.md
+ create mode 100644 editor-ui/README.md
+ rename editor-ui/src/main/java/com/sijunyang/bracketpairguides/{ => ui}/editor/events/NativeMatchedBracePluginUnloadListener.java (94%)
+ delete mode 100644 editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/EditorAnalysisStamp.kt
+ delete mode 100644 editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/EditorAnalysisState.kt
+ delete mode 100644 editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/EditorGuideSession.kt
+ delete mode 100644 editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/EditorGuideSessions.kt
+ delete mode 100644 editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/IdentityEventBatch.kt
+ delete mode 100644 editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/NativeMatchedBraceStartupActivity.kt
+ delete mode 100644 editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/BracketGuideHighlightingPass.kt
+ delete mode 100644 editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/EditorAnalysisRequests.kt
+ delete mode 100644 editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/EditorSurfaceStartupActivity.kt
+ delete mode 100644 editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/SecondaryEditorAnalysis.kt
+ delete mode 100644 editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/GuideRepairRequest.kt
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/editor/EditorActivitySource.kt (89%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/editor/EditorEffectGuard.kt (88%)
+ create mode 100644 editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/ui/editor/EditorGuide.kt
+ create mode 100644 editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/ui/editor/EditorGuides.kt
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/editor/EditorSurfaceClassifier.kt (91%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/editor/events/BracketGuideSettingsController.kt (64%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/editor/events/DaemonRefresh.kt (87%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/editor/events/EditorGuideEvents.kt (85%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/editor/events/GuideSettingsChange.kt (65%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/editor/events/NativeEditorSettingsRefresh.kt (98%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/editor/events/NativeVisualSettingsCoordinator.kt (88%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/editor/events/StickyLineSourceRanges.kt (99%)
+ create mode 100644 editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/ui/editor/highlighting/NativeGuideAdvisory.kt
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/editor/highlighting/UnsupportedBackendNotificationProvider.kt (79%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{editor => ui}/policy/EditorPresentationPolicy.kt (92%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/preferences/BracketGuidePreferences.kt (98%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/preferences/GuideAnalysisCoverage.kt (85%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/preferences/StoredColorFormat.kt (95%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/presentation/ActiveGuidePresentation.kt (96%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/presentation/ActivePairMarkup.kt (95%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/presentation/BracketColorPalette.kt (94%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/presentation/BracketGuideDrawing.kt (99%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/presentation/DocumentChange.kt (94%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/presentation/GuideAppearance.kt (73%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/presentation/GuidePositionFallback.kt (91%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/presentation/TrackedBracketPair.kt (93%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/presentation/VisibleTokenDecorations.kt (96%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/settings/BracketGuidePreferenceNormalization.kt (88%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/settings/BracketGuideSettings.kt (88%)
+ create mode 100644 editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/ui/settings/GuideUiSettings.kt
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/settings/NativeGuideConflictSettingsListener.kt (65%)
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{ => ui}/settings/ui/BracketGuideSettingsPage.kt (95%)
+ create mode 100644 editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/ui/work/GuideWork.kt
+ rename editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/{settings => ui/work}/InstalledBraceLanguages.kt (62%)
+ create mode 100644 editor-ui/src/test/kotlin/com/sijunyang/bracketpairguides/ui/editor/EditorGuideIdeContractTest.kt
+ create mode 100644 editor-ui/src/test/kotlin/com/sijunyang/bracketpairguides/ui/policy/PresentationContractTest.kt
+ create mode 100644 editor-ui/src/test/kotlin/com/sijunyang/bracketpairguides/ui/work/GuideDemandContractTest.kt
+ delete mode 100644 gradle/production-modules.gradle
+ create mode 100644 outputs/issue-97/redesign/build-logic-compile-01.log
+ create mode 100644 outputs/issue-97/redesign/checkpoint-01-archive-identity.txt
+ create mode 100644 outputs/issue-97/redesign/checkpoint-01-compiler-inputs.txt
+ create mode 100644 outputs/issue-97/redesign/checkpoint-01.json
+ create mode 100644 outputs/issue-97/redesign/checkpoint-01/junit/analysis-core/test/TEST-com.sijunyang.bracketpairguides.core.CalculationContractTest.xml
+ create mode 100644 outputs/issue-97/redesign/checkpoint-01/junit/analysis-core/test/TEST-com.sijunyang.bracketpairguides.core.InputBoundaryContractTest.xml
+ create mode 100644 outputs/issue-97/redesign/checkpoint-01/junit/analysis-core/test/TEST-com.sijunyang.bracketpairguides.core.LateCancellationContractTest.xml
+ create mode 100644 outputs/issue-97/redesign/checkpoint-01/junit/analysis-core/test/TEST-com.sijunyang.bracketpairguides.core.TokenSemanticsContractTest.xml
+ create mode 100644 outputs/issue-97/redesign/checkpoint-01/junit/analysis-model/test/TEST-com.sijunyang.bracketpairguides.model.ResultContractTest.xml
+ create mode 100644 outputs/issue-97/redesign/checkpoint-01/junit/analysis-runtime/test/TEST-com.sijunyang.bracketpairguides.runtime.nativeproof.NativeEvidenceContractTest.xml
+ create mode 100644 outputs/issue-97/redesign/checkpoint-01/junit/editor-ui/test/TEST-com.sijunyang.bracketpairguides.ui.policy.PresentationContractTest.xml
+ create mode 100644 outputs/issue-97/redesign/checkpoint-01/junit/editor-ui/test/TEST-com.sijunyang.bracketpairguides.ui.work.GuideDemandContractTest.xml
+ create mode 100644 outputs/issue-97/redesign/checkpoint-01/junit/plugin/minimumSdkTests/TEST-com.sijunyang.bracketpairguides.plugin.RuntimeIdentityIdeContractTest.xml
+ create mode 100644 outputs/issue-97/redesign/checkpoint-01/junit/plugin/minimumSdkTests/TEST-com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest.xml
+ create mode 100644 outputs/issue-97/redesign/checkpoint-01/junit/plugin/minimumSdkTests/TEST-com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest.xml
+ create mode 100644 outputs/issue-97/redesign/checkpoint-01/junit/plugin/test/TEST-com.sijunyang.bracketpairguides.architecture.ResponsibilityBoundaryTest.xml
+ create mode 100644 outputs/issue-97/redesign/checkpoint-checks-01.log
+ create mode 100644 outputs/issue-97/redesign/checkpoint-checks-02.log
+ create mode 100644 outputs/issue-97/redesign/checkpoint-checks-03.log
+ create mode 100644 outputs/issue-97/redesign/format-01.log
+ create mode 100644 outputs/issue-97/redesign/format-02.log
+ create mode 100644 outputs/issue-97/redesign/integration-compile-01.log
+ create mode 100644 outputs/issue-97/redesign/integration-compile-02.log
+ create mode 100644 outputs/issue-97/redesign/integration-compile-03.log
+ create mode 100644 outputs/issue-97/redesign/packaging-policy-tests-01.log
+ create mode 100644 outputs/issue-97/redesign/packaging-task-diagnostic-01.log
+ create mode 100644 outputs/issue-97/redesign/packaging-task-diagnostic-02.log
+ create mode 100644 outputs/issue-97/redesign/packaging-task-diagnostic-03.log
+ create mode 100644 outputs/issue-97/redesign/pure-compile-01.log
+ create mode 100644 outputs/issue-97/redesign/pure-tests-01.json
+ create mode 100644 outputs/issue-97/redesign/pure-tests-01.log
+ create mode 100644 outputs/issue-97/redesign/pure-tests-02.log
+ create mode 100644 outputs/issue-97/redesign/sdk-and-isolation-01.log
+ create mode 100644 outputs/issue-97/redesign/sdk-contracts-02.log
+ create mode 100644 outputs/issue-97/redesign/sdk-contracts-03.log
+ create mode 100644 outputs/issue-97/redesign/verification-matrix.md
+ create mode 100644 plugin/src/main/kotlin/com/sijunyang/bracketpairguides/plugin/BracketGuideHighlightingPass.kt
+ rename {editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting => plugin/src/main/kotlin/com/sijunyang/bracketpairguides/plugin}/BracketGuidePassRegistration.kt (90%)
+ create mode 100644 plugin/src/main/kotlin/com/sijunyang/bracketpairguides/plugin/GuidePlugin.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/RealWorldFormatRegressionTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/AnalysisBaselineMeasurementTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/AnalysisInputTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/AnalysisOutcomeFixtures.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/AnalysisPayloadMeasurementTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/AnalysisStampTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/AnalysisWriteWaitMeasurementTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/BackgroundAnalysisTestScope.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/BracketAnalysisRegistrationTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/BracketAnalysisTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/BracketSnapshotFixture.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/PerformancePumpSample.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/ProductionServiceRegistrationTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/guide/GuidePositionTestAdapter.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/AnalysisPluginLifecycleListenerTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/BracketTokenCaptureTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/CaptureReleaseMeasurementTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/DocumentTextCaptureTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/IncrementalAnalysisTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/SynchronousGuidePositionReference.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/BraceLanguageCatalogTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/BracePairTopologyTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/DocumentBraceGrammarTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/DocumentBracketsTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/PairTableFixtures.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/TokenGrammarTestAdapter.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/reference/SynchronousAnalysisReference.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/AnalysisPublicationTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/BracketSnapshotPlatformQueries.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/BracketSnapshotTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/DocumentBracketIndexesTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/SynchronousSnapshotAssemblyReference.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/architecture/ArchitectureTest.kt
+ create mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/architecture/ResponsibilityBoundaryTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/EditorContentRepaintTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/EditorGuideFallbackIntegrationTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/EditorGuideSessionLifecycleTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/events/BracketGuideSettingsControllerTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/events/IdentityEventBatchTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/events/IntentionPreviewDocumentEventTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/events/NativeEditorSettingsRefreshTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/events/NativeVisualSettingsCoordinatorTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/events/StickyLineRefreshEventTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/events/StickyLineSourceRangesTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/AnalysisOutcomePublicationTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/BackgroundAnalysisLifecycleTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/BracketGuideHighlightingFixture.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/BracketGuideHighlightingPassTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/EditorAnalysisExecutionTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/EditorExecutionMeasurementTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/EditorSurfacePolicyTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/GuidePreferenceTransitionsTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/GuidePresentationTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/GuideRepairExecutionTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeBoundedInspectionTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeBoundedTraversalTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeBraceContextTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeConflictMeasurementTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeGuideConflictNotificationTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeGuideConflictOwnershipTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeGuideMarkerSourceTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeIteratorDelegationTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeLazyHighlighterTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/ProvisionalGuideTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/SecondaryEditorAnalysisTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/UnsupportedBackendNotificationProviderTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/VisibleTokenWindowTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/policy/EditorPresentationPolicyTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/editor/policy/NativeGuideConflictPolicyTest.kt
+ create mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/plugin/RuntimeIdentityIdeContractTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/preferences/StoredColorFormatTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/presentation/BracketColorPaletteTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/presentation/BracketGuideDrawingTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/presentation/FrozenActiveGuidePresentation.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/presentation/FrozenGuidePositionFallback.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/presentation/GuidePositionFallbackUnitTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/presentation/GuideRepairMeasurementTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/presentation/ObservedBracketMarkup.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/settings/BracketGuidePreferenceNormalizationTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/settings/BracketGuideSettingsTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/settings/ui/BracketGuideSettingsPageTest.kt
+ delete mode 100644 plugin/src/test/kotlin/com/sijunyang/bracketpairguides/testing/BracketGuideDriverBridge.kt
+ delete mode 100644 plugin/src/test/testData/real-world/IconUtil.kt
+ delete mode 100644 plugin/src/test/testData/real-world/PlatformIconMappings.json
+ delete mode 100644 plugin/src/test/testData/real-world/README.md
+ delete mode 100644 plugin/src/test/testData/real-world/UPSTREAM_LICENSE.txt
+ delete mode 100644 plugin/src/test/testData/real-world/UPSTREAM_NOTICE.txt
+ delete mode 100644 plugin/src/test/testData/real-world/YAMLUtil.java
+ delete mode 100644 plugin/src/test/testData/real-world/loadVSCBundles.main.kts
+ create mode 100644 plugin/src/visualBridge/kotlin/com/sijunyang/bracketpairguides/testing/EditorContractBridge.kt
+ delete mode 100644 plugin/src/visualTest/kotlin/com/sijunyang/bracketpairguides/visual/BracketGuideVisualTest.kt
+ delete mode 100644 plugin/src/visualTest/kotlin/com/sijunyang/bracketpairguides/visual/EditorScreenshotRegion.kt
+ delete mode 100644 plugin/src/visualTest/kotlin/com/sijunyang/bracketpairguides/visual/EditorScreenshotRegionTest.kt
+ create mode 100644 plugin/src/visualTest/kotlin/com/sijunyang/bracketpairguides/visual/EditorVisualContractTest.kt
+ delete mode 100644 plugin/src/visualTest/kotlin/com/sijunyang/bracketpairguides/visual/ExactImageComparison.kt
+ delete mode 100644 plugin/src/visualTest/kotlin/com/sijunyang/bracketpairguides/visual/ExactImageComparisonTest.kt
+ delete mode 100644 plugin/src/visualTest/kotlin/com/sijunyang/bracketpairguides/visual/GradleIdeInstaller.kt
+ delete mode 100644 plugin/src/visualTest/kotlin/com/sijunyang/bracketpairguides/visual/GradleIdeInstallerTest.kt
+ delete mode 100644 plugin/src/visualTest/kotlin/com/sijunyang/bracketpairguides/visual/ManualQaLauncher.kt
+ delete mode 100644 plugin/src/visualTest/kotlin/com/sijunyang/bracketpairguides/visual/VisualIdeFixture.kt
+ delete mode 100644 plugin/src/visualTest/kotlin/com/sijunyang/bracketpairguides/visual/VisualTestDriver.kt
+ delete mode 100644 plugin/src/visualTest/kotlin/com/sijunyang/bracketpairguides/visual/VisualTestDriverTest.kt
+ delete mode 100644 plugin/src/visualTest/resources/baselines/README.md
+ delete mode 100644 plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/all-components.png
+ delete mode 100644 plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/bracket-colorization-off.png
+ delete mode 100644 plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/custom-palette.png
+ delete mode 100644 plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/default-palette.png
+ delete mode 100644 plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/horizontal-only.png
+ delete mode 100644 plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/native-highlight-suppressed.png
+ delete mode 100644 plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/native-visuals-unmanaged.png
+ delete mode 100644 plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/pair-background-only.png
+ delete mode 100644 plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/pair-border-only.png
+ delete mode 100644 plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/plugin-disabled.png
+ delete mode 100644 plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/vertical-only.png
+ create mode 100644 plugin/src/visualTest/testData/Contract.java
+ delete mode 100644 plugin/src/visualTest/testData/guide-project/src/Sample.java
+ delete mode 100755 scripts/visual-test-background.sh
+ delete mode 100644 scripts/visual-test/Dockerfile
+ delete mode 100755 scripts/visual-test/run.sh
+ create mode 100644 tools/pure-build/build.gradle.kts
+ create mode 100644 tools/pure-build/gradle.properties
+ create mode 100644 tools/pure-build/settings.gradle.kts
+ delete mode 100644 tools/test_verify_plugin_packaging.py
+ delete mode 100644 tools/test_verify_production_modules.py
+ delete mode 100644 tools/verify_plugin_packaging.py
+ delete mode 100644 tools/verify_production_modules.py

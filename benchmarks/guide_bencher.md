@@ -1,155 +1,49 @@
-# Enable Bencher performance checks
+# Report parameterized JMH metrics with Bencher
 
-Use the existing `Benchmark Jobs` workflow to measure the seven prepared JMH
-jobs on Bencher Bare Metal and compare performance across commits and PRs.
-The account connection and first remote run must be completed before treating
-the integration as verified.
+Keep raw JMH JSON and same-condition comparisons locally. The user approved local installation of the restored CI
+workflow in `.github/workflows/benchmark-jobs.yml`. The reviewed proposal remains
+in `outputs/issue-97/redesign/benchmark-workflow.proposal.yaml.txt`. This guide does not authorize a
+project lookup, registry push, remote measurement or result upload.
 
-## Prerequisites
-
-- A Bencher **Free** account and a **public** project.
-- Permission to set this repository's Actions variables and secrets.
-- For local checks: JDK 17, Docker, `jq`, Python 3, and Bencher CLI 0.6.12.
-
-The [Free plan](https://bencher.dev/pricing/) allows 65,535 metrics per day,
-one concurrent bare-metal job, and five minutes per job. No paid plan is needed.
-The workflow runs the seven jobs sequentially with a 300-second remote limit
-and a 240-second Java limit; compilation happens beforehand on GitHub Actions.
-
-## Connect the repository
-
-1. Create or select a public project in your Free Bencher account and create a
-   project-scoped API key (`bencher_run_...`). Account-wide user keys are not
-   supported by this workflow's registry login.
-2. Open **Settings → Secrets and variables → Actions** in this GitHub repository.
-   Set repository secret `BENCHER_API_KEY` to the API key. The workflow discovers
-   its project through Bencher's authenticated API. Optionally set repository
-   variable `BENCHER_PROJECT` to the slug to require an explicit match. See the
-   [Bencher GitHub Actions guide](https://bencher.dev/docs/how-to/github-actions/).
-3. Establish a baseline before reviewing the integration PR. Run **Actions →
-   Benchmark Jobs → Run workflow** using the integration branch and enable
-   `seed_main_baseline`. This builds the current default branch in a separate
-   checkout and records its actual commit hash under that branch. It does not
-   merge the integration or attach baseline checks to the PR commit.
-4. After all seven baseline jobs and coverage pass, mark the integration PR
-   ready for review. Its PR workflow measures the PR head against that baseline.
-   Subsequent matching PR creation, commit updates, and ready-for-review events
-   run the comparison before merge; matching pushes to `main` refresh the baseline.
-5. Check all seven PR reports and the coverage check before relying on alerts.
-   In the `main` branch ruleset, require **Benchmark Gate** from **GitHub Actions**
-   alongside the existing build checks. The aggregate check fails on measurement
-   errors, performance alerts, and missing coverage. For changes outside the
-   measured dependencies, it succeeds without submitting measurement jobs.
-
-Setting `BENCHER_API_KEY` switches same-repository PRs, main pushes, and manual
-runs to Bencher. Project discovery rejects private projects, mismatched slugs,
-and invalid keys before building bundles. Without connection settings, and for
-fork or Dependabot PRs, the existing GitHub runner matrix validates execution and
-coverage without uploading results. Setting a project variable without its API
-key fails instead of silently using the fallback.
-Draft PRs and PRs labeled `skip-ci` retain the workflow's existing skip behavior.
-
-PR measurements use the actual head commit and request the PR's base
-branch/commit as their start point. If that commit has no recorded results,
-Bencher falls back to the latest recorded version of the base branch. Only the
-first suite resets that start point, so later suites retain reports already
-collected for the PR. The initial threshold flags latency
-more than 20% above the latest historical result for each benchmark, using one
-previous sample. This is a starting threshold to tune after observing variation.
-Suite checks and PR comments report alerts. A performance alert does not prevent
-the remaining suites from running; after collecting all seven jobs, the runner
-fails if any report contains an alert, and **Benchmark Gate** blocks merging.
-
-## Maintain the automatic-run filter
-
-When adding a benchmark or changing its production dependencies, update
-[`benchmark_gate.py`](bencher/benchmark_gate.py). Include every
-production dependency reached by the benchmark, including shared helpers:
-
-- Pairing: the Java `analysis.pairing.core` package.
-- Sorting and cancellation: the Kotlin `analysis.sorting` package.
-- Preferences: `BracketGuidePreferenceNormalization.kt`,
-  `BracketGuidePreferences.kt`, and `StoredColorFormat.kt`.
-
-The filter also includes benchmark sources, Bencher's Python and shell runtime
-scripts, its Dockerfile and Docker ignore file, the result coverage checker, and
-the workflow itself. The root, plugin, and benchmark Gradle build files, Gradle
-settings/properties, and Unix wrapper inputs trigger measurements because they
-can change compilation or the measurement environment.
-
-Changes confined to editor integration, presentation, settings UI, other analysis
-code, plugin resources, documentation, or plugin tests skip automatic measurement.
-Bencher's `test_*.py` files also skip measurement; the `Build` workflow's `Test`
-job runs those tests independently of the benchmark path filter.
-
-The workflow always reports **Benchmark Gate**; its lightweight change-detection
-job decides whether measurements are needed. Keep path filtering inside the
-workflow so unrelated PRs can complete the required check. Detection failures,
-cancelled measurements, and missing results fail the gate.
-
-Every matching run still measures all seven jobs and checks all 46 cases.
-Use **Run workflow** to measure any revision manually regardless of changed paths.
-For PRs, GitHub evaluates the entire PR diff, so a later documentation-only commit
-can rerun a PR that already changes a measured dependency. See
-[GitHub's diff comparisons](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#git-diff-comparisons).
-
-## Validate the image and result adapter locally
-
-Prepare every full-length bundle before building the image from the repository
-root. Keep the existing forks, iterations, and parameters:
+Export complete production measurements without changing their values:
 
 ```shell
-for job in $(./gradlew -q :benchmarks:listBenchmarkJobs | jq -r '.[]'); do
-  ./gradlew :benchmarks:prepareBenchmarkJob -PbenchmarkJob="$job"
-done
-docker build --platform linux/amd64 -f benchmarks/bencher/Dockerfile \
-  -t bracket-pair-guides-benchmarks .
-docker run --rm --platform linux/amd64 --network none -e BENCHMARK_JOB=preferences \
-  bracket-pair-guides-benchmarks
+./gradlew exportBenchmarkMetrics \
+  -PbenchmarkResults=results/all-jmh.json -PbenchmarkBmf=results/all-bmf.json
 ```
 
-The image includes JDK 17, Python, and prebuilt bundles. Its entrypoint brings up
-the guest loopback interface when needed and binds JMH's fork communication to
-`127.0.0.1`; it needs no external network. Both JVM forks remain enabled. Linux
-AMD64 emulation on an ARM Mac can exceed the local time
-limit. Use this run to validate packaging, not as the remote performance baseline.
-See [Bencher image requirements](https://bencher.dev/docs/explanation/images/).
+The Gradle adapter requires forty unique method/distribution/size combinations
+(or eight for a selected job), the exact CalculationContractBenchmark owner,
+JMH1.37/JVM17, two forks, one thread, two one-second warmups, three one-second
+measurements, 2GiB initial/maximum heap, and two by three raw samples. Smoke
+runs cannot satisfy this report contract. Average-time `ns/op` and normalized
+GC allocation `B/op` map to `latency` and custom `allocation_bop`; parameter
+identities and values survive conversion. The standard `java_jmh` adapter is
+not assumed to import allocation or preserve these identities automatically.
 
-Prepare all 46 parameterized cases and check the CLI report payload without
-uploading:
+The installed CI configuration preserves the existing distinction: configured trusted
+same-repository PRs and regular pushes use the original Intel-v1 Bencher
+bare-metal environment and require a history comparison; forks and
+unconfigured repositories establish execution and forty-case coverage only.
+Both measures retain percentage upper boundary 0.20 and latest sample size 1.
+The 240-second measurement budget excludes compilation and conversion.
 
-```shell
-./gradlew :benchmarks:jmh --rerun -PbenchmarkSmoke=true
-python3 benchmarks/bencher/normalize_results.py \
-  benchmarks/build/reports/jmh/results.json \
-  benchmarks/build/reports/jmh/bencher-results.json
-bencher run --dry-run --adapter java_jmh \
-  --file benchmarks/build/reports/jmh/bencher-results.json
-```
+The local runner checks the actual terminal job UUID, exit status and original
+raw artifacts. It resolves measure resource slugs to UUIDs because Bencher's
+built-in display name is `Latency`. Each expanded server report must match its
+original report/job/project/branch/testbed, eight submitted benchmark identities,
+sixteen measure UUIDs and metric values. Every metric needs a computed finite
+baseline and the strict threshold boundary. Empty alerts with absent history
+fail; all partition jobs finish before reporting genuine regression alerts.
 
-The CLI dry run reads the result file but does not run Bencher's server-side
-adapter. Verify the parsed cases in the first real Bencher reports.
+Explicit default-branch seeding is a separate, noncomparative action and is
+recorded as `comparative:false`. The old default branch lacks the new forty-case
+adapter; selecting it currently fails before publishing or submitting. A reviewed
+baseline adapter and explicitly authorized seed run are required before the
+first regular comparison can pass. No baseline/history is manufactured from a
+candidate result. Live Bencher report execution remains unverified locally.
 
-The [Java JMH adapter](https://bencher.dev/docs/explanation/adapters/#-java-jmh)
-identifies a benchmark by its method name. The normalizer appends sorted JMH
-parameters to keep all 46 cases distinct and retains `originalBenchmark` for
-restoring raw results. Smoke timings only check the payload structure. Bencher tracks
-the primary latency; GC secondary metrics remain available in the raw artifacts.
-
-## Inspect failures and control the queue
-
-Download the workflow artifacts within three days. Each completed suite keeps
-its Bencher report, remote job response, restored JMH JSON, and readable JMH log.
-The existing coverage check verifies all 46 cases exactly once and confirms the
-full measurement profile.
-
-Bencher measurement jobs share one concurrency group and queue up to 100 pending
-jobs with `queue: max`; new runs do not replace pending measurements. Preparation
-can run concurrently across PRs. Workflow runs do not automatically cancel an
-active run. See
-[GitHub concurrency](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency).
-If cancelling a GitHub run manually, wait until its remote
-job is terminal in Bencher before starting another: cancelling the client does
-not cancel an already submitted remote job. Remove `BENCHER_API_KEY` and the
-optional `BENCHER_PROJECT` variable to return future runs to the standard GitHub
-validation matrix.
+References: [BMF custom measures](https://bencher.dev/docs/how-to/track-custom-benchmarks/),
+[reports](https://bencher.dev/docs/api/projects/reports/),
+[pinned measure definitions](https://github.com/bencherdev/bencher/blob/v0.6.12/lib/bencher_json/src/project/measure/built_in.rs),
+[pinned report schema](https://github.com/bencherdev/bencher/blob/v0.6.12/lib/bencher_json/src/project/report.rs).

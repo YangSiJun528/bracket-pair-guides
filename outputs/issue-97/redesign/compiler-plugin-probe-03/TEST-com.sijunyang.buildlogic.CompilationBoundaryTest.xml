@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.buildlogic.CompilationBoundaryTest" tests="1" skipped="0" failures="1" errors="0" timestamp="2026-10-08T07:21:50.300Z" hostname="sijun-yangui-MacBookPro.local" time="36.708">
+  <properties/>
+  <testcase name="kotlinCompilerPluginInjectionIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="36.707">
+    <failure message="org.gradle.testkit.runner.UnexpectedBuildSuccess: Unexpected build execution success in /var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/junit16651196463236779549/checkout with arguments [verifyProductionModules, --stacktrace, --no-configuration-cache, --no-build-cache]&#10;&#10;Output:&#10;&gt; Task :build-logic:compileJava NO-SOURCE&#10;&gt; Task :build-logic:compileGroovy UP-TO-DATE&#10;&gt; Task :build-logic:pluginDescriptors UP-TO-DATE&#10;&gt; Task :build-logic:processResources UP-TO-DATE&#10;&gt; Task :build-logic:classes UP-TO-DATE&#10;&gt; Task :build-logic:jar UP-TO-DATE&#10;&gt; Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED&#10;&gt; Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED&#10;&gt; Task :analysis-model:compileKotlin UP-TO-DATE&#10;&gt; Task :analysis-model:compileJava NO-SOURCE&#10;&gt; Task :analysis-core:compileKotlin UP-TO-DATE&#10;&gt; Task :analysis-core:compileJava UP-TO-DATE&#10;&gt; Task :analysis-core:processResources NO-SOURCE&#10;&gt; Task :analysis-core:classes UP-TO-DATE&#10;&gt; Task :analysis-model:processResources NO-SOURCE&#10;&gt; Task :analysis-model:classes UP-TO-DATE&#10;&gt; Task :analysis-runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED&#10;&gt; Task :editor-ui:checkKotlinGradlePluginConfigurationErrors SKIPPED&#10;&gt; Task :analysis-runtime:processResources NO-SOURCE&#10;&gt; Task :editor-ui:processResources NO-SOURCE&#10;&gt; Task :analysis-model:jar UP-TO-DATE&#10;&gt; Task :plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED&#10;&gt; Task :plugin:initializeIntellijPlatformPlugin&#10;&gt; Task :plugin:patchPluginXml UP-TO-DATE&#10;&gt; Task :plugin:processResources UP-TO-DATE&#10;&#10;&gt; Task :editor-ui:compileKotlin&#10;w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.&#10;w: file:///private/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/junit16651196463236779549/checkout/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/ui/presentation/ActivePairMarkup.kt:78:24 'addRangeHighlighterAndChangeAttributes(Int, Int, Int, TextAttributes!, HighlighterTargetArea, Boolean, Consumer&lt;in RangeHighlighterEx!&gt;?): RangeHighlighterEx' is deprecated. Deprecated in Java&#10;&#10;&gt; Task :editor-ui:compileJava UP-TO-DATE&#10;&gt; Task :analysis-runtime:compileKotlin UP-TO-DATE&#10;&gt; Task :analysis-runtime:compileJava UP-TO-DATE&#10;&gt; Task :analysis-runtime:classes UP-TO-DATE&#10;&gt; Task :editor-ui:classes UP-TO-DATE&#10;&gt; Task :analysis-runtime:jar UP-TO-DATE&#10;&gt; Task :editor-ui:jar UP-TO-DATE&#10;&gt; Task :plugin:compileKotlin UP-TO-DATE&#10;&gt; Task :plugin:compileJava NO-SOURCE&#10;&gt; Task :plugin:classes UP-TO-DATE&#10;&#10;&gt; Task :verifyProductionModules&#10;Actual production compiler ownership/classpaths verified.&#10;&#10;[Incubating] Problems report is available at: file:///private/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/junit16651196463236779549/checkout/build/reports/problems/problems-report.html&#10;&#10;Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.&#10;&#10;You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.&#10;&#10;For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.&#10;&#10;BUILD SUCCESSFUL in 5s&#10;19 actionable tasks: 3 executed, 16 up-to-date&#10;" type="org.gradle.testkit.runner.UnexpectedBuildSuccess">org.gradle.testkit.runner.UnexpectedBuildSuccess: Unexpected build execution success in /var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/junit16651196463236779549/checkout with arguments [verifyProductionModules, --stacktrace, --no-configuration-cache, --no-build-cache]
+
+Output:
+&gt; Task :build-logic:compileJava NO-SOURCE
+&gt; Task :build-logic:compileGroovy UP-TO-DATE
+&gt; Task :build-logic:pluginDescriptors UP-TO-DATE
+&gt; Task :build-logic:processResources UP-TO-DATE
+&gt; Task :build-logic:classes UP-TO-DATE
+&gt; Task :build-logic:jar UP-TO-DATE
+&gt; Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :analysis-model:compileKotlin UP-TO-DATE
+&gt; Task :analysis-model:compileJava NO-SOURCE
+&gt; Task :analysis-core:compileKotlin UP-TO-DATE
+&gt; Task :analysis-core:compileJava UP-TO-DATE
+&gt; Task :analysis-core:processResources NO-SOURCE
+&gt; Task :analysis-core:classes UP-TO-DATE
+&gt; Task :analysis-model:processResources NO-SOURCE
+&gt; Task :analysis-model:classes UP-TO-DATE
+&gt; Task :analysis-runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :editor-ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :analysis-runtime:processResources NO-SOURCE
+&gt; Task :editor-ui:processResources NO-SOURCE
+&gt; Task :analysis-model:jar UP-TO-DATE
+&gt; Task :plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :plugin:initializeIntellijPlatformPlugin
+&gt; Task :plugin:patchPluginXml UP-TO-DATE
+&gt; Task :plugin:processResources UP-TO-DATE
+
+&gt; Task :editor-ui:compileKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+w: file:///private/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/junit16651196463236779549/checkout/editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/ui/presentation/ActivePairMarkup.kt:78:24 'addRangeHighlighterAndChangeAttributes(Int, Int, Int, TextAttributes!, HighlighterTargetArea, Boolean, Consumer&lt;in RangeHighlighterEx!&gt;?): RangeHighlighterEx' is deprecated. Deprecated in Java
+
+&gt; Task :editor-ui:compileJava UP-TO-DATE
+&gt; Task :analysis-runtime:compileKotlin UP-TO-DATE
+&gt; Task :analysis-runtime:compileJava UP-TO-DATE
+&gt; Task :analysis-runtime:classes UP-TO-DATE
+&gt; Task :editor-ui:classes UP-TO-DATE
+&gt; Task :analysis-runtime:jar UP-TO-DATE
+&gt; Task :editor-ui:jar UP-TO-DATE
+&gt; Task :plugin:compileKotlin UP-TO-DATE
+&gt; Task :plugin:compileJava NO-SOURCE
+&gt; Task :plugin:classes UP-TO-DATE
+
+&gt; Task :verifyProductionModules
+Actual production compiler ownership/classpaths verified.
+
+[Incubating] Problems report is available at: file:///private/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/junit16651196463236779549/checkout/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 5s
+19 actionable tasks: 3 executed, 16 up-to-date
+
+	at org.gradle.testkit.runner.internal.DefaultGradleRunner.lambda$buildAndFail$0(DefaultGradleRunner.java:284)
+	at org.gradle.testkit.runner.internal.DefaultGradleRunner.run(DefaultGradleRunner.java:374)
+	at org.gradle.testkit.runner.internal.DefaultGradleRunner.buildAndFail(DefaultGradleRunner.java:282)
+	at com.sijunyang.buildlogic.CompilationBoundaryTest.run(CompilationBoundaryTest.java:78)
+	at com.sijunyang.buildlogic.CompilationBoundaryTest.rejectAndRestore(CompilationBoundaryTest.java:216)
+	at com.sijunyang.buildlogic.CompilationBoundaryTest.kotlinCompilerPluginInjectionIsRejected(CompilationBoundaryTest.java:397)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.rules.ExternalResource$1.evaluate(ExternalResource.java:54)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestExecutor.runRequest(JUnitTestExecutor.java:174)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestExecutor.accept(JUnitTestExecutor.java:84)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestExecutor.accept(JUnitTestExecutor.java:47)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestDefinitionProcessor.processTestDefinition(AbstractJUnitTestDefinitionProcessor.java:65)
+	at org.gradle.api.internal.tasks.testing.SuiteTestDefinitionProcessor.processTestDefinition(SuiteTestDefinitionProcessor.java:53)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:88)
+	at jdk.proxy1/jdk.proxy1.$Proxy4.processTestDefinition(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker$2.run(TestWorker.java:178)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:126)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:103)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:63)
+	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:122)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:72)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
+</failure>
+  </testcase>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

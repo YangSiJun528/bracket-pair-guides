@@ -15,6 +15,10 @@ plugins {
     id("org.jetbrains.intellij.platform")
 }
 
+val visualBridge = sourceSets.create("visualBridge") {
+    compileClasspath += sourceSets.main.get().output + sourceSets.main.get().compileClasspath
+    runtimeClasspath += sourceSets.main.get().runtimeClasspath
+}
 val visualTestSourceSet = sourceSets.create("visualTest") {
     compileClasspath += sourceSets.main.get().output
     runtimeClasspath += sourceSets.main.get().output
@@ -27,9 +31,7 @@ val visualTestImplementation = configurations.getByName(
 // The Driver bridge needs the plugin classloader, but belongs only in UI-test archives.
 val visualTestBridgeJar = tasks.register<Jar>("visualTestBridgeJar") {
     archiveClassifier.set("visual-test-bridge")
-    from(sourceSets.test.get().output) {
-        include("com/sijunyang/bracketpairguides/testing/**")
-    }
+    from(visualBridge.output)
 }
 val releasePlugin = tasks.named<BuildPluginTask>("buildPlugin")
 val buildVisualTestPlugin = tasks.register<Zip>("buildVisualTestPlugin") {
@@ -127,6 +129,9 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 dependencies {
+    implementation(project(":analysis-model"))
+    implementation(project(":editor-ui"))
+    implementation(project(":analysis-runtime"))
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.assertj:assertj-core:3.27.7")
     testImplementation("com.tngtech.archunit:archunit-junit4:1.5.1")
@@ -189,12 +194,12 @@ intellijPlatformTesting.testIdeUi.register("visualTest") {
     }
 }
 
-intellijPlatformTesting.testIdeUi.register("recordVisualTestBaseline") {
+intellijPlatformTesting.testIdeUi.register("captureVisualTestCandidates") {
     type = IntelliJPlatformType.IntellijIdeaCommunity
     version = "2024.2.6"
 
     task {
-        description = "Explicitly records visual baselines for the pinned IDE."
+        description = "Captures candidate images for review without accepting or overwriting baselines."
         group = "verification"
         testClassesDirs = visualTestSourceSet.output.classesDirs
         classpath = visualTestSourceSet.runtimeClasspath
@@ -202,11 +207,7 @@ intellijPlatformTesting.testIdeUi.register("recordVisualTestBaseline") {
         filter { excludeTestsMatching("*.ManualQaLauncher") }
         javaLauncher.set(visualTestJavaLauncher)
         maxParallelForks = 1
-        systemProperty("visual.test.record-baseline", true)
-        systemProperty(
-            "visual.test.force-baseline-overwrite",
-            providers.gradleProperty("forceVisualBaselineOverwrite").orElse("false").get(),
-        )
+        systemProperty("visual.test.capture-candidates", true)
         systemProperty(
             "visual.test.artifacts.dir",
             visualTestArtifactsDirectory.get().asFile.absolutePath,
@@ -224,25 +225,103 @@ intellijPlatformTesting.testIdeUi.register("recordVisualTestBaseline") {
     }
 }
 
-// Use the same Gradle UI-test runtime and Starter setup as visualTest.
-intellijPlatformTesting.testIdeUi.register("runManualQa") {
-    type = IntelliJPlatformType.IntellijIdeaCommunity
-    version = "2024.2.6"
+val sdkOwners = listOf(project(":editor-ui"), project(":analysis-runtime"), project)
+listOf("minimumSdkTests" to "2024.1.7", "currentSdkTests" to "263.6259.32").forEach { (name, selectedVersion) ->
+    intellijPlatformTesting.testIde.register(name) {
+        type =
+            if (name ==
+                "minimumSdkTests"
+            ) {
+                IntelliJPlatformType.IntellijIdeaCommunity
+            } else {
+                IntelliJPlatformType.IntellijIdea
+            }
+        version = selectedVersion
+        testFramework(TestFrameworkType.Platform)
+        task {
+            description = "Runs module-owned actual IDE contracts against $selectedVersion."
+            testClassesDirs =
+                files(
+                    sdkOwners.map {
+                        it.extensions.getByType<SourceSetContainer>().getByName("test").output.classesDirs
+                    },
+                )
+            // Preserve the official selected SDK/bootstrap classpath. Owner fixture outputs
+            // need no owner SDK/runtime jars: those would shadow the selected IDE.
+            classpath += files(sdkOwners.map { it.extensions.getByType<SourceSetContainer>().getByName("test").output })
+            filter { includeTestsMatching("*IdeContractTest") }
+            maxParallelForks = 1
+            systemProperty("contract.ide.baseline", if (name == "minimumSdkTests") "241" else "263")
+            systemProperty("contract.ide.version", selectedVersion)
+            outputs.upToDateWhen { false }
+        }
+    }
+}
 
+tasks.test { exclude("**/*IdeContractTest.class") }
+
+// A separate opt-in fixture source set; never part of release packaging or ordinary check.
+apply(from = "sdk-measurement.gradle")
+val sdkMeasurementJar = layout.buildDirectory.file("sdk-measurement/plugin.jar")
+val sdkMeasurementEvidence = layout.buildDirectory.file("sdk-measurement/descriptor-evidence.json")
+val prepareSdkMeasurementPluginJar = tasks.named("prepareSdkMeasurementPluginJar")
+val prepareSdkMeasurementTestResources = tasks.named("prepareSdkMeasurementTestResources")
+val sdkPerformance = sourceSets.create("sdkPerformance") {
+    compileClasspath += sourceSets.test.get().compileClasspath
+    compileClasspath += files(sdkOwners.map { it.extensions.getByType<SourceSetContainer>().getByName("test").output })
+}
+intellijPlatformTesting.testIde.register("sdkPerformance") {
+    sandboxDirectory.set(layout.buildDirectory.dir("sdk-measurement/sandbox"))
+    prepareSandboxTask {
+        dependsOn(prepareSdkMeasurementPluginJar)
+        pluginJar.set(sdkMeasurementJar)
+        doLast {
+            val installed = pluginDirectory.file("lib/plugin.jar").get().asFile
+            require(installed.readBytes().contentEquals(sdkMeasurementJar.get().asFile.readBytes())) {
+                "SDK measurement sandbox did not install the isolated descriptor archive"
+            }
+        }
+    }
+    type = IntelliJPlatformType.IntellijIdeaCommunity
+    version = "2024.1.7"
+    testFramework(TestFrameworkType.Platform)
     task {
-        description = "Opens the visual-test environment for manual QA, without running scenarios."
-        group = "verification"
-        testClassesDirs = visualTestSourceSet.output.classesDirs
-        classpath = visualTestSourceSet.runtimeClasspath
-        useJUnitPlatform()
-        filter { includeTestsMatching("*.ManualQaLauncher") }
-        javaLauncher.set(visualTestJavaLauncher)
-        maxParallelForks = 1
-        outputs.upToDateWhen { false }
-        testLogging.showStandardStreams = true
-        systemProperty(
-            "manual.qa.root",
-            rootProject.layout.projectDirectory.dir("outputs/manual-qa-starter").asFile.absolutePath,
+        description = "Runs explicitly selected real SDK comparison measurements; serial main orchestration only."
+        dependsOn(prepareSdkMeasurementPluginJar, prepareSdkMeasurementTestResources)
+        testClassesDirs = sdkPerformance.output.classesDirs
+        // Keep official PathClassLoader/selected IDE bootstrap entries intact.
+        classpath +=
+            sdkPerformance.output +
+            files(sdkOwners.map { it.extensions.getByType<SourceSetContainer>().getByName("test").output })
+        val originalMeasurementClasspath = classpath
+        val ownResourceRoots = listOfNotNull(
+            sourceSets.test.get().output.resourcesDir,
+            sdkPerformance.output.resourcesDir,
         )
+            .map { it.canonicalFile }.toSet()
+        classpath = originalMeasurementClasspath.filter { it.canonicalFile !in ownResourceRoots } +
+            files(
+                layout.buildDirectory.dir("sdk-measurement/test-resources/test"),
+                layout.buildDirectory.dir("sdk-measurement/test-resources/sdkPerformance"),
+            )
+        filter { includeTestsMatching("*SdkComparisonMeasurementTest") }
+        maxParallelForks = 1
+        systemProperty("issue97.perf.host", "com.sijunyang.bracketpairguides.comparison.CandidateComparisonHost")
+        providers.systemPropertiesPrefixedBy("issue97.perf.").get().forEach { (name, value) ->
+            systemProperty(name, value)
+        }
+        systemProperty("contract.ide.baseline", "241")
+        systemProperty("contract.ide.version", "2024.1.7")
+        systemProperty("issue97.perf.descriptorMode", "manual-registry-events-no-auto-startup-pass")
+        systemProperty("issue97.perf.descriptorEvidence", sdkMeasurementEvidence.get().asFile.absolutePath)
+        systemProperty(
+            "issue97.perf.descriptorResourcesEvidence",
+            layout.buildDirectory.file("sdk-measurement/test-resources-evidence.json").get().asFile.absolutePath,
+        )
+        outputs.upToDateWhen { false }
+        doFirst {
+            require(systemProperties["issue97.perf.workload"] != null) { "Explicit -Dissue97.perf.workload required" }
+            require(systemProperties["issue97.perf.output"] != null) { "Explicit -Dissue97.perf.output required" }
+        }
     }
 }

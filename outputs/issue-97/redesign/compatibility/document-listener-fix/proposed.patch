@@ -1,0 +1,49 @@
+--- a/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/runtime/session/DocumentCalculation.kt
++++ b/analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/runtime/session/DocumentCalculation.kt
+@@ -1,8 +1,10 @@
+ package com.sijunyang.bracketpairguides.runtime.session
+ 
++import com.intellij.openapi.Disposable
+ import com.intellij.openapi.editor.Document
+ import com.intellij.openapi.editor.event.DocumentEvent
+ import com.intellij.openapi.editor.event.DocumentListener
++import com.intellij.openapi.util.Disposer
+ import com.sijunyang.bracketpairguides.core.api.BracketCalculator
+ import java.lang.ref.WeakReference
+ 
+@@ -13,19 +15,32 @@
+     private var observedStamp = document.modificationStamp
+     private var revision = 0L
+     private var owners = 0
++    private var listenerLifetime: Disposable? = null
+ 
+     @Synchronized fun acquire() {
+         val current = checkNotNull(documentReference.get())
+-        if (owners++ == 0) {
++        if (owners == 0) {
++            val lifetime = Disposer.newDisposable("Bracket Pair Guides document calculation")
++            try {
++                current.addDocumentListener(this, lifetime)
++            } catch (failure: Throwable) {
++                Disposer.dispose(lifetime)
++                throw failure
++            }
++            listenerLifetime = lifetime
+             revision++ // Dormant intervals have no listener; never reuse their cached geometry blindly.
+             revisionFor(current.modificationStamp)
+-            current.addDocumentListener(this)
+         }
++        owners++
+     }
+ 
+     @Synchronized fun release() {
+         check(owners > 0)
+-        if (--owners == 0) documentReference.get()?.removeDocumentListener(this)
++        if (--owners == 0) {
++            val lifetime = checkNotNull(listenerLifetime)
++            listenerLifetime = null
++            Disposer.dispose(lifetime)
++        }
+     }
+ 
+     @Synchronized override fun documentChanged(event: DocumentEvent) {

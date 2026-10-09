@@ -1,0 +1,17 @@
+{
+  "positive": true,
+  "rejected": [
+    "benchmark",
+    "jmhVersion",
+    "jdkVersion",
+    "forks",
+    "threads",
+    "warmupIterations",
+    "measurementIterations",
+    "warmupTime",
+    "measurementTime",
+    "jvmArgs",
+    "sampleGeometry"
+  ],
+  "actualJmhRunValidated": false
+}

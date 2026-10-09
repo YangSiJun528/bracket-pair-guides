@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisPublicationTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:40:39.933Z" hostname="sijun-yangui-MacBookPro.local" time="0.201">
+  <properties/>
+  <testcase name="testEmptyCoverageCanonicalizesItsStampedEmptyPayload" classname="com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisPublicationTest" time="0.054"/>
+  <testcase name="testLimitedPayloadCanonicalizesEffectiveCoverageAndPreservesAttemptedStamp" classname="com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisPublicationTest" time="0.062"/>
+  <testcase name="testRecognitionRefusalPublishesAttemptedStampWithoutCanonicalization" classname="com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisPublicationTest" time="0.04"/>
+  <testcase name="testCompletePayloadCanonicalizesAfterGuidePositionsWithCapturedIdentity" classname="com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisPublicationTest" time="0.045"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

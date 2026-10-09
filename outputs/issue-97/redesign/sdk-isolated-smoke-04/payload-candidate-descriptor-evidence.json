@@ -1,0 +1,28 @@
+{
+    "schema": 1,
+    "mode": "manual-registry-events-no-auto-startup-pass",
+    "originalJar": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/libs/plugin-0.0.6.jar",
+    "measuredJar": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/plugin.jar",
+    "originalJarSha256": "0ba9536227e662aec65e6d102b05f03c25ed2030f8e41528c7f398c9e7cb8bf3",
+    "measuredJarSha256": "4d448bd68dcecb7047a087b43c627fd80045e24a2e35beb55bdd86c8ac721440",
+    "originalDescriptorSha256": "409ae6a0277fbcda7c23b853f71c73aa98ba767f3bc039a4d644bc0a34406cbf",
+    "measuredDescriptorSha256": "bb3c21f1281d4210e85df47c3887e5dc16f5bd0edfacef5fae0007fdff1e6e44",
+    "removedEntries": [
+        {
+            "tag": "postStartupActivity",
+            "implementation": "com.sijunyang.bracketpairguides.plugin.GuideStartup",
+            "xml": "<postStartupActivity implementation=\"com.sijunyang.bracketpairguides.plugin.GuideStartup\" />"
+        },
+        {
+            "tag": "highlightingPassFactory",
+            "implementation": "com.sijunyang.bracketpairguides.plugin.BracketGuidePassRegistration",
+            "xml": "<highlightingPassFactory implementation=\"com.sijunyang.bracketpairguides.plugin.BracketGuidePassRegistration\" />"
+        }
+    ],
+    "changedEntries": [
+        "META-INF/plugin.xml"
+    ],
+    "nonDescriptorEntriesUnchanged": true,
+    "archiveEntries": 17,
+    "scope": "Only this plugin automatic startup activities/highlighting pass factory are suppressed; manual registry and document-event pipeline remain actual production implementations. Whole-plugin startup is covered separately by Driver."
+}

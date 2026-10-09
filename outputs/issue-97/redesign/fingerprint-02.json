@@ -1,0 +1,29 @@
+{
+  "java": "/Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home/bin/java",
+  "version": "openjdk version \"17.0.17\" 2025-10-21\nOpenJDK Runtime Environment Temurin-17.0.17+10 (build 17.0.17+10)\nOpenJDK 64-Bit Server VM Temurin-17.0.17+10 (build 17.0.17+10, mixed mode, sharing)\n",
+  "sides": {
+    "baseline": {
+      "jar": "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides/benchmarks/build/libs/benchmarks-0.0.6-jmh.jar",
+      "sha256": "0d2169b3dd8d503acf486c36361692c3ac36868b1d2ae94a35d6dcb98a4a2afe",
+      "exitCode": 0,
+      "command": [
+        "/Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home/bin/java",
+        "--class-path",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides/benchmarks/build/libs/benchmarks-0.0.6-jmh.jar",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/FingerprintCheck.java"
+      ]
+    },
+    "candidate": {
+      "jar": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/benchmarks/build/libs/benchmarks-0.0.6-jmh.jar",
+      "sha256": "8a436c0fb50f61a6d37ab2715fe3b5ffbb2a1fd374cb219e751502bba1341271",
+      "exitCode": 0,
+      "command": [
+        "/Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home/bin/java",
+        "--class-path",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/benchmarks/build/libs/benchmarks-0.0.6-jmh.jar",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/FingerprintCheck.java"
+      ]
+    }
+  },
+  "equal": true
+}

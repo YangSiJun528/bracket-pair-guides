@@ -1,0 +1,2085 @@
+{
+  "exitCode": 0,
+  "failThreshold": 0,
+  "findings": 0,
+  "sarif": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/qodana/local/results.hzxMTD/qodana.sarif.json",
+  "sarifSha256": "7554440e8875dd1f410143411ff96baafecacdda241a518fbcb230909eb484ed",
+  "sourceManifestSha256": "ab0982b2526b667c4fc6ab81bfe2fa572bb13d1f1b3b165b2adde378bd816389",
+  "sourceUnchanged": true,
+  "seconds": 358.0148315830156,
+  "tool": {
+    "name": "QDJVM",
+    "fullName": "Qodana for JVM",
+    "version": "262.11550",
+    "rules": [],
+    "taxa": [
+      {
+        "id": "Language injection",
+        "name": "Language injection"
+      },
+      {
+        "id": "Kotlin",
+        "name": "Kotlin"
+      },
+      {
+        "id": "Kotlin/Style issues",
+        "name": "Style issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Kotlin",
+              "index": 1,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "JVM languages",
+        "name": "JVM languages"
+      },
+      {
+        "id": "Kotlin/Redundant constructs",
+        "name": "Redundant constructs",
+        "relationships": [
+          {
+            "target": {
+              "id": "Kotlin",
+              "index": 1,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java",
+        "name": "Java"
+      },
+      {
+        "id": "Java/Internationalization",
+        "name": "Internationalization",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Performance",
+        "name": "Performance",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Code style issues",
+        "name": "Code style issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Error handling",
+        "name": "Error handling",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Declaration redundancy",
+        "name": "Declaration redundancy",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Probable bugs",
+        "name": "Probable bugs",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Class structure",
+        "name": "Class structure",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Serialization issues",
+        "name": "Serialization issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Groovy",
+        "name": "Groovy"
+      },
+      {
+        "id": "Groovy/GPath",
+        "name": "GPath",
+        "relationships": [
+          {
+            "target": {
+              "id": "Groovy",
+              "index": 14,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Imports",
+        "name": "Imports",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Maven",
+        "name": "Maven"
+      },
+      {
+        "id": "Kotlin/Probable bugs",
+        "name": "Probable bugs",
+        "relationships": [
+          {
+            "target": {
+              "id": "Kotlin",
+              "index": 1,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Threading issues",
+        "name": "Threading issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Control flow issues",
+        "name": "Control flow issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Numeric issues",
+        "name": "Numeric issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Initialization",
+        "name": "Initialization",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "HTML",
+        "name": "HTML"
+      },
+      {
+        "id": "Java/Security",
+        "name": "Security",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Properties files",
+        "name": "Properties files"
+      },
+      {
+        "id": "Plugin DevKit",
+        "name": "Plugin DevKit"
+      },
+      {
+        "id": "Plugin DevKit/Code",
+        "name": "Code",
+        "relationships": [
+          {
+            "target": {
+              "id": "Plugin DevKit",
+              "index": 26,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Groovy/Naming conventions",
+        "name": "Naming conventions",
+        "relationships": [
+          {
+            "target": {
+              "id": "Groovy",
+              "index": 14,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Packaging issues",
+        "name": "Packaging issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Verbose or redundant code constructs",
+        "name": "Verbose or redundant code constructs",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Gradle",
+        "name": "Gradle"
+      },
+      {
+        "id": "Gradle/Probable bugs",
+        "name": "Probable bugs",
+        "relationships": [
+          {
+            "target": {
+              "id": "Gradle",
+              "index": 31,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "JVM languages/Logging",
+        "name": "Logging",
+        "relationships": [
+          {
+            "target": {
+              "id": "JVM languages",
+              "index": 3,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "EditorConfig",
+        "name": "EditorConfig"
+      },
+      {
+        "id": "General",
+        "name": "General"
+      },
+      {
+        "id": "Gradle/Validity issues",
+        "name": "Validity issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Gradle",
+              "index": 31,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Code maturity",
+        "name": "Code maturity",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Kotlin/Other problems",
+        "name": "Other problems",
+        "relationships": [
+          {
+            "target": {
+              "id": "Kotlin",
+              "index": 1,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Groovy/Probable bugs",
+        "name": "Probable bugs",
+        "relationships": [
+          {
+            "target": {
+              "id": "Groovy",
+              "index": 14,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Plugin DevKit/Workspace model",
+        "name": "Workspace model",
+        "relationships": [
+          {
+            "target": {
+              "id": "Plugin DevKit",
+              "index": 26,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Data flow",
+        "name": "Data flow",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Gradle/Best practices",
+        "name": "Best practices",
+        "relationships": [
+          {
+            "target": {
+              "id": "Gradle",
+              "index": 31,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Kotlin/Naming conventions",
+        "name": "Naming conventions",
+        "relationships": [
+          {
+            "target": {
+              "id": "Kotlin",
+              "index": 1,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Finalization",
+        "name": "Finalization",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Modularization issues",
+        "name": "Modularization issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Javadoc",
+        "name": "Javadoc",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Kotlin/Java interop issues",
+        "name": "Java interop issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Kotlin",
+              "index": 1,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Naming conventions",
+        "name": "Naming conventions",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Naming conventions/Class",
+        "name": "Class",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Naming conventions",
+              "index": 48,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Plugin DevKit/Plugin descriptor",
+        "name": "Plugin descriptor",
+        "relationships": [
+          {
+            "target": {
+              "id": "Plugin DevKit",
+              "index": 26,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Abstraction issues",
+        "name": "Abstraction issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Assignment issues",
+        "name": "Assignment issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Java language level migration aids",
+        "name": "Java language level migration aids",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Java language level migration aids/Java 9",
+        "name": "Java 9",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Java language level migration aids",
+              "index": 53,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Groovy/Threading issues",
+        "name": "Threading issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Groovy",
+              "index": 14,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Groovy/Control flow issues",
+        "name": "Control flow issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Groovy",
+              "index": 14,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/JUnit",
+        "name": "JUnit",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "XSLT",
+        "name": "XSLT"
+      },
+      {
+        "id": "Kotlin/Numeric issues",
+        "name": "Numeric issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Kotlin",
+              "index": 1,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Groovy/Style",
+        "name": "Style",
+        "relationships": [
+          {
+            "target": {
+              "id": "Groovy",
+              "index": 14,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Portability",
+        "name": "Portability",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/TestNG",
+        "name": "TestNG",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Visibility",
+        "name": "Visibility",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "RegExp",
+        "name": "RegExp"
+      },
+      {
+        "id": "Java/Concurrency annotation issues",
+        "name": "Concurrency annotation issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "JUnit",
+        "name": "JUnit"
+      },
+      {
+        "id": "Java/Lombok",
+        "name": "Lombok",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Lombok/Redundant modifiers",
+        "name": "Redundant modifiers",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Lombok",
+              "index": 67,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "UI form",
+        "name": "UI form"
+      },
+      {
+        "id": "Java/Naming conventions/Method",
+        "name": "Method",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Naming conventions",
+              "index": 48,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Kotlin/Code migration",
+        "name": "Code migration",
+        "relationships": [
+          {
+            "target": {
+              "id": "Kotlin",
+              "index": 1,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Groovy/Annotations",
+        "name": "Annotations",
+        "relationships": [
+          {
+            "target": {
+              "id": "Groovy",
+              "index": 14,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "XML",
+        "name": "XML"
+      },
+      {
+        "id": "Java/Cloning issues",
+        "name": "Cloning issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Manifest",
+        "name": "Manifest"
+      },
+      {
+        "id": "Groovy/Potentially confusing code constructs",
+        "name": "Potentially confusing code constructs",
+        "relationships": [
+          {
+            "target": {
+              "id": "Groovy",
+              "index": 14,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Logging",
+        "name": "Logging",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Groovy/Error handling",
+        "name": "Error handling",
+        "relationships": [
+          {
+            "target": {
+              "id": "Groovy",
+              "index": 14,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Java language level migration aids/Java 5",
+        "name": "Java 5",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Java language level migration aids",
+              "index": 53,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Java language level migration aids/Java 8",
+        "name": "Java 8",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Java language level migration aids",
+              "index": 53,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "JVM languages/Test frameworks",
+        "name": "Test frameworks",
+        "relationships": [
+          {
+            "target": {
+              "id": "JVM languages",
+              "index": 3,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Groovy/Assignment issues",
+        "name": "Assignment issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Groovy",
+              "index": 14,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Class metrics",
+        "name": "Class metrics",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Encapsulation",
+        "name": "Encapsulation",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Test frameworks",
+        "name": "Test frameworks",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Reflective access",
+        "name": "Reflective access",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Kotlin/Coroutine inspections",
+        "name": "Coroutine inspections",
+        "relationships": [
+          {
+            "target": {
+              "id": "Kotlin",
+              "index": 1,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Java language level migration aids/Java 15",
+        "name": "Java 15",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Java language level migration aids",
+              "index": 53,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Method metrics",
+        "name": "Method metrics",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Resource management",
+        "name": "Resource management",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Java language level migration aids/Java 14",
+        "name": "Java 14",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Java language level migration aids",
+              "index": 53,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Numeric issues/Cast",
+        "name": "Cast",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Numeric issues",
+              "index": 21,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Plugin DevKit/Description file",
+        "name": "Description file",
+        "relationships": [
+          {
+            "target": {
+              "id": "Plugin DevKit",
+              "index": 26,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/JavaBeans issues",
+        "name": "JavaBeans issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Pattern validation",
+        "name": "Pattern validation"
+      },
+      {
+        "id": "Java/Dependency issues",
+        "name": "Dependency issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Java language level issues",
+        "name": "Java language level issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "JSON and JSON5",
+        "name": "JSON and JSON5"
+      },
+      {
+        "id": "Groovy/Method metrics",
+        "name": "Method metrics",
+        "relationships": [
+          {
+            "target": {
+              "id": "Groovy",
+              "index": 14,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "XPath",
+        "name": "XPath"
+      },
+      {
+        "id": "Java/Inheritance issues",
+        "name": "Inheritance issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Kotlin/Migration",
+        "name": "Migration",
+        "relationships": [
+          {
+            "target": {
+              "id": "Kotlin",
+              "index": 1,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Kotlin/Migration/Maven",
+        "name": "Maven",
+        "relationships": [
+          {
+            "target": {
+              "id": "Kotlin/Migration",
+              "index": 102,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Internationalization",
+        "name": "Internationalization"
+      },
+      {
+        "id": "Java/Java language level migration aids/Java 10",
+        "name": "Java 10",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Java language level migration aids",
+              "index": 53,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Java language level migration aids/Java 7",
+        "name": "Java 7",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Java language level migration aids",
+              "index": 53,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Compiler issues",
+        "name": "Compiler issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Version control",
+        "name": "Version control"
+      },
+      {
+        "id": "Kotlin/Migration/Gradle",
+        "name": "Gradle",
+        "relationships": [
+          {
+            "target": {
+              "id": "Kotlin/Migration",
+              "index": 102,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Memory",
+        "name": "Memory",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Structural search",
+        "name": "Structural search"
+      },
+      {
+        "id": "Java/Performance/Embedded",
+        "name": "Embedded",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Performance",
+              "index": 7,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Java language level migration aids/Java 25",
+        "name": "Java 25",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Java language level migration aids",
+              "index": 53,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Probable bugs/Nullability problems",
+        "name": "Nullability problems",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Probable bugs",
+              "index": 11,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "RELAX NG",
+        "name": "RELAX NG"
+      },
+      {
+        "id": "Java/Properties files",
+        "name": "Properties files",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Java language level migration aids/Java 11",
+        "name": "Java 11",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Java language level migration aids",
+              "index": 53,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Groovy/Data flow",
+        "name": "Data flow",
+        "relationships": [
+          {
+            "target": {
+              "id": "Groovy",
+              "index": 14,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Java language level migration aids/Java 26",
+        "name": "Java 26",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Java language level migration aids",
+              "index": 53,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Java language level migration aids/Java 21",
+        "name": "Java 21",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Java language level migration aids",
+              "index": 53,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Lombok",
+        "name": "Lombok"
+      },
+      {
+        "id": "Lombok/Kotlin",
+        "name": "Kotlin",
+        "relationships": [
+          {
+            "target": {
+              "id": "Lombok",
+              "index": 121,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Java language level migration aids/Java 16",
+        "name": "Java 16",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Java language level migration aids",
+              "index": 53,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Lombok/Redundant definitions",
+        "name": "Redundant definitions",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Lombok",
+              "index": 67,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Groovy/Other",
+        "name": "Other",
+        "relationships": [
+          {
+            "target": {
+              "id": "Groovy",
+              "index": 14,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Logpoints",
+        "name": "Logpoints"
+      },
+      {
+        "id": "Java/Bitwise operation issues",
+        "name": "Bitwise operation issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Groovy/Validity issues",
+        "name": "Validity issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Groovy",
+              "index": 14,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/Java language level migration aids/Java 23",
+        "name": "Java 23",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java/Java language level migration aids",
+              "index": 53,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Kotlin/Logging",
+        "name": "Logging",
+        "relationships": [
+          {
+            "target": {
+              "id": "Kotlin",
+              "index": 1,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Java/toString() issues",
+        "name": "toString() issues",
+        "relationships": [
+          {
+            "target": {
+              "id": "Java",
+              "index": 5,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Qodana",
+        "name": "Qodana"
+      },
+      {
+        "id": "Code metrics",
+        "name": "Code metrics"
+      },
+      {
+        "id": "Kotlin/React",
+        "name": "React",
+        "relationships": [
+          {
+            "target": {
+              "id": "Kotlin",
+              "index": 1,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Kotlin/React/Probable bugs",
+        "name": "Probable bugs",
+        "relationships": [
+          {
+            "target": {
+              "id": "Kotlin/React",
+              "index": 134,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Groovy/Declaration redundancy",
+        "name": "Declaration redundancy",
+        "relationships": [
+          {
+            "target": {
+              "id": "Groovy",
+              "index": 14,
+              "toolComponent": {
+                "name": "QDJVM"
+              }
+            },
+            "kinds": [
+              "superset"
+            ]
+          }
+        ]
+      }
+    ],
+    "language": "en-US",
+    "contents": [
+      "localizedData",
+      "nonLocalizedData"
+    ],
+    "isComprehensive": false
+  },
+  "localOnly": true
+}

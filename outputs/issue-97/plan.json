@@ -1,0 +1,39 @@
+{
+  "issue": 97,
+  "base": {
+    "pullRequest": 96,
+    "stateAtStart": "OPEN",
+    "commit": "84d1a43141b1933c81e027ef01d1579fc4679e6e"
+  },
+  "branch": "codex/issue-97-physical-modules",
+  "productionModules": [
+    "analysis-model",
+    "analysis-core",
+    "editor-ui",
+    "analysis-runtime",
+    "plugin"
+  ],
+  "invariants": [
+    "UI compile classpaths exclude core and runtime implementations",
+    "plugin compile classpaths exclude core",
+    "model/core compile and test without IntelliJ SDK",
+    "preserve ADR 0001 hiding and immediate repair",
+    "preserve ADR 0002 responsiveness and unchanged thresholds"
+  ],
+  "evidenceRequired": [
+    "Java and Kotlin compile-negative probes with positives on actual task classpaths",
+    "transitive dependencies/shared sources/shared outputs/friend paths contamination rejection",
+    "pure computation and runtime fixtures on minimum/latest supported IDEs",
+    "full check/Plugin Verifier/Driver exact baseline/Qodana",
+    "matched before/after throughput and allocations",
+    "class/resource/runtime dependency packaging inspection"
+  ],
+  "executionPolicy": {
+    "buildsAndMeasurements": "main only, sequential",
+    "subagentModel": "gpt-6.1-sol",
+    "subagentReasoning": "medium",
+    "remoteWrites": "prohibited unless separately requested"
+  },
+  "baselineDirectory": "/private/tmp/bpg-97-baseline",
+  "evidenceDirectory": "outputs/issue-97"
+}

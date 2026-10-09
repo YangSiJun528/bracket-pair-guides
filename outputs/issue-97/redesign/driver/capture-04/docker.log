@@ -1,0 +1,86 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :build-logic:compileJava NO-SOURCE
+> Task :build-logic:compileGroovy FROM-CACHE
+> Task :build-logic:pluginDescriptors
+> Task :build-logic:processResources
+> Task :build-logic:classes
+> Task :build-logic:jar
+> Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-model:compileKotlin FROM-CACHE
+> Task :analysis-model:compileJava NO-SOURCE
+> Task :analysis-model:processResources NO-SOURCE
+> Task :analysis-model:classes UP-TO-DATE
+> Task :analysis-model:jar
+> Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-core:compileKotlin FROM-CACHE
+> Task :analysis-core:compileJava FROM-CACHE
+> Task :analysis-runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:compileKotlin FROM-CACHE
+> Task :editor-ui:compileJava FROM-CACHE
+> Task :analysis-runtime:compileKotlin FROM-CACHE
+> Task :analysis-runtime:compileJava FROM-CACHE
+> Task :analysis-runtime:processResources NO-SOURCE
+> Task :analysis-runtime:classes UP-TO-DATE
+> Task :analysis-runtime:jar
+> Task :editor-ui:processResources NO-SOURCE
+> Task :editor-ui:classes UP-TO-DATE
+> Task :editor-ui:jar
+> Task :plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :plugin:compileKotlin FROM-CACHE
+> Task :plugin:compileJava NO-SOURCE
+> Task :plugin:initializeIntellijPlatformPlugin
+> Task :plugin:patchPluginXml FROM-CACHE
+> Task :plugin:processResources
+> Task :plugin:classes
+> Task :plugin:generateManifest FROM-CACHE
+> Task :plugin:jar
+> Task :plugin:instrumentCode FROM-CACHE
+> Task :plugin:processVisualBridgeResources
+> Task :analysis-core:processResources NO-SOURCE
+> Task :analysis-core:classes UP-TO-DATE
+> Task :analysis-core:jar
+> Task :plugin:instrumentedJar FROM-CACHE
+> Task :plugin:composedJar FROM-CACHE
+> Task :plugin:prepareSandbox
+> Task :plugin:buildSearchableOptions SKIPPED
+> Task :plugin:prepareJarSearchableOptions SKIPPED
+> Task :plugin:jarSearchableOptions SKIPPED
+> Task :plugin:buildPlugin
+> Task :plugin:cleanRecordedVisualTestArtifacts UP-TO-DATE
+
+> Task :plugin:compileVisualBridgeKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :plugin:compileVisualTestKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :plugin:compileVisualBridgeJava NO-SOURCE
+> Task :plugin:visualBridgeClasses
+> Task :plugin:visualTestBridgeJar
+> Task :plugin:buildVisualTestPlugin
+> Task :plugin:compileVisualTestJava NO-SOURCE
+> Task :plugin:prepareSandbox_captureVisualTestCandidates
+> Task :plugin:processVisualTestResources
+> Task :plugin:visualTestClasses
+> Task :plugin:captureVisualTestCandidates
+
+
+(java:278): dbind-WARNING **: 08:37:55.551: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+[08:38:55]:    ... terminating process `jcmd-run` by request from external process (either SIGTERM or SIGKILL is caught) ...
+[08:38:55]: ... Shutdown in progress
+[08:38:55]: Couldn't find appropriate java process id for pid 352
+[08:38:55]:   ... failed external process `jcmd-run` with exit code 143
+[08:38:55]: Retrying in 3s ...
+
+[Incubating] Problems report is available at: file:///workspace/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 3m 3s
+35 actionable tasks: 20 executed, 14 from cache, 1 up-to-date

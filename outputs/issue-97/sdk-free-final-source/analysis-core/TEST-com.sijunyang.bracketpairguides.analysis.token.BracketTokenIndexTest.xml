@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndexTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:14:34.692Z" hostname="sijun-yangui-MacBookPro.local" time="0.04">
+  <properties/>
+  <testcase name="content equality compares the complete observable token sequence" classname="com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndexTest" time="0.0"/>
+  <testcase name="sorts both endpoints and selects only an overlapping viewport" classname="com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndexTest" time="0.0"/>
+  <testcase name="detached index preserves every token metadata field" classname="com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndexTest" time="0.001"/>
+  <testcase name="content equality checks cancellation during a large exact comparison" classname="com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndexTest" time="0.001"/>
+  <testcase name="compact index matches an independent token model across random ranges" classname="com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndexTest" time="0.038"/>
+  <testcase name="includes a token that begins before the viewport and overlaps it" classname="com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndexTest" time="0.0"/>
+  <testcase name="ignores both endpoints of a structurally invalid pair" classname="com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndexTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

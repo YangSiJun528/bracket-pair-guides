@@ -1,0 +1,74 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Calculating task graph as no cached configuration is available for tasks: check :analysis-model:build :analysis-core:build
+> Task :build-logic:compileJava NO-SOURCE
+> Task :build-logic:compileGroovy
+> Task :build-logic:pluginDescriptors
+> Task :build-logic:processResources
+> Task :build-logic:classes
+> Task :build-logic:jar
+> Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-core:processResources NO-SOURCE
+> Task :analysis-model:processResources NO-SOURCE
+> Task :analysis-core:processTestResources NO-SOURCE
+> Task :analysis-model:processTestResources NO-SOURCE
+
+> Task :analysis-model:compileKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :analysis-model:compileJava NO-SOURCE
+> Task :analysis-model:classes UP-TO-DATE
+> Task :analysis-model:jar
+
+> Task :analysis-model:compileTestKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :analysis-model:compileTestJava NO-SOURCE
+> Task :analysis-model:testClasses UP-TO-DATE
+> Task :analysis-model:test
+> Task :analysis-model:check
+> Task :analysis-model:assemble
+> Task :analysis-model:build
+
+> Task :analysis-core:compileKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :analysis-core:compileJava
+> Task :analysis-core:classes
+
+> Task :verifyProductionModules
+Actual production compiler ownership/classpaths verified.
+
+> Task :analysis-core:jar
+> Task :analysis-core:assemble
+
+> Task :analysis-core:compileTestKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :analysis-core:compileTestJava NO-SOURCE
+> Task :analysis-core:testClasses UP-TO-DATE
+> Task :analysis-core:test
+> Task :analysis-core:check
+> Task :check
+> Task :analysis-core:build
+
+3 problems were found storing the configuration cache, 2 of which seem unique.
+- Task `:verifyProductionModules` of type `org.gradle.api.DefaultTask`: cannot serialize object of type 'org.gradle.api.internal.project.DefaultProject', a subtype of 'org.gradle.api.Project', as these are not supported with the configuration cache.
+  See https://docs.gradle.org/9.8.0/userguide/configuration_cache_requirements.html#config_cache:requirements:disallowed_types
+- Task `:verifyProductionModules` of type `org.gradle.api.DefaultTask`: cannot serialize object of type 'org.gradle.api.internal.project.LifecycleAwareProject', a subtype of 'org.gradle.api.Project', as these are not supported with the configuration cache.
+  See https://docs.gradle.org/9.8.0/userguide/configuration_cache_requirements.html#config_cache:requirements:disallowed_types
+
+See the complete report at file:///Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/tools/pure-build/build/reports/configuration-cache/9ar75dsr2nz2g0l3j0pbe3tpu/b6u46lnlp52roqsp6zxrllnmq/configuration-cache-report.html
+
+[Incubating] Problems report is available at: file:///Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/tools/pure-build/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 17s
+14 actionable tasks: 14 executed
+Configuration cache entry discarded with 3 problems.

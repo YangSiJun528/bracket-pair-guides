@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.NativeGuideMarkerSourceTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:49.093Z" hostname="sijun-yangui-MacBookPro.local" time="0.189">
+  <properties/>
+  <testcase name="testClassicUiCarrierFollowsEffectiveLineMarkerAreaSetting" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeGuideMarkerSourceTest" time="0.035"/>
+  <testcase name="testScopeFallbackMustBeEnabledAndResolveTheExactActivePair" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeGuideMarkerSourceTest" time="0.061"/>
+  <testcase name="testNewUiCarrierRequiresEffectiveSettingAndExactDescriptorGeometry" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeGuideMarkerSourceTest" time="0.031"/>
+  <testcase name="testBraceBoundaryResolvesDirectPairEvenWhenCurrentScopeIsDisabled" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeGuideMarkerSourceTest" time="0.04"/>
+  <testcase name="testUiPathTracksThePlatformNewUiMode" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeGuideMarkerSourceTest" time="0.021"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

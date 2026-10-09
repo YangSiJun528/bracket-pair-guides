@@ -1,0 +1,84 @@
+{
+  "recordedUtc": "2026-10-08T19:45:40.661927+00:00",
+  "head": "8d853ea08d92150c127efe43d807771542ef84d6",
+  "productionSourceCommit": "f65ed4e3fddbb8cdb1142af9cb72cf2e2f7ebade",
+  "active": "final evidence documentation and local commit",
+  "passed": {
+    "root134": "../final-check-06/summary.json",
+    "sdkMinimumAndCurrent29Each": "../compatibility/runs/20261008T125349781364Z/summary.json",
+    "qodana0": "../qodana/run-04/summary.json",
+    "driver12": "../driver/compare-12/verification.json",
+    "compatibility13": "../compatibility/runs/20261008T125349781364Z/main-review.json"
+  },
+  "releaseSha256": "3af98835450aaea492c213841fefc8c386c3435fabb6f2352d6484a0572ddc78",
+  "formalPerformance": "Historical pure01 andSDK01 observed regressions, final-source formal campaigns pending; batch experiment rejected and core restored exactly4b",
+  "pending": [
+    "Complete current13 strict IDE matrix and main audit",
+    "Remove redundant unsupported -PbenchmarkJob=all from guide and approved local workflow; real40case export check",
+    "Build final JMH jars, fresh fingerprint07 and16 SDK setup invocations",
+    "Run full unchanged pure02 60 and SDK02 96 invocations serially, main regression assessment",
+    "Real final BMF export and final report/evidence local commits; no remote action"
+  ],
+  "agentsFrozen": true,
+  "remoteActionsAuthorized": false,
+  "sourceAndHeadFrozen": true,
+  "noOtherTaskBuildsOrMeasurements": true,
+  "agentOwnership": {
+    "core_design": "editor-ui production/tests minimal presentation reuse and immutable empty demands",
+    "runtime_design": "EditorSource lazy token adapter and scalar SDK contract; ready/frozen",
+    "build_validation": "read-only pure regression investigation note"
+  },
+  "newEvidence": {
+    "sdkFree51": "../performance/investigation-01/validation-03/verified-evidence.json",
+    "fingerprints8": "../fingerprint-05.json",
+    "minimumCurrentSdk31Each": "../performance/investigation-01/scalar-sdk-01/verified-evidence.json",
+    "diagnostic02": "../performance/investigation-01/diagnostic-02/main-assessment.json",
+    "diagnostic03": "../performance/investigation-01/diagnostic-03/observations.json"
+  },
+  "passedSourceNote": "Current source f65 final check09/Qodana07/Driver13 are below; older pass maps remain historical.",
+  "next": [
+    "Fresh strict13 matrix on final ZIP, SDK35 each",
+    "Fresh fingerprints, SDK setup, full pure02 and SDK02",
+    "Real BMF export, final report/local evidence commits and Goal verdict"
+  ],
+  "remainingPerformance": "Named scan diagnostic03 still1.994x sparse4096 reuse. Repair allocation diagnosis improved. No formal new-source performance pass.",
+  "newCurrentPassed": {
+    "root182": "../final-check-09/summary.json",
+    "minimumCurrentSdk35EachAndUi4": "../performance/investigation-02/validation-04/summary.json",
+    "qodana0": "../qodana/run-07/summary.json",
+    "driver12": "../driver/compare-13/verification.json",
+    "compatibility13": "../compatibility/runs/20261008T184514375884Z/main-review.json"
+  },
+  "historical873Passed": {
+    "root182": "../final-check-08/main-review.json",
+    "pure51": "../final-check-08/summary.json"
+  },
+  "newFailed": {
+    "qodana06": "../qodana/run-06/summary.json;1 Experimental API finding, fixed without suppression"
+  },
+  "bmfIntegrationFinding": "../performance/bmf-integration-review.md; implementation deferred until matrix finishes; minimum fix is two caller arguments only",
+  "currentHead": "8d853ea08d92150c127efe43d807771542ef84d6",
+  "finalCheck10": "passed-main-review, 184 + fresh SDK-free 51; exact ZIP bound to Driver13/matrix03",
+  "updatedUtc": "2026-10-08T22:27:57.629738+00:00",
+  "qodana08": "passed 0 findings; source unchanged; upload false",
+  "sdkPreflight09": "16 passed setup-only; frozen inputs reviewed by main",
+  "formalCampaigns": {
+    "pure02": "planned 60",
+    "sdk02": "planned 96"
+  },
+  "pure02": {
+    "executions": 60,
+    "metrics": 80,
+    "over20Flags": 7,
+    "performancePass": false
+  },
+  "sdk02": {
+    "invocations": 96,
+    "metrics": 774,
+    "over20Flags": 40,
+    "performancePass": false
+  },
+  "bmfFinal01": "passed both40cases80metrics exact jq/cache store/reuse; no remote upload",
+  "verificationExecutionComplete": true,
+  "performanceParityEstablished": false
+}

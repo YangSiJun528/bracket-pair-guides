@@ -1,0 +1,40 @@
+package com.sijunyang.bracketpairguides.core.internal
+
+/** A pair table that becomes unavailable instead of exposing a capped prefix. */
+internal class PairCollection(private val capacity: PairCapacity) : PairSink {
+    private val draft = PairTable.draft()
+    private var pairCount = 0
+    private var overflowed = false
+
+    override fun accept(
+        openOffset: Int,
+        openTokenLength: Int,
+        closeOffset: Int,
+        closeTokenLength: Int,
+        depth: Int,
+        openLine: Int,
+        closeLine: Int,
+    ) {
+        if (overflowed) throw PairCapacityReached()
+        if (pairCount == capacity.maximum) {
+            overflowed = true
+            throw PairCapacityReached()
+        }
+        draft.accept(
+            openOffset,
+            openTokenLength,
+            closeOffset,
+            closeTokenLength,
+            depth,
+            openLine,
+            closeLine,
+        )
+        pairCount++
+    }
+
+    /** Returns null after overflow so the accepted prefix can never be published. */
+    fun authoritativePairs(): PairTable? = if (overflowed) null else draft.freeze()
+}
+
+/** Control signal used only after the completed-pair capacity is crossed. */
+internal class PairCapacityReached : RuntimeException(null, null, false, false)

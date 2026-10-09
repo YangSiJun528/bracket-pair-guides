@@ -1,0 +1,708 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest" tests="1" skipped="0" failures="1" errors="0" timestamp="2026-10-08T07:58:44.275Z" hostname="sijun-yangui-MacBookPro.local" time="3.053">
+  <properties/>
+  <testcase name="testSdkComparison" classname="com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest" time="3.052">
+    <failure message="java.lang.AssertionError: SDK comparison failed" type="java.lang.AssertionError">java.lang.AssertionError: SDK comparison failed
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest.testSdkComparison(SdkComparisonMeasurementTest.kt:58)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at junit.framework.TestCase.runTest(TestCase.java:177)
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$11(UsefulTestCase.java:483)
+	at com.intellij.testFramework.UsefulTestCase.lambda$wrapTestRunnable$13(UsefulTestCase.java:504)
+	at com.intellij.testFramework.UsefulTestCase.runTestRunnable(UsefulTestCase.java:408)
+	at com.intellij.testFramework.fixtures.BasePlatformTestCase.runTestRunnable(BasePlatformTestCase.java:109)
+	at com.intellij.testFramework.UsefulTestCase.defaultRunBare(UsefulTestCase.java:424)
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$12(UsefulTestCase.java:491)
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$3(EdtTestUtil.java:80)
+	at com.intellij.openapi.application.impl.RwLockHolder.runWriteIntentReadAction(RwLockHolder.kt:70)
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$4(EdtTestUtil.java:79)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:308)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:792)
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:739)
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:733)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399)
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86)
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:761)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:326)
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:117)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:113)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:105)
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:92)
+Caused by: java.lang.IllegalStateException: Check failed.
+	at com.sijunyang.bracketpairguides.comparison.SdkNativeRepairWorkloadsKt.runNativeWorkload(SdkNativeRepairWorkloads.kt:76)
+	at com.sijunyang.bracketpairguides.comparison.SdkNativeRepairWorkloadsKt$runNativeWorkload$1.invokeSuspend(SdkNativeRepairWorkloads.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:108)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:584)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:793)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:697)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:684)
+</failure>
+  </testcase>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Configuration file for j.u.l.LogManager does not exist: /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/test-log.properties
+
+16:58:46,280 FINE   edIndexImpl$GentleIndexFlusher - Flushed everything: contention quota(16 -> 16) -> next turn scheduled regularly, with quota: 16 
+16:58:46,291 FINE   .intellij.openapi.command.impl - executeCommand: com.intellij.openapi.command.WriteCommandAction$BuilderImpl$$Lambda$1407/0x0000000800cbb620@297b7ee5, name = Undefined, groupId = null, in command = <null>, in transparent action = false 
+16:58:46,309 FINE   i.vfs.newvfs.AsyncEventSupport - Processing [VfsEvent[create file 'temp:///src/NativeMeasure.java']] 
+16:58:46,315 FINE   fs.persistent.PersistentFSImpl - Applying VfsEvent[create file 'temp:///src/NativeMeasure.java'] 
+16:58:46,316 FINE   fs.impl.VirtualFileManagerImpl - fileCreated: file = temp:///src/NativeMeasure.java, requestor = com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl@4b0026df 
+16:58:46,316 FINE   pl.PushedFilePropertiesUpdater - File changed: /src/NativeMeasure.java. 
+event:VfsEvent[create file 'temp:///src/NativeMeasure.java'] 
+16:58:46,324 FINE   tellij.psi.impl.PsiManagerImpl - beforePropertyChange: element = null, propertyName = propUnloadedPsi, oldValue = null 
+16:58:46,324 FINE   tellij.psi.impl.PsiManagerImpl - propertyChanged: element = null, propertyName = propUnloadedPsi, oldValue = null, newValue = null 
+16:58:46,337 FINE   i.vfs.newvfs.AsyncEventSupport - Processing [VfsEvent[update: /src/NativeMeasure.java, oldTimestamp:5, newTimestamp:-1, oldModificationStamp:0, newModificationStamp:6, oldLength:0, newLength:260043]] 
+16:58:46,342 FINE   fs.impl.VirtualFileManagerImpl - beforeContentsChange: file = temp:///src/NativeMeasure.java, requestor = temp:///src/NativeMeasure.java 
+16:58:46,348 FINE   tellij.psi.impl.PsiManagerImpl - beforePropertyChange: element = null, propertyName = propUnloadedPsi, oldValue = null 
+16:58:46,348 FINE   tellij.psi.impl.PsiManagerImpl - propertyChanged: element = null, propertyName = propUnloadedPsi, oldValue = null, newValue = null 
+16:58:46,349 FINE   fs.impl.VirtualFileManagerImpl - contentsChanged: file = temp:///src/NativeMeasure.java, requestor = temp:///src/NativeMeasure.java 
+16:58:46,349 FINE   pl.PushedFilePropertiesUpdater - File changed: /src/NativeMeasure.java. 
+event:VfsEvent[update: /src/NativeMeasure.java, oldTimestamp:5, newTimestamp:-1, oldModificationStamp:0, newModificationStamp:6, oldLength:0, newLength:260043] 
+16:58:46,353 FINE   .intellij.openapi.command.impl - finishCommand: name = Undefined, groupId = null 
+16:58:46,367 FINE   .intellij.openapi.command.impl - executeCommand: com.intellij.openapi.command.WriteCommandAction$BuilderImpl$$Lambda$1407/0x0000000800cbb620@1746c077, name = Undefined, groupId = null, in command = <null>, in transparent action = false 
+16:58:46,372 FINE   .impl.UndoRedoStacksHolderBase - Adding to undo stacks: UndoableGroup[project=Project(name=SdkComparison, containerState=COMPONENT_CREATED, componentStore=/private/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/unitTest_sdkComparison_3KP5NiJZhzc0PJhIWjN1Agr3Lmo/light_temp_3KP5NjyYotAznsg6bgUQhiYi0XK.ipr), name=Undefined, global=true, transparent=false, stamp=3, policy=DO_NOT_REQUEST_CONFIRMATION, temporary=false, valid=true, actions=[com.intellij.openapi.command.impl.FileUndoProvider$MyUndoableAction@35aed488], documents=[temp:///src/NativeMeasure.java]] 
+16:58:46,372 FINE   .intellij.openapi.command.impl - finishCommand: name = Undefined, groupId = null 
+16:58:46,373 FINE   i.vfs.newvfs.AsyncEventSupport - Processing [VfsEvent[update: /src/NativeMeasure.java, oldTimestamp:7, newTimestamp:-1, oldModificationStamp:6, newModificationStamp:9, oldLength:260043, newLength:260043]] 
+16:58:46,373 FINE   fs.impl.VirtualFileManagerImpl - beforeContentsChange: file = temp:///src/NativeMeasure.java, requestor = temp:///src/NativeMeasure.java 
+16:58:46,375 FINE   tellij.psi.impl.PsiManagerImpl - beforePropertyChange: element = null, propertyName = propUnloadedPsi, oldValue = null 
+16:58:46,375 FINE   tellij.psi.impl.PsiManagerImpl - propertyChanged: element = null, propertyName = propUnloadedPsi, oldValue = null, newValue = null 
+16:58:46,375 FINE   fs.impl.VirtualFileManagerImpl - contentsChanged: file = temp:///src/NativeMeasure.java, requestor = temp:///src/NativeMeasure.java 
+16:58:46,375 FINE   pl.PushedFilePropertiesUpdater - File changed: /src/NativeMeasure.java. 
+event:VfsEvent[update: /src/NativeMeasure.java, oldTimestamp:7, newTimestamp:-1, oldModificationStamp:6, newModificationStamp:9, oldLength:260043, newLength:260043] 
+16:58:46,376 FINE   .intellij.openapi.command.impl - executeCommand: com.intellij.openapi.fileEditor.impl.TestEditorManagerImpl$$Lambda$1501/0x0000000800d046c8@1f6240bb, name = , groupId = null, in command = <null>, in transparent action = false 
+16:58:46,423 FINE   colors.impl.ValueElementReader - short color value: 0 
+16:58:46,423 FINE   colors.impl.ValueElementReader - empty attribute: value 
+16:58:46,423 FINE   colors.impl.ValueElementReader - empty attribute: value 
+16:58:46,423 FINE   colors.impl.ValueElementReader - short color value: 000 
+16:58:46,423 FINE   colors.impl.ValueElementReader - short color value: 000 
+16:58:46,423 FINE   colors.impl.ValueElementReader - short color value: 0 
+16:58:46,424 FINE   colors.impl.ValueElementReader - short color value: 80 
+16:58:46,424 FINE   colors.impl.ValueElementReader - short color value: ff 
+16:58:46,424 FINE   colors.impl.ValueElementReader - short color value: ff 
+16:58:46,424 FINE   colors.impl.ValueElementReader - short color value: ff 
+16:58:46,424 FINE   colors.impl.ValueElementReader - short color value: 0 
+16:58:46,425 FINE   colors.impl.ValueElementReader - short color value: 80 
+16:58:46,425 FINE   colors.impl.ValueElementReader - short color value: 6666 
+16:58:46,425 FINE   colors.impl.ValueElementReader - short color value: ff 
+16:58:46,425 FINE   colors.impl.ValueElementReader - short color value: 8000 
+16:58:46,425 FINE   colors.impl.ValueElementReader - short color value: 80 
+16:58:46,425 FINE   colors.impl.ValueElementReader - short color value: 8000 
+16:58:46,425 FINE   colors.impl.ValueElementReader - short color value: 0 
+16:58:46,425 FINE   colors.impl.ValueElementReader - short color value: 0 
+16:58:46,425 FINE   colors.impl.ValueElementReader - short color value: 0 
+16:58:46,425 FINE   colors.impl.ValueElementReader - short color value: F5ED4 
+16:58:46,425 FINE   colors.impl.ValueElementReader - short color value: 7A80 
+16:58:46,425 FINE   colors.impl.ValueElementReader - short color value: AA5AB 
+16:58:46,425 FINE   colors.impl.ValueElementReader - short color value: 9DFF 
+16:58:46,426 FINE   colors.impl.ValueElementReader - short color value: 80 
+16:58:46,426 FINE   colors.impl.ValueElementReader - empty attribute: value 
+16:58:46,426 FINE   colors.impl.ValueElementReader - empty attribute: value 
+16:58:46,426 FINE   colors.impl.ValueElementReader - empty attribute: value 
+16:58:46,426 FINE   colors.impl.ValueElementReader - short color value: 0 
+16:58:46,426 FINE   colors.impl.ValueElementReader - short color value: 8576 
+16:58:46,426 FINE   colors.impl.ValueElementReader - short color value: f9795 
+16:58:46,428 FINE   rationStore.ComponentStoreImpl - processPendingCurrentSchemeName: newScheme=Default, currentPendingSchemeName=null 
+16:58:46,428 FINE   rationStore.ComponentStoreImpl - processPendingCurrentSchemeName: newScheme=Darcula, currentPendingSchemeName=null 
+16:58:46,428 FINE   rationStore.ComponentStoreImpl - processPendingCurrentSchemeName: newScheme=Empty, currentPendingSchemeName=null 
+16:58:46,428 FINE   colors.impl.ValueElementReader - short color value: b0c95 
+16:58:46,429 FINE   rationStore.ComponentStoreImpl - processPendingCurrentSchemeName: newScheme=_@user_Default, currentPendingSchemeName=null 
+16:58:46,430 FINE   rationStore.ComponentStoreImpl - processPendingCurrentSchemeName: newScheme=_@user_Darcula, currentPendingSchemeName=null 
+16:58:46,430 FINE   rationStore.ComponentStoreImpl - setCurrent: scheme=_@user_Default 
+16:58:46,484 FINE   edIndexImpl$GentleIndexFlusher - Nothing to flush now: contention quota(16 -> 16) -> next turn scheduled regularly, with quota: 16 unchanged 
+16:58:46,610 FINE   j.ui.components.MacScrollBarUI - initialize scroll bar style 
+16:58:46,615 FINE   j.ui.components.MacScrollBarUI - scroll bar style Legacy from 0 
+16:58:46,625 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,633 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,643 FINE      #com.intellij.DynamicBundle - Can't find bundle for base name localization/en/messages/EditorBundle, locale en 
+java.util.MissingResourceException: Can't find bundle for base name localization/en/messages/EditorBundle, locale en 
+	at java.base/java.util.ResourceBundle.throwMissingResourceException(ResourceBundle.java:2045) 
+	at java.base/java.util.ResourceBundle.getBundleImpl(ResourceBundle.java:1683) 
+	at java.base/java.util.ResourceBundle.getBundleImpl(ResourceBundle.java:1586) 
+	at java.base/java.util.ResourceBundle.getBundle(ResourceBundle.java:1504) 
+	at com.intellij.AbstractBundle.resolveBundle(AbstractBundle.java:198) 
+	at com.intellij.DynamicBundle.getBundlesFromLocalizationFolder(DynamicBundle.java:102) 
+	at com.intellij.DynamicBundle.resolveBundleOrder(DynamicBundle.java:149) 
+	at com.intellij.DynamicBundle.resolveResourceBundle(DynamicBundle.java:86) 
+	at com.intellij.DynamicBundle.findBundle(DynamicBundle.java:70) 
+	at com.intellij.AbstractBundle.lambda$resolveResourceBundle$1(AbstractBundle.java:153) 
+	at com.intellij.AbstractBundle.resolveResourceBundleWithFallback(AbstractBundle.java:162) 
+	at com.intellij.AbstractBundle.resolveResourceBundle(AbstractBundle.java:152) 
+	at com.intellij.AbstractBundle.getResourceBundle(AbstractBundle.java:134) 
+	at com.intellij.AbstractBundle.getResourceBundle(AbstractBundle.java:126) 
+	at com.intellij.AbstractBundle.getMessage(AbstractBundle.java:59) 
+	at com.intellij.openapi.editor.EditorBundle.message(EditorBundle.java:19) 
+	at com.intellij.openapi.editor.impl.EditorMarkupModelImpl$CompactViewAction.<init>(EditorMarkupModelImpl.java:1875) 
+	at com.intellij.openapi.editor.impl.EditorMarkupModelImpl.<init>(EditorMarkupModelImpl.java:175) 
+	at com.intellij.openapi.editor.impl.EditorImpl.<init>(EditorImpl.java:374) 
+	at com.intellij.openapi.editor.impl.EditorFactoryImpl.doCreateEditor(EditorFactoryImpl.java:222) 
+	at com.intellij.openapi.editor.impl.EditorFactoryImpl.createEditor(EditorFactoryImpl.java:203) 
+	at com.intellij.openapi.editor.impl.EditorFactoryImpl.createEditor(EditorFactoryImpl.java:158) 
+	at com.intellij.openapi.fileEditor.impl.TestEditorManagerImpl.doOpenTextEditor(TestEditorManagerImpl.kt:471) 
+	at com.intellij.openapi.fileEditor.impl.TestEditorManagerImpl.openFileImpl3(TestEditorManagerImpl.kt:159) 
+	at com.intellij.openapi.fileEditor.impl.TestEditorManagerImpl.openFileInCommand$lambda$6(TestEditorManagerImpl.kt:451) 
+	at com.intellij.openapi.command.impl.CoreCommandProcessor.executeCommand(CoreCommandProcessor.java:225) 
+	at com.intellij.openapi.command.impl.CoreCommandProcessor.executeCommand(CoreCommandProcessor.java:177) 
+	at com.intellij.openapi.command.impl.CoreCommandProcessor.executeCommand(CoreCommandProcessor.java:167) 
+	at com.intellij.openapi.command.impl.CoreCommandProcessor.executeCommand(CoreCommandProcessor.java:153) 
+	at com.intellij.openapi.fileEditor.impl.TestEditorManagerImpl.openFileInCommand(TestEditorManagerImpl.kt:450) 
+	at com.intellij.openapi.fileEditor.impl.TestEditorManagerImpl.openTextEditor(TestEditorManagerImpl.kt:440) 
+	at com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.createEditor(CodeInsightTestFixtureImpl.java:1702) 
+	at com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.lambda$configureInner$56(CodeInsightTestFixtureImpl.java:1642) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runIntendedWriteActionOnCurrentThread(RwLockHolder.kt:204) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:830) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.invokeAndWait(ApplicationImpl.java:398) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.invokeAndWait(ApplicationImpl.java:431) 
+	at com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.configureInner(CodeInsightTestFixtureImpl.java:1617) 
+	at com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.configureByText(CodeInsightTestFixtureImpl.java:1541) 
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest$Fixture$editor$2.invokeSuspend(SdkComparisonMeasurementTest.kt:128) 
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33) 
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:108) 
+	at com.intellij.openapi.application.impl.DispatchedRunnable.run(DispatchedRunnable.kt:43) 
+	at com.intellij.openapi.application.TransactionGuardImpl.runWithWritingAllowed(TransactionGuardImpl.java:209) 
+	at com.intellij.openapi.application.TransactionGuardImpl.access$100(TransactionGuardImpl.java:22) 
+	at com.intellij.openapi.application.TransactionGuardImpl$1.run(TransactionGuardImpl.java:191) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runIntendedWriteActionOnCurrentThread(RwLockHolder.kt:204) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:830) 
+	at com.intellij.openapi.application.impl.ApplicationImpl$2.run(ApplicationImpl.java:419) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWithEnabledImplicitRead(RwLockHolder.kt:138) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWithImplicitRead(RwLockHolder.kt:129) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runWithImplicitRead(ApplicationImpl.java:1152) 
+	at com.intellij.openapi.application.impl.FlushQueue.doRun(FlushQueue.java:81) 
+	at com.intellij.openapi.application.impl.FlushQueue.runNextEvent(FlushQueue.java:123) 
+	at com.intellij.openapi.application.impl.FlushQueue.flushNow(FlushQueue.java:43) 
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318) 
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:792) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:739) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:733) 
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399) 
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86) 
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:761) 
+	at com.intellij.ide.IdeEventQueue.defaultDispatchEvent(IdeEventQueue.kt:699) 
+	at com.intellij.ide.IdeEventQueue._dispatchEvent$lambda$12(IdeEventQueue.kt:593) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWithoutImplicitRead(RwLockHolder.kt:105) 
+	at com.intellij.ide.IdeEventQueue._dispatchEvent(IdeEventQueue.kt:593) 
+	at com.intellij.ide.IdeEventQueue.access$_dispatchEvent(IdeEventQueue.kt:77) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1$1.compute(IdeEventQueue.kt:362) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1$1.compute(IdeEventQueue.kt:361) 
+	at com.intellij.openapi.progress.impl.CoreProgressManager.computePrioritized(CoreProgressManager.java:843) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1.invoke(IdeEventQueue.kt:361) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1.invoke(IdeEventQueue.kt:356) 
+	at com.intellij.ide.IdeEventQueueKt.performActivity$lambda$1(IdeEventQueue.kt:1022) 
+	at com.intellij.openapi.application.TransactionGuardImpl.performActivity(TransactionGuardImpl.java:114) 
+	at com.intellij.ide.IdeEventQueueKt.performActivity(IdeEventQueue.kt:1022) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$7(IdeEventQueue.kt:356) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runIntendedWriteActionOnCurrentThread(RwLockHolder.kt:204) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:830) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:398) 
+	at com.intellij.testFramework.PlatformTestUtil.dispatchNextEventIfAny(PlatformTestUtil.java:517) 
+	at com.sijunyang.bracketpairguides.comparison.SdkEvidencePump.await(SdkEvidencePump.kt:30) 
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest.testSdkComparison(SdkComparisonMeasurementTest.kt:57) 
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) 
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) 
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) 
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) 
+	at junit.framework.TestCase.runTest(TestCase.java:177) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$11(UsefulTestCase.java:483) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$wrapTestRunnable$13(UsefulTestCase.java:504) 
+	at com.intellij.testFramework.UsefulTestCase.runTestRunnable(UsefulTestCase.java:408) 
+	at com.intellij.testFramework.fixtures.BasePlatformTestCase.runTestRunnable(BasePlatformTestCase.java:109) 
+	at com.intellij.testFramework.UsefulTestCase.defaultRunBare(UsefulTestCase.java:424) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$12(UsefulTestCase.java:491) 
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$3(EdtTestUtil.java:80) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWriteIntentReadAction(RwLockHolder.kt:70) 
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$4(EdtTestUtil.java:79) 
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:308) 
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:792) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:739) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:733) 
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399) 
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86) 
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:761) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:326) 
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:117) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:113) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:105) 
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:92) 
+ 
+16:58:46,643 FINE      #com.intellij.DynamicBundle - Can't find bundle for base name localization/en/messages/EditorBundle, locale en 
+java.util.MissingResourceException: Can't find bundle for base name localization/en/messages/EditorBundle, locale en 
+	at java.base/java.util.ResourceBundle.throwMissingResourceException(ResourceBundle.java:2045) 
+	at java.base/java.util.ResourceBundle.getBundleImpl(ResourceBundle.java:1683) 
+	at java.base/java.util.ResourceBundle.getBundleImpl(ResourceBundle.java:1586) 
+	at java.base/java.util.ResourceBundle.getBundle(ResourceBundle.java:1504) 
+	at com.intellij.AbstractBundle.resolveBundle(AbstractBundle.java:198) 
+	at com.intellij.DynamicBundle.getBundlesFromLocalizationFolder(DynamicBundle.java:102) 
+	at com.intellij.DynamicBundle.resolveBundleOrder(DynamicBundle.java:149) 
+	at com.intellij.DynamicBundle.resolveResourceBundle(DynamicBundle.java:86) 
+	at com.intellij.DynamicBundle.findBundle(DynamicBundle.java:70) 
+	at com.intellij.AbstractBundle.lambda$resolveResourceBundle$1(AbstractBundle.java:153) 
+	at com.intellij.AbstractBundle.resolveResourceBundleWithFallback(AbstractBundle.java:162) 
+	at com.intellij.AbstractBundle.resolveResourceBundle(AbstractBundle.java:152) 
+	at com.intellij.AbstractBundle.getResourceBundle(AbstractBundle.java:134) 
+	at com.intellij.AbstractBundle.getResourceBundle(AbstractBundle.java:126) 
+	at com.intellij.AbstractBundle.getMessage(AbstractBundle.java:59) 
+	at com.intellij.openapi.editor.EditorBundle.message(EditorBundle.java:19) 
+	at com.intellij.openapi.editor.impl.EditorMarkupModelImpl$CompactViewAction.<init>(EditorMarkupModelImpl.java:1875) 
+	at com.intellij.openapi.editor.impl.EditorMarkupModelImpl.<init>(EditorMarkupModelImpl.java:175) 
+	at com.intellij.openapi.editor.impl.EditorImpl.<init>(EditorImpl.java:374) 
+	at com.intellij.openapi.editor.impl.EditorFactoryImpl.doCreateEditor(EditorFactoryImpl.java:222) 
+	at com.intellij.openapi.editor.impl.EditorFactoryImpl.createEditor(EditorFactoryImpl.java:203) 
+	at com.intellij.openapi.editor.impl.EditorFactoryImpl.createEditor(EditorFactoryImpl.java:158) 
+	at com.intellij.openapi.fileEditor.impl.TestEditorManagerImpl.doOpenTextEditor(TestEditorManagerImpl.kt:471) 
+	at com.intellij.openapi.fileEditor.impl.TestEditorManagerImpl.openFileImpl3(TestEditorManagerImpl.kt:159) 
+	at com.intellij.openapi.fileEditor.impl.TestEditorManagerImpl.openFileInCommand$lambda$6(TestEditorManagerImpl.kt:451) 
+	at com.intellij.openapi.command.impl.CoreCommandProcessor.executeCommand(CoreCommandProcessor.java:225) 
+	at com.intellij.openapi.command.impl.CoreCommandProcessor.executeCommand(CoreCommandProcessor.java:177) 
+	at com.intellij.openapi.command.impl.CoreCommandProcessor.executeCommand(CoreCommandProcessor.java:167) 
+	at com.intellij.openapi.command.impl.CoreCommandProcessor.executeCommand(CoreCommandProcessor.java:153) 
+	at com.intellij.openapi.fileEditor.impl.TestEditorManagerImpl.openFileInCommand(TestEditorManagerImpl.kt:450) 
+	at com.intellij.openapi.fileEditor.impl.TestEditorManagerImpl.openTextEditor(TestEditorManagerImpl.kt:440) 
+	at com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.createEditor(CodeInsightTestFixtureImpl.java:1702) 
+	at com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.lambda$configureInner$56(CodeInsightTestFixtureImpl.java:1642) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runIntendedWriteActionOnCurrentThread(RwLockHolder.kt:204) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:830) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.invokeAndWait(ApplicationImpl.java:398) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.invokeAndWait(ApplicationImpl.java:431) 
+	at com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.configureInner(CodeInsightTestFixtureImpl.java:1617) 
+	at com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.configureByText(CodeInsightTestFixtureImpl.java:1541) 
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest$Fixture$editor$2.invokeSuspend(SdkComparisonMeasurementTest.kt:128) 
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33) 
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:108) 
+	at com.intellij.openapi.application.impl.DispatchedRunnable.run(DispatchedRunnable.kt:43) 
+	at com.intellij.openapi.application.TransactionGuardImpl.runWithWritingAllowed(TransactionGuardImpl.java:209) 
+	at com.intellij.openapi.application.TransactionGuardImpl.access$100(TransactionGuardImpl.java:22) 
+	at com.intellij.openapi.application.TransactionGuardImpl$1.run(TransactionGuardImpl.java:191) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runIntendedWriteActionOnCurrentThread(RwLockHolder.kt:204) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:830) 
+	at com.intellij.openapi.application.impl.ApplicationImpl$2.run(ApplicationImpl.java:419) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWithEnabledImplicitRead(RwLockHolder.kt:138) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWithImplicitRead(RwLockHolder.kt:129) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runWithImplicitRead(ApplicationImpl.java:1152) 
+	at com.intellij.openapi.application.impl.FlushQueue.doRun(FlushQueue.java:81) 
+	at com.intellij.openapi.application.impl.FlushQueue.runNextEvent(FlushQueue.java:123) 
+	at com.intellij.openapi.application.impl.FlushQueue.flushNow(FlushQueue.java:43) 
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318) 
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:792) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:739) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:733) 
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399) 
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86) 
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:761) 
+	at com.intellij.ide.IdeEventQueue.defaultDispatchEvent(IdeEventQueue.kt:699) 
+	at com.intellij.ide.IdeEventQueue._dispatchEvent$lambda$12(IdeEventQueue.kt:593) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWithoutImplicitRead(RwLockHolder.kt:105) 
+	at com.intellij.ide.IdeEventQueue._dispatchEvent(IdeEventQueue.kt:593) 
+	at com.intellij.ide.IdeEventQueue.access$_dispatchEvent(IdeEventQueue.kt:77) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1$1.compute(IdeEventQueue.kt:362) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1$1.compute(IdeEventQueue.kt:361) 
+	at com.intellij.openapi.progress.impl.CoreProgressManager.computePrioritized(CoreProgressManager.java:843) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1.invoke(IdeEventQueue.kt:361) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1.invoke(IdeEventQueue.kt:356) 
+	at com.intellij.ide.IdeEventQueueKt.performActivity$lambda$1(IdeEventQueue.kt:1022) 
+	at com.intellij.openapi.application.TransactionGuardImpl.performActivity(TransactionGuardImpl.java:114) 
+	at com.intellij.ide.IdeEventQueueKt.performActivity(IdeEventQueue.kt:1022) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$7(IdeEventQueue.kt:356) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runIntendedWriteActionOnCurrentThread(RwLockHolder.kt:204) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:830) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:398) 
+	at com.intellij.testFramework.PlatformTestUtil.dispatchNextEventIfAny(PlatformTestUtil.java:517) 
+	at com.sijunyang.bracketpairguides.comparison.SdkEvidencePump.await(SdkEvidencePump.kt:30) 
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest.testSdkComparison(SdkComparisonMeasurementTest.kt:57) 
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) 
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) 
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) 
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) 
+	at junit.framework.TestCase.runTest(TestCase.java:177) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$11(UsefulTestCase.java:483) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$wrapTestRunnable$13(UsefulTestCase.java:504) 
+	at com.intellij.testFramework.UsefulTestCase.runTestRunnable(UsefulTestCase.java:408) 
+	at com.intellij.testFramework.fixtures.BasePlatformTestCase.runTestRunnable(BasePlatformTestCase.java:109) 
+	at com.intellij.testFramework.UsefulTestCase.defaultRunBare(UsefulTestCase.java:424) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$12(UsefulTestCase.java:491) 
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$3(EdtTestUtil.java:80) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWriteIntentReadAction(RwLockHolder.kt:70) 
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$4(EdtTestUtil.java:79) 
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:308) 
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:792) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:739) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:733) 
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399) 
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86) 
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:761) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:326) 
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:117) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:113) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:105) 
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:92) 
+ 
+16:58:46,685 FINE   edIndexImpl$GentleIndexFlusher - Nothing to flush now: contention quota(16 -> 16) -> next turn scheduled regularly, with quota: 16 unchanged 
+16:58:46,739 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,750 FINE   openapi.editor.impl.EditorImpl - Font size overridden for EditorImpl[temp:///src/NativeMeasure.java] 
+java.lang.Throwable 
+	at com.intellij.openapi.editor.impl.EditorImpl$MyColorSchemeDelegate.setEditorFontSize(EditorImpl.java:4891) 
+	at com.intellij.openapi.editor.impl.EditorImpl.<init>(EditorImpl.java:452) 
+	at com.intellij.openapi.editor.impl.EditorFactoryImpl.doCreateEditor(EditorFactoryImpl.java:222) 
+	at com.intellij.openapi.editor.impl.EditorFactoryImpl.createEditor(EditorFactoryImpl.java:203) 
+	at com.intellij.openapi.editor.impl.EditorFactoryImpl.createEditor(EditorFactoryImpl.java:158) 
+	at com.intellij.openapi.fileEditor.impl.TestEditorManagerImpl.doOpenTextEditor(TestEditorManagerImpl.kt:471) 
+	at com.intellij.openapi.fileEditor.impl.TestEditorManagerImpl.openFileImpl3(TestEditorManagerImpl.kt:159) 
+	at com.intellij.openapi.fileEditor.impl.TestEditorManagerImpl.openFileInCommand$lambda$6(TestEditorManagerImpl.kt:451) 
+	at com.intellij.openapi.command.impl.CoreCommandProcessor.executeCommand(CoreCommandProcessor.java:225) 
+	at com.intellij.openapi.command.impl.CoreCommandProcessor.executeCommand(CoreCommandProcessor.java:177) 
+	at com.intellij.openapi.command.impl.CoreCommandProcessor.executeCommand(CoreCommandProcessor.java:167) 
+	at com.intellij.openapi.command.impl.CoreCommandProcessor.executeCommand(CoreCommandProcessor.java:153) 
+	at com.intellij.openapi.fileEditor.impl.TestEditorManagerImpl.openFileInCommand(TestEditorManagerImpl.kt:450) 
+	at com.intellij.openapi.fileEditor.impl.TestEditorManagerImpl.openTextEditor(TestEditorManagerImpl.kt:440) 
+	at com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.createEditor(CodeInsightTestFixtureImpl.java:1702) 
+	at com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.lambda$configureInner$56(CodeInsightTestFixtureImpl.java:1642) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runIntendedWriteActionOnCurrentThread(RwLockHolder.kt:204) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:830) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.invokeAndWait(ApplicationImpl.java:398) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.invokeAndWait(ApplicationImpl.java:431) 
+	at com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.configureInner(CodeInsightTestFixtureImpl.java:1617) 
+	at com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.configureByText(CodeInsightTestFixtureImpl.java:1541) 
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest$Fixture$editor$2.invokeSuspend(SdkComparisonMeasurementTest.kt:128) 
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33) 
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:108) 
+	at com.intellij.openapi.application.impl.DispatchedRunnable.run(DispatchedRunnable.kt:43) 
+	at com.intellij.openapi.application.TransactionGuardImpl.runWithWritingAllowed(TransactionGuardImpl.java:209) 
+	at com.intellij.openapi.application.TransactionGuardImpl.access$100(TransactionGuardImpl.java:22) 
+	at com.intellij.openapi.application.TransactionGuardImpl$1.run(TransactionGuardImpl.java:191) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runIntendedWriteActionOnCurrentThread(RwLockHolder.kt:204) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:830) 
+	at com.intellij.openapi.application.impl.ApplicationImpl$2.run(ApplicationImpl.java:419) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWithEnabledImplicitRead(RwLockHolder.kt:138) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWithImplicitRead(RwLockHolder.kt:129) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runWithImplicitRead(ApplicationImpl.java:1152) 
+	at com.intellij.openapi.application.impl.FlushQueue.doRun(FlushQueue.java:81) 
+	at com.intellij.openapi.application.impl.FlushQueue.runNextEvent(FlushQueue.java:123) 
+	at com.intellij.openapi.application.impl.FlushQueue.flushNow(FlushQueue.java:43) 
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318) 
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:792) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:739) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:733) 
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399) 
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86) 
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:761) 
+	at com.intellij.ide.IdeEventQueue.defaultDispatchEvent(IdeEventQueue.kt:699) 
+	at com.intellij.ide.IdeEventQueue._dispatchEvent$lambda$12(IdeEventQueue.kt:593) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWithoutImplicitRead(RwLockHolder.kt:105) 
+	at com.intellij.ide.IdeEventQueue._dispatchEvent(IdeEventQueue.kt:593) 
+	at com.intellij.ide.IdeEventQueue.access$_dispatchEvent(IdeEventQueue.kt:77) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1$1.compute(IdeEventQueue.kt:362) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1$1.compute(IdeEventQueue.kt:361) 
+	at com.intellij.openapi.progress.impl.CoreProgressManager.computePrioritized(CoreProgressManager.java:843) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1.invoke(IdeEventQueue.kt:361) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1.invoke(IdeEventQueue.kt:356) 
+	at com.intellij.ide.IdeEventQueueKt.performActivity$lambda$1(IdeEventQueue.kt:1022) 
+	at com.intellij.openapi.application.TransactionGuardImpl.performActivity(TransactionGuardImpl.java:114) 
+	at com.intellij.ide.IdeEventQueueKt.performActivity(IdeEventQueue.kt:1022) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$7(IdeEventQueue.kt:356) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runIntendedWriteActionOnCurrentThread(RwLockHolder.kt:204) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:830) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:398) 
+	at com.intellij.testFramework.PlatformTestUtil.dispatchNextEventIfAny(PlatformTestUtil.java:517) 
+	at com.sijunyang.bracketpairguides.comparison.SdkEvidencePump.await(SdkEvidencePump.kt:30) 
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest.testSdkComparison(SdkComparisonMeasurementTest.kt:57) 
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) 
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) 
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) 
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) 
+	at junit.framework.TestCase.runTest(TestCase.java:177) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$11(UsefulTestCase.java:483) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$wrapTestRunnable$13(UsefulTestCase.java:504) 
+	at com.intellij.testFramework.UsefulTestCase.runTestRunnable(UsefulTestCase.java:408) 
+	at com.intellij.testFramework.fixtures.BasePlatformTestCase.runTestRunnable(BasePlatformTestCase.java:109) 
+	at com.intellij.testFramework.UsefulTestCase.defaultRunBare(UsefulTestCase.java:424) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$12(UsefulTestCase.java:491) 
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$3(EdtTestUtil.java:80) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWriteIntentReadAction(RwLockHolder.kt:70) 
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$4(EdtTestUtil.java:79) 
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:308) 
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:792) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:739) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:733) 
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399) 
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86) 
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:761) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:326) 
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:117) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:113) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:105) 
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:92) 
+ 
+16:58:46,751 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,751 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,766 FINE   pi.editor.impl.view.LineLayout - Text layout for null (0-21) 
+16:58:46,770 FINE   pi.editor.impl.view.LineLayout - Text layout for null (22-36) 
+16:58:46,808 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,841 INFO   .ide.bookmark.BookmarksManager - no state loaded for new bookmarks 
+16:58:46,842 INFO   .ide.bookmarks.BookmarkManager - no state loaded for old bookmarks 
+16:58:46,844 FINE   r.daemon.RdServerEditorTracker - Add local editor. EditorImpl[temp:///src/NativeMeasure.java] 
+16:58:46,846 INFO   ritesTreeView.FavoritesManager - no state loaded for old favorites 
+16:58:46,849 FINE   .editor.impl.EditorFactoryImpl - number of editors after create: 1 
+16:58:46,890 FINE   edIndexImpl$GentleIndexFlusher - Nothing to flush now: contention quota(16 -> 16) -> next turn scheduled regularly, with quota: 16 unchanged 
+16:58:46,906 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,906 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,906 FINE   enapi.editor.impl.SettingsImpl - reinitDocumentIndentOptions, file NativeMeasure.java 
+16:58:46,906 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,906 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,906 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,908 FINE   pi.editor.impl.view.LineLayout - Text layout for null (0-21) 
+16:58:46,910 FINE   pi.editor.impl.view.LineLayout - Text layout for null (22-36) 
+16:58:46,911 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,911 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,911 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,911 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,911 FINE   enapi.editor.impl.SettingsImpl - reinitDocumentIndentOptions, file NativeMeasure.java 
+16:58:46,911 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,911 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,911 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:46,913 FINE   pi.editor.impl.view.LineLayout - Text layout for temp:///src/NativeMeasure.java (0-21) 
+16:58:46,914 FINE   pi.editor.impl.view.LineLayout - Text layout for temp:///src/NativeMeasure.java (22-36) 
+16:58:46,941 FINE   .intellij.openapi.command.impl - finishCommand: name = , groupId = null 
+16:58:46,949 FINE   ij.psi.impl.source.PsiFileImpl - Loaded text for file /src/NativeMeasure.java 
+16:58:47,066 FINE   testFramework.IndexingTestUtil - waitUntilFinished, thread=Thread[AWT-EventQueue-0 @coroutine#1068,6,main], WA=false 
+java.lang.Throwable: waitUntilFinished, thread=Thread[AWT-EventQueue-0 @coroutine#1068,6,main], WA=false 
+	at com.intellij.testFramework.IndexingTestUtil.waitUntilFinished(IndexingTestUtil.kt:119) 
+	at com.intellij.testFramework.IndexingTestUtil.access$waitUntilFinished(IndexingTestUtil.kt:18) 
+	at com.intellij.testFramework.IndexingTestUtil$Companion.waitUntilIndexesAreReady(IndexingTestUtil.kt:141) 
+	at com.intellij.testFramework.IndexingTestUtil.waitUntilIndexesAreReady(IndexingTestUtil.kt) 
+	at com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.configureInner(CodeInsightTestFixtureImpl.java:1668) 
+	at com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.configureByText(CodeInsightTestFixtureImpl.java:1541) 
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest$Fixture$editor$2.invokeSuspend(SdkComparisonMeasurementTest.kt:128) 
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33) 
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:108) 
+	at com.intellij.openapi.application.impl.DispatchedRunnable.run(DispatchedRunnable.kt:43) 
+	at com.intellij.openapi.application.TransactionGuardImpl.runWithWritingAllowed(TransactionGuardImpl.java:209) 
+	at com.intellij.openapi.application.TransactionGuardImpl.access$100(TransactionGuardImpl.java:22) 
+	at com.intellij.openapi.application.TransactionGuardImpl$1.run(TransactionGuardImpl.java:191) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runIntendedWriteActionOnCurrentThread(RwLockHolder.kt:204) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:830) 
+	at com.intellij.openapi.application.impl.ApplicationImpl$2.run(ApplicationImpl.java:419) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWithEnabledImplicitRead(RwLockHolder.kt:138) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWithImplicitRead(RwLockHolder.kt:129) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runWithImplicitRead(ApplicationImpl.java:1152) 
+	at com.intellij.openapi.application.impl.FlushQueue.doRun(FlushQueue.java:81) 
+	at com.intellij.openapi.application.impl.FlushQueue.runNextEvent(FlushQueue.java:123) 
+	at com.intellij.openapi.application.impl.FlushQueue.flushNow(FlushQueue.java:43) 
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318) 
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:792) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:739) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:733) 
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399) 
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86) 
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:761) 
+	at com.intellij.ide.IdeEventQueue.defaultDispatchEvent(IdeEventQueue.kt:699) 
+	at com.intellij.ide.IdeEventQueue._dispatchEvent$lambda$12(IdeEventQueue.kt:593) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWithoutImplicitRead(RwLockHolder.kt:105) 
+	at com.intellij.ide.IdeEventQueue._dispatchEvent(IdeEventQueue.kt:593) 
+	at com.intellij.ide.IdeEventQueue.access$_dispatchEvent(IdeEventQueue.kt:77) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1$1.compute(IdeEventQueue.kt:362) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1$1.compute(IdeEventQueue.kt:361) 
+	at com.intellij.openapi.progress.impl.CoreProgressManager.computePrioritized(CoreProgressManager.java:843) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1.invoke(IdeEventQueue.kt:361) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1.invoke(IdeEventQueue.kt:356) 
+	at com.intellij.ide.IdeEventQueueKt.performActivity$lambda$1(IdeEventQueue.kt:1022) 
+	at com.intellij.openapi.application.TransactionGuardImpl.performActivity(TransactionGuardImpl.java:114) 
+	at com.intellij.ide.IdeEventQueueKt.performActivity(IdeEventQueue.kt:1022) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$7(IdeEventQueue.kt:356) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runIntendedWriteActionOnCurrentThread(RwLockHolder.kt:204) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:830) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:398) 
+	at com.intellij.testFramework.PlatformTestUtil.dispatchNextEventIfAny(PlatformTestUtil.java:517) 
+	at com.sijunyang.bracketpairguides.comparison.SdkEvidencePump.await(SdkEvidencePump.kt:30) 
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest.testSdkComparison(SdkComparisonMeasurementTest.kt:57) 
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) 
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) 
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) 
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) 
+	at junit.framework.TestCase.runTest(TestCase.java:177) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$11(UsefulTestCase.java:483) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$wrapTestRunnable$13(UsefulTestCase.java:504) 
+	at com.intellij.testFramework.UsefulTestCase.runTestRunnable(UsefulTestCase.java:408) 
+	at com.intellij.testFramework.fixtures.BasePlatformTestCase.runTestRunnable(BasePlatformTestCase.java:109) 
+	at com.intellij.testFramework.UsefulTestCase.defaultRunBare(UsefulTestCase.java:424) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$12(UsefulTestCase.java:491) 
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$3(EdtTestUtil.java:80) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWriteIntentReadAction(RwLockHolder.kt:70) 
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$4(EdtTestUtil.java:79) 
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:308) 
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:792) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:739) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:733) 
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399) 
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86) 
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:761) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:326) 
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:117) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:113) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:105) 
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:92) 
+ 
+16:58:47,067 FINE   testFramework.IndexingTestUtil - waitNow, thread=Thread[AWT-EventQueue-0 @coroutine#1068,6,main] 
+16:58:47,068 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,069 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,077 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,078 FINE   openapi.editor.impl.EditorImpl - Font size overridden for EditorImpl[temp:///src/NativeMeasure.java] 
+java.lang.Throwable 
+	at com.intellij.openapi.editor.impl.EditorImpl$MyColorSchemeDelegate.setEditorFontSize(EditorImpl.java:4891) 
+	at com.intellij.openapi.editor.impl.EditorImpl.<init>(EditorImpl.java:452) 
+	at com.intellij.openapi.editor.impl.EditorFactoryImpl.doCreateEditor(EditorFactoryImpl.java:222) 
+	at com.intellij.openapi.editor.impl.EditorFactoryImpl.createEditor(EditorFactoryImpl.java:203) 
+	at com.intellij.openapi.editor.impl.EditorFactoryImpl.createEditor(EditorFactoryImpl.java:196) 
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest$Fixture$editor$2.invokeSuspend(SdkComparisonMeasurementTest.kt:131) 
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33) 
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:108) 
+	at com.intellij.openapi.application.impl.DispatchedRunnable.run(DispatchedRunnable.kt:43) 
+	at com.intellij.openapi.application.TransactionGuardImpl.runWithWritingAllowed(TransactionGuardImpl.java:209) 
+	at com.intellij.openapi.application.TransactionGuardImpl.access$100(TransactionGuardImpl.java:22) 
+	at com.intellij.openapi.application.TransactionGuardImpl$1.run(TransactionGuardImpl.java:191) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runIntendedWriteActionOnCurrentThread(RwLockHolder.kt:204) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:830) 
+	at com.intellij.openapi.application.impl.ApplicationImpl$2.run(ApplicationImpl.java:419) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWithEnabledImplicitRead(RwLockHolder.kt:138) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWithImplicitRead(RwLockHolder.kt:129) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runWithImplicitRead(ApplicationImpl.java:1152) 
+	at com.intellij.openapi.application.impl.FlushQueue.doRun(FlushQueue.java:81) 
+	at com.intellij.openapi.application.impl.FlushQueue.runNextEvent(FlushQueue.java:123) 
+	at com.intellij.openapi.application.impl.FlushQueue.flushNow(FlushQueue.java:43) 
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318) 
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:792) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:739) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:733) 
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399) 
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86) 
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:761) 
+	at com.intellij.ide.IdeEventQueue.defaultDispatchEvent(IdeEventQueue.kt:699) 
+	at com.intellij.ide.IdeEventQueue._dispatchEvent$lambda$12(IdeEventQueue.kt:593) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWithoutImplicitRead(RwLockHolder.kt:105) 
+	at com.intellij.ide.IdeEventQueue._dispatchEvent(IdeEventQueue.kt:593) 
+	at com.intellij.ide.IdeEventQueue.access$_dispatchEvent(IdeEventQueue.kt:77) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1$1.compute(IdeEventQueue.kt:362) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1$1.compute(IdeEventQueue.kt:361) 
+	at com.intellij.openapi.progress.impl.CoreProgressManager.computePrioritized(CoreProgressManager.java:843) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1.invoke(IdeEventQueue.kt:361) 
+	at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1.invoke(IdeEventQueue.kt:356) 
+	at com.intellij.ide.IdeEventQueueKt.performActivity$lambda$1(IdeEventQueue.kt:1022) 
+	at com.intellij.openapi.application.TransactionGuardImpl.performActivity(TransactionGuardImpl.java:114) 
+	at com.intellij.ide.IdeEventQueueKt.performActivity(IdeEventQueue.kt:1022) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$7(IdeEventQueue.kt:356) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runIntendedWriteActionOnCurrentThread(RwLockHolder.kt:204) 
+	at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:830) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:398) 
+	at com.intellij.testFramework.PlatformTestUtil.dispatchNextEventIfAny(PlatformTestUtil.java:517) 
+	at com.sijunyang.bracketpairguides.comparison.SdkEvidencePump.await(SdkEvidencePump.kt:30) 
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest.testSdkComparison(SdkComparisonMeasurementTest.kt:57) 
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) 
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) 
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) 
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) 
+	at junit.framework.TestCase.runTest(TestCase.java:177) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$11(UsefulTestCase.java:483) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$wrapTestRunnable$13(UsefulTestCase.java:504) 
+	at com.intellij.testFramework.UsefulTestCase.runTestRunnable(UsefulTestCase.java:408) 
+	at com.intellij.testFramework.fixtures.BasePlatformTestCase.runTestRunnable(BasePlatformTestCase.java:109) 
+	at com.intellij.testFramework.UsefulTestCase.defaultRunBare(UsefulTestCase.java:424) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$12(UsefulTestCase.java:491) 
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$3(EdtTestUtil.java:80) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWriteIntentReadAction(RwLockHolder.kt:70) 
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$4(EdtTestUtil.java:79) 
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:308) 
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:792) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:739) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:733) 
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399) 
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86) 
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:761) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:326) 
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:117) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:113) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:105) 
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:92) 
+ 
+16:58:47,078 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,078 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,079 FINE   pi.editor.impl.view.LineLayout - Text layout for null (0-21) 
+16:58:47,080 FINE   pi.editor.impl.view.LineLayout - Text layout for null (22-36) 
+16:58:47,091 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,092 FINE   r.daemon.RdServerEditorTracker - Add local editor. EditorImpl[temp:///src/NativeMeasure.java] 
+16:58:47,092 FINE   .editor.impl.EditorFactoryImpl - number of editors after create: 2 
+16:58:47,092 FINE   edIndexImpl$GentleIndexFlusher - Nothing to flush now: contention quota(16 -> 16) -> next turn scheduled regularly, with quota: 16 unchanged 
+16:58:47,100 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,100 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,100 FINE   enapi.editor.impl.SettingsImpl - reinitDocumentIndentOptions, file NativeMeasure.java 
+16:58:47,100 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,100 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,100 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,101 FINE   pi.editor.impl.view.LineLayout - Text layout for null (0-21) 
+16:58:47,101 FINE   pi.editor.impl.view.LineLayout - Text layout for null (22-36) 
+16:58:47,123 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,125 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,126 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,127 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,127 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,244 FINE   aemon.impl.PassExecutorService -  Update Runnable. myUpdateByTimerEnabled: false  activeEditors: [] ()r; progress=null ? 
+16:58:47,249 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,249 FINE   .application.options.CodeStyle - localOrTemp settings for NativeMeasure.java 
+16:58:47,259 INFO   util.io.ManagedPersistentCache - created persistent map persistent-code-vision-SdkComparison-lighttemp3KP5NjyYotAznsg6bgUQhiYi0XKa0d442aa with size 0 
+16:58:47,264 FINE   r.daemon.RdServerEditorTracker - Release remote editor. EditorImpl[temp:///src/NativeMeasure.java] 
+16:58:47,267 FINE   .editor.impl.EditorFactoryImpl - number of Editors after release: 1 
+16:58:47,269 SEVERE                 #TestFramework - Test failed 
+java.lang.AssertionError: SDK comparison failed 
+	at com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest.testSdkComparison(SdkComparisonMeasurementTest.kt:58) 
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) 
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) 
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) 
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) 
+	at junit.framework.TestCase.runTest(TestCase.java:177) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$11(UsefulTestCase.java:483) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$wrapTestRunnable$13(UsefulTestCase.java:504) 
+	at com.intellij.testFramework.UsefulTestCase.runTestRunnable(UsefulTestCase.java:408) 
+	at com.intellij.testFramework.fixtures.BasePlatformTestCase.runTestRunnable(BasePlatformTestCase.java:109) 
+	at com.intellij.testFramework.UsefulTestCase.defaultRunBare(UsefulTestCase.java:424) 
+	at com.intellij.testFramework.UsefulTestCase.lambda$runBare$12(UsefulTestCase.java:491) 
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$3(EdtTestUtil.java:80) 
+	at com.intellij.openapi.application.impl.RwLockHolder.runWriteIntentReadAction(RwLockHolder.kt:70) 
+	at com.intellij.testFramework.EdtTestUtil.lambda$runInEdtAndWait$4(EdtTestUtil.java:79) 
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:308) 
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:792) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:739) 
+	at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:733) 
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399) 
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86) 
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:761) 
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:326) 
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:117) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:113) 
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:105) 
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:92) 
+Caused by: java.lang.IllegalStateException: Check failed. 
+	at com.sijunyang.bracketpairguides.comparison.SdkNativeRepairWorkloadsKt.runNativeWorkload(SdkNativeRepairWorkloads.kt:76) 
+	at com.sijunyang.bracketpairguides.comparison.SdkNativeRepairWorkloadsKt$runNativeWorkload$1.invokeSuspend(SdkNativeRepairWorkloads.kt) 
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33) 
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:108) 
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:584) 
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:793) 
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:697) 
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:684) 
+ 
+
+]]></system-err>
+</testsuite>

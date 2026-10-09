@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-08T12:22:52.085Z" hostname="sijun-yangui-MacBookPro.local" time="0.635">
+  <properties/>
+  <testcase name="testCloseDuringRealMatcherReadRejectsPublicationAfterCaptureUnwinds" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest" time="0.179"/>
+  <testcase name="testSecondaryRepairPublishesWhileDelayedFullCaptureIsStillBlocked" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest" time="0.173"/>
+  <testcase name="testSourceEditAfterInFlightReadRejectsOldResultAndPublishesNewCoordinates" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest" time="0.283"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[[   6750]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+]]></system-err>
+</testsuite>

@@ -1,0 +1,688 @@
+Initialized native services in: /Users/sijun-yang/.gradle/native
+Initialized jansi services in: /Users/sijun-yang/.gradle/native
+The current JVM process isn't compatible with build requirement. The maximum heap size is insufficient.
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Starting process 'Gradle build daemon'. Working directory: /Users/sijun-yang/.gradle/daemon/9.8.0 Command: /Users/sijun-yang/.sdkman/candidates/java/25.0.3-amzn/bin/java --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --sun-misc-unsafe-memory-access=allow --enable-native-access=ALL-UNNAMED -XX:MaxMetaspaceSize=384m -XX:+HeapDumpOnOutOfMemoryError -Xms256m -Xmx512m -Dfile.encoding=UTF-8 -Duser.country=KR -Duser.language=ko -Duser.variant -cp /Users/sijun-yang/.gradle/wrapper/dists/gradle-9.8.0-bin/3m7h6ceboy5k31n8kzwzuxssm/gradle-9.8.0/lib/gradle-daemon-main-9.8.0.jar -javaagent:/Users/sijun-yang/.gradle/wrapper/dists/gradle-9.8.0-bin/3m7h6ceboy5k31n8kzwzuxssm/gradle-9.8.0/lib/agents/gradle-instrumentation-agent-9.8.0.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.0
+Successfully started process 'Gradle build daemon'
+An attempt to start the daemon took 0.602 secs.
+The client will now receive all logging from the daemon (pid: 21467). The daemon log file: /Users/sijun-yang/.gradle/daemon/9.8.0/daemon-21467.out.log
+Daemon will be stopped at the end of the build 
+Using 2 worker leases.
+Operational build model parameters: {cachingModelBuilding=false, configurationCache=false, configurationCacheDisabledReason=null, configurationCacheParallelLoad=false, configurationCacheParallelStore=false, configureOnDemand=false, invalidateCoupledProjects=false, isolatedProjects=false, isolatedProjectsDiagnostics=false, isolatedProjectsDangerouslyIgnoreProblems=false, modelAsProjectDependency=false, modelBuilding=false, parallelModelBuilding=false, parallelProjectConfiguration=false, parallelProjectExecution=false, vintage=true}
+Received JVM installation metadata from '/Users/sijun-yang/.sdkman/candidates/java/25.0.3-amzn': {JAVA_HOME=/Users/sijun-yang/.sdkman/candidates/java/25.0.3-amzn, JAVA_VERSION=25.0.3, JAVA_VENDOR=Amazon.com Inc., RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=25.0.3+9-LTS, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=25.0.3+9-LTS, VM_VENDOR=Amazon.com Inc., OS_ARCH=aarch64}
+Watching the file system is configured to be enabled if available
+Now considering [/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides] as hierarchies to watch
+File system watching is active
+Starting Build
+Now considering [/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build-logic, /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides] as hierarchies to watch
+Using local directory build cache for build ':build-logic' (location = /Users/sijun-yang/.gradle/caches/build-cache-1, remove unused entries = after 3 days).
+
+> Configure project :build-logic
+Evaluating project ':build-logic' using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build-logic/build.gradle.kts'.
+Resolved plugin [id: 'org.gradle.groovy']
+Resolved plugin [id: 'org.gradle.java-gradle-plugin']
+Resolved plugin [id: 'org.gradle.toolchains.foojay-resolver-convention', version: '1.0.0']
+Resolved plugin [id: 'org.jetbrains.intellij.platform.settings', version: '2.19.0']
+[org.jetbrains.intellij.platform] Configuring plugin: org.jetbrains.intellij.platform.settings
+Settings evaluated using settings file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/settings.gradle.kts'.
+Using local directory build cache for the root build (location = /Users/sijun-yang/.gradle/caches/build-cache-1, remove unused entries = after 3 days).
+Projects loaded. Root project using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build.gradle.kts'.
+Included projects: [root project 'bracket-pair-guides', project ':analysis-core', project ':analysis-model', project ':analysis-runtime', project ':benchmarks', project ':editor-ui', project ':plugin']
+Starting process 'command '/usr/libexec/java_home''. Working directory: /Users/sijun-yang/.gradle/daemon/9.8.0 Command: /usr/libexec/java_home -V
+Successfully started process 'command '/usr/libexec/java_home''
+Starting process 'command '/Users/sijun-yang/.sdkman/candidates/java/21.0.10-amzn/bin/java''. Working directory: /Users/sijun-yang/.gradle/.tmp/tmp-jvm9708647146935843477probe Command: /Users/sijun-yang/.sdkman/candidates/java/21.0.10-amzn/bin/java -Xmx32m -Xms32m -cp . JavaProbe
+Successfully started process 'command '/Users/sijun-yang/.sdkman/candidates/java/21.0.10-amzn/bin/java''
+Received JVM installation metadata from '/Users/sijun-yang/.sdkman/candidates/java/21.0.10-amzn': {JAVA_HOME=/Users/sijun-yang/.sdkman/candidates/java/21.0.10-amzn, JAVA_VERSION=21.0.10, JAVA_VENDOR=Amazon.com Inc., RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=21.0.10+7-LTS, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=21.0.10+7-LTS, VM_VENDOR=Amazon.com Inc., OS_ARCH=aarch64}
+Starting process 'command '/Users/sijun-yang/.sdkman/candidates/java/17.0.18-amzn/bin/java''. Working directory: /Users/sijun-yang/.gradle/.tmp/tmp-jvm15477475850191919314probe Command: /Users/sijun-yang/.sdkman/candidates/java/17.0.18-amzn/bin/java -Xmx32m -Xms32m -cp . JavaProbe
+Successfully started process 'command '/Users/sijun-yang/.sdkman/candidates/java/17.0.18-amzn/bin/java''
+Received JVM installation metadata from '/Users/sijun-yang/.sdkman/candidates/java/17.0.18-amzn': {JAVA_HOME=/Users/sijun-yang/.sdkman/candidates/java/17.0.18-amzn, JAVA_VERSION=17.0.18, JAVA_VENDOR=Amazon.com Inc., RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=17.0.18+8-LTS, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=17.0.18+8-LTS, VM_VENDOR=Amazon.com Inc., OS_ARCH=aarch64}
+Starting process 'command '/Users/sijun-yang/.sdkman/candidates/java/24.0.2-amzn/bin/java''. Working directory: /Users/sijun-yang/.gradle/.tmp/tmp-jvm398125766377656308probe Command: /Users/sijun-yang/.sdkman/candidates/java/24.0.2-amzn/bin/java -Xmx32m -Xms32m -cp . JavaProbe
+Successfully started process 'command '/Users/sijun-yang/.sdkman/candidates/java/24.0.2-amzn/bin/java''
+Received JVM installation metadata from '/Users/sijun-yang/.sdkman/candidates/java/24.0.2-amzn': {JAVA_HOME=/Users/sijun-yang/.sdkman/candidates/java/24.0.2-amzn, JAVA_VERSION=24.0.2, JAVA_VENDOR=Amazon.com Inc., RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=24.0.2+12-FR, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=24.0.2+12-FR, VM_VENDOR=Amazon.com Inc., OS_ARCH=aarch64}
+Starting process 'command '/Users/sijun-yang/.sdkman/candidates/java/11.0.30-amzn/bin/java''. Working directory: /Users/sijun-yang/.gradle/.tmp/tmp-jvm8894598784168498950probe Command: /Users/sijun-yang/.sdkman/candidates/java/11.0.30-amzn/bin/java -Xmx32m -Xms32m -cp . JavaProbe
+Successfully started process 'command '/Users/sijun-yang/.sdkman/candidates/java/11.0.30-amzn/bin/java''
+Received JVM installation metadata from '/Users/sijun-yang/.sdkman/candidates/java/11.0.30-amzn': {JAVA_HOME=/Users/sijun-yang/.sdkman/candidates/java/11.0.30-amzn, JAVA_VERSION=11.0.30, JAVA_VENDOR=Amazon.com Inc., RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=11.0.30+7-LTS, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=11.0.30+7-LTS, VM_VENDOR=Amazon.com Inc., OS_ARCH=aarch64}
+Starting process 'command '/Users/sijun-yang/.sdkman/candidates/java/8.0.472-amzn/bin/java''. Working directory: /Users/sijun-yang/.gradle/.tmp/tmp-jvm5891361811477797774probe Command: /Users/sijun-yang/.sdkman/candidates/java/8.0.472-amzn/bin/java -Xmx32m -Xms32m -cp . JavaProbe
+Successfully started process 'command '/Users/sijun-yang/.sdkman/candidates/java/8.0.472-amzn/bin/java''
+Received JVM installation metadata from '/Users/sijun-yang/.sdkman/candidates/java/8.0.472-amzn': {JAVA_HOME=/Users/sijun-yang/.sdkman/candidates/java/8.0.472-amzn/jre, JAVA_VERSION=1.8.0_472, JAVA_VENDOR=Amazon.com Inc., RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=1.8.0_472-b08, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=25.472-b08, VM_VENDOR=Amazon.com Inc., OS_ARCH=aarch64}
+Starting process 'command '/Users/sijun-yang/Library/Java/JavaVirtualMachines/jbr-21.0.10/Contents/Home/bin/java''. Working directory: /Users/sijun-yang/.gradle/.tmp/tmp-jvm1034915071932603302probe Command: /Users/sijun-yang/Library/Java/JavaVirtualMachines/jbr-21.0.10/Contents/Home/bin/java -Xmx32m -Xms32m -cp . JavaProbe
+Successfully started process 'command '/Users/sijun-yang/Library/Java/JavaVirtualMachines/jbr-21.0.10/Contents/Home/bin/java''
+Received JVM installation metadata from '/Users/sijun-yang/Library/Java/JavaVirtualMachines/jbr-21.0.10/Contents/Home': {JAVA_HOME=/Users/sijun-yang/Library/Java/JavaVirtualMachines/jbr-21.0.10/Contents/Home, JAVA_VERSION=21.0.10, JAVA_VENDOR=JetBrains s.r.o., RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=21.0.10+7-b1163.108, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=21.0.10+7-b1163.108, VM_VENDOR=JetBrains s.r.o., OS_ARCH=aarch64}
+Resolve mutations for :build-logic:compileJava (Thread[#91,Execution worker,5,main]) started.
+:build-logic:compileJava (Thread[#91,Execution worker,5,main]) started.
+
+> Task :build-logic:compileJava NO-SOURCE
+Skipping task ':build-logic:compileJava' as it has no source files and no previous output files.
+Resolve mutations for :build-logic:compileGroovy (Thread[#91,Execution worker,5,main]) started.
+:build-logic:compileGroovy (Thread[#91,Execution worker,5,main]) started.
+
+> Task :build-logic:compileGroovy UP-TO-DATE
+Build cache key for task ':build-logic:compileGroovy' is d90fee85102ad0b1fd0a03a1287cf242
+Skipping task ':build-logic:compileGroovy' as it is up-to-date.
+Resolve mutations for :build-logic:pluginDescriptors (Thread[#91,Execution worker,5,main]) started.
+:build-logic:pluginDescriptors (Thread[#91,Execution worker,5,main]) started.
+
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+Caching disabled for task ':build-logic:pluginDescriptors' because:
+  Not worth caching
+Skipping task ':build-logic:pluginDescriptors' as it is up-to-date.
+Resolve mutations for :build-logic:processResources (Thread[#91,Execution worker,5,main]) started.
+:build-logic:processResources (Thread[#91,Execution worker,5,main]) started.
+
+> Task :build-logic:processResources UP-TO-DATE
+Caching disabled for task ':build-logic:processResources' because:
+  Not worth caching
+Skipping task ':build-logic:processResources' as it is up-to-date.
+Resolve mutations for :build-logic:classes (Thread[#91,Execution worker,5,main]) started.
+:build-logic:classes (Thread[#91,Execution worker,5,main]) started.
+
+> Task :build-logic:classes UP-TO-DATE
+Skipping task ':build-logic:classes' as it has no actions.
+Resolve mutations for :build-logic:jar (Thread[#91,Execution worker,5,main]) started.
+:build-logic:jar (Thread[#91,Execution worker,5,main]) started.
+
+> Task :build-logic:jar UP-TO-DATE
+Caching disabled for task ':build-logic:jar' because:
+  Not worth caching
+Skipping task ':build-logic:jar' as it is up-to-date.
+
+> Configure project :
+Evaluating root project 'bracket-pair-guides' using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build.gradle.kts'.
+Resolved plugin [id: 'org.gradle.base']
+Resolved plugin [id: 'bracket.module-boundaries']
+Resolved plugin [id: 'com.diffplug.spotless', version: '8.10.3']
+Resolved plugin [id: 'org.jetbrains.kotlin.jvm', version: '2.3.21', apply: false]
+Starting process 'command '/Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home/bin/java''. Working directory: /Users/sijun-yang/.gradle/.tmp/tmp-jvm5297385596118043747probe Command: /Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home/bin/java -Xmx32m -Xms32m -cp . JavaProbe
+Successfully started process 'command '/Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home/bin/java''
+Received JVM installation metadata from '/Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home': {JAVA_HOME=/Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home, JAVA_VERSION=17.0.17, JAVA_VENDOR=Eclipse Adoptium, RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=17.0.17+10, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=17.0.17+10, VM_VENDOR=Eclipse Adoptium, OS_ARCH=aarch64}
+Tasks to be executed: [task ':build-logic:compileJava', task ':build-logic:compileGroovy', task ':build-logic:pluginDescriptors', task ':build-logic:processResources', task ':build-logic:classes', task ':build-logic:jar']
+Tasks that were excluded: []
+
+> Configure project :analysis-core
+Evaluating project ':analysis-core' using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/analysis-core/build.gradle.kts'.
+Resolved plugin [id: 'org.gradle.java-library']
+Resolved plugin [id: 'org.jetbrains.kotlin.jvm', version: '2.3.21']
+Build 5bcb34ce-b423-4094-ad91-c03e8f9b1f84 is started
+Using Kotlin Gradle Plugin gradle813 variant
+kotlin scripting plugin: created the scripting discovery configuration: kotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: testKotlinScriptDef
+
+> Configure project :analysis-model
+Evaluating project ':analysis-model' using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/analysis-model/build.gradle.kts'.
+Resolved plugin [id: 'org.gradle.java-library']
+Resolved plugin [id: 'org.jetbrains.kotlin.jvm', version: '2.3.21']
+Using Kotlin Gradle Plugin gradle813 variant
+kotlin scripting plugin: created the scripting discovery configuration: kotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: testKotlinScriptDef
+
+> Configure project :analysis-runtime
+Evaluating project ':analysis-runtime' using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/analysis-runtime/build.gradle.kts'.
+Resolved plugin [id: 'org.gradle.java-library']
+Resolved plugin [id: 'org.jetbrains.kotlin.jvm', version: '2.3.21']
+Resolved plugin [id: 'org.jetbrains.intellij.platform.base']
+Using Kotlin Gradle Plugin gradle813 variant
+kotlin scripting plugin: created the scripting discovery configuration: kotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: testKotlinScriptDef
+[org.jetbrains.intellij.platform] Configuring plugin: org.jetbrains.intellij.platform.base
+[org.jetbrains.intellij.platform] Registering task: initializeIntellijPlatformPlugin
+[org.jetbrains.intellij.platform] Registering task: dumpProductsReleases
+[org.jetbrains.intellij.platform] Registering task: printBundledModules
+[org.jetbrains.intellij.platform] Registering task: printBundledPlugins
+[org.jetbrains.intellij.platform] Registering task: printProductsReleases
+
+> Configure project :benchmarks
+Evaluating project ':benchmarks' using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/benchmarks/build.gradle.kts'.
+Resolved plugin [id: 'org.jetbrains.kotlin.jvm', version: '2.3.21']
+Resolved plugin [id: 'me.champeau.jmh', version: '0.7.3']
+Using Kotlin Gradle Plugin gradle813 variant
+kotlin scripting plugin: created the scripting discovery configuration: kotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: testKotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: jmhKotlinScriptDef
+
+> Configure project :editor-ui
+Evaluating project ':editor-ui' using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/editor-ui/build.gradle.kts'.
+Resolved plugin [id: 'org.gradle.java-library']
+Resolved plugin [id: 'org.jetbrains.kotlin.jvm', version: '2.3.21']
+Resolved plugin [id: 'org.jetbrains.intellij.platform.base']
+Using Kotlin Gradle Plugin gradle813 variant
+kotlin scripting plugin: created the scripting discovery configuration: kotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: testKotlinScriptDef
+[org.jetbrains.intellij.platform] Configuring plugin: org.jetbrains.intellij.platform.base
+[org.jetbrains.intellij.platform] Registering task: initializeIntellijPlatformPlugin
+[org.jetbrains.intellij.platform] Registering task: dumpProductsReleases
+[org.jetbrains.intellij.platform] Registering task: printBundledModules
+[org.jetbrains.intellij.platform] Registering task: printBundledPlugins
+[org.jetbrains.intellij.platform] Registering task: printProductsReleases
+
+> Configure project :plugin
+Evaluating project ':plugin' using build file '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build.gradle.kts'.
+Resolved plugin [id: 'org.jetbrains.kotlin.jvm', version: '2.3.21']
+Resolved plugin [id: 'org.jetbrains.intellij.platform']
+Using Kotlin Gradle Plugin gradle813 variant
+kotlin scripting plugin: created the scripting discovery configuration: kotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: testKotlinScriptDef
+[org.jetbrains.intellij.platform] Configuring plugin: org.jetbrains.intellij.platform
+[org.jetbrains.intellij.platform] Registering task: patchPluginXml
+[org.jetbrains.intellij.platform] Configuring plugin: org.jetbrains.intellij.platform.base
+[org.jetbrains.intellij.platform] Registering task: initializeIntellijPlatformPlugin
+[org.jetbrains.intellij.platform] Registering task: dumpProductsReleases
+[org.jetbrains.intellij.platform] Registering task: printBundledModules
+[org.jetbrains.intellij.platform] Registering task: printBundledPlugins
+[org.jetbrains.intellij.platform] Registering task: printProductsReleases
+[org.jetbrains.intellij.platform] Configuring plugin: org.jetbrains.intellij.platform.module
+[org.jetbrains.intellij.platform] Registering task: generateManifest
+[org.jetbrains.intellij.platform] Registering task: jar
+[org.jetbrains.intellij.platform] Registering task: instrumentCode
+[org.jetbrains.intellij.platform] Registering task: instrumentTestCode
+[org.jetbrains.intellij.platform] Registering task: instrumentedJar
+[org.jetbrains.intellij.platform] Registering task: composedJar
+[org.jetbrains.intellij.platform] Registering task: prepareSandbox
+[org.jetbrains.intellij.platform] Registering task: cleanSandbox
+[org.jetbrains.intellij.platform] Registering task: prepareTestSandbox
+[org.jetbrains.intellij.platform] Registering task: prepareTest
+[org.jetbrains.intellij.platform] Registering task: test
+[org.jetbrains.intellij.platform] Registering task: verifyPluginProjectConfiguration
+[org.jetbrains.intellij.platform] Registering task: patchPluginXml
+[org.jetbrains.intellij.platform] Registering task: processResources
+[org.jetbrains.intellij.platform] Registering task: buildSearchableOptions
+[org.jetbrains.intellij.platform] Registering task: prepareJarSearchableOptions
+[org.jetbrains.intellij.platform] Registering task: jarSearchableOptions
+[org.jetbrains.intellij.platform] Registering task: buildPluginVariants
+[org.jetbrains.intellij.platform] Registering task: buildPlugin
+[org.jetbrains.intellij.platform] Registering task: prepareTestIdePerformanceSandbox
+[org.jetbrains.intellij.platform] Registering task: testIdePerformance
+[org.jetbrains.intellij.platform] Registering task: generateSplitModeRunConfigurations
+[org.jetbrains.intellij.platform] Registering task: prepareSandbox_runIde
+[org.jetbrains.intellij.platform] Registering task: prepareSandbox_runIdeBackend
+[org.jetbrains.intellij.platform] Registering task: prepareSandbox_runIdeFrontend
+[org.jetbrains.intellij.platform] Registering task: runIde
+[org.jetbrains.intellij.platform] Registering task: runIdeBackend
+[org.jetbrains.intellij.platform] Registering task: runIdeFrontend
+[org.jetbrains.intellij.platform] Registering task: runIdeSplitMode
+[org.jetbrains.intellij.platform] Registering task: verifyPlugin
+[org.jetbrains.intellij.platform] Registering task: verifyPluginSignature
+[org.jetbrains.intellij.platform] Registering task: verifyPluginStructure
+[org.jetbrains.intellij.platform] Registering task: signPlugin
+[org.jetbrains.intellij.platform] Registering task: publishPlugin
+kotlin scripting plugin: created the scripting discovery configuration: visualBridgeKotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: visualTestKotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: sdkPerformanceKotlinScriptDef
+All projects evaluated.
+Task path ':plugin:verifyPlugin' matched project ':plugin'
+Task name matched 'verifyPlugin'
+Selected primary task 'verifyPlugin' from project :plugin
+Starting process 'command '/usr/libexec/java_home''. Working directory: /Users/sijun-yang/.gradle/daemon/9.8.0 Command: /usr/libexec/java_home -V
+Successfully started process 'command '/usr/libexec/java_home''
+[org.jetbrains.intellij.platform] Reading product releases listing from cache: /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/.intellijPlatform/productReleases/d8bbed4bd446d296b495458e3b3dd1de9034348704ab6ea4ea43876bea4ef702.json
+[org.jetbrains.intellij.platform] Reading product releases listing from cache: /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/.intellijPlatform/productReleases/65b46622bac51a7dcbe68955a6e4a031e5f9669042ff225079054e580c770e3f.json
+[org.jetbrains.intellij.platform] Filtering releases with since='null', until='null', types='IC', channels=''
+[org.jetbrains.intellij.platform] LocalIvyArtifactPathComponentMetadataRule has been registered.
+[org.jetbrains.intellij.platform] Filtering releases with since='null', until='null', types='IC', channels=''
+[org.jetbrains.intellij.platform] Filtering releases with since='null', until='null', types='IC', channels=''
+Tasks to be executed: [task ':plugin:initializeIntellijPlatformPlugin', task ':plugin:patchPluginXml', task ':analysis-core:checkKotlinGradlePluginConfigurationErrors', task ':analysis-model:checkKotlinGradlePluginConfigurationErrors', task ':analysis-model:compileKotlin', task ':analysis-model:compileJava', task ':analysis-core:compileKotlin', task ':analysis-core:compileJava', task ':analysis-core:processResources', task ':analysis-core:classes', task ':analysis-core:jar', task ':analysis-model:processResources', task ':analysis-model:classes', task ':analysis-model:jar', task ':analysis-runtime:checkKotlinGradlePluginConfigurationErrors', task ':editor-ui:checkKotlinGradlePluginConfigurationErrors', task ':editor-ui:compileKotlin', task ':editor-ui:compileJava', task ':analysis-runtime:compileKotlin', task ':analysis-runtime:compileJava', task ':analysis-runtime:processResources', task ':analysis-runtime:classes', task ':analysis-runtime:jar', task ':editor-ui:processResources', task ':editor-ui:classes', task ':editor-ui:jar', task ':plugin:generateManifest', task ':plugin:checkKotlinGradlePluginConfigurationErrors', task ':plugin:compileKotlin', task ':plugin:compileJava', task ':plugin:processResources', task ':plugin:classes', task ':plugin:instrumentCode', task ':plugin:jar', task ':plugin:instrumentedJar', task ':plugin:composedJar', task ':plugin:prepareSandbox', task ':plugin:buildSearchableOptions', task ':plugin:prepareJarSearchableOptions', task ':plugin:jarSearchableOptions', task ':plugin:buildPlugin', task ':plugin:verifyPlugin']
+Tasks that were excluded: []
+Resolve mutations for :plugin:initializeIntellijPlatformPlugin (Thread[#91,Execution worker,5,main]) started.
+:plugin:initializeIntellijPlatformPlugin (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:initializeIntellijPlatformPlugin
+Caching disabled for task ':plugin:initializeIntellijPlatformPlugin' because:
+  Task is untracked because: Should always run
+Task ':plugin:initializeIntellijPlatformPlugin' is not up-to-date because:
+  Task is untracked because: Should always run
+Resolve mutations for :plugin:patchPluginXml (Thread[#91,Execution worker,5,main]) started.
+:plugin:patchPluginXml (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:patchPluginXml UP-TO-DATE
+Build cache key for task ':plugin:patchPluginXml' is 623af4e03dd6744e72578a242732c065
+Skipping task ':plugin:patchPluginXml' as it is up-to-date.
+Resolve mutations for :analysis-core:checkKotlinGradlePluginConfigurationErrors (Thread[#91,Execution worker,5,main]) started.
+:analysis-core:checkKotlinGradlePluginConfigurationErrors (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Skipping task ':analysis-core:checkKotlinGradlePluginConfigurationErrors' as task onlyIf 'errorDiagnostics are present' is false.
+Resolve mutations for :analysis-model:checkKotlinGradlePluginConfigurationErrors (Thread[#91,Execution worker,5,main]) started.
+:analysis-model:checkKotlinGradlePluginConfigurationErrors (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Skipping task ':analysis-model:checkKotlinGradlePluginConfigurationErrors' as task onlyIf 'errorDiagnostics are present' is false.
+Resolve mutations for :analysis-model:compileKotlin (Thread[#91,Execution worker,5,main]) started.
+:analysis-model:compileKotlin (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-model:compileKotlin UP-TO-DATE
+Build cache key for task ':analysis-model:compileKotlin' is 81f79c1e2212bb516b6bc3e58ad0294d
+Skipping task ':analysis-model:compileKotlin' as it is up-to-date.
+Resolve mutations for :analysis-model:compileJava (Thread[#91,Execution worker,5,main]) started.
+:analysis-model:compileJava (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-model:compileJava NO-SOURCE
+Skipping task ':analysis-model:compileJava' as it has no source files and no previous output files.
+work action resolve main (project ':analysis-model') (Thread[#91,Execution worker,5,main]) started.
+work action resolve main (project ':analysis-model') (Thread[#91,Execution worker,5,main]) started.
+Resolve mutations for :analysis-core:compileKotlin (Thread[#91,Execution worker,5,main]) started.
+:analysis-core:compileKotlin (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-core:compileKotlin UP-TO-DATE
+Build cache key for task ':analysis-core:compileKotlin' is 2f3b8fd63d0d2d8f7bea331c10a82ed8
+Skipping task ':analysis-core:compileKotlin' as it is up-to-date.
+Resolve mutations for :analysis-core:compileJava (Thread[#91,Execution worker,5,main]) started.
+:analysis-core:compileJava (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-core:compileJava UP-TO-DATE
+Build cache key for task ':analysis-core:compileJava' is f6381b474db4e76a93b7dce78e003ff8
+Skipping task ':analysis-core:compileJava' as it is up-to-date.
+No compile result for :analysis-core:compileJava
+No compile result for :analysis-core:compileJava
+work action resolve main (project ':analysis-core') (Thread[#91,Execution worker,5,main]) started.
+work action resolve main (project ':analysis-core') (Thread[#91,Execution worker,5,main]) started.
+Resolve mutations for :analysis-core:processResources (Thread[#91,Execution worker,5,main]) started.
+:analysis-core:processResources (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-core:processResources NO-SOURCE
+Skipping task ':analysis-core:processResources' as it has no source files and no previous output files.
+Resolve mutations for :analysis-core:classes (Thread[#91,Execution worker,5,main]) started.
+:analysis-core:classes (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-core:classes UP-TO-DATE
+Skipping task ':analysis-core:classes' as it has no actions.
+Resolve mutations for :analysis-core:jar (Thread[#91,Execution worker,5,main]) started.
+:analysis-core:jar (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-core:jar UP-TO-DATE
+Caching disabled for task ':analysis-core:jar' because:
+  Not worth caching
+Skipping task ':analysis-core:jar' as it is up-to-date.
+work action resolve analysis-core-0.0.6.jar (project ':analysis-core') (Thread[#91,Execution worker,5,main]) started.
+Resolve mutations for :analysis-model:processResources (Thread[#91,Execution worker,5,main]) started.
+:analysis-model:processResources (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-model:processResources NO-SOURCE
+Skipping task ':analysis-model:processResources' as it has no source files and no previous output files.
+Resolve mutations for :analysis-model:classes (Thread[#91,Execution worker,5,main]) started.
+:analysis-model:classes (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-model:classes UP-TO-DATE
+Skipping task ':analysis-model:classes' as it has no actions.
+Resolve mutations for :analysis-model:jar (Thread[#91,Execution worker,5,main]) started.
+:analysis-model:jar (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-model:jar UP-TO-DATE
+Caching disabled for task ':analysis-model:jar' because:
+  Not worth caching
+Skipping task ':analysis-model:jar' as it is up-to-date.
+work action resolve analysis-model-0.0.6.jar (project ':analysis-model') (Thread[#91,Execution worker,5,main]) started.
+Resolve mutations for :analysis-runtime:checkKotlinGradlePluginConfigurationErrors (Thread[#91,Execution worker,5,main]) started.
+:analysis-runtime:checkKotlinGradlePluginConfigurationErrors (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Skipping task ':analysis-runtime:checkKotlinGradlePluginConfigurationErrors' as task onlyIf 'errorDiagnostics are present' is false.
+Resolve mutations for :editor-ui:checkKotlinGradlePluginConfigurationErrors (Thread[#91,Execution worker,5,main]) started.
+:editor-ui:checkKotlinGradlePluginConfigurationErrors (Thread[#91,Execution worker,5,main]) started.
+
+> Task :editor-ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Skipping task ':editor-ui:checkKotlinGradlePluginConfigurationErrors' as task onlyIf 'errorDiagnostics are present' is false.
+Resolve mutations for :editor-ui:compileKotlin (Thread[#91,Execution worker,5,main]) started.
+:editor-ui:compileKotlin (Thread[#91,Execution worker,5,main]) started.
+
+> Task :editor-ui:compileKotlin UP-TO-DATE
+Build cache key for task ':editor-ui:compileKotlin' is 8ddd42632824d322c13908b665e223c9
+Skipping task ':editor-ui:compileKotlin' as it is up-to-date.
+Resolve mutations for :editor-ui:compileJava (Thread[#91,Execution worker,5,main]) started.
+:editor-ui:compileJava (Thread[#91,Execution worker,5,main]) started.
+
+> Task :editor-ui:compileJava UP-TO-DATE
+Build cache key for task ':editor-ui:compileJava' is 98d00b23a45bb7688b8608e7f497f57d
+Skipping task ':editor-ui:compileJava' as it is up-to-date.
+No compile result for :editor-ui:compileJava
+No compile result for :editor-ui:compileJava
+work action resolve main (project ':editor-ui') (Thread[#91,Execution worker,5,main]) started.
+work action resolve main (project ':editor-ui') (Thread[#91,Execution worker,5,main]) started.
+Resolve mutations for :analysis-runtime:compileKotlin (Thread[#91,Execution worker,5,main]) started.
+:analysis-runtime:compileKotlin (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-runtime:compileKotlin UP-TO-DATE
+Build cache key for task ':analysis-runtime:compileKotlin' is 876c565b54d0a883d5f6ea1002444e84
+Skipping task ':analysis-runtime:compileKotlin' as it is up-to-date.
+Resolve mutations for :analysis-runtime:compileJava (Thread[#91,Execution worker,5,main]) started.
+:analysis-runtime:compileJava (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-runtime:compileJava UP-TO-DATE
+Build cache key for task ':analysis-runtime:compileJava' is 15b68a1348818778cb93c2e38f895044
+Skipping task ':analysis-runtime:compileJava' as it is up-to-date.
+No compile result for :analysis-runtime:compileJava
+No compile result for :analysis-runtime:compileJava
+Resolve mutations for :analysis-runtime:processResources (Thread[#91,Execution worker,5,main]) started.
+:analysis-runtime:processResources (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-runtime:processResources NO-SOURCE
+Skipping task ':analysis-runtime:processResources' as it has no source files and no previous output files.
+Resolve mutations for :analysis-runtime:classes (Thread[#91,Execution worker,5,main]) started.
+:analysis-runtime:classes (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-runtime:classes UP-TO-DATE
+Skipping task ':analysis-runtime:classes' as it has no actions.
+Resolve mutations for :analysis-runtime:jar (Thread[#91,Execution worker,5,main]) started.
+:analysis-runtime:jar (Thread[#91,Execution worker,5,main]) started.
+
+> Task :analysis-runtime:jar UP-TO-DATE
+Caching disabled for task ':analysis-runtime:jar' because:
+  Not worth caching
+Skipping task ':analysis-runtime:jar' as it is up-to-date.
+work action resolve analysis-runtime-0.0.6.jar (project ':analysis-runtime') (Thread[#91,Execution worker,5,main]) started.
+Resolve mutations for :editor-ui:processResources (Thread[#91,Execution worker,5,main]) started.
+:editor-ui:processResources (Thread[#91,Execution worker,5,main]) started.
+
+> Task :editor-ui:processResources NO-SOURCE
+Skipping task ':editor-ui:processResources' as it has no source files and no previous output files.
+Resolve mutations for :editor-ui:classes (Thread[#91,Execution worker,5,main]) started.
+:editor-ui:classes (Thread[#91,Execution worker,5,main]) started.
+
+> Task :editor-ui:classes UP-TO-DATE
+Skipping task ':editor-ui:classes' as it has no actions.
+Resolve mutations for :editor-ui:jar (Thread[#91,Execution worker,5,main]) started.
+:editor-ui:jar (Thread[#91,Execution worker,5,main]) started.
+
+> Task :editor-ui:jar UP-TO-DATE
+Caching disabled for task ':editor-ui:jar' because:
+  Not worth caching
+Skipping task ':editor-ui:jar' as it is up-to-date.
+work action resolve editor-ui-0.0.6.jar (project ':editor-ui') (Thread[#91,Execution worker,5,main]) started.
+Resolve mutations for :plugin:generateManifest (Thread[#91,Execution worker,5,main]) started.
+:plugin:generateManifest (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:generateManifest UP-TO-DATE
+Build cache key for task ':plugin:generateManifest' is ca5d9a29053110ddc2b82ef458782056
+Skipping task ':plugin:generateManifest' as it is up-to-date.
+Resolve mutations for :plugin:checkKotlinGradlePluginConfigurationErrors (Thread[#91,Execution worker,5,main]) started.
+:plugin:checkKotlinGradlePluginConfigurationErrors (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Skipping task ':plugin:checkKotlinGradlePluginConfigurationErrors' as task onlyIf 'errorDiagnostics are present' is false.
+Resolve mutations for :plugin:compileKotlin (Thread[#91,Execution worker,5,main]) started.
+:plugin:compileKotlin (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:compileKotlin UP-TO-DATE
+Build cache key for task ':plugin:compileKotlin' is 351d87d0444f37cbccb6f14b49eb0445
+Skipping task ':plugin:compileKotlin' as it is up-to-date.
+Resolve mutations for :plugin:compileJava (Thread[#91,Execution worker,5,main]) started.
+:plugin:compileJava (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:compileJava NO-SOURCE
+Skipping task ':plugin:compileJava' as it has no source files and no previous output files.
+Resolve mutations for :plugin:processResources (Thread[#91,Execution worker,5,main]) started.
+:plugin:processResources (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:processResources UP-TO-DATE
+Caching disabled for task ':plugin:processResources' because:
+  Not worth caching
+Skipping task ':plugin:processResources' as it is up-to-date.
+Resolve mutations for :plugin:classes (Thread[#91,Execution worker,5,main]) started.
+:plugin:classes (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:classes UP-TO-DATE
+Skipping task ':plugin:classes' as it has no actions.
+Resolve mutations for :plugin:instrumentCode (Thread[#91,Execution worker,5,main]) started.
+:plugin:instrumentCode (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:instrumentCode UP-TO-DATE
+file or directory '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/src/main/java', not found
+Build cache key for task ':plugin:instrumentCode' is 42d288d5b638ecb7dceb9ce6308674be
+Skipping task ':plugin:instrumentCode' as it is up-to-date.
+Resolve mutations for :plugin:jar (Thread[#91,Execution worker,5,main]) started.
+:plugin:jar (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:jar UP-TO-DATE
+Caching disabled for task ':plugin:jar' because:
+  Not worth caching
+Skipping task ':plugin:jar' as it is up-to-date.
+Resolve mutations for :plugin:instrumentedJar (Thread[#91,Execution worker,5,main]) started.
+:plugin:instrumentedJar (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:instrumentedJar UP-TO-DATE
+Build cache key for task ':plugin:instrumentedJar' is bb54e2b4ca18f3f7b99767bbb5f3f202
+Skipping task ':plugin:instrumentedJar' as it is up-to-date.
+Resolve mutations for :plugin:composedJar (Thread[#91,Execution worker,5,main]) started.
+:plugin:composedJar (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:composedJar UP-TO-DATE
+Build cache key for task ':plugin:composedJar' is dec8a543bc3c39fa468c3f908f6080ad
+Skipping task ':plugin:composedJar' as it is up-to-date.
+Resolve mutations for :plugin:prepareSandbox (Thread[#91,Execution worker,5,main]) started.
+:plugin:prepareSandbox (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:prepareSandbox UP-TO-DATE
+Caching disabled for task ':plugin:prepareSandbox' because:
+  Not worth caching
+Skipping task ':plugin:prepareSandbox' as it is up-to-date.
+Resolve mutations for :plugin:buildSearchableOptions (Thread[#91,Execution worker,5,main]) started.
+:plugin:buildSearchableOptions (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:buildSearchableOptions SKIPPED
+Skipping task ':plugin:buildSearchableOptions' as task onlyIf 'Task satisfies onlyIf spec' is false.
+Resolve mutations for :plugin:prepareJarSearchableOptions (Thread[#91,Execution worker,5,main]) started.
+:plugin:prepareJarSearchableOptions (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:prepareJarSearchableOptions SKIPPED
+Skipping task ':plugin:prepareJarSearchableOptions' as task onlyIf 'Task satisfies onlyIf spec' is false.
+Resolve mutations for :plugin:jarSearchableOptions (Thread[#91,Execution worker,5,main]) started.
+:plugin:jarSearchableOptions (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:jarSearchableOptions SKIPPED
+Skipping task ':plugin:jarSearchableOptions' as task onlyIf 'Task satisfies onlyIf spec' is false.
+Resolve mutations for :plugin:buildPlugin (Thread[#91,Execution worker,5,main]) started.
+:plugin:buildPlugin (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:buildPlugin UP-TO-DATE
+Caching disabled for task ':plugin:buildPlugin' because:
+  Zip based tasks do not benefit from caching
+Skipping task ':plugin:buildPlugin' as it is up-to-date.
+Resolve mutations for :plugin:verifyPlugin (Thread[#91,Execution worker,5,main]) started.
+:plugin:verifyPlugin (Thread[#91,Execution worker,5,main]) started.
+
+> Task :plugin:verifyPlugin
+Custom actions are attached to task ':plugin:verifyPlugin'.
+Caching disabled for task ':plugin:verifyPlugin' because:
+  Caching has not been enabled for the task
+Task ':plugin:verifyPlugin' is not up-to-date because:
+  Task.upToDateWhen is false.
+file or directory '/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/benchmarks/src/test', not found
+Frozen target IU-263.6259.32; actual product IU; version 2026.3; build 263.6259.32; path /Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64
+Starting process 'command '/Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home/bin/java''. Working directory: /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin Command: /Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home/bin/java -Dfile.encoding=UTF-8 -Duser.country=KR -Duser.language=ko -Duser.variant -cp /Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.intellij.plugins/verifier-cli/1.410/e23a5d6232eb0e489bbfd9eaa7174dc2cd562274/verifier-cli-1.410-all.jar com.jetbrains.pluginverifier.PluginVerifierMain check-plugin -verification-reports-dir /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/runs/20261008T125349781364Z/reports/IU-263.6259.32 -subsystems-to-check all -offline -verification-reports-formats plain,html /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/distributions/bracket-pair-guides-0.0.6.zip /Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64
+Successfully started process 'command '/Users/sijun-yang/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.17+10/Contents/Home/bin/java''
+Starting the IntelliJ Plugin Verifier 1.410
+Verification reports directory: /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/runs/20261008T125349781364Z/reports/IU-263.6259.32
+2026-10-08T22:05:45 [main] INFO  verification - Reading IDE /Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64
+2026-10-08T22:05:45 [main] INFO  c.j.p.options.OptionsParser - Reading IDE from /Users/sijun-yang/.gradle/caches/9.8.0/transforms/52c2ec041b5c3a081c9ec8fd5633e3a9/transformed/idea-263.6259.32-aarch64
+2026-10-08T22:05:45 [main] WARN  c.j.p.s.i.r.ValidatingLayoutComponentsProvider - Layout component 'intellij.android.gradle.declarative.lang' has some nonexistent 'classPath' elements: 'plugins/android-gradle-declarative-lang-ide/lib/modules/intellij.android.gradle.declarative.lang.jar'
+Layout component 'intellij.android.gradle.declarative.lang.flags' has some nonexistent 'classPath' elements: 'plugins/android-gradle-declarative-lang-ide/lib/modules/intellij.android.gradle.declarative.lang.flags.jar'
+Layout component 'intellij.android.gradle.declarative.lang.sync' has some nonexistent 'classPath' elements: 'plugins/android-gradle-declarative-lang-ide/lib/modules/intellij.android.gradle.declarative.lang.sync.jar'
+Layout component 'intellij.clouds.docker.agent' has some nonexistent 'classPath' elements: 'plugins/clouds-docker-impl/lib/modules/intellij.clouds.docker.agent.jar'
+Layout component 'intellij.clouds.docker.dependencies' has some nonexistent 'classPath' elements: 'plugins/clouds-docker-impl/lib/modules/intellij.clouds.docker.dependencies.jar'
+Layout component 'intellij.clouds.docker.devcontainers.cli' has some nonexistent 'classPath' elements: 'plugins/clouds-docker-gateway/lib/modules/intellij.clouds.docker.devcontainers.cli.jar'
+Layout component 'intellij.clouds.kubernetes' has some nonexistent 'classPath' elements: 'plugins/clouds-kubernetes/lib/modules/intellij.clouds.kubernetes.jar'
+Layout component 'intellij.clouds.kubernetes.libraries' has some nonexistent 'classPath' elements: 'plugins/clouds-kubernetes/lib/modules/intellij.clouds.kubernetes.libraries.jar'
+Layout component 'intellij.dfa.analysis.rml' has some nonexistent 'classPath' elements: 'plugins/dfa-analysis-plugin/lib/modules/intellij.dfa.analysis.rml.jar'
+Layout component 'intellij.dfa.analysis.rml.configurator' has some nonexistent 'classPath' elements: 'plugins/dfa-analysis-plugin/lib/modules/intellij.dfa.analysis.rml.configurator.jar'
+Layout component 'intellij.dfa.analysis.rml.configurator.jvm' has some nonexistent 'classPath' elements: 'plugins/dfa-analysis-plugin/lib/modules/intellij.dfa.analysis.rml.configurator.jvm.jar'
+Layout component 'intellij.dfa.analysis.rml.intellij' has some nonexistent 'classPath' elements: 'plugins/dfa-analysis-plugin/lib/modules/intellij.dfa.analysis.rml.intellij.jar'
+Layout component 'intellij.dfa.analysis.rml.taint' has some nonexistent 'classPath' elements: 'plugins/dfa-analysis-plugin/lib/modules/intellij.dfa.analysis.rml.taint.jar'
+Layout component 'intellij.dfa.analysis.ui' has some nonexistent 'classPath' elements: 'plugins/dfa-analysis-plugin/lib/modules/intellij.dfa.analysis.ui.jar'
+Layout component 'intellij.driver.client' has some nonexistent 'classPath' elements: 'plugins/performanceTesting/lib/modules/intellij.driver.client.jar'
+Layout component 'intellij.driver.impl' has some nonexistent 'classPath' elements: 'plugins/performanceTesting/lib/modules/intellij.driver.impl.jar'
+Layout component 'intellij.driver.model' has some nonexistent 'classPath' elements: 'plugins/performanceTesting/lib/modules/intellij.driver.model.jar'
+Layout component 'intellij.gradle' has some nonexistent 'classPath' elements: 'plugins/gradle-plugin/lib/modules/intellij.gradle.jar'
+Layout component 'intellij.gradle.java' has some nonexistent 'classPath' elements: 'plugins/gradle-java-plugin/lib/modules/intellij.gradle.java.jar'
+Layout component 'intellij.gradle.settings' has some nonexistent 'classPath' elements: 'plugins/gradle-plugin/lib/modules/intellij.gradle.settings.jar'
+Layout component 'intellij.gradle.toolingExtension' has some nonexistent 'classPath' elements: 'plugins/gradle-plugin/lib/modules/intellij.gradle.toolingExtension.jar'
+Layout component 'intellij.gradle.toolingExtension.impl' has some nonexistent 'classPath' elements: 'plugins/gradle-plugin/lib/modules/intellij.gradle.toolingExtension.impl.jar'
+Layout component 'intellij.gradle.toolingProxy' has some nonexistent 'classPath' elements: 'plugins/gradle-plugin/lib/modules/intellij.gradle.toolingProxy.jar'
+Layout component 'intellij.grazie.core' has some nonexistent 'classPath' elements: 'plugins/grazie/lib/modules/intellij.grazie.core.jar'
+Layout component 'intellij.java.compiler.antTasks' has some nonexistent 'classPath' elements: 'plugins/java/lib/modules/intellij.java.compiler.antTasks.jar'
+Layout component 'intellij.java.compiler.instrumentationUtil' has some nonexistent 'classPath' elements: 'plugins/java/lib/modules/intellij.java.compiler.instrumentationUtil.jar'
+Layout component 'intellij.java.compiler.instrumentationUtil.java8' has some nonexistent 'classPath' elements: 'plugins/java/lib/modules/intellij.java.compiler.instrumentationUtil.java8.jar'
+Layout component 'intellij.java.coverage.rt' has some nonexistent 'classPath' elements: 'plugins/java-coverage/lib/modules/intellij.java.coverage.rt.jar'
+Layout component 'intellij.java.debugger.libraries.jb.jdi' has some nonexistent 'classPath' elements: 'plugins/java/lib/modules/intellij.java.debugger.libraries.jb.jdi.jar'
+Layout component 'intellij.java.frontback.impl' has some nonexistent 'classPath' elements: 'plugins/java/lib/modules/intellij.java.frontback.impl.jar'
+Layout component 'intellij.java.frontback.psi' has some nonexistent 'classPath' elements: 'plugins/java/lib/modules/intellij.java.frontback.psi.jar'
+Layout component 'intellij.java.frontback.psi.impl' has some nonexistent 'classPath' elements: 'plugins/java/lib/modules/intellij.java.frontback.psi.impl.jar'
+Layout component 'intellij.java.guiForms.compiler' has some nonexistent 'classPath' elements: 'plugins/java/lib/modules/intellij.java.guiForms.compiler.jar'
+Layout component 'intellij.java.psi' has some nonexistent 'classPath' elements: 'plugins/java/lib/modules/intellij.java.psi.jar'
+Layout component 'intellij.java.psi.impl' has some nonexistent 'classPath' elements: 'plugins/java/lib/modules/intellij.java.psi.impl.jar'
+Layout component 'intellij.java.syntax' has some nonexistent 'classPath' elements: 'plugins/java/lib/modules/intellij.java.syntax.jar'
+Layout component 'intellij.javaee.jpa' has some nonexistent 'classPath' elements: 'plugins/JPA/lib/modules/intellij.javaee.jpa.jar'
+Layout component 'intellij.javaee.jpa.jpb.model.core' has some nonexistent 'classPath' elements: 'plugins/JavaEE/lib/modules/intellij.javaee.jpa.jpb.model.core.jar'
+Layout component 'intellij.javaee.jpa.jpb.model.ui' has some nonexistent 'classPath' elements: 'plugins/JavaEE/lib/modules/intellij.javaee.jpa.jpb.model.ui.jar'
+Layout component 'intellij.json' has some nonexistent 'classPath' elements: 'plugins/json/lib/modules/intellij.json.jar'
+Layout component 'intellij.json.syntax' has some nonexistent 'classPath' elements: 'plugins/json/lib/modules/intellij.json.syntax.jar'
+Layout component 'intellij.kotlin.buildToolsRuntime' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.kotlin.buildToolsRuntime.jar'
+Layout component 'intellij.kotlin.jsr223' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.kotlin.jsr223.jar'
+Layout component 'intellij.libraries.ai.grazie.rule.engine' has some nonexistent 'classPath' elements: 'plugins/grazie/lib/modules/intellij.libraries.ai.grazie.rule.engine.jar'
+Layout component 'intellij.libraries.ai.grazie.spell.gec.engine.local' has some nonexistent 'classPath' elements: 'plugins/grazie/lib/modules/intellij.libraries.ai.grazie.spell.gec.engine.local.jar'
+Layout component 'intellij.libraries.assertj.core' has some nonexistent 'classPath' elements: 'plugins/featuresTrainer/lib/modules/intellij.libraries.assertj.core.jar'
+Layout component 'intellij.libraries.assertj.core' has some nonexistent 'classPath' elements: 'plugins/performanceTesting/lib/modules/intellij.libraries.assertj.core.jar'
+Layout component 'intellij.libraries.assertj.swing' has some nonexistent 'classPath' elements: 'plugins/featuresTrainer/lib/modules/intellij.libraries.assertj.swing.jar'
+Layout component 'intellij.libraries.assertj.swing' has some nonexistent 'classPath' elements: 'plugins/performanceTesting/lib/modules/intellij.libraries.assertj.swing.jar'
+Layout component 'intellij.libraries.asyncapi.react.component' has some nonexistent 'classPath' elements: 'plugins/swagger/lib/modules/intellij.libraries.asyncapi.react.component.jar'
+Layout component 'intellij.libraries.brotli.dec' has some nonexistent 'classPath' elements: 'plugins/restClient/lib/modules/intellij.libraries.brotli.dec.jar'
+Layout component 'intellij.libraries.clikt' has some nonexistent 'classPath' elements: 'plugins/fullLine/lib/modules/intellij.libraries.clikt.jar'
+Layout component 'intellij.libraries.cloud.config.client' has some nonexistent 'classPath' elements: 'plugins/settingsSync/lib/modules/intellij.libraries.cloud.config.client.jar'
+Layout component 'intellij.libraries.commons.pool2' has some nonexistent 'classPath' elements: 'plugins/webDeployment/lib/modules/intellij.libraries.commons.pool2.jar'
+Layout component 'intellij.libraries.completion.ranking.sh' has some nonexistent 'classPath' elements: 'plugins/terminal/lib/modules/intellij.libraries.completion.ranking.sh.jar'
+Layout component 'intellij.libraries.ec4j.core' has some nonexistent 'classPath' elements: 'plugins/editorconfig-plugin/lib/modules/intellij.libraries.ec4j.core.jar'
+Layout component 'intellij.libraries.flexmark' has some nonexistent 'classPath' elements: 'plugins/qodana/lib/modules/intellij.libraries.flexmark.jar'
+Layout component 'intellij.libraries.graalvm.js' has some nonexistent 'classPath' elements: 'plugins/restClient/lib/modules/intellij.libraries.graalvm.js.jar'
+Layout component 'intellij.libraries.gradle' has some nonexistent 'classPath' elements: 'plugins/gradle-plugin/lib/modules/intellij.libraries.gradle.jar'
+Layout component 'intellij.libraries.groovy' has some nonexistent 'classPath' elements: 'plugins/groovy-scripting/lib/modules/intellij.libraries.groovy.jar'
+Layout component 'intellij.libraries.groovy.jsr223' has some nonexistent 'classPath' elements: 'plugins/groovy-scripting/lib/modules/intellij.libraries.groovy.jsr223.jar'
+Layout component 'intellij.libraries.hamcrest' has some nonexistent 'classPath' elements: 'plugins/Groovy/lib/modules/intellij.libraries.hamcrest.jar'
+Layout component 'intellij.libraries.hamcrest' has some nonexistent 'classPath' elements: 'plugins/junit/lib/modules/intellij.libraries.hamcrest.jar'
+Layout component 'intellij.libraries.ivy' has some nonexistent 'classPath' elements: 'plugins/groovy-scripting/lib/modules/intellij.libraries.ivy.jar'
+Layout component 'intellij.libraries.java.diff.utils' has some nonexistent 'classPath' elements: 'plugins/fullLine/lib/modules/intellij.libraries.java.diff.utils.jar'
+Layout component 'intellij.libraries.javafaker' has some nonexistent 'classPath' elements: 'plugins/restClient/lib/modules/intellij.libraries.javafaker.jar'
+Layout component 'intellij.libraries.jline' has some nonexistent 'classPath' elements: 'plugins/qodana/lib/modules/intellij.libraries.jline.jar'
+Layout component 'intellij.libraries.joni' has some nonexistent 'classPath' elements: 'plugins/json/lib/modules/intellij.libraries.joni.jar'
+Layout component 'intellij.libraries.jooq.joox' has some nonexistent 'classPath' elements: 'plugins/restClient/lib/modules/intellij.libraries.jooq.joox.jar'
+Layout component 'intellij.libraries.jps.javac.extension' has some nonexistent 'classPath' elements: 'plugins/java/lib/modules/intellij.libraries.jps.javac.extension.jar'
+Layout component 'intellij.libraries.jsonSchemaValidator' has some nonexistent 'classPath' elements: 'plugins/json/lib/modules/intellij.libraries.jsonSchemaValidator.jar'
+Layout component 'intellij.libraries.junit4' has some nonexistent 'classPath' elements: 'plugins/Groovy/lib/modules/intellij.libraries.junit4.jar'
+Layout component 'intellij.libraries.junit4' has some nonexistent 'classPath' elements: 'plugins/junit/lib/modules/intellij.libraries.junit4.jar'
+Layout component 'intellij.libraries.kotlin.logging' has some nonexistent 'classPath' elements: 'plugins/charts-plugin/lib/modules/intellij.libraries.kotlin.logging.jar'
+Layout component 'intellij.libraries.kotlin.logging' has some nonexistent 'classPath' elements: 'plugins/grazie/lib/modules/intellij.libraries.kotlin.logging.jar'
+Layout component 'intellij.libraries.kotlin.logging' has some nonexistent 'classPath' elements: 'plugins/mcpserver-plugin/lib/modules/intellij.libraries.kotlin.logging.jar'
+Layout component 'intellij.libraries.kotlin.tooling.core' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlin.tooling.core.jar'
+Layout component 'intellij.libraries.kotlinc.allopen.compiler.plugin' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.allopen.compiler.plugin.jar'
+Layout component 'intellij.libraries.kotlinc.assignment.compiler.plugin' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.assignment.compiler.plugin.jar'
+Layout component 'intellij.libraries.kotlinc.compose.compiler.plugin' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.compose.compiler.plugin.jar'
+Layout component 'intellij.libraries.kotlinc.js.plain.objects.compiler.plugin' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.js.plain.objects.compiler.plugin.jar'
+Layout component 'intellij.libraries.kotlinc.kotlin.compiler.common' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.kotlin.compiler.common.jar'
+Layout component 'intellij.libraries.kotlinc.kotlin.compiler.fe10' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.kotlin.compiler.fe10.jar'
+Layout component 'intellij.libraries.kotlinc.kotlin.compiler.fir' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.kotlin.compiler.fir.jar'
+Layout component 'intellij.libraries.kotlinc.kotlin.compiler.ir' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.kotlin.compiler.ir.jar'
+Layout component 'intellij.libraries.kotlinc.kotlin.dataframe.compiler.plugin' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.kotlin.dataframe.compiler.plugin.jar'
+Layout component 'intellij.libraries.kotlinc.kotlin.jps.common' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.kotlin.jps.common.jar'
+Layout component 'intellij.libraries.kotlinc.kotlin.script.runtime' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.kotlin.script.runtime.jar'
+Layout component 'intellij.libraries.kotlinc.kotlin.scripting.common' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.kotlin.scripting.common.jar'
+Layout component 'intellij.libraries.kotlinc.kotlin.scripting.compiler.impl' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.kotlin.scripting.compiler.impl.jar'
+Layout component 'intellij.libraries.kotlinc.kotlin.scripting.dependencies' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.kotlin.scripting.dependencies.jar'
+Layout component 'intellij.libraries.kotlinc.kotlin.scripting.jvm' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.kotlin.scripting.jvm.jar'
+Layout component 'intellij.libraries.kotlinc.kotlinx.serialization.compiler.plugin' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.kotlinx.serialization.compiler.plugin.jar'
+Layout component 'intellij.libraries.kotlinc.lombok.compiler.plugin' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.lombok.compiler.plugin.jar'
+Layout component 'intellij.libraries.kotlinc.noarg.compiler.plugin' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.noarg.compiler.plugin.jar'
+Layout component 'intellij.libraries.kotlinc.parcelize.compiler.plugin' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.parcelize.compiler.plugin.jar'
+Layout component 'intellij.libraries.kotlinc.sam.with.receiver.compiler.plugin' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.sam.with.receiver.compiler.plugin.jar'
+Layout component 'intellij.libraries.kotlinc.scripting.compiler.plugin' has some nonexistent 'classPath' elements: 'plugins/Kotlin/lib/modules/intellij.libraries.kotlinc.scripting.compiler.plugin.jar'
+Layout component 'intellij.libraries.kotlinx.coroutines.reactor' has some nonexistent 'classPath' elements: 'plugins/restClient/lib/modules/intellij.libraries.kotlinx.coroutines.reactor.jar'
+Layout component 'intellij.libraries.ktor.server.content.negotiation' has some nonexistent 'classPath' elements: 'plugins/DatabaseTools/lib/modules/intellij.libraries.ktor.server.content.negotiation.jar'
+Layout component 'intellij.libraries.ktor.server.content.negotiation' has some nonexistent 'classPath' elements: 'plugins/mcpserver-plugin/lib/modules/intellij.libraries.ktor.server.content.negotiation.jar'
+Layout component 'intellij.libraries.ktor.server.sse' has some nonexistent 'classPath' elements: 'plugins/DatabaseTools/lib/modules/intellij.libraries.ktor.server.sse.jar'
+Layout component 'intellij.libraries.ktor.server.sse' has some nonexistent 'classPath' elements: 'plugins/mcpserver-plugin/lib/modules/intellij.libraries.ktor.server.sse.jar'
+Layout component 'intellij.libraries.licenseDecoder' has some nonexistent 'classPath' elements: 'lib/intellij.libraries.licenseDecoder.jar'
+Layout component 'intellij.libraries.licenseServerApi' has some nonexistent 'classPath' elements: 'lib/intellij.libraries.licenseServerApi.jar'
+Layout component 'intellij.libraries.maven.resolver.provider' has some nonexistent 'classPath' elements: 'plugins/java-aetherDependencyResolver-plugin/lib/modules/intellij.libraries.maven.resolver.provider.jar'
+Layout component 'intellij.libraries.maven.resolver.transport' has some nonexistent 'classPath' elements: 'plugins/java-aetherDependencyResolver-plugin/lib/modules/intellij.libraries.maven.resolver.transport.jar'
+Layout component 'intellij.libraries.mcp.kotlin.sdk' has some nonexistent 'classPath' elements: 'plugins/mcpserver-plugin/lib/modules/intellij.libraries.mcp.kotlin.sdk.jar'
+Layout component 'intellij.libraries.mlapi.catboost' has some nonexistent 'classPath' elements: 'plugins/fullLine/lib/modules/intellij.libraries.mlapi.catboost.jar'
+Layout component 'intellij.libraries.mlapi.core' has some nonexistent 'classPath' elements: 'plugins/fullLine/lib/modules/intellij.libraries.mlapi.core.jar'
+Layout component 'intellij.libraries.opentest4j' has some nonexistent 'classPath' elements: 'plugins/Groovy/lib/modules/intellij.libraries.opentest4j.jar'
+Layout component 'intellij.libraries.oshi.core' has some nonexistent 'classPath' elements: 'plugins/performanceTesting/lib/modules/intellij.libraries.oshi.core.jar'
+Layout component 'intellij.libraries.plexus.utils' has some nonexistent 'classPath' elements: 'plugins/java-aetherDependencyResolver-plugin/lib/modules/intellij.libraries.plexus.utils.jar'
+Layout component 'intellij.libraries.qodana.cloud.kotlin.client' has some nonexistent 'classPath' elements: 'plugins/qodana/lib/modules/intellij.libraries.qodana.cloud.kotlin.client.jar'
+Layout component 'intellij.libraries.qodana.configuration' has some nonexistent 'classPath' elements: 'plugins/qodana/lib/modules/intellij.libraries.qodana.configuration.jar'
+Layout component 'intellij.libraries.qodana.publisher' has some nonexistent 'classPath' elements: 'plugins/qodana/lib/modules/intellij.libraries.qodana.publisher.jar'
+Layout component 'intellij.libraries.qodana.sarif' has some nonexistent 'classPath' elements: 'plugins/qodana/lib/modules/intellij.libraries.qodana.sarif.jar'
+Layout component 'intellij.libraries.qodana.sarif.converter' has some nonexistent 'classPath' elements: 'plugins/qodana/lib/modules/intellij.libraries.qodana.sarif.converter.jar'
+Layout component 'intellij.libraries.qodana.web.ui' has some nonexistent 'classPath' elements: 'plugins/qodana/lib/modules/intellij.libraries.qodana.web.ui.jar'
+Layout component 'intellij.libraries.reactor.netty.http' has some nonexistent 'classPath' elements: 'plugins/restClient/lib/modules/intellij.libraries.reactor.netty.http.jar'
+Layout component 'intellij.libraries.scheduled.debugger.agent' has some nonexistent 'classPath' elements: 'plugins/microservices-jvm/lib/modules/intellij.libraries.scheduled.debugger.agent.jar'
+Layout component 'intellij.libraries.schema.kenerator' has some nonexistent 'classPath' elements: 'plugins/DatabaseTools/lib/modules/intellij.libraries.schema.kenerator.jar'
+Layout component 'intellij.libraries.schema.kenerator' has some nonexistent 'classPath' elements: 'plugins/mcpserver-plugin/lib/modules/intellij.libraries.schema.kenerator.jar'
+Layout component 'intellij.libraries.semver4j' has some nonexistent 'classPath' elements: 'plugins/clouds-kubernetes/lib/modules/intellij.libraries.semver4j.jar'
+Layout component 'intellij.libraries.semver4j' has some nonexistent 'classPath' elements: 'plugins/javascript-plugin/lib/modules/intellij.libraries.semver4j.jar'
+Layout component 'intellij.libraries.swagger.redoc' has some nonexistent 'classPath' elements: 'plugins/swagger/lib/modules/intellij.libraries.swagger.redoc.jar'
+Layout component 'intellij.libraries.swagger.ui' has some nonexistent 'classPath' elements: 'plugins/swagger/lib/modules/intellij.libraries.swagger.ui.jar'
+Layout component 'intellij.libraries.test.discovery' has some nonexistent 'classPath' elements: 'plugins/java-coverage/lib/modules/intellij.libraries.test.discovery.jar'
+Layout component 'intellij.libraries.test.discovery' has some nonexistent 'classPath' elements: 'plugins/java/lib/modules/intellij.libraries.test.discovery.jar'
+Layout component 'intellij.libraries.testng' has some nonexistent 'classPath' elements: 'plugins/testng/lib/modules/intellij.libraries.testng.jar'
+Layout component 'intellij.markdown' has some nonexistent 'classPath' elements: 'plugins/markdown/lib/modules/intellij.markdown.jar'
+Layout component 'intellij.maven' has some nonexistent 'classPath' elements: 'plugins/maven-plugin/lib/modules/intellij.maven.jar'
+Layout component 'intellij.maven.model' has some nonexistent 'classPath' elements: 'plugins/maven-plugin/lib/modules/intellij.maven.model.jar'
+Layout component 'intellij.mcpserver' has some nonexistent 'classPath' elements: 'plugins/mcpserver-plugin/lib/modules/intellij.mcpserver.jar'
+Layout component 'intellij.mcpserver.stdio' has some nonexistent 'classPath' elements: 'plugins/mcpserver-plugin/lib/modules/intellij.mcpserver.stdio.jar'
+Layout component 'intellij.platform.commercial.license' has some nonexistent 'classPath' elements: 'lib/intellij.platform.commercial.license.jar'
+Layout component 'intellij.platform.commercial.verifier' has some nonexistent 'classPath' elements: 'plugins/JavaEE/lib/modules/intellij.platform.commercial.verifier.jar'
+Layout component 'intellij.platform.commercial.verifier' has some nonexistent 'classPath' elements: 'plugins/JavaeeWeb/lib/modules/intellij.platform.commercial.verifier.jar'
+Layout component 'intellij.platform.commercial.verifier' has some nonexistent 'classPath' elements: 'plugins/Spring/lib/modules/intellij.platform.commercial.verifier.jar'
+Layout component 'intellij.platform.commercial.verifier' has some nonexistent 'classPath' elements: 'plugins/aopCommon/lib/modules/intellij.platform.commercial.verifier.jar'
+Layout component 'intellij.platform.commercial.verifier' has some nonexistent 'classPath' elements: 'plugins/javaee-jax-rs/lib/modules/intellij.platform.commercial.verifier.jar'
+Layout component 'intellij.platform.commercial.verifier' has some nonexistent 'classPath' elements: 'plugins/micronaut/lib/modules/intellij.platform.commercial.verifier.jar'
+Layout component 'intellij.platform.commercial.verifier' has some nonexistent 'classPath' elements: 'plugins/microservices-jvm/lib/modules/intellij.platform.commercial.verifier.jar'
+Layout component 'intellij.platform.commercial.verifier' has some nonexistent 'classPath' elements: 'plugins/quarkus/lib/modules/intellij.platform.commercial.verifier.jar'
+Layout component 'intellij.platform.commercial.verifier' has some nonexistent 'classPath' elements: 'plugins/spring-boot-initializr/lib/modules/intellij.platform.commercial.verifier.jar'
+Layout component 'intellij.platform.commercial.verifier' has some nonexistent 'classPath' elements: 'plugins/spring-modulith/lib/modules/intellij.platform.commercial.verifier.jar'
+Layout component 'intellij.platform.commercial.verifier' has some nonexistent 'classPath' elements: 'plugins/uml/lib/modules/intellij.platform.commercial.verifier.jar'
+Layout component 'intellij.platform.commercial.verifier' has some nonexistent 'classPath' elements: 'plugins/webDeployment/lib/modules/intellij.platform.commercial.verifier.jar'
+Layout component 'intellij.platform.commercial.verifier' has some nonexistent 'classPath' elements: 'plugins/xml-refactoring/lib/modules/intellij.platform.commercial.verifier.jar'
+Layout component 'intellij.platform.jps.build.javac.rt' has some nonexistent 'classPath' elements: 'plugins/java/lib/modules/intellij.platform.jps.build.javac.rt.jar'
+Layout component 'intellij.properties' has some nonexistent 'classPath' elements: 'plugins/properties/lib/modules/intellij.properties.jar'
+Layout component 'intellij.properties.psi' has some nonexistent 'classPath' elements: 'plugins/properties/lib/modules/intellij.properties.psi.jar'
+Layout component 'intellij.qodana.sarif' has some nonexistent 'classPath' elements: 'plugins/qodana/lib/modules/intellij.qodana.sarif.jar'
+Layout component 'intellij.qodana.util' has some nonexistent 'classPath' elements: 'plugins/qodana/lib/modules/intellij.qodana.util.jar'
+Layout component 'intellij.sh.core' has some nonexistent 'classPath' elements: 'plugins/sh-plugin/lib/modules/intellij.sh.core.jar'
+Layout component 'intellij.swagger.core' has some nonexistent 'classPath' elements: 'plugins/swagger/lib/modules/intellij.swagger.core.jar'
+Layout component 'intellij.terminal.libraries.completionDbWithExtensions' has some nonexistent 'classPath' elements: 'plugins/terminal/lib/modules/intellij.terminal.libraries.completionDbWithExtensions.jar'
+Layout component 'intellij.toml.core' has some nonexistent 'classPath' elements: 'plugins/toml/lib/modules/intellij.toml.core.jar'
+Layout component 'intellij.vcs.github' has some nonexistent 'classPath' elements: 'plugins/vcs-github/lib/modules/intellij.vcs.github.jar'
+Layout component 'intellij.webDeployment.libraries' has some nonexistent 'classPath' elements: 'plugins/webDeployment/lib/modules/intellij.webDeployment.libraries.jar'
+Layout component 'intellij.yaml' has some nonexistent 'classPath' elements: 'plugins/yaml/lib/modules/intellij.yaml.jar'
+Layout component 'intellij.yaml.syntax' has some nonexistent 'classPath' elements: 'plugins/yaml/lib/modules/intellij.yaml.syntax.jar'
+2026-10-08T22:05:45 [main] INFO  verification - Reading plugin to check from /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/distributions/bracket-pair-guides-0.0.6.zip
+2026-10-08T22:05:45 [main] INFO  verification - Task check-plugin parameters:
+Scheduled verifications (1):
+com.sijunyang.bracketpairguides:0.0.6 against IU-263.6259.32
+
+2026-10-08T22:05:54 [main] INFO  verification - Finished 1 of 1 verifications (in 8.4 s): IU-263.6259.32 against com.sijunyang.bracketpairguides:0.0.6: Compatible
+2026-10-08T22:05:54 [main] INFO  c.j.p.PluginVerifierMain - Started printing results (CheckPluginResultPrinter)
+Plugin com.sijunyang.bracketpairguides:0.0.6 against IU-263.6259.32: Compatible
+Dynamic Plugin Eligibility:
+    Plugin can probably be enabled or disabled without IDE restart
+
+2026-10-08T22:05:54 [main] INFO  c.j.p.PluginVerifierMain - Finished printing results in 16ms
+2026-10-08T22:05:54 [main] INFO  verification - Total time spent downloading plugins and their dependencies: 0 ms
+2026-10-08T22:05:54 [main] INFO  verification - Total amount of plugins and dependencies downloaded: 0 B
+2026-10-08T22:05:54 [main] INFO  verification - Total amount of space used for plugins and dependencies: 0 B
+2026-10-08T22:05:54 [main] INFO  verification - PluginDetailsCache statistics: hits=1, misses=1, failures=0, evictions=0, total=2, hit-rate=50.0%
+2026-10-08T22:05:54 [main] INFO  verification - Verification reports for com.sijunyang.bracketpairguides:0.0.6 saved to /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/runs/20261008T125349781364Z/reports/IU-263.6259.32/IU-263.6259.32
+2026-10-08T22:05:54 [main] INFO  verification - Total time spent in plugin verification: 8 s 742 ms
+Build 5bcb34ce-b423-4094-ad91-c03e8f9b1f84 is closed
+
+[Incubating] Problems report is available at: file:///Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 29s
+27 actionable tasks: 2 executed, 25 up-to-date
+Watched directory hierarchies: [/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides]

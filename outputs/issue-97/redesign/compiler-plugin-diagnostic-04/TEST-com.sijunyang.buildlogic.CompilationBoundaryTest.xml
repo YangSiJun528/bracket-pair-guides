@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.buildlogic.CompilationBoundaryTest" tests="1" skipped="0" failures="1" errors="0" timestamp="2026-10-08T07:35:46.803Z" hostname="sijun-yangui-MacBookPro.local" time="43.44">
+  <properties/>
+  <testcase name="kotlinCompilerPluginInjectionIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="43.439">
+    <failure message="java.lang.AssertionError: &#10;Expecting actual:&#10;  &quot;&gt; Task :build-logic:compileJava NO-SOURCE&#10;&gt; Task :build-logic:compileGroovy UP-TO-DATE&#10;&gt; Task :build-logic:pluginDescriptors UP-TO-DATE&#10;&gt; Task :build-logic:processResources UP-TO-DATE&#10;&gt; Task :build-logic:classes UP-TO-DATE&#10;&gt; Task :build-logic:jar UP-TO-DATE&#10;&gt; Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED&#10;&gt; Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED&#10;&gt; Task :analysis-model:compileKotlin UP-TO-DATE&#10;&gt; Task :analysis-model:compileJava NO-SOURCE&#10;&gt; Task :analysis-core:compileKotlin UP-TO-DATE&#10;&gt; Task :analysis-core:compileJava UP-TO-DATE&#10;&gt; Task :analysis-core:processResources NO-SOURCE&#10;&gt; Task :analysis-core:classes UP-TO-DATE&#10;&gt; Task :analysis-model:processResources NO-SOURCE&#10;&gt; Task :analysis-model:classes UP-TO-DATE&#10;&gt; Task :analysis-runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED&#10;&gt; Task :editor-ui:checkKotlinGradlePluginConfigurationErrors SKIPPED&#10;&gt; Task :analysis-runtime:processResources NO-SOURCE&#10;&gt; Task :editor-ui:processResources NO-SOURCE&#10;&gt; Task :analysis-model:jar UP-TO-DATE&#10;&gt; Task :plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED&#10;&gt; Task :plugin:initializeIntellijPlatformPlugin&#10;&gt; Task :plugin:patchPluginXml UP-TO-DATE&#10;&gt; Task :plugin:processResources UP-TO-DATE&#10;&#10;&gt; Task :editor-ui:compileKotlin&#10;w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.&#10;&#10;&gt; Task :editor-ui:compileJava UP-TO-DATE&#10;&gt; Task :analysis-runtime:compileKotlin UP-TO-DATE&#10;&gt; Task :analysis-runtime:compileJava UP-TO-DATE&#10;&gt; Task :analysis-runtime:classes UP-TO-DATE&#10;&gt; Task :editor-ui:classes UP-TO-DATE&#10;&gt; Task :analysis-runtime:jar UP-TO-DATE&#10;&gt; Task :editor-ui:jar UP-TO-DATE&#10;&gt; Task :plugin:compileKotlin UP-TO-DATE&#10;&gt; Task :plugin:compileJava NO-SOURCE&#10;&gt; Task :plugin:classes UP-TO-DATE&#10;&#10;&gt; Task :verifyProductionModules FAILED&#10;SERIALIZATION_PLUGIN_APPLIED=true&#10;&#10;[Incubating] Problems report is available at: file:///private/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/junit12260435101538484661/checkout/build/reports/problems/problems-report.html&#10;&#10;FAILURE: Build failed with an exception.&#10;&#10;* What went wrong:&#10;Execution failed for task ':verifyProductionModules' (registered by plugin 'bracket.module-boundaries').&#10;&gt; null cannot be cast to non-null type org.gradle.api.provider.Provider&lt;*&gt;&#10;&#10;* Try:&#10;&gt; Run with --info or --debug option to get more log output.&#10;&gt; Run with --scan to get full insights from a Build Scan (powered by Develocity).&#10;&gt; Get more help at https://help.gradle.org.&#10;&#10;* Exception is:&#10;org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':verifyProductionModules' (registered by plugin 'bracket.module-boundaries').&#10;&#9;at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.lambda$doExecute$1(DefaultTaskNodeExecutor.java:367)&#10;&#9;at org.gradle.internal.Try$Failure.ifSuccessfulOrElse(Try.java:288)&#10;&#9;at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.doExecute(DefaultTaskNodeExecutor.java:365)&#10;&#9;at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeTrackingTaskIdentity(DefaultTaskNodeExecutor.java:332)&#10;&#9;at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeFinalizingProperties(DefaultTaskNodeExecutor.java:318)&#10;&#9;at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeSkippingWithNoActions(DefaultTaskNodeExecutor.java:289)&#10;&#9;at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeSkippingOnlyIf(DefaultTaskNodeExecutor.java:272)&#10;&#9;at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeCatchingFailures(DefaultTaskNodeExecutor.java:228)&#10;&#9;at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeWithFallbackOperationId(DefaultTaskNodeExecutor.java:197)&#10;&#9;at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeWithLifecycle(DefaultTaskNodeExecutor.java:171)&#10;&#9;at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.access$000(DefaultTaskNodeExecutor.java:67)&#10;&#9;at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor$1.run(DefaultTaskNodeExecutor.java:136)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:30)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:27)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner.run(DefaultBuildOperationRunner.java:48)&#10;&#9;at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.execute(DefaultTaskNodeExecutor.java:133)&#10;&#9;at org.gradle.execution.plan.LocalTaskNode.execute(LocalTaskNode.java:229)&#10;&#9;at org.gradle.execution.DefaultBuildWorkExecutor.lambda$executePlan$0(DefaultBuildWorkExecutor.java:153)&#10;&#9;at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.lambda$execute$0(DefaultPlanExecutor.java:476)&#10;&#9;at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:85)&#10;&#9;at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.execute(DefaultPlanExecutor.java:475)&#10;&#9;at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:392)&#10;&#9;at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)&#10;&#9;at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)&#10;Caused by: java.lang.NullPointerException: null cannot be cast to non-null type org.gradle.api.provider.Provider&lt;*&gt;&#10;&#9;at Build_gradle$$$result$1$1.execute(build.gradle.kts:47)&#10;&#9;at Build_gradle$$$result$1$1.execute(build.gradle.kts:42)&#10;&#9;at org.gradle.api.internal.AbstractTask$TaskActionWrapper.execute(AbstractTask.java:858)&#10;&#9;at org.gradle.api.internal.AbstractTask$TaskActionWrapper.execute(AbstractTask.java:831)&#10;&#9;at org.gradle.api.internal.tasks.execution.TaskExecution$3.run(TaskExecution.java:268)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:30)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:27)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner.run(DefaultBuildOperationRunner.java:48)&#10;&#9;at org.gradle.api.internal.tasks.execution.TaskExecution.executeAction(TaskExecution.java:253)&#10;&#9;at org.gradle.api.internal.tasks.execution.TaskExecution.executeActions(TaskExecution.java:236)&#10;&#9;at org.gradle.api.internal.tasks.execution.TaskExecution.executeWithPreviousOutputFiles(TaskExecution.java:219)&#10;&#9;at org.gradle.api.internal.tasks.execution.TaskExecution.execute(TaskExecution.java:185)&#10;&#9;at org.gradle.internal.execution.steps.ExecuteStep.executeInternal(ExecuteStep.java:167)&#10;&#9;at org.gradle.internal.execution.steps.ExecuteStep.access$000(ExecuteStep.java:47)&#10;&#9;at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:137)&#10;&#9;at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:134)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)&#10;&#9;at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)&#10;&#9;at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:134)&#10;&#9;at org.gradle.internal.execution.steps.ExecuteStep$Mutable.execute(ExecuteStep.java:80)&#10;&#9;at org.gradle.internal.execution.steps.CancelExecutionStep.execute(CancelExecutionStep.java:42)&#10;&#9;at org.gradle.internal.execution.steps.TimeoutStep.executeWithoutTimeout(TimeoutStep.java:75)&#10;&#9;at org.gradle.internal.execution.steps.TimeoutStep.execute(TimeoutStep.java:55)&#10;&#9;at org.gradle.internal.execution.steps.PreCreateOutputParentsStep.execute(PreCreateOutputParentsStep.java:51)&#10;&#9;at org.gradle.internal.execution.steps.PreCreateOutputParentsStep.execute(PreCreateOutputParentsStep.java:29)&#10;&#9;at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.executeMutable(RemovePreviousOutputsStep.java:67)&#10;&#9;at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.executeMutable(RemovePreviousOutputsStep.java:39)&#10;&#9;at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)&#10;&#9;at org.gradle.internal.execution.steps.BroadcastChangingOutputsStep.execute(BroadcastChangingOutputsStep.java:42)&#10;&#9;at org.gradle.internal.execution.steps.BroadcastChangingOutputsStep.execute(BroadcastChangingOutputsStep.java:24)&#10;&#9;at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:69)&#10;&#9;at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:46)&#10;&#9;at org.gradle.internal.execution.steps.ResolveInputChangesStep.executeMutable(ResolveInputChangesStep.java:39)&#10;&#9;at org.gradle.internal.execution.steps.ResolveInputChangesStep.executeMutable(ResolveInputChangesStep.java:28)&#10;&#9;at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)&#10;&#9;at org.gradle.internal.execution.steps.BuildCacheStep.executeWithoutCache(BuildCacheStep.java:189)&#10;&#9;at org.gradle.internal.execution.steps.BuildCacheStep.lambda$execute$1(BuildCacheStep.java:76)&#10;&#9;at org.gradle.internal.Either$Right.fold(Either.java:176)&#10;&#9;at org.gradle.internal.execution.caching.CachingState.fold(CachingState.java:62)&#10;&#9;at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:74)&#10;&#9;at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:49)&#10;&#9;at org.gradle.internal.execution.steps.StoreExecutionStateStep.executeMutable(StoreExecutionStateStep.java:46)&#10;&#9;at org.gradle.internal.execution.steps.StoreExecutionStateStep.executeMutable(StoreExecutionStateStep.java:35)&#10;&#9;at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)&#10;&#9;at org.gradle.internal.execution.steps.SkipUpToDateStep.executeBecause(SkipUpToDateStep.java:75)&#10;&#9;at org.gradle.internal.execution.steps.SkipUpToDateStep.lambda$execute$2(SkipUpToDateStep.java:53)&#10;&#9;at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:53)&#10;&#9;at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:35)&#10;&#9;at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:37)&#10;&#9;at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:27)&#10;&#9;at org.gradle.internal.execution.steps.ResolveMutableCachingStateStep.executeDelegate(ResolveMutableCachingStateStep.java:70)&#10;&#9;at org.gradle.internal.execution.steps.ResolveMutableCachingStateStep.executeDelegate(ResolveMutableCachingStateStep.java:32)&#10;&#9;at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:69)&#10;&#9;at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:37)&#10;&#9;at org.gradle.internal.execution.steps.ResolveChangesStep.executeMutable(ResolveChangesStep.java:63)&#10;&#9;at org.gradle.internal.execution.steps.ResolveChangesStep.executeMutable(ResolveChangesStep.java:34)&#10;&#9;at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)&#10;&#9;at org.gradle.internal.execution.steps.ValidateStep$Mutable.executeDelegate(ValidateStep.java:79)&#10;&#9;at org.gradle.internal.execution.steps.ValidateStep$Mutable.executeDelegate(ValidateStep.java:65)&#10;&#9;at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:105)&#10;&#9;at org.gradle.internal.execution.steps.ValidateStep$Mutable.execute(ValidateStep.java:65)&#10;&#9;at org.gradle.internal.execution.steps.CaptureMutableStateBeforeExecutionStep.executeMutable(CaptureMutableStateBeforeExecutionStep.java:86)&#10;&#9;at org.gradle.internal.execution.steps.CaptureMutableStateBeforeExecutionStep.execute(CaptureMutableStateBeforeExecutionStep.java:65)&#10;&#9;at org.gradle.internal.execution.steps.CaptureMutableStateBeforeExecutionStep.execute(CaptureMutableStateBeforeExecutionStep.java:45)&#10;&#9;at org.gradle.internal.execution.steps.SkipEmptyMutableWorkStep.executeWithNonEmptySources(SkipEmptyMutableWorkStep.java:210)&#10;&#9;at org.gradle.internal.execution.steps.SkipEmptyMutableWorkStep.executeMutable(SkipEmptyMutableWorkStep.java:85)&#10;&#9;at org.gradle.internal.execution.steps.SkipEmptyMutableWorkStep.executeMutable(SkipEmptyMutableWorkStep.java:53)&#10;&#9;at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)&#10;&#9;at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsStartedStep.execute(MarkSnapshottingInputsStartedStep.java:38)&#10;&#9;at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.executeMutable(LoadPreviousExecutionStateStep.java:36)&#10;&#9;at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.executeMutable(LoadPreviousExecutionStateStep.java:23)&#10;&#9;at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)&#10;&#9;at org.gradle.internal.execution.steps.HandleStaleOutputsStep.executeMutable(HandleStaleOutputsStep.java:77)&#10;&#9;at org.gradle.internal.execution.steps.HandleStaleOutputsStep.executeMutable(HandleStaleOutputsStep.java:43)&#10;&#9;at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)&#10;&#9;at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.lambda$executeMutable$0(AssignMutableWorkspaceStep.java:34)&#10;&#9;at org.gradle.api.internal.tasks.execution.TaskExecution$4.withWorkspace(TaskExecution.java:314)&#10;&#9;at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.executeMutable(AssignMutableWorkspaceStep.java:30)&#10;&#9;at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.executeMutable(AssignMutableWorkspaceStep.java:21)&#10;&#9;at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)&#10;&#9;at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:40)&#10;&#9;at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:23)&#10;&#9;at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.lambda$execute$2(ExecuteWorkBuildOperationFiringStep.java:67)&#10;&#9;at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:67)&#10;&#9;at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:39)&#10;&#9;at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:46)&#10;&#9;at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:34)&#10;&#9;at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:56)&#10;&#9;at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:38)&#10;&#9;at org.gradle.internal.execution.impl.DefaultExecutionEngine$1.execute(DefaultExecutionEngine.java:68)&#10;&#9;at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.doExecute(DefaultTaskNodeExecutor.java:364)&#10;&#9;... 25 more&#10;&#10;&#10;Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.&#10;&#10;You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.&#10;&#10;For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.&#10;&#10;BUILD FAILED in 5s&#10;19 actionable tasks: 3 executed, 16 up-to-date&#10;&quot;&#10;to contain:&#10;  [&quot;Module boundary violation:&quot;, &quot;compiler plugin injection&quot;]&#10;but could not find:&#10;  [&quot;Module boundary violation:&quot;, &quot;compiler plugin injection&quot;]&#10; " type="java.lang.AssertionError">java.lang.AssertionError: 
+Expecting actual:
+  &quot;&gt; Task :build-logic:compileJava NO-SOURCE
+&gt; Task :build-logic:compileGroovy UP-TO-DATE
+&gt; Task :build-logic:pluginDescriptors UP-TO-DATE
+&gt; Task :build-logic:processResources UP-TO-DATE
+&gt; Task :build-logic:classes UP-TO-DATE
+&gt; Task :build-logic:jar UP-TO-DATE
+&gt; Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :analysis-model:compileKotlin UP-TO-DATE
+&gt; Task :analysis-model:compileJava NO-SOURCE
+&gt; Task :analysis-core:compileKotlin UP-TO-DATE
+&gt; Task :analysis-core:compileJava UP-TO-DATE
+&gt; Task :analysis-core:processResources NO-SOURCE
+&gt; Task :analysis-core:classes UP-TO-DATE
+&gt; Task :analysis-model:processResources NO-SOURCE
+&gt; Task :analysis-model:classes UP-TO-DATE
+&gt; Task :analysis-runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :editor-ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :analysis-runtime:processResources NO-SOURCE
+&gt; Task :editor-ui:processResources NO-SOURCE
+&gt; Task :analysis-model:jar UP-TO-DATE
+&gt; Task :plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :plugin:initializeIntellijPlatformPlugin
+&gt; Task :plugin:patchPluginXml UP-TO-DATE
+&gt; Task :plugin:processResources UP-TO-DATE
+
+&gt; Task :editor-ui:compileKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+&gt; Task :editor-ui:compileJava UP-TO-DATE
+&gt; Task :analysis-runtime:compileKotlin UP-TO-DATE
+&gt; Task :analysis-runtime:compileJava UP-TO-DATE
+&gt; Task :analysis-runtime:classes UP-TO-DATE
+&gt; Task :editor-ui:classes UP-TO-DATE
+&gt; Task :analysis-runtime:jar UP-TO-DATE
+&gt; Task :editor-ui:jar UP-TO-DATE
+&gt; Task :plugin:compileKotlin UP-TO-DATE
+&gt; Task :plugin:compileJava NO-SOURCE
+&gt; Task :plugin:classes UP-TO-DATE
+
+&gt; Task :verifyProductionModules FAILED
+SERIALIZATION_PLUGIN_APPLIED=true
+
+[Incubating] Problems report is available at: file:///private/var/folders/th/rl67bj915vq09l_dt5_hbdv00000gn/T/junit12260435101538484661/checkout/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':verifyProductionModules' (registered by plugin 'bracket.module-boundaries').
+&gt; null cannot be cast to non-null type org.gradle.api.provider.Provider&lt;*&gt;
+
+* Try:
+&gt; Run with --info or --debug option to get more log output.
+&gt; Run with --scan to get full insights from a Build Scan (powered by Develocity).
+&gt; Get more help at https://help.gradle.org.
+
+* Exception is:
+org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':verifyProductionModules' (registered by plugin 'bracket.module-boundaries').
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.lambda$doExecute$1(DefaultTaskNodeExecutor.java:367)
+	at org.gradle.internal.Try$Failure.ifSuccessfulOrElse(Try.java:288)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.doExecute(DefaultTaskNodeExecutor.java:365)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeTrackingTaskIdentity(DefaultTaskNodeExecutor.java:332)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeFinalizingProperties(DefaultTaskNodeExecutor.java:318)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeSkippingWithNoActions(DefaultTaskNodeExecutor.java:289)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeSkippingOnlyIf(DefaultTaskNodeExecutor.java:272)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeCatchingFailures(DefaultTaskNodeExecutor.java:228)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeWithFallbackOperationId(DefaultTaskNodeExecutor.java:197)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeWithLifecycle(DefaultTaskNodeExecutor.java:171)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.access$000(DefaultTaskNodeExecutor.java:67)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor$1.run(DefaultTaskNodeExecutor.java:136)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:30)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:27)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.run(DefaultBuildOperationRunner.java:48)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.execute(DefaultTaskNodeExecutor.java:133)
+	at org.gradle.execution.plan.LocalTaskNode.execute(LocalTaskNode.java:229)
+	at org.gradle.execution.DefaultBuildWorkExecutor.lambda$executePlan$0(DefaultBuildWorkExecutor.java:153)
+	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.lambda$execute$0(DefaultPlanExecutor.java:476)
+	at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:85)
+	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.execute(DefaultPlanExecutor.java:475)
+	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:392)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+Caused by: java.lang.NullPointerException: null cannot be cast to non-null type org.gradle.api.provider.Provider&lt;*&gt;
+	at Build_gradle$$$result$1$1.execute(build.gradle.kts:47)
+	at Build_gradle$$$result$1$1.execute(build.gradle.kts:42)
+	at org.gradle.api.internal.AbstractTask$TaskActionWrapper.execute(AbstractTask.java:858)
+	at org.gradle.api.internal.AbstractTask$TaskActionWrapper.execute(AbstractTask.java:831)
+	at org.gradle.api.internal.tasks.execution.TaskExecution$3.run(TaskExecution.java:268)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:30)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:27)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.run(DefaultBuildOperationRunner.java:48)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeAction(TaskExecution.java:253)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeActions(TaskExecution.java:236)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeWithPreviousOutputFiles(TaskExecution.java:219)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.execute(TaskExecution.java:185)
+	at org.gradle.internal.execution.steps.ExecuteStep.executeInternal(ExecuteStep.java:167)
+	at org.gradle.internal.execution.steps.ExecuteStep.access$000(ExecuteStep.java:47)
+	at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:137)
+	at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:134)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
+	at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:134)
+	at org.gradle.internal.execution.steps.ExecuteStep$Mutable.execute(ExecuteStep.java:80)
+	at org.gradle.internal.execution.steps.CancelExecutionStep.execute(CancelExecutionStep.java:42)
+	at org.gradle.internal.execution.steps.TimeoutStep.executeWithoutTimeout(TimeoutStep.java:75)
+	at org.gradle.internal.execution.steps.TimeoutStep.execute(TimeoutStep.java:55)
+	at org.gradle.internal.execution.steps.PreCreateOutputParentsStep.execute(PreCreateOutputParentsStep.java:51)
+	at org.gradle.internal.execution.steps.PreCreateOutputParentsStep.execute(PreCreateOutputParentsStep.java:29)
+	at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.executeMutable(RemovePreviousOutputsStep.java:67)
+	at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.executeMutable(RemovePreviousOutputsStep.java:39)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)
+	at org.gradle.internal.execution.steps.BroadcastChangingOutputsStep.execute(BroadcastChangingOutputsStep.java:42)
+	at org.gradle.internal.execution.steps.BroadcastChangingOutputsStep.execute(BroadcastChangingOutputsStep.java:24)
+	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:69)
+	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:46)
+	at org.gradle.internal.execution.steps.ResolveInputChangesStep.executeMutable(ResolveInputChangesStep.java:39)
+	at org.gradle.internal.execution.steps.ResolveInputChangesStep.executeMutable(ResolveInputChangesStep.java:28)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)
+	at org.gradle.internal.execution.steps.BuildCacheStep.executeWithoutCache(BuildCacheStep.java:189)
+	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$execute$1(BuildCacheStep.java:76)
+	at org.gradle.internal.Either$Right.fold(Either.java:176)
+	at org.gradle.internal.execution.caching.CachingState.fold(CachingState.java:62)
+	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:74)
+	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:49)
+	at org.gradle.internal.execution.steps.StoreExecutionStateStep.executeMutable(StoreExecutionStateStep.java:46)
+	at org.gradle.internal.execution.steps.StoreExecutionStateStep.executeMutable(StoreExecutionStateStep.java:35)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.executeBecause(SkipUpToDateStep.java:75)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.lambda$execute$2(SkipUpToDateStep.java:53)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:53)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:35)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:37)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:27)
+	at org.gradle.internal.execution.steps.ResolveMutableCachingStateStep.executeDelegate(ResolveMutableCachingStateStep.java:70)
+	at org.gradle.internal.execution.steps.ResolveMutableCachingStateStep.executeDelegate(ResolveMutableCachingStateStep.java:32)
+	at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:69)
+	at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:37)
+	at org.gradle.internal.execution.steps.ResolveChangesStep.executeMutable(ResolveChangesStep.java:63)
+	at org.gradle.internal.execution.steps.ResolveChangesStep.executeMutable(ResolveChangesStep.java:34)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)
+	at org.gradle.internal.execution.steps.ValidateStep$Mutable.executeDelegate(ValidateStep.java:79)
+	at org.gradle.internal.execution.steps.ValidateStep$Mutable.executeDelegate(ValidateStep.java:65)
+	at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:105)
+	at org.gradle.internal.execution.steps.ValidateStep$Mutable.execute(ValidateStep.java:65)
+	at org.gradle.internal.execution.steps.CaptureMutableStateBeforeExecutionStep.executeMutable(CaptureMutableStateBeforeExecutionStep.java:86)
+	at org.gradle.internal.execution.steps.CaptureMutableStateBeforeExecutionStep.execute(CaptureMutableStateBeforeExecutionStep.java:65)
+	at org.gradle.internal.execution.steps.CaptureMutableStateBeforeExecutionStep.execute(CaptureMutableStateBeforeExecutionStep.java:45)
+	at org.gradle.internal.execution.steps.SkipEmptyMutableWorkStep.executeWithNonEmptySources(SkipEmptyMutableWorkStep.java:210)
+	at org.gradle.internal.execution.steps.SkipEmptyMutableWorkStep.executeMutable(SkipEmptyMutableWorkStep.java:85)
+	at org.gradle.internal.execution.steps.SkipEmptyMutableWorkStep.executeMutable(SkipEmptyMutableWorkStep.java:53)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsStartedStep.execute(MarkSnapshottingInputsStartedStep.java:38)
+	at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.executeMutable(LoadPreviousExecutionStateStep.java:36)
+	at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.executeMutable(LoadPreviousExecutionStateStep.java:23)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)
+	at org.gradle.internal.execution.steps.HandleStaleOutputsStep.executeMutable(HandleStaleOutputsStep.java:77)
+	at org.gradle.internal.execution.steps.HandleStaleOutputsStep.executeMutable(HandleStaleOutputsStep.java:43)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.lambda$executeMutable$0(AssignMutableWorkspaceStep.java:34)
+	at org.gradle.api.internal.tasks.execution.TaskExecution$4.withWorkspace(TaskExecution.java:314)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.executeMutable(AssignMutableWorkspaceStep.java:30)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.executeMutable(AssignMutableWorkspaceStep.java:21)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)
+	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:40)
+	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:23)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.lambda$execute$2(ExecuteWorkBuildOperationFiringStep.java:67)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:67)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:39)
+	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:46)
+	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:34)
+	at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:56)
+	at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:38)
+	at org.gradle.internal.execution.impl.DefaultExecutionEngine$1.execute(DefaultExecutionEngine.java:68)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.doExecute(DefaultTaskNodeExecutor.java:364)
+	... 25 more
+
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 5s
+19 actionable tasks: 3 executed, 16 up-to-date
+&quot;
+to contain:
+  [&quot;Module boundary violation:&quot;, &quot;compiler plugin injection&quot;]
+but could not find:
+  [&quot;Module boundary violation:&quot;, &quot;compiler plugin injection&quot;]
+ 
+	at com.sijunyang.buildlogic.CompilationBoundaryTest.rejectAndRestore(CompilationBoundaryTest.java:217)
+	at com.sijunyang.buildlogic.CompilationBoundaryTest.kotlinCompilerPluginInjectionIsRejected(CompilationBoundaryTest.java:399)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.rules.ExternalResource$1.evaluate(ExternalResource.java:54)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestExecutor.runRequest(JUnitTestExecutor.java:174)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestExecutor.accept(JUnitTestExecutor.java:84)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestExecutor.accept(JUnitTestExecutor.java:47)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestDefinitionProcessor.processTestDefinition(AbstractJUnitTestDefinitionProcessor.java:65)
+	at org.gradle.api.internal.tasks.testing.SuiteTestDefinitionProcessor.processTestDefinition(SuiteTestDefinitionProcessor.java:53)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:88)
+	at jdk.proxy1/jdk.proxy1.$Proxy4.processTestDefinition(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker$2.run(TestWorker.java:178)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:126)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:103)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:63)
+	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:122)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:72)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
+</failure>
+  </testcase>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,17 @@
+{
+  "positivePinned0612LegacySchema": true,
+  "displayLatencyCapitalizedAcceptedByUuid": true,
+  "rejected": [
+    "uuid-binding",
+    "job-binding",
+    "empty-results",
+    "empty-boundary",
+    "null-baseline",
+    "weakened-threshold",
+    "missing-allocation",
+    "foreign-identity",
+    "foreign-measure-uuid",
+    "unbound-metric-value"
+  ],
+  "actualRemoteReportValidated": false
+}

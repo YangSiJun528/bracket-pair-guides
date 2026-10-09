@@ -75,14 +75,11 @@ jobs:
         with:
           cache-read-only: true
 
+      - name: Build SDK-free Analysis Modules
+        run: ./gradlew -p tools/pure-build check :analysis-model:build :analysis-core:build
+
       - name: Run Tests
-        run: ./gradlew check
-
-      - name: Test Bencher result handling
-        run: python3 -B -m unittest discover -s benchmarks/bencher -p 'test_*.py'
-
-      - name: Test Visual Test Artifact Downloads
-        run: node --test .github/tests/visual-test-report.test.cjs
+        run: ./gradlew check :plugin:currentSdkTests
 
       - name: Collect Failed Test Reports
         if: ${{ failure() }}
@@ -90,7 +87,8 @@ jobs:
         with:
           name: tests-result
           path: |
-            ${{ github.workspace }}/plugin/build/reports/tests
+            ${{ github.workspace }}/*/build/reports/tests
+            ${{ github.workspace }}/tools/pure-build/build/*/reports/tests
 
   inspectCode:
     name: Inspect Code

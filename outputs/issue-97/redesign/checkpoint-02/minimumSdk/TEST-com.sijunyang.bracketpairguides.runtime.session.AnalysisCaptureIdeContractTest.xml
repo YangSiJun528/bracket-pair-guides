@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-08T06:55:50.808Z" hostname="sijun-yangui-MacBookPro.local" time="0.513">
+  <properties/>
+  <testcase name="testCloseDuringRealMatcherReadRejectsPublicationAfterCaptureUnwinds" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest" time="0.147"/>
+  <testcase name="testSecondaryRepairPublishesWhileDelayedFullCaptureIsStillBlocked" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest" time="0.145"/>
+  <testcase name="testSourceEditAfterInFlightReadRejectsOldResultAndPublishesNewCoordinates" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest" time="0.221"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[[   4016]   WARN - #c.i.s.ComponentManagerImpl - com.sijunyang.bracketpairguides.runtime.capture.matcher.BraceLanguageCatalog <clinit> requests com.intellij.codeInsight.highlighting.FileTypeBraceMatcher instance. Class initialization must not depend on services. Consider using instance of the service on-demand instead.
+]]></system-err>
+</testsuite>

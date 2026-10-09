@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:40:36.637Z" hostname="sijun-yangui-MacBookPro.local" time="0.94">
+  <properties/>
+  <testcase name="testHighlighterReplacementDuringOffReadComputeRejectsAnUneditedRequest" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.1"/>
+  <testcase name="testRequestThatIsAlreadyStaleAtStartReturnsNoPayload" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.08"/>
+  <testcase name="testDisposedEditorCannotReturnAPublicationPayload" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.095"/>
+  <testcase name="testWriteCancelsAnInProgressTokenCaptureAndRetryPreservesAllResults" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.109"/>
+  <testcase name="testDocumentEditDuringOffReadComputeRejectsTheOldRequest" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.1"/>
+  <testcase name="testCancellationStopsTheWorkerWithoutReleasingItsOffReadGate" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.09"/>
+  <testcase name="testJavaAndXmlChunkPipelinePreservesObservablePairsTokensAndGuides" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.193"/>
+  <testcase name="testTabSizeChangedBetweenChunksRejectsTheCapturedLayoutAtCompletion" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.095"/>
+  <testcase name="testEdtWriteCompletesWhileOffReadComputeIsPausedThenAnalysisRetriesCleanly" classname="com.sijunyang.bracketpairguides.analysis.intellij.IncrementalAnalysisTest" time="0.077"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

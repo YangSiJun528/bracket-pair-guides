@@ -1,0 +1,46 @@
+[
+  {
+    "name": "compiler-plugin-diagnostic-05",
+    "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "command": [
+      "./gradlew",
+      "-p",
+      "build-logic",
+      "test",
+      "--tests",
+      "com.sijunyang.buildlogic.CompilationBoundaryTest.kotlinCompilerPluginInjectionIsRejected",
+      "--no-configuration-cache",
+      "--console=plain"
+    ],
+    "exitCode": 1,
+    "seconds": 41.66201996803284
+  },
+  {
+    "name": "sdk-common-compile-04",
+    "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "command": [
+      "./gradlew",
+      ":plugin:compileSdkPerformanceKotlin",
+      ":plugin:compileVisualBridgeKotlin",
+      ":plugin:compileVisualTestKotlin",
+      "--no-configuration-cache",
+      "--console=plain"
+    ],
+    "exitCode": 1,
+    "seconds": 5.367496967315674
+  },
+  {
+    "name": "sdk-common-baseline-compile-04",
+    "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides",
+    "command": [
+      "./gradlew",
+      ":plugin:compileTestKotlin",
+      "-Pkotlin.compiler.execution.strategy=in-process",
+      "-Dorg.gradle.jvmargs=-Xmx4g",
+      "--no-configuration-cache",
+      "--console=plain"
+    ],
+    "exitCode": 0,
+    "seconds": 3.839708089828491
+  }
+]

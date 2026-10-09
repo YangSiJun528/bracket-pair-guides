@@ -1,0 +1,246 @@
+Qodana source: /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/qodana/local/source.xZ6guu
+Qodana results: /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/qodana/local/results.xhnCdG
+time="2026-10-08T09:17:40Z" level=error msg="fatal: not a git repository (or any parent up to mount point /data)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
+time="2026-10-08T09:17:40Z" level=error msg="rev-parse --show-toplevel exited with code 128\n  stderr: fatal: not a git repository (or any parent up to mount point /data)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
+time="2026-10-08T09:17:40Z" level=error msg="rev-parse --show-toplevel exited with code 128\n  stderr: fatal: not a git repository (or any parent up to mount point /data)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
+Global configuration was not loaded, using local configuration
+
+✓  Loaded Qodana Configuration
+By using this linter, you agree to
+- JetBrains Privacy Policy (https://jb.gg/jetbrains-privacy-policy)
+- Qodana Community Linters Agreement (https://jb.gg/qodana-community-linters)
+Qodana license plan: Community
+                                        
+          _              _       
+         /\ \           /\ \        Qodana for JVM 2026.2.3
+        /  \ \         /  \ \       Documentation
+       / /\ \ \       / /\ \ \      https://jb.gg/qodana-docs
+      / / /\ \ \     / / /\ \ \     Contact us at
+     / / /  \ \_\   / / /  \ \_\    qodana-support@jetbrains.com
+    / / / _ / / /  / / /   / / /    Or via our issue tracker
+   / / / /\ \/ /  / / /   / / /     https://jb.gg/qodana-issue
+  / / /__\ \ \/  / / /___/ / /      Or share your feedback at our forum
+ / / /____\ \ \ / / /____\/ /       https://jb.gg/qodana-forum
+ \/________\_\/ \/_________/     
+                                                   
+                                        
+Starting up Qodana for JVM 2026.2.3 (build QDJVM-262.11550)…done.
+Preparing for the Project opening stage ...
+Setting project JDK 21
+[IDE]: Task 'Importing 'project' Gradle Project' started
+[Gradle]: Gradle resolve stage started project:15375f63, working dir: /data/project
+[IDE]: Task 'Resolving SDKs…' started
+[IDE]: Validating existing SDKs
+[IDE]: Task 'Resolving SDKs…' ended in 2 s 252 ms
+Keep running Project opening ... so far 30s
+[Gradle]: Starting Gradle Daemon...
+[Gradle]: Gradle Daemon started in 6 s 901 ms
+[Gradle]: STDERR: Caught exception: Couldn't poll for events, error = 4
+[Gradle]: STDERR: 
+[Gradle]: STDERR: Error while receiving file changes
+[Gradle]: STDERR: 
+[Gradle]: STDERR: net.rubygrapefruit.platform.NativeException: Couldn't poll for events, error = 4
+[Gradle]: STDERR: 
+[Gradle]: STDERR: 	at org.gradle.fileevents.internal.AbstractNativeFileEventFunctions$NativeFileWatcher.executeRunLoop0(Native Method)
+[Gradle]: STDERR: 
+[Gradle]: STDERR: 	at org.gradle.fileevents.internal.AbstractNativeFileEventFunctions$NativeFileWatcher.executeRunLoop(AbstractNativeFileEventFunctions.java:32)
+[Gradle]: STDERR: 
+[Gradle]: STDERR: 	at org.gradle.fileevents.internal.AbstractFileEventFunctions$AbstractFileWatcher$1.run(AbstractFileEventFunctions.java:154)
+[Gradle]: STDERR: 
+[Gradle]: > Task :build-logic:compileJava
+[Gradle]:  NO-SOURCE
+[Gradle]: 
+Keep running Project opening ... so far 1m
+[Gradle]: > Task :build-logic:compileGroovy
+[Gradle]:  FROM-CACHE
+[Gradle]: 
+[Gradle]: > Task :build-logic:pluginDescriptors
+[Gradle]: 
+[Gradle]: > Task :build-logic:processResources
+[Gradle]: 
+[Gradle]: > Task :build-logic:classes
+[Gradle]: 
+[Gradle]: > Task :build-logic:jar
+[Gradle]: 
+Keep running Project opening ... so far 1m 31s
+[Gradle]: > Task :prepareKotlinBuildScriptModel
+[Gradle]:  UP-TO-DATE
+[Gradle]: 
+[Gradle]: > Task :analysis-runtime:initializeIntellijPlatformPlugin
+[Gradle]: 
+[Gradle]: > Task :analysis-runtime:dumpProductsReleases
+[Gradle]: 
+[Gradle]: > Task :editor-ui:initializeIntellijPlatformPlugin
+[Gradle]: 
+[Gradle]: > Task :editor-ui:dumpProductsReleases
+[Gradle]: 
+[Gradle]: > Task :plugin:initializeIntellijPlatformPlugin
+[Gradle]: 
+[Gradle]: > Task :plugin:dumpProductsReleases
+[Gradle]: 
+[Gradle]: Download https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core/1.8.1/kotlinx-coroutines-core-1.8.1.pom, took 456 ms
+[Gradle]: Download https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-bom/1.8.1/kotlinx-coroutines-bom-1.8.1.pom, took 30 ms
+[Gradle]: Download https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core/1.8.1/kotlinx-coroutines-core-1.8.1.module, took 35 ms
+[Gradle]: Download https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.8.1/kotlinx-coroutines-core-jvm-1.8.1.pom, took 34 ms
+[Gradle]: Download https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.8.1/kotlinx-coroutines-core-jvm-1.8.1.module, took 25 ms
+[Gradle]: Download https://repo.maven.apache.org/maven2/org/jetbrains/annotations/23.0.0/annotations-23.0.0.pom, took 23 ms
+[Gradle]: Download https://repo.maven.apache.org/maven2/org/jetbrains/annotations/23.0.0/annotations-23.0.0.jar, took 107 ms
+[Gradle]: Download https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.8.1/kotlinx-coroutines-core-jvm-1.8.1.jar, took 182 ms
+[Gradle]: Download https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/snapshots/com/jetbrains/intellij/platform/test-framework/maven-metadata.xml, took 775 ms
+Keep running Project opening ... so far 2m 1s
+[Gradle]: 
+[Gradle]: [Incubating] Problems report is available at: file:///data/project/build/reports/problems/problems-report.html
+[Gradle]: 
+[Gradle]: 
+[Gradle]: Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+[Gradle]: 
+[Gradle]: 
+[Gradle]: You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+[Gradle]: 
+[Gradle]: 
+[Gradle]: For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+[Gradle]: 
+[Gradle]: 
+[Gradle]: BUILD SUCCESSFUL
+[Gradle]:  in 1m 46s
+[Gradle]: 
+[Gradle]: 10 actionable tasks: 9 executed, 1 from cache
+[Gradle]: 
+[IDE]: Task 'Resolving JDK…' ended
+[Gradle]: Gradle resolve stage finished with success: project:15375f63
+[Gradle]: Gradle data import stage started: project:15375f63
+[IDE]: Gradle: Importing module data                                                                                               0%
+Keep running Project opening ... so far 2m 31s
+[IDE]: Gradle: Importing native target data                                                                                        0%
+[IDE]: Gradle: Importing intelli j platform gradle data                                                                            2%
+[IDE]: Gradle: Importing kotlin gradle project data                                                             .                  5%
+[IDE]: Gradle: Importing kotlin target data                                                                     .                  8%
+[IDE]: Gradle: Importing kotlin fragment data                                                                   ..                 11%
+[IDE]: Gradle: Importing gradle project build script data                                                       ..                 14%
+[IDE]: Gradle: Importing gradle source set data                                                                 ...                17%
+[IDE]: Gradle: Importing gradle source set data                                                                 ...                20%
+[IDE]: Gradle: Importing kotlin gradle source set data                                                          ...                20%
+[IDE]: Gradle: Importing project data                                                                           ....               23%
+[IDE]: Gradle: Importing java project data                                                                      ....               26%
+[IDE]: Gradle: Importing project sdk data                                                                       .....              29%
+[IDE]: Gradle: Importing composite build data                                                                   .....              32%
+[IDE]: Gradle: Importing java module data                                                                       ......             35%
+[IDE]: Gradle: Importing module sdk data                                                                        ......             38%
+[IDE]: Gradle: Importing module sdk data                                                                        .......            41%
+[IDE]: Gradle: Importing library data                                                                           .......            41%
+Keep running Project opening ... so far 3m 1s
+[IDE]: Gradle: Importing content root data                                                                      .......            44%
+[IDE]: Gradle: Importing kotlin output paths data                                                               ........           47%
+[IDE]: Gradle: Importing module dependency data                                                                 .........          50%
+[IDE]: Gradle: Importing library dependency data                                                                .........          52%
+[IDE]: Gradle: Importing dependency accessors model                                                             ..........         55%
+[IDE]: Gradle: Importing version catalogs model                                                                 ..........         58%
+[IDE]: Gradle: Importing version catalogs model                                                                 ...........        61%
+[IDE]: Gradle: Importing build script classpath data                                                            ...........        61%
+[IDE]: Gradle: Importing gradle extensions                                                                      ...........        64%
+[IDE]: Gradle: Importing task data                                                                              ............       67%
+[IDE]: Gradle: Importing java manifest data                                                                     ............       70%
+[IDE]: Gradle: Importing external project                                                                       .............      73%
+[IDE]: Gradle: Importing configuration data                                                                     .............      76%
+[IDE]: Gradle: Importing test data                                                                              ..............     79%
+[IDE]: Gradle: Importing test data                                                                              ..............     82%
+[IDE]: Gradle: Importing project dependencies                                                                   ..............     82%
+[IDE]: Gradle: Importing annotation processing data                                                             ...............    85%
+[IDE]: Gradle: Importing external system operation descriptor                                                   ...............    88%
+[IDE]: Gradle: Importing maven repository data                                                                  ................   91%
+[IDE]: Gradle: Importing project repository data                                                                ................   94%
+[Gradle]: Gradle data import stage finished with success: project:15375f63
+[Gradle]: Gradle data import(final tasks) stage started: project:15375f63
+[Gradle]: Gradle data import(final tasks) stage finished: project:15375f63
+[IDE]: Task 'Importing 'project' Gradle Project' ended in 3 m 17 s 511 ms
+Keep running Project opening ... so far 3m 31s
+Keep running Project opening ... so far 4m 1s
+Keep running Project opening ... so far 4m 31s
+Keep running Project opening ... so far 5m 1s
+Keep running Project opening ... so far 5m 31s
+The Project opening stage completed in 5m 48s
+Preparing for the Project configuration stage ...
+The Project configuration stage completed in 8s
+Inspecting with the 'qodana.recommended' profile
+Roots file:///data/project/build-logic/build/pluginUnderTestMetadata of the library '/data/project/build-logic/build/pluginUnderTestMetadata' from module 'build-logic.test' were not resolved
+Preparing for the Project analysis stage ...
+Code analysis started ...
+Analyzing code 1%
+Analyzing code 3%
+Keep running Project analysis ... so far 30s
+Analyzing code 5%
+Analyzing code 6%
+Analyzing code 8%
+Keep running Project analysis ... so far 1m
+Analyzing code 9%
+Analyzing code 10%
+Keep running Project analysis ... so far 1m 30s
+Analyzing code 11%
+Analyzing code 15%
+Analyzing code 16%
+Analyzing code 21%
+Keep running Project analysis ... so far 2m
+Analyzing code 26%
+Analyzing code 26%
+Analyzing code 29%
+Analyzing code 33%
+Analyzing code 38%
+Keep running Project analysis ... so far 2m 30s
+Analyzing code 39%
+Analyzing code 42%
+Analyzing code 48%
+Analyzing code 51%
+Keep running Project analysis ... so far 3m
+Analyzing code 58%
+Analyzing code 59%
+Analyzing code 63%
+Analyzing code 68%
+Keep running Project analysis ... so far 3m 30s
+Analyzing code 73%
+Analyzing code 74%
+Analyzing code 80%
+Analyzing code 95%
+Keep running Project analysis ... so far 4m
+Analyzing code 98%
+Analyzing code 100%
+The Project analysis stage completed in 4m 13s
+
+Qodana - Detailed summary
+Analysis results: 74 problems detected
+By severity: High - 61, Moderate - 13
+----------------------------------------------------------------------------
+Name                                                Severity  Problems count
+----------------------------------------------------------------------------
+Long overload to Duration conversion                    High              14
+Usage of redundant or deprecated syntax or depreca      High              10
+ted symbols                                                                 
+Unused symbol                                           High               9
+Class is exposed outside of its visibility scope        High               5
+Unused import directive                                 High               5
+Possibly blocking call in non-blocking context          High               4
+Redundant qualifier name                                High               4
+Constant conditions                                     High               3
+'Enum.values()' is recommended to be replaced by '      High               2
+Enum.entries' since 1.9                                                     
+Assigned value is never read                            High               2
+Exception should not be an object                       High               1
+Serializable object must implement 'readResolve'        High               1
+Unstable API Usage                                      High               1
+Function or property has platform type              Moderate               3
+Two comparisons should be converted to a range che  Moderate               3
+ck                                                                          
+Unnecessary local variable                          Moderate               2
+Use destructuring declaration                       Moderate               2
+Accessor call that can be replaced with property a  Moderate               1
+ccess syntax                                                                
+Redundant 'requireNotNull' or 'checkNotNull' call   Moderate               1
+Unnecessary type argument                           Moderate               1
+----------------------------------------------------------------------------
+
+
+Failure condition triggered:
+- Detected 74 problems across all severities, fail threshold: 0
+[2026-10-08 09:28:53,532]   INFO -    org.jetbrains.analysis.Main:33 - Generating final reports...
+[2026-10-08 09:28:55,322]   INFO -    org.jetbrains.analysis.Main:51 - Done
+
+✗  The number of problems exceeds the fail threshold

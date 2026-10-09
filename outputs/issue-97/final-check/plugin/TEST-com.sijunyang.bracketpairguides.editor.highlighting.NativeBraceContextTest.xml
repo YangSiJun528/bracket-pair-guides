@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.NativeBraceContextTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:46.675Z" hostname="sijun-yangui-MacBookPro.local" time="0.545">
+  <properties/>
+  <testcase name="testCancellationAlsoWrapsTheLazyPreparedSourceTraversal" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBraceContextTest" time="0.048"/>
+  <testcase name="testLazyParsableSourceUsesThePlatformsPreparedHighlighter" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBraceContextTest" time="0.031"/>
+  <testcase name="testOwnedMatchingPreservesLazyMatcherCallbackOrder" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBraceContextTest" time="0.04"/>
+  <testcase name="testActualContextTraversalRunsInBackgroundReadAction" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBraceContextTest" time="0.053"/>
+  <testcase name="testEdtWriteCancelsAnActualOwnedScanBeforeReadActionRetry" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBraceContextTest" time="0.083"/>
+  <testcase name="testCancellationInsideMembershipAndRecoveryWithoutIteratorMovement" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBraceContextTest" time="0.043"/>
+  <testcase name="testJavaAndXmlContextParityAtEveryCaretBoundaryAndCursorMode" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBraceContextTest" time="0.106"/>
+  <testcase name="testCancellationInterruptsRealForwardAndStructuralBackwardTraversal" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBraceContextTest" time="0.04"/>
+  <testcase name="testOwnedMatchingPreservesPlatformResultsAndTerminalIteratorOnRecovery" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBraceContextTest" time="0.1"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.NativeBoundedTraversalTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:46.390Z" hostname="sijun-yangui-MacBookPro.local" time="0.283">
+  <properties/>
+  <testcase name="testSuspensionPreservesMatcherCallbackTraceWithoutReplay" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBoundedTraversalTest" time="0.038"/>
+  <testcase name="testCanceledContinuationCannotResumePartiallyMutatedState" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBoundedTraversalTest" time="0.038"/>
+  <testcase name="testIrregularContextChunksPreserveEveryBoundaryAndCursorMode" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBoundedTraversalTest" time="0.128"/>
+  <testcase name="testIrregularChunksPreserveNativeResultAndTerminalCursor" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBoundedTraversalTest" time="0.079"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

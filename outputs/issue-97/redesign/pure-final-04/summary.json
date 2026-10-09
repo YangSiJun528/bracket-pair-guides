@@ -1,0 +1,50 @@
+{
+  "command": "./gradlew --no-daemon --max-workers=2 --no-configuration-cache -p tools/pure-build check :analysis-model:build :analysis-core:build --rerun-tasks --console=plain",
+  "suites": [
+    {
+      "module": "analysis-model",
+      "suite": "com.sijunyang.bracketpairguides.model.ResultContractTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": "d2646a918f68fa5bb87a221091130a3c78dc93405b950633d0bd9c2a586f6ea9"
+    },
+    {
+      "module": "analysis-core",
+      "suite": "com.sijunyang.bracketpairguides.core.TokenSemanticsContractTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": "8f48797c2f7f08e1787941696d45f8755968a397665dd091c910b65795925ea7"
+    },
+    {
+      "module": "analysis-core",
+      "suite": "com.sijunyang.bracketpairguides.core.CalculationContractTest",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": "5706f9f391849e08d2c4969ed5d6d2b3595ede47f66321bdecff51bfcdbb5e04"
+    },
+    {
+      "module": "analysis-core",
+      "suite": "com.sijunyang.bracketpairguides.core.LateCancellationContractTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": "cdd0027f9d38d7c0cf96d63a7edbc585342821de4d3c8977c2db41babc2ac50d"
+    },
+    {
+      "module": "analysis-core",
+      "suite": "com.sijunyang.bracketpairguides.core.InputBoundaryContractTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": "c33ef966af18d7d514a9de3acbff1156d48e3ee489ecc072f59c83b061d3d9d1"
+    }
+  ]
+}

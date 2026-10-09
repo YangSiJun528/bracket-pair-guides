@@ -1,0 +1,18 @@
+{
+  "status": "passed-setup-only-main-reviewed",
+  "invocations": 16,
+  "workloadPairs": 8,
+  "freshTestCases": 16,
+  "allArtifactsHashesVerified": true,
+  "sourceAndCompiledFreezeUnchanged": true,
+  "actualIde": "IC-241.19416.15",
+  "actualJbr": "JetBrains JBR17",
+  "heapBytes": 2147483648,
+  "warmups": 1,
+  "repeats": 5,
+  "cancelTrials": 1,
+  "performancePass": null,
+  "jvmProcessesAfter": [],
+  "containersAfter": "",
+  "recordedUtc": "2026-10-08T20:18:08.453394+00:00"
+}

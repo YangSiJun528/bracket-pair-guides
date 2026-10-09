@@ -1,0 +1,5 @@
+{
+  "oldRegistrationSha256": "68d39c73458c724ad14acdb4981cd99f0f2fa9c225a7a54b924674f7fc8b1006",
+  "fixedRegistrationSha256": "75615352ce87962ff7dd31561ee4754d6428d4a9c6902ff045ac4cb38782544b",
+  "onlyChangedBehavior": "Restore the two captured-Project file providers; all tests and conversion rules unchanged"
+}

@@ -1,0 +1,180 @@
+Compiled from "SdkComparisonMeasurementTest.kt"
+public final class com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest extends com.intellij.testFramework.fixtures.BasePlatformTestCase {
+  public com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest();
+    descriptor: ()V
+    Code:
+         0: aload_0
+         1: invokespecial #8                  // Method com/intellij/testFramework/fixtures/BasePlatformTestCase."<init>":()V
+         4: return
+
+  public final void testSdkComparison();
+    descriptor: ()V
+    Code:
+         0: ldc           #13                 // String issue97.perf.workload
+         2: invokestatic  #19                 // Method java/lang/System.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+         5: ifnull        12
+         8: iconst_1
+         9: goto          13
+        12: iconst_0
+        13: ifne          33
+        16: iconst_0
+        17: istore_2
+        18: ldc           #21                 // String Explicit performance workload required
+        20: astore_2
+        21: new           #23                 // class java/lang/IllegalStateException
+        24: dup
+        25: aload_2
+        26: invokevirtual #29                 // Method java/lang/Object.toString:()Ljava/lang/String;
+        29: invokespecial #32                 // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+        32: athrow
+        33: ldc           #34                 // String issue97.perf.host
+        35: invokestatic  #19                 // Method java/lang/System.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+        38: dup
+        39: ifnonnull     58
+        42: pop
+        43: ldc           #36                 // String Required value was null.
+        45: astore_3
+        46: new           #23                 // class java/lang/IllegalStateException
+        49: dup
+        50: aload_3
+        51: invokevirtual #29                 // Method java/lang/Object.toString:()Ljava/lang/String;
+        54: invokespecial #32                 // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+        57: athrow
+        58: astore_1
+        59: aload_1
+        60: invokestatic  #42                 // Method java/lang/Class.forName:(Ljava/lang/String;)Ljava/lang/Class;
+        63: iconst_0
+        64: anewarray     #38                 // class java/lang/Class
+        67: invokevirtual #46                 // Method java/lang/Class.getDeclaredConstructor:([Ljava/lang/Class;)Ljava/lang/reflect/Constructor;
+        70: iconst_0
+        71: anewarray     #25                 // class java/lang/Object
+        74: invokevirtual #52                 // Method java/lang/reflect/Constructor.newInstance:([Ljava/lang/Object;)Ljava/lang/Object;
+        77: dup
+        78: ldc           #54                 // String null cannot be cast to non-null type com.sijunyang.bracketpairguides.comparison.ComparisonHost
+        80: invokestatic  #60                 // Method kotlin/jvm/internal/Intrinsics.checkNotNull:(Ljava/lang/Object;Ljava/lang/String;)V
+        83: checkcast     #62                 // class com/sijunyang/bracketpairguides/comparison/ComparisonHost
+        86: astore_2
+        87: aconst_null
+        88: iconst_1
+        89: aconst_null
+        90: invokestatic  #68                 // Method kotlinx/coroutines/SupervisorKt.SupervisorJob$default:(Lkotlinx/coroutines/Job;ILjava/lang/Object;)Lkotlinx/coroutines/CompletableJob;
+        93: invokestatic  #74                 // Method kotlinx/coroutines/Dispatchers.getDefault:()Lkotlinx/coroutines/CoroutineDispatcher;
+        96: checkcast     #76                 // class kotlin/coroutines/CoroutineContext
+        99: invokeinterface #82,  2           // InterfaceMethod kotlinx/coroutines/CompletableJob.plus:(Lkotlin/coroutines/CoroutineContext;)Lkotlin/coroutines/CoroutineContext;
+       104: invokestatic  #88                 // Method kotlinx/coroutines/CoroutineScopeKt.CoroutineScope:(Lkotlin/coroutines/CoroutineContext;)Lkotlinx/coroutines/CoroutineScope;
+       107: astore_3
+       108: new           #90                 // class java/util/concurrent/atomic/AtomicReference
+       111: dup
+       112: invokespecial #91                 // Method java/util/concurrent/atomic/AtomicReference."<init>":()V
+       115: astore        4
+       117: new           #93                 // class java/util/concurrent/atomic/AtomicBoolean
+       120: dup
+       121: invokespecial #94                 // Method java/util/concurrent/atomic/AtomicBoolean."<init>":()V
+       124: astore        5
+       126: new           #96                 // class com/sijunyang/bracketpairguides/comparison/SdkEvidencePump
+       129: dup
+       130: invokespecial #97                 // Method com/sijunyang/bracketpairguides/comparison/SdkEvidencePump."<init>":()V
+       133: astore        6
+       135: aload_3
+       136: aconst_null
+       137: aconst_null
+       138: new           #99                 // class com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$testSdkComparison$task$1
+       141: dup
+       142: aload_0
+       143: aload_2
+       144: aload         6
+       146: aload         4
+       148: aload         5
+       150: aconst_null
+       151: invokespecial #102                // Method com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$testSdkComparison$task$1."<init>":(Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;Lcom/sijunyang/bracketpairguides/comparison/ComparisonHost;Lcom/sijunyang/bracketpairguides/comparison/SdkEvidencePump;Ljava/util/concurrent/atomic/AtomicReference;Ljava/util/concurrent/atomic/AtomicBoolean;Lkotlin/coroutines/Continuation;)V
+       154: checkcast     #104                // class kotlin/jvm/functions/Function2
+       157: iconst_3
+       158: aconst_null
+       159: invokestatic  #110                // Method kotlinx/coroutines/BuildersKt.launch$default:(Lkotlinx/coroutines/CoroutineScope;Lkotlin/coroutines/CoroutineContext;Lkotlinx/coroutines/CoroutineStart;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lkotlinx/coroutines/Job;
+       162: astore        7
+       164: nop
+       165: aload         6
+       167: ldc2_w        #111                // long 600l
+       170: new           #114                // class com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$testSdkComparison$2
+       173: dup
+       174: aload         5
+       176: invokespecial #117                // Method com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest$testSdkComparison$2."<init>":(Ljava/util/concurrent/atomic/AtomicBoolean;)V
+       179: checkcast     #119                // class kotlin/jvm/functions/Function0
+       182: invokevirtual #123                // Method com/sijunyang/bracketpairguides/comparison/SdkEvidencePump.await:(JLkotlin/jvm/functions/Function0;)V
+       185: aload         4
+       187: invokevirtual #127                // Method java/util/concurrent/atomic/AtomicReference.get:()Ljava/lang/Object;
+       190: checkcast     #129                // class java/lang/Throwable
+       193: astore        8
+       195: aload         8
+       197: ifnull        219
+       200: aload         8
+       202: astore        9
+       204: iconst_0
+       205: istore        10
+       207: new           #131                // class java/lang/AssertionError
+       210: dup
+       211: ldc           #133                // String SDK comparison failed
+       213: aload         9
+       215: invokespecial #136                // Method java/lang/AssertionError."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+       218: athrow
+       219: aload         7
+       221: aconst_null
+       222: iconst_1
+       223: aconst_null
+       224: invokestatic  #142                // Method kotlinx/coroutines/Job$DefaultImpls.cancel$default:(Lkotlinx/coroutines/Job;Ljava/util/concurrent/CancellationException;ILjava/lang/Object;)V
+       227: aload_3
+       228: aconst_null
+       229: iconst_1
+       230: aconst_null
+       231: invokestatic  #145                // Method kotlinx/coroutines/CoroutineScopeKt.cancel$default:(Lkotlinx/coroutines/CoroutineScope;Ljava/util/concurrent/CancellationException;ILjava/lang/Object;)V
+       234: ldc           #147                // String SDK comparison cleanup
+       236: aload         7
+       238: invokedynamic #165,  0            // InvokeDynamic #0:getAsBoolean:(Lkotlinx/coroutines/Job;)Ljava/util/function/BooleanSupplier;
+       243: bipush        30
+       245: invokestatic  #171                // Method com/intellij/testFramework/PlatformTestUtil.waitWithEventsDispatching:(Ljava/lang/String;Ljava/util/function/BooleanSupplier;I)V
+       248: goto          285
+       251: astore        8
+       253: aload         7
+       255: aconst_null
+       256: iconst_1
+       257: aconst_null
+       258: invokestatic  #142                // Method kotlinx/coroutines/Job$DefaultImpls.cancel$default:(Lkotlinx/coroutines/Job;Ljava/util/concurrent/CancellationException;ILjava/lang/Object;)V
+       261: aload_3
+       262: aconst_null
+       263: iconst_1
+       264: aconst_null
+       265: invokestatic  #145                // Method kotlinx/coroutines/CoroutineScopeKt.cancel$default:(Lkotlinx/coroutines/CoroutineScope;Ljava/util/concurrent/CancellationException;ILjava/lang/Object;)V
+       268: ldc           #147                // String SDK comparison cleanup
+       270: aload         7
+       272: invokedynamic #165,  0            // InvokeDynamic #0:getAsBoolean:(Lkotlinx/coroutines/Job;)Ljava/util/function/BooleanSupplier;
+       277: bipush        30
+       279: invokestatic  #171                // Method com/intellij/testFramework/PlatformTestUtil.waitWithEventsDispatching:(Ljava/lang/String;Ljava/util/function/BooleanSupplier;I)V
+       282: aload         8
+       284: athrow
+       285: return
+      Exception table:
+         from    to  target type
+           164   219   251   any
+           251   253   251   any
+
+  private static final boolean testSdkComparison$lambda$2(kotlinx.coroutines.Job);
+    descriptor: (Lkotlinx/coroutines/Job;)Z
+    Code:
+         0: aload_0
+         1: invokeinterface #199,  1          // InterfaceMethod kotlinx/coroutines/Job.isCompleted:()Z
+         6: ireturn
+
+  public static final com.intellij.testFramework.fixtures.CodeInsightTestFixture access$getMyFixture$p$s790461483(com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest);
+    descriptor: (Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;)Lcom/intellij/testFramework/fixtures/CodeInsightTestFixture;
+    Code:
+         0: aload_0
+         1: getfield      #206                // Field myFixture:Lcom/intellij/testFramework/fixtures/CodeInsightTestFixture;
+         4: areturn
+
+  public static final com.intellij.openapi.project.Project access$getProject(com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest);
+    descriptor: (Lcom/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest;)Lcom/intellij/openapi/project/Project;
+    Code:
+         0: aload_0
+         1: invokevirtual #213                // Method getProject:()Lcom/intellij/openapi/project/Project;
+         4: areturn
+}

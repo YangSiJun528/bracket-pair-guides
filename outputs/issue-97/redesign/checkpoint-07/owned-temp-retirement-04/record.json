@@ -1,0 +1,29 @@
+{
+  "target": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build-logic/build/tmp/test/work/.gradle-test-kit",
+  "recordedUtc": "2026-10-08T19:22:46.792514+00:00",
+  "lsofExitCode": 1,
+  "lsofStdout": "",
+  "lsofStderr": "",
+  "freeBeforeBytes": 15328301056,
+  "preservedDaemonLogs": [
+    "preserved-daemon-logs/test-kit-daemon/9.8.0/daemon-6393.out.log",
+    "preserved-daemon-logs/test-kit-daemon/9.8.0/daemon-67099.out.log",
+    "preserved-daemon-logs/test-kit-daemon/9.8.0/daemon-92354.out.log",
+    "preserved-daemon-logs/test-kit-daemon/9.8.0/daemon-90051.out.log",
+    "preserved-daemon-logs/test-kit-daemon/9.8.0/daemon-13944.out.log",
+    "preserved-daemon-logs/test-kit-daemon/9.8.0/daemon-58269.out.log",
+    "preserved-daemon-logs/test-kit-daemon/9.8.0/daemon-91657.out.log",
+    "preserved-daemon-logs/test-kit-daemon/9.8.0/daemon-65085.out.log",
+    "preserved-daemon-logs/test-kit-daemon/9.8.0/daemon-96117.out.log",
+    "preserved-daemon-logs/test-kit-daemon/9.8.0/daemon-93997.out.log",
+    "preserved-daemon-logs/test-kit-daemon/9.8.0/daemon-95061.out.log",
+    "preserved-daemon-logs/test-kit-daemon/9.8.0/daemon-7338.out.log",
+    "preserved-daemon-logs/test-kit-daemon/9.8.0/daemon-17427.out.log"
+  ],
+  "allocatedKiB": 1448472,
+  "preservedEvidence": "final-check-09 XML including binary, task logs and copied TestKit daemon logs",
+  "scope": "Exact task-owned temporary TestKit Gradle home only; no current Gradle home, IDE cache, source, baseline, or measurement raw deletion",
+  "removed": true,
+  "freeAfterBytes": 16631214080,
+  "recoveredBytes": 1302913024
+}

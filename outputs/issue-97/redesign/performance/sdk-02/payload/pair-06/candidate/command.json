@@ -1,0 +1,452 @@
+{
+  "job": "payload",
+  "pair": 6,
+  "side": "candidate",
+  "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+  "command": [
+    "./gradlew",
+    "--no-daemon",
+    "--max-workers=1",
+    "--no-configuration-cache",
+    "--console=plain",
+    "-Pkotlin.compiler.execution.strategy=in-process",
+    "-Dorg.gradle.jvmargs=-Xmx4g",
+    "-Dissue97.perf.workload=payload",
+    "-Dissue97.perf.output=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/sdk-02/payload/pair-06/candidate/sdk.jsonl",
+    "-Dissue97.perf.sourceRevision=8d853ea08d92150c127efe43d807771542ef84d6",
+    "-Dissue97.perf.host=com.sijunyang.bracketpairguides.comparison.CandidateComparisonHost",
+    "-Dissue97.perf.warmup=100",
+    "-Dissue97.perf.repeat=30",
+    "-Dissue97.perf.cancelTrials=30",
+    "-Dissue97.perf.expectedIdeBuild=IC-241.19416.15",
+    ":plugin:sdkPerformance",
+    "--tests",
+    "com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest.testSdkComparison"
+  ],
+  "timeoutSeconds": 900,
+  "directory": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/sdk-02/payload/pair-06/candidate",
+  "raw": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/sdk-02/payload/pair-06/candidate/sdk.jsonl",
+  "status": "passed-execution-and-evidence",
+  "startedUtc": "2026-10-08T22:08:56.156406+00:00",
+  "ownedPid": 77942,
+  "ownedProcessGroup": 77942,
+  "timedOut": false,
+  "elapsedSeconds": 16.857259957992937,
+  "exitCode": 0,
+  "finishedUtc": "2026-10-08T22:09:13.015851+00:00",
+  "artifactSnapshots": [
+    {
+      "source": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/test-results/sdkPerformance/TEST-com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest.xml",
+      "copy": "sdk-test.xml",
+      "sha256": "ba8d3cd46bf3b1a4a324f6be71344029eabdb917673c91776fc910614357a557",
+      "sourceMtime": 1791497352.8136044,
+      "validated": true
+    },
+    {
+      "source": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/descriptor-evidence.json",
+      "copy": "descriptor-evidence.json",
+      "sha256": "9c7f36c8290d1fdc70249f1593a62ed8310097efcff66f1008f98f74434710c2",
+      "sourceMtime": 1791449915.307533,
+      "validated": true
+    },
+    {
+      "source": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/test-resources-evidence.json",
+      "copy": "test-resources-evidence.json",
+      "sha256": "7a89031dd0f6c354a0cc6f5cc434fab7a34af3353771ed78e94e9c356ac8554c",
+      "sourceMtime": 1791449915.4113004,
+      "validated": false
+    }
+  ],
+  "corpusEvidence": [
+    {
+      "kind": "corpus",
+      "name": "Ordinary.java",
+      "length": 50019,
+      "sha256": "0c8afbf4da394b3d78d1dcdf43db3dc33812a945764e399f8739a3949f92cbe5",
+      "editorKind": "MAIN_EDITOR"
+    },
+    {
+      "kind": "corpus",
+      "name": "Nested.java",
+      "length": 40001,
+      "sha256": "b0a6a68dbd4b0a7cf364a890220148de3e9053b4139766910bc1a778ad18517d",
+      "editorKind": "MAIN_EDITOR"
+    },
+    {
+      "kind": "corpus",
+      "name": "Closers.java",
+      "length": 160000,
+      "sha256": "670a6986464be4376f87df396772992e19b4e5f1b181305447ccbaab6716e586",
+      "editorKind": "MAIN_EDITOR"
+    },
+    {
+      "kind": "corpus",
+      "name": "Whitespace.java",
+      "length": 500006,
+      "sha256": "2aa19de4bab51c0be391772b82c197bea153d8ddbac3b57fd42402e58a784490",
+      "editorKind": "MAIN_EDITOR"
+    },
+    {
+      "kind": "corpus",
+      "name": "Nested.xml",
+      "length": 160015,
+      "sha256": "fb79edec41aa2252563e21e0b92d3e5b6c3c1b277439c39c02246772670fab69",
+      "editorKind": "MAIN_EDITOR"
+    }
+  ],
+  "testResourcesEvidenceSha256": "7a89031dd0f6c354a0cc6f5cc434fab7a34af3353771ed78e94e9c356ac8554c",
+  "environment": {
+    "runId": "08971913-40f3-4a04-969f-599c882262e8",
+    "sequence": 1,
+    "kind": "environment",
+    "schema": 2,
+    "implementation": "candidate-redesign",
+    "descriptorIsolation": {
+      "mode": "manual-registry-events-no-auto-startup-pass",
+      "evidencePath": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/descriptor-evidence.json",
+      "evidenceSha256": "9c7f36c8290d1fdc70249f1593a62ed8310097efcff66f1008f98f74434710c2",
+      "evidence": {
+        "schema": 1,
+        "mode": "manual-registry-events-no-auto-startup-pass",
+        "originalJar": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/libs/plugin-0.0.6.jar",
+        "measuredJar": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/plugin.jar",
+        "originalJarSha256": "0ba9536227e662aec65e6d102b05f03c25ed2030f8e41528c7f398c9e7cb8bf3",
+        "measuredJarSha256": "4d448bd68dcecb7047a087b43c627fd80045e24a2e35beb55bdd86c8ac721440",
+        "originalDescriptorSha256": "409ae6a0277fbcda7c23b853f71c73aa98ba767f3bc039a4d644bc0a34406cbf",
+        "measuredDescriptorSha256": "bb3c21f1281d4210e85df47c3887e5dc16f5bd0edfacef5fae0007fdff1e6e44",
+        "removedEntries": [
+          {
+            "tag": "postStartupActivity",
+            "implementation": "com.sijunyang.bracketpairguides.plugin.GuideStartup",
+            "xml": "<postStartupActivity implementation=\"com.sijunyang.bracketpairguides.plugin.GuideStartup\" />"
+          },
+          {
+            "tag": "highlightingPassFactory",
+            "implementation": "com.sijunyang.bracketpairguides.plugin.BracketGuidePassRegistration",
+            "xml": "<highlightingPassFactory implementation=\"com.sijunyang.bracketpairguides.plugin.BracketGuidePassRegistration\" />"
+          }
+        ],
+        "changedEntries": [
+          "META-INF/plugin.xml"
+        ],
+        "nonDescriptorEntriesUnchanged": true,
+        "archiveEntries": 17,
+        "scope": "Only this plugin automatic startup activities/highlighting pass factory are suppressed; manual registry and document-event pipeline remain actual production implementations. Whole-plugin startup is covered separately by Driver."
+      },
+      "loadedPluginPath": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/sandbox/plugins_sdkPerformance/bracket-pair-guides",
+      "loadedDescriptorResources": {
+        "jar:file:/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/sandbox/plugins_sdkPerformance/bracket-pair-guides/lib/plugin.jar!/META-INF/plugin.xml": "bb3c21f1281d4210e85df47c3887e5dc16f5bd0edfacef5fae0007fdff1e6e44",
+        "file:/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/test-resources/test/META-INF/plugin.xml": "bb3c21f1281d4210e85df47c3887e5dc16f5bd0edfacef5fae0007fdff1e6e44",
+        "file:/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/test-resources/sdkPerformance/META-INF/plugin.xml": "bb3c21f1281d4210e85df47c3887e5dc16f5bd0edfacef5fae0007fdff1e6e44"
+      },
+      "nonDescriptorArchiveEntriesByteEqual": true,
+      "scope": "manual owned SDK composition and real events; automatic startup/highlighting excluded equally; real registration validated separately"
+    },
+    "workload": "payload",
+    "ide": "IC-241.19416.15",
+    "ideVersion": "2024.1.7",
+    "java": "17.0.12+1-b1207.37",
+    "javaHome": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/jbr/Contents/Home",
+    "javaVendor": "JetBrains s.r.o.",
+    "adapterClassLoader": "com.intellij.util.lang.PathClassLoader@27f674d",
+    "adapterCodeSource": null,
+    "sdkCodeSource": null,
+    "vm": "OpenJDK 64-Bit Server VM",
+    "os": "Mac OS X",
+    "arch": "aarch64",
+    "jvmArgs": [
+      "-Daether.connector.resumeDownloads=false",
+      "-Dapple.awt.application.appearance=system",
+      "-Dcontract.ide.baseline=241",
+      "-Dcontract.ide.version=2024.1.7",
+      "-Dide.show.tips.on.startup.default.value=false",
+      "-Didea.classpath.index.enabled=false",
+      "-Didea.config.path=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/sandbox/config_sdkPerformance",
+      "-Didea.force.use.core.classloader=true",
+      "-Didea.home.path=/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64",
+      "-Didea.log.path=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/sandbox/log_sdkPerformance",
+      "-Didea.paths.selector=IdeaIC2024.1",
+      "-Didea.platform.prefix=Idea",
+      "-Didea.plugins.path=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/sandbox/plugins_sdkPerformance",
+      "-Didea.system.path=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/sandbox/system_sdkPerformance",
+      "-Didea.use.core.classloader.for.plugin.path=true",
+      "-Didea.vendor.name=JetBrains",
+      "-Dintellij.console.log.level=warning",
+      "-Dintellij.platform.runtime.repository.path=/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/modules/module-descriptors.jar",
+      "-Dintellij.testFramework.rethrow.logged.errors=true",
+      "-Dissue97.perf.cancelTrials=30",
+      "-Dissue97.perf.descriptorEvidence=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/descriptor-evidence.json",
+      "-Dissue97.perf.descriptorMode=manual-registry-events-no-auto-startup-pass",
+      "-Dissue97.perf.descriptorResourcesEvidence=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/test-resources-evidence.json",
+      "-Dissue97.perf.expectedIdeBuild=IC-241.19416.15",
+      "-Dissue97.perf.host=com.sijunyang.bracketpairguides.comparison.CandidateComparisonHost",
+      "-Dissue97.perf.output=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/sdk-02/payload/pair-06/candidate/sdk.jsonl",
+      "-Dissue97.perf.repeat=30",
+      "-Dissue97.perf.sourceRevision=8d853ea08d92150c127efe43d807771542ef84d6",
+      "-Dissue97.perf.warmup=100",
+      "-Dissue97.perf.workload=payload",
+      "-Djava.system.class.loader=com.intellij.util.lang.PathClassLoader",
+      "-Djbr.catch.SIGABRT=true",
+      "-Djdk.attach.allowAttachSelf=true",
+      "-Djdk.http.auth.tunneling.disabledSchemes=\"\"",
+      "-Djdk.module.illegalAccess.silent=true",
+      "-Djna.boot.library.path=/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/jna/aarch64",
+      "-Djna.noclasspath=true",
+      "-Djna.nosys=true",
+      "-Dorg.gradle.internal.worker.tmpdir=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/tmp/sdkPerformance/work",
+      "-Dplugin.path=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/sandbox/plugins_sdkPerformance/bracket-pair-guides",
+      "-Dpty4j.preferred.native.folder=/Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/pty4j",
+      "-Drider.tests.plugin.home.path=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+      "-Dsplash=true",
+      "-Dsun.io.useCanonCaches=false",
+      "-Dsun.java2d.metal=true",
+      "-XX:+HeapDumpOnOutOfMemoryError",
+      "-XX:-OmitStackTraceInFastThrow",
+      "-XX:+IgnoreUnrecognizedVMOptions",
+      "-XX:CICompilerCount=2",
+      "-XX:ReservedCodeCacheSize=512m",
+      "-XX:CompileCommand=exclude,com/intellij/openapi/vfs/impl/FilePartNodeRoot,trieDescend",
+      "-XX:SoftRefLRUPolicyMSPerMB=50",
+      "--add-opens=java.base/java.io=ALL-UNNAMED",
+      "--add-opens=java.base/java.lang=ALL-UNNAMED",
+      "--add-opens=java.base/java.lang.ref=ALL-UNNAMED",
+      "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
+      "--add-opens=java.base/java.net=ALL-UNNAMED",
+      "--add-opens=java.base/java.nio=ALL-UNNAMED",
+      "--add-opens=java.base/java.nio.charset=ALL-UNNAMED",
+      "--add-opens=java.base/java.text=ALL-UNNAMED",
+      "--add-opens=java.base/java.time=ALL-UNNAMED",
+      "--add-opens=java.base/java.util=ALL-UNNAMED",
+      "--add-opens=java.base/java.util.concurrent=ALL-UNNAMED",
+      "--add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED",
+      "--add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED",
+      "--add-opens=java.base/jdk.internal.vm=ALL-UNNAMED",
+      "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED",
+      "--add-opens=java.base/sun.nio.fs=ALL-UNNAMED",
+      "--add-opens=java.base/sun.security.ssl=ALL-UNNAMED",
+      "--add-opens=java.base/sun.security.util=ALL-UNNAMED",
+      "--add-opens=java.base/sun.net.dns=ALL-UNNAMED",
+      "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED",
+      "--add-opens=java.desktop/com.apple.eawt.event=ALL-UNNAMED",
+      "--add-opens=java.desktop/com.apple.laf=ALL-UNNAMED",
+      "--add-opens=java.desktop/java.awt=ALL-UNNAMED",
+      "--add-opens=java.desktop/java.awt.dnd.peer=ALL-UNNAMED",
+      "--add-opens=java.desktop/java.awt.event=ALL-UNNAMED",
+      "--add-opens=java.desktop/java.awt.image=ALL-UNNAMED",
+      "--add-opens=java.desktop/java.awt.peer=ALL-UNNAMED",
+      "--add-opens=java.desktop/java.awt.font=ALL-UNNAMED",
+      "--add-opens=java.desktop/javax.swing=ALL-UNNAMED",
+      "--add-opens=java.desktop/javax.swing.plaf.basic=ALL-UNNAMED",
+      "--add-opens=java.desktop/javax.swing.text=ALL-UNNAMED",
+      "--add-opens=java.desktop/javax.swing.text.html=ALL-UNNAMED",
+      "--add-opens=java.desktop/sun.awt.datatransfer=ALL-UNNAMED",
+      "--add-opens=java.desktop/sun.awt.image=ALL-UNNAMED",
+      "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
+      "--add-opens=java.desktop/sun.font=ALL-UNNAMED",
+      "--add-opens=java.desktop/sun.java2d=ALL-UNNAMED",
+      "--add-opens=java.desktop/sun.lwawt=ALL-UNNAMED",
+      "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED",
+      "--add-opens=java.desktop/sun.swing=ALL-UNNAMED",
+      "--add-opens=java.desktop/com.sun.java.swing=ALL-UNNAMED",
+      "--add-opens=jdk.attach/sun.tools.attach=ALL-UNNAMED",
+      "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+      "--add-opens=jdk.internal.jvmstat/sun.jvmstat.monitor=ALL-UNNAMED",
+      "--add-opens=jdk.jdi/com.sun.tools.jdi=ALL-UNNAMED",
+      "-javaagent:/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/.intellijPlatform/coroutines-javaagent-legacy.jar",
+      "-Xms128m",
+      "-Xmx2048m",
+      "-Dfile.encoding=UTF-8",
+      "-Duser.country=KR",
+      "-Duser.language=ko",
+      "-Duser.variant",
+      "-ea"
+    ],
+    "sourceRevision": "8d853ea08d92150c127efe43d807771542ef84d6",
+    "harnessClassSha256": "a553d5511c9b81f04f88b22e547748853c1593623bf3178ad9d3cf41db74f3bb",
+    "adapterClassSha256": "4f85d9055482b98054dcad73998b57eb5c4d1a161d9dd864d7608edf11ee98ed",
+    "maxHeapBytes": 2147483648,
+    "processors": 10,
+    "warmups": 100,
+    "repeats": 30,
+    "cancelTrials": 30,
+    "resourceReplicatesPerCorpus": 1,
+    "resourceScope": "reachable owned primitive array payload and bounded GC observation; not full retained heap",
+    "eventPump": "actual SDK one-event context-reset dispatch; 100us requested idle park; cumulative actual cadence retained, no staging readers",
+    "scope": "actual SDK direct source+calculator excludes factory/document lease lifecycle; execution actual request-to-observed markup; headless ACTIVE, no real focus/paint"
+  },
+  "xmlSha256": "ba8d3cd46bf3b1a4a324f6be71344029eabdb917673c91776fc910614357a557",
+  "producerTaskOutcomes": [
+    {
+      "task": ":build-logic:compileJava",
+      "outcome": "NO-SOURCE"
+    },
+    {
+      "task": ":build-logic:compileGroovy",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":build-logic:processResources",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":build-logic:jar",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":analysis-model:compileKotlin",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":analysis-model:compileJava",
+      "outcome": "NO-SOURCE"
+    },
+    {
+      "task": ":analysis-model:processResources",
+      "outcome": "NO-SOURCE"
+    },
+    {
+      "task": ":analysis-model:jar",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":analysis-core:compileKotlin",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":analysis-core:compileJava",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":editor-ui:compileKotlin",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":editor-ui:compileJava",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":analysis-runtime:compileKotlin",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":analysis-runtime:compileJava",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":analysis-runtime:processResources",
+      "outcome": "NO-SOURCE"
+    },
+    {
+      "task": ":analysis-runtime:jar",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":editor-ui:processResources",
+      "outcome": "NO-SOURCE"
+    },
+    {
+      "task": ":editor-ui:jar",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":plugin:compileKotlin",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":plugin:compileJava",
+      "outcome": "NO-SOURCE"
+    },
+    {
+      "task": ":plugin:patchPluginXml",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":plugin:processResources",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":plugin:jar",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":analysis-core:processResources",
+      "outcome": "NO-SOURCE"
+    },
+    {
+      "task": ":analysis-core:jar",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":analysis-runtime:compileTestKotlin",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":analysis-runtime:compileTestJava",
+      "outcome": "NO-SOURCE"
+    },
+    {
+      "task": ":analysis-runtime:processTestResources",
+      "outcome": "NO-SOURCE"
+    },
+    {
+      "task": ":editor-ui:compileTestKotlin",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":editor-ui:compileTestJava",
+      "outcome": "NO-SOURCE"
+    },
+    {
+      "task": ":editor-ui:processTestResources",
+      "outcome": "NO-SOURCE"
+    },
+    {
+      "task": ":plugin:compileTestKotlin",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":plugin:compileTestJava",
+      "outcome": "NO-SOURCE"
+    },
+    {
+      "task": ":plugin:processTestResources",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":plugin:instrumentTestCode",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":plugin:compileSdkPerformanceKotlin",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":plugin:compileSdkPerformanceJava",
+      "outcome": "NO-SOURCE"
+    },
+    {
+      "task": ":plugin:instrumentCode",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":plugin:instrumentedJar",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":plugin:composedJar",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":plugin:prepareSdkMeasurementPluginJar",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":plugin:processSdkPerformanceResources",
+      "outcome": "UP-TO-DATE"
+    },
+    {
+      "task": ":plugin:prepareSdkMeasurementTestResources",
+      "outcome": "UP-TO-DATE"
+    }
+  ]
+}

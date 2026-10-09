@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-08T09:44:26.570Z" hostname="sijun-yangui-MacBookPro.local" time="2.192">
+  <properties/>
+  <testcase name="testImmediateCloseCancelsPendingPublication" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.046"/>
+  <testcase name="testDocumentGenerationSurvivesStampResetAndDormantReacquire" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.051"/>
+  <testcase name="testHiddenDemandReleasesAcceptedPayloadAndWakeUpDoesNotRecapture" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.651"/>
+  <testcase name="testReentrantEditCannotAcceptOldResult" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.229"/>
+  <testcase name="testRetainedClosedWorkDoesNotRetainEditorViewOrPayload" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.382"/>
+  <testcase name="testSharedDocumentEditorsKeepIndependentPublicationAndCloseLifetimes" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.284"/>
+  <testcase name="testRicherAcceptedResultSurvivesCoverageReduction" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.136"/>
+  <testcase name="testReadsAreBackgroundAndPublicationIsEdtAndDuplicateDemandIsInert" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.131"/>
+  <testcase name="testCloseDuringPublicationPreventsAnyLaterWork" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.14"/>
+  <testcase name="testNoFacetDemandReleasesAcceptedPayloadAndWakeUpDoesNotRecapture" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.141"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

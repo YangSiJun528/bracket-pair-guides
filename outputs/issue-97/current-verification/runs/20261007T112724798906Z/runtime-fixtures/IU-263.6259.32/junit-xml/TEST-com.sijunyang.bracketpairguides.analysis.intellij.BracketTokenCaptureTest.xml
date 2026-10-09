@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCaptureTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:40:34.813Z" hostname="sijun-yangui-MacBookPro.local" time="1.706">
+  <properties/>
+  <testcase name="testSealedBatchRevokesMutationAndEmptyDocumentHasAnAvailableSource" classname="com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCaptureTest" time="0.092"/>
+  <testcase name="testRealLayeredIteratorRestartsInsideOneBaseToken" classname="com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCaptureTest" time="0.086"/>
+  <testcase name="testLanguageIdentitySeparatesEqualNumericGroupsAcrossChunks" classname="com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCaptureTest" time="0.069"/>
+  <testcase name="testCancellationIsCheckedWithinBracketFreeCapture" classname="com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCaptureTest" time="0.069"/>
+  <testcase name="testMatchingUsesActualCallbackAndCaptureDoesNotQueryCompatibilityEagerly" classname="com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCaptureTest" time="0.062"/>
+  <testcase name="testMismatchedIteratorDocumentMarksTheEntireSourceUnavailable" classname="com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCaptureTest" time="0.066"/>
+  <testcase name="testDisabledFamilyAvailabilityAccumulatesWithoutEmittingTokens" classname="com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCaptureTest" time="0.051"/>
+  <testcase name="testOneAndIrregularTokenChunksMatchUninterruptedRecognition" classname="com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCaptureTest" time="0.06"/>
+  <testcase name="testBracketFreeChunksBoundVisitedTokensAndFinishExplicitlyAtEof" classname="com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCaptureTest" time="0.061"/>
+  <testcase name="testEmptyAndDenseChunksAlternateWithoutLosingOccurrencesOrChangingSealedBatches" classname="com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCaptureTest" time="0.109"/>
+  <testcase name="testStrictXmlContextNormalizationAndRecoverySurviveChunking" classname="com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCaptureTest" time="0.067"/>
+  <testcase name="testEvictedKindCanBeRecreatedWhileAnOlderPendingKindStillResolves" classname="com.sijunyang.bracketpairguides.analysis.intellij.BracketTokenCaptureTest" time="0.913"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

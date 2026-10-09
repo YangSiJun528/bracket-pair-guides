@@ -1,0 +1,31 @@
+{
+  "kind": "driver",
+  "passed": true,
+  "directory": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/build/visual-test-background/run.xAD2OD",
+  "exitCode": 0,
+  "tests": {
+    "tests": 13,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "actualScreenshots": 11,
+  "baselineHashesUnchanged": true,
+  "actualPngBytesMatch": true,
+  "actualSha256": {
+    "bracket-colorization-off": "fac3b4df53293100de9ecf8ddb0964e15c0ce5ded6c4ab185250fc68464f9726",
+    "horizontal-only": "90feac152694dd22e3fc17fe59be1409395d2aa925da141fe259d4b83cf4a64c",
+    "plugin-disabled": "acf362bee854ba3330b6bd89ca5da53b0cc73d057b393656955c66afb20ce7cd",
+    "all-components": "112182d96294b5736d2fe93ee27aaff390cea75401b394207a76236e03699700",
+    "pair-border-only": "35ca3fc76cc798eb9f945ed0804346910a6ec64c9fa98d0016ca52e98b15b1c9",
+    "pair-background-only": "d9fddb0afac48abeb5aa2aa93451938ad64a6a2cdacbeb1f40ad0bf78cccc5fe",
+    "native-highlight-suppressed": "c1409860fceb09e766f85c44a77ab251f032cb56b1b90a48230ff6217f9161b0",
+    "native-visuals-unmanaged": "2d0fcb3d6fbc31f5204af7c1386612e742d52453b856f9d29522bd7ad05e70b8",
+    "default-palette": "0a5f41a8a90b1a5debaf58e7f9041c463e36260bddec8ac02d297b9778ea7eae",
+    "custom-palette": "3c6182d397f0f39ef9635ad602c01b6bec132f5f8422b6b3c798b1b344ee99a2",
+    "vertical-only": "7d5d1fad6f1ed000376a5757292c58bce63413e75e845b1c537b41ef3d2047df"
+  },
+  "environment": "ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1",
+  "limit": "Byte equality is stronger than the unchanged decoded-pixel oracle; no baseline recording occurred."
+}
+

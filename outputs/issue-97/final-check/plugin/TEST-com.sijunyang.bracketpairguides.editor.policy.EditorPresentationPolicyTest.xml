@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.policy.EditorPresentationPolicyTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:55.655Z" hostname="sijun-yangui-MacBookPro.local" time="0.0">
+  <properties/>
+  <testcase name="focus and visibility affect presentation without changing analysis coverage" classname="com.sijunyang.bracketpairguides.editor.policy.EditorPresentationPolicyTest" time="0.0"/>
+  <testcase name="one line editors retain horizontal guides and active emphasis" classname="com.sijunyang.bracketpairguides.editor.policy.EditorPresentationPolicyTest" time="0.0"/>
+  <testcase name="secondary surfaces request colors without pair graphs or guide geometry" classname="com.sijunyang.bracketpairguides.editor.policy.EditorPresentationPolicyTest" time="0.0"/>
+  <testcase name="disabling colors or the plugin is never overridden by surface policy" classname="com.sijunyang.bracketpairguides.editor.policy.EditorPresentationPolicyTest" time="0.0"/>
+  <testcase name="unsupported editors never request analysis or presentation" classname="com.sijunyang.bracketpairguides.editor.policy.EditorPresentationPolicyTest" time="0.0"/>
+  <testcase name="horizontal and vertical preferences remain independent of token colors" classname="com.sijunyang.bracketpairguides.editor.policy.EditorPresentationPolicyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

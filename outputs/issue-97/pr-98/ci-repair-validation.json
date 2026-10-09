@@ -1,0 +1,39 @@
+{
+  "headBeforeRepair": "120360c713e7fde9c72b23ffd1677db14587501b",
+  "changedFileSha256": {
+    ".github/workflows/visual-test.yml": "2846a6c98135ac8719190f3389d4f64b0e9a294f82e970adb307f3f338728435",
+    "docs/guide_visual_testing.md": "d1f9e54e585c45f8761c63f0b3e6231ce16961db0b200082214775d186819948",
+    "build-logic/settings.gradle.kts": "2f63326ae04d4b1a5d514a35402c6bf821384b51741ba3cf04abe248f69a7698",
+    "tools/pure-build/settings.gradle.kts": "2de652584187f5abf3263729a476b77aa841731931efc6790cce780d7c86465c"
+  },
+  "xauth": {
+    "image": "sha256:b86359296c4234b802d7c34d8a81d82aa3e50c1c98d6a2683bd234fe2d57261d",
+    "platform": "linux/amd64",
+    "network": "none",
+    "originalWithoutXauthorityExit": 1,
+    "fixedWithoutXauthorityExit": 0,
+    "fixedOutput": "X11_CONNECTED 1920x1080x-1",
+    "authentication": "enabled",
+    "tcpListening": "disabled",
+    "scope": "Java21 AWT authentication reproduction; not a full Driver rerun"
+  },
+  "toolchain": {
+    "platform": "macOS/aarch64",
+    "build": "isolated copy of build-logic",
+    "gradle": "9.8.0",
+    "runtimeJdk": "JBR21.0.10",
+    "automaticDetection": false,
+    "initialJdk17Cache": "empty",
+    "originalExit": 1,
+    "originalFailure": "JDK17 not found; no toolchain download repositories configured",
+    "fixedExit": 0,
+    "provisionedJdk": "Eclipse Adoptium17.0.20.1+1",
+    "compiledTask": "compileGroovy",
+    "scope": "Existing settings failure versus resolver-only settings repair in same isolated cache"
+  },
+  "visualOraclesChanged": false,
+  "compilerTargetsChanged": false,
+  "inspectionRulesChanged": false,
+  "benchmarkThresholdsChanged": false,
+  "fullRemoteCiAfterRepair": "pending"
+}

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.NativeLazyHighlighterTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:49.314Z" hostname="sijun-yangui-MacBookPro.local" time="0.121">
+  <properties/>
+  <testcase name="testLazyPreparationUsesTheCapturedCaretAndTraversalRemainsCancellable" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeLazyHighlighterTest" time="0.04"/>
+  <testcase name="testOwnedLazyIteratorMatchesPlatformTokenTypesAndAbsoluteEndpoints" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeLazyHighlighterTest" time="0.038"/>
+  <testcase name="testOrdinaryAndUncommittedSourcesReuseTheInstalledHighlighter" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeLazyHighlighterTest" time="0.043"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

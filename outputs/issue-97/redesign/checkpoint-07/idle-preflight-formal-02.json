@@ -1,0 +1,8 @@
+{
+  "recordedUtc": "2026-10-08T20:18:09.767531+00:00",
+  "jvmProcesses": [],
+  "dockerContainers": "",
+  "agents": "completed/frozen",
+  "prerequisites": "check10 + Qodana08 + same ZIP Driver13/matrix03 + fingerprint07 + sdk-final-smoke09",
+  "scope": "Main serializes task-owned builds/IDEs/measurements; does not claim bare-metal isolation"
+}

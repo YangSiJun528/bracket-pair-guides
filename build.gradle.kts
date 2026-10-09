@@ -1,5 +1,6 @@
 plugins {
     base
+    id("bracket.module-boundaries")
     id("com.diffplug.spotless")
     id("org.jetbrains.kotlin.jvm") apply false
 }
@@ -7,9 +8,11 @@ plugins {
 spotless {
     kotlin {
         target(
-            "plugin/src/main/kotlin/**/*.kt",
-            "plugin/src/test/kotlin/**/*.kt",
+            "*/src/main/kotlin/**/*.kt",
+            "*/src/test/kotlin/**/*.kt",
             "plugin/src/visualTest/kotlin/**/*.kt",
+            "plugin/src/visualBridge/kotlin/**/*.kt",
+            "plugin/src/sdkPerformance/kotlin/**/*.kt",
         )
         targetExclude("plugin/src/test/testData/**")
         ktlint("1.8.0")
@@ -26,8 +29,8 @@ spotless {
     kotlinGradle {
         target(
             "*.gradle.kts",
-            "plugin/*.gradle.kts",
-            "benchmarks/*.gradle.kts",
+            "*/build.gradle.kts",
+            "tools/pure-build/*.gradle.kts",
         )
         targetExclude("plugin/src/test/testData/**")
         ktlint("1.8.0")
@@ -35,8 +38,8 @@ spotless {
 
     java {
         target(
-            "plugin/src/main/java/**/*.java",
-            "plugin/src/test/java/**/*.java",
+            "*/src/main/java/**/*.java",
+            "*/src/test/java/**/*.java",
             "plugin/src/visualTest/java/**/*.java",
             "benchmarks/src/jmh/java/**/*.java",
         )
@@ -59,5 +62,20 @@ spotless {
 }
 
 tasks.named("check") {
-    dependsOn("spotlessCheck", ":plugin:check", ":benchmarks:jmhJar")
+    dependsOn(
+        "spotlessCheck",
+        ":analysis-model:check",
+        ":analysis-core:check",
+        "verifyProductionModules",
+        gradle.includedBuild("build-logic").task(":check"),
+    )
+    if (findProject(":plugin") != null) {
+        dependsOn(
+            ":editor-ui:check",
+            ":analysis-runtime:check",
+            ":plugin:check",
+            ":plugin:minimumSdkTests",
+            ":benchmarks:jmhJar",
+        )
+    }
 }

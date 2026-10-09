@@ -1,0 +1,20 @@
+{
+  "finalArchiveSha256": "83d4c0a23cdd245b933fb6c663bdddb944a29d1342d01f0d73e72df4631c0da8",
+  "measuredCandidate": "f7599fa39be7d8e93cc339da719b14012ab1a1dd",
+  "measuredInputsMatched": 241,
+  "diffOutsideOutputsEmpty": true,
+  "compiledOwnerClassHashesStillMatch": true,
+  "classCounts": {
+    "analysis-model": 13,
+    "analysis-core": 72,
+    "editor-ui": 258,
+    "analysis-runtime": 174,
+    "plugin": 0
+  },
+  "finalMatrixAllTargetsPassed": true,
+  "finalMatrixTargetCount": 13,
+  "latestRuntimeFixturesPassed": true,
+  "originalCheckoutClean": true,
+  "originalCheckoutStatus": "",
+  "scope": "Final artifact/source consistency after serial verification; existing correctness/performance evidence retains its own scope."
+}

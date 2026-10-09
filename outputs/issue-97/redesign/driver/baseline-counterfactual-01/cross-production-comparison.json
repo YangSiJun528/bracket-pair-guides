@@ -1,0 +1,290 @@
+{
+  "scope": "Same shared12scenarioDriver/corpus and pinnedIDE environment; unchanged baseline072533f production; baseline capture-only is not old golden comparison pass",
+  "allFunctionalAssertionsPassed": true,
+  "xmlSha256": "fff3bf97317d04198d86f58f15bdfd7f22a6a8c1e43ce8d8f758fa52dc647eb6",
+  "all12CrossProductionArgbEqual": true,
+  "all12CrossProductionPngByteEqual": true,
+  "rows": [
+    {
+      "name": "all-components",
+      "baselineToCandidate": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "candidateToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineSha256": "c0b1a94289d81c50b2a037c0d4ec27ab590ac95627b80d2bf2905d93e38ec17e",
+      "candidateSha256": "c0b1a94289d81c50b2a037c0d4ec27ab590ac95627b80d2bf2905d93e38ec17e",
+      "oldOracleSha256": "c0b1a94289d81c50b2a037c0d4ec27ab590ac95627b80d2bf2905d93e38ec17e"
+    },
+    {
+      "name": "bracket-colorization-off",
+      "baselineToCandidate": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "candidateToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineSha256": "b5aaa1ff54354de4e3d3148398499e9844aae60f60d99a5497fad087376a218b",
+      "candidateSha256": "b5aaa1ff54354de4e3d3148398499e9844aae60f60d99a5497fad087376a218b",
+      "oldOracleSha256": "b5aaa1ff54354de4e3d3148398499e9844aae60f60d99a5497fad087376a218b"
+    },
+    {
+      "name": "custom-palette",
+      "baselineToCandidate": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "candidateToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineSha256": "43985437f52792edb4a58191a665cf968b33909eff54dcf5511ffeb7cbde6633",
+      "candidateSha256": "43985437f52792edb4a58191a665cf968b33909eff54dcf5511ffeb7cbde6633",
+      "oldOracleSha256": "43985437f52792edb4a58191a665cf968b33909eff54dcf5511ffeb7cbde6633"
+    },
+    {
+      "name": "default-palette",
+      "baselineToCandidate": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "candidateToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineSha256": "9306a3b39f1649dcd669ccf6cd867fc5cb344eb6abb8558a36e009ca96f039c5",
+      "candidateSha256": "9306a3b39f1649dcd669ccf6cd867fc5cb344eb6abb8558a36e009ca96f039c5",
+      "oldOracleSha256": "9306a3b39f1649dcd669ccf6cd867fc5cb344eb6abb8558a36e009ca96f039c5"
+    },
+    {
+      "name": "edited-geometry",
+      "baselineToCandidate": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineToOldOracle": {
+        "changedArgbPixels": 20,
+        "bboxXYXY": [
+          62,
+          79,
+          63,
+          99
+        ]
+      },
+      "candidateToOldOracle": {
+        "changedArgbPixels": 20,
+        "bboxXYXY": [
+          62,
+          79,
+          63,
+          99
+        ]
+      },
+      "baselineSha256": "ed7b7b0ae4f2e0b043f6afca47a74e5951ff74f50e8d12ad737184672e31c4b1",
+      "candidateSha256": "ed7b7b0ae4f2e0b043f6afca47a74e5951ff74f50e8d12ad737184672e31c4b1",
+      "oldOracleSha256": "050fca89e82ac09e4a07476b08a651cd3982d7ad1eed91d5e5ea9b8a613e4e67"
+    },
+    {
+      "name": "horizontal-only",
+      "baselineToCandidate": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "candidateToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineSha256": "ed2242a7e4ae102f3b3a819d32f8962dc9a8829c9fdd2e58bee6fbb872a2e353",
+      "candidateSha256": "ed2242a7e4ae102f3b3a819d32f8962dc9a8829c9fdd2e58bee6fbb872a2e353",
+      "oldOracleSha256": "ed2242a7e4ae102f3b3a819d32f8962dc9a8829c9fdd2e58bee6fbb872a2e353"
+    },
+    {
+      "name": "native-highlight-suppressed",
+      "baselineToCandidate": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineToOldOracle": {
+        "changedArgbPixels": 2218,
+        "bboxXYXY": [
+          72,
+          59,
+          152,
+          139
+        ]
+      },
+      "candidateToOldOracle": {
+        "changedArgbPixels": 2218,
+        "bboxXYXY": [
+          72,
+          59,
+          152,
+          139
+        ]
+      },
+      "baselineSha256": "7740876545161bdd4630e5b0e376aff889009406a11694600184a84380a7476c",
+      "candidateSha256": "7740876545161bdd4630e5b0e376aff889009406a11694600184a84380a7476c",
+      "oldOracleSha256": "c0b1a94289d81c50b2a037c0d4ec27ab590ac95627b80d2bf2905d93e38ec17e"
+    },
+    {
+      "name": "native-visuals-unmanaged",
+      "baselineToCandidate": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineToOldOracle": {
+        "changedArgbPixels": 2218,
+        "bboxXYXY": [
+          72,
+          59,
+          152,
+          139
+        ]
+      },
+      "candidateToOldOracle": {
+        "changedArgbPixels": 2218,
+        "bboxXYXY": [
+          72,
+          59,
+          152,
+          139
+        ]
+      },
+      "baselineSha256": "d65f06888f934e156b19f17fdcf480a5f711eb62132cedfe7c1721f1df403306",
+      "candidateSha256": "d65f06888f934e156b19f17fdcf480a5f711eb62132cedfe7c1721f1df403306",
+      "oldOracleSha256": "a19675ac9d4aeb1f44308259fd56c2f6975d2cd684cf9f57727ba9e85b062a2e"
+    },
+    {
+      "name": "pair-background-only",
+      "baselineToCandidate": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "candidateToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineSha256": "5ce70457b056c2b1c7187d69973f4c833ddfc9ccab33b13563c0475f5a1cad42",
+      "candidateSha256": "5ce70457b056c2b1c7187d69973f4c833ddfc9ccab33b13563c0475f5a1cad42",
+      "oldOracleSha256": "5ce70457b056c2b1c7187d69973f4c833ddfc9ccab33b13563c0475f5a1cad42"
+    },
+    {
+      "name": "pair-border-only",
+      "baselineToCandidate": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "candidateToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineSha256": "82c70d21107d82fc572ff4354354c407351541f8e26e3f549e5cb0b14805926a",
+      "candidateSha256": "82c70d21107d82fc572ff4354354c407351541f8e26e3f549e5cb0b14805926a",
+      "oldOracleSha256": "82c70d21107d82fc572ff4354354c407351541f8e26e3f549e5cb0b14805926a"
+    },
+    {
+      "name": "plugin-disabled",
+      "baselineToCandidate": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "candidateToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineSha256": "ba301ad47c90f0dc618bf54828e6508fd8a5e959d9b162ff436789941fa9de0a",
+      "candidateSha256": "ba301ad47c90f0dc618bf54828e6508fd8a5e959d9b162ff436789941fa9de0a",
+      "oldOracleSha256": "ba301ad47c90f0dc618bf54828e6508fd8a5e959d9b162ff436789941fa9de0a"
+    },
+    {
+      "name": "vertical-only",
+      "baselineToCandidate": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "candidateToOldOracle": {
+        "changedArgbPixels": 0,
+        "bboxXYXY": null
+      },
+      "baselineSha256": "d77d91ffbc0e9d8cc01961e0811ef42c4b8f3de951d0a20df189a60825513660",
+      "candidateSha256": "d77d91ffbc0e9d8cc01961e0811ef42c4b8f3de951d0a20df189a60825513660",
+      "oldOracleSha256": "d77d91ffbc0e9d8cc01961e0811ef42c4b8f3de951d0a20df189a60825513660"
+    }
+  ],
+  "archiveProof": {
+    "schema": 1,
+    "scope": "baseline072533f release plus additive newbridge only; diagnostic capture, not visual pass",
+    "releaseArchive": "/workspace/plugin/build/distributions/bracket-pair-guides-0.0.6.zip",
+    "releaseSha256": "9a9c5d56f3c1cf23ea11472804bc85072ef1a4f466015e6fcc08aa479c34f5cc",
+    "composedArchive": "/workspace/plugin/build/counterfactual-driver/distributions/baseline-counterfactual-driver.zip",
+    "composedSha256": "770f69d0be5985074846f679326eaa3d06fc81d4220499f22718df0fba7eedc5",
+    "bridgeArchive": "/workspace/plugin/build/counterfactual-driver/bridge/counterfactual-driver-bridge.jar",
+    "bridgeSha256": "f59be9d79279fa1b0ec36158a44f36d4f3015e82abf9f2acbb230f2c84b9fc8d",
+    "addedEntries": [
+      "bracket-pair-guides/lib/counterfactual-driver-bridge.jar"
+    ],
+    "allReleaseEntriesByteEqual": true,
+    "bridgeClasses": [
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$advisoryState$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$caretCycle$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$configure$1$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$configure$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$daemonDiagnostics$1$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$daemonDiagnostics$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$disable$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$dismissAdvisory$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$focusDiagnostics$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$focusEditor$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$insertIndent$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$markupDiagnostics$1$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$markupDiagnostics$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$nativeBraceCount$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$scenario$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$settingsState$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$showEditor$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge$state$1.class",
+      "com/sijunyang/bracketpairguides/testing/EditorContractBridge.class"
+    ]
+  }
+}

@@ -1,160 +1,66 @@
-# Run and Maintain Visual-Test Scenarios
+# Run and review visual contracts
 
-Use this guide to run IntelliJ Driver visual checks, or add, replace, remove,
-or intentionally re-record a scenario. Read the
-[visual-testing reference](reference_visual_testing.md) first; it defines the
-supported coverage boundary, exact scenario catalog, deterministic pins, and
-security contract.
+Read [the rendering reference](reference_visual_testing.md) before changing
+Driver setup, fixture, scenarios or reviewed images. Use Linux x86-64; native
+macOS captures are not compatible with these baselines.
 
-## Choose when and what to validate
+## Compare against reviewed baselines
 
-The visual suite runs automatically for non-draft pull requests to `main`
-without `skip-ci`, except when every changed path is Markdown, under `docs/`,
-or `LICENSE`. Official GitHub Stacks run it on the top pull request. Review the
-**Visual Test** result before merging; no opt-in label is needed. The existing
-scenarios and exact image comparisons run without model calls.
-
-For release validation or a local regression investigation:
-
-1. Choose the commit or working-tree change to test. For a release, record the
-   candidate's full commit SHA and test that exact candidate.
-2. On GitHub, manually run **Visual Test Scenarios v2** with the candidate SHA
-   in its `commit_sha` input. For a local run, use the Docker command below;
-   release validation requires a clean checkout at the candidate SHA because
-   the runner includes uncommitted changes.
-3. Check the run result and reports. Record the tested SHA, pass/fail result,
-   and workflow run link or local results directory in the PR or release
-   validation notes. For development runs with uncommitted changes, also
-   identify those changes; the SHA alone does not describe the tested source.
-
-Automated visual checks use the pinned Linux environment only. A failure
-requires investigation; comparison runs never update baselines automatically.
-For OS-specific rendering investigations, use the
-[manual QA sandbox](guide_manual_qa.md).
-
-## Prepare the change
-
-1. Confirm that the change creates a distinct user-visible editor result that
-   an ordinary test or an existing baseline cannot prove.
-2. Choose a behavior-based kebab-case identifier and one existing feature
-   group.
-3. Preserve unrelated working-tree changes and inspect the nearest ordinary
-   tests, especially native ownership and restoration coverage.
-
-## Update a scenario
-
-1. Reset the full scenario boundary, then define a complete group-base
-   preference snapshot with only the intended scenario delta.
-2. Send every preference through production `applySettings(...)`; keep the
-   Driver bridge limited to primitive/String transport, deterministic setup,
-   caret refresh, and observable queries.
-3. Add the capture to the end-of-session mismatch collection. Use bounded
-   readiness polling and two consecutive exact stable crops.
-4. Update the producer uploads, reporter allowlists and galleries, the Linux
-   baseline catalog, and the reference in the same change.
-5. For removal, delete the Linux baseline and every consumer of
-   the identifier. Preserve any distinct transition assertion that reused the
-   removed image.
-
-## Run without interrupting the desktop
-
-Start Docker, then run from the repository root:
-
-```bash
-./scripts/visual-test-background.sh
+```sh
+export VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1
+export LANG=C.UTF-8 LC_ALL=C.UTF-8 TZ=UTC
+xvfb-run -a --auth-file "$HOME/.Xauthority" -s '-screen 0 1920x1080x24 -dpi 96 -nolisten tcp' ./gradlew :plugin:visualTest
 ```
 
-The runner tests the current working tree, including uncommitted changes, in a
-Linux container with its own Xvfb display. IDE focus and mouse actions stay
-inside that display. The terminal remains attached to show progress; here,
-"background" means that the test does not take over the host desktop.
+The pinned Starter removes `XAUTHORITY` from the IDE child environment. Store the
+Xvfb cookie in the inherited user home's default `.Xauthority` file so X11
+authentication remains enabled without that variable. Keep TCP listening disabled.
 
-Read the log and reports in the printed
-`build/visual-test-background/run.XXXXXX` directory, where the suffix is unique
-to each run. This command compares the existing Linux baselines only. Native
-macOS screenshot comparison and recording are not supported.
+Inspect `plugin/build/reports/tests/visualTest` and the actual images in
+`plugin/build/visual-test-artifacts`. A missing image, missing baseline or failed
+IDE startup is a failure, not a skipped visual assertion. Inspect
+`setup-daemon-observed.txt` and each `*-daemon-observed.txt` as well. Initial
+setup waits for standard Driver background indicators and stable smart mode,
+then file analysis. Each capture separately requires committed, non-indexing,
+completed daemon state before and after screenshots at the same stamp, followed
+by two identical images. The 30-second capture budget remains unchanged; do not
+replace these observations with sleeps or forced daemon/caret events.
 
-The first run downloads the container image, IDE, and build dependencies and
-can require several gigabytes. The runner reuses
-`build/visual-test-background/cache`; set `VISUAL_TEST_CACHE_DIR` to an absolute
-directory to use another dedicated Linux cache. Apple silicon runs the x86-64
-container through emulation, so it can take longer than native tests.
+## Prepare new baseline candidates
 
-Starter reuses the IDE extracted in the Gradle cache. Older runner versions also
-created a `starter` directory inside the cache with a duplicate installer and
-extracted IDE. Once no test container is running, that old `starter` directory
-can be removed. Keep the `gradle` directory to avoid downloading dependencies
-again.
+Run only for an intentional suite or rendering change, outside CI:
 
-## Record and review baselines
-
-Run the exact comparison first with `./scripts/visual-test-background.sh`.
-
-Create only missing baselines after the behavior and pins are stable. On a
-Linux x86-64 host, use the required environment and display:
-
-```bash
-VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1 \
-  xvfb-run --auto-servernum \
-  --server-args="-screen 0 1920x1080x24 -dpi 96 -nolisten tcp -ac" \
-  ./gradlew :plugin:recordVisualTestBaseline
+```sh
+xvfb-run -a --auth-file "$HOME/.Xauthority" -s '-screen 0 1920x1080x24 -dpi 96 -nolisten tcp' ./gradlew :plugin:captureVisualTestCandidates
 ```
 
-Use `-PforceVisualBaselineOverwrite=true` only when an intentional visual or
-pinned-environment change must replace existing files. Inspect every changed
-Linux PNG, verify the directory contains exactly the catalog's 11 files, and
-rerun the comparison under the pinned Linux environment. Never record or accept
-a baseline in CI.
+This command produces candidates in the artifacts directory and does not
+establish comparison success. Review all twelve images for the expected geometry,
+current repair and native restoration. In particular, verify that the closing
+indentation edit moves the active guide from column 8 to 10; a text-only movement
+is not sufficient. Default/custom palette images must contain identical component
+choices, width and opacity while showing the intended independent colors.
+The same run must also pass the real Settings checkbox/Apply/focus transaction
+and public native-conflict notification/balloon observations; captured images alone
+do not replace those contracts. Investigate unexpected pixel changes;
+do not weaken equality or automatically copy candidates to make a failure pass.
+After review, copy the accepted images to
+`plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/`
+using scenario names without the `-actual` suffix. Record the source revision,
+environment and review decision, then run comparison again.
 
-For a crop-only contract change, crop the committed Linux baselines with the
-same fixed rectangle used by the harness. Verify that every
-retained decoded pixel matches the original baseline and that only pixels
-outside the visual contract were removed. For the current contract, the source
-rectangle is `(0, 1, 220, 239)` within the former `220 x 240` crop. Update the
-trusted reporter's required image dimensions in the same change, inspect the
-full editor screenshots in diagnostics for clipping, and rerun comparison under
-the pinned Linux environment. Mechanical migration preserves prior rendering
-expectations; it does not replace a successful comparison run.
+A rendering removal/disable mutation must make the relevant comparison fail.
+Keep the failure evidence when establishing a newly written visual contract.
 
-When the image schema changes, give the producer a new workflow name and update
-the reporter's `workflow_run` subscription and name validations in the same
-change. Preserve the producer path checks and require only the new dimensions.
-For the current `Visual Test Scenarios v2` rollout, inspect the introducing pull
-request's uploaded captures and diagnostics directly: its producer runs, but
-the previous default-branch reporter does not consume v2 runs. The updated
-reporter handles eligible v2 completions after merge. Do not record baselines
-in CI or loosen the reporter to accept both schemas during the transition.
-
-When comparison fails, inspect the baseline/current pair and full editor
-screenshot before identifying a product regression. A mismatch reports
-different pixels and still fails the exact assertion; its cause may also be an
-intended change or a difference in the pinned rendering environment. Keep the
-comparison strict within the fixed crop instead of adding a whole-image
-tolerance.
-
-## Prove failure sensitivity
-
-Temporarily remove or disable the corresponding production rendering behavior,
-or invert the scenario's requested visual state while keeping readiness valid.
-Run `./scripts/visual-test-background.sh` and confirm that the named readiness
-or exact-baseline assertion fails. A mutation that reaches a valid capture must also
-emit its baseline/current pair. Revert the temporary mutation completely,
-rerun the exact comparison, and retain no sabotage code or generated mismatch
-artifact.
-
-For a crop change, also verify that removing a guide or shifting it by one pixel
-inside the retained area still fails exact comparison. Excluding the editor tab
-boundary must not reduce sensitivity to plugin rendering.
-
-## Validate the complete change
-
-Run the ordinary suite so non-visual ownership, restoration, override, and
-notification contracts remain intact:
-
-```bash
-./gradlew check
-```
-
-Validate workflow syntax and embedded reporter JavaScript, inspect the final
-baseline inventory and PNG dimensions, and review the producer/reporter diff
-for read-only pull-request execution and final pre-publication revalidation.
+When a difference appears to be a native SDK decoration, establish causality
+before revising an oracle. The redesign's three settled-state corrections used
+unchanged baseline production `072533f` with the identical Driver suite and
+rendering environment. All twelve baseline/candidate images matched exactly;
+the previous nine unaffected oracles also remained exact. The evidence is in
+`outputs/issue-97/redesign/driver/baseline-counterfactual-01/cross-production-comparison.json`;
+independent review and the preserved three previous images are in
+`outputs/issue-97/redesign/driver/settled-oracle-review/`. Diagnostic capture alone
+is not an old-oracle comparison pass. Preserve failures, inspect the semantic
+SDK state, and independently review any intentional correction before rerunning
+exact comparison and the paint-removal mutation. Never force stale SDK markup
+to reproduce an intermediate image.

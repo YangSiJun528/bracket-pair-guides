@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndexTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:14:34.206Z" hostname="sijun-yangui-MacBookPro.local" time="0.112">
+  <properties/>
+  <testcase name="selects the innermost pair and falls back to its parent" classname="com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndexTest" time="0.013"/>
+  <testcase name="index construction honors cancellation" classname="com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndexTest" time="0.001"/>
+  <testcase name="later opener wins even for crossing language ranges" classname="com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndexTest" time="0.0"/>
+  <testcase name="empty pair is active between its tokens" classname="com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndexTest" time="0.001"/>
+  <testcase name="deep index construction and repeated caret lookup stay bounded" classname="com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndexTest" time="0.054"/>
+  <testcase name="uses strict bracket boundaries" classname="com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndexTest" time="0.0"/>
+  <testcase name="malformed pair cannot hide a valid containing pair" classname="com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndexTest" time="0.0"/>
+  <testcase name="primitive sweep matches a brute force lookup for crossing ranges" classname="com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndexTest" time="0.042"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

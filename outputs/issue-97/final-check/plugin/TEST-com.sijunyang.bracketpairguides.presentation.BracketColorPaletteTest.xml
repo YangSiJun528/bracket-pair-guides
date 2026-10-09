@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.presentation.BracketColorPaletteTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:55.662Z" hostname="sijun-yangui-MacBookPro.local" time="0.176">
+  <properties/>
+  <testcase name="testExplicitDefaultPaletteDrivesEveryComponentByDefault" classname="com.sijunyang.bracketpairguides.presentation.BracketColorPaletteTest" time="0.036"/>
+  <testcase name="testPairAttributesUseBoxBorderAndNamedBackgroundComponent" classname="com.sijunyang.bracketpairguides.presentation.BracketColorPaletteTest" time="0.044"/>
+  <testcase name="testDisabledComponentOverridesApplyBaseWithoutDiscardingSavedColors" classname="com.sijunyang.bracketpairguides.presentation.BracketColorPaletteTest" time="0.025"/>
+  <testcase name="testAdvancedColorsOverrideEachComponentIndependently" classname="com.sijunyang.bracketpairguides.presentation.BracketColorPaletteTest" time="0.034"/>
+  <testcase name="testZeroPercentBackgroundDoesNotCoverOtherEditorHighlights" classname="com.sijunyang.bracketpairguides.presentation.BracketColorPaletteTest" time="0.036"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

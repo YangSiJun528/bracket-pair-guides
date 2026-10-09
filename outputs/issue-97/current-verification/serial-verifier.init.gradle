@@ -1,0 +1,76 @@
+// Current issue #97 full-matrix verification. Record fresh metadata before serial execution.
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
+gradle.projectsEvaluated {
+    def p = gradle.rootProject.project(':plugin')
+    def verification = p.extensions.getByName('intellijPlatform').pluginVerification
+    def manifest = p.rootProject.file(p.providers.gradleProperty('verifierMatrixPath').getOrElse('outputs/issue-97/current-verification/current-matrix.json'))
+    def target = p.providers.gradleProperty('verifierTarget').orNull
+    def idePath = p.providers.gradleProperty('verifierIdePath').orNull
+    p.tasks.register('recordSerialVerifierMatrix') {
+        group = 'verification'
+        doLast {
+            if (manifest.exists()) throw new GradleException('Matrix already recorded: ' + manifest)
+            // recommended() uses this same fallback provider. Do not inspect IDE configuration
+            // dependencies/files here: cached installer dependencies can initiate downloads.
+            def absent = p.providers.provider { null }
+            def recommended = verification.ides.orRecommendedFromStringProvider(absent).get()
+            def loader = verification.class.classLoader
+            def types = loader.loadClass('org.jetbrains.intellij.platform.gradle.IntelliJPlatformType')
+            def source = p.file('build.gradle.kts').text
+            def explicit = []
+            (source =~ /create\(IntelliJPlatformType\.(\w+), "([^"]+)"\)/).each { match ->
+                def type = types.getField(match[1]).get(null)
+                explicit.add(type.code + '-' + match[2])
+            }
+            if (explicit.size() != 4) throw new GradleException('Review matrix extraction: explicit target declarations changed')
+            def record = [recommended: recommended, explicit: explicit,
+                          targets: (recommended + explicit).unique(),
+                          failureLevels: verification.failureLevel.get()*.toString(),
+                          declaration: 'recommended() plus explicit create declarations in plugin/build.gradle.kts',
+                          pluginApi: '2.19.0']
+            if (record.targets.size() != 13) throw new GradleException('Current target matrix changed: review all targets before verification')
+            def requiredLevels = ['COMPATIBILITY_PROBLEMS', 'DEPRECATED_API_USAGES', 'EXPERIMENTAL_API_USAGES',
+                'INTERNAL_API_USAGES', 'OVERRIDE_ONLY_API_USAGES', 'NON_EXTENDABLE_API_USAGES',
+                'MISSING_DEPENDENCIES', 'INVALID_PLUGIN']
+            if (record.failureLevels != requiredLevels) throw new GradleException('All eight strict failure levels are required')
+            manifest.parentFile.mkdirs()
+            manifest.text = JsonOutput.prettyPrint(JsonOutput.toJson(record)) + '\n'
+            logger.lifecycle('Frozen full verifier matrix: ' + manifest)
+        }
+    }
+    if (target != null || idePath != null) {
+        if (!target || !idePath || !manifest.isFile()) {
+            throw new GradleException('Supply both verifierTarget and verifierIdePath after recording the full matrix')
+        }
+        def matrix = new JsonSlurper().parse(manifest)
+        if (!matrix.targets.contains(target)) throw new GradleException('Target is outside the frozen full matrix: ' + target)
+        def ide = p.file(idePath)
+        if (!ide.isDirectory()) throw new GradleException('Existing extracted IDE required: ' + ide)
+        p.tasks.named('verifyPlugin').configure { verifier ->
+            if (verifier.failureLevel.get()*.toString() != matrix.failureLevels) {
+                throw new GradleException('Verifier failure levels differ from the frozen record')
+            }
+            // Replace only the selected task input; leave declared matrix and failure levels intact.
+            // This removes its dependency on resolving the full IDE-download configuration.
+            verifier.ides.setFrom(p.files(ide))
+            verifier.verificationReportsDirectory.set(p.rootProject.layout.projectDirectory.dir(
+                p.providers.gradleProperty('verifierReportPath').getOrElse('outputs/issue-97/current-verification/reports/' + target)))
+            verifier.outputs.upToDateWhen { false }
+            verifier.doFirst {
+                if (verifier.ides.files.size() != 1) throw new GradleException('Expected exactly one local IDE')
+                def infoFile = ['product-info.json', 'Resources/product-info.json', 'Contents/Resources/product-info.json']
+                    .collect { new File(ide, it) }.find { it.isFile() }
+                if (!infoFile) throw new GradleException('IDE product-info.json missing: ' + ide)
+                def info = new JsonSlurper().parse(infoFile)
+                def version = target.substring(target.indexOf('-') + 1)
+                if (info.productCode != target.substring(0, target.indexOf('-'))) throw new GradleException('IDE product mismatch: ' + info.productCode + ' for ' + target)
+                def actual = version ==~ /\d{3}\..*/ ? info.buildNumber : info.version
+                if (actual != version) throw new GradleException('Target/version mismatch: ' + target + ' versus ' + actual)
+                logger.lifecycle('Frozen target ' + target + '; actual product ' + info.productCode +
+                    '; version ' + info.version + '; build ' + info.buildNumber + '; path ' + ide)
+            }
+        }
+    }
+}

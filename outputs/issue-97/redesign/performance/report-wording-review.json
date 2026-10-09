@@ -1,0 +1,8 @@
+{
+  "recordedUtc": "2026-10-08T13:41:04.857065+00:00",
+  "reviewedBy": "main",
+  "scriptSha256": "158313b8fdd51ea27e8cc198fcb86d2d0df274dddecab3bcc276b1bc9a1a033c",
+  "scope": "Metadata and wording only; inspected git diff. JMH mean over 2 forks x 3 iterations distinguished from SDK per-fixture trial median/p95. Numeric calculations, counts, thresholds and raw data untouched. Formal reporter not yet executed.",
+  "syntax": "AST parsed",
+  "priorSchemaPreflight": "reporter-schema-preflight.json"
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.snapshot.DocumentBracketIndexesTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:40:40.270Z" hostname="sijun-yangui-MacBookPro.local" time="0.409">
+  <properties/>
+  <testcase name="testEquivalentIndexCandidatesShareTheCanonicalInstance" classname="com.sijunyang.bracketpairguides.analysis.snapshot.DocumentBracketIndexesTest" time="0.053"/>
+  <testcase name="testLateCalculationUsesItsCapturedRevisionForCanonicalization" classname="com.sijunyang.bracketpairguides.analysis.snapshot.DocumentBracketIndexesTest" time="0.047"/>
+  <testcase name="testTabSizeIsCanonicalBoundaryOnlyForGuideIndexes" classname="com.sijunyang.bracketpairguides.analysis.snapshot.DocumentBracketIndexesTest" time="0.054"/>
+  <testcase name="testTokenOnlyIndexesShareByExactObservableContentWithoutRetainingPairGeometry" classname="com.sijunyang.bracketpairguides.analysis.snapshot.DocumentBracketIndexesTest" time="0.037"/>
+  <testcase name="testSplitEditorsKeepSnapshotAndPairMemoizationSeparate" classname="com.sijunyang.bracketpairguides.analysis.snapshot.DocumentBracketIndexesTest" time="0.076"/>
+  <testcase name="testCanonicalizationIsCancellableAndDoesNotSerializeUnrelatedDocuments" classname="com.sijunyang.bracketpairguides.analysis.snapshot.DocumentBracketIndexesTest" time="0.049"/>
+  <testcase name="testRevisionLayoutAndCoverageAreExactCanonicalBoundaries" classname="com.sijunyang.bracketpairguides.analysis.snapshot.DocumentBracketIndexesTest" time="0.049"/>
+  <testcase name="testPairHashCollisionCannotCanonicalizeDifferentGeometry" classname="com.sijunyang.bracketpairguides.analysis.snapshot.DocumentBracketIndexesTest" time="0.043"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

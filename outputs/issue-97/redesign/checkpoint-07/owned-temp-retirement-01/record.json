@@ -1,0 +1,23 @@
+{
+  "createdUtc": "2026-10-08T16:29:44.222586+00:00",
+  "target": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build-logic/build/tmp/test/work/.gradle-test-kit/caches/9.8.0/transforms",
+  "ownershipPlan": "../owned-temp-retirement-plan.md",
+  "noSymlinkRoot": true,
+  "containedInOwnedWorktree": true,
+  "consumerProcesses": [],
+  "lsofExit": 1,
+  "lsofStderr": "",
+  "freeBefore": 11167498240,
+  "allocatedKiBBefore": 2748492,
+  "preserved": [
+    "all root XML",
+    "buildlogic-binary-results",
+    "buildlogic-html",
+    "root outer logs",
+    "all TestKit daemon logs"
+  ],
+  "scope": "Only task-local reconstructible TestKit Gradle9.8 transformed-dependency cache; no shared home cache/IDE/source/evidence deletion",
+  "removed": true,
+  "freeAfter": 13989220352,
+  "recoveredBytes": 2821722112
+}

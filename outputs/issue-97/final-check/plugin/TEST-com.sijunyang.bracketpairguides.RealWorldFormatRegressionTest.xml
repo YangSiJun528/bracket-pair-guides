@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.RealWorldFormatRegressionTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:12.110Z" hostname="sijun-yangui-MacBookPro.local" time="4.891">
+  <properties/>
+  <testcase name="testJavaSource" classname="com.sijunyang.bracketpairguides.RealWorldFormatRegressionTest" time="3.907"/>
+  <testcase name="testJsonDocument" classname="com.sijunyang.bracketpairguides.RealWorldFormatRegressionTest" time="0.339"/>
+  <testcase name="testKotlinScript" classname="com.sijunyang.bracketpairguides.RealWorldFormatRegressionTest" time="0.363"/>
+  <testcase name="testKotlinSource" classname="com.sijunyang.bracketpairguides.RealWorldFormatRegressionTest" time="0.281"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Configuration file for j.u.l.LogManager does not exist: /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/test-log.properties
+[   2938]   WARN - #c.i.s.ComponentManagerImpl - com.sijunyang.bracketpairguides.analysis.pairing.BraceLanguageCatalog <clinit> requests com.intellij.codeInsight.highlighting.FileTypeBraceMatcher instance. Class initialization must not depend on services. Consider using instance of the service on-demand instead.
+]]></system-err>
+</testsuite>

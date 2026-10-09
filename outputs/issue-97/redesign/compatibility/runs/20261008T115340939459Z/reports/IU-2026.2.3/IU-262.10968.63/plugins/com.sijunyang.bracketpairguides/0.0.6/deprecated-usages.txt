@@ -1,0 +1,1 @@
+Deprecated method com.intellij.openapi.editor.Document.addDocumentListener(com.intellij.openapi.editor.event.DocumentListener listener) : void is invoked in com.sijunyang.bracketpairguides.runtime.session.DocumentCalculation.acquire() : void

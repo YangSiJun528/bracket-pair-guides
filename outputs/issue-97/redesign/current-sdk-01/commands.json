@@ -1,0 +1,36 @@
+[
+  {
+    "name": "format",
+    "command": [
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=2",
+      "--no-configuration-cache",
+      "spotlessApply",
+      "spotlessCheck",
+      "--console=plain"
+    ],
+    "startedUtc": "2026-10-08T10:20:16.256061+00:00",
+    "exitCode": 0,
+    "seconds": 13.62947392463684
+  },
+  {
+    "name": "current",
+    "command": [
+      "./gradlew",
+      "--no-daemon",
+      "--no-parallel",
+      "--max-workers=2",
+      "--no-configuration-cache",
+      "-Pkotlin.compiler.execution.strategy=in-process",
+      "-Dorg.gradle.jvmargs=-Xmx4g",
+      ":plugin:currentSdkTests",
+      ":plugin:compileSdkPerformanceKotlin",
+      "--console=plain",
+      "--stacktrace"
+    ],
+    "startedUtc": "2026-10-08T10:20:29.957146+00:00",
+    "exitCode": 0,
+    "seconds": 185.56225991249084
+  }
+]

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.BracketAnalysisTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:40:32.573Z" hostname="sijun-yangui-MacBookPro.local" time="2.104">
+  <properties/>
+  <testcase name="testAnalyzePropagatesCoroutineCancellationDuringCapture" classname="com.sijunyang.bracketpairguides.analysis.BracketAnalysisTest" time="0.1"/>
+  <testcase name="testHighlighterReplacementDuringCaptureRejectsTheAttemptStamp" classname="com.sijunyang.bracketpairguides.analysis.BracketAnalysisTest" time="0.101"/>
+  <testcase name="testGuideCapacityKeepsExactPairAndTokenIndexesWithoutPublishingAGuide" classname="com.sijunyang.bracketpairguides.analysis.BracketAnalysisTest" time="0.454"/>
+  <testcase name="testCoverageBuildsOnlyRequestedArtifacts" classname="com.sijunyang.bracketpairguides.analysis.BracketAnalysisTest" time="0.096"/>
+  <testcase name="testProductPendingOpenCapacityAcceptsTheBoundaryAndRejectsTheNextOpen" classname="com.sijunyang.bracketpairguides.analysis.BracketAnalysisTest" time="0.215"/>
+  <testcase name="testUnavailableOutcomeRetainsTheAttemptStampWithoutAPartialSnapshot" classname="com.sijunyang.bracketpairguides.analysis.BracketAnalysisTest" time="0.061"/>
+  <testcase name="testProductPairCapacityAcceptsTheBoundaryAndRejectsTheNextPair" classname="com.sijunyang.bracketpairguides.analysis.BracketAnalysisTest" time="0.993"/>
+  <testcase name="testAnalyzePreservesStampAndAnswersOnlyPublicQueries" classname="com.sijunyang.bracketpairguides.analysis.BracketAnalysisTest" time="0.083"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

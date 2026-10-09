@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.EditorContentRepaintTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:27.736Z" hostname="sijun-yangui-MacBookPro.local" time="0.351">
+  <properties/>
+  <testcase name="testDisplayedMultilineVerticalGuidePublishesANativeConflictCandidate" classname="com.sijunyang.bracketpairguides.editor.EditorContentRepaintTest" time="0.064"/>
+  <testcase name="testHorizontallyClippedOutGuideDoesNotPublishANativeConflictCandidate" classname="com.sijunyang.bracketpairguides.editor.EditorContentRepaintTest" time="0.043"/>
+  <testcase name="testCollapsedMultilineGuideDoesNotPublishANativeConflictCandidate" classname="com.sijunyang.bracketpairguides.editor.EditorContentRepaintTest" time="0.046"/>
+  <testcase name="testSingleLineGuideDoesNotPublishANativeConflictCandidate" classname="com.sijunyang.bracketpairguides.editor.EditorContentRepaintTest" time="0.039"/>
+  <testcase name="testHorizontalOnlyGuideDoesNotPublishANativeConflictCandidate" classname="com.sijunyang.bracketpairguides.editor.EditorContentRepaintTest" time="0.037"/>
+  <testcase name="testCaretMoveRepaintsOnlyTheVisibleEditorArea" classname="com.sijunyang.bracketpairguides.editor.EditorContentRepaintTest" time="0.044"/>
+  <testcase name="testClippedOutMultilineGuideDoesNotPublishANativeConflictCandidate" classname="com.sijunyang.bracketpairguides.editor.EditorContentRepaintTest" time="0.04"/>
+  <testcase name="testCaretMoveFallsBackToFullRepaintWithoutAViewport" classname="com.sijunyang.bracketpairguides.editor.EditorContentRepaintTest" time="0.037"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

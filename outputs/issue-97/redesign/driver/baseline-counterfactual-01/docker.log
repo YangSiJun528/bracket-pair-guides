@@ -1,0 +1,91 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-model:compileKotlin FROM-CACHE
+> Task :analysis-model:compileJava NO-SOURCE
+> Task :analysis-core:compileKotlin FROM-CACHE
+> Task :analysis-core:compileJava FROM-CACHE
+> Task :analysis-core:processResources NO-SOURCE
+> Task :analysis-core:classes UP-TO-DATE
+> Task :analysis-core:jar
+> Task :analysis-model:processResources NO-SOURCE
+> Task :analysis-model:classes UP-TO-DATE
+> Task :analysis-model:jar
+> Task :analysis-runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-runtime:processResources NO-SOURCE
+> Task :editor-ui:processResources NO-SOURCE
+> Task :plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :plugin:initializeIntellijPlatformPlugin
+> Task :plugin:patchPluginXml FROM-CACHE
+> Task :plugin:processResources
+> Task :plugin:generateManifest FROM-CACHE
+> Task :plugin:processCounterfactualDriverResources
+> Task :plugin:processVisualTestResources
+> Task :editor-ui:compileKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :editor-ui:compileJava FROM-CACHE
+> Task :editor-ui:classes UP-TO-DATE
+> Task :editor-ui:jar
+
+> Task :analysis-runtime:compileKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :analysis-runtime:compileJava FROM-CACHE
+> Task :analysis-runtime:classes UP-TO-DATE
+> Task :analysis-runtime:jar
+> Task :plugin:compileKotlin NO-SOURCE
+> Task :plugin:compileJava NO-SOURCE
+> Task :plugin:classes
+> Task :plugin:instrumentCode FROM-CACHE
+> Task :plugin:jar
+> Task :plugin:instrumentedJar FROM-CACHE
+> Task :plugin:composedJar FROM-CACHE
+> Task :plugin:prepareSandbox
+> Task :plugin:buildSearchableOptions SKIPPED
+> Task :plugin:prepareJarSearchableOptions SKIPPED
+> Task :plugin:jarSearchableOptions SKIPPED
+> Task :plugin:buildPlugin
+
+> Task :plugin:compileCounterfactualBridgeKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :plugin:compileCounterfactualDriverKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :plugin:compileCounterfactualDriverJava NO-SOURCE
+> Task :plugin:compileCounterfactualBridgeJava NO-SOURCE
+> Task :plugin:counterfactualDriverBridgeJar
+> Task :plugin:buildCounterfactualDriverPlugin
+> Task :plugin:counterfactualDriverClasses
+> Task :plugin:prepareSandbox_visualTest
+
+> Task :plugin:compileVisualTestKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :plugin:compileVisualTestJava NO-SOURCE
+> Task :plugin:visualTestClasses
+
+> Task :plugin:visualTest
+COUNTERFACTUAL DIAGNOSTIC CAPTURE ONLY: assertions remain enabled; no reviewed image updates or visual-pass claim
+
+
+(java:352): dbind-WARNING **: 11:21:32.182: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+[11:22:04]:    ... terminating process `jcmd-run` by request from external process (either SIGTERM or SIGKILL is caught) ...
+[11:22:04]: ... Shutdown in progress
+[11:22:04]: Couldn't find appropriate java process id for pid 427
+[11:22:04]:   ... failed external process `jcmd-run` with exit code 143
+[11:22:04]: Retrying in 3s ...
+
+[Incubating] Problems report is available at: file:///workspace/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 4m 49s
+30 actionable tasks: 20 executed, 10 from cache

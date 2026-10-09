@@ -1,0 +1,8 @@
+{
+  "reviewedUtc": "2026-10-08T11:58:09.632503+00:00",
+  "overlayFileCount": 26,
+  "archiveEntriesMatchManifest": true,
+  "exactBaselineAndProtectedSourceCheckPassed": true,
+  "completePatchReverseCheckPassed": true,
+  "scope": "Source/configuration snapshot only; no measurement acceptance"
+}

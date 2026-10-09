@@ -1,0 +1,32 @@
+{
+  "recordedUtc": "2026-10-08T13:41:04.857065+00:00",
+  "head": "8ea07aa86cf939d9a5e945bec180079ecc28eb60",
+  "active": null,
+  "completedAfterListenerFix": {
+    "minimumSdk": 29,
+    "currentSdk": 29,
+    "sameCaseIdentities": true,
+    "packageStructureAndConfiguration": true,
+    "source": "../listener-lifetime-01/verified-evidence.json",
+    "releaseSha256": "609f09d3db8c14cf66aafc77b1f24bdfa9062a874d877f42013e406436f161ef",
+    "rootCheck134": "../final-check-06/summary.json",
+    "qodanaZero": "../qodana/run-04/summary.json",
+    "driverExact12": "../driver/compare-12/verification.json",
+    "driverProductionEquivalence": "../driver/compare-12/production-equivalence.json",
+    "compatibility13": "compatibility/runs/20261008T125349781364Z/main-review.json"
+  },
+  "firstMatrix": "../compatibility/runs/20261008T115340939459Z/summary.json",
+  "firstMatrixStatus": "FAILED: IC5 pass; IU4 same deprecated API; last4 not run diskguard",
+  "ownedCacheCleanup": "../compatibility/owned-cache-retirement-01/summary.json",
+  "pending": [
+    "commit final pre-measurement evidence while all agents frozen",
+    "refresh all16 isolated SDK setup/prebuilt producers after official tasks",
+    "verify final frozen JMH jars against fingerprint02",
+    "six paired pure60 and SDK96 invocations serially; no selective retries",
+    "main statistical assessment and actual Gradle BMF export equality",
+    "final report/local commit/Goal completion only when required checks really finish"
+  ],
+  "formalPerformanceRun": false,
+  "agentsFrozen": true,
+  "remoteActionsAuthorized": false
+}

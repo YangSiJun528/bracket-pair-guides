@@ -1,0 +1,30 @@
+{
+    "schema": 1,
+    "mode": "manual-registry-events-no-auto-startup-pass",
+    "roots": [
+        {
+            "sourceSet": "test",
+            "originalRoot": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/resources/test",
+            "overlayRoot": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/test-resources/test",
+            "originalDescriptorSha256": "409ae6a0277fbcda7c23b853f71c73aa98ba767f3bc039a4d644bc0a34406cbf",
+            "measuredDescriptorSha256": "bb3c21f1281d4210e85df47c3887e5dc16f5bd0edfacef5fae0007fdff1e6e44",
+            "entries": 1,
+            "changedEntries": [
+                "META-INF/plugin.xml"
+            ],
+            "nonDescriptorEntriesUnchanged": true
+        },
+        {
+            "sourceSet": "sdkPerformance",
+            "originalRoot": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/resources/sdkPerformance",
+            "overlayRoot": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/sdk-measurement/test-resources/sdkPerformance",
+            "originalDescriptorSha256": "409ae6a0277fbcda7c23b853f71c73aa98ba767f3bc039a4d644bc0a34406cbf",
+            "measuredDescriptorSha256": "bb3c21f1281d4210e85df47c3887e5dc16f5bd0edfacef5fae0007fdff1e6e44",
+            "entries": 1,
+            "changedEntries": [
+                "META-INF/plugin.xml"
+            ],
+            "nonDescriptorEntriesUnchanged": true
+        }
+    ]
+}

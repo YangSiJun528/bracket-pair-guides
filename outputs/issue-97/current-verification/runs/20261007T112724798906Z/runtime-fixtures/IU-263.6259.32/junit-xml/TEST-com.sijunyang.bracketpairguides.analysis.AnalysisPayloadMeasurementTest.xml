@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.AnalysisPayloadMeasurementTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:40:31.674Z" hostname="sijun-yangui-MacBookPro.local" time="0.049">
+  <properties/>
+  <testcase name="testPayloadMeasurements" classname="com.sijunyang.bracketpairguides.analysis.AnalysisPayloadMeasurementTest" time="0.049"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

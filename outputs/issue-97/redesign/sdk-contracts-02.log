@@ -1,0 +1,263 @@
+Starting a Gradle Daemon, 1 stopped Daemon could not be reused, use --status for details
+> Task :build-logic:compileJava NO-SOURCE
+> Task :build-logic:compileGroovy UP-TO-DATE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+> Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-model:compileKotlin UP-TO-DATE
+> Task :analysis-model:compileJava NO-SOURCE
+> Task :analysis-model:processResources NO-SOURCE
+> Task :analysis-model:classes UP-TO-DATE
+> Task :analysis-model:jar UP-TO-DATE
+> Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-core:compileKotlin UP-TO-DATE
+> Task :analysis-core:compileJava UP-TO-DATE
+> Task :analysis-runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-runtime:processResources NO-SOURCE
+> Task :editor-ui:processResources NO-SOURCE
+> Task :plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :plugin:initializeIntellijPlatformPlugin
+> Task :plugin:patchPluginXml UP-TO-DATE
+> Task :plugin:processResources UP-TO-DATE
+> Task :plugin:generateManifest UP-TO-DATE
+> Task :analysis-core:processResources NO-SOURCE
+> Task :analysis-core:classes UP-TO-DATE
+> Task :analysis-core:jar UP-TO-DATE
+> Task :analysis-runtime:processTestResources NO-SOURCE
+> Task :editor-ui:processTestResources NO-SOURCE
+> Task :plugin:processTestResources UP-TO-DATE
+
+> Task :editor-ui:compileKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :editor-ui:compileJava UP-TO-DATE
+> Task :editor-ui:classes UP-TO-DATE
+> Task :editor-ui:jar
+> Task :editor-ui:compileTestKotlin UP-TO-DATE
+> Task :editor-ui:compileTestJava NO-SOURCE
+> Task :editor-ui:testClasses UP-TO-DATE
+> Task :editor-ui:test
+
+> Task :analysis-runtime:compileKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :analysis-runtime:compileJava UP-TO-DATE
+> Task :analysis-runtime:classes UP-TO-DATE
+> Task :analysis-runtime:jar
+> Task :plugin:compileKotlin
+> Task :plugin:compileJava NO-SOURCE
+> Task :plugin:classes UP-TO-DATE
+> Task :plugin:jar UP-TO-DATE
+> Task :plugin:instrumentCode UP-TO-DATE
+> Task :plugin:instrumentedJar UP-TO-DATE
+> Task :plugin:composedJar UP-TO-DATE
+> Task :plugin:prepareSandbox_minimumSdkTests
+> Task :plugin:prepareTestSandbox
+> Task :plugin:prepareTest
+
+> Task :plugin:compileTestKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :plugin:compileTestJava NO-SOURCE
+> Task :plugin:testClasses UP-TO-DATE
+> Task :plugin:instrumentTestCode
+
+> Task :analysis-runtime:compileTestKotlin
+w: Language version 1.9 is deprecated in JVM and its support will be removed in a future version of Kotlin. Update the version to 2.1.
+
+> Task :plugin:test
+CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
+
+> Task :analysis-runtime:compileTestJava NO-SOURCE
+> Task :analysis-runtime:testClasses UP-TO-DATE
+
+> Task :plugin:minimumSdkTests FAILED
+CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
+Error occurred during initialization of VM
+java.lang.Error: com.intellij.util.lang.PathClassLoader
+	at java.lang.ClassLoader.initSystemClassLoader(java.base@17.0.12/ClassLoader.java:2000)
+	at java.lang.System.initPhase3(java.base@17.0.12/System.java:2250)
+Caused by: java.lang.ClassNotFoundException: com.intellij.util.lang.PathClassLoader
+	at jdk.internal.loader.BuiltinClassLoader.loadClass(java.base@17.0.12/BuiltinClassLoader.java:641)
+	at jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(java.base@17.0.12/ClassLoaders.java:188)
+	at java.lang.ClassLoader.loadClass(java.base@17.0.12/ClassLoader.java:525)
+	at java.lang.Class.forName0(java.base@17.0.12/Native Method)
+	at java.lang.Class.forName(java.base@17.0.12/Class.java:467)
+	at java.lang.ClassLoader.initSystemClassLoader(java.base@17.0.12/ClassLoader.java:1986)
+	at java.lang.System.initPhase3(java.base@17.0.12/System.java:2250)
+
+CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
+Error occurred during initialization of VM
+java.lang.Error: com.intellij.util.lang.PathClassLoader
+	at java.lang.ClassLoader.initSystemClassLoader(java.base@17.0.12/ClassLoader.java:2000)
+	at java.lang.System.initPhase3(java.base@17.0.12/System.java:2250)
+Caused by: java.lang.ClassNotFoundException: com.intellij.util.lang.PathClassLoader
+	at jdk.internal.loader.BuiltinClassLoader.loadClass(java.base@17.0.12/BuiltinClassLoader.java:641)
+	at jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(java.base@17.0.12/ClassLoaders.java:188)
+	at java.lang.ClassLoader.loadClass(java.base@17.0.12/ClassLoader.java:525)
+	at java.lang.Class.forName0(java.base@17.0.12/Native Method)
+	at java.lang.Class.forName(java.base@17.0.12/Class.java:467)
+	at java.lang.ClassLoader.initSystemClassLoader(java.base@17.0.12/ClassLoader.java:1986)
+	at java.lang.System.initPhase3(java.base@17.0.12/System.java:2250)
+
+Process 'Gradle Test Executor 4' finished with non-zero exit value 1
+org.gradle.process.ProcessExecutionException: Process 'Gradle Test Executor 4' finished with non-zero exit value 1
+	at org.gradle.process.internal.DefaultExecHandle$ExecResultImpl.assertNormalExitValue(DefaultExecHandle.java:461)
+	at org.gradle.process.internal.worker.DefaultWorkerProcess.onProcessStop(DefaultWorkerProcess.java:146)
+	at org.gradle.process.internal.worker.DefaultWorkerProcess.access$000(DefaultWorkerProcess.java:43)
+	at org.gradle.process.internal.worker.DefaultWorkerProcess$1.executionFinished(DefaultWorkerProcess.java:99)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19)
+	at org.gradle.internal.event.AbstractBroadcastDispatch.dispatch(AbstractBroadcastDispatch.java:44)
+	at org.gradle.internal.event.BroadcastDispatch$SingletonDispatch.dispatch(BroadcastDispatch.java:270)
+	at org.gradle.internal.event.BroadcastDispatch$SingletonDispatch.dispatch(BroadcastDispatch.java:172)
+	at org.gradle.internal.event.ListenerBroadcast.dispatch(ListenerBroadcast.java:160)
+	at org.gradle.internal.event.ListenerBroadcast.dispatch(ListenerBroadcast.java:37)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:88)
+	at jdk.proxy1/jdk.proxy1.$Proxy90.executionFinished(Unknown Source)
+	at org.gradle.process.internal.DefaultExecHandle.setEndStateInfo(DefaultExecHandle.java:227)
+	at org.gradle.process.internal.DefaultExecHandle.finished(DefaultExecHandle.java:399)
+	at org.gradle.process.internal.ExecHandleRunner.completed(ExecHandleRunner.java:217)
+	at org.gradle.process.internal.ExecHandleRunner.lambda$completeProcess$0(ExecHandleRunner.java:183)
+	at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:85)
+	at org.gradle.process.internal.ExecHandleRunner.completeProcess(ExecHandleRunner.java:181)
+	at java.base/java.util.concurrent.CompletableFuture$UniRun.tryFire(CompletableFuture.java:808)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:531)
+	at java.base/java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:2206)
+	at org.gradle.process.internal.streams.OutputStreamsForwarder.streamFinished(OutputStreamsForwarder.java:77)
+	at org.gradle.process.internal.streams.ExecOutputHandleRunner.run(ExecOutputHandleRunner.java:65)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
+Error occurred during initialization of VM
+java.lang.Error: com.intellij.util.lang.PathClassLoader
+	at java.lang.ClassLoader.initSystemClassLoader(java.base@17.0.12/ClassLoader.java:2000)
+	at java.lang.System.initPhase3(java.base@17.0.12/System.java:2250)
+Caused by: java.lang.ClassNotFoundException: com.intellij.util.lang.PathClassLoader
+	at jdk.internal.loader.BuiltinClassLoader.loadClass(java.base@17.0.12/BuiltinClassLoader.java:641)
+	at jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(java.base@17.0.12/ClassLoaders.java:188)
+	at java.lang.ClassLoader.loadClass(java.base@17.0.12/ClassLoader.java:525)
+	at java.lang.Class.forName0(java.base@17.0.12/Native Method)
+	at java.lang.Class.forName(java.base@17.0.12/Class.java:467)
+	at java.lang.ClassLoader.initSystemClassLoader(java.base@17.0.12/ClassLoader.java:1986)
+	at java.lang.System.initPhase3(java.base@17.0.12/System.java:2250)
+
+Process 'Gradle Test Executor 5' finished with non-zero exit value 1
+org.gradle.process.ProcessExecutionException: Process 'Gradle Test Executor 5' finished with non-zero exit value 1
+	at org.gradle.process.internal.DefaultExecHandle$ExecResultImpl.assertNormalExitValue(DefaultExecHandle.java:461)
+	at org.gradle.process.internal.worker.DefaultWorkerProcess.onProcessStop(DefaultWorkerProcess.java:146)
+	at org.gradle.process.internal.worker.DefaultWorkerProcess.access$000(DefaultWorkerProcess.java:43)
+	at org.gradle.process.internal.worker.DefaultWorkerProcess$1.executionFinished(DefaultWorkerProcess.java:99)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19)
+	at org.gradle.internal.event.AbstractBroadcastDispatch.dispatch(AbstractBroadcastDispatch.java:44)
+	at org.gradle.internal.event.BroadcastDispatch$SingletonDispatch.dispatch(BroadcastDispatch.java:270)
+	at org.gradle.internal.event.BroadcastDispatch$SingletonDispatch.dispatch(BroadcastDispatch.java:172)
+	at org.gradle.internal.event.ListenerBroadcast.dispatch(ListenerBroadcast.java:160)
+	at org.gradle.internal.event.ListenerBroadcast.dispatch(ListenerBroadcast.java:37)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:88)
+	at jdk.proxy1/jdk.proxy1.$Proxy90.executionFinished(Unknown Source)
+	at org.gradle.process.internal.DefaultExecHandle.setEndStateInfo(DefaultExecHandle.java:227)
+	at org.gradle.process.internal.DefaultExecHandle.finished(DefaultExecHandle.java:399)
+	at org.gradle.process.internal.ExecHandleRunner.completed(ExecHandleRunner.java:217)
+	at org.gradle.process.internal.ExecHandleRunner.lambda$completeProcess$0(ExecHandleRunner.java:183)
+	at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:85)
+	at org.gradle.process.internal.ExecHandleRunner.completeProcess(ExecHandleRunner.java:181)
+	at java.base/java.util.concurrent.CompletableFuture$UniRun.tryFire(CompletableFuture.java:808)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:531)
+	at java.base/java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:2206)
+	at org.gradle.process.internal.streams.OutputStreamsForwarder.streamFinished(OutputStreamsForwarder.java:77)
+	at org.gradle.process.internal.streams.ExecOutputHandleRunner.run(ExecOutputHandleRunner.java:65)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
+Error occurred during initialization of VM
+java.lang.Error: com.intellij.util.lang.PathClassLoader
+	at java.lang.ClassLoader.initSystemClassLoader(java.base@17.0.12/ClassLoader.java:2000)
+	at java.lang.System.initPhase3(java.base@17.0.12/System.java:2250)
+Caused by: java.lang.ClassNotFoundException: com.intellij.util.lang.PathClassLoader
+	at jdk.internal.loader.BuiltinClassLoader.loadClass(java.base@17.0.12/BuiltinClassLoader.java:641)
+	at jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(java.base@17.0.12/ClassLoaders.java:188)
+	at java.lang.ClassLoader.loadClass(java.base@17.0.12/ClassLoader.java:525)
+	at java.lang.Class.forName0(java.base@17.0.12/Native Method)
+	at java.lang.Class.forName(java.base@17.0.12/Class.java:467)
+	at java.lang.ClassLoader.initSystemClassLoader(java.base@17.0.12/ClassLoader.java:1986)
+	at java.lang.System.initPhase3(java.base@17.0.12/System.java:2250)
+
+Process 'Gradle Test Executor 6' finished with non-zero exit value 1
+org.gradle.process.ProcessExecutionException: Process 'Gradle Test Executor 6' finished with non-zero exit value 1
+	at org.gradle.process.internal.DefaultExecHandle$ExecResultImpl.assertNormalExitValue(DefaultExecHandle.java:461)
+	at org.gradle.process.internal.worker.DefaultWorkerProcess.onProcessStop(DefaultWorkerProcess.java:146)
+	at org.gradle.process.internal.worker.DefaultWorkerProcess.access$000(DefaultWorkerProcess.java:43)
+	at org.gradle.process.internal.worker.DefaultWorkerProcess$1.executionFinished(DefaultWorkerProcess.java:99)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19)
+	at org.gradle.internal.event.AbstractBroadcastDispatch.dispatch(AbstractBroadcastDispatch.java:44)
+	at org.gradle.internal.event.BroadcastDispatch$SingletonDispatch.dispatch(BroadcastDispatch.java:270)
+	at org.gradle.internal.event.BroadcastDispatch$SingletonDispatch.dispatch(BroadcastDispatch.java:172)
+	at org.gradle.internal.event.ListenerBroadcast.dispatch(ListenerBroadcast.java:160)
+	at org.gradle.internal.event.ListenerBroadcast.dispatch(ListenerBroadcast.java:37)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:88)
+	at jdk.proxy1/jdk.proxy1.$Proxy90.executionFinished(Unknown Source)
+	at org.gradle.process.internal.DefaultExecHandle.setEndStateInfo(DefaultExecHandle.java:227)
+	at org.gradle.process.internal.DefaultExecHandle.finished(DefaultExecHandle.java:399)
+	at org.gradle.process.internal.ExecHandleRunner.completed(ExecHandleRunner.java:217)
+	at org.gradle.process.internal.ExecHandleRunner.lambda$completeProcess$0(ExecHandleRunner.java:183)
+	at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:85)
+	at org.gradle.process.internal.ExecHandleRunner.completeProcess(ExecHandleRunner.java:181)
+	at java.base/java.util.concurrent.CompletableFuture$UniRun.tryFire(CompletableFuture.java:808)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:531)
+	at java.base/java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:2206)
+	at org.gradle.process.internal.streams.OutputStreamsForwarder.streamFinished(OutputStreamsForwarder.java:77)
+	at org.gradle.process.internal.streams.ExecOutputHandleRunner.run(ExecOutputHandleRunner.java:65)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+
+Gradle Test Run :plugin:minimumSdkTests FAILED
+    org.gradle.process.ProcessExecutionException at DefaultExecHandle.java:461
+
+[Incubating] Problems report is available at: file:///Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':plugin:minimumSdkTests' (registered by plugin class 'org.jetbrains.intellij.platform.gradle.plugins.project.IntelliJPlatformModulePlugin').
+> Test process encountered an unexpected problem.
+   > Process 'Gradle Test Executor 3' finished with non-zero exit value 1
+
+* Try:
+> Check common problems https://docs.gradle.org/9.8.0/userguide/java_testing.html#sec:java_testing_troubleshooting.
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 22s
+34 actionable tasks: 14 executed, 20 up-to-date

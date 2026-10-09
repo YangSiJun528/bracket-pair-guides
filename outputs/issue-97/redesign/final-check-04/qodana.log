@@ -1,0 +1,223 @@
+Qodana source: /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/qodana/local/source.txrYjb
+Qodana results: /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/qodana/local/results.ZZhaw4
+time="2026-10-08T10:08:22Z" level=error msg="fatal: not a git repository (or any parent up to mount point /data)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
+time="2026-10-08T10:08:22Z" level=error msg="rev-parse --show-toplevel exited with code 128\n  stderr: fatal: not a git repository (or any parent up to mount point /data)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
+time="2026-10-08T10:08:23Z" level=error msg="rev-parse --show-toplevel exited with code 128\n  stderr: fatal: not a git repository (or any parent up to mount point /data)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
+Global configuration was not loaded, using local configuration
+
+✓  Loaded Qodana Configuration
+By using this linter, you agree to
+- JetBrains Privacy Policy (https://jb.gg/jetbrains-privacy-policy)
+- Qodana Community Linters Agreement (https://jb.gg/qodana-community-linters)
+Qodana license plan: Community
+                                        
+          _              _       
+         /\ \           /\ \        Qodana for JVM 2026.2.3
+        /  \ \         /  \ \       Documentation
+       / /\ \ \       / /\ \ \      https://jb.gg/qodana-docs
+      / / /\ \ \     / / /\ \ \     Contact us at
+     / / /  \ \_\   / / /  \ \_\    qodana-support@jetbrains.com
+    / / / _ / / /  / / /   / / /    Or via our issue tracker
+   / / / /\ \/ /  / / /   / / /     https://jb.gg/qodana-issue
+  / / /__\ \ \/  / / /___/ / /      Or share your feedback at our forum
+ / / /____\ \ \ / / /____\/ /       https://jb.gg/qodana-forum
+ \/________\_\/ \/_________/     
+                                                   
+                                        
+Starting up Qodana for JVM 2026.2.3 (build QDJVM-262.11550)…done.
+Preparing for the Project opening stage ...
+[IDE]: Task 'Resolving SDKs…' started
+[IDE]: Validating existing SDKs
+Setting project JDK 21 (2)
+[IDE]: Task 'Resolving SDKs…' ended in 1 s 53 ms
+[IDE]: Task 'Importing 'project' Gradle Project' started
+[Gradle]: Gradle resolve stage started bracket-pair-guides:15375f63, working dir: /data/project
+[IDE]: Task 'Resolving SDKs…' started
+[IDE]: Validating existing SDKs
+[IDE]: Task 'Resolving SDKs…' ended in 1 s 851 ms
+Keep running Project opening ... so far 30s
+[IDE]: Task 'Resolving SDKs…' started
+[IDE]: Validating existing SDKs
+[IDE]: Task 'Resolving SDKs…' ended in 168 ms
+[Gradle]: Starting Gradle Daemon...
+[Gradle]: Gradle Daemon started in 4 s 793 ms
+Keep running Project opening ... so far 1m 1s
+[Gradle]: STDERR: Caught exception: Couldn't poll for events, error = 4
+[Gradle]: STDERR: 
+[Gradle]: STDERR: Error while receiving file changes
+[Gradle]: STDERR: 
+[Gradle]: STDERR: net.rubygrapefruit.platform.NativeException: Couldn't poll for events, error = 4
+[Gradle]: STDERR: 
+[Gradle]: STDERR: 	at org.gradle.fileevents.internal.AbstractNativeFileEventFunctions$NativeFileWatcher.executeRunLoop0(Native Method)
+[Gradle]: STDERR: 
+[Gradle]: STDERR: 	at org.gradle.fileevents.internal.AbstractNativeFileEventFunctions$NativeFileWatcher.executeRunLoop(AbstractNativeFileEventFunctions.java:32)
+[Gradle]: STDERR: 
+[Gradle]: STDERR: 	at org.gradle.fileevents.internal.AbstractFileEventFunctions$AbstractFileWatcher$1.run(AbstractFileEventFunctions.java:154)
+[Gradle]: STDERR: 
+[Gradle]: > Task :build-logic:compileJava
+[Gradle]:  NO-SOURCE
+[Gradle]: 
+[Gradle]: > Task :build-logic:compileGroovy
+[Gradle]:  FROM-CACHE
+[Gradle]: 
+[Gradle]: > Task :build-logic:pluginDescriptors
+[Gradle]: 
+[Gradle]: > Task :build-logic:processResources
+[Gradle]: 
+[Gradle]: > Task :build-logic:classes
+[Gradle]: 
+[Gradle]: > Task :build-logic:jar
+[Gradle]: 
+Keep running Project opening ... so far 1m 31s
+[Gradle]: > Task :prepareKotlinBuildScriptModel
+[Gradle]:  UP-TO-DATE
+[Gradle]: 
+[Gradle]: > Task :analysis-runtime:initializeIntellijPlatformPlugin
+[Gradle]: 
+[Gradle]: > Task :analysis-runtime:dumpProductsReleases
+[Gradle]: 
+[Gradle]: > Task :editor-ui:initializeIntellijPlatformPlugin
+[Gradle]: 
+[Gradle]: > Task :editor-ui:dumpProductsReleases
+[Gradle]: 
+[Gradle]: > Task :plugin:initializeIntellijPlatformPlugin
+[Gradle]: 
+[Gradle]: > Task :plugin:dumpProductsReleases
+[Gradle]: 
+Keep running Project opening ... so far 2m 1s
+[Gradle]: 
+[Gradle]: [Incubating] Problems report is available at: file:///data/project/build/reports/problems/problems-report.html
+[Gradle]: 
+[Gradle]: 
+[Gradle]: Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+[Gradle]: 
+[Gradle]: 
+[Gradle]: You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+[Gradle]: 
+[Gradle]: 
+[Gradle]: For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+[Gradle]: 
+[Gradle]: 
+[Gradle]: BUILD SUCCESSFUL
+[Gradle]:  in 1m 30s
+[Gradle]: 
+[Gradle]: 10 actionable tasks: 9 executed, 1 from cache
+[Gradle]: 
+[IDE]: Task 'Resolving JDK…' ended
+[Gradle]: Gradle resolve stage finished with success: bracket-pair-guides:15375f63
+[Gradle]: Gradle data import stage started: bracket-pair-guides:15375f63
+[IDE]: Gradle: Importing module data                                                                                               0%
+[IDE]: Gradle: Importing native target data                                                                                        0%
+[IDE]: Gradle: Importing intelli j platform gradle data                                                                            2%
+[IDE]: Gradle: Importing kotlin gradle project data                                                             .                  5%
+[IDE]: Gradle: Importing kotlin target data                                                                     .                  8%
+[IDE]: Gradle: Importing kotlin fragment data                                                                   ..                 11%
+[IDE]: Gradle: Importing gradle project build script data                                                       ..                 14%
+[IDE]: Gradle: Importing gradle source set data                                                                 ...                17%
+[IDE]: Gradle: Importing gradle source set data                                                                 ...                20%
+[IDE]: Gradle: Importing kotlin gradle source set data                                                          ...                20%
+[IDE]: Gradle: Importing project data                                                                           ....               23%
+[IDE]: Gradle: Importing java project data                                                                      ....               26%
+[IDE]: Gradle: Importing project sdk data                                                                       .....              29%
+[IDE]: Gradle: Importing composite build data                                                                   .....              32%
+[IDE]: Gradle: Importing java module data                                                                       ......             35%
+[IDE]: Gradle: Importing module sdk data                                                                        ......             38%
+[IDE]: Gradle: Importing module sdk data                                                                        .......            41%
+[IDE]: Gradle: Importing library data                                                                           .......            41%
+[IDE]: Gradle: Importing content root data                                                                      .......            44%
+[IDE]: Gradle: Importing kotlin output paths data                                                               ........           47%
+[IDE]: Gradle: Importing module dependency data                                                                 .........          50%
+[IDE]: Gradle: Importing library dependency data                                                                .........          52%
+[IDE]: Gradle: Importing dependency accessors model                                                             ..........         55%
+[IDE]: Gradle: Importing version catalogs model                                                                 ..........         58%
+[IDE]: Gradle: Importing version catalogs model                                                                 ...........        61%
+[IDE]: Gradle: Importing build script classpath data                                                            ...........        61%
+[IDE]: Gradle: Importing gradle extensions                                                                      ...........        64%
+[IDE]: Gradle: Importing task data                                                                              ............       67%
+[IDE]: Gradle: Importing java manifest data                                                                     ............       70%
+[IDE]: Gradle: Importing external project                                                                       .............      73%
+[IDE]: Gradle: Importing configuration data                                                                     .............      76%
+[IDE]: Gradle: Importing test data                                                                              ..............     79%
+[IDE]: Gradle: Importing test data                                                                              ..............     82%
+[IDE]: Gradle: Importing project dependencies                                                                   ..............     82%
+[IDE]: Gradle: Importing annotation processing data                                                             ...............    85%
+[IDE]: Gradle: Importing external system operation descriptor                                                   ...............    88%
+[IDE]: Gradle: Importing maven repository data                                                                  ................   91%
+[IDE]: Gradle: Importing project repository data                                                                ................   94%
+[Gradle]: Gradle data import stage finished with success: bracket-pair-guides:15375f63
+[Gradle]: Gradle data import(final tasks) stage started: bracket-pair-guides:15375f63
+[Gradle]: Gradle data import(final tasks) stage finished: bracket-pair-guides:15375f63
+[IDE]: Task 'Importing 'project' Gradle Project' ended in 2 m 6 s 907 ms
+The Project opening stage completed in 2m 20s
+Preparing for the Project configuration stage ...
+The Project configuration stage completed in 7s
+Inspecting with the 'qodana.recommended' profile
+Roots file:///data/project/build-logic/build/pluginUnderTestMetadata of the library '/data/project/build-logic/build/pluginUnderTestMetadata' from module 'build-logic.test' were not resolved
+Preparing for the Project analysis stage ...
+Code analysis started ...
+Analyzing code 1%
+Analyzing code 1%
+Analyzing code 4%
+Keep running Project analysis ... so far 30s
+Analyzing code 6%
+Analyzing code 7%
+Analyzing code 8%
+Keep running Project analysis ... so far 1m
+Analyzing code 10%
+Analyzing code 13%
+Analyzing code 14%
+Analyzing code 17%
+Keep running Project analysis ... so far 1m 30s
+Analyzing code 18%
+Analyzing code 20%
+Keep running Project analysis ... so far 2m
+Analyzing code 21%
+Analyzing code 23%
+Keep running Project analysis ... so far 2m 30s
+Analyzing code 24%
+Analyzing code 28%
+Analyzing code 29%
+Analyzing code 31%
+Keep running Project analysis ... so far 3m
+Analyzing code 35%
+Analyzing code 36%
+Analyzing code 39%
+Keep running Project analysis ... so far 3m 31s
+Analyzing code 44%
+Analyzing code 48%
+Analyzing code 50%
+Analyzing code 51%
+Keep running Project analysis ... so far 4m 1s
+Analyzing code 55%
+Analyzing code 65%
+Analyzing code 67%
+Analyzing code 68%
+Analyzing code 69%
+Keep running Project analysis ... so far 4m 31s
+Analyzing code 73%
+Analyzing code 77%
+Analyzing code 81%
+Keep running Project analysis ... so far 5m 1s
+Analyzing code 95%
+Analyzing code 96%
+Analyzing code 99%
+Analyzing code 100%
+The Project analysis stage completed in 5m 19s
+
+Qodana - Detailed summary
+Analysis results: 2 problems detected
+By severity: High - 2
+----------------------------------------------------------------------------
+Name                                                Severity  Problems count
+----------------------------------------------------------------------------
+Assigned value is never read                            High               1
+Redundant qualifier name                                High               1
+----------------------------------------------------------------------------
+
+
+Failure condition triggered:
+- Detected 2 problems across all severities, fail threshold: 0
+[2026-10-08 10:17:14,799]   INFO -    org.jetbrains.analysis.Main:33 - Generating final reports...
+[2026-10-08 10:17:16,286]   INFO -    org.jetbrains.analysis.Main:51 - Done
+
+✗  The number of problems exceeds the fail threshold

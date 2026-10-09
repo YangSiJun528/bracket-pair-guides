@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.buildlogic.BenchmarkReportTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-08T19:39:49.421Z" hostname="sijun-yangui-MacBookPro.local" time="0.546">
+  <properties/>
+  <testcase name="smokeGeometryCannotPassPerformanceGate" classname="com.sijunyang.buildlogic.BenchmarkReportTest" time="0.498"/>
+  <testcase name="allEightParameterIdentitiesAndUnitsSurvive" classname="com.sijunyang.buildlogic.BenchmarkReportTest" time="0.036"/>
+  <testcase name="missingForkSamplesCannotPass" classname="com.sijunyang.buildlogic.BenchmarkReportTest" time="0.001"/>
+  <testcase name="foreignOwnerCannotImpersonateCase" classname="com.sijunyang.buildlogic.BenchmarkReportTest" time="0.001"/>
+  <testcase name="wrongRuntimeAndHeapCannotPass" classname="com.sijunyang.buildlogic.BenchmarkReportTest" time="0.001"/>
+  <testcase name="missingCaseCannotPassCoverage" classname="com.sijunyang.buildlogic.BenchmarkReportTest" time="0.004"/>
+  <testcase name="duplicateCaseCannotMergeIntoAnotherMetric" classname="com.sijunyang.buildlogic.BenchmarkReportTest" time="0.004"/>
+  <testcase name="allocationUnitsCannotBeSilentlyReinterpreted" classname="com.sijunyang.buildlogic.BenchmarkReportTest" time="0.0"/>
+  <testcase name="nonfiniteMeasurementsAreRejected" classname="com.sijunyang.buildlogic.BenchmarkReportTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

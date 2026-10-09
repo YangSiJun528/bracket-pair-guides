@@ -1,0 +1,11 @@
+{
+  "command": [
+    "bash",
+    "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/qodana/run_local.sh"
+  ],
+  "status": "not-yet-run",
+  "sourceRevision": "8ea07aa86cf939d9a5e945bec180079ecc28eb60",
+  "failThreshold": 0,
+  "localOnly": true,
+  "reason": "Reinspect final three production lifetime changes after rootcheck; exact prior config/image"
+}

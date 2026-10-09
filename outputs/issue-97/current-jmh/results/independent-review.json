@@ -1,0 +1,3161 @@
+{
+  "evidenceIntegrityPassed": true,
+  "issues": [],
+  "candidateHead": "f7599fa39be7d8e93cc339da719b14012ab1a1dd",
+  "baselineHead": "84d1a43141b1933c81e027ef01d1579fc4679e6e",
+  "profiles": [
+    {
+      "side": "baseline",
+      "job": "sort-pair-events",
+      "cases": 8,
+      "elapsedSeconds": 84.85438270797022
+    },
+    {
+      "side": "baseline",
+      "job": "sort-random",
+      "cases": 8,
+      "elapsedSeconds": 85.82720516703557
+    },
+    {
+      "side": "baseline",
+      "job": "sort-ascending",
+      "cases": 8,
+      "elapsedSeconds": 84.26906325004529
+    },
+    {
+      "side": "baseline",
+      "job": "sort-descending",
+      "cases": 8,
+      "elapsedSeconds": 84.32175474998076
+    },
+    {
+      "side": "baseline",
+      "job": "cancellation",
+      "cases": 6,
+      "elapsedSeconds": 63.41031733399723
+    },
+    {
+      "side": "baseline",
+      "job": "pairing",
+      "cases": 6,
+      "elapsedSeconds": 63.10696808400098
+    },
+    {
+      "side": "baseline",
+      "job": "preferences",
+      "cases": 2,
+      "elapsedSeconds": 21.10726058401633
+    },
+    {
+      "side": "candidate",
+      "job": "sort-pair-events",
+      "cases": 8,
+      "elapsedSeconds": 84.9427665839903
+    },
+    {
+      "side": "candidate",
+      "job": "sort-random",
+      "cases": 8,
+      "elapsedSeconds": 85.74585295800352
+    },
+    {
+      "side": "candidate",
+      "job": "sort-ascending",
+      "cases": 8,
+      "elapsedSeconds": 84.274096750014
+    },
+    {
+      "side": "candidate",
+      "job": "sort-descending",
+      "cases": 8,
+      "elapsedSeconds": 84.31423804198857
+    },
+    {
+      "side": "candidate",
+      "job": "cancellation",
+      "cases": 6,
+      "elapsedSeconds": 63.04107812495204
+    },
+    {
+      "side": "candidate",
+      "job": "pairing",
+      "cases": 6,
+      "elapsedSeconds": 63.09717391699087
+    },
+    {
+      "side": "candidate",
+      "job": "preferences",
+      "cases": 2,
+      "elapsedSeconds": 21.098705583019182
+    }
+  ],
+  "assessmentCounts": {
+    "latency": {
+      "increase-beyond-reported-intervals": 1,
+      "decrease-beyond-reported-intervals": 2,
+      "direction-unresolved": 43,
+      "interval-unavailable": 0
+    },
+    "bytesPerOperation": {
+      "increase-beyond-reported-intervals": 0,
+      "decrease-beyond-reported-intervals": 0,
+      "direction-unresolved": 46,
+      "interval-unavailable": 0
+    }
+  },
+  "cases": [
+    {
+      "job": "sort-pair-events",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+      "params": {
+        "distribution": "pair-events",
+        "size": "1000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 19.069724199263447,
+          "scoreError": 0.6821661474195421,
+          "scoreConfidence": [
+            18.387558051843904,
+            19.75189034668299
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 18.934154776920753,
+          "scoreError": 0.562732751851102,
+          "scoreConfidence": [
+            18.371422025069652,
+            19.496887528771854
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.13556942234269442,
+        "percentChange": -0.7109144365492747,
+        "conservativeDeltaInterval": [
+          -1.380468321613339,
+          1.1093294769279503
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 11090915.793021617,
+          "scoreError": 7.229278617918196,
+          "scoreConfidence": [
+            11090908.563742999,
+            11090923.022300236
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 11090914.844971875,
+          "scoreError": 8.311203722749644,
+          "scoreConfidence": [
+            11090906.533768153,
+            11090923.156175597
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.9480497427284718,
+        "percentChange": -8.547984318165888e-06,
+        "conservativeDeltaInterval": [
+          -16.48853208310902,
+          14.592432597652078
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-pair-events",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+      "params": {
+        "distribution": "pair-events",
+        "size": "200000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 3.754922299647497,
+          "scoreError": 0.2066771923291864,
+          "scoreConfidence": [
+            3.5482451073183108,
+            3.9615994919766835
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 3.6926574224849467,
+          "scoreError": 0.063475597794887,
+          "scoreConfidence": [
+            3.62918182469006,
+            3.7561330202798335
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.06226487716255047,
+        "percentChange": -1.6582201226479638,
+        "conservativeDeltaInterval": [
+          -0.3324176672866237,
+          0.20788791296152276
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 1930351.0229276132,
+          "scoreError": 1.5122326301660962,
+          "scoreConfidence": [
+            1930349.510694983,
+            1930352.5351602435
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 1930350.6070130148,
+          "scoreError": 0.8281028713542968,
+          "scoreConfidence": [
+            1930349.7789101435,
+            1930351.4351158862
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.4159145983867347,
+        "percentChange": -2.1546060454639457e-05,
+        "conservativeDeltaInterval": [
+          -2.7562500999774784,
+          1.924420903204009
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-pair-events",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+      "params": {
+        "distribution": "pair-events",
+        "size": "2000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 37.527936352564105,
+          "scoreError": 0.8279609341523678,
+          "scoreConfidence": [
+            36.69997541841174,
+            38.35589728671647
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 37.76555773979107,
+          "scoreError": 0.6132138282728515,
+          "scoreConfidence": [
+            37.152343911518216,
+            38.378771568063925
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.2376213872269659,
+        "percentChange": 0.6331853289095934,
+        "conservativeDeltaInterval": [
+          -1.2035533751982541,
+          1.678796149652186
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 22695513.285849955,
+          "scoreError": 12.603547747679258,
+          "scoreConfidence": [
+            22695500.682302207,
+            22695525.889397703
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 22695515.30294397,
+          "scoreError": 9.760376388572245,
+          "scoreConfidence": [
+            22695505.54256758,
+            22695525.06332036
+          ],
+          "unit": "B/op"
+        },
+        "delta": 2.0170940160751343,
+        "percentChange": 8.887633386695592e-06,
+        "conservativeDeltaInterval": [
+          -20.346830122172832,
+          24.3810181543231
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-pair-events",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+      "params": {
+        "distribution": "pair-events",
+        "size": "32768"
+      },
+      "latency": {
+        "baseline": {
+          "score": 0.565657378156392,
+          "scoreError": 0.014936025398077446,
+          "scoreConfidence": [
+            0.5507213527583146,
+            0.5805934035544695
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 0.5667020857722551,
+          "scoreError": 0.009801071017842208,
+          "scoreConfidence": [
+            0.5569010147544129,
+            0.5765031567900973
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.0010447076158630608,
+        "percentChange": 0.18468911680565434,
+        "conservativeDeltaInterval": [
+          -0.02369238880005664,
+          0.025781804031782762
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 262163.50066743547,
+          "scoreError": 0.08587011294796451,
+          "scoreConfidence": [
+            262163.41479732253,
+            262163.5865375484
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 262163.49603001593,
+          "scoreError": 0.1232215574270561,
+          "scoreConfidence": [
+            262163.3728084585,
+            262163.61925157334
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.004637419537175447,
+        "percentChange": -1.7689035755813287e-06,
+        "conservativeDeltaInterval": [
+          -0.21372908988269046,
+          0.20445425080833957
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-pair-events",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "pair-events",
+        "size": "1000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 20.026280023265304,
+          "scoreError": 0.42663773982425784,
+          "scoreConfidence": [
+            19.599642283441046,
+            20.452917763089562
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 19.942407440952383,
+          "scoreError": 0.45666233376110227,
+          "scoreConfidence": [
+            19.48574510719128,
+            20.399069774713485
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.08387258231292094,
+        "percentChange": -0.4188125913324038,
+        "conservativeDeltaInterval": [
+          -0.9671726558982812,
+          0.7994274912724393
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 16000152.177414963,
+          "scoreError": 5.104426196107776,
+          "scoreConfidence": [
+            16000147.072988767,
+            16000157.281841159
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 16000152.202993197,
+          "scoreError": 4.583079373122887,
+          "scoreConfidence": [
+            16000147.619913824,
+            16000156.78607257
+          ],
+          "unit": "B/op"
+        },
+        "delta": 0.02557823434472084,
+        "percentChange": 1.598624441886611e-07,
+        "conservativeDeltaInterval": [
+          -9.661927334964275,
+          9.713083803653717
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-pair-events",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "pair-events",
+        "size": "200000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 3.5122589846576147,
+          "scoreError": 0.08223891936693066,
+          "scoreConfidence": [
+            3.430020065290684,
+            3.5944979040245455
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 3.5792228534932757,
+          "scoreError": 0.17491926639947783,
+          "scoreConfidence": [
+            3.404303587093798,
+            3.7541421198927534
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.06696386883566108,
+        "percentChange": 1.9065754868355447,
+        "conservativeDeltaInterval": [
+          -0.1901943169307474,
+          0.32412205460206955
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 3200053.4018879584,
+          "scoreError": 0.5535578490732289,
+          "scoreConfidence": [
+            3200052.8483301094,
+            3200053.9554458074
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 3200053.7326613707,
+          "scoreError": 1.2194593895283485,
+          "scoreConfidence": [
+            3200052.5132019813,
+            3200054.95212076
+          ],
+          "unit": "B/op"
+        },
+        "delta": 0.33077341224998236,
+        "percentChange": 1.0336496636425929e-05,
+        "conservativeDeltaInterval": [
+          -1.442243826109916,
+          2.1037906506098807
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-pair-events",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "pair-events",
+        "size": "2000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 42.86935532254611,
+          "scoreError": 2.323350792875603,
+          "scoreConfidence": [
+            40.54600452967051,
+            45.192706115421714
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 42.64042715821256,
+          "scoreError": 1.109438154014517,
+          "scoreConfidence": [
+            41.53098900419804,
+            43.74986531222708
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.22892816433355279,
+        "percentChange": -0.5340135455994448,
+        "conservativeDeltaInterval": [
+          -3.6617171112236733,
+          3.2038607825565677
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 32000289.050065875,
+          "scoreError": 25.412170239319238,
+          "scoreConfidence": [
+            32000263.637895636,
+            32000314.462236114
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 32000283.48792271,
+          "scoreError": 16.851146730085926,
+          "scoreConfidence": [
+            32000266.636775978,
+            32000300.33906944
+          ],
+          "unit": "B/op"
+        },
+        "delta": -5.562143165618181,
+        "percentChange": -1.7381540388325747e-05,
+        "conservativeDeltaInterval": [
+          -47.82546013593674,
+          36.701173804700375
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-pair-events",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "pair-events",
+        "size": "32768"
+      },
+      "latency": {
+        "baseline": {
+          "score": 0.5005949202047707,
+          "scoreError": 0.019448646882137478,
+          "scoreConfidence": [
+            0.4811462733226332,
+            0.5200435670869081
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 0.49455143362837295,
+          "scoreError": 0.012033302896425109,
+          "scoreConfidence": [
+            0.4825181307319478,
+            0.5065847365247981
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.00604348657639775,
+        "percentChange": -1.207260867514523,
+        "conservativeDeltaInterval": [
+          -0.037525436354960306,
+          0.025438463202164863
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 524323.0436542912,
+          "scoreError": 0.1281638750632626,
+          "scoreConfidence": [
+            524322.9154904161,
+            524323.1718181663
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 524323.0023615314,
+          "scoreError": 0.18718158757562275,
+          "scoreConfidence": [
+            524322.8151799438,
+            524323.1895431189
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.041292759822681546,
+        "percentChange": -7.875442501037136e-06,
+        "conservativeDeltaInterval": [
+          -0.35663822246715426,
+          0.27405270282179117
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-random",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+      "params": {
+        "distribution": "random",
+        "size": "1000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 58.81325216394336,
+          "scoreError": 1.4011865599726943,
+          "scoreConfidence": [
+            57.41206560397067,
+            60.214438723916054
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 59.28485701960784,
+          "scoreError": 2.0155142346375325,
+          "scoreConfidence": [
+            57.269342784970306,
+            61.30037125424538
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.47160485566448074,
+        "percentChange": 0.801868351625703,
+        "conservativeDeltaInterval": [
+          -2.945095938945748,
+          3.8883056502747095
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 8000358.858387799,
+          "scoreError": 25.64647247097045,
+          "scoreConfidence": [
+            8000333.211915328,
+            8000384.50486027
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 8000361.4117647065,
+          "scoreError": 5.782273227800846,
+          "scoreConfidence": [
+            8000355.629491479,
+            8000367.194037934
+          ],
+          "unit": "B/op"
+        },
+        "delta": 2.5533769074827433,
+        "percentChange": 3.1915779687878776e-05,
+        "conservativeDeltaInterval": [
+          -28.87536879070103,
+          33.98212260566652
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-random",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+      "params": {
+        "distribution": "random",
+        "size": "200000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 10.456383878592984,
+          "scoreError": 0.37703548547795396,
+          "scoreConfidence": [
+            10.07934839311503,
+            10.833419364070938
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 10.358342866722658,
+          "scoreError": 0.07502853159489273,
+          "scoreConfidence": [
+            10.283314335127766,
+            10.43337139831755
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.09804101187032543,
+        "percentChange": -0.9376187122494768,
+        "conservativeDeltaInterval": [
+          -0.5501050289431717,
+          0.35402300520252084
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 1600078.9621003866,
+          "scoreError": 2.6474373318088293,
+          "scoreConfidence": [
+            1600076.314663055,
+            1600081.6095377184
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 1600078.8480776409,
+          "scoreError": 2.714169893963122,
+          "scoreConfidence": [
+            1600076.133907747,
+            1600081.5622475347
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.11402274575084448,
+        "percentChange": -7.126069928522118e-06,
+        "conservativeDeltaInterval": [
+          -5.47562997136265,
+          5.247584479860961
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-random",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+      "params": {
+        "distribution": "random",
+        "size": "2000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 129.4980460625,
+          "scoreError": 1.7305710881516605,
+          "scoreConfidence": [
+            127.76747497434835,
+            131.22861715065167
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 128.71391145833334,
+          "scoreError": 2.1679155479685233,
+          "scoreConfidence": [
+            126.54599591036482,
+            130.88182700630188
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.7841346041666668,
+        "percentChange": -0.6055184831037664,
+        "conservativeDeltaInterval": [
+          -4.682621240286849,
+          3.11435203195353
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 16000748.666666666,
+          "scoreError": 11.584606394977069,
+          "scoreConfidence": [
+            16000737.082060272,
+            16000760.25127306
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 16000750.0,
+          "scoreError": 12.287330608897992,
+          "scoreConfidence": [
+            16000737.712669391,
+            16000762.287330609
+          ],
+          "unit": "B/op"
+        },
+        "delta": 1.333333333954215,
+        "percentChange": 8.332943424902754e-06,
+        "conservativeDeltaInterval": [
+          -22.538603669032454,
+          25.205270336940885
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-random",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+      "params": {
+        "distribution": "random",
+        "size": "32768"
+      },
+      "latency": {
+        "baseline": {
+          "score": 1.4208141250760227,
+          "scoreError": 0.02638480651165426,
+          "scoreConfidence": [
+            1.3944293185643684,
+            1.447198931587677
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 1.4337604333319804,
+          "scoreError": 0.016657597031346373,
+          "scoreConfidence": [
+            1.4171028363006342,
+            1.4504180303633267
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.012946308255957772,
+        "percentChange": 0.9111894390313062,
+        "conservativeDeltaInterval": [
+          -0.030096095287042823,
+          0.05598871179895837
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 262168.5035769481,
+          "scoreError": 0.1913414402472031,
+          "scoreConfidence": [
+            262168.3122355078,
+            262168.6949183883
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 262168.52667637565,
+          "scoreError": 0.14530560995017608,
+          "scoreConfidence": [
+            262168.3813707657,
+            262168.6719819856
+          ],
+          "unit": "B/op"
+        },
+        "delta": 0.023099427577108145,
+        "percentChange": 8.810908733103525e-06,
+        "conservativeDeltaInterval": [
+          -0.3135476226452738,
+          0.3597464777994901
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-random",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "random",
+        "size": "1000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 68.35296491111112,
+          "scoreError": 2.029647114961761,
+          "scoreConfidence": [
+            66.32331779614935,
+            70.38261202607288
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 67.87840556666667,
+          "scoreError": 1.6124241870309852,
+          "scoreConfidence": [
+            66.26598137963569,
+            69.49082975369765
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.4745593444444438,
+        "percentChange": -0.6942776294511576,
+        "conservativeDeltaInterval": [
+          -4.116630646437187,
+          3.1675119575482995
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 16000427.91111111,
+          "scoreError": 15.846416678114155,
+          "scoreConfidence": [
+            16000412.064694433,
+            16000443.75752779
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 16000429.333333334,
+          "scoreError": 16.218448954586243,
+          "scoreConfidence": [
+            16000413.11488438,
+            16000445.551782288
+          ],
+          "unit": "B/op"
+        },
+        "delta": 1.4222222231328487,
+        "percentChange": 8.888651172542835e-06,
+        "conservativeDeltaInterval": [
+          -30.642643408849835,
+          33.48708785511553
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-random",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "random",
+        "size": "200000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 11.432559503437544,
+          "scoreError": 0.23898958494290495,
+          "scoreConfidence": [
+            11.193569918494639,
+            11.671549088380448
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 11.406782342036069,
+          "scoreError": 0.3673916620277416,
+          "scoreConfidence": [
+            11.039390680008326,
+            11.774174004063811
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.025777161401475013,
+        "percentChange": -0.22547148251206856,
+        "conservativeDeltaInterval": [
+          -0.6321584083721223,
+          0.5806040855691723
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 3200099.9982867967,
+          "scoreError": 3.755892541961911,
+          "scoreConfidence": [
+            3200096.2423942545,
+            3200103.754179339
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 3200099.905438933,
+          "scoreError": 6.308006217418536,
+          "scoreConfidence": [
+            3200093.597432716,
+            3200106.2134451503
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.09284786367788911,
+        "percentChange": -2.9014050725788594e-06,
+        "conservativeDeltaInterval": [
+          -10.1567466231063,
+          9.971050895750523
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-random",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "random",
+        "size": "2000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 145.5658263809524,
+          "scoreError": 2.6445679011125587,
+          "scoreConfidence": [
+            142.92125847983982,
+            148.21039428206495
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 145.9678362142857,
+          "scoreError": 5.527320917866811,
+          "scoreConfidence": [
+            140.4405152964189,
+            151.4951571321525
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.40200983333332374,
+        "percentChange": 0.2761704744362497,
+        "conservativeDeltaInterval": [
+          -7.769878985646045,
+          8.573898652312693
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 32000881.904761907,
+          "scoreError": 39.33756435684959,
+          "scoreConfidence": [
+            32000842.56719755,
+            32000921.242326263
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 32000877.333333332,
+          "scoreError": 40.16436359181038,
+          "scoreConfidence": [
+            32000837.16896974,
+            32000917.497696925
+          ],
+          "unit": "B/op"
+        },
+        "delta": -4.571428574621677,
+        "percentChange": -1.4285320599059564e-05,
+        "conservativeDeltaInterval": [
+          -84.07335652410984,
+          74.93049937486649
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-random",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "random",
+        "size": "32768"
+      },
+      "latency": {
+        "baseline": {
+          "score": 1.4909945583186017,
+          "scoreError": 0.021351193321709643,
+          "scoreConfidence": [
+            1.469643364996892,
+            1.5123457516403114
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 1.4906689723557642,
+          "scoreError": 0.029923704443229126,
+          "scoreConfidence": [
+            1.460745267912535,
+            1.5205926767989935
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.0003255859628374935,
+        "percentChange": -0.02183683106158735,
+        "conservativeDeltaInterval": [
+          -0.05160048372777637,
+          0.05094931180210138
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 524328.894864073,
+          "scoreError": 0.24952408265721798,
+          "scoreConfidence": [
+            524328.6453399904,
+            524329.1443881557
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 524328.9224228862,
+          "scoreError": 0.26983438031573864,
+          "scoreConfidence": [
+            524328.6525885059,
+            524329.1922572666
+          ],
+          "unit": "B/op"
+        },
+        "delta": 0.02755881322082132,
+        "percentChange": 5.256016498569217e-06,
+        "conservativeDeltaInterval": [
+          -0.4917996497824788,
+          0.5469172762241215
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-ascending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+      "params": {
+        "distribution": "ascending",
+        "size": "1000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 0.24201082111220762,
+          "scoreError": 0.06314226869599601,
+          "scoreConfidence": [
+            0.1788685524162116,
+            0.30515308980820366
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 0.23458070400841657,
+          "scoreError": 0.07756444741294964,
+          "scoreConfidence": [
+            0.15701625659546692,
+            0.31214515142136623
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.007430117103791045,
+        "percentChange": -3.0701590406761574,
+        "conservativeDeltaInterval": [
+          -0.14813683321273674,
+          0.13327659900515462
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 8000020.924903302,
+          "scoreError": 1.8592646439164855,
+          "scoreConfidence": [
+            8000019.065638659,
+            8000022.784167946
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 8000020.55292251,
+          "scoreError": 1.9889159448712883,
+          "scoreConfidence": [
+            8000018.564006565,
+            8000022.541838454
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.3719807928428054,
+        "percentChange": -4.649747748594815e-06,
+        "conservativeDeltaInterval": [
+          -4.220161381177604,
+          3.4761997954919934
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-ascending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+      "params": {
+        "distribution": "ascending",
+        "size": "200000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 0.050190693298883225,
+          "scoreError": 0.0004403405319297685,
+          "scoreConfidence": [
+            0.04975035276695346,
+            0.050631033830812994
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 0.048492249570821606,
+          "scoreError": 0.0036401369494976393,
+          "scoreConfidence": [
+            0.044852112621323964,
+            0.05213238652031925
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.0016984437280616188,
+        "percentChange": -3.3839814045752785,
+        "conservativeDeltaInterval": [
+          -0.00577892120948903,
+          0.002382033753365792
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 1600016.6087466562,
+          "scoreError": 0.028034692371338828,
+          "scoreConfidence": [
+            1600016.5807119638,
+            1600016.6367813486
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 1600016.5700086448,
+          "scoreError": 0.08519401218207953,
+          "scoreConfidence": [
+            1600016.4848146327,
+            1600016.655202657
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.0387380113825202,
+        "percentChange": -2.4211005792536687e-06,
+        "conservativeDeltaInterval": [
+          -0.15196671593002975,
+          0.07449069316498935
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-ascending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+      "params": {
+        "distribution": "ascending",
+        "size": "2000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 0.5211940482849605,
+          "scoreError": 0.00932281346595357,
+          "scoreConfidence": [
+            0.511871234819007,
+            0.5305168617509141
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 0.5081275374586357,
+          "scoreError": 0.05288650787257859,
+          "scoreConfidence": [
+            0.4552410295860571,
+            0.5610140453312142
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.013066510826324818,
+        "percentChange": -2.507033775485625,
+        "conservativeDeltaInterval": [
+          -0.07527583216485695,
+          0.04914281051220726
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 16000027.169244358,
+          "scoreError": 0.23272533838130058,
+          "scoreConfidence": [
+            16000026.93651902,
+            16000027.401969697
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 16000026.892794954,
+          "scoreError": 1.149392085653719,
+          "scoreConfidence": [
+            16000025.743402869,
+            16000028.042187039
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.27644940465688705,
+        "percentChange": -1.7278058451568433e-06,
+        "conservativeDeltaInterval": [
+          -1.6585668288171291,
+          1.105668019503355
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-ascending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+      "params": {
+        "distribution": "ascending",
+        "size": "32768"
+      },
+      "latency": {
+        "baseline": {
+          "score": 0.008246396390775524,
+          "scoreError": 0.00023639025126678977,
+          "scoreConfidence": [
+            0.008010006139508734,
+            0.008482786642042314
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 0.008173110063061172,
+          "scoreError": 0.0007464684221307195,
+          "scoreConfidence": [
+            0.007426641640930452,
+            0.008919578485191891
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -7.328632771435271e-05,
+        "percentChange": -0.8887073121579664,
+        "conservativeDeltaInterval": [
+          -0.001056145001111862,
+          0.0009095723456831566
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 262160.1189982536,
+          "scoreError": 0.03913483306170642,
+          "scoreConfidence": [
+            262160.0798634205,
+            262160.1581330867
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 262160.11734564276,
+          "scoreError": 0.04440878598236771,
+          "scoreConfidence": [
+            262160.07293685677,
+            262160.16175442876
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.001652610837481916,
+        "percentChange": -6.303822426526e-07,
+        "conservativeDeltaInterval": [
+          -0.08519622992025688,
+          0.08189100824529305
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-ascending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "ascending",
+        "size": "1000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 2.6440171709411864,
+          "scoreError": 0.7768148602782204,
+          "scoreConfidence": [
+            1.8672023106629658,
+            3.420832031219407
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 1.9618503728112475,
+          "scoreError": 0.43235027405065773,
+          "scoreConfidence": [
+            1.5295000987605898,
+            2.394200646861905
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.6821667981299389,
+        "percentChange": -25.800392131610444,
+        "conservativeDeltaInterval": [
+          -1.8913319324588171,
+          0.5269983361989392
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 16000051.253429294,
+          "scoreError": 3.270918922298383,
+          "scoreConfidence": [
+            16000047.982510371,
+            16000054.524348216
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 16000046.828520985,
+          "scoreError": 3.1237545412846695,
+          "scoreConfidence": [
+            16000043.704766445,
+            16000049.952275526
+          ],
+          "unit": "B/op"
+        },
+        "delta": -4.424908308312297,
+        "percentChange": -2.765558833671802e-05,
+        "conservativeDeltaInterval": [
+          -10.81958177126944,
+          1.969765154644847
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-ascending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "ascending",
+        "size": "200000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 0.4110490747074202,
+          "scoreError": 0.044651640227721626,
+          "scoreConfidence": [
+            0.3663974344796986,
+            0.4557007149351418
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 0.40959051717560274,
+          "scoreError": 0.044883162737598695,
+          "scoreConfidence": [
+            0.36470735443800406,
+            0.4544736799132014
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.0014585575318174504,
+        "percentChange": -0.35483780929457975,
+        "conservativeDeltaInterval": [
+          -0.09099336049713774,
+          0.08807624543350284
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 3200034.69179437,
+          "scoreError": 0.07227130095337865,
+          "scoreConfidence": [
+            3200034.619523069,
+            3200034.764065671
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 3200034.6668535504,
+          "scoreError": 0.10442556728932208,
+          "scoreConfidence": [
+            3200034.562427983,
+            3200034.7712791176
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.02494081947952509,
+        "percentChange": -7.793921591999964e-07,
+        "conservativeDeltaInterval": [
+          -0.20163768762722611,
+          0.15175604866817594
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-ascending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "ascending",
+        "size": "2000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 7.424293755752104,
+          "scoreError": 2.9535528243529554,
+          "scoreConfidence": [
+            4.470740931399149,
+            10.377846580105059
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 7.856597790626471,
+          "scoreError": 2.0589516471524236,
+          "scoreConfidence": [
+            5.797646143474047,
+            9.915549437778894
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.43230403487436675,
+        "percentChange": 5.82283041453514,
+        "conservativeDeltaInterval": [
+          -4.580200436631012,
+          5.444808506379745
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 32000083.765717532,
+          "scoreError": 18.790570570436845,
+          "scoreConfidence": [
+            32000064.97514696,
+            32000102.556288105
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 32000086.84936056,
+          "scoreError": 11.720951418878975,
+          "scoreConfidence": [
+            32000075.12840914,
+            32000098.57031198
+          ],
+          "unit": "B/op"
+        },
+        "delta": 3.083643026649952,
+        "percentChange": 9.63635923338905e-06,
+        "conservativeDeltaInterval": [
+          -27.427878964692354,
+          33.59516501799226
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-ascending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "ascending",
+        "size": "32768"
+      },
+      "latency": {
+        "baseline": {
+          "score": 0.024643778259185522,
+          "scoreError": 0.001074860910457931,
+          "scoreConfidence": [
+            0.02356891734872759,
+            0.025718639169643454
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 0.031896126934400894,
+          "scoreError": 0.0027785482464204444,
+          "scoreConfidence": [
+            0.02911757868798045,
+            0.03467467518082134
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.007252348675215372,
+        "percentChange": 29.428720705649877,
+        "conservativeDeltaInterval": [
+          0.003398939518336995,
+          0.011105757832093749
+        ],
+        "directionUnresolvedByReportedIntervals": false,
+        "assessment": "increase-beyond-reported-intervals"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 524320.2198257897,
+          "scoreError": 0.07274241719772942,
+          "scoreConfidence": [
+            524320.1470833725,
+            524320.2925682069
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 524320.2931458771,
+          "scoreError": 0.038832726414204294,
+          "scoreConfidence": [
+            524320.2543131507,
+            524320.3319786035
+          ],
+          "unit": "B/op"
+        },
+        "delta": 0.0733200873946771,
+        "percentChange": 1.3983837476082535e-05,
+        "conservativeDeltaInterval": [
+          -0.0382550562499091,
+          0.1848952310392633
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": true
+    },
+    {
+      "job": "sort-descending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+      "params": {
+        "distribution": "descending",
+        "size": "1000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 0.6912293420560397,
+          "scoreError": 0.1992373852408455,
+          "scoreConfidence": [
+            0.4919919568151942,
+            0.8904667272968851
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 0.6537816943754328,
+          "scoreError": 0.010128732313130096,
+          "scoreConfidence": [
+            0.6436529620623027,
+            0.6639104266885628
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.03744764768060693,
+        "percentChange": -5.417543122405669,
+        "conservativeDeltaInterval": [
+          -0.24681376523458243,
+          0.17191846987336862
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 8000023.449924689,
+          "scoreError": 2.4524520422234035,
+          "scoreConfidence": [
+            8000020.997472647,
+            8000025.902376731
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 8000022.968163305,
+          "scoreError": 0.19165289402413332,
+          "scoreConfidence": [
+            8000022.776510411,
+            8000023.159816199
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.4817613838240504,
+        "percentChange": -6.021999645870859e-06,
+        "conservativeDeltaInterval": [
+          -3.1258663199841976,
+          2.1623435523360968
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-descending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+      "params": {
+        "distribution": "descending",
+        "size": "200000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 0.16116174308463782,
+          "scoreError": 0.00402409742097922,
+          "scoreConfidence": [
+            0.1571376456636586,
+            0.16518584050561705
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 0.16025940081480713,
+          "scoreError": 0.01190266172954805,
+          "scoreConfidence": [
+            0.1483567390852591,
+            0.17216206254435518
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.000902342269830686,
+        "percentChange": -0.5598985544334799,
+        "conservativeDeltaInterval": [
+          -0.016829101420357956,
+          0.015024416880696584
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 1600017.2757047873,
+          "scoreError": 0.05491816906830154,
+          "scoreConfidence": [
+            1600017.2207866183,
+            1600017.3306229564
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 1600017.255300845,
+          "scoreError": 0.12210877285099712,
+          "scoreConfidence": [
+            1600017.1331920722,
+            1600017.3774096179
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.02040394232608378,
+        "percentChange": -1.2752326262912443e-06,
+        "conservativeDeltaInterval": [
+          -0.19743088423274457,
+          0.15662299958057702
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-descending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+      "params": {
+        "distribution": "descending",
+        "size": "2000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 1.3759847365573632,
+          "scoreError": 0.28776364961050144,
+          "scoreConfidence": [
+            1.0882210869468618,
+            1.6637483861678646
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 1.3325382254928215,
+          "scoreError": 0.012289909342575575,
+          "scoreConfidence": [
+            1.3202483161502458,
+            1.3448281348353972
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.04344651106454167,
+        "percentChange": -3.157484956791193,
+        "conservativeDeltaInterval": [
+          -0.34350007001761873,
+          0.2566070478885354
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 16000030.675036335,
+          "scoreError": 3.050340688705439,
+          "scoreConfidence": [
+            16000027.624695648,
+            16000033.725377023
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 16000030.146014092,
+          "scoreError": 0.24406575508611839,
+          "scoreConfidence": [
+            16000029.901948337,
+            16000030.390079848
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.5290222428739071,
+        "percentChange": -3.306382678998868e-06,
+        "conservativeDeltaInterval": [
+          -3.823428686708212,
+          2.7653842009603977
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-descending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.jdkSort",
+      "params": {
+        "distribution": "descending",
+        "size": "32768"
+      },
+      "latency": {
+        "baseline": {
+          "score": 0.020689390713959307,
+          "scoreError": 0.0005773253812286286,
+          "scoreConfidence": [
+            0.020112065332730678,
+            0.021266716095187935
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 0.020668532141911326,
+          "scoreError": 0.00035506043140001064,
+          "scoreConfidence": [
+            0.020313471710511316,
+            0.021023592573311337
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -2.08585720479805e-05,
+        "percentChange": -0.10081772023333217,
+        "conservativeDeltaInterval": [
+          -0.0009532443846766193,
+          0.0009115272405806583
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 262160.18926505937,
+          "scoreError": 0.06521196880686665,
+          "scoreConfidence": [
+            262160.1240530906,
+            262160.25447702815
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 262160.18872892234,
+          "scoreError": 0.06428148305591946,
+          "scoreConfidence": [
+            262160.1244474393,
+            262160.2530104054
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.0005361370276659727,
+        "percentChange": -2.0450741554962286e-07,
+        "conservativeDeltaInterval": [
+          -0.13002958887955174,
+          0.1289573148242198
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-descending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "descending",
+        "size": "1000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 2.8000457631197744,
+          "scoreError": 0.39310467174661645,
+          "scoreConfidence": [
+            2.4069410913731577,
+            3.193150434866391
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 2.735471727201317,
+          "scoreError": 0.8078120235874093,
+          "scoreConfidence": [
+            1.9276597036139076,
+            3.543283750788726
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.06457403591845745,
+        "percentChange": -2.306177876411202,
+        "conservativeDeltaInterval": [
+          -1.2654907312524835,
+          1.1363426594155683
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 16000052.411412925,
+          "scoreError": 3.002104476031509,
+          "scoreConfidence": [
+            16000049.409308448,
+            16000055.4135174
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 16000051.983959088,
+          "scoreError": 6.031738869056671,
+          "scoreConfidence": [
+            16000045.952220218,
+            16000058.015697958
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.4274538364261389,
+        "percentChange": -2.671577726340657e-06,
+        "conservativeDeltaInterval": [
+          -9.461297182366252,
+          8.606389509513974
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-descending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "descending",
+        "size": "200000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 0.3389333209986931,
+          "scoreError": 0.005762688648006939,
+          "scoreConfidence": [
+            0.33317063235068617,
+            0.34469600964670005
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 0.3689432517505762,
+          "scoreError": 0.1190598630802322,
+          "scoreConfidence": [
+            0.249883388670344,
+            0.4880031148308084
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.030009930751883074,
+        "percentChange": 8.854228514168069,
+        "conservativeDeltaInterval": [
+          -0.09481262097635607,
+          0.1548324824801222
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 3200034.2849482223,
+          "scoreError": 0.30047703949919974,
+          "scoreConfidence": [
+            3200033.984471183,
+            3200034.585425262
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 3200034.4964256715,
+          "scoreError": 0.6960544216272593,
+          "scoreConfidence": [
+            3200033.8003712497,
+            3200035.1924800933
+          ],
+          "unit": "B/op"
+        },
+        "delta": 0.21147744916379452,
+        "percentChange": 6.608599481527627e-06,
+        "conservativeDeltaInterval": [
+          -0.7850540122017264,
+          1.2080089105293155
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-descending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "descending",
+        "size": "2000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 7.906088460440365,
+          "scoreError": 0.707956200424159,
+          "scoreConfidence": [
+            7.198132260016206,
+            8.614044660864524
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 8.053258859305712,
+          "scoreError": 0.689663205696445,
+          "scoreConfidence": [
+            7.363595653609267,
+            8.742922065002157
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.147170398865347,
+        "percentChange": 1.8614818136900744,
+        "conservativeDeltaInterval": [
+          -1.2504490072552565,
+          1.5447898049859505
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 32000086.736456882,
+          "scoreError": 5.490202028221151,
+          "scoreConfidence": [
+            32000081.246254854,
+            32000092.22665891
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 32000087.5529388,
+          "scoreError": 4.465776802084251,
+          "scoreConfidence": [
+            32000083.087162,
+            32000092.0187156
+          ],
+          "unit": "B/op"
+        },
+        "delta": 0.8164819180965424,
+        "percentChange": 2.551499078177014e-06,
+        "conservativeDeltaInterval": [
+          -9.13949691131711,
+          10.772460747510195
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "sort-descending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "descending",
+        "size": "32768"
+      },
+      "latency": {
+        "baseline": {
+          "score": 0.039722920422024126,
+          "scoreError": 0.0016813095496487488,
+          "scoreConfidence": [
+            0.03804161087237538,
+            0.041404229971672875
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 0.041333140044851106,
+          "scoreError": 0.004730215030421742,
+          "scoreConfidence": [
+            0.03660292501442936,
+            0.04606335507527285
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.0016102196228269805,
+        "percentChange": 4.053628498911183,
+        "conservativeDeltaInterval": [
+          -0.004801304957243513,
+          0.008021744202897474
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 524320.3073871833,
+          "scoreError": 0.06455050277439173,
+          "scoreConfidence": [
+            524320.2428366805,
+            524320.3719376861
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 524320.3110354295,
+          "scoreError": 0.047191203884372146,
+          "scoreConfidence": [
+            524320.2638442256,
+            524320.3582266334
+          ],
+          "unit": "B/op"
+        },
+        "delta": 0.0036482461728155613,
+        "percentChange": 6.958048584834844e-07,
+        "conservativeDeltaInterval": [
+          -0.10809346055611968,
+          0.1153899529017508
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "cancellation",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortCancellationBenchmark.jdkSortObservesCancellationAfterSort",
+      "params": {
+        "cancellationDelayMillis": "1",
+        "size": "1000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 18.91541407531518,
+          "scoreError": 0.6688013217754113,
+          "scoreConfidence": [
+            18.246612753539768,
+            19.584215397090592
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 17.72358271569264,
+          "scoreError": 0.15503799179385613,
+          "scoreConfidence": [
+            17.568544723898782,
+            17.878620707486498
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -1.1918313596225403,
+        "percentChange": -6.3008473136091325,
+        "conservativeDeltaInterval": [
+          -2.01567067319181,
+          -0.3679920460532706
+        ],
+        "directionUnresolvedByReportedIntervals": false,
+        "assessment": "decrease-beyond-reported-intervals"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 11091168.836999726,
+          "scoreError": 25.24614200884295,
+          "scoreConfidence": [
+            11091143.590857716,
+            11091194.083141735
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 11091160.511688313,
+          "scoreError": 24.150011987064392,
+          "scoreConfidence": [
+            11091136.361676326,
+            11091184.661700299
+          ],
+          "unit": "B/op"
+        },
+        "delta": -8.325311413034797,
+        "percentChange": -7.506252528824436e-05,
+        "conservativeDeltaInterval": [
+          -57.72146540880203,
+          41.07084258273244
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "cancellation",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortCancellationBenchmark.jdkSortObservesCancellationAfterSort",
+      "params": {
+        "cancellationDelayMillis": "1",
+        "size": "200000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 3.898833003991216,
+          "scoreError": 0.1520040522016617,
+          "scoreConfidence": [
+            3.7468289517895546,
+            4.0508370561928775
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 3.4493381284197557,
+          "scoreError": 0.05413377340876387,
+          "scoreConfidence": [
+            3.395204355010992,
+            3.5034719018285196
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.4494948755714603,
+        "percentChange": -11.528959437639791,
+        "conservativeDeltaInterval": [
+          -0.6556327011818857,
+          -0.2433570499610349
+        ],
+        "directionUnresolvedByReportedIntervals": false,
+        "assessment": "decrease-beyond-reported-intervals"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 1930600.826125688,
+          "scoreError": 4.764230415252466,
+          "scoreConfidence": [
+            1930596.0618952727,
+            1930605.5903561031
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 1930598.7043592168,
+          "scoreError": 7.460074261625897,
+          "scoreConfidence": [
+            1930591.2442849553,
+            1930606.1644334784
+          ],
+          "unit": "B/op"
+        },
+        "delta": -2.121766471071169,
+        "percentChange": -0.00010990187315568026,
+        "conservativeDeltaInterval": [
+          -14.346071147825569,
+          10.102538205683231
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "cancellation",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortCancellationBenchmark.jdkSortObservesCancellationAfterSort",
+      "params": {
+        "cancellationDelayMillis": "1",
+        "size": "2000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 36.43030113030796,
+          "scoreError": 2.8245052151795917,
+          "scoreConfidence": [
+            33.60579591512837,
+            39.25480634548755
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 34.45047451067323,
+          "scoreError": 0.5255065741681215,
+          "scoreConfidence": [
+            33.92496793650511,
+            34.97598108484135
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -1.9798266196347285,
+        "percentChange": -5.434560127716386,
+        "conservativeDeltaInterval": [
+          -5.3298384089824395,
+          1.3701851697129825
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 22695763.84778185,
+          "scoreError": 38.89913838147347,
+          "scoreConfidence": [
+            22695724.94864347,
+            22695802.746920228
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 22695751.47783251,
+          "scoreError": 38.18797171520706,
+          "scoreConfidence": [
+            22695713.289860796,
+            22695789.665804226
+          ],
+          "unit": "B/op"
+        },
+        "delta": -12.369949337095022,
+        "percentChange": -5.450334000679157e-05,
+        "conservativeDeltaInterval": [
+          -89.45705943182111,
+          64.71716075763106
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "cancellation",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortCancellationBenchmark.productionSortStopsCooperatively",
+      "params": {
+        "cancellationDelayMillis": "1",
+        "size": "1000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 1.7059778588204526,
+          "scoreError": 0.03741371269081466,
+          "scoreConfidence": [
+            1.6685641461296379,
+            1.7433915715112673
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 1.6992685303278272,
+          "scoreError": 0.03622864611525459,
+          "scoreConfidence": [
+            1.6630398842125726,
+            1.7354971764430818
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.006709328492625399,
+        "percentChange": -0.3932834449131927,
+        "conservativeDeltaInterval": [
+          -0.08035168729869469,
+          0.06693303031344389
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 8000294.191342528,
+          "scoreError": 2.432491680640977,
+          "scoreConfidence": [
+            8000291.758850847,
+            8000296.623834209
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 8000294.15537691,
+          "scoreError": 2.254371423234024,
+          "scoreConfidence": [
+            8000291.901005487,
+            8000296.4097483335
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.03596561774611473,
+        "percentChange": -4.4955368997598507e-07,
+        "conservativeDeltaInterval": [
+          -4.722828721627593,
+          4.650897486135364
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "cancellation",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortCancellationBenchmark.productionSortStopsCooperatively",
+      "params": {
+        "cancellationDelayMillis": "1",
+        "size": "200000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 1.6487878738062294,
+          "scoreError": 0.07299558564072817,
+          "scoreConfidence": [
+            1.575792288165501,
+            1.7217834594469577
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 1.6712794267301085,
+          "scoreError": 0.06133782240827815,
+          "scoreConfidence": [
+            1.6099416043218304,
+            1.7326172491383867
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.022491552923879166,
+        "percentChange": 1.364126536906011,
+        "conservativeDeltaInterval": [
+          -0.11184185512512723,
+          0.15682496097288556
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 1600291.1921434943,
+          "scoreError": 2.5424186597339506,
+          "scoreConfidence": [
+            1600288.6497248346,
+            1600293.734562154
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 1600291.303178287,
+          "scoreError": 2.075183789338105,
+          "scoreConfidence": [
+            1600289.2279944979,
+            1600293.3783620764
+          ],
+          "unit": "B/op"
+        },
+        "delta": 0.11103479284793139,
+        "percentChange": 6.938411796118613e-06,
+        "conservativeDeltaInterval": [
+          -4.506567656062543,
+          4.728637241758406
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "cancellation",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortCancellationBenchmark.productionSortStopsCooperatively",
+      "params": {
+        "cancellationDelayMillis": "1",
+        "size": "2000000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 1.6910067557951,
+          "scoreError": 0.029867521325110953,
+          "scoreConfidence": [
+            1.6611392344699891,
+            1.720874277120211
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 1.7029191575282985,
+          "scoreError": 0.03918795487676891,
+          "scoreConfidence": [
+            1.6637312026515296,
+            1.7421071124050673
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.011912401733198408,
+        "percentChange": 0.704456188147946,
+        "conservativeDeltaInterval": [
+          -0.05714307446868139,
+          0.0809678779350782
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 16000297.149755023,
+          "scoreError": 2.9618478998352686,
+          "scoreConfidence": [
+            16000294.187907124,
+            16000300.111602923
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 16000297.302629216,
+          "scoreError": 3.0184117911150024,
+          "scoreConfidence": [
+            16000294.284217425,
+            16000300.321041007
+          ],
+          "unit": "B/op"
+        },
+        "delta": 0.15287419222295284,
+        "percentChange": 9.554459569852019e-07,
+        "conservativeDeltaInterval": [
+          -5.827385498210788,
+          6.1331338826566935
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "pairing",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.PairingMachineBenchmark.pairNestedTokens",
+      "params": {
+        "pairCount": "100000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 6.328617693314389,
+          "scoreError": 0.16614747373002633,
+          "scoreConfidence": [
+            6.162470219584363,
+            6.494765167044416
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 6.40438219852108,
+          "scoreError": 0.29022828814303836,
+          "scoreConfidence": [
+            6.114153910378041,
+            6.694610486664118
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.0757645052066902,
+        "percentChange": 1.197173045967503,
+        "conservativeDeltaInterval": [
+          -0.3806112566663744,
+          0.5321402670797548
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 20844437.190991607,
+          "scoreError": 1.1275118993834927,
+          "scoreConfidence": [
+            20844436.063479707,
+            20844438.318503506
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 20844437.731147524,
+          "scoreError": 2.442485446437089,
+          "scoreConfidence": [
+            20844435.288662076,
+            20844440.173632972
+          ],
+          "unit": "B/op"
+        },
+        "delta": 0.5401559174060822,
+        "percentChange": 2.591367243244748e-06,
+        "conservativeDeltaInterval": [
+          -3.0298414304852486,
+          4.110153265297413
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "pairing",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.PairingMachineBenchmark.pairNestedTokens",
+      "params": {
+        "pairCount": "200000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 14.819073965450771,
+          "scoreError": 0.6815975432586476,
+          "scoreConfidence": [
+            14.137476422192124,
+            15.500671508709418
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 14.881194572816211,
+          "scoreError": 0.5431642768761689,
+          "scoreConfidence": [
+            14.338030295940042,
+            15.42435884969238
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.062120607365439895,
+        "percentChange": 0.41919358463469475,
+        "conservativeDeltaInterval": [
+          -1.1626412127693762,
+          1.286882427500256
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 44500638.24901846,
+          "scoreError": 4.5393852668360815,
+          "scoreConfidence": [
+            44500633.709633194,
+            44500642.78840373
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 44500638.53688433,
+          "scoreError": 4.49121108545163,
+          "scoreConfidence": [
+            44500634.04567324,
+            44500643.02809542
+          ],
+          "unit": "B/op"
+        },
+        "delta": 0.28786586970090866,
+        "percentChange": 6.46880316839631e-07,
+        "conservativeDeltaInterval": [
+          -8.742730483412743,
+          9.31846222281456
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "pairing",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.PairingMachineBenchmark.pairNestedTokens",
+      "params": {
+        "pairCount": "32768"
+      },
+      "latency": {
+        "baseline": {
+          "score": 2.0137962162421394,
+          "scoreError": 0.03696896434551157,
+          "scoreConfidence": [
+            1.976827251896628,
+            2.0507651805876512
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 2.0173001594603495,
+          "scoreError": 0.062032379654431244,
+          "scoreConfidence": [
+            1.9552677798059181,
+            2.0793325391147808
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.003503943218210015,
+        "percentChange": 0.17399691140291126,
+        "conservativeDeltaInterval": [
+          -0.09549740078173308,
+          0.10250528721815289
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 6669939.844782037,
+          "scoreError": 0.23090792660989232,
+          "scoreConfidence": [
+            6669939.61387411,
+            6669940.075689963
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 6669939.825268424,
+          "scoreError": 0.292803131962404,
+          "scoreConfidence": [
+            6669939.532465292,
+            6669940.118071556
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.019513612613081932,
+        "percentChange": -2.925605487783767e-07,
+        "conservativeDeltaInterval": [
+          -0.5432246709242463,
+          0.5041974456980824
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "pairing",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.PairingMachineBenchmark.pairSequentialTokens",
+      "params": {
+        "pairCount": "100000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 8.971338781738538,
+          "scoreError": 0.27047454326865156,
+          "scoreConfidence": [
+            8.700864238469887,
+            9.24181332500719
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 9.125335565453222,
+          "scoreError": 0.4413129482642633,
+          "scoreConfidence": [
+            8.684022617188958,
+            9.566648513717485
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.15399678371468362,
+        "percentChange": 1.716541839085926,
+        "conservativeDeltaInterval": [
+          -0.5577907078182314,
+          0.8657842752475986
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 19544285.251131896,
+          "scoreError": 1.7825201035414449,
+          "scoreConfidence": [
+            19544283.46861179,
+            19544287.033652
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 19544285.583115634,
+          "scoreError": 3.78332406979523,
+          "scoreConfidence": [
+            19544281.799791563,
+            19544289.366439704
+          ],
+          "unit": "B/op"
+        },
+        "delta": 0.3319837376475334,
+        "percentChange": 1.6986230674683117e-06,
+        "conservativeDeltaInterval": [
+          -5.233860436826944,
+          5.897827912122011
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "pairing",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.PairingMachineBenchmark.pairSequentialTokens",
+      "params": {
+        "pairCount": "200000"
+      },
+      "latency": {
+        "baseline": {
+          "score": 15.649095119123933,
+          "scoreError": 0.30895160939927147,
+          "scoreConfidence": [
+            15.340143509724662,
+            15.958046728523204
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 15.869469039393188,
+          "scoreError": 0.28666904200979154,
+          "scoreConfidence": [
+            15.582799997383397,
+            16.15613808140298
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.22037392026925495,
+        "percentChange": 1.4082214887936084,
+        "conservativeDeltaInterval": [
+          -0.3752467311398071,
+          0.815994571678317
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 41570499.04561966,
+          "scoreError": 3.550711052769309,
+          "scoreConfidence": [
+            41570495.49490861,
+            41570502.59633071
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 41570500.70469577,
+          "scoreError": 2.839041037217357,
+          "scoreConfidence": [
+            41570497.86565473,
+            41570503.54373681
+          ],
+          "unit": "B/op"
+        },
+        "delta": 1.6590761095285416,
+        "percentChange": 3.990993968361707e-06,
+        "conservativeDeltaInterval": [
+          -4.730675980448723,
+          8.048828199505806
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "pairing",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.PairingMachineBenchmark.pairSequentialTokens",
+      "params": {
+        "pairCount": "32768"
+      },
+      "latency": {
+        "baseline": {
+          "score": 2.931699806632294,
+          "scoreError": 0.16045785512299632,
+          "scoreConfidence": [
+            2.7712419515092974,
+            3.0921576617552904
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 2.914816456945786,
+          "scoreError": 0.07105805492719972,
+          "scoreConfidence": [
+            2.8437584020185867,
+            2.9858745118729857
+          ],
+          "unit": "ms/op"
+        },
+        "delta": -0.01688334968650773,
+        "percentChange": -0.5758894429884346,
+        "conservativeDeltaInterval": [
+          -0.24839925973670374,
+          0.21463256036368827
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 6094233.251268803,
+          "scoreError": 0.95660992299363,
+          "scoreConfidence": [
+            6094232.29465888,
+            6094234.207878727
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 6094233.185261016,
+          "scoreError": 0.5362045648187231,
+          "scoreConfidence": [
+            6094232.649056451,
+            6094233.72146558
+          ],
+          "unit": "B/op"
+        },
+        "delta": -0.06600778736174107,
+        "percentChange": -1.0831188213545718e-06,
+        "conservativeDeltaInterval": [
+          -1.5588222751393914,
+          1.4268067004159093
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "preferences",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.PreferenceNormalizationBenchmark.normalizeDefaultSnapshot",
+      "params": {},
+      "latency": {
+        "baseline": {
+          "score": 59.70613527102564,
+          "scoreError": 0.6381207205003828,
+          "scoreConfidence": [
+            59.068014550525255,
+            60.34425599152602
+          ],
+          "unit": "ns/op"
+        },
+        "candidate": {
+          "score": 60.01071864813656,
+          "scoreError": 1.3641312387035978,
+          "scoreConfidence": [
+            58.64658740943296,
+            61.37484988684016
+          ],
+          "unit": "ns/op"
+        },
+        "delta": 0.304583377110923,
+        "percentChange": 0.5101374854163975,
+        "conservativeDeltaInterval": [
+          -1.6976685820930584,
+          2.3068353363149043
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 544.000350625738,
+          "scoreError": 4.025320743721456e-06,
+          "scoreConfidence": [
+            544.0003466004172,
+            544.0003546510587
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 544.0003521921989,
+          "scoreError": 7.990012046967012e-06,
+          "scoreConfidence": [
+            544.0003442021869,
+            544.0003601822109
+          ],
+          "unit": "B/op"
+        },
+        "delta": 1.5664609236409888e-06,
+        "percentChange": 2.879521900747238e-07,
+        "conservativeDeltaInterval": [
+          -1.04488718761786e-05,
+          1.3581793723460578e-05
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    },
+    {
+      "job": "preferences",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.PreferenceNormalizationBenchmark.reusePersistedSnapshot",
+      "params": {},
+      "latency": {
+        "baseline": {
+          "score": 0.5683940574955149,
+          "scoreError": 0.00315543292785562,
+          "scoreConfidence": [
+            0.5652386245676593,
+            0.5715494904233704
+          ],
+          "unit": "ns/op"
+        },
+        "candidate": {
+          "score": 0.5691880346719904,
+          "scoreError": 0.007655956177771508,
+          "scoreConfidence": [
+            0.5615320784942189,
+            0.5768439908497619
+          ],
+          "unit": "ns/op"
+        },
+        "delta": 0.0007939771764755577,
+        "percentChange": 0.13968780391090257,
+        "conservativeDeltaInterval": [
+          -0.01001741192915151,
+          0.011605366282102625
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 3.327879589854927e-06,
+          "scoreError": 3.1870854388692164e-08,
+          "scoreConfidence": [
+            3.296008735466235e-06,
+            3.359750444243619e-06
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 3.33188170632991e-06,
+          "scoreError": 5.4634209127772566e-08,
+          "scoreConfidence": [
+            3.2772474972021376e-06,
+            3.3865159154576827e-06
+          ],
+          "unit": "B/op"
+        },
+        "delta": 4.002116474982972e-09,
+        "percentChange": 0.1202602548236259,
+        "conservativeDeltaInterval": [
+          -8.250294704148159e-08,
+          9.050717999144753e-08
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": false
+    }
+  ],
+  "latencyAbove20PercentCases": [
+    {
+      "job": "sort-ascending",
+      "benchmark": "com.sijunyang.bracketpairguides.benchmarks.LongArraySortBenchmark.productionCancellableSort",
+      "params": {
+        "distribution": "ascending",
+        "size": "32768"
+      },
+      "latency": {
+        "baseline": {
+          "score": 0.024643778259185522,
+          "scoreError": 0.001074860910457931,
+          "scoreConfidence": [
+            0.02356891734872759,
+            0.025718639169643454
+          ],
+          "unit": "ms/op"
+        },
+        "candidate": {
+          "score": 0.031896126934400894,
+          "scoreError": 0.0027785482464204444,
+          "scoreConfidence": [
+            0.02911757868798045,
+            0.03467467518082134
+          ],
+          "unit": "ms/op"
+        },
+        "delta": 0.007252348675215372,
+        "percentChange": 29.428720705649877,
+        "conservativeDeltaInterval": [
+          0.003398939518336995,
+          0.011105757832093749
+        ],
+        "directionUnresolvedByReportedIntervals": false,
+        "assessment": "increase-beyond-reported-intervals"
+      },
+      "bytesPerOperation": {
+        "baseline": {
+          "score": 524320.2198257897,
+          "scoreError": 0.07274241719772942,
+          "scoreConfidence": [
+            524320.1470833725,
+            524320.2925682069
+          ],
+          "unit": "B/op"
+        },
+        "candidate": {
+          "score": 524320.2931458771,
+          "scoreError": 0.038832726414204294,
+          "scoreConfidence": [
+            524320.2543131507,
+            524320.3319786035
+          ],
+          "unit": "B/op"
+        },
+        "delta": 0.0733200873946771,
+        "percentChange": 1.3983837476082535e-05,
+        "conservativeDeltaInterval": [
+          -0.0382550562499091,
+          0.1848952310392633
+        ],
+        "directionUnresolvedByReportedIntervals": true,
+        "assessment": "direction-unresolved"
+      },
+      "latencyAboveExisting20PercentBoundary": true
+    }
+  ],
+  "limitations": [
+    "One full suite per revision; the two JVM forks are not repeated independent suites.",
+    "Conservative interval subtraction reports direction only; it is not a new hypothesis test or equivalence claim.",
+    "The local 20 percent indicator mirrors the existing Bencher latency boundary but does not execute its external historical gate.",
+    "Bytes/op is direct allocation evidence; MB/sec is throughput-dependent and cannot establish allocation parity.",
+    "These cases cover pairing, primitive sorting, cancellation and preferences only. No host capture/read locks, repair, snapshot queries, native inspection, presentation or end-to-end IDE latency is measured.",
+    "Candidate query range validation is outside these JMH cases; use pure query tests and IDE fixture evidence for that change."
+  ]
+}

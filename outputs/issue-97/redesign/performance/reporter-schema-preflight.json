@@ -1,0 +1,88 @@
+{
+  "recordedUtc": "2026-10-08T12:04:55.824386+00:00",
+  "scriptSha256": "c3af65a78798677afe634a94e2235f0c654c664889a28cadc004a437e53b1d43",
+  "scope": "Read-only schema checks against existing setup raw, plus independent nearest-rank and missing-value checks. No formal campaign or full report generation claimed; original records were not changed.",
+  "records": [
+    {
+      "name": "edit-restoration-baseline",
+      "rowsWhoseMetricShapesWereChecked": 30,
+      "rawSha256": "86f3cdd96e2b5a41fef9c5c63071060dfc14bad5545a02b2901db4c9d0ba988e"
+    },
+    {
+      "name": "edit-restoration-candidate",
+      "rowsWhoseMetricShapesWereChecked": 30,
+      "rawSha256": "3d7e38d5d486e4d093fb329db928e441237b4a9364c504bdd7bd1d3345b4299b"
+    },
+    {
+      "name": "analysis-baseline",
+      "rowsWhoseMetricShapesWereChecked": 30,
+      "rawSha256": "b7598230f1a63576c562c9213f312c6319a1b2528b1671b484657c3393b34aa6"
+    },
+    {
+      "name": "analysis-candidate",
+      "rowsWhoseMetricShapesWereChecked": 30,
+      "rawSha256": "9a639c8ce4b6f44a4724d6e800b7ac9750e1b2a88e8cf15afd59ebe719be0d6b"
+    },
+    {
+      "name": "write-wait-baseline",
+      "rowsWhoseMetricShapesWereChecked": 25,
+      "rawSha256": "157fe96cf40c1aa9eab3e8cbfbe48046559da3656a2e0f96f1b092eb65bbeb37"
+    },
+    {
+      "name": "write-wait-candidate",
+      "rowsWhoseMetricShapesWereChecked": 25,
+      "rawSha256": "ed2d58363cb8cad4c56dbedf9dfe3998dc745c697bee4dcd32df78ee94c20a48"
+    },
+    {
+      "name": "execution-baseline",
+      "rowsWhoseMetricShapesWereChecked": 20,
+      "rawSha256": "4b0ddaab5725cc0d5570e06d976b0486a0a157524e8b4732ad20eeb12785c4c0"
+    },
+    {
+      "name": "execution-candidate",
+      "rowsWhoseMetricShapesWereChecked": 20,
+      "rawSha256": "5dd019aa4036ca56a7e4ebe72ed8a827e0b268c70be3e838e214ef026a1e1797"
+    },
+    {
+      "name": "repair-baseline",
+      "rowsWhoseMetricShapesWereChecked": 30,
+      "rawSha256": "124e21d22ba3aceeb050650c12693dffe5337f73e99885dea11f92ebe0f5685c"
+    },
+    {
+      "name": "repair-candidate",
+      "rowsWhoseMetricShapesWereChecked": 30,
+      "rawSha256": "f95d9a744bd2fb937d72e1f32a6bacd12c100b9a61be20b3a9c2f22e15df5f79"
+    },
+    {
+      "name": "native-baseline",
+      "rowsWhoseMetricShapesWereChecked": 60,
+      "rawSha256": "8352243296b2a33b9721de1c6f85629b7d14998bd9c752028d5fae2d554f3656"
+    },
+    {
+      "name": "native-candidate",
+      "rowsWhoseMetricShapesWereChecked": 60,
+      "rawSha256": "32c4e9886063aa9753f3fb63243ca59383def6e981790209985950c74bd633ae"
+    },
+    {
+      "name": "payload-baseline",
+      "rowsWhoseMetricShapesWereChecked": 15,
+      "rawSha256": "a2a14d0f04d6865df63e6ea62804ba381a19022a5bb66177dd1fb7582516426f"
+    },
+    {
+      "name": "payload-candidate",
+      "rowsWhoseMetricShapesWereChecked": 15,
+      "rawSha256": "837a8666e39237eaf92efe8d5806b40685b76097af57751bc81e6f1785ac19d3"
+    },
+    {
+      "name": "capture-release-baseline",
+      "rowsWhoseMetricShapesWereChecked": 6,
+      "rawSha256": "8c8e2d498993688de0a582a8c6886bc6e0509e57ff97c9e4a98b1bb1c1f03ea0"
+    },
+    {
+      "name": "capture-release-candidate",
+      "rowsWhoseMetricShapesWereChecked": 6,
+      "rawSha256": "be0370b21cd0d27cf941e4fced10bc42774863edc32b7e665daef34d84b74d61"
+    }
+  ],
+  "formalPerformanceAcceptance": false
+}

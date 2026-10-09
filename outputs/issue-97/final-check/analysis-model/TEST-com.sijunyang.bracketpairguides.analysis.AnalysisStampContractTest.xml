@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.AnalysisStampContractTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-07T08:56:34.294Z" hostname="sijun-yangui-MacBookPro.local" time="0.037">
+  <properties/>
+  <testcase name="coverageNarrowingPreservesSourceIdentityAndRejectsExpansion" classname="com.sijunyang.bracketpairguides.analysis.AnalysisStampContractTest" time="0.026"/>
+  <testcase name="equalHostObjectsCannotSubstituteForCapturedIdentity" classname="com.sijunyang.bracketpairguides.analysis.AnalysisStampContractTest" time="0.002"/>
+  <testcase name="layoutOnlyAffectsCoverageThatRequiresGuides" classname="com.sijunyang.bracketpairguides.analysis.AnalysisStampContractTest" time="0.0"/>
+  <testcase name="languageSelectionIsAnOwnedImmutableCopy" classname="com.sijunyang.bracketpairguides.analysis.AnalysisStampContractTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

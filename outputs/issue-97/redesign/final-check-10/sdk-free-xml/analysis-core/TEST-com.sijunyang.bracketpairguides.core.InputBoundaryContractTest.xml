@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.core.InputBoundaryContractTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-08T19:59:15.643Z" hostname="sijun-yangui-MacBookPro.local" time="0.005">
+  <properties/>
+  <testcase name="aTokenCannotExtendPastItsCapturedBatchBoundary" classname="com.sijunyang.bracketpairguides.core.InputBoundaryContractTest" time="0.001"/>
+  <testcase name="earlyEndCannotPublishAnAuthoritativePrefix" classname="com.sijunyang.bracketpairguides.core.InputBoundaryContractTest" time="0.001"/>
+  <testcase name="oneOverlongLexerTokenUsesOneVisitAndMaySpanMoreThan512Characters" classname="com.sijunyang.bracketpairguides.core.InputBoundaryContractTest" time="0.0"/>
+  <testcase name="tokensWithinOneBatchCannotOverlap" classname="com.sijunyang.bracketpairguides.core.InputBoundaryContractTest" time="0.0"/>
+  <testcase name="emptyBatchesCanAdvanceAcrossNonBracketLexerTokens" classname="com.sijunyang.bracketpairguides.core.InputBoundaryContractTest" time="0.001"/>
+  <testcase name="anEmptyDocumentCanFinishWithoutAdvancing" classname="com.sijunyang.bracketpairguides.core.InputBoundaryContractTest" time="0.0"/>
+  <testcase name="fullGuideCaptureRejectsBeyondDocumentPrefixesWithoutPoisoningCanonicalReuse" classname="com.sijunyang.bracketpairguides.core.InputBoundaryContractTest" time="0.001"/>
+  <testcase name="repairRejectsBeyondDocumentPrefixesWithoutPublishingGeometry" classname="com.sijunyang.bracketpairguides.core.InputBoundaryContractTest" time="0.001"/>
+  <testcase name="aLaterBatchCannotReplayTokensBeforeItsRequestedBoundary" classname="com.sijunyang.bracketpairguides.core.InputBoundaryContractTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

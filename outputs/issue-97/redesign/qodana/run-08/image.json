@@ -1,0 +1,31 @@
+[
+  {
+    "Id": "sha256:3db2bdb1d846ddeca9f600a6737bc82b3993067e07e572ba7bf791d9fe41a9bf",
+    "RepoTags": [
+      "jetbrains/qodana-jvm-community:2026.2"
+    ],
+    "RepoDigests": [
+      "jetbrains/qodana-jvm-community@sha256:3db2bdb1d846ddeca9f600a6737bc82b3993067e07e572ba7bf791d9fe41a9bf"
+    ],
+    "Config": {},
+    "Architecture": "",
+    "Os": "",
+    "Size": 0,
+    "RootFS": {},
+    "Metadata": {
+      "LastTagTime": "2026-10-07T09:25:54.255338793Z"
+    },
+    "Descriptor": {
+      "mediaType": "application/vnd.oci.image.index.v1+json",
+      "digest": "sha256:3db2bdb1d846ddeca9f600a6737bc82b3993067e07e572ba7bf791d9fe41a9bf",
+      "size": 1609
+    },
+    "Identity": {
+      "Pull": [
+        {
+          "Repository": "docker.io/jetbrains/qodana-jvm-community"
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,95 @@
+{
+  "scope": "Exact decoded ARGB comparison; original failed Driver07 evidence retained",
+  "cases": [
+    {
+      "name": "all-components",
+      "changedArgbPixels": 0,
+      "bboxXYXY": null,
+      "baselineSha256": "c0b1a94289d81c50b2a037c0d4ec27ab590ac95627b80d2bf2905d93e38ec17e",
+      "actualSha256": "c0b1a94289d81c50b2a037c0d4ec27ab590ac95627b80d2bf2905d93e38ec17e"
+    },
+    {
+      "name": "bracket-colorization-off",
+      "changedArgbPixels": 0,
+      "bboxXYXY": null,
+      "baselineSha256": "b5aaa1ff54354de4e3d3148398499e9844aae60f60d99a5497fad087376a218b",
+      "actualSha256": "b5aaa1ff54354de4e3d3148398499e9844aae60f60d99a5497fad087376a218b"
+    },
+    {
+      "name": "custom-palette",
+      "changedArgbPixels": 0,
+      "bboxXYXY": null,
+      "baselineSha256": "43985437f52792edb4a58191a665cf968b33909eff54dcf5511ffeb7cbde6633",
+      "actualSha256": "43985437f52792edb4a58191a665cf968b33909eff54dcf5511ffeb7cbde6633"
+    },
+    {
+      "name": "default-palette",
+      "changedArgbPixels": 0,
+      "bboxXYXY": null,
+      "baselineSha256": "9306a3b39f1649dcd669ccf6cd867fc5cb344eb6abb8558a36e009ca96f039c5",
+      "actualSha256": "9306a3b39f1649dcd669ccf6cd867fc5cb344eb6abb8558a36e009ca96f039c5"
+    },
+    {
+      "name": "edited-geometry",
+      "changedArgbPixels": 0,
+      "bboxXYXY": null,
+      "baselineSha256": "050fca89e82ac09e4a07476b08a651cd3982d7ad1eed91d5e5ea9b8a613e4e67",
+      "actualSha256": "050fca89e82ac09e4a07476b08a651cd3982d7ad1eed91d5e5ea9b8a613e4e67"
+    },
+    {
+      "name": "horizontal-only",
+      "changedArgbPixels": 569,
+      "bboxXYXY": [
+        48,
+        4,
+        112,
+        34
+      ],
+      "baselineSha256": "ed2242a7e4ae102f3b3a819d32f8962dc9a8829c9fdd2e58bee6fbb872a2e353",
+      "actualSha256": "5b09b1d8a7dd2572b0aa43652748820ebcf393c2253cbde52918211d6b03c923"
+    },
+    {
+      "name": "native-highlight-suppressed",
+      "changedArgbPixels": 0,
+      "bboxXYXY": null,
+      "baselineSha256": "c0b1a94289d81c50b2a037c0d4ec27ab590ac95627b80d2bf2905d93e38ec17e",
+      "actualSha256": "c0b1a94289d81c50b2a037c0d4ec27ab590ac95627b80d2bf2905d93e38ec17e"
+    },
+    {
+      "name": "native-visuals-unmanaged",
+      "changedArgbPixels": 0,
+      "bboxXYXY": null,
+      "baselineSha256": "a19675ac9d4aeb1f44308259fd56c2f6975d2cd684cf9f57727ba9e85b062a2e",
+      "actualSha256": "a19675ac9d4aeb1f44308259fd56c2f6975d2cd684cf9f57727ba9e85b062a2e"
+    },
+    {
+      "name": "pair-background-only",
+      "changedArgbPixels": 0,
+      "bboxXYXY": null,
+      "baselineSha256": "5ce70457b056c2b1c7187d69973f4c833ddfc9ccab33b13563c0475f5a1cad42",
+      "actualSha256": "5ce70457b056c2b1c7187d69973f4c833ddfc9ccab33b13563c0475f5a1cad42"
+    },
+    {
+      "name": "pair-border-only",
+      "changedArgbPixels": 0,
+      "bboxXYXY": null,
+      "baselineSha256": "82c70d21107d82fc572ff4354354c407351541f8e26e3f549e5cb0b14805926a",
+      "actualSha256": "82c70d21107d82fc572ff4354354c407351541f8e26e3f549e5cb0b14805926a"
+    },
+    {
+      "name": "plugin-disabled",
+      "changedArgbPixels": 0,
+      "bboxXYXY": null,
+      "baselineSha256": "ba301ad47c90f0dc618bf54828e6508fd8a5e959d9b162ff436789941fa9de0a",
+      "actualSha256": "ba301ad47c90f0dc618bf54828e6508fd8a5e959d9b162ff436789941fa9de0a"
+    },
+    {
+      "name": "vertical-only",
+      "changedArgbPixels": 0,
+      "bboxXYXY": null,
+      "baselineSha256": "d77d91ffbc0e9d8cc01961e0811ef42c4b8f3de951d0a20df189a60825513660",
+      "actualSha256": "d77d91ffbc0e9d8cc01961e0811ef42c4b8f3de951d0a20df189a60825513660"
+    }
+  ],
+  "inference": "horizontal-only difference falls in Contract/run text; daemon readiness is a hypothesis addressed by the pending observed-readiness Driver09, not an established cause"
+}

@@ -1,0 +1,13 @@
+[
+  {
+    "name": "format-06",
+    "command": [
+      "./gradlew",
+      "spotlessApply",
+      "--no-configuration-cache",
+      "--console=plain"
+    ],
+    "exitCode": 1,
+    "seconds": 13.448463201522827
+  }
+]

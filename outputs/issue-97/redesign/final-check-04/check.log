@@ -1,0 +1,165 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :build-logic:compileJava NO-SOURCE
+> Task :build-logic:compileGroovy UP-TO-DATE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+> Task :build-logic:compileTestJava UP-TO-DATE
+> Task :build-logic:compileTestGroovy NO-SOURCE
+> Task :build-logic:pluginUnderTestMetadata UP-TO-DATE
+> Task :build-logic:processTestResources NO-SOURCE
+> Task :build-logic:testClasses UP-TO-DATE
+> Task :spotlessJava UP-TO-DATE
+> Task :spotlessJavaCheck UP-TO-DATE
+> Task :spotlessKotlin UP-TO-DATE
+> Task :spotlessKotlinCheck UP-TO-DATE
+> Task :spotlessKotlinGradle UP-TO-DATE
+> Task :spotlessKotlinGradleCheck UP-TO-DATE
+> Task :spotlessMisc UP-TO-DATE
+> Task :spotlessMiscCheck UP-TO-DATE
+> Task :spotlessCheck UP-TO-DATE
+> Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-model:compileKotlin UP-TO-DATE
+> Task :analysis-model:compileJava NO-SOURCE
+> Task :analysis-core:compileKotlin UP-TO-DATE
+> Task :analysis-core:compileJava UP-TO-DATE
+> Task :analysis-core:processResources NO-SOURCE
+> Task :analysis-core:classes UP-TO-DATE
+> Task :analysis-core:jar UP-TO-DATE
+> Task :analysis-model:processResources NO-SOURCE
+> Task :analysis-model:classes UP-TO-DATE
+> Task :analysis-model:jar UP-TO-DATE
+> Task :analysis-runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:compileKotlin UP-TO-DATE
+> Task :editor-ui:compileJava UP-TO-DATE
+> Task :analysis-runtime:compileKotlin UP-TO-DATE
+> Task :analysis-runtime:compileJava UP-TO-DATE
+> Task :analysis-runtime:processResources NO-SOURCE
+> Task :analysis-runtime:classes UP-TO-DATE
+> Task :analysis-runtime:jar UP-TO-DATE
+> Task :editor-ui:processResources NO-SOURCE
+> Task :editor-ui:classes UP-TO-DATE
+> Task :editor-ui:jar UP-TO-DATE
+> Task :plugin:initializeIntellijPlatformPlugin
+> Task :plugin:patchPluginXml UP-TO-DATE
+> Task :plugin:generateManifest UP-TO-DATE
+> Task :plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :plugin:compileKotlin UP-TO-DATE
+> Task :plugin:compileJava NO-SOURCE
+> Task :plugin:processResources UP-TO-DATE
+> Task :plugin:classes UP-TO-DATE
+> Task :plugin:instrumentCode UP-TO-DATE
+> Task :plugin:jar UP-TO-DATE
+> Task :plugin:instrumentedJar UP-TO-DATE
+> Task :plugin:composedJar UP-TO-DATE
+> Task :plugin:prepareSandbox UP-TO-DATE
+> Task :plugin:buildSearchableOptions SKIPPED
+> Task :plugin:prepareJarSearchableOptions SKIPPED
+> Task :plugin:jarSearchableOptions SKIPPED
+> Task :plugin:buildPlugin UP-TO-DATE
+> Task :verifyPluginPackaging
+
+> Task :verifyProductionModules
+Actual production compiler ownership/classpaths verified.
+
+> Task :analysis-core:compileTestKotlin UP-TO-DATE
+> Task :analysis-core:compileTestJava NO-SOURCE
+> Task :analysis-core:processTestResources NO-SOURCE
+> Task :analysis-core:testClasses UP-TO-DATE
+> Task :analysis-core:test UP-TO-DATE
+> Task :analysis-core:check UP-TO-DATE
+> Task :analysis-model:compileTestKotlin UP-TO-DATE
+> Task :analysis-model:compileTestJava NO-SOURCE
+> Task :analysis-model:processTestResources NO-SOURCE
+> Task :analysis-model:testClasses UP-TO-DATE
+> Task :analysis-model:test UP-TO-DATE
+> Task :analysis-model:check UP-TO-DATE
+> Task :analysis-runtime:compileTestKotlin UP-TO-DATE
+> Task :analysis-runtime:compileTestJava NO-SOURCE
+> Task :analysis-runtime:processTestResources NO-SOURCE
+> Task :analysis-runtime:testClasses UP-TO-DATE
+> Task :analysis-runtime:test UP-TO-DATE
+> Task :analysis-runtime:check UP-TO-DATE
+> Task :benchmarks:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :benchmarks:compileKotlin UP-TO-DATE
+> Task :benchmarks:compileJava NO-SOURCE
+> Task :benchmarks:processResources NO-SOURCE
+> Task :benchmarks:classes UP-TO-DATE
+> Task :benchmarks:jar UP-TO-DATE
+> Task :benchmarks:compileTestKotlin NO-SOURCE
+> Task :benchmarks:compileTestJava NO-SOURCE
+> Task :benchmarks:processTestResources NO-SOURCE
+> Task :benchmarks:testClasses UP-TO-DATE
+> Task :benchmarks:compileJmhKotlin NO-SOURCE
+> Task :benchmarks:compileJmhJava UP-TO-DATE
+> Task :benchmarks:processJmhResources NO-SOURCE
+> Task :benchmarks:jmhClasses UP-TO-DATE
+> Task :benchmarks:jmhRunBytecodeGenerator UP-TO-DATE
+> Task :benchmarks:jmhCompileGeneratedClasses UP-TO-DATE
+> Task :benchmarks:jmhJar UP-TO-DATE
+> Task :editor-ui:compileTestKotlin UP-TO-DATE
+> Task :editor-ui:compileTestJava NO-SOURCE
+> Task :editor-ui:processTestResources NO-SOURCE
+> Task :editor-ui:testClasses UP-TO-DATE
+> Task :editor-ui:test UP-TO-DATE
+> Task :editor-ui:check UP-TO-DATE
+> Task :plugin:compileTestKotlin UP-TO-DATE
+> Task :plugin:compileTestJava NO-SOURCE
+> Task :plugin:processTestResources UP-TO-DATE
+> Task :plugin:testClasses UP-TO-DATE
+> Task :plugin:instrumentTestCode UP-TO-DATE
+> Task :plugin:prepareTestSandbox UP-TO-DATE
+> Task :plugin:prepareTest
+> Task :plugin:test UP-TO-DATE
+> Task :plugin:check UP-TO-DATE
+> Task :plugin:prepareSandbox_minimumSdkTests UP-TO-DATE
+
+> Task :plugin:minimumSdkTests
+CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
+
+10월 08, 2026 6:57:37 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: Index dispose started
+10월 08, 2026 6:57:37 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: dirty file ids stored. Ids & filenames: {}
+10월 08, 2026 6:57:37 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: read dirty file ids: []
+10월 08, 2026 6:57:37 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: read dirty file ids: []
+10월 08, 2026 6:57:37 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: dirty file ids stored. Ids & filenames: {}
+10월 08, 2026 6:57:37 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: StubIndexExtension-s were unloaded
+10월 08, 2026 6:57:37 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: Start shutting down /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/.intellijPlatform/sandbox/plugin/IC-2024.1.7/system_minimumSdkTests/index/rep.names
+10월 08, 2026 6:57:37 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: Finished shutting down /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/.intellijPlatform/sandbox/plugin/IC-2024.1.7/system_minimumSdkTests/index/rep.names
+10월 08, 2026 6:57:37 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: Index dispose completed in 26ms.
+10월 08, 2026 6:57:37 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: VFS dispose started
+10월 08, 2026 6:57:37 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: VFS closing
+10월 08, 2026 6:57:37 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: VFS dispose completed in 1 ms.
+
+> Task :benchmarks:test NO-SOURCE
+> Task :benchmarks:check UP-TO-DATE
+> Task :build-logic:test
+> Task :build-logic:validatePlugins UP-TO-DATE
+> Task :build-logic:check
+> Task :check
+
+[Incubating] Problems report is available at: file:///Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 11m
+61 actionable tasks: 5 executed, 56 up-to-date

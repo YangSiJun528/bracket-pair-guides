@@ -1,0 +1,183 @@
+{
+  "exitCode": 0,
+  "tests": 1,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "scenarioCount": 12,
+  "allExactArgbAndPng": true,
+  "functionalAssertionsPassed": true,
+  "sourceRevision": "f65ed4e3fddbb8cdb1142af9cb72cf2e2f7ebade",
+  "sourceManifestSha256": "e92e27e50ffe3102ec86a648403dd9d9d83013bd580aab9d1694981707062e52",
+  "xmlSha256": "09213ef86c362e52adcf88bb45ffc5c24aefa8daf18e671e041a50f3fba40581",
+  "reviewedOracle": "../settled-oracle-review/review.json",
+  "scenarios": [
+    {
+      "name": "all-components",
+      "baselineSha256": "c0b1a94289d81c50b2a037c0d4ec27ab590ac95627b80d2bf2905d93e38ec17e",
+      "actualSha256": "c0b1a94289d81c50b2a037c0d4ec27ab590ac95627b80d2bf2905d93e38ec17e",
+      "dimensions": [
+        220,
+        239
+      ],
+      "exactArgb": true,
+      "exactPng": true,
+      "beforeAfterReadyAndSameStamp": true
+    },
+    {
+      "name": "bracket-colorization-off",
+      "baselineSha256": "b5aaa1ff54354de4e3d3148398499e9844aae60f60d99a5497fad087376a218b",
+      "actualSha256": "b5aaa1ff54354de4e3d3148398499e9844aae60f60d99a5497fad087376a218b",
+      "dimensions": [
+        220,
+        239
+      ],
+      "exactArgb": true,
+      "exactPng": true,
+      "beforeAfterReadyAndSameStamp": true
+    },
+    {
+      "name": "custom-palette",
+      "baselineSha256": "43985437f52792edb4a58191a665cf968b33909eff54dcf5511ffeb7cbde6633",
+      "actualSha256": "43985437f52792edb4a58191a665cf968b33909eff54dcf5511ffeb7cbde6633",
+      "dimensions": [
+        220,
+        239
+      ],
+      "exactArgb": true,
+      "exactPng": true,
+      "beforeAfterReadyAndSameStamp": true
+    },
+    {
+      "name": "default-palette",
+      "baselineSha256": "9306a3b39f1649dcd669ccf6cd867fc5cb344eb6abb8558a36e009ca96f039c5",
+      "actualSha256": "9306a3b39f1649dcd669ccf6cd867fc5cb344eb6abb8558a36e009ca96f039c5",
+      "dimensions": [
+        220,
+        239
+      ],
+      "exactArgb": true,
+      "exactPng": true,
+      "beforeAfterReadyAndSameStamp": true
+    },
+    {
+      "name": "edited-geometry",
+      "baselineSha256": "ed7b7b0ae4f2e0b043f6afca47a74e5951ff74f50e8d12ad737184672e31c4b1",
+      "actualSha256": "ed7b7b0ae4f2e0b043f6afca47a74e5951ff74f50e8d12ad737184672e31c4b1",
+      "dimensions": [
+        220,
+        239
+      ],
+      "exactArgb": true,
+      "exactPng": true,
+      "beforeAfterReadyAndSameStamp": true
+    },
+    {
+      "name": "horizontal-only",
+      "baselineSha256": "ed2242a7e4ae102f3b3a819d32f8962dc9a8829c9fdd2e58bee6fbb872a2e353",
+      "actualSha256": "ed2242a7e4ae102f3b3a819d32f8962dc9a8829c9fdd2e58bee6fbb872a2e353",
+      "dimensions": [
+        220,
+        239
+      ],
+      "exactArgb": true,
+      "exactPng": true,
+      "beforeAfterReadyAndSameStamp": true
+    },
+    {
+      "name": "native-highlight-suppressed",
+      "baselineSha256": "7740876545161bdd4630e5b0e376aff889009406a11694600184a84380a7476c",
+      "actualSha256": "7740876545161bdd4630e5b0e376aff889009406a11694600184a84380a7476c",
+      "dimensions": [
+        220,
+        239
+      ],
+      "exactArgb": true,
+      "exactPng": true,
+      "beforeAfterReadyAndSameStamp": true
+    },
+    {
+      "name": "native-visuals-unmanaged",
+      "baselineSha256": "d65f06888f934e156b19f17fdcf480a5f711eb62132cedfe7c1721f1df403306",
+      "actualSha256": "d65f06888f934e156b19f17fdcf480a5f711eb62132cedfe7c1721f1df403306",
+      "dimensions": [
+        220,
+        239
+      ],
+      "exactArgb": true,
+      "exactPng": true,
+      "beforeAfterReadyAndSameStamp": true
+    },
+    {
+      "name": "pair-background-only",
+      "baselineSha256": "5ce70457b056c2b1c7187d69973f4c833ddfc9ccab33b13563c0475f5a1cad42",
+      "actualSha256": "5ce70457b056c2b1c7187d69973f4c833ddfc9ccab33b13563c0475f5a1cad42",
+      "dimensions": [
+        220,
+        239
+      ],
+      "exactArgb": true,
+      "exactPng": true,
+      "beforeAfterReadyAndSameStamp": true
+    },
+    {
+      "name": "pair-border-only",
+      "baselineSha256": "82c70d21107d82fc572ff4354354c407351541f8e26e3f549e5cb0b14805926a",
+      "actualSha256": "82c70d21107d82fc572ff4354354c407351541f8e26e3f549e5cb0b14805926a",
+      "dimensions": [
+        220,
+        239
+      ],
+      "exactArgb": true,
+      "exactPng": true,
+      "beforeAfterReadyAndSameStamp": true
+    },
+    {
+      "name": "plugin-disabled",
+      "baselineSha256": "ba301ad47c90f0dc618bf54828e6508fd8a5e959d9b162ff436789941fa9de0a",
+      "actualSha256": "ba301ad47c90f0dc618bf54828e6508fd8a5e959d9b162ff436789941fa9de0a",
+      "dimensions": [
+        220,
+        239
+      ],
+      "exactArgb": true,
+      "exactPng": true,
+      "beforeAfterReadyAndSameStamp": true
+    },
+    {
+      "name": "vertical-only",
+      "baselineSha256": "d77d91ffbc0e9d8cc01961e0811ef42c4b8f3de951d0a20df189a60825513660",
+      "actualSha256": "d77d91ffbc0e9d8cc01961e0811ef42c4b8f3de951d0a20df189a60825513660",
+      "dimensions": [
+        220,
+        239
+      ],
+      "exactArgb": true,
+      "exactPng": true,
+      "beforeAfterReadyAndSameStamp": true
+    }
+  ],
+  "extraInteractionImageEqualities": [
+    [
+      "all-components-after-caret-cycle",
+      "all-components"
+    ],
+    [
+      "settings-applied-unmanaged",
+      "native-visuals-unmanaged"
+    ]
+  ],
+  "archiveAudit": {
+    "hostReleaseSha256": "3af98835450aaea492c213841fefc8c386c3435fabb6f2352d6484a0572ddc78",
+    "driverReleaseSha256": "c295f8f0978e72264f3a3f8d09555285b73cfe542a8d4836d1289db06eb6fc8e",
+    "driverVisualSha256": "ed738df337e8fd7475ee8c0e7d736f72b0f16c87a0674b9ef107896133787431",
+    "releaseEntrySetsEqual": true,
+    "hostVersusDriverChangedReleaseEntries": [
+      "bracket-pair-guides/lib/plugin-0.0.6.jar"
+    ],
+    "visualOnlyExtraEntries": [
+      "bracket-pair-guides/lib/bracket-pair-guides-0.0.6-visual-test-bridge.jar"
+    ],
+    "allDriverReleaseBytesPreservedInVisual": true
+  }
+}

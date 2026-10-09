@@ -1,0 +1,16 @@
+{
+  "release": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/distributions/bracket-pair-guides-0.0.6.zip",
+  "releaseSha256": "b1442ca6dfa508738e6cb12c93cf8f4757d2e7f9bce3181c4a73dd9c943b507e",
+  "visual": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/visual-test-distributions/bracket-pair-guides-0.0.6-visual-test.zip",
+  "visualSha256": "07aff76506b506909104c4b893b5eea19dc57e21f735e77d050fd2253622f589",
+  "allReleaseEntriesByteIdentical": true,
+  "extraVisualEntries": [
+    "bracket-pair-guides/lib/bracket-pair-guides-0.0.6-visual-test-bridge.jar"
+  ],
+  "bridgeSha256": "66f85a43744f509d80213df59a9d47e7bd51d9270d00dccd2b9331851d9fc4c9",
+  "bridgeMatchesExactCompiledClassAndResourceOutputs": true,
+  "bridgeEntryCountExcludingGeneratedManifest": 19,
+  "releaseClassCount": 451,
+  "noMeasurementOrBridgeClassesInRelease": true,
+  "scope": "Current final-check-04 archives; does not replace IDE execution/compatibility"
+}

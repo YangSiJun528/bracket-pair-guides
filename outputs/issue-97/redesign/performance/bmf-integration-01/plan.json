@@ -1,0 +1,29 @@
+{
+  "createdUtc": "2026-10-08T19:33:27.597816+00:00",
+  "purpose": "Actual final Gradle exporter integration on preserved historical pure01 records; not final-source performance results",
+  "sides": {
+    "baseline": {
+      "runs": [
+        "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-01/analyzeCold/pair-01/baseline/jmh.json",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-01/analyzeReuse/pair-01/baseline/jmh.json",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-01/visibleQuery/pair-01/baseline/jmh.json",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-01/repair/pair-01/baseline/jmh.json",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-01/cancelledAttempt/pair-01/baseline/jmh.json"
+      ],
+      "inputSha256": "0fcb5146bddb35ceb8be6570a362388142fe3dd9b8011383deee6320873ee5a4"
+    },
+    "candidate": {
+      "runs": [
+        "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-01/analyzeCold/pair-01/candidate/jmh.json",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-01/analyzeReuse/pair-01/candidate/jmh.json",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-01/visibleQuery/pair-01/candidate/jmh.json",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-01/repair/pair-01/candidate/jmh.json",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/performance/pure-01/cancelledAttempt/pair-01/candidate/jmh.json"
+      ],
+      "inputSha256": "608b2c05536080f04b6d3f46207d4de72f29548388be734dd7c6a8e2cd00a040"
+    }
+  },
+  "actualCommand": "./gradlew exportBenchmarkMetrics -PbenchmarkResults=<side>-all-jmh.json -PbenchmarkBmf=<side>-gradle-bmf.json",
+  "expected": "Forty exact identities and both metric values equal existing per-job jq outputs",
+  "finalCampaignSelection": "Before pure02 measurement: repeat actual export for baseline and candidate pair01, all5jobs40cases each. Statistical assessment still uses all6pairs."
+}

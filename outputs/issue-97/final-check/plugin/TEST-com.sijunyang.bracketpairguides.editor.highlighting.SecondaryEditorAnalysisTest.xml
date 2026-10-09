@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.SecondaryEditorAnalysisTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:51.711Z" hostname="sijun-yangui-MacBookPro.local" time="1.697">
+  <properties/>
+  <testcase name="testExistingPreviewIsAnalyzedWhenObservationStarts" classname="com.sijunyang.bracketpairguides.editor.highlighting.SecondaryEditorAnalysisTest" time="0.162"/>
+  <testcase name="testHighlighterReplacementClearsOldColorsAndRequestsFreshAnalysis" classname="com.sijunyang.bracketpairguides.editor.highlighting.SecondaryEditorAnalysisTest" time="0.306"/>
+  <testcase name="testCodeSnippetWithoutAVirtualFileUsesItsLanguageHighlighter" classname="com.sijunyang.bracketpairguides.editor.highlighting.SecondaryEditorAnalysisTest" time="0.17"/>
+  <testcase name="testReleaseRemovesSessionAndPendingSecondaryRefresh" classname="com.sijunyang.bracketpairguides.editor.highlighting.SecondaryEditorAnalysisTest" time="0.166"/>
+  <testcase name="testSecondaryEditorColorsAndReanalyzesWithoutAnyDaemonPass" classname="com.sijunyang.bracketpairguides.editor.highlighting.SecondaryEditorAnalysisTest" time="0.294"/>
+  <testcase name="testSecondaryCalculationRunsWithoutReadAccessAndAppliesOnEdt" classname="com.sijunyang.bracketpairguides.editor.highlighting.SecondaryEditorAnalysisTest" time="0.159"/>
+  <testcase name="testSettingsChangesRefreshSecondaryEditorsThroughTheirOwnScheduler" classname="com.sijunyang.bracketpairguides.editor.highlighting.SecondaryEditorAnalysisTest" time="0.284"/>
+  <testcase name="testShowingAPreviouslyHiddenEditorRequestsItsFirstAnalysis" classname="com.sijunyang.bracketpairguides.editor.highlighting.SecondaryEditorAnalysisTest" time="0.155"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

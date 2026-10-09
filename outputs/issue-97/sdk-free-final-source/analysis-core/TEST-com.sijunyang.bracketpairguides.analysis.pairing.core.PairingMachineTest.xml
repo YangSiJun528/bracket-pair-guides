@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" tests="29" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:14:34.052Z" hostname="sijun-yangui-MacBookPro.local" time="0.148">
+  <properties/>
+  <testcase name="malformedRecoveryDiscardsUnclosedInnerTokens" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.019"/>
+  <testcase name="sequentialPairsReleasePendingCapacityAndReuseGroupState" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.008"/>
+  <testcase name="nestedTokensPreserveCompletionOrderDepthAndGeometry" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.0"/>
+  <testcase name="unrelatedCloserFinishesItsCandidateScanWithoutDiscardingAnOpen" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.001"/>
+  <testcase name="structuralToggleCanOpenAndCloseTheSameScope" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.001"/>
+  <testcase name="strictContextRequiresTheSameNormalizedValue" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.003"/>
+  <testcase name="matcherGroupsKeepIndependentStacksAndDepths" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.001"/>
+  <testcase name="strictContextCanUseANullKey" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.0"/>
+  <testcase name="cancellationWhileRecoveryAnswerIsPendingLeavesThatComparisonUnapplied" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.003"/>
+  <testcase name="resumedTopMatchKeepsItsQueryImmutableAndEmitsOnlyAfterItsAnswer" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.0"/>
+  <testcase name="emptyGroupIgnoresUnmatchedCloserAndReusesResolvedRules" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.001"/>
+  <testcase name="synchronousAndResumedPathsPreservePairsAndLazyRuleCallOrder" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.002"/>
+  <testcase name="occurrenceStructuralRolesSeparateOtherwiseIdenticalTokenTypes" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.001"/>
+  <testcase name="candidateAndRecoveryComparisonsResumeWithoutReplayingEarlierQueries" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.0"/>
+  <testcase name="explicitPendingCapacityAndToggleDoNotNeedSynchronousRules" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.0"/>
+  <testcase name="regularPairCannotCrossAnUnmatchedStructuralOpener" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.001"/>
+  <testcase name="failedSynchronousTopAnswerContinuesWithoutRepeatingThatComparison" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.0"/>
+  <testcase name="unrelatedCloserDoesNotLoseAnOpener" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.0"/>
+  <testcase name="longResumedRecoveryKeepsCancellationCheckpointsAfterRepeatedSuspensions" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.004"/>
+  <testcase name="pureSymmetricTokensCloseBeforeTheyOpenAgain" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.001"/>
+  <testcase name="pendingOpenCapacityRejectsTheNextOpenerBeforeAllocation" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.0"/>
+  <testcase name="unrelatedClosersDoNotRescanADeepStack" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.056"/>
+  <testcase name="synchronousTopCallbackCannotStartAnotherToken" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.0"/>
+  <testcase name="structuralCloserRecoversPastRegularOpenersWithPriority" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.001"/>
+  <testcase name="regularClosersDoNotScanBeyondAStructuralBoundary" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.033"/>
+  <testcase name="deepMalformedRecoveryChecksCancellation" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.008"/>
+  <testcase name="oversizedEmptyGroupReleasesItsStateAndKeepsResolvedRules" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.001"/>
+  <testcase name="regularPairCanBeContainedByAStructuralPair" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.001"/>
+  <testcase name="pendingComparisonRejectsAnotherTokenAndStrayAnswersAreRejected" classname="com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachineTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

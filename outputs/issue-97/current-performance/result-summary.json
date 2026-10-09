@@ -1,0 +1,94 @@
+{
+  "method": "Within-JVM median/nearest-rank p95 followed by numbered paired comparison; no pooling.",
+  "caveats": [
+    "No samples are pooled across JVMs: median and nearest-rank p95 are computed within each JVM, then their per-JVM summaries are described.",
+    "Each paired change compares the same numbered fresh JVM pair. Three pairs have limited power; no equivalence, significance, no-regression or timing pass is inferred.",
+    "All failed/interrupted/unmatched attempts and raw artifact paths remain in the attempt inventory; only the latest completed and validated attempt for each key enters comparisons.",
+    "Recorded stable power/JVM settings and instantaneous idle-process CPU observations do not prove continuous host inactivity.",
+    "Direct allocation traces cover specified coroutine/EDT segments and bookkeeping, not all platform or dispatcher allocation. Incomplete traces are counted and excluded only from comparable allocation metrics.",
+    "Write wait is actual EDT write request-to-acquisition; queue delay, event-pump observation and read-body overlap are separate metrics. Read-body durations exclude read lock acquisition/release overhead.",
+    "Native inspection includes indivisible preparation and callbacks; traversal budgets are cooperative. Native measurements have no allocation metric.",
+    "Repair tab/space variants and frozen-reference/production implementations remain separate. Warmup rows are preserved by counts and raw hashes but excluded from measured statistics.",
+    "Payload capacities, whole-JVM heap diagnostics and weak-reference release observations have distinct scopes. A release timeout or surviving final XML context is retained, not treated as successful release.",
+    "Absolute clocks are retained only in original raw artifacts and are never compared as durations. Cancellation unwind metrics conditioned on successful cancellation do not describe every attempt."
+  ],
+  "provenance": {
+    "candidateRequiredHead": "f7599fa39be7d8e93cc339da719b14012ab1a1dd",
+    "sourceRevisions": {
+      "baseline": {
+        "head": "84d1a43141b1933c81e027ef01d1579fc4679e6e",
+        "dirty": false,
+        "kind": "verified git archive",
+        "archiveIdentity": "7f275d88edb4a0cc7accc44672ba57c1ad9f6f6cdc54fab0e492c7a00e507142",
+        "verifiedMeasuredFileCount": 225,
+        "fixtureFilesIncluded": 124,
+        "identityMethod": "bounded measured source/build and fixture inventory matched frozen commit ls-tree Git blob hashes; direct archive file bytes verified",
+        "scope": "no .git required; excludes build outputs and unrelated archive files; same inventory as source_fingerprint"
+      },
+      "candidate": {
+        "head": "f7599fa39be7d8e93cc339da719b14012ab1a1dd",
+        "dirty": false,
+        "kind": "git worktree",
+        "scope": "exact git HEAD and tracked dirty state; measured-source fingerprint also covers untracked measured sources/resources"
+      }
+    },
+    "sourceFingerprints": {
+      "baseline": "7f275d88edb4a0cc7accc44672ba57c1ad9f6f6cdc54fab0e492c7a00e507142",
+      "candidate": "15b6fa14444d66132846a71db2ed2b73804bc8f72545137a7f4c26061214905f"
+    },
+    "runnerSha256": "9909c9bf77dc8296272fd3ced9f85ad5328ffda22a901dd629412f25bda8ecfe",
+    "initScriptSha256": "dc8403fcaa4c8be5ca71be8ad0059aa4daf62019f83c7b3daf3bcd2a206cfc2d",
+    "planSha256": "1e37d74effd1209dbdefbfe4f0e51be7d799aacec848afecbfde7287de1b87ec"
+  },
+  "all42CommandsMatched": true,
+  "allInvariantGroupsComplete": true,
+  "status": "complete_descriptive_comparison",
+  "performanceEquivalenceEstablished": false,
+  "comparisonFile": {
+    "path": "current-performance/comparison.json",
+    "sha256": "222265b963c0d71d0de4cffed8eabb7e90217ae2b7eecade7063e5db7c5e5fe8",
+    "sizeBytes": 13486606
+  },
+  "independentReview": "current-performance/independent-current-review.md",
+  "attemptCounts": {
+    "completed": 42,
+    "failed": 1
+  },
+  "workloads": {
+    "analysis": {
+      "completeThreePairs": true,
+      "unmatchedOrInvalid": 0,
+      "comparedGroups": 20
+    },
+    "write-wait": {
+      "completeThreePairs": true,
+      "unmatchedOrInvalid": 0,
+      "comparedGroups": 61
+    },
+    "execution": {
+      "completeThreePairs": true,
+      "unmatchedOrInvalid": 0,
+      "comparedGroups": 2
+    },
+    "repair": {
+      "completeThreePairs": true,
+      "unmatchedOrInvalid": 0,
+      "comparedGroups": 24
+    },
+    "native": {
+      "completeThreePairs": true,
+      "unmatchedOrInvalid": 0,
+      "comparedGroups": 73
+    },
+    "payload": {
+      "completeThreePairs": true,
+      "unmatchedOrInvalid": 0,
+      "comparedGroups": 10
+    },
+    "capture-release": {
+      "completeThreePairs": true,
+      "unmatchedOrInvalid": 0,
+      "comparedGroups": 6
+    }
+  }
+}

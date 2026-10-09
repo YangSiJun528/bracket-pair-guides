@@ -1,0 +1,19 @@
+{
+  "command": [
+    "python3",
+    "outputs/issue-97/redesign/compatibility/run_serial_verifiers.py",
+    "--matrix",
+    "outputs/issue-97/redesign/compatibility/current-matrix-02.json",
+    "--testcases",
+    "outputs/issue-97/redesign/compatibility/expected-testcases-02.json",
+    "--execute",
+    "--cleanup-created-ides"
+  ],
+  "startedUtc": "2026-10-08T12:53:49.411262+00:00",
+  "status": "passed",
+  "targetCount": 13,
+  "allEightStrictFailureLevelsRetained": true,
+  "sourceRevision": "8ea07aa86cf939d9a5e945bec180079ecc28eb60",
+  "exitCode": 0,
+  "seconds": 2690.359957290988
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.UnsupportedBackendNotificationProviderTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:41:10.802Z" hostname="sijun-yangui-MacBookPro.local" time="0.253">
+  <properties/>
+  <testcase name="testReSharperActionOpensSupportRequest" classname="com.sijunyang.bracketpairguides.editor.highlighting.UnsupportedBackendNotificationProviderTest" time="0.047"/>
+  <testcase name="testFileTypeSuppressionHidesTheWarning" classname="com.sijunyang.bracketpairguides.editor.highlighting.UnsupportedBackendNotificationProviderTest" time="0.048"/>
+  <testcase name="testWarnsForUnavailableMatcherInEveryProduct" classname="com.sijunyang.bracketpairguides.editor.highlighting.UnsupportedBackendNotificationProviderTest" time="0.049"/>
+  <testcase name="testDoesNotWarnForNonUnavailableStates" classname="com.sijunyang.bracketpairguides.editor.highlighting.UnsupportedBackendNotificationProviderTest" time="0.04"/>
+  <testcase name="testGenericActionOpensLanguageSupportReference" classname="com.sijunyang.bracketpairguides.editor.highlighting.UnsupportedBackendNotificationProviderTest" time="0.069"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[[  44926]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45022]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45024]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45026]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+[  45134]   WARN - #c.i.u.u.StyleSheetUtil - Missing global CSS sheet
+]]></system-err>
+</testsuite>

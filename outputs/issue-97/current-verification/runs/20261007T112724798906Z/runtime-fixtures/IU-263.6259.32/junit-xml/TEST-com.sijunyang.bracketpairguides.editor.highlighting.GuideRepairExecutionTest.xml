@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.GuideRepairExecutionTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:41:01.083Z" hostname="sijun-yangui-MacBookPro.local" time="0.965">
+  <properties/>
+  <testcase name="testAuthoritativeSnapshotCancelsPendingSessionRepairAndKeepsItsGuide" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuideRepairExecutionTest" time="0.066"/>
+  <testcase name="testCaretAndSettingsChangesCancelPendingSessionRepair" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuideRepairExecutionTest" time="0.111"/>
+  <testcase name="testRealRepairCapturesLongPrefixesAndPublishesOnEdtWithoutFullAnalysis" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuideRepairExecutionTest" time="0.053"/>
+  <testcase name="testHighlighterReplacementRejectsLateRepairWithoutADocumentEdit" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuideRepairExecutionTest" time="0.065"/>
+  <testcase name="testEdtWriteCompletesWhileRealRepairCalculationIsPausedOutsideReadAccess" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuideRepairExecutionTest" time="0.08"/>
+  <testcase name="testTabTransitionRepairsThePreviousAnchorBeyondTheForwardLineBudget" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuideRepairExecutionTest" time="0.066"/>
+  <testcase name="testEditedDocumentAndChangedTabsRejectCapturedRepair" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuideRepairExecutionTest" time="0.117"/>
+  <testcase name="testDefaultProjectEditorCanRepairWithoutAProjectScope" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuideRepairExecutionTest" time="0.115"/>
+  <testcase name="testEditorReleaseAndScopeCancellationPreventLatePublicationForNullProjectEditors" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuideRepairExecutionTest" time="0.079"/>
+  <testcase name="testRepeatedGuideHideAndReplacementPreserveThePendingAnchor" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuideRepairExecutionTest" time="0.04"/>
+  <testcase name="testNewRequestOwnsPublicationEvenWhenCanceledCalculationFinishesLate" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuideRepairExecutionTest" time="0.089"/>
+  <testcase name="testColorOnlySettingsSupersessionKeepsPostEditRefusalExact" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuideRepairExecutionTest" time="0.082"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

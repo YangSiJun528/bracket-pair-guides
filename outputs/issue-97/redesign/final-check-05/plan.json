@@ -1,0 +1,18 @@
+{
+  "status": "not-yet-run",
+  "command": [
+    "./gradlew",
+    "--no-daemon",
+    "--no-parallel",
+    "--max-workers=2",
+    "--no-configuration-cache",
+    "check",
+    ":plugin:buildPlugin",
+    ":plugin:buildVisualTestPlugin",
+    ":plugin:verifyPluginProjectConfiguration",
+    ":plugin:verifyPluginStructure",
+    "--console=plain"
+  ],
+  "require": "Driver and local source checkpoint finished; no other build/IDE consumer active",
+  "pureSdkFreeEvidence": "pure-source-parity.json"
+}

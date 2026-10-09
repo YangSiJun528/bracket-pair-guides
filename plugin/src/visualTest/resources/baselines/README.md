@@ -1,55 +1,33 @@
-# Visual test baselines
+# Reviewed visual contracts
 
-This directory contains the reviewed PNG oracle for the 11 scenarios defined in
-the [visual testing reference](../../../../../docs/reference_visual_testing.md).
-The Linux environment directory must contain exactly one
-`<scenario>.png` for every name below.
+These twelve images replace the removed legacy suite under the approved redesign.
+They were captured and individually reviewed on IC 2024.2.6, Linux x86-64,
+Xvfb DPI 96, Darcula/New UI, JetBrains Mono 14, scale 1, en_US/UTC.
+The expected geometry and state are defined in `docs/reference_visual_testing.md`.
 
-| Group | Baseline names |
-|---|---|
-| Rendering components | `horizontal-only`, `vertical-only`, `pair-border-only`, `pair-background-only`, `all-components`, `bracket-colorization-off` |
-| Settings application and native visuals | `plugin-disabled`, `native-visuals-unmanaged`, `native-highlight-suppressed` |
-| Colors | `default-palette`, `custom-palette` |
+Review evidence: `outputs/issue-97/redesign/driver/capture-04/baseline-review.json`,
+with the exact capture source manifest and image hashes. The capture also passed
+Settings Apply, genuine focus and visibility transitions, notification display,
+caret A/B/A pixel equality, and synchronous edit hiding followed by repair.
+An independent exact comparison and rendering-removal mutation are required
+before the redesign is considered verified. No tolerance or automatic acceptance
+is permitted.
 
-The supported rendering environment is:
+Three images (`native-visuals-unmanaged`, `native-highlight-suppressed`,
+`edited-geometry`) were subsequently corrected to settled SDK state. The initial
+native images retained identifier-usage fills from the previous caret location;
+the edited image lacked a recalculated native indent-guide segment. Standard
+project index readiness and daemon completion before/after stable captures now
+prevent accepting those intermediate states. The exact pixel oracle and
+30-second capture budget are unchanged.
 
-- `ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1`
-
-The environment key includes the pinned IDE, operating system, architecture,
-Darcula theme, DPI, and scale. A mismatch never falls back to another directory. Linux recording is valid only under the pinned 96 DPI Xvfb
-environment with `VISUAL_TEST_ENVIRONMENT` set to the Linux key.
-
-Every baseline is a `220 x 239` PNG from the fixed editor source rectangle
-`(x=0, y=1, width=220, height=239)`. The crop omits only the former top boundary
-row, where the selected tab border can vary with IDE focus. Every retained
-pixel is compared exactly. The Linux set was migrated by cropping the committed
-`220 x 240` images without changing their remaining decoded pixels; this
-migration does not replace comparison under the pinned Linux environment.
-
-Generate missing IntelliJ IDEA 2024.2.6 baselines explicitly from the repository
-root on Linux x86-64 with:
-
-```bash
-VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1 \
-  xvfb-run --auto-servernum \
-  --server-args="-screen 0 1920x1080x24 -dpi 96 -nolisten tcp -ac" \
-  ./gradlew :plugin:recordVisualTestBaseline
-```
-
-Recording creates missing files and refuses to replace an existing PNG. For an
-intentional user-visible or pinned-environment change, explicitly add
-`-PforceVisualBaselineOverwrite=true`, then inspect every changed Linux image
-and rerun `./scripts/visual-test-background.sh`. Never overwrite a baseline
-only to clear an unexplained failure.
-
-`visualTest` captures all later scenarios even after a mismatch and never
-updates these files. Baseline recording is refused when `CI=true`; CI may only
-compare committed baselines. Restoration and re-enable transitions reuse
-`native-visuals-unmanaged` and `all-components` rather than adding visually
-duplicate PNGs.
-
-The test writes `ui-geometry.json` and the complete Driver Swing hierarchy as
-`plugin/build/visual-test-artifacts/ui-hierarchy.html`. Each scenario's full
-editor screenshot is retained as `<scenario>-editor.png` in the same directory
-for diagnostics, outside the comparison and gallery. Starter also retains its
-own diagnostics when a UI operation fails.
+Correction review: `outputs/issue-97/redesign/driver/settled-oracle-review/review.json`.
+The three previous images remain in that directory's `previous-oracle/`.
+The replacements come from unchanged baseline production `072533f`, using the
+same twelve-scenario Driver suite; all twelve images matched the redesigned
+production in every ARGB pixel and PNG byte. Cross-production evidence:
+`outputs/issue-97/redesign/driver/baseline-counterfactual-01/cross-production-comparison.json`.
+That diagnostic capture is not an old-golden comparison pass. Nine original
+images were unchanged; the two native corrections each changed 2,218 pixels and
+the edit correction changed 20. Fresh exact comparison and the paint-removal
+mutation remain required after the deliberate correction.

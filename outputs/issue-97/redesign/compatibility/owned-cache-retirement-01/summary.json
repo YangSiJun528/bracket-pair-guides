@@ -1,0 +1,12 @@
+{
+  "recordedUtc": "2026-10-08T12:20:41.276619+00:00",
+  "retiredTargets": [
+    "IU-2025.3.6.1",
+    "IU-2026.1.5",
+    "IU-2026.2.3"
+  ],
+  "removedArtifacts": 6,
+  "preExistingCachesRemoved": false,
+  "allFailedReportsPreserved": true,
+  "freeGiBAfter": 23.34
+}

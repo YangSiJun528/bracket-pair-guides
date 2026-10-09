@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.presentation.BracketGuideDrawingTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:41:13.421Z" hostname="sijun-yangui-MacBookPro.local" time="0.628">
+  <properties/>
+  <testcase name="testCanDisableHorizontalGuidesForASingleLogicalLine" classname="com.sijunyang.bracketpairguides.presentation.BracketGuideDrawingTest" time="0.047"/>
+  <testcase name="testAppliesOpacityOnlyOnceAtHorizontalVerticalJoints" classname="com.sijunyang.bracketpairguides.presentation.BracketGuideDrawingTest" time="0.052"/>
+  <testcase name="testHugeSoftWrappedPairPaintIsBoundedByTheViewportClip" classname="com.sijunyang.bracketpairguides.presentation.BracketGuideDrawingTest" time="0.108"/>
+  <testcase name="testStaleStoredLineNumbersCannotCrashPaintAfterDocumentShrink" classname="com.sijunyang.bracketpairguides.presentation.BracketGuideDrawingTest" time="0.042"/>
+  <testcase name="testInlineHintBeforeOpeningBracketDoesNotShiftGuide" classname="com.sijunyang.bracketpairguides.presentation.BracketGuideDrawingTest" time="0.042"/>
+  <testcase name="testAppliesConfiguredGuideOpacity" classname="com.sijunyang.bracketpairguides.presentation.BracketGuideDrawingTest" time="0.039"/>
+  <testcase name="testLeftmostVerticalGuideKeepsItsFullDeviceWidth" classname="com.sijunyang.bracketpairguides.presentation.BracketGuideDrawingTest" time="0.051"/>
+  <testcase name="testSuppressesMultilinePairCollapsedOntoOneVisualLine" classname="com.sijunyang.bracketpairguides.presentation.BracketGuideDrawingTest" time="0.04"/>
+  <testcase name="testFollowsEveryVisualFragmentOfASoftWrappedLogicalLine" classname="com.sijunyang.bracketpairguides.presentation.BracketGuideDrawingTest" time="0.048"/>
+  <testcase name="testInvalidStoredTokenBoundsAreIgnored" classname="com.sijunyang.bracketpairguides.presentation.BracketGuideDrawingTest" time="0.058"/>
+  <testcase name="testThickGuideSegmentsRemainCenteredOnTheirAxes" classname="com.sijunyang.bracketpairguides.presentation.BracketGuideDrawingTest" time="0.046"/>
+  <testcase name="testUsesConfiguredGuideColor" classname="com.sijunyang.bracketpairguides.presentation.BracketGuideDrawingTest" time="0.054"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,31 @@
+{
+  "target": "IU-2026.2",
+  "strictPass": false,
+  "failureLevels": [
+    "COMPATIBILITY_PROBLEMS",
+    "DEPRECATED_API_USAGES",
+    "EXPERIMENTAL_API_USAGES",
+    "INTERNAL_API_USAGES",
+    "OVERRIDE_ONLY_API_USAGES",
+    "NON_EXTENDABLE_API_USAGES",
+    "MISSING_DEPENDENCIES",
+    "INVALID_PLUGIN"
+  ],
+  "diskBefore": {
+    "path": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "freeBytes": 7479140352,
+    "minimumBytes": 9663676416,
+    "admitted": false
+  },
+  "archiveShaBefore": "b1442ca6dfa508738e6cb12c93cf8f4757d2e7f9bce3181c4a73dd9c943b507e",
+  "status": "failed",
+  "error": "Source/archive changed or insufficient free disk before target",
+  "unclassifiedNewTransformRootsRetained": [],
+  "newTargetInstallersRetained": [],
+  "diskAfter": {
+    "path": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "freeBytes": 7479136256,
+    "minimumBytes": 9663676416,
+    "admitted": false
+  }
+}

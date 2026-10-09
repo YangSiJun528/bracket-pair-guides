@@ -1,0 +1,18 @@
+{
+  "recordedUtc": "2026-10-08T10:20:41.267082+00:00",
+  "exitCode": 255,
+  "failThreshold": 0,
+  "findings": [
+    {
+      "rule": "AssignedValueIsNeverRead",
+      "file": "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkEditRestorationWorkload.kt",
+      "line": 202
+    },
+    {
+      "rule": "RemoveRedundantQualifierName",
+      "file": "build-logic/build.gradle.kts",
+      "line": 34
+    }
+  ],
+  "status": "FAILED2; both sites corrected, fresh rerun pending; fullcheck04 independently passed134"
+}

@@ -37,7 +37,7 @@ jobs:
           persist-credentials: false
       - name: Detect changes to measured inputs
         id: changes
-        run: python3 benchmarks/bencher/benchmark_gate.py changes
+        run: bash benchmarks/runner/changes.sh
 
   prepare:
     needs: changes
@@ -87,7 +87,7 @@ jobs:
         env:
           BENCHER_PROJECT: ${{ vars.BENCHER_PROJECT }}
           BENCHER_API_KEY: ${{ secrets.BENCHER_API_KEY }}
-        run: python3 benchmarks/bencher/resolve_project.py
+        run: bash benchmarks/runner/select-environment.sh
       - name: Require Bencher for baseline seeding
         if: ${{ inputs.seed_main_baseline && steps.bencher.outputs.bencher != 'true' }}
         run: |
@@ -98,14 +98,22 @@ jobs:
         working-directory: ${{ steps.source.outputs.directory }}
         shell: bash
         run: |
-          jobs=$(./gradlew -q :benchmarks:listBenchmarkJobs)
+          jobs='["analyzeCold","analyzeReuse","visibleQuery","repair","cancelledAttempt"]'
           echo "jobs=$jobs" >> "$GITHUB_OUTPUT"
-          mkdir -p benchmarks/build/job-reference
+          ./gradlew :benchmarks:jmhJar
+          jars=(benchmarks/build/libs/*-jmh.jar)
+          test "${#jars[@]}" -eq 1
+          if ! jar tf "${jars[0]}" | grep -Fx 'com/sijunyang/bracketpairguides/benchmarks/CalculationContractBenchmark.class' >/dev/null; then
+            echo 'Selected source lacks the reviewed forty-case adapter. Pre-integration baseline seeding requires its separately reviewed adapter; no remote work will be submitted.' >&2
+            exit 1
+          fi
+          mkdir -p benchmarks/build/benchmark-jobs benchmarks/build/job-reference
+          cp "${jars[0]}" benchmarks/build/benchmark-jobs/jmh.jar
           printf '%s\n' "$jobs" > benchmarks/build/job-reference/jobs.json
-          ./gradlew :benchmarks:jmh --rerun -PbenchmarkSmoke=true
-          cp benchmarks/build/reports/jmh/results.json benchmarks/build/job-reference/reference.json
           while IFS= read -r job; do
-            ./gradlew :benchmarks:prepareBenchmarkJob -PbenchmarkJob="$job"
+            directory="benchmarks/build/benchmark-jobs/$job"
+            mkdir -p "$directory"
+            printf '%s\n' '-jar' '../jmh.jar' ".*\.$job" '-bm' 'avgt' '-wi' '2' '-w' '1s' '-i' '3' '-r' '1s' '-f' '2' '-t' '1' '-jvmArgs' '"-Xms2g -Xmx2g"' '-prof' 'gc' '-rf' 'json' '-rff' 'jmh.json' > "$directory/run.args"
           done < <(printf '%s' "$jobs" | jq -r '.[]')
       - uses: actions/upload-artifact@v7
         with:
@@ -139,13 +147,13 @@ jobs:
       - name: Measure prebuilt job within four minutes
         working-directory: jobs/${{ matrix.job }}
         # Leave a minute of headroom below a five-minute remote execution limit.
-        run: timeout --signal=TERM --kill-after=10s 240s java @run.args
+        run: timeout --signal=TERM --kill-after=10s 240s java @run.args > human.txt 2>&1
       - uses: actions/upload-artifact@v7
         if: ${{ always() }}
         with:
           name: benchmark-results-${{ matrix.job }}
           path: |
-            jobs/${{ matrix.job }}/results.json
+            jobs/${{ matrix.job }}/jmh.json
             jobs/${{ matrix.job }}/human.txt
           retention-days: 3
 
@@ -157,7 +165,7 @@ jobs:
     timeout-minutes: 60
     concurrency:
       # The Free organization allows one remote job at a time. Cancelling the
-      # CLI does not cancel that job, so serialize all seven suites together.
+      # CLI does not cancel that job, so serialize all five jobs together.
       group: bencher-${{ github.repository }}
       queue: max
       cancel-in-progress: false
@@ -171,6 +179,7 @@ jobs:
       BENCHER_BRANCH: ${{ needs.prepare.outputs.branch }}
       BENCHER_BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
       BENCHER_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      BENCHER_SEED_BASELINE: ${{ inputs.seed_main_baseline && 'true' || 'false' }}
       BENCHER_PR_NUMBER: ${{ github.event.pull_request.number }}
     steps:
       - uses: actions/checkout@v7
@@ -193,7 +202,7 @@ jobs:
         run: |
           image="$BENCHER_PROJECT:$BENCHER_HASH-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
           echo "BENCHER_IMAGE=$image" >> "$GITHUB_ENV"
-          docker build --platform linux/amd64 -f benchmarks/bencher/Dockerfile \
+          docker build --platform linux/amd64 -f benchmarks/runner/Dockerfile \
             -t "registry.bencher.dev/$image" .
       - name: Push measurement image
         env:
@@ -207,11 +216,11 @@ jobs:
           printf '%s' "$BENCHER_API_KEY" | docker login registry.bencher.dev \
             --username "$BENCHER_PROJECT" --password-stdin
           docker push "registry.bencher.dev/$BENCHER_IMAGE"
-      - name: Measure seven jobs sequentially
+      - name: Measure five jobs sequentially
         env:
           BENCHER_API_KEY: ${{ secrets.BENCHER_API_KEY }}
           GITHUB_TOKEN: ${{ !inputs.seed_main_baseline && github.token || '' }}
-        run: python3 benchmarks/bencher/run_jobs.py reference/jobs.json results
+        run: bash benchmarks/runner/run-bare-metal.sh
       - name: Collect remote measurement results
         if: ${{ always() }}
         uses: actions/upload-artifact@v7
@@ -258,7 +267,14 @@ jobs:
       - name: Check complete and disjoint coverage
         shell: bash
         run: |
-          python3 benchmarks/check_job_results.py reference/reference.json results reference/jobs.json
+          jq -s 'add' results/*/jmh.json > results/all-jmh.json
+          ./gradlew exportBenchmarkMetrics \
+            -PbenchmarkResults=results/all-jmh.json -PbenchmarkBmf=results/all-bmf.json
+          if [ '${{ needs.prepare.outputs.bencher }}' = true ]; then
+            jq -s 'add' results/*/bmf.json | jq -S . > results/guest-bmf.json
+            jq -S . results/all-bmf.json > results/expected-bmf.json
+            cmp results/guest-bmf.json results/expected-bmf.json
+          fi
 
   gate:
     name: Benchmark Gate
@@ -274,4 +290,9 @@ jobs:
       - name: Enforce benchmark results
         env:
           BENCHMARK_NEEDS: ${{ toJSON(needs) }}
-        run: python3 benchmarks/bencher/benchmark_gate.py check
+        run: |
+          jq -e '.changes.result == "success" and (.changes.outputs.required == "true" or .changes.outputs.required == "false")' <<< "$BENCHMARK_NEEDS" >/dev/null
+          if jq -e '.changes.outputs.required == "false"' <<< "$BENCHMARK_NEEDS" >/dev/null; then exit 0; fi
+          jq -e '.prepare.result == "success" and .coverage.result == "success" and
+            (if .prepare.outputs.bencher == "true" then .bencher.result == "success"
+             elif .prepare.outputs.bencher == "false" then .measure.result == "success" else false end)' <<< "$BENCHMARK_NEEDS" >/dev/null

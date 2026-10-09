@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.buildlogic.CompilationBoundaryTest" tests="32" skipped="0" failures="0" errors="0" timestamp="2026-10-08T09:57:26.161Z" hostname="sijun-yangui-MacBookPro.local" time="650.28">
+  <properties/>
+  <testcase name="actualUiTestSourceInjectionIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="38.162"/>
+  <testcase name="missingProductionOwnerIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="17.085"/>
+  <testcase name="directCompilerClasspathIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="16.409"/>
+  <testcase name="transitiveApiExportIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="17.067"/>
+  <testcase name="pureOwnersCannotCompileSdkReferencesInEitherLanguage" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="21.116"/>
+  <testcase name="typedBootstrapPathIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="17.705"/>
+  <testcase name="sourceOnlyArchiveIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="17.737"/>
+  <testcase name="uiTestsCannotGainImplementationVisibility" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="18.482"/>
+  <testcase name="actualUiTestKotlinClasspathInjectionIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="18.445"/>
+  <testcase name="sharedCompilerDestinationIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="17.602"/>
+  <testcase name="typedKotlinFriendPathsAreRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="17.357"/>
+  <testcase name="commonSourceSetInjectionIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="17.352"/>
+  <testcase name="actualUiCompilersAcceptModelButCannotSeeCoreOrRuntime" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="94.952"/>
+  <testcase name="kotlinFriendArgumentInjectionIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="16.635"/>
+  <testcase name="lateKotlinArgumentsAreRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="16.411"/>
+  <testcase name="kotlinCompilerPluginInjectionIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="20.801"/>
+  <testcase name="unusedDirectDependencyIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="17.299"/>
+  <testcase name="javacArgumentInjectionIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="16.628"/>
+  <testcase name="actualUiTestFriendInjectionIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="17.518"/>
+  <testcase name="propertyCannotDisableProductionOwners" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="10.438"/>
+  <testcase name="copiedOwnerBytecodeInUnrelatedJarIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="18.275"/>
+  <testcase name="kotlinJavaSourceInjectionIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="16.994"/>
+  <testcase name="pureModuleSdkLeakIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="16.613"/>
+  <testcase name="overlappingCompilerDestinationsAreRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="16.372"/>
+  <testcase name="typedJavacSourcepathIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="16.968"/>
+  <testcase name="typedProcessorPathIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="16.099"/>
+  <testcase name="sharedSourceIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="17.025"/>
+  <testcase name="actualPluginCompilersCannotSeeCore" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="15.277"/>
+  <testcase name="actualUiTestJavaClasspathInjectionIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="17.7"/>
+  <testcase name="ownerPositiveControlsProveSymbolsExistAndJavaCanSeeThem" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="19.886"/>
+  <testcase name="foreignKotlinSourcesAreRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="16.893"/>
+  <testcase name="effectiveKotlinClasspathInjectionIsRejected" classname="com.sijunyang.buildlogic.CompilationBoundaryTest" time="16.976"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,48 @@
+{
+  "minimumSdk": [
+    {
+      "suite": "com.sijunyang.bracketpairguides.ui.editor.highlighting.NativeGuideAdvisoryIdeContractTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "02e6cb7ae7cda0ca9d142b0824b5abba7d73bd27819148c6d09a90459d160d0a"
+    },
+    {
+      "suite": "com.sijunyang.bracketpairguides.plugin.RuntimeIdentityIdeContractTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "3f51d6e5deabc835008d0b361a8def99bbc477d409a45a9374b52e1604ec140d"
+    },
+    {
+      "suite": "com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "01331b5b9aab5469dfd80fccd2954515867dac0bebd9592d3e69eb6743ac3281"
+    },
+    {
+      "suite": "com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "5d601e72cf9e4c0f6580e5b9f64290a35ae95ad0a03746e41cbb64c297904546"
+    },
+    {
+      "suite": "com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "25cd50527c0dafba50a573f0152668409cbb5a9d38ce8bad22d8e9203028522b"
+    }
+  ],
+  "isolatedSmokeAll16PassedBeforeEndpointReuse": true,
+  "pureStandalone43Passed": true,
+  "fullCheckCurrentSdkVerifierQodanaFormalPerformance": "pending",
+  "driver": "12 exact images passed before endpoint reuse; final positive/mutation pending"
+}

@@ -1,0 +1,59 @@
+com.sijunyang.bracketpairguides:0.0.6
+\--- com.intellij:243.28141.41
+     +--- (failed) com.intellij.platform.experimental.backend (optional): Dependency 'dependency on plugin 'com.intellij.platform.experimental.backend' declared in content module 'intellij.platform.rpc.backend' of 'com.intellij'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IC-243.28141.41, Local Plugin Repository
+     +--- (failed) com.intellij.platform.experimental.frontend (optional): Dependency 'dependency on plugin 'com.intellij.platform.experimental.frontend' declared in content module 'intellij.platform.debugger.impl.frontend' of 'com.intellij'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IC-243.28141.41, Local Plugin Repository
+     +--- (optional) Git4Idea:243.28141.41
+     |    +--- com.intellij:243.28141.41 (*) [declaring module intellij.platform.collaborationTools]
+     |    +--- (optional) com.jetbrains.performancePlugin:243.28141.41
+     |    |    \--- com.intellij:243.28141.41 (*) [declaring module com.intellij.modules.lang]
+     |    \--- (optional) org.jetbrains.plugins.terminal:243.28141.41
+     |         +--- com.intellij:243.28141.41 (*) [declaring module com.intellij.modules.lang]
+     |         \--- (optional) com.jetbrains.sh:243.28141.41
+     |              +--- (failed) com.intellij.modules.python (optional): Dependency 'dependency on plugin 'com.intellij.modules.python' declared in content module 'intellij.sh.python' of 'com.jetbrains.sh'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IC-243.28141.41, Local Plugin Repository
+     |              +--- com.intellij:243.28141.41 (*) [declaring module com.intellij.modules.lang]
+     |              +--- (optional) com.intellij.copyright:243.28141.41
+     |              |    \--- com.intellij:243.28141.41 (*) [declaring module com.intellij.modules.lang]
+     |              +--- (optional) org.intellij.plugins.markdown:243.28141.41
+     |              |    +--- com.intellij:243.28141.41 (*) [declaring module com.intellij.modules.lang]
+     |              |    +--- (optional) com.intellij.modules.json:243.28141.41
+     |              |    |    \--- com.intellij:243.28141.41 (*) [declaring module com.intellij.modules.lang]
+     |              |    +--- (optional) com.intellij.platform.images:243.28141.41
+     |              |    |    \--- com.intellij:243.28141.41 (*) [declaring module com.intellij.modules.lang]
+     |              |    +--- (optional) org.intellij.intelliLang:243.28141.41
+     |              |    |    +--- (optional) XPathView:243.22562.13
+     |              |    |    |    \--- com.intellij:243.28141.41 (*)
+     |              |    |    +--- (optional) com.intellij.java:243.28141.41
+     |              |    |    |    +--- (optional) com.intellij.copyright:243.28141.41 (*)
+     |              |    |    |    +--- (optional) com.intellij:243.28141.41 (*)
+     |              |    |    |    +--- (optional) com.intellij.platform.images:243.28141.41 (*)
+     |              |    |    |    +--- (optional) org.jetbrains.plugins.terminal:243.28141.41 (*)
+     |              |    |    |    +--- (optional) training:243.28141.41
+     |              |    |    |    |    +--- com.intellij:243.28141.41 (*) [declaring module intellij.platform.tips]
+     |              |    |    |    |    \--- (optional) Git4Idea:243.28141.41 (*)
+     |              |    |    |    \--- (optional) com.jetbrains.performancePlugin:243.28141.41 (*) [declaring module intellij.performanceTesting.vcs]
+     |              |    |    \--- (optional) com.intellij:243.28141.41 (*)
+     |              |    +--- (optional) org.jetbrains.plugins.yaml:243.28141.41
+     |              |    |    +--- com.intellij.modules.json:243.28141.41 (*) [declaring module com.intellij.modules.json]
+     |              |    |    \--- com.intellij:243.28141.41 (*) [declaring module com.intellij.modules.lang]
+     |              |    \--- (optional) org.toml.lang:243.28141.41
+     |              |         +--- com.intellij:243.28141.41 (*) [declaring module com.intellij.modules.lang]
+     |              |         +--- (optional) com.intellij.modules.json:243.28141.41 (*)
+     |              |         \--- (optional) tanvd.grazi:243.28141.41
+     |              |              +--- com.intellij:243.28141.41 (*) [declaring module intellij.platform.vcs.impl]
+     |              |              +--- (optional) com.intellij.java:243.28141.41 (*)
+     |              |              +--- (optional) com.intellij.modules.json:243.28141.41 (*)
+     |              |              +--- (optional) com.intellij.properties:243.28141.41
+     |              |              |    +--- com.intellij:243.28141.41 (*) [declaring module com.intellij.modules.xml]
+     |              |              |    \--- (optional) com.intellij.copyright:243.28141.41 (*)
+     |              |              +--- (optional) org.intellij.plugins.markdown:243.28141.41 (*)
+     |              |              \--- (optional) org.jetbrains.plugins.yaml:243.28141.41 (*)
+     |              \--- (optional) org.jetbrains.plugins.terminal:243.28141.41 (*)
+     +--- (optional) com.intellij.copyright:243.28141.41 (*)
+     +--- (optional) com.intellij.platform.images:243.28141.41 (*)
+     +--- (optional) org.jetbrains.kotlin:243.28141.41
+     |    +--- com.intellij.java:243.28141.41 (*)
+     |    \--- com.intellij:243.28141.41 (*) [declaring module intellij.platform.collaborationTools]
+     +--- (optional) com.intellij.java:243.28141.41 (*) [declaring module intellij.java.featuresTrainer]
+     \--- (optional) kotlin.features-trainer:243.28141.41 [product module]
+          +--- training:243.28141.41 (*)
+          \--- com.intellij.java:243.28141.41 (*) [declaring module intellij.java.featuresTrainer]

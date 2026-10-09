@@ -1,0 +1,2 @@
+com.sijunyang.bracketpairguides:0.0.6
+\--- com.intellij:241.19416.15

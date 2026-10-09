@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:35.394Z" hostname="sijun-yangui-MacBookPro.local" time="1.853">
+  <properties/>
+  <testcase name="testCreatesReusesAndRemovesOwnedHighlighters" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.596"/>
+  <testcase name="testGuidePositionIndexRetainsOnlyTheMultilinePairEnvelope" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.061"/>
+  <testcase name="testDocumentChangesReleaseStaleAnalysisButKeepTokenPresentation" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.178"/>
+  <testcase name="testDocumentEditDoesNotInventAReplacementBeforeTheNextSnapshot" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.166"/>
+  <testcase name="testStaleCaretMovementKeepsAdjustedPairUntilTheNextSnapshot" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.294"/>
+  <testcase name="testInvalidPairTokenBoundsDoNotCreateActivePresentation" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.164"/>
+  <testcase name="testDocumentChangeKeepsTheAdjustedPairWhileSnapshotIsStale" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.179"/>
+  <testcase name="testCaretMovementWaitsForTheFirstFullSnapshot" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.049"/>
+  <testcase name="testHighlightingAcceptsMockedPairsWithoutALanguageLexer" classname="com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPassTest" time="0.164"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

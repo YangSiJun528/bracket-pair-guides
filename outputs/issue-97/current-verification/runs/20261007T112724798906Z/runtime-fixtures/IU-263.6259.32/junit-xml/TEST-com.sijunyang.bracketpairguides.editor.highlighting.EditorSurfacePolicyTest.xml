@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.EditorSurfacePolicyTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:40:54.235Z" hostname="sijun-yangui-MacBookPro.local" time="1.559">
+  <properties/>
+  <testcase name="testSharedDocumentEditorsKeepIndependentPresentationAndAnalysisPolicies" classname="com.sijunyang.bracketpairguides.editor.highlighting.EditorSurfacePolicyTest" time="0.268"/>
+  <testcase name="testPreviewDiffConsoleAndUntypedEditorsUseOnlyTokenDecorations" classname="com.sijunyang.bracketpairguides.editor.highlighting.EditorSurfacePolicyTest" time="0.665"/>
+  <testcase name="testLosingAndRegainingFocusReusesAnalysisAndTokenHighlighters" classname="com.sijunyang.bracketpairguides.editor.highlighting.EditorSurfacePolicyTest" time="0.192"/>
+  <testcase name="testDocumentEditInInactiveEditorDoesNotRecreateGuide" classname="com.sijunyang.bracketpairguides.editor.highlighting.EditorSurfacePolicyTest" time="0.112"/>
+  <testcase name="testReadonlyMainEditorCanHighlightAndDrawAtItsActiveCaret" classname="com.sijunyang.bracketpairguides.editor.highlighting.EditorSurfacePolicyTest" time="0.1"/>
+  <testcase name="testHiddenEditorRemovesMarkupAndRestoresValidAnalysisWhenShown" classname="com.sijunyang.bracketpairguides.editor.highlighting.EditorSurfacePolicyTest" time="0.112"/>
+  <testcase name="testLateAnalysisUsesCurrentActivityInsteadOfRevivingAnInactiveGuide" classname="com.sijunyang.bracketpairguides.editor.highlighting.EditorSurfacePolicyTest" time="0.108"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,124 @@
+{
+  "status": "passed-main-review",
+  "recordedUtc": "2026-10-08T19:32:12.549002+00:00",
+  "sourceRevision": "f65ed4e3fddbb8cdb1142af9cb72cf2e2f7ebade",
+  "archiveSha256": "3af98835450aaea492c213841fefc8c386c3435fabb6f2352d6484a0572ddc78",
+  "sourceAndArchiveUnchanged": true,
+  "targets": [
+    {
+      "target": "IC-2025.2.6.3",
+      "actualBuild": "252.28539.97",
+      "strictPass": true,
+      "verdictSha256": "2e173af8ed79694fe63b0a1cc0da8932f46d2918cf51f227f93e8bd55a0f90f8"
+    },
+    {
+      "target": "IC-2025.1.7.2",
+      "actualBuild": "251.29188.72",
+      "strictPass": true,
+      "verdictSha256": "2e173af8ed79694fe63b0a1cc0da8932f46d2918cf51f227f93e8bd55a0f90f8"
+    },
+    {
+      "target": "IC-2024.3.7.1",
+      "actualBuild": "243.28141.41",
+      "strictPass": true,
+      "verdictSha256": "2e173af8ed79694fe63b0a1cc0da8932f46d2918cf51f227f93e8bd55a0f90f8"
+    },
+    {
+      "target": "IC-2024.2.6",
+      "actualBuild": "242.26775.15",
+      "strictPass": true,
+      "verdictSha256": "2e173af8ed79694fe63b0a1cc0da8932f46d2918cf51f227f93e8bd55a0f90f8"
+    },
+    {
+      "target": "IC-2024.1.7",
+      "actualBuild": "241.19416.15",
+      "strictPass": true,
+      "verdictSha256": "2e173af8ed79694fe63b0a1cc0da8932f46d2918cf51f227f93e8bd55a0f90f8"
+    },
+    {
+      "target": "IU-263.6259.32",
+      "actualBuild": "263.6259.32",
+      "strictPass": true,
+      "verdictSha256": "2e173af8ed79694fe63b0a1cc0da8932f46d2918cf51f227f93e8bd55a0f90f8"
+    },
+    {
+      "target": "IU-2026.2.3",
+      "actualBuild": "262.10968.63",
+      "strictPass": true,
+      "verdictSha256": "2e173af8ed79694fe63b0a1cc0da8932f46d2918cf51f227f93e8bd55a0f90f8"
+    },
+    {
+      "target": "IU-2026.1.5",
+      "actualBuild": "261.27258.48",
+      "strictPass": true,
+      "verdictSha256": "2e173af8ed79694fe63b0a1cc0da8932f46d2918cf51f227f93e8bd55a0f90f8"
+    },
+    {
+      "target": "IU-2025.3.6.1",
+      "actualBuild": "253.33813.55",
+      "strictPass": true,
+      "verdictSha256": "2e173af8ed79694fe63b0a1cc0da8932f46d2918cf51f227f93e8bd55a0f90f8"
+    },
+    {
+      "target": "IU-2025.3",
+      "actualBuild": "253.28294.334",
+      "strictPass": true,
+      "verdictSha256": "2e173af8ed79694fe63b0a1cc0da8932f46d2918cf51f227f93e8bd55a0f90f8"
+    },
+    {
+      "target": "IU-2026.1",
+      "actualBuild": "261.22158.277",
+      "strictPass": true,
+      "verdictSha256": "2e173af8ed79694fe63b0a1cc0da8932f46d2918cf51f227f93e8bd55a0f90f8"
+    },
+    {
+      "target": "IU-2026.2",
+      "actualBuild": "262.8665.258",
+      "strictPass": true,
+      "verdictSha256": "2e173af8ed79694fe63b0a1cc0da8932f46d2918cf51f227f93e8bd55a0f90f8"
+    },
+    {
+      "target": "IU-263.4732.28",
+      "actualBuild": "263.4732.28",
+      "strictPass": true,
+      "verdictSha256": "2e173af8ed79694fe63b0a1cc0da8932f46d2918cf51f227f93e8bd55a0f90f8"
+    }
+  ],
+  "failureLevels": [
+    "COMPATIBILITY_PROBLEMS",
+    "DEPRECATED_API_USAGES",
+    "EXPERIMENTAL_API_USAGES",
+    "INTERNAL_API_USAGES",
+    "OVERRIDE_ONLY_API_USAGES",
+    "NON_EXTENDABLE_API_USAGES",
+    "MISSING_DEPENDENCIES",
+    "INVALID_PLUGIN"
+  ],
+  "sdk": {
+    "minimumSdkTests": {
+      "tests": 35,
+      "actualIde": "IC-241.19416.15",
+      "javaRuntimeVersion": "17.0.12+1-b1207.37",
+      "taskOutcome": [
+        "",
+        ""
+      ],
+      "actualTestExecutorStarted": true,
+      "xmlCreatedDuringThisMatrix": true
+    },
+    "currentSdkTests": {
+      "tests": 35,
+      "actualIde": "IU-263.6259.32",
+      "javaRuntimeVersion": "25.0.4.1+1-b623.69",
+      "taskOutcome": [
+        "",
+        "",
+        ""
+      ],
+      "actualTestExecutorStarted": true,
+      "xmlCreatedDuringThisMatrix": true
+    }
+  },
+  "elapsedSeconds": 2759.615108374972,
+  "scope": "Static Plugin Verifier matrix on exact host ZIP; real SDK fixtures at minimum/current are separate, task reuse is recorded; not GUI execution on every IDE"
+}

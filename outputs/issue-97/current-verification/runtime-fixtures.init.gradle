@@ -1,0 +1,57 @@
+// Current issue #97 fixture execution on IU-263.6259.32 by default.
+// Acquisition prints the selected platform without executing fixtures.
+// Execution outcomes must be recorded for the current archive; prior evidence is not reused.
+// Groovy uses the project's existing plugin classloader: no second plugin dependency.
+// Keep the normal 2024.1.7 compilation dependency and plugin sinceBuild unchanged.
+gradle.projectsEvaluated {
+    def pluginProject = gradle.rootProject.project(':plugin')
+    def testing = pluginProject.extensions.getByName('intellijPlatformTesting')
+    def loader = testing.class.classLoader
+    def requestedType = pluginProject.providers.gradleProperty('runtimeIdeType').getOrElse('IU')
+    def typeField = [IC: 'IntellijIdeaCommunity', IU: 'IntellijIdea'].get(requestedType, requestedType)
+    def ideaType = loader.loadClass('org.jetbrains.intellij.platform.gradle.IntelliJPlatformType')
+        .getField(typeField).get(null)
+    def resolveOnly = gradle.startParameter.taskNames.any { it.tokenize(':').last() == 'resolveRuntimeIde' }
+    def platformFramework = loader.loadClass('org.jetbrains.intellij.platform.gradle.TestFrameworkType$Platform')
+        .getField('INSTANCE').get(null)
+    def targetVersion = pluginProject.providers.gradleProperty('runtimeIdeVersion').getOrElse('263.6259.32')
+    def selected = testing.testIde.register('runtimeFixtures') { parameters ->
+        parameters.type.set(ideaType)
+        parameters.version.set(targetVersion)
+        if (!resolveOnly) {
+            parameters.testFramework(platformFramework)
+            parameters.plugins { plugins ->
+                plugins.bundledPlugin('com.intellij.java')
+                plugins.bundledPlugin('org.jetbrains.kotlin')
+            }
+        }
+        parameters.task { testTask ->
+            testTask.group = 'verification'
+            testTask.description = 'Runs compiled 241 fixture tests in an independently selected IDEA runtime.'
+            testTask.maxParallelForks = 1
+            testTask.useJUnit()
+            testTask.outputs.upToDateWhen { false }
+            def reportPath = pluginProject.providers.gradleProperty('runtimeFixtureReportPath').orNull
+            if (reportPath != null) {
+                testTask.reports.junitXml.outputLocation.set(pluginProject.file(reportPath + '/junit-xml'))
+                testTask.reports.html.outputLocation.set(pluginProject.file(reportPath + '/html'))
+            }
+            // Do not overwrite classpath or Java launcher: TestIdeTask assembles the
+            // selected IDE/framework/plugin classpath and uses its bundled runtime.
+            testTask.doFirst {
+                testTask.logger.lifecycle('Requested fixture IDE: ' + targetVersion)
+                testTask.logger.lifecycle('Resolved fixture IDE: ' + testTask.platformPath)
+                testTask.logger.lifecycle('Fixture JVM: ' + testTask.javaLauncher.get().executablePath)
+            }
+        }
+    }
+    pluginProject.tasks.register('resolveRuntimeIde') {
+        group = 'verification'
+        description = 'Resolves only the selected IDE and prints its extracted platformPath; runs no tests.'
+        doLast {
+            def ide = selected.get().task.get().platformPath
+            logger.lifecycle('Requested runtime IDE: ' + requestedType + '-' + targetVersion)
+            logger.lifecycle('Resolved runtime IDE platformPath: ' + ide)
+        }
+    }
+}

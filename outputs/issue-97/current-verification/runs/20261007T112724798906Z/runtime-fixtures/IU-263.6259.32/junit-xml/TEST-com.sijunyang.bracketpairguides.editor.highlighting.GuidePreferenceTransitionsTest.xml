@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.GuidePreferenceTransitionsTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:40:55.795Z" hostname="sijun-yangui-MacBookPro.local" time="2.761">
+  <properties/>
+  <testcase name="testDisabledPassSkipsRecognitionAndReenableCanAnalyze" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuidePreferenceTransitionsTest" time="0.316"/>
+  <testcase name="testLateFullPassCannotRestoreASnapshotAfterAllFeaturesAreDisabled" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuidePreferenceTransitionsTest" time="0.331"/>
+  <testcase name="testDisablingAllPairFeaturesReleasesAndRebuildsTheSnapshot" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuidePreferenceTransitionsTest" time="0.471"/>
+  <testcase name="testThemeRefreshKeepsExplicitTokenColorsWithoutRebuildingHighlighters" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuidePreferenceTransitionsTest" time="0.176"/>
+  <testcase name="testLateFullPassCannotPreventCompactTokenOnlyRebuild" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuidePreferenceTransitionsTest" time="0.323"/>
+  <testcase name="testLanguageSelectionInvalidatesPresentationUntilTheNextSnapshot" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuidePreferenceTransitionsTest" time="0.45"/>
+  <testcase name="testLateFullPassCannotReplaceAnAcceptedCompactTokenOnlySnapshot" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuidePreferenceTransitionsTest" time="0.366"/>
+  <testcase name="testReenablingActivePresentationWaitsForTheNextSnapshot" classname="com.sijunyang.bracketpairguides.editor.highlighting.GuidePreferenceTransitionsTest" time="0.328"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

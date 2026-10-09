@@ -1,0 +1,98 @@
+{
+  "exitCode": 0,
+  "seconds": 618.2745304580312,
+  "sourceRevision": "be4f6201556710d2dc3f4895e7555f55fa9a8727",
+  "sourceManifestSha256": "9d2af2e3ebd59bb709f10776165fc8b16fd69ba14ed247e11a2a025cfb002e68",
+  "sourceUnchanged": true,
+  "suites": [
+    {
+      "module": "analysis-model",
+      "task": "test",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.model.ResultContractTest.xml": "e8283ae858426a558b80f2a240b06bb7c618ebf85f34fb881e7d9f224e994eeb"
+      }
+    },
+    {
+      "module": "analysis-core",
+      "task": "test",
+      "tests": 41,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.core.CalculationContractTest.xml": "33afb5278d2fe3b3f150aeda432a6817bb71c3fdf1164200485539409810fb77",
+        "TEST-com.sijunyang.bracketpairguides.core.InputBoundaryContractTest.xml": "fa1fc2ccf5e19e331820671dfd3cb7db1da5ae4730fb3dd5bf65fe8eb586fc0c",
+        "TEST-com.sijunyang.bracketpairguides.core.LateCancellationContractTest.xml": "57be33e286a072d3260c7d9d73f30733b02da90964181db4b194f9547efbed2c",
+        "TEST-com.sijunyang.bracketpairguides.core.TokenSemanticsContractTest.xml": "6885c6efb53d41736e3c5e7e64a93ac505fc179c17bc637ca2ab3ac57c09dc2f"
+      }
+    },
+    {
+      "module": "editor-ui",
+      "task": "test",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.ui.policy.PresentationContractTest.xml": "15dc3f3caee84fcedd67ebd14a2783634391f3d2439eae4a94d2d500d9353c18",
+        "TEST-com.sijunyang.bracketpairguides.ui.work.GuideDemandContractTest.xml": "5a16db3f8edf1eada3de8f8f488471381681b434018689303e2aa6e26f78d4a4"
+      }
+    },
+    {
+      "module": "analysis-runtime",
+      "task": "test",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.runtime.nativeproof.NativeEvidenceContractTest.xml": "d88d91d7625746a6f8f066639531f991f177e436b064bedec9cf59873a3b8541"
+      }
+    },
+    {
+      "module": "plugin",
+      "task": "test",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.architecture.ResponsibilityBoundaryTest.xml": "8f343a483f8d276d681a56685811b1018bb631d948a72b3a5c0c18398496edbf"
+      }
+    },
+    {
+      "module": "plugin",
+      "task": "minimumSdkTests",
+      "tests": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.bracketpairguides.plugin.RuntimeIdentityIdeContractTest.xml": "c8182401a2b02e94887dce545cee6338394e1a17b87f0dc07ae55d5bb7528e98",
+        "TEST-com.sijunyang.bracketpairguides.runtime.session.AnalysisCaptureIdeContractTest.xml": "be25864020362ccce2af06d3f8fc3d3806458e680b94c1ced512e4fca6890fcf",
+        "TEST-com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest.xml": "1809ee9a82b00cef12e22dc1a49fd40e9c8c28e714369d68d6e8f029a2e2d113",
+        "TEST-com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest.xml": "f9a981d4e6abe6cf49c3b336fe354aa8f86b9cc41172ddebe3d11689ce6357b8",
+        "TEST-com.sijunyang.bracketpairguides.ui.editor.highlighting.NativeGuideAdvisoryIdeContractTest.xml": "b260cc6992ca709606621d8fe0c0e945a014078cf75eb572c92d16d6094b1b51"
+      }
+    },
+    {
+      "module": "build-logic",
+      "task": "test",
+      "tests": 50,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmlSha256": {
+        "TEST-com.sijunyang.buildlogic.BenchmarkReportTest.xml": "a204d76eda56924967fc71f36e46a1fffe2461571fdc0e98c3da1e32ee3e07e1",
+        "TEST-com.sijunyang.buildlogic.CompilationBoundaryTest.xml": "832e66f0f4c29fe8cd649bb958c05b5d813e718357f443e036740e7e667eb089",
+        "TEST-com.sijunyang.buildlogic.PackagedOwnerTest.xml": "d7e0006630f76425344c3e9dede4ab196754e36422df7d4ae351b28eaf3cf710"
+      }
+    }
+  ],
+  "totalCases": 134,
+  "scope": "Matching XML retained; unchanged module tasks may be up-to-date, build-policy50 and actualminimumSDK29 execution outcomes in log; independent SDK-free45 source-parity proof retained"
+}

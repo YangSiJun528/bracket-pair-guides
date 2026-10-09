@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.settings.BracketGuideSettingsTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:41:14.646Z" hostname="sijun-yangui-MacBookPro.local" time="0.001">
+  <properties/>
+  <testcase name="normalizes and preserves disabled matcher family IDs" classname="com.sijunyang.bracketpairguides.settings.BracketGuideSettingsTest" time="0.0"/>
+  <testcase name="rejects malformed color state instead of migrating it" classname="com.sijunyang.bracketpairguides.settings.BracketGuideSettingsTest" time="0.0"/>
+  <testcase name="replace skips platform updates when normalized state is unchanged" classname="com.sijunyang.bracketpairguides.settings.BracketGuideSettingsTest" time="0.0"/>
+  <testcase name="round trips every persisted option" classname="com.sijunyang.bracketpairguides.settings.BracketGuideSettingsTest" time="0.001"/>
+  <testcase name="load isolates state from mutable caller collections" classname="com.sijunyang.bracketpairguides.settings.BracketGuideSettingsTest" time="0.0"/>
+  <testcase name="defaults to token colors and active guides without pair emphasis" classname="com.sijunyang.bracketpairguides.settings.BracketGuideSettingsTest" time="0.0"/>
+  <testcase name="replace participates in platform modification tracking" classname="com.sijunyang.bracketpairguides.settings.BracketGuideSettingsTest" time="0.0"/>
+  <testcase name="normalizes persisted numeric guide options" classname="com.sijunyang.bracketpairguides.settings.BracketGuideSettingsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

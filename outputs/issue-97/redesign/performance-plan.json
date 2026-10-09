@@ -1,0 +1,81 @@
+{
+  "recordedBeforeMeasurements": "2026-10-08T07:07:40.295425+00:00",
+  "baselineCommit": "072533f",
+  "candidateCheckpoint": "cba8b1169de112552414409fc7a7a884c9ce31d0 plus reviewed follow-ups; freeze exact source/adapter/JAR hashes before formal series",
+  "scope": "local same-machine relative comparison, not Bencher historical bare-metal evidence",
+  "serialOnly": true,
+  "backgroundWork": "no Gradle compilation, IDE verifier, Driver, Qodana or other benchmark during timed samples",
+  "pure": {
+    "tool": "JMH 1.37",
+    "java": "Temurin 17.0.17+10 aarch64",
+    "heap": "-Xms2g -Xmx2g",
+    "threads": 1,
+    "forks": 2,
+    "warmupIterations": 2,
+    "warmupSeconds": 1,
+    "measurementIterations": 3,
+    "measurementSeconds": 1,
+    "profiler": "gc",
+    "freshJvmPairs": 6,
+    "pairOrder": [
+      "baseline-candidate",
+      "candidate-baseline",
+      "baseline-candidate",
+      "candidate-baseline",
+      "baseline-candidate",
+      "candidate-baseline"
+    ],
+    "cases": 40,
+    "metrics": [
+      "ns/op",
+      "B/op"
+    ],
+    "perJobTimeoutSeconds": 240,
+    "functionalPrerequisite": "8 exact semantic fingerprints already matched; preserve selected jar SHA256",
+    "cancellationCaveat": "8 cancellation cases cancel at the eighth architecture-specific checkpoint; compare cancellation behavior/cost, not equal-work algorithm throughput"
+  },
+  "sdk": {
+    "tool": "new identical opt-in actual IntelliJ fixture + two thin test-only adapters",
+    "warmup": 100,
+    "repeat": 30,
+    "cancellationTrials": 30,
+    "categories": [
+      "analysis",
+      "write-wait",
+      "execution",
+      "repair",
+      "native",
+      "payload",
+      "capture-release",
+      "edit-restoration"
+    ],
+    "boundary": "direct capture/calculation separately from actual UI execution; no factory-vs-direct comparison",
+    "requireSame": "actual IDE/JBR/heap, original corpora/boundary sizes/iteration math; record unavailable observations explicitly",
+    "retention": "raw reachability and retained-heap results are different claims; distinguish GC deadline failures from structural retention",
+    "freshJvmPairs": 6,
+    "pairOrder": [
+      "baseline-candidate",
+      "candidate-baseline",
+      "baseline-candidate",
+      "candidate-baseline",
+      "baseline-candidate",
+      "candidate-baseline"
+    ],
+    "percentile": "nearest rank: sorted observations at ceil(0.95 * n) for p95, with raw fixed-trial observations and censoring retained",
+    "editRestorationScope": "Actual document callback synchronous hide and first correctly restored SDK guide observation in a headless ACTIVE editor; poll latency is an upper bound, competing owned work remains included; no exclusive repair-worker or real-screen-paint claim. Refusal without observed restoration is censored, never zero latency.",
+    "compositionPrerequisite": "Confirm isolated fixture composition and absence of unrelated plugin workers before formal timing. Keep actual document listeners and production calculation paths. Preserve smoke failures and describe any fixture isolation changes."
+  },
+  "assessment": {
+    "existingGate": "latency upper20%, latest1 and 240s JMH/300s remote budgets unchanged; allocation20% added to new CI proposal",
+    "localRule": "report every reproducible added allocation and latency increase, including under20%; investigate >20% paired median regressions, do not silently waive or dilute samples",
+    "uncertainty": "keep per-pair ratios/raw forks and distinguish unstable timing from repeatable effects; no threshold changes after viewing results",
+    "failurePolicy": "preserve failed/time-out samples; any smoke run is setup evidence only, never a full performance pass"
+  },
+  "notYetRun": true,
+  "amendments": [
+    {
+      "recordedBeforeFormalMeasurements": "2026-10-08T08:36:59.876360+00:00",
+      "reason": "Add actual edit-to-restoration observation beyond direct repair calculation and explicitly require six fresh SDK pairs; formal measurements have not begun. Existing warmup/repeat/thresholds unchanged."
+    }
+  ]
+}

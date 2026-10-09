@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.AnalysisStampTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:17.209Z" hostname="sijun-yangui-MacBookPro.local" time="0.551">
+  <properties/>
+  <testcase name="testRejectsAReplacementHighlighter" classname="com.sijunyang.bracketpairguides.analysis.AnalysisStampTest" time="0.066"/>
+  <testcase name="testCurrentDocumentStillChecksHighlighterIdentity" classname="com.sijunyang.bracketpairguides.analysis.AnalysisStampTest" time="0.065"/>
+  <testcase name="testStaleCurrentStampDoesNotAccessHighlighter" classname="com.sijunyang.bracketpairguides.analysis.AnalysisStampTest" time="0.086"/>
+  <testcase name="testDifferentHighlighterInstanceInvalidatesTheStamp" classname="com.sijunyang.bracketpairguides.analysis.AnalysisStampTest" time="0.048"/>
+  <testcase name="testTabSizeStillInvalidatesGuidePositionAnalysis" classname="com.sijunyang.bracketpairguides.analysis.AnalysisStampTest" time="0.049"/>
+  <testcase name="testStaleCapturedSourceDoesNotAccessHighlighter" classname="com.sijunyang.bracketpairguides.analysis.AnalysisStampTest" time="0.062"/>
+  <testcase name="testGuidePositionsRequireActivePairAnalysis" classname="com.sijunyang.bracketpairguides.analysis.AnalysisStampTest" time="0.032"/>
+  <testcase name="testIgnoresTabSizeOnlyWhenGuidePositionsAreNotRequired" classname="com.sijunyang.bracketpairguides.analysis.AnalysisStampTest" time="0.05"/>
+  <testcase name="testTabSizeDoesNotInvalidateTokenOnlyAnalysis" classname="com.sijunyang.bracketpairguides.analysis.AnalysisStampTest" time="0.048"/>
+  <testcase name="testChecksDocumentCoverageAndLanguageSelection" classname="com.sijunyang.bracketpairguides.analysis.AnalysisStampTest" time="0.045"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

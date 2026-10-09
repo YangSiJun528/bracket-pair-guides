@@ -1,0 +1,12 @@
+{
+  "ComparisonFixture.kt": "2223bec2ad197983e5e12212ec655a65833296e8ad9c5a5291e89b2465505cb7",
+  "SdkComparisonMeasurementTest.kt": "050df158ce5ecd9af43093f38d531dd95aa995e240439c5667ed3f709543f795",
+  "SdkNativeRepairWorkloads.kt": "c5218daf65e028a6f961b0b4ae7520f0abb5b1c6b3d7974c29c9149001b3d433",
+  "SdkAllocationSegments.kt": "8571e9f40533e81c0a4b0b6ff8f8f2b32bbcba5942f9db380be08140d21a8a0d",
+  "ResourceEvidence.kt": "032c994daed031523df87dbc2ca9e2579bc75e95badc09165c95e5655f072892",
+  "SdkEvidencePump.kt": "88cc226336d16542bd8814a39fe2bcaf2f1f0379ca2672fc2dfcdaedde9a2b6f",
+  "SdkNativeControls.kt": "459fe0cfb3767368614bf32cc99256dc3af0923f1b655a678dfba2b249082a5d",
+  "SdkEditRestorationWorkload.kt": "161eb43590c102ac0213669c93462eaf92d87a33d861e39a3d494ab02efb046f",
+  "SdkDescriptorEvidence.kt": "08bee7ca1673db3e1900ceba088ad302f2a3ce40d1fd7ccdc6d4e965398fbd3d",
+  "ComparisonHost.kt": "860e18f0016d02c45afc7ca0566455aab88b0252f94dafaff24c584d79e97145"
+}

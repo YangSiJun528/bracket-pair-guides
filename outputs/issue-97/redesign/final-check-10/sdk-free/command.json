@@ -1,0 +1,27 @@
+{
+  "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+  "command": [
+    "./gradlew",
+    "--no-daemon",
+    "--no-parallel",
+    "--max-workers=2",
+    "--console=plain",
+    "-Pkotlin.compiler.execution.strategy=in-process",
+    "-p",
+    "tools/pure-build",
+    "check",
+    ":analysis-model:build",
+    ":analysis-core:build",
+    "--rerun-tasks"
+  ],
+  "directory": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/final-check-10/sdk-free",
+  "timeoutSeconds": 1800,
+  "status": "running",
+  "startedUtc": "2026-10-08T19:58:58.658424+00:00",
+  "ownedPid": 71984,
+  "ownedProcessGroup": 71984,
+  "timedOut": false,
+  "elapsedSeconds": 18.088739333034027,
+  "exitCode": 0,
+  "finishedUtc": "2026-10-08T19:59:16.749852+00:00"
+}

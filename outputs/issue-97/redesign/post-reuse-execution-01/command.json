@@ -1,0 +1,25 @@
+{
+  "command": [
+    "./gradlew",
+    "--no-daemon",
+    "--max-workers=1",
+    "--no-configuration-cache",
+    "--console=plain",
+    "-Pkotlin.compiler.execution.strategy=in-process",
+    "-Dorg.gradle.jvmargs=-Xmx4g",
+    "-Dissue97.perf.workload=execution",
+    "-Dissue97.perf.output=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/post-reuse-execution-01/candidate.jsonl",
+    "-Dissue97.perf.sourceRevision=a89e9731c5a3b40ec8bcccac40b9617f4101fc10",
+    "-Dissue97.perf.host=com.sijunyang.bracketpairguides.comparison.CandidateComparisonHost",
+    "-Dissue97.perf.warmup=1",
+    "-Dissue97.perf.repeat=5",
+    "-Dissue97.perf.cancelTrials=1",
+    "-Dissue97.perf.expectedIdeBuild=IC-241.19416.15",
+    ":plugin:sdkPerformance",
+    "--tests",
+    "com.sijunyang.bracketpairguides.comparison.SdkComparisonMeasurementTest.testSdkComparison"
+  ],
+  "exitCode": 0,
+  "seconds": 15.218490839004517,
+  "gitHead": "a89e9731c5a3b40ec8bcccac40b9617f4101fc10"
+}

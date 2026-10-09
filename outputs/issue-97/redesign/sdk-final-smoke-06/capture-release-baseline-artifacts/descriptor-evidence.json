@@ -1,0 +1,33 @@
+{
+    "schema": 1,
+    "mode": "manual-registry-events-no-auto-startup-pass",
+    "originalJar": "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides/plugin/build/libs/plugin-0.0.6.jar",
+    "measuredJar": "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides/plugin/build/sdk-measurement/plugin.jar",
+    "originalJarSha256": "ffafd943fe969673aecf2b15f52d7a9d50925cfc5c4daf442dd6b3c192171d58",
+    "measuredJarSha256": "c4e95b649ead62a9c30afba24a8e87bf8f3fd5304be451d6c6cfbd95769790c7",
+    "originalDescriptorSha256": "a45ee9327be9dfb2cfafff4fba78c8a88b606d038d06f41f608cd07b0439e4cb",
+    "measuredDescriptorSha256": "2b6195a87408c749c5ebf013819a49fef79f5a58d9f56f98bd35a3daabefb480",
+    "removedEntries": [
+        {
+            "tag": "postStartupActivity",
+            "implementation": "com.sijunyang.bracketpairguides.editor.events.NativeMatchedBraceStartupActivity",
+            "xml": "<postStartupActivity implementation=\"com.sijunyang.bracketpairguides.editor.events.NativeMatchedBraceStartupActivity\" />"
+        },
+        {
+            "tag": "postStartupActivity",
+            "implementation": "com.sijunyang.bracketpairguides.editor.highlighting.EditorSurfaceStartupActivity",
+            "xml": "<postStartupActivity implementation=\"com.sijunyang.bracketpairguides.editor.highlighting.EditorSurfaceStartupActivity\" />"
+        },
+        {
+            "tag": "highlightingPassFactory",
+            "implementation": "com.sijunyang.bracketpairguides.editor.highlighting.BracketGuidePassRegistration",
+            "xml": "<highlightingPassFactory implementation=\"com.sijunyang.bracketpairguides.editor.highlighting.BracketGuidePassRegistration\" />"
+        }
+    ],
+    "changedEntries": [
+        "META-INF/plugin.xml"
+    ],
+    "nonDescriptorEntriesUnchanged": true,
+    "archiveEntries": 7,
+    "scope": "Only this plugin automatic startup activities/highlighting pass factory are suppressed; manual registry and document-event pipeline remain actual production implementations. Whole-plugin startup is covered separately by Driver."
+}

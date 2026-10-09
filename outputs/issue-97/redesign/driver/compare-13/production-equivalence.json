@@ -1,0 +1,17 @@
+{
+  "allProductionClassBytesEqual": true,
+  "productionOwnerClassCounts": {
+    "bracket-pair-guides/lib/analysis-core-0.0.6.jar": 99,
+    "bracket-pair-guides/lib/analysis-model-0.0.6.jar": 12,
+    "bracket-pair-guides/lib/analysis-runtime-0.0.6.jar": 116,
+    "bracket-pair-guides/lib/editor-ui-0.0.6.jar": 219,
+    "bracket-pair-guides/lib/plugin-0.0.6.jar": 5
+  },
+  "pluginDescriptorAndAllOtherResourceBytesEqual": true,
+  "onlyManifestFieldsDiffer": [
+    "Build-JVM",
+    "Build-OS"
+  ],
+  "wholeReleaseZipIdentical": false,
+  "interpretation": "Driver rebuilt frozen source on Linux. Four owner JARs are byte-identical; plugin entries differ only in build-host JVM/OS metadata. Exact final host ZIP is the compatibility verifier input."
+}

@@ -1,0 +1,48 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-model:compileKotlin UP-TO-DATE
+> Task :analysis-model:compileJava NO-SOURCE
+> Task :analysis-core:compileKotlin UP-TO-DATE
+> Task :analysis-core:compileJava UP-TO-DATE
+> Task :analysis-core:processResources NO-SOURCE
+> Task :analysis-core:classes UP-TO-DATE
+> Task :analysis-core:jar UP-TO-DATE
+> Task :analysis-model:processResources NO-SOURCE
+> Task :analysis-model:classes UP-TO-DATE
+> Task :analysis-model:jar UP-TO-DATE
+> Task :benchmarks:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :benchmarks:compileKotlin UP-TO-DATE
+> Task :benchmarks:compileJava NO-SOURCE
+> Task :benchmarks:processResources NO-SOURCE
+> Task :benchmarks:classes UP-TO-DATE
+> Task :benchmarks:jar UP-TO-DATE
+> Task :benchmarks:compileTestKotlin NO-SOURCE
+> Task :benchmarks:compileTestJava NO-SOURCE
+> Task :benchmarks:processTestResources NO-SOURCE
+> Task :benchmarks:testClasses UP-TO-DATE
+> Task :editor-ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:compileKotlin UP-TO-DATE
+> Task :editor-ui:compileJava UP-TO-DATE
+> Task :benchmarks:compileJmhKotlin NO-SOURCE
+> Task :benchmarks:compileJmhJava UP-TO-DATE
+> Task :benchmarks:processJmhResources NO-SOURCE
+> Task :benchmarks:jmhClasses UP-TO-DATE
+> Task :editor-ui:processResources NO-SOURCE
+> Task :editor-ui:classes UP-TO-DATE
+> Task :editor-ui:jar UP-TO-DATE
+> Task :benchmarks:jmhRunBytecodeGenerator UP-TO-DATE
+> Task :benchmarks:jmhCompileGeneratedClasses UP-TO-DATE
+> Task :benchmarks:jmhJar UP-TO-DATE
+
+[Incubating] Problems report is available at: file:///Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 6s
+14 actionable tasks: 14 up-to-date

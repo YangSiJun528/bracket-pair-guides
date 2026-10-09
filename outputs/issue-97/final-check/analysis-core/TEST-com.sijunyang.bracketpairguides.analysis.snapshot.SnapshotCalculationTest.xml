@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculationTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:05.674Z" hostname="sijun-yangui-MacBookPro.local" time="0.006">
+  <properties/>
+  <testcase name="finishRejectsMissingAndUnrequestedGuideIndexes" classname="com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculationTest" time="0.002"/>
+  <testcase name="preflightRequestsExactGuideEnvelopeAndFinishAttachesItsIndex" classname="com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculationTest" time="0.0"/>
+  <testcase name="guideCapacityKeepsExactLowerFacetsWithoutAllocatingAGuideIndex" classname="com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculationTest" time="0.0"/>
+  <testcase name="emptyCoverageIgnoresRecognitionAndProvidesNoIndexes" classname="com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculationTest" time="0.001"/>
+  <testcase name="emptyRecognitionPreservesMatcherAvailabilityAndRequestedCoverage" classname="com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculationTest" time="0.0"/>
+  <testcase name="layoutsRetainOnlyRequestedFacetsAndKeepCanonicalPairs" classname="com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculationTest" time="0.001"/>
+  <testcase name="cancellationStopsPreparationAndFinishing" classname="com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculationTest" time="0.001"/>
+  <testcase name="recognitionRefusalsPreserveTheirLimitWithoutRequestingGuides" classname="com.sijunyang.bracketpairguides.analysis.snapshot.SnapshotCalculationTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

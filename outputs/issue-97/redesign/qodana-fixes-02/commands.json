@@ -1,0 +1,40 @@
+[
+  {
+    "name": "format",
+    "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "command": [
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=2",
+      "--no-configuration-cache",
+      "spotlessApply",
+      "spotlessCheck",
+      "--console=plain"
+    ],
+    "startedUtc": "2026-10-08T09:39:31.433906+00:00",
+    "exitCode": 0,
+    "seconds": 12.400380849838257
+  },
+  {
+    "name": "check",
+    "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+    "command": [
+      "./gradlew",
+      "--no-daemon",
+      "--no-parallel",
+      "--max-workers=2",
+      "--no-configuration-cache",
+      "-Pkotlin.compiler.execution.strategy=in-process",
+      "-Dorg.gradle.jvmargs=-Xmx4g",
+      "check",
+      ":plugin:compileSdkPerformanceKotlin",
+      ":plugin:compileVisualTestKotlin",
+      ":plugin:buildVisualTestPlugin",
+      "--console=plain",
+      "--stacktrace"
+    ],
+    "startedUtc": "2026-10-08T09:39:43.839850+00:00",
+    "exitCode": 1,
+    "seconds": 5.211755037307739
+  }
+]

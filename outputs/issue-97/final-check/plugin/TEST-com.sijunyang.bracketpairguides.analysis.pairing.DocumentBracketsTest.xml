@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketsTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:23.890Z" hostname="sijun-yangui-MacBookPro.local" time="0.977">
+  <properties/>
+  <testcase name="testLongJavaFileHasDeterministicLinearScaleResults" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketsTest" time="0.192"/>
+  <testcase name="testUsesContextualBehaviorFromARegisteredLanguageMatcher" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketsTest" time="0.071"/>
+  <testcase name="testMalformedRegularPairDoesNotCrossAJavaStructuralPair" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketsTest" time="0.056"/>
+  <testcase name="testUsesPlatformHostLanguageFallbackForRawCharacters" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketsTest" time="0.055"/>
+  <testcase name="testEmptyDocumentLeavesMatcherAvailabilityUndetermined" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketsTest" time="0.053"/>
+  <testcase name="testUsesLegacyFileTypeMatcherForRecognition" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketsTest" time="0.056"/>
+  <testcase name="testMixedDocumentReportsAvailableWhenAnyTokenLanguageHasMatcher" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketsTest" time="0.052"/>
+  <testcase name="testReportsUnavailableWhenNoCompatibleMatcherCanBeResolved" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketsTest" time="0.05"/>
+  <testcase name="testUsesJavaLexerAndBraceDefinitions" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketsTest" time="0.052"/>
+  <testcase name="testInheritedMatcherUsesTheHighestSharedBaseLanguageAsCapabilityOwner" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketsTest" time="0.037"/>
+  <testcase name="testUsesOfficialCustomFileTypeBracketTokens" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketsTest" time="0.075"/>
+  <testcase name="testDisabledMatcherFamilyIsExcludedFromFullAnalysis" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketsTest" time="0.05"/>
+  <testcase name="testMalformedDeepJavaInputIgnoresUnrelatedClosersAndRecoversPairs" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketsTest" time="0.075"/>
+  <testcase name="testGrammarTraversalAdapterChecksItsCancellationCheckpoint" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketsTest" time="0.047"/>
+  <testcase name="testCustomFileTypeCapabilityCanBeDisabled" classname="com.sijunyang.bracketpairguides.analysis.pairing.DocumentBracketsTest" time="0.056"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

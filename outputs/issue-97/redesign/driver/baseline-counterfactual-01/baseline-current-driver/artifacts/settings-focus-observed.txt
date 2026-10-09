@@ -1,0 +1,15 @@
+state=0:1:true:true:true:true:16:true:true:2
+settings=false:true:true:true
+advisory=2:true:false:false:false:true:true:com.intellij.ui.BalloonImpl
+requestSequence=1
+requestFocusInWindow=false
+requestStatus=done
+focusOwnerClass=com.intellij.openapi.editor.impl.EditorComponentImpl
+ownerDescendsFromEditor=true
+editorHasFocus=true
+editorShowing=true
+selectedEditor=true
+caretOffset=67
+activeWindowClass=com.intellij.openapi.wm.impl.IdeFrameImpl
+focusManagerOwnerClass=com.intellij.openapi.editor.impl.EditorComponentImpl
+modality=ModalityState.NON_MODAL

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.architecture.ResponsibilityBoundaryTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-08T18:22:36.375Z" hostname="sijun-yangui-MacBookPro.local" time="3.575">
+  <properties/>
+  <testcase name="uiPoliciesHaveNoPlatformOrCoroutineDependency" classname="com.sijunyang.bracketpairguides.architecture.ResponsibilityBoundaryTest" time="1.905"/>
+  <testcase name="coreImplementationIsNotUsedOutsideItsOwner" classname="com.sijunyang.bracketpairguides.architecture.ResponsibilityBoundaryTest" time="0.605"/>
+  <testcase name="runtimeUsesOnlyUiOwnedWorkContracts" classname="com.sijunyang.bracketpairguides.architecture.ResponsibilityBoundaryTest" time="0.529"/>
+  <testcase name="uiDoesNotOwnJobs" classname="com.sijunyang.bracketpairguides.architecture.ResponsibilityBoundaryTest" time="0.535"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[10월 09, 2026 3:22:36 오전 com.tngtech.archunit.core.PluginLoader$PluginSupplier get
+정보: Detected Java version 17.0.12
+]]></system-err>
+</testsuite>

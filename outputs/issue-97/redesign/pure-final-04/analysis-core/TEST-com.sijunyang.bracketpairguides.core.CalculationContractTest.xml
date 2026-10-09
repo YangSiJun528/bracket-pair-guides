@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.core.CalculationContractTest" tests="22" skipped="0" failures="0" errors="0" timestamp="2026-10-08T08:41:47.049Z" hostname="sijun-yangui-MacBookPro.local" time="0.404">
+  <properties/>
+  <testcase name="actualCoroutineCancellationStopsAnOutstandingInputRead" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.073"/>
+  <testcase name="sharedStorageDoesNotSharePairMemosAndOldCompletionCannotRollbackCache" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.017"/>
+  <testcase name="completedPairCapacityNeverPublishesAPartialGraph" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.091"/>
+  <testcase name="nestingQueriesAgreeWithAnIndependentBalancedExpressionOracle" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.027"/>
+  <testcase name="retryRemainsCancellableInsteadOfSpinningOnAnUnavailableReadLock" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.003"/>
+  <testcase name="aBatchCannotRetainMoreThanItsReadBudget" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.001"/>
+  <testcase name="captureCollectorsAreRevokedAndCannotAlterASealedBatch" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.001"/>
+  <testcase name="repairConsumesPrefixThroughContentButNotUnusedSuffix" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.008"/>
+  <testcase name="pendingCapacityAppliesBeforeAnotherOpenCanBeRetained" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.014"/>
+  <testcase name="capturePartitionDoesNotChangeQueriesOrGuideGeometry" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.002"/>
+  <testcase name="exactRepairRefusalLeavesGeometryAbsent" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.004"/>
+  <testcase name="hostSourceChangesPropagateInsteadOfBeingRetriedOrPublished" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.0"/>
+  <testcase name="tokenWindowsAreBoundedAndOwnNoMutableInputStorage" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.01"/>
+  <testcase name="cancellationAtPureCheckpointsDoesNotBecomeARefusalOrSuccess" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.001"/>
+  <testcase name="unrelatedWriteRetriesDiscardAllPartialAttemptState" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.001"/>
+  <testcase name="guideCapacityPreservesExactLowerFacetsWithoutCapturingGuideText" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.051"/>
+  <testcase name="exactPairAndPendingBoundariesRemainAccepted" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.093"/>
+  <testcase name="aLateConcurrentAttemptCannotReplaceTheNewerCanonicalStorage" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.001"/>
+  <testcase name="anUnavailableLaterChunkDiscardsAnEarlierPairPrefix" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.001"/>
+  <testcase name="guideReuseSeparatesTabLayoutsWithinOneTextRevision" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.0"/>
+  <testcase name="absenceOfRequestedFacetsDoesNotReadTokensOrLines" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.001"/>
+  <testcase name="longWhitespaceContinuesInBoundedReadsAndTiesChooseEarliestLine" classname="com.sijunyang.bracketpairguides.core.CalculationContractTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,18 @@
+{
+    "schema": 1,
+    "mode": "manual-registry-events-no-auto-startup-pass",
+    "roots": [
+        {
+            "sourceSet": "test",
+            "originalRoot": "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides/plugin/build/resources/test",
+            "overlayRoot": "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides/plugin/build/sdk-measurement/test-resources/test",
+            "originalDescriptorSha256": "a45ee9327be9dfb2cfafff4fba78c8a88b606d038d06f41f608cd07b0439e4cb",
+            "measuredDescriptorSha256": "2b6195a87408c749c5ebf013819a49fef79f5a58d9f56f98bd35a3daabefb480",
+            "entries": 1,
+            "changedEntries": [
+                "META-INF/plugin.xml"
+            ],
+            "nonDescriptorEntriesUnchanged": true
+        }
+    ]
+}

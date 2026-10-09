@@ -1,0 +1,406 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-10-08T11:55:42.804384+00:00",
+  "baselineRoot": "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides",
+  "baselineHead": "072533fa3e223d53f937a15d50fe8637add8b2cb",
+  "candidateHead": "be4f6201556710d2dc3f4895e7555f55fa9a8727",
+  "scope": "additive JMH/SDK/Driver source and opt-in settings only; no production/build/cache/IDE/raw outputs",
+  "assertions": {
+    "baselineHeadExact": true,
+    "onlyTrackedChangeIsBenchmarksBuild": true,
+    "noStagedChanges": true,
+    "productionFiveModuleMainAndBuildRootBuildSettingsUnchanged": true,
+    "noUntrackedProductionSource": true,
+    "sharedSdkNineAndComparisonHostByteIdentical": true
+  },
+  "trackedChangedPaths": [
+    "benchmarks/build.gradle.kts"
+  ],
+  "benchmarksBuildChangeDisclosure": "Adds coroutine1.8.1/model/core standalone dependencies, five public calculation JMH job mappings, matched 2GiB JVM args and exact per-method selection; exact patch retained. Existing baseline production remains072533f.",
+  "files": [
+    {
+      "path": "benchmarks/build.gradle.kts",
+      "sha256": "1f531c943881cbbe465cccbf89e27969052d77a2fe675f29d1e4eca3ca97b943",
+      "bytes": 5914,
+      "mode": "0o644",
+      "gitState": "tracked-modified"
+    },
+    {
+      "path": "benchmarks/src/jmh/java/com/sijunyang/bracketpairguides/benchmarks/CalculationContractBenchmark.java",
+      "sha256": "7a179c3c5d4332932bd846eab818659e78aacf6f987dd486b1aa19b85f0d8edd",
+      "bytes": 1113,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "benchmarks/src/main/kotlin/com/sijunyang/bracketpairguides/benchmarks/BaselineCanonicalIndexes.kt",
+      "sha256": "99b000f28f7b4914b4acf89d1a7dfe3c308059a42114aa73b7d4eee94742c4e5",
+      "bytes": 3546,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "benchmarks/src/main/kotlin/com/sijunyang/bracketpairguides/benchmarks/BaselineEngine.kt",
+      "sha256": "364e34f080d662d991dfd2c2fc9a930eeedde0d74f473a4e0ae2515247220d23",
+      "bytes": 6408,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "benchmarks/src/main/kotlin/com/sijunyang/bracketpairguides/benchmarks/BaselineInput.kt",
+      "sha256": "a5b1b8355d2ac98d73aa8e039ccee31b8b29bd6f9901cb1bf3dde9a7e4874e51",
+      "bytes": 2025,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "benchmarks/src/main/kotlin/com/sijunyang/bracketpairguides/benchmarks/CalculationWorkload.kt",
+      "sha256": "28ea4b7095e0ebe13484844ab5071982114a47468de7af3a49f4491d5bc673da",
+      "bytes": 4354,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/counterfactual-driver/README.md",
+      "sha256": "1ae174204ab68b1afe26314dc0436b121c9f609f348fd758a449a89ed3694180",
+      "bytes": 3413,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/counterfactual-driver/bridge/kotlin/com/sijunyang/bracketpairguides/testing/EditorContractBridge.kt",
+      "sha256": "fbcd84edb20039ba3753f6a01088ccb932ad0653b17b56bd4b35ef46ede831c2",
+      "bytes": 16933,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/counterfactual-driver/counterfactual-driver.init.gradle",
+      "sha256": "3f5995fdb8508b3b13730d146e03785c7efedc26f8ac4f9fbf4db62bf4e59c73",
+      "bytes": 7077,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/counterfactual-driver/driver/kotlin/com/sijunyang/bracketpairguides/visual/EditorVisualContractTest.kt",
+      "sha256": "8bc25841602abe158e18321bc8ef68bb2db3868268e9bc2012e8502e23f23d7e",
+      "bytes": 23735,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/counterfactual-driver/source-manifest.json",
+      "sha256": "5e46f4822b3b96d334f75567cf1951ec09b2033c27b7be6620d99f0f9e2fce32",
+      "bytes": 1939,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/BaselineComparisonHost.kt",
+      "sha256": "c21bd76123480dbf14f8017af5bff46d4690eefc933404550559de250bf57702",
+      "bytes": 12149,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/BaselineReadMeasurements.kt",
+      "sha256": "6d6267937737c75232d3115ed362da993b7a625de00b8e3b2f452a9eef10cf46",
+      "bytes": 6104,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/ComparisonFixture.kt",
+      "sha256": "2223bec2ad197983e5e12212ec655a65833296e8ad9c5a5291e89b2465505cb7",
+      "bytes": 982,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/ComparisonHost.kt",
+      "sha256": "860e18f0016d02c45afc7ca0566455aab88b0252f94dafaff24c584d79e97145",
+      "bytes": 3675,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/ResourceEvidence.kt",
+      "sha256": "032c994daed031523df87dbc2ca9e2579bc75e95badc09165c95e5655f072892",
+      "bytes": 7065,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/SdkAllocationSegments.kt",
+      "sha256": "8571e9f40533e81c0a4b0b6ff8f8f2b32bbcba5942f9db380be08140d21a8a0d",
+      "bytes": 3003,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest.kt",
+      "sha256": "050df158ce5ecd9af43093f38d531dd95aa995e240439c5667ed3f709543f795",
+      "bytes": 36283,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/SdkDescriptorEvidence.kt",
+      "sha256": "08bee7ca1673db3e1900ceba088ad302f2a3ce40d1fd7ccdc6d4e965398fbd3d",
+      "bytes": 7551,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/SdkEditRestorationWorkload.kt",
+      "sha256": "161eb43590c102ac0213669c93462eaf92d87a33d861e39a3d494ab02efb046f",
+      "bytes": 15115,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/SdkEvidencePump.kt",
+      "sha256": "88cc226336d16542bd8814a39fe2bcaf2f1f0379ca2672fc2dfcdaedde9a2b6f",
+      "bytes": 2356,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/SdkNativeControls.kt",
+      "sha256": "459fe0cfb3767368614bf32cc99256dc3af0923f1b655a678dfba2b249082a5d",
+      "bytes": 9377,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/SdkNativeRepairWorkloads.kt",
+      "sha256": "c5218daf65e028a6f961b0b4ae7520f0abb5b1c6b3d7974c29c9149001b3d433",
+      "bytes": 10845,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/sdk-comparison.init.gradle",
+      "sha256": "8be78f0b80a5a5fb8ba0c964fb2a7095ce25b739d13665862acb2f4226888117",
+      "bytes": 2221,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/sdk-measurement.gradle",
+      "sha256": "54128823ed56bed4b1330a9428d976285350a60504544e008a709c88fab3819e",
+      "bytes": 10094,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    },
+    {
+      "path": "plugin/src/visualTest/testData/Contract.java",
+      "sha256": "637bd12773f109c8573e15f62455370538505b6ced6308d9a5660627892d9c62",
+      "bytes": 131,
+      "mode": "0o644",
+      "gitState": "untracked-additive"
+    }
+  ],
+  "protectedProductionSha256": {
+    "analysis-core/build.gradle.kts": "3a42232668dabc8dc17096ee57f21423c554e8a4e1eb658fbffc4915aa2f98fb",
+    "analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/BracketRole.java": "c5e2fbab1a4e49fb03502fd0d3509c08ff9b5035e8e52c8d616cd25a3571f54e",
+    "analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/CancellationProbe.java": "ad01fde92be177a378ba521f78fc442692c8b4c8d4e22de6fc532ad9025c535f",
+    "analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/PairSink.java": "1bc8f573bc72c2b232cf9056141917a3ffeb2657e03c0a96e3d54840b886e910",
+    "analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/PairTable.java": "02712631c22a9941baf60fc5d516b706a8a43a7f83b3ad306051baaebbfeccba",
+    "analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/PairingMachine.java": "8ff4205c143eba6a9d7d2568927cf20bd187b91ec906d7cb12426e3a2d7de663",
+    "analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/PairingRules.java": "929c66d42443b59ddcb3973bc95a775edb2d5181a440f00ecf0c3199b3244f44",
+    "analysis-core/src/main/java/com/sijunyang/bracketpairguides/analysis/pairing/core/StructuralRole.java": "d2ea2ae52792d5045422f8bb9aa56f80c0c0727182442f37d1df8fc3a0457d50",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/active/ActiveBracketPairIndex.kt": "3b238988781711bdf1280c65cd6e3fcd32373cd745806402e3338265437139b4",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/guide/GuideIndexShape.kt": "c2ec6f917bbe4aed8ae93eabd6b694da21894ebcef24b5e56b8b49c89b833465",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/guide/GuideLineEnvelope.kt": "35c1612cbf70c03bb17466591259ca992209bfce734b6ff1f54b277102f3bbb9",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/guide/GuidePositionIndex.kt": "385f1065a9a12c0de86d0736020fdb62ca2b6c3c8089968d50503a45c943d7a5",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/guide/GuideRepairCalculation.kt": "b7b345dd786600e2e986d01ec150c29add0ae5ac4e8beb2e67700e5cd407ff1c",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/guide/LineIndentation.kt": "922f1b64bc0c96007c7fd21626930476a8508652a28f586a8708d1a0a8c0b96e",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/guide/VisualColumn.kt": "a4f1171a0e364d245f4ed1b2fc9252bf54b9a0eca30378ad37f1759fc1ca0da6",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/BracketRecognitionLimits.kt": "5211e46ae35812dd3ee7914313393e0ee2a015c85cbf7f219f37127a1e0570e7",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/CapturedBracketTokens.kt": "a9fa94cabaee94d0ba7e2ea6f31bb238d4758513321617c66bf3adeb3184fbed",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/DocumentBracketRecognition.kt": "cc6c6e1f41ce884156ce448cb858b9db5b421d6cc7488efd938e55f63ea3a318",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/PairCollection.kt": "5847f46108e62abc32152f507015d03ff0ccf0b4e9b78df04d01dce625a1ef48",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/BracketIndexes.kt": "b8fc084398e792dcda5a8f334912da4f5500457c1b81a072a03cd3aabd1c8b2c",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/IndexLayout.kt": "cae5066b9fc7260a60e652e23e6a943444a0b22ea20436e94e04aaf683d37e44",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/IndexedBracketSnapshot.kt": "bdb4d4507ba977d0643bb4846fc7dc271c41ba2a038a097ceb15d9f2418ad41c",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/SnapshotCalculation.kt": "377e31aa3bc0ceb673d2f2c7541ed27a4f6713475f2ef82cd6b4a640dc70c719",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/sorting/CancellableLongArraySort.kt": "93877ca471dda081f159407a0f29f74be61a5ff6a2ca6d22298fc77af6841cf4",
+    "analysis-core/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/token/BracketTokenIndex.kt": "f30b15a73f1b1104fd2c1299e3c604e61ac9d94af8bf0d8dd51a90898e5870dd",
+    "analysis-model/build.gradle.kts": "a5ad8c4c0abd08315b9fe7dccb8b87d236f495e0918dab5aaaca8a64cfb9c9d9",
+    "analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/AnalysisCoverage.kt": "76b1e1048765985b6b415d224c997f698cc4d8b51bfb1271819a0ecfc28147b2",
+    "analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/AnalysisStamp.kt": "635ae9f779526672f9c1f67045acf6e54959e53759bcfb3549891f957be6eae2",
+    "analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/BraceMatcherAvailability.kt": "7e0b2228c1b83cba57944f9b8e51a4e7d45885907d81ca7badc17c7c2e130b12",
+    "analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/BracketModels.kt": "bf4b35ecabb5d89766b05b1d50363b8c407284e9183bfea4d3d2d76a21150ed3",
+    "analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/AnalysisLimit.kt": "415e57aa94675ba892266335a421b673c6ef577678c024a868132e3b606be13c",
+    "analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/AnalysisOutcome.kt": "0ec906ee7e8953b560f0953ddac4eca01a07f1a3db6a5783d6aa06dfa9733e9f",
+    "analysis-model/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/BracketSnapshot.kt": "ff77c22e3dc66081ed998d9a1473a0c38674de2c9030e56dc4778f568b4a2389",
+    "analysis-runtime/build.gradle.kts": "7f4d7724098c98fa4b6a0f6974610b7a232adf363c38729b4b2ec777e19665f6",
+    "analysis-runtime/src/main/java/com/sijunyang/bracketpairguides/analysis/intellij/AnalysisPluginLifecycleListener.java": "9ff03f7336f6a2d76b5f0284a3864e7622932d66c0d06a452111c77485988c16",
+    "analysis-runtime/src/main/java/com/sijunyang/bracketpairguides/editor/highlighting/NativeBraceMatching.java": "cc9488261a0379e7604a61c937ce1d565985915a498900c21ca83f02052a863b",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/AnalysisInput.kt": "ec54d3da7b485011df45020b12b9e3046bc19eac29088f471585cfdc9a37ffbe",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/AnalysisCaptureObserver.kt": "7fec0b506753dfe376a1e3f02aa0e0cf6e8d698a22c2db258de78cc8e5e52f84",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/AnalysisReadEpoch.kt": "e09609ff4a4037b468a046f4b6259af68bacd9cdbd3d1cf88f079b08b1e9764d",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/BracketAnalysis.kt": "86469d4d90f582c4305e0801988894767956bb01da5856999d1117283bcd33db",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/BracketTokenCapture.kt": "fde61958e391a4eea172637dc0a62269a2fe70702983546616d7539b67df40b9",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/DocumentTextCapture.kt": "583954f23072d0160b915a63b48a6d65595ec76f00c09b96f201d71988d9b2be",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/IncrementalAnalysis.kt": "b78823bbe7d60f6aa85db8e99862c3493b3d574383882c1bf469ceeb86319e2a",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/intellij/InstalledBraceLanguageCatalog.kt": "e5c6616100a65eec11a3711279dad09564a34330905c7a16c644c23ef1aaf2d7",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/BraceLanguageCatalog.kt": "5c0a51ffe6695e6ddf6eb487563f710e199f502d3bd6d5a9354f097c197c4c02",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/BracePairTopology.kt": "a2e5e7d0b8ad6769f0215cb7b9b16979fd6e9a5ca6090f63cc363dddc96cf122",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/pairing/DocumentBraceGrammar.kt": "2428d6230f425f0a70da4e67470b846f23099fdac8c08f466d821882b296d193",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/AnalysisPublication.kt": "43cbe4bf6c0cccd28b0f54bfb2a24a9d918f8ada72986658dbe287f9fdc056c6",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/snapshot/DocumentBracketIndexes.kt": "a1b45c2d7f36ed1f05476e972725068eac0965a5481a0e418af98a33f4df166e",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/EditorAnalysisExecution.kt": "2483d0320059e89ab7b6f538d382c71a2d51fd3212b4049e89aece9b948a703e",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/GuideRepairExecution.kt": "3a073ca7ce60ec4430bf184fdfaeaf0534877c97ba12a2405f420ad90921cfe0",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeBraceContext.kt": "7e6e960221f9e335f43315ae4060d8b3d99ff782d90dbb3c1edac07559b0d2b2",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeCaptureObserver.kt": "3c8ae273dcb7ae7116a40c1826c82ff975a6a1dfc2689b7d30cc97d117b5b889",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeConflictProbe.kt": "707c449d4e6fb525788d53fd66317d3d3636d582ac58b0436a5c6cf98d4b9f53",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeCursor.kt": "979ca57d4dd1f815cec05fb7eb86f499fa0bb308ba85f803e6ca6c918a2b1ff9",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeGuideConflictDetector.kt": "aa922fbdf8d1c62b8cb5687134bd01c0e12122bfd6d64ac8469a176007491747",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeGuideConflictNotification.kt": "b257f2c922c62643fad51d8928e001ab4b6f8a5c06d2510af13613652b93bdbc",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeLazyHighlighter.kt": "cfa8ee6a4d04a8bf18fee1499bee250b9b32da57f823048906f38aefe3e163c6",
+    "analysis-runtime/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/NativeMarkerInspection.kt": "581e309feddfc5504d5a2ee8f21d0d84971fc0f8b21e999a25c280536f97e40a",
+    "build.gradle.kts": "945f27b29a9e97093f926aa84edcda84d14cf99b6da78cbec95ed722462d7d93",
+    "editor-ui/build.gradle.kts": "28109efb4fb54724fae638a03dcd14515f7955246eb588d87f25d31ce28abbed",
+    "editor-ui/src/main/java/com/sijunyang/bracketpairguides/editor/events/NativeMatchedBracePluginUnloadListener.java": "1d9cd87d278cb5ea7c5b9f26b30ef62a32ed5b5c4d6409a0996c162aec36e713",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/analysis/EditorAnalysisStamp.kt": "648d5e2a1bd8d4f18d6b06738210bd8479d90f03ed580f21b9b600a29aee91da",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/EditorActivitySource.kt": "18ca2f4a2dc2cd3cea2d817c46c7ed157779f817b6464059f37c90e7895220f1",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/EditorAnalysisState.kt": "2e20813b03c69f6d426721f0ced7bf9987dc5c1302bb7599b3da38fc88274a7b",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/EditorEffectGuard.kt": "58932e0113daf61f7a346da3ff293a4b1f230068ff1d4d98d653e3be5e2dcf5b",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/EditorGuideSession.kt": "5cfe7460c540e1097035450db3e80826e37dc88da56c655d4e80df9170f36c09",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/EditorGuideSessions.kt": "2855c924037a16ef374c7b2bbe0c15ae6a5710e933beb0c7e6cbe31b92ea99e4",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/EditorSurfaceClassifier.kt": "1f978b270df1a49af3a220711defd5f203c6986e745c96a452bb82d57e8ff6d8",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/BracketGuideSettingsController.kt": "2e69f0167211eb416fb49cab8f652cdac2483357192b85ecbb1a3b850b518fbd",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/DaemonRefresh.kt": "705c40ae1856aa1cb38699fa5d91015bedcaee60f2a63545eae55ecc8cd8e06f",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/EditorGuideEvents.kt": "acf8d110d822c6ec6fbebb22c1198dbccc97621336a12a0942aaed6bc8305edc",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/GuideSettingsChange.kt": "9e382fbc63f68949ceedb904c84d8863146dec1dc75f32c97bf6fc7e4628620d",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/IdentityEventBatch.kt": "1decf98474ae72fece0f53085369833e785bae5bf520d9a46f2d6e87c15e92f2",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/NativeEditorSettingsRefresh.kt": "6faad0e38650ea9a3c5744e4b6b245c16b53184826f1c0c327dcab368dd16b8e",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/NativeMatchedBraceStartupActivity.kt": "1d918b4f124b86cd259460aa9f902356cf97bf973b03ad476b06664b0364661d",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/NativeVisualSettingsCoordinator.kt": "5cfbb859ea5f5db161ece35819cceb3bec63cd0de62c24870a3f4f0216451592",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/events/StickyLineSourceRanges.kt": "6f0f58b6d62f52346c4d208d4c1c6e9b7ab12d1548e9606ff4df86c0b7200c2a",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/BracketGuideHighlightingPass.kt": "6ccde3e6360426742c7ba99f4f9092f72709db79be0d2c9b8ca3859f20a28fab",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/BracketGuidePassRegistration.kt": "13ca09eee645c3bb8ce5b907e333f14cdbbb11def4d823bfcc3cff0a25c13dff",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/EditorAnalysisRequests.kt": "2b762ddcdbff176773029eb7a42b089ddbf152fdd1e136c0fb180b54584ce6e1",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/EditorSurfaceStartupActivity.kt": "d12b5cbbebeed0dd8b108fbfe6171d9f5eeb3f502be008481460cb0fc278e465",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/SecondaryEditorAnalysis.kt": "99248219d06931a5765936b04447b18ff86e6aea074089e35a42dbfa9aef8177",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/highlighting/UnsupportedBackendNotificationProvider.kt": "159a9a7eb12ce76f98b9c5c4f37ebd8dab604cd81f4bad844cfd8ddc7d1dd2af",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/policy/EditorPresentationPolicy.kt": "815372c57f6a34473088266dcb5cdc05b02377d28744ce291e941e8d5caa1bb3",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/editor/policy/NativeGuideConflictPolicy.kt": "1f09224515c1b3b1840fb6e8a6e7fee3e386a3d28b695c6951fdf8318fa4ecc2",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/preferences/BracketGuidePreferences.kt": "b3273ebc919450f80a02c8ba78846649286f1873a8f13e54e9a2979fb20ee8bd",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/preferences/GuideAnalysisCoverage.kt": "9da1c55bba5a3644c002746dd520afa837d64b019284c58af58885eddef22469",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/preferences/StoredColorFormat.kt": "7da489c01b0aa9c0140f239fca9a6ab97008c234f38eff494ea218dbf14c868f",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/ActiveGuidePresentation.kt": "a5e101b1c8afeeb9aa050745233b1747eee9d8d3f917993b6b39bf7622546961",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/ActivePairMarkup.kt": "08074dde37a767843668a5e788f6f2efa9107126b091a6149c9cf8286ad5d80c",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/BracketColorPalette.kt": "44c6ed65151dc9533e9ef5b271e48e6e479238eddd5a26c3baa0feed23237c61",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/BracketGuideDrawing.kt": "9c74e48b9c943f73e5e81d06b5b0e1f98c59aa242826e34923762c6eeb234b7f",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/DocumentChange.kt": "6a48e78cce21320a87ca93c408f2d1caa815f60f4bf2cc46b9d87e9d1fc7d73c",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/GuideAppearance.kt": "c8351ab44949b42e32dcf76923994dd09120a751d720e7643dd34644e40edac1",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/GuidePositionFallback.kt": "cac06f8996a08d4bd75a63e4ffc75f0c4dcbfbae359b0afc02283482769ee221",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/GuideRepairRequest.kt": "3f402190862c16f9360345c28d03497846f97c0d5c8a6763f0c488f684e6068f",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/TrackedBracketPair.kt": "dec3af183902ba6ec7f25070917029a1200db1bb59ba57cdbc592803bff6cccf",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/presentation/VisibleTokenDecorations.kt": "cd14a35b32f271d9103fdd946d282a4bb955a315c00773f0f4398125363bd4c8",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/settings/BracketGuidePreferenceNormalization.kt": "a785ef5dd46bd091b7cda15e7a263a4fd3a30e831ac9b7e2969bd1d742728c79",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/settings/BracketGuideSettings.kt": "5fdca9dad7f93cad5d3d1a70926d11157231126fa81cd67bead8db0e361acf72",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/settings/InstalledBraceLanguages.kt": "3692d442371bf75d1f5e9558dbd2fead885dd819ecebe35bfa6232ab1109222f",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/settings/NativeGuideConflictSettingsListener.kt": "891d4ca31a992496849d8a735736673111e46dbdbfe070d0101a7b32f7596400",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/settings/ui/BracketGuideSettingsPage.kt": "533082765ecfa0743d4a488a6ddc522ad4062b202b2c4db225e53a77b0517a1b",
+    "plugin/build.gradle.kts": "81d020e1c0545b1ae4af4d2c0911ff96e9c7607746cacf2b3d8d75382df08a1e",
+    "plugin/src/main/resources/META-INF/plugin.xml": "4c14aee5052a2c640d8c6c7cc2b4e6fd70096f9aa89e56efec1905ec93752c00",
+    "plugin/src/main/resources/META-INF/pluginIcon.svg": "6ef736e5b5ec9f223df26641ead1d401a0503aa6b22d5a981c5c010afa289440",
+    "plugin/src/main/resources/META-INF/pluginIcon_dark.svg": "98f01ff7e696a696e35fb484452f9fd0a9243387d2cba82434500946784adfb0",
+    "settings.gradle.kts": "2f64ed302468409dc3eac987db516af2ba9aa7c11f1828a8895fe247d522cedb"
+  },
+  "sharedSdkSourceParity": [
+    {
+      "name": "ComparisonFixture.kt",
+      "baselinePath": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/ComparisonFixture.kt",
+      "candidatePath": "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/ComparisonFixture.kt",
+      "sha256": "2223bec2ad197983e5e12212ec655a65833296e8ad9c5a5291e89b2465505cb7",
+      "byteIdentical": true
+    },
+    {
+      "name": "SdkComparisonMeasurementTest.kt",
+      "baselinePath": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest.kt",
+      "candidatePath": "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest.kt",
+      "sha256": "050df158ce5ecd9af43093f38d531dd95aa995e240439c5667ed3f709543f795",
+      "byteIdentical": true
+    },
+    {
+      "name": "SdkNativeRepairWorkloads.kt",
+      "baselinePath": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/SdkNativeRepairWorkloads.kt",
+      "candidatePath": "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkNativeRepairWorkloads.kt",
+      "sha256": "c5218daf65e028a6f961b0b4ae7520f0abb5b1c6b3d7974c29c9149001b3d433",
+      "byteIdentical": true
+    },
+    {
+      "name": "SdkAllocationSegments.kt",
+      "baselinePath": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/SdkAllocationSegments.kt",
+      "candidatePath": "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkAllocationSegments.kt",
+      "sha256": "8571e9f40533e81c0a4b0b6ff8f8f2b32bbcba5942f9db380be08140d21a8a0d",
+      "byteIdentical": true
+    },
+    {
+      "name": "ResourceEvidence.kt",
+      "baselinePath": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/ResourceEvidence.kt",
+      "candidatePath": "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/ResourceEvidence.kt",
+      "sha256": "032c994daed031523df87dbc2ca9e2579bc75e95badc09165c95e5655f072892",
+      "byteIdentical": true
+    },
+    {
+      "name": "SdkEvidencePump.kt",
+      "baselinePath": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/SdkEvidencePump.kt",
+      "candidatePath": "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkEvidencePump.kt",
+      "sha256": "88cc226336d16542bd8814a39fe2bcaf2f1f0379ca2672fc2dfcdaedde9a2b6f",
+      "byteIdentical": true
+    },
+    {
+      "name": "SdkNativeControls.kt",
+      "baselinePath": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/SdkNativeControls.kt",
+      "candidatePath": "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkNativeControls.kt",
+      "sha256": "459fe0cfb3767368614bf32cc99256dc3af0923f1b655a678dfba2b249082a5d",
+      "byteIdentical": true
+    },
+    {
+      "name": "SdkEditRestorationWorkload.kt",
+      "baselinePath": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/SdkEditRestorationWorkload.kt",
+      "candidatePath": "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkEditRestorationWorkload.kt",
+      "sha256": "161eb43590c102ac0213669c93462eaf92d87a33d861e39a3d494ab02efb046f",
+      "byteIdentical": true
+    },
+    {
+      "name": "SdkDescriptorEvidence.kt",
+      "baselinePath": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/SdkDescriptorEvidence.kt",
+      "candidatePath": "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkDescriptorEvidence.kt",
+      "sha256": "08bee7ca1673db3e1900ceba088ad302f2a3ce40d1fd7ccdc6d4e965398fbd3d",
+      "byteIdentical": true
+    },
+    {
+      "name": "ComparisonHost.kt",
+      "baselinePath": "plugin/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/ComparisonHost.kt",
+      "candidatePath": "analysis-runtime/src/test/kotlin/com/sijunyang/bracketpairguides/comparison/ComparisonHost.kt",
+      "sha256": "860e18f0016d02c45afc7ca0566455aab88b0252f94dafaff24c584d79e97145",
+      "byteIdentical": true
+    }
+  ],
+  "artifacts": {
+    "baseline-overlay.tar.gz": {
+      "sha256": "207fb99c7deddb82ec8094fd1e8578688fade78533daf33d574c11829e78b734",
+      "bytes": 49303
+    },
+    "tracked.diff": {
+      "sha256": "9512ed1499e566e85cba55d0daf2781f1c40b14f673eb76ed3e042b7cff555ff",
+      "bytes": 2226
+    },
+    "untracked-additions.diff": {
+      "sha256": "ee390ed16b39721db12a7a69f5a17477ad17dce4b7a4dbe4e243d63cf59fde79",
+      "bytes": 211435
+    },
+    "complete.diff": {
+      "sha256": "38489845c8cf998103d2825816728bcba0195ca192d34833f4821c916b89ede9",
+      "bytes": 213661
+    }
+  },
+  "excluded": "All baseline outputs/, build/cache/IDE artifacts and all unrelated existing source/tests/assets; archive contains only the explicit26file allowlist."
+}

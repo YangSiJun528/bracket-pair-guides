@@ -1,0 +1,60 @@
+{
+  "recordedUtc": "2026-10-08T12:20:02.450985+00:00",
+  "reason": "Failed original-source IDE inputs were inspected: same deprecated listener call. Preserve all reports and installer/product identities; retire only cache artifacts acquired by this completed task to recover local disk before corrected-source validation. No pre-existing cache/checkout is eligible.",
+  "items": [
+    {
+      "target": "IU-2025.3.6.1",
+      "record": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/runs/20261008T115340939459Z/IU-2025.3.6.1.json",
+      "recordSha256": "390b0d17b91dbcab872c1aeee7cc0dc81110af8caaec934953f81d5a4d28dabc",
+      "transform": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/5cbd307de769e26472124b33d7237b57",
+      "installers": [
+        "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/idea/idea/2025.3.6.1/a3157ef29fa6fe544e779de4537fc1d6def558de/idea-2025.3.6.1-aarch64.dmg"
+      ],
+      "ide": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/5cbd307de769e26472124b33d7237b57/transformed/idea-2025.3.6.1-aarch64",
+      "identity": {
+        "path": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/5cbd307de769e26472124b33d7237b57/transformed/idea-2025.3.6.1-aarch64",
+        "productCode": "IU",
+        "version": "2025.3.6.1",
+        "buildNumber": "253.33813.55",
+        "productInfo": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/5cbd307de769e26472124b33d7237b57/transformed/idea-2025.3.6.1-aarch64/Resources/product-info.json",
+        "productInfoSha256": "4e056be5e8ae4ed165b1821bd7a3d62af3f39a28f3fb58ee4b320efeb6d2ffd5"
+      }
+    },
+    {
+      "target": "IU-2026.1.5",
+      "record": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/runs/20261008T115340939459Z/IU-2026.1.5.json",
+      "recordSha256": "536b53fca28af1f01c8c63998c8bd97e99a93a1065064416b19c4d893ff84efa",
+      "transform": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/d7d08a10b2a30b089ff27a424cb28cc7",
+      "installers": [
+        "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/idea/idea/2026.1.5/c82d9ec2ecaf95a384b1b714a22e6cb257cab5d2/idea-2026.1.5-aarch64.dmg"
+      ],
+      "ide": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/d7d08a10b2a30b089ff27a424cb28cc7/transformed/idea-2026.1.5-aarch64",
+      "identity": {
+        "path": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/d7d08a10b2a30b089ff27a424cb28cc7/transformed/idea-2026.1.5-aarch64",
+        "productCode": "IU",
+        "version": "2026.1.5",
+        "buildNumber": "261.27258.48",
+        "productInfo": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/d7d08a10b2a30b089ff27a424cb28cc7/transformed/idea-2026.1.5-aarch64/Resources/product-info.json",
+        "productInfoSha256": "9e9b87eee9cf83aa582c2cc2b4865b58284cc0589130cf7cb097bea3f4fd090f"
+      }
+    },
+    {
+      "target": "IU-2026.2.3",
+      "record": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/runs/20261008T115340939459Z/IU-2026.2.3.json",
+      "recordSha256": "712de9a36a1fbea32af658fddef19a4fdc521e6773faa79cd408020f882e4f88",
+      "transform": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/66530b40a6833c6c4f74ca91344d9933",
+      "installers": [
+        "/Users/sijun-yang/.gradle/caches/modules-2/files-2.1/idea/idea/2026.2.3/3c12b9b854f9bd0298378619af1748576436afb4/idea-2026.2.3-aarch64.dmg"
+      ],
+      "ide": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/66530b40a6833c6c4f74ca91344d9933/transformed/idea-2026.2.3-aarch64",
+      "identity": {
+        "path": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/66530b40a6833c6c4f74ca91344d9933/transformed/idea-2026.2.3-aarch64",
+        "productCode": "IU",
+        "version": "2026.2.3",
+        "buildNumber": "262.10968.63",
+        "productInfo": "/Users/sijun-yang/.gradle/caches/9.8.0/transforms/66530b40a6833c6c4f74ca91344d9933/transformed/idea-2026.2.3-aarch64/Resources/product-info.json",
+        "productInfoSha256": "2763a8523a7b51b48a7b9f5b4998bf6ea4d981233f8b24d6ce095d89a00c7d03"
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.core.TokenSemanticsContractTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-08T06:18:24.259Z" hostname="sijun-yangui-MacBookPro.local" time="0.01">
+  <properties/>
+  <testcase name="toggleTokensAlternateOpenAndCloseWithoutRetainingUnmatchedOccurrences" classname="com.sijunyang.bracketpairguides.core.TokenSemanticsContractTest" time="0.001"/>
+  <testcase name="ordinaryRecoveryCannotCrossAStructuralBarrier" classname="com.sijunyang.bracketpairguides.core.TokenSemanticsContractTest" time="0.001"/>
+  <testcase name="strictContextsRecoverOnlyTheMatchingOpenContext" classname="com.sijunyang.bracketpairguides.core.TokenSemanticsContractTest" time="0.006"/>
+  <testcase name="languageGroupsCannotConsumeEachOthersPendingTokens" classname="com.sijunyang.bracketpairguides.core.TokenSemanticsContractTest" time="0.001"/>
+  <testcase name="compatibilitySuspensionDoesNotReplayAlreadyConsumedTokens" classname="com.sijunyang.bracketpairguides.core.TokenSemanticsContractTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

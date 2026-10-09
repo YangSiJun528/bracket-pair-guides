@@ -1,0 +1,73 @@
+> Task :build-logic:compileJava NO-SOURCE
+> Task :build-logic:compileGroovy UP-TO-DATE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+> Task :plugin:initializeIntellijPlatformPlugin
+> Task :plugin:patchPluginXml UP-TO-DATE
+> Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-model:compileKotlin UP-TO-DATE
+> Task :analysis-model:compileJava NO-SOURCE
+> Task :analysis-core:compileKotlin UP-TO-DATE
+> Task :analysis-core:compileJava UP-TO-DATE
+> Task :analysis-core:processResources NO-SOURCE
+> Task :analysis-core:classes UP-TO-DATE
+> Task :analysis-core:jar UP-TO-DATE
+> Task :analysis-model:processResources NO-SOURCE
+> Task :analysis-model:classes UP-TO-DATE
+> Task :analysis-model:jar UP-TO-DATE
+> Task :analysis-runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:compileKotlin UP-TO-DATE
+> Task :editor-ui:compileJava UP-TO-DATE
+> Task :analysis-runtime:compileKotlin UP-TO-DATE
+> Task :analysis-runtime:compileJava UP-TO-DATE
+> Task :analysis-runtime:processResources NO-SOURCE
+> Task :analysis-runtime:classes UP-TO-DATE
+> Task :analysis-runtime:jar UP-TO-DATE
+> Task :editor-ui:processResources NO-SOURCE
+> Task :editor-ui:classes UP-TO-DATE
+> Task :editor-ui:jar UP-TO-DATE
+> Task :plugin:generateManifest UP-TO-DATE
+> Task :plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :plugin:compileKotlin UP-TO-DATE
+> Task :plugin:compileJava NO-SOURCE
+> Task :plugin:processResources UP-TO-DATE
+> Task :plugin:classes UP-TO-DATE
+> Task :plugin:instrumentCode UP-TO-DATE
+> Task :plugin:jar UP-TO-DATE
+> Task :plugin:instrumentedJar UP-TO-DATE
+> Task :plugin:composedJar UP-TO-DATE
+> Task :plugin:prepareSandbox UP-TO-DATE
+> Task :plugin:buildSearchableOptions SKIPPED
+> Task :plugin:prepareJarSearchableOptions SKIPPED
+> Task :plugin:jarSearchableOptions SKIPPED
+> Task :plugin:buildPlugin UP-TO-DATE
+
+> Task :diagnosePackagingInputs
+DIAGNOSTIC_EXECUTED_GRAPH=[:analysis-core:checkKotlinGradlePluginConfigurationErrors, :analysis-core:classes, :analysis-core:compileJava, :analysis-core:compileKotlin, :analysis-core:jar, :analysis-core:processResources, :analysis-model:checkKotlinGradlePluginConfigurationErrors, :analysis-model:classes, :analysis-model:compileJava, :analysis-model:compileKotlin, :analysis-model:jar, :analysis-model:processResources, :analysis-runtime:checkKotlinGradlePluginConfigurationErrors, :analysis-runtime:classes, :analysis-runtime:compileJava, :analysis-runtime:compileKotlin, :analysis-runtime:jar, :analysis-runtime:processResources, :diagnosePackagingInputs, :editor-ui:checkKotlinGradlePluginConfigurationErrors, :editor-ui:classes, :editor-ui:compileJava, :editor-ui:compileKotlin, :editor-ui:jar, :editor-ui:processResources, :plugin:buildPlugin, :plugin:buildSearchableOptions, :plugin:checkKotlinGradlePluginConfigurationErrors, :plugin:classes, :plugin:compileJava, :plugin:compileKotlin, :plugin:composedJar, :plugin:generateManifest, :plugin:initializeIntellijPlatformPlugin, :plugin:instrumentCode, :plugin:instrumentedJar, :plugin:jar, :plugin:jarSearchableOptions, :plugin:patchPluginXml, :plugin:prepareJarSearchableOptions, :plugin:prepareSandbox, :plugin:processResources]
+DIAGNOSTIC_TASK=:plugin:jar;TYPE=org.gradle.api.tasks.bundling.Jar_Decorated;DIRECT=[:plugin:classes, :plugin:compileJava, :plugin:compileKotlin, :plugin:generateManifest, :plugin:instrumentCode];CLOSURE=[:analysis-core:checkKotlinGradlePluginConfigurationErrors, :analysis-core:compileJava, :analysis-core:compileKotlin, :analysis-model:checkKotlinGradlePluginConfigurationErrors, :analysis-model:classes, :analysis-model:compileJava, :analysis-model:compileKotlin, :analysis-model:jar, :analysis-model:processResources, :analysis-runtime:checkKotlinGradlePluginConfigurationErrors, :analysis-runtime:classes, :analysis-runtime:compileJava, :analysis-runtime:compileKotlin, :analysis-runtime:jar, :analysis-runtime:processResources, :editor-ui:checkKotlinGradlePluginConfigurationErrors, :editor-ui:classes, :editor-ui:compileJava, :editor-ui:compileKotlin, :editor-ui:jar, :editor-ui:processResources, :plugin:checkKotlinGradlePluginConfigurationErrors, :plugin:classes, :plugin:compileJava, :plugin:compileKotlin, :plugin:generateManifest, :plugin:initializeIntellijPlatformPlugin, :plugin:instrumentCode, :plugin:patchPluginXml, :plugin:processResources]
+DIAGNOSTIC_ARCHIVE=:plugin:jar;FILE=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/libs/bracket-pair-guides-0.0.6-base.jar
+DIAGNOSTIC_TASK=:plugin:instrumentCode;TYPE=org.jetbrains.intellij.platform.gradle.tasks.InstrumentCodeTask_Decorated;DIRECT=[:plugin:classes, :plugin:initializeIntellijPlatformPlugin];CLOSURE=[:analysis-core:checkKotlinGradlePluginConfigurationErrors, :analysis-core:compileJava, :analysis-core:compileKotlin, :analysis-model:checkKotlinGradlePluginConfigurationErrors, :analysis-model:classes, :analysis-model:compileJava, :analysis-model:compileKotlin, :analysis-model:jar, :analysis-model:processResources, :analysis-runtime:checkKotlinGradlePluginConfigurationErrors, :analysis-runtime:classes, :analysis-runtime:compileJava, :analysis-runtime:compileKotlin, :analysis-runtime:jar, :analysis-runtime:processResources, :editor-ui:checkKotlinGradlePluginConfigurationErrors, :editor-ui:classes, :editor-ui:compileJava, :editor-ui:compileKotlin, :editor-ui:jar, :editor-ui:processResources, :plugin:checkKotlinGradlePluginConfigurationErrors, :plugin:classes, :plugin:compileJava, :plugin:compileKotlin, :plugin:initializeIntellijPlatformPlugin, :plugin:patchPluginXml, :plugin:processResources]
+DIAGNOSTIC_TASK=:plugin:instrumentedJar;TYPE=org.jetbrains.intellij.platform.gradle.tasks.InstrumentedJarTask_Decorated;DIRECT=[:plugin:generateManifest, :plugin:instrumentCode, :plugin:jar];CLOSURE=[:analysis-core:checkKotlinGradlePluginConfigurationErrors, :analysis-core:compileJava, :analysis-core:compileKotlin, :analysis-model:checkKotlinGradlePluginConfigurationErrors, :analysis-model:classes, :analysis-model:compileJava, :analysis-model:compileKotlin, :analysis-model:jar, :analysis-model:processResources, :analysis-runtime:checkKotlinGradlePluginConfigurationErrors, :analysis-runtime:classes, :analysis-runtime:compileJava, :analysis-runtime:compileKotlin, :analysis-runtime:jar, :analysis-runtime:processResources, :editor-ui:checkKotlinGradlePluginConfigurationErrors, :editor-ui:classes, :editor-ui:compileJava, :editor-ui:compileKotlin, :editor-ui:jar, :editor-ui:processResources, :plugin:checkKotlinGradlePluginConfigurationErrors, :plugin:classes, :plugin:compileJava, :plugin:compileKotlin, :plugin:generateManifest, :plugin:initializeIntellijPlatformPlugin, :plugin:instrumentCode, :plugin:jar, :plugin:patchPluginXml, :plugin:processResources]
+DIAGNOSTIC_ARCHIVE=:plugin:instrumentedJar;FILE=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/libs/bracket-pair-guides-0.0.6-instrumented.jar
+DIAGNOSTIC_TASK=:plugin:composedJar;TYPE=org.jetbrains.intellij.platform.gradle.tasks.ComposedJarTask_Decorated;DIRECT=[:plugin:generateManifest, :plugin:initializeIntellijPlatformPlugin, :plugin:instrumentedJar];CLOSURE=[:analysis-core:checkKotlinGradlePluginConfigurationErrors, :analysis-core:compileJava, :analysis-core:compileKotlin, :analysis-model:checkKotlinGradlePluginConfigurationErrors, :analysis-model:classes, :analysis-model:compileJava, :analysis-model:compileKotlin, :analysis-model:jar, :analysis-model:processResources, :analysis-runtime:checkKotlinGradlePluginConfigurationErrors, :analysis-runtime:classes, :analysis-runtime:compileJava, :analysis-runtime:compileKotlin, :analysis-runtime:jar, :analysis-runtime:processResources, :editor-ui:checkKotlinGradlePluginConfigurationErrors, :editor-ui:classes, :editor-ui:compileJava, :editor-ui:compileKotlin, :editor-ui:jar, :editor-ui:processResources, :plugin:checkKotlinGradlePluginConfigurationErrors, :plugin:classes, :plugin:compileJava, :plugin:compileKotlin, :plugin:generateManifest, :plugin:initializeIntellijPlatformPlugin, :plugin:instrumentCode, :plugin:instrumentedJar, :plugin:jar, :plugin:patchPluginXml, :plugin:processResources]
+DIAGNOSTIC_ARCHIVE=:plugin:composedJar;FILE=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/libs/plugin-0.0.6.jar
+DIAGNOSTIC_TASK=:plugin:prepareSandbox;TYPE=org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask_Decorated;DIRECT=[:plugin:initializeIntellijPlatformPlugin];CLOSURE=[:plugin:initializeIntellijPlatformPlugin]
+DIAGNOSTIC_PLUGIN_JAR=:plugin:prepareSandbox;FILE=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/libs/plugin-0.0.6.jar;PROVIDER=task ':plugin:prepareSandbox' property 'pluginJar';BUILT_BY=[]
+DIAGNOSTIC_RUNTIME=:plugin:prepareSandbox;FILES=[/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/analysis-core/build/libs/analysis-core-0.0.6.jar, /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/analysis-model/build/libs/analysis-model-0.0.6.jar, /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/analysis-runtime/build/libs/analysis-runtime-0.0.6.jar, /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/editor-ui/build/libs/editor-ui-0.0.6.jar]
+DIAGNOSTIC_TASK=:plugin:buildPlugin;TYPE=org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask_Decorated;DIRECT=[:plugin:jarSearchableOptions, :plugin:prepareSandbox];CLOSURE=[:plugin:buildSearchableOptions, :plugin:initializeIntellijPlatformPlugin, :plugin:jarSearchableOptions, :plugin:patchPluginXml, :plugin:prepareJarSearchableOptions, :plugin:prepareSandbox]
+DIAGNOSTIC_ARCHIVE=:plugin:buildPlugin;FILE=/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/build/distributions/bracket-pair-guides-0.0.6.zip
+
+[Incubating] Problems report is available at: file:///Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1s
+27 actionable tasks: 2 executed, 25 up-to-date

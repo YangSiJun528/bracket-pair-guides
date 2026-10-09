@@ -1,0 +1,9 @@
+Plugin ID: com.sijunyang.bracketpairguides
+Plugin Version: 0.0.6
+Descriptor parsed in: 18 ms
+Descriptor parsed (raw ms): 18
+Plugin size (bytes): 723464
+Verified classes in plugin artifact: 339
+Verification time: 3 s 541 ms
+Verification time (raw ms): 3541
+

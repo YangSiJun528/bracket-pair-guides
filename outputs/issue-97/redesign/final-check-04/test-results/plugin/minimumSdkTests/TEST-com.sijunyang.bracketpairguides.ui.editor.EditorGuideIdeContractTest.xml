@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-10-08T09:57:30.052Z" hostname="sijun-yangui-MacBookPro.local" time="4.312">
+  <properties/>
+  <testcase name="testUnchangedCaretCallbackPreservesAllActualMarkupWithoutSdkCallbacks" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="3.377"/>
+  <testcase name="testFreshResultInsideRepairMarkupCallbackOwnsItsResourcesAfterOldRollback" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.085"/>
+  <testcase name="testHiddenPresentationReleasesReadOnlyLookup" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.092"/>
+  <testcase name="testRenderingFailurePropagatesAndLeavesNoMarkup" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.073"/>
+  <testcase name="testFailureAfterFreshReentrantApplyPropagatesWithoutClearingFreshMarkup" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.065"/>
+  <testcase name="testAffectedEditHidesGuideBeforeSingleCompleteContentDemand" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.116"/>
+  <testcase name="testCloseRevokesViewAndIsIdempotent" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.061"/>
+  <testcase name="testReentrantCloseDuringResultQueryLeavesNoMarkup" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.058"/>
+  <testcase name="testEndpointStyleThemeAndPairChangesStillReplaceIncompatibleMarkup" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.068"/>
+  <testcase name="testCloseInsideActualRepairMarkupCallbackLeavesNoOrphanHighlighter" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.065"/>
+  <testcase name="testFreshTokenResultInsideMarkupCallbackSurvivesOldTokenRollback" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.063"/>
+  <testcase name="testDisabledPresentationReleasesReadOnlyLookup" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.077"/>
+  <testcase name="testLimitedFullResultPreservesSuccessfulCurrentRepairGeometry" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.068"/>
+  <testcase name="testCloseInsideBeforeRemovedRevokesOldTokenRenderingAndLeavesNoMarkup" classname="com.sijunyang.bracketpairguides.ui.editor.EditorGuideIdeContractTest" time="0.043"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Configuration file for j.u.l.LogManager does not exist: /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/test-log.properties
+[    542]   WARN - #c.i.s.ComponentManagerImpl - org.jetbrains.yaml.YAMLFileBasedIndexUtil <clinit> requests com.intellij.openapi.fileTypes.FileTypeManager instance. Class initialization must not depend on services. Consider using instance of the service on-demand instead.
+]]></system-err>
+</testsuite>

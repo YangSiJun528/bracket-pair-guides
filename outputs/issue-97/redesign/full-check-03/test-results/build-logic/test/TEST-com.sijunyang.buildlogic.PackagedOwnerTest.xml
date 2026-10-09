@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.buildlogic.PackagedOwnerTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-08T09:53:49.769Z" hostname="sijun-yangui-MacBookPro.local" time="1.955">
+  <properties/>
+  <testcase name="descriptorCannotRegisterMissingClass" classname="com.sijunyang.buildlogic.PackagedOwnerTest" time="1.344"/>
+  <testcase name="duplicateClassIsRejected" classname="com.sijunyang.buildlogic.PackagedOwnerTest" time="0.094"/>
+  <testcase name="foreignBytecodeInOwnerJarIsRejected" classname="com.sijunyang.buildlogic.PackagedOwnerTest" time="0.075"/>
+  <testcase name="missingProductionOwnerSetIsRejected" classname="com.sijunyang.buildlogic.PackagedOwnerTest" time="0.062"/>
+  <testcase name="staleBytesWithSameClassNameAreRejected" classname="com.sijunyang.buildlogic.PackagedOwnerTest" time="0.086"/>
+  <testcase name="missingOwnerJarIsRejected" classname="com.sijunyang.buildlogic.PackagedOwnerTest" time="0.083"/>
+  <testcase name="missingIconIsRejected" classname="com.sijunyang.buildlogic.PackagedOwnerTest" time="0.072"/>
+  <testcase name="exactOwnerBytesAreAccepted" classname="com.sijunyang.buildlogic.PackagedOwnerTest" time="0.073"/>
+  <testcase name="missingLicenseIsRejected" classname="com.sijunyang.buildlogic.PackagedOwnerTest" time="0.065"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

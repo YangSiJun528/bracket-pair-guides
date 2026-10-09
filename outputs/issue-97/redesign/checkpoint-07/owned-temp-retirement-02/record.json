@@ -1,0 +1,16 @@
+{
+  "target": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build-logic/build/tmp/test/work/.gradle-test-kit/caches/9.8.0/transforms",
+  "recordedUtc": "2026-10-08T18:03:54.144234+00:00",
+  "selectedJvmConsumers": [],
+  "containers": "",
+  "lsofExitCode": 1,
+  "lsofStdout": "",
+  "lsofStderr": "",
+  "allocatedKiB": 2684088,
+  "freeBeforeBytes": 10428469248,
+  "preservedEvidence": "final-check-08/xml/build-logic/test (including binary), build-logic-html, root/process.log; TestKit daemon logs outside deleted transforms subtree",
+  "scope": "Exact current task owned regenerable TestKit transform cache only; no shared home/baseline/source/IDE cleanup",
+  "freeAfterBytes": 13179707392,
+  "recoveredBytes": 2751238144,
+  "removed": true
+}

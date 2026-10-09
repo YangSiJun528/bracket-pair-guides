@@ -1,0 +1,103 @@
+> Task :build-logic:compileJava NO-SOURCE
+> Task :build-logic:compileGroovy UP-TO-DATE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+> Task :analysis-model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-model:compileKotlin UP-TO-DATE
+> Task :analysis-model:compileJava NO-SOURCE
+> Task :editor-ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor-ui:compileKotlin UP-TO-DATE
+> Task :editor-ui:compileJava UP-TO-DATE
+> Task :editor-ui:processResources NO-SOURCE
+> Task :editor-ui:classes UP-TO-DATE
+> Task :editor-ui:jar UP-TO-DATE
+
+> Task :diagnoseUiTestInputs
+UI_TEST_FRIENDS=[classes/java/main, classes/kotlin/main, libs/editor-ui-0.0.6.jar]
+UI_MAIN_CLASSES=[/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/editor-ui/build/classes/java/main, /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/editor-ui/build/classes/kotlin/main]
+UI_MAIN_ALL_OUTPUTS=[/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/editor-ui/build/classes/java/main, /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/editor-ui/build/classes/kotlin/main, /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/editor-ui/build/resources/main]
+UI_TEST_LIBRARIES=[/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/editor-ui/build/classes/java/main, /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/editor-ui/build/classes/kotlin/main, /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/editor-ui/build/resources/main, /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/analysis-model/build/classes/java/main, /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/analysis-model/build/classes/kotlin/main, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/platform-loader.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util-8.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/app-client.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/util_rt.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/product.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/opentelemetry.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/app.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/modules.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/lib-client.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/stats.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/jps-model.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/external-system-rt.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/rd.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/bouncy-castle.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/protobuf.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/intellij-test-discovery.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/intellij-coverage-agent-1.0.744.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/forms_rt.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/lib.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/externalProcess-rt.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/groovy.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/annotations.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/grpc.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/idea_rt.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/jsch-agent.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/lib/trove.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlin-base-jps.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlin-plugin-shared.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlinc.kotlin-compiler-fe10.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlinc.parcelize-compiler-plugin.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlin-gradle-tooling.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlinc.android-extensions-compiler-plugin.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlinc.scripting-compiler-plugin.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlinc.assignment-compiler-plugin.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlinc.allopen-compiler-plugin.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlinc.noarg-compiler-plugin.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlinc.sam-with-receiver-compiler-plugin.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlinc.lombok-compiler-plugin.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlinc.kotlin-compiler-ir.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlinc.kotlinx-serialization-compiler-plugin.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlin-plugin.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlinc.kotlin-jps-common.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/Kotlin/lib/kotlinc.kotlin-compiler-common.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/jshell-protocol.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/jetbrains.kotlinx.metadata.jvm.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/jps-javac-extension.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/jps-launcher.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/javac2.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/maven-resolver-transport-http.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/jgoodies-common.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/java-impl.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/maven-resolver-transport-file.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/jps-builders-6.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/debugger-memory-agent.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/aether-dependency-resolver.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/jps-builders.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/jshell-frontend.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/maven-resolver-connector-basic.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/java-frontback.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/sa-jdwp.jar, /Users/sijun-yang/.gradle/caches/9.8.0/transforms/93fc9839df86027cfeccd2e2392df3f6/transformed/ideaIC-2024.1.7-aarch64/plugins/java/lib/jb-jdi.jar, /Users/sijun-yang/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.platform/test-framework/241.19416.15/4c546192b7c82caa0d97d5bb07f681c83c3f7e12/test-framework-241.19416.15.jar, /Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.3.21/a2ee2c4e220fee522f0451b723bab2a43f3481a7/kotlin-stdlib-2.3.21.jar, /Users/sijun-yang/.gradle/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar, /Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.assertj/assertj-core/3.27.7/2f4f64f054c9d618d4b1d89e7611559f5e2cfff7/assertj-core-3.27.7.jar, /Users/sijun-yang/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.platform/test-framework-core/241.19416.15/4caa38d99e47ccd84e5942bd66a77e814c2d9586/test-framework-core-241.19416.15.jar, /Users/sijun-yang/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.platform/test-framework-common/241.19416.15/bea511e8d8ba706d636f12436ebf2c0339c91538/test-framework-common-241.19416.15.jar, /Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar, /Users/sijun-yang/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar, /Users/sijun-yang/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy/1.18.3/c35b2e4bf0e22e4d492936d46506bb2e6d8fafc8/byte-buddy-1.18.3.jar]
+UI_OUTPUT_TASK=:editor-ui:jar;OUTPUTS=[/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/editor-ui/build/libs/editor-ui-0.0.6.jar]
+
+> Task :analysis-model:processResources NO-SOURCE
+> Task :analysis-model:classes UP-TO-DATE
+> Task :analysis-model:jar UP-TO-DATE
+> Task :analysis-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-core:compileKotlin UP-TO-DATE
+> Task :analysis-core:compileJava UP-TO-DATE
+> Task :analysis-runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :analysis-runtime:compileKotlin UP-TO-DATE
+> Task :analysis-runtime:compileJava UP-TO-DATE
+> Task :analysis-runtime:processResources NO-SOURCE
+> Task :analysis-runtime:classes UP-TO-DATE
+> Task :analysis-runtime:jar UP-TO-DATE
+> Task :plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :plugin:compileKotlin UP-TO-DATE
+> Task :plugin:compileJava NO-SOURCE
+> Task :plugin:initializeIntellijPlatformPlugin
+> Task :plugin:patchPluginXml UP-TO-DATE
+> Task :plugin:processResources UP-TO-DATE
+> Task :plugin:classes UP-TO-DATE
+> Task :plugin:generateManifest UP-TO-DATE
+> Task :plugin:jar UP-TO-DATE
+> Task :analysis-core:processResources NO-SOURCE
+> Task :analysis-core:classes UP-TO-DATE
+> Task :analysis-core:jar UP-TO-DATE
+> Task :analysis-runtime:compileTestKotlin UP-TO-DATE
+> Task :analysis-runtime:compileTestJava NO-SOURCE
+> Task :analysis-runtime:processTestResources NO-SOURCE
+> Task :analysis-runtime:testClasses UP-TO-DATE
+> Task :editor-ui:compileTestKotlin UP-TO-DATE
+> Task :editor-ui:compileTestJava NO-SOURCE
+> Task :editor-ui:processTestResources NO-SOURCE
+> Task :editor-ui:testClasses UP-TO-DATE
+> Task :plugin:compileTestKotlin UP-TO-DATE
+> Task :plugin:compileTestJava NO-SOURCE
+> Task :plugin:processTestResources UP-TO-DATE
+> Task :plugin:testClasses UP-TO-DATE
+> Task :plugin:instrumentTestCode UP-TO-DATE
+> Task :plugin:instrumentCode UP-TO-DATE
+> Task :plugin:instrumentedJar UP-TO-DATE
+> Task :plugin:composedJar UP-TO-DATE
+> Task :plugin:prepareSandbox_minimumSdkTests UP-TO-DATE
+
+> Task :plugin:minimumSdkTests
+CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
+
+10월 08, 2026 3:55:53 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: Index dispose started
+10월 08, 2026 3:55:53 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: dirty file ids stored. Ids & filenames: {}
+10월 08, 2026 3:55:53 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: read dirty file ids: []
+10월 08, 2026 3:55:53 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: read dirty file ids: []
+10월 08, 2026 3:55:53 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: dirty file ids stored. Ids & filenames: {}
+10월 08, 2026 3:55:53 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: StubIndexExtension-s were unloaded
+10월 08, 2026 3:55:53 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: Start shutting down /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/.intellijPlatform/sandbox/plugin/IC-2024.1.7/system_minimumSdkTests/index/rep.names
+10월 08, 2026 3:55:53 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: Finished shutting down /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/.intellijPlatform/sandbox/plugin/IC-2024.1.7/system_minimumSdkTests/index/rep.names
+10월 08, 2026 3:55:53 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: Index dispose completed in 23ms.
+10월 08, 2026 3:55:53 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: VFS dispose started
+10월 08, 2026 3:55:53 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: VFS closing
+10월 08, 2026 3:55:53 오후 com.intellij.openapi.diagnostic.JulLogger info
+정보: VFS dispose completed in 0 ms.
+
+[Incubating] Problems report is available at: file:///Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 9s
+32 actionable tasks: 3 executed, 29 up-to-date

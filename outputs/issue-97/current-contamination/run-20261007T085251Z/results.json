@@ -1,0 +1,272 @@
+{
+  "repository": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides",
+  "cases": [
+    {
+      "name": "direct-core-dependency",
+      "command": [
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/gradlew",
+        "--no-daemon",
+        "--no-configuration-cache",
+        "--console=plain",
+        "verifyProductionModules",
+        "--init-script",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/direct-core-dependency.init.gradle"
+      ],
+      "startedUtc": "2026-10-07T08:52:51.810968+00:00",
+      "elapsedSeconds": 9.12552229204448,
+      "exitCode": 1,
+      "timedOut": false,
+      "expectedAuditReason": "editor-ui compile dependency leak",
+      "passed": true,
+      "log": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/direct-core-dependency.log"
+    },
+    {
+      "name": "transitive-core-dependency",
+      "command": [
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/gradlew",
+        "--no-daemon",
+        "--no-configuration-cache",
+        "--console=plain",
+        "verifyProductionModules",
+        "--init-script",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/transitive-core-dependency.init.gradle"
+      ],
+      "startedUtc": "2026-10-07T08:53:00.936859+00:00",
+      "elapsedSeconds": 6.8797832079580985,
+      "exitCode": 1,
+      "timedOut": false,
+      "expectedAuditReason": "editor-ui compile dependency leak",
+      "passed": true,
+      "log": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/transitive-core-dependency.log"
+    },
+    {
+      "name": "shared-compiler-classpath",
+      "command": [
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/gradlew",
+        "--no-daemon",
+        "--no-configuration-cache",
+        "--console=plain",
+        "verifyProductionModules",
+        "--init-script",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/shared-compiler-classpath.init.gradle"
+      ],
+      "startedUtc": "2026-10-07T08:53:07.816855+00:00",
+      "elapsedSeconds": 9.476034082996193,
+      "exitCode": 1,
+      "timedOut": false,
+      "expectedAuditReason": "contains forbidden bytecode",
+      "passed": true,
+      "log": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/shared-compiler-classpath.log"
+    },
+    {
+      "name": "shared-production-output",
+      "command": [
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/gradlew",
+        "--no-daemon",
+        "--no-configuration-cache",
+        "--console=plain",
+        "verifyProductionModules",
+        "--init-script",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/shared-production-output.init.gradle"
+      ],
+      "startedUtc": "2026-10-07T08:53:17.293064+00:00",
+      "elapsedSeconds": 6.553542249952443,
+      "exitCode": 1,
+      "timedOut": false,
+      "expectedAuditReason": "Shared outputs",
+      "passed": true,
+      "log": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/shared-production-output.log"
+    },
+    {
+      "name": "production-friend-flag",
+      "command": [
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/gradlew",
+        "--no-daemon",
+        "--no-configuration-cache",
+        "--console=plain",
+        "verifyProductionModules",
+        "--init-script",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/production-friend-flag.init.gradle"
+      ],
+      "startedUtc": "2026-10-07T08:53:23.846829+00:00",
+      "elapsedSeconds": 17.596286832995247,
+      "exitCode": 1,
+      "timedOut": false,
+      "expectedAuditReason": "production compiler contains friends",
+      "passed": true,
+      "log": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/production-friend-flag.log"
+    },
+    {
+      "name": "java-module-path-core",
+      "command": [
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/gradlew",
+        "--no-daemon",
+        "--no-configuration-cache",
+        "--console=plain",
+        "verifyProductionModules",
+        "--init-script",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/java-module-path-core.init.gradle"
+      ],
+      "startedUtc": "2026-10-07T08:53:41.443356+00:00",
+      "elapsedSeconds": 8.592264292004984,
+      "exitCode": 1,
+      "timedOut": false,
+      "expectedAuditReason": "production compiler contains friends, compiler plugins or visibility overrides",
+      "passed": true,
+      "log": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/java-module-path-core.log"
+    },
+    {
+      "name": "kotlin-java-source-root-core",
+      "command": [
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/gradlew",
+        "--no-daemon",
+        "--no-configuration-cache",
+        "--console=plain",
+        "verifyProductionModules",
+        "--init-script",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/kotlin-java-source-root-core.init.gradle"
+      ],
+      "startedUtc": "2026-10-07T08:53:50.035881+00:00",
+      "elapsedSeconds": 17.49924454203574,
+      "exitCode": 1,
+      "timedOut": false,
+      "expectedAuditReason": "production compiler contains friends, compiler plugins or visibility overrides",
+      "passed": true,
+      "log": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/kotlin-java-source-root-core.log"
+    },
+    {
+      "name": "java-default-source-path-core",
+      "command": [
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/gradlew",
+        "--no-daemon",
+        "--no-configuration-cache",
+        "--console=plain",
+        "verifyProductionModules",
+        "--init-script",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/java-default-source-path-core.init.gradle"
+      ],
+      "startedUtc": "2026-10-07T08:54:07.535421+00:00",
+      "elapsedSeconds": 7.81247354199877,
+      "exitCode": 1,
+      "timedOut": false,
+      "expectedAuditReason": "implicit compiler source roots",
+      "passed": true,
+      "log": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/java-default-source-path-core.log"
+    },
+    {
+      "name": "shared-production-source",
+      "command": [
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/gradlew",
+        "--no-daemon",
+        "--no-configuration-cache",
+        "--console=plain",
+        "verifyProductionModules",
+        "--init-script",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/shared-production-source.init.gradle"
+      ],
+      "startedUtc": "2026-10-07T08:54:15.348061+00:00",
+      "elapsedSeconds": 12.2102927910164,
+      "exitCode": 1,
+      "timedOut": false,
+      "expectedAuditReason": "outside its owner",
+      "passed": true,
+      "log": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/shared-production-source.log"
+    },
+    {
+      "name": "java-source-only-archive",
+      "command": [
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/gradlew",
+        "--no-daemon",
+        "--no-configuration-cache",
+        "--console=plain",
+        "verifyProductionModules",
+        "--init-script",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/java-source-only-archive.init.gradle"
+      ],
+      "startedUtc": "2026-10-07T08:54:27.558828+00:00",
+      "elapsedSeconds": 7.8315608340199105,
+      "exitCode": 1,
+      "timedOut": false,
+      "expectedAuditReason": "implicit compiler source roots",
+      "passed": true,
+      "log": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/java-source-only-archive.log"
+    },
+    {
+      "name": "typed-java-sourcepath",
+      "command": [
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/gradlew",
+        "--no-daemon",
+        "--no-configuration-cache",
+        "--console=plain",
+        "verifyProductionModules",
+        "--init-script",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/typed-java-sourcepath.init.gradle"
+      ],
+      "startedUtc": "2026-10-07T08:54:35.390557+00:00",
+      "elapsedSeconds": 7.465929833007976,
+      "exitCode": 1,
+      "timedOut": false,
+      "expectedAuditReason": "explicit empty sourcepath",
+      "passed": true,
+      "log": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/typed-java-sourcepath.log"
+    },
+    {
+      "name": "typed-java-bootstrap-classpath",
+      "command": [
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/gradlew",
+        "--no-daemon",
+        "--no-configuration-cache",
+        "--console=plain",
+        "verifyProductionModules",
+        "--init-script",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/typed-java-bootstrap-classpath.init.gradle"
+      ],
+      "startedUtc": "2026-10-07T08:54:42.856722+00:00",
+      "elapsedSeconds": 7.439670665946323,
+      "exitCode": 1,
+      "timedOut": false,
+      "expectedAuditReason": "explicit empty sourcepath",
+      "passed": true,
+      "log": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/typed-java-bootstrap-classpath.log"
+    },
+    {
+      "name": "typed-java-processor-path",
+      "command": [
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/gradlew",
+        "--no-daemon",
+        "--no-configuration-cache",
+        "--console=plain",
+        "verifyProductionModules",
+        "--init-script",
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/typed-java-processor-path.init.gradle"
+      ],
+      "startedUtc": "2026-10-07T08:54:50.296544+00:00",
+      "elapsedSeconds": 7.456523874949198,
+      "exitCode": 1,
+      "timedOut": false,
+      "expectedAuditReason": "explicit empty sourcepath",
+      "passed": true,
+      "log": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/typed-java-processor-path.log"
+    },
+    {
+      "name": "clean-final",
+      "command": [
+        "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/gradlew",
+        "--no-daemon",
+        "--no-configuration-cache",
+        "--console=plain",
+        ":editor-ui:clean",
+        "verifyProductionModules"
+      ],
+      "startedUtc": "2026-10-07T08:54:57.753212+00:00",
+      "elapsedSeconds": 66.4835839580046,
+      "exitCode": 0,
+      "timedOut": false,
+      "expectedAuditReason": null,
+      "passed": true,
+      "log": "/Users/sijun-yang/.codex/worktrees/issue-97-module-isolation/bracket-pair-guides/outputs/issue-97/current-contamination/run-20261007T085251Z/clean-final.log"
+    }
+  ],
+  "executed": true,
+  "passed": true
+}

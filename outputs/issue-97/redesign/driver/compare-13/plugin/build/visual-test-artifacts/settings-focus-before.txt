@@ -1,0 +1,12 @@
+requestSequence=0
+requestFocusInWindow=null
+requestStatus=none
+focusOwnerClass=null
+ownerDescendsFromEditor=false
+editorHasFocus=false
+editorShowing=true
+selectedEditor=true
+caretOffset=67
+activeWindowClass=null
+focusManagerOwnerClass=com.intellij.openapi.options.newEditor.SettingsTreeView$MyTree
+modality=ModalityState.NON_MODAL

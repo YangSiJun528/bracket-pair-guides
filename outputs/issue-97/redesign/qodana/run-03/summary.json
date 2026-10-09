@@ -1,0 +1,11 @@
+{
+  "exitCode": 0,
+  "failThreshold": 0,
+  "findings": 0,
+  "sarif": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/qodana/local/results.jU1RxS/qodana.sarif.json",
+  "sarifSha256": "d338c015feb076d9561ccecccadb9995a5da8a45a5a63fbf3e09d71ba803794e",
+  "sourceManifestSha256": "132a5460a76db6f7faefa9ec9939a4d7dfe0762e10636be3bd0e9a170df48742",
+  "seconds": 423.7373675830313,
+  "tool": "QDJVM-262.11550 /2026.2.3",
+  "localOnly": true
+}

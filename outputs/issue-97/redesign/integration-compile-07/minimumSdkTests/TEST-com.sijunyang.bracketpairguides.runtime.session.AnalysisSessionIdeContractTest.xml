@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-08T07:53:49.154Z" hostname="sijun-yangui-MacBookPro.local" time="1.653">
+  <properties/>
+  <testcase name="testImmediateCloseCancelsPendingPublication" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.055"/>
+  <testcase name="testDocumentGenerationSurvivesStampResetAndDormantReacquire" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.054"/>
+  <testcase name="testHiddenDemandReleasesAcceptedPayloadAndWakeUpDoesNotRecapture" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.138"/>
+  <testcase name="testReentrantEditCannotAcceptOldResult" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.227"/>
+  <testcase name="testRetainedClosedWorkDoesNotRetainEditorViewOrPayload" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.625"/>
+  <testcase name="testRicherAcceptedResultSurvivesCoverageReduction" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.148"/>
+  <testcase name="testReadsAreBackgroundAndPublicationIsEdtAndDuplicateDemandIsInert" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.131"/>
+  <testcase name="testCloseDuringPublicationPreventsAnyLaterWork" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.135"/>
+  <testcase name="testNoFacetDemandReleasesAcceptedPayloadAndWakeUpDoesNotRecapture" classname="com.sijunyang.bracketpairguides.runtime.session.AnalysisSessionIdeContractTest" time="0.139"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

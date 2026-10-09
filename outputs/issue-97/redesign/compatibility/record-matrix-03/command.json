@@ -1,0 +1,25 @@
+{
+  "cwd": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides",
+  "command": [
+    "./gradlew",
+    "--no-daemon",
+    "--no-parallel",
+    "--max-workers=2",
+    "--no-configuration-cache",
+    "--init-script",
+    "outputs/issue-97/redesign/compatibility/serial-verifier.init.gradle",
+    "-PverifierMatrixPath=outputs/issue-97/redesign/compatibility/current-matrix-03.json",
+    ":plugin:recordSerialVerifierMatrix"
+  ],
+  "directory": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/compatibility/record-matrix-03",
+  "timeoutSeconds": 300,
+  "sourceRevision": "f65ed4e3fddbb8cdb1142af9cb72cf2e2f7ebade",
+  "status": "running",
+  "startedUtc": "2026-10-08T18:44:21.417246+00:00",
+  "ownedPid": 68521,
+  "ownedProcessGroup": 68521,
+  "timedOut": false,
+  "elapsedSeconds": 7.42914004198974,
+  "exitCode": 0,
+  "finishedUtc": "2026-10-08T18:44:28.848573+00:00"
+}

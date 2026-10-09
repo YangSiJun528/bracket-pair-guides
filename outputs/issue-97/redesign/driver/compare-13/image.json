@@ -1,0 +1,58 @@
+{
+  "Id": "sha256:b86359296c4234b802d7c34d8a81d82aa3e50c1c98d6a2683bd234fe2d57261d",
+  "RepoTags": [
+    "bracket-pair-guides-visual-test:ubuntu24-amd64"
+  ],
+  "RepoDigests": [
+    "bracket-pair-guides-visual-test@sha256:b86359296c4234b802d7c34d8a81d82aa3e50c1c98d6a2683bd234fe2d57261d"
+  ],
+  "Comment": "buildkit.dockerfile.v0",
+  "Created": "2026-09-28T06:30:35.090820591Z",
+  "Config": {
+    "Env": [
+      "PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "DEBIAN_FRONTEND=noninteractive",
+      "LANG=C.UTF-8",
+      "LC_ALL=C.UTF-8",
+      "TZ=UTC",
+      "JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64",
+      "GRADLE_USER_HOME=/cache/gradle"
+    ],
+    "Entrypoint": [
+      "/bin/bash",
+      "/usr/local/bin/run-visual-test"
+    ],
+    "WorkingDir": "/workspace",
+    "Labels": {
+      "org.opencontainers.image.version": "24.04"
+    }
+  },
+  "Architecture": "amd64",
+  "Os": "linux",
+  "Size": 1561912161,
+  "RootFS": {
+    "Type": "layers",
+    "Layers": [
+      "sha256:65e5d715ea720349e6475f91651a0956279fc295a45fd73aa04f1cec046281a1",
+      "sha256:6d78fac7a0e6384b63632b70c2509f5f0e6f295aa49647e69a073ec560a1b781",
+      "sha256:ea3baf1d65c22c5af60d79b5950d6cba733c81ed546c46e0e6900633275838e1",
+      "sha256:c75369e020a6aa9da2c91e08fa7ab23f7c16c882195c87a22c605cd5937557c1"
+    ]
+  },
+  "Metadata": {
+    "LastTagTime": "2026-10-07T10:15:05.567850012Z"
+  },
+  "Descriptor": {
+    "mediaType": "application/vnd.oci.image.index.v1+json",
+    "digest": "sha256:b86359296c4234b802d7c34d8a81d82aa3e50c1c98d6a2683bd234fe2d57261d",
+    "size": 856
+  },
+  "Identity": {
+    "Build": [
+      {
+        "Ref": "zglomohylw16y4pc9xmjzwtwi",
+        "CreatedAt": "2026-10-07T10:15:05.569720679Z"
+      }
+    ]
+  }
+}

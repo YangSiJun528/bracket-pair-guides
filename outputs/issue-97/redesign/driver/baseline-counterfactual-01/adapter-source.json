@@ -1,0 +1,30 @@
+{
+  "kind": "baseline-counterfactual-adapter-source",
+  "baselineProduction": "072533fa3e223d53f937a15d50fe8637add8b2cb",
+  "candidateDriverGitHead": "694c7981686f85e38e30cf3289071d1c56ba9a1c",
+  "candidateDriverHasUncommittedReadinessChanges": true,
+  "copies": [
+    {
+      "source": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/src/visualTest/kotlin/com/sijunyang/bracketpairguides/visual/EditorVisualContractTest.kt",
+      "destination": "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides/plugin/counterfactual-driver/driver/kotlin/com/sijunyang/bracketpairguides/visual/EditorVisualContractTest.kt",
+      "sha256": "8bc25841602abe158e18321bc8ef68bb2db3868268e9bc2012e8502e23f23d7e",
+      "byteEqual": true
+    },
+    {
+      "source": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/plugin/src/visualTest/testData/Contract.java",
+      "destination": "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides/plugin/src/visualTest/testData/Contract.java",
+      "sha256": "637bd12773f109c8573e15f62455370538505b6ced6308d9a5660627892d9c62",
+      "byteEqual": true
+    }
+  ],
+  "bridge": {
+    "path": "/Users/sijun-yang/.codex/worktrees/issue-97-redesign-baseline/bracket-pair-guides/plugin/counterfactual-driver/bridge/kotlin/com/sijunyang/bracketpairguides/testing/EditorContractBridge.kt",
+    "sha256": "fbcd84edb20039ba3753f6a01088ccb932ad0653b17b56bd4b35ef46ede831c2",
+    "mapping": [
+      "GuideUiSettings current/apply -> baseline BracketGuideSettings.options/BracketGuideSettingsController.applySettings",
+      "GuidePlugin.applyPreferences -> baseline real settings controller command",
+      "GuidePlugin.request -> baseline public EditorAnalysisRequests.request"
+    ]
+  },
+  "scope": "diagnostic capture-only, full unchanged assertions and12sequence; no visual pass/baseline update"
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.EditorAnalysisExecutionTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:37.249Z" hostname="sijun-yangui-MacBookPro.local" time="0.947">
+  <properties/>
+  <testcase name="testCompatibleNarrowerCoverageCanReuseARicherCalculation" classname="com.sijunyang.bracketpairguides.editor.highlighting.EditorAnalysisExecutionTest" time="0.155"/>
+  <testcase name="testDisposalCancelsRunningCalculationAndPreventsPublication" classname="com.sijunyang.bracketpairguides.editor.highlighting.EditorAnalysisExecutionTest" time="0.138"/>
+  <testcase name="testEditorReleaseCancelsRunningCalculation" classname="com.sijunyang.bracketpairguides.editor.highlighting.EditorAnalysisExecutionTest" time="0.139"/>
+  <testcase name="testNarrowerCoverageWithANewTabSizeCancelsTheOldGuideCalculation" classname="com.sijunyang.bracketpairguides.editor.highlighting.EditorAnalysisExecutionTest" time="0.249"/>
+  <testcase name="testDocumentSupersessionCancelsBeforeTheNewRequestCompletes" classname="com.sijunyang.bracketpairguides.editor.highlighting.EditorAnalysisExecutionTest" time="0.266"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

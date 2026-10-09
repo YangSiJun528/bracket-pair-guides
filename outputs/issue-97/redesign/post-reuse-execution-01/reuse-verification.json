@@ -1,0 +1,56 @@
+{
+  "allMeasuredCallbacksReusedEveryMarkupObject": true,
+  "samples": [
+    {
+      "mode": "all",
+      "iteration": 0,
+      "reused": 1545
+    },
+    {
+      "mode": "all",
+      "iteration": 1,
+      "reused": 1545
+    },
+    {
+      "mode": "all",
+      "iteration": 2,
+      "reused": 1545
+    },
+    {
+      "mode": "all",
+      "iteration": 3,
+      "reused": 1545
+    },
+    {
+      "mode": "all",
+      "iteration": 4,
+      "reused": 1545
+    },
+    {
+      "mode": "tokens",
+      "iteration": 0,
+      "reused": 1542
+    },
+    {
+      "mode": "tokens",
+      "iteration": 1,
+      "reused": 1542
+    },
+    {
+      "mode": "tokens",
+      "iteration": 2,
+      "reused": 1542
+    },
+    {
+      "mode": "tokens",
+      "iteration": 3,
+      "reused": 1542
+    },
+    {
+      "mode": "tokens",
+      "iteration": 4,
+      "reused": 1542
+    }
+  ],
+  "scope": "setup/functional evidence only; formal timing/allocation comparison pending"
+}

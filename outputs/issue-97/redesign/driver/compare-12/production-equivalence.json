@@ -1,0 +1,10 @@
+{
+  "allProductionClassBytesEqual": true,
+  "pluginDescriptorAndAllOtherResourceBytesEqual": true,
+  "onlyManifestFieldsDiffer": [
+    "Build-JVM",
+    "Build-OS"
+  ],
+  "wholeReleaseZipIdentical": false,
+  "interpretation": "Driver rebuilt the same frozen sources in Linux. Four owner JARs are byte-identical; plugin JAR entries differ only in build-host JVM/OS metadata. Exact final host ZIP remains the compatibility-verifier input."
+}

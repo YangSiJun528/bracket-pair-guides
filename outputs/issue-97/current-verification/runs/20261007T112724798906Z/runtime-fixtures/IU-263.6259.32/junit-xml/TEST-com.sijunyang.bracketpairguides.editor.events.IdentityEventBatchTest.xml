@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.events.IdentityEventBatchTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-07T11:40:44.132Z" hostname="sijun-yangui-MacBookPro.local" time="0.002">
+  <properties/>
+  <testcase name="removed and cleared values are not consumed" classname="com.sijunyang.bracketpairguides.editor.events.IdentityEventBatchTest" time="0.001"/>
+  <testcase name="distinct equal values retain identity" classname="com.sijunyang.bracketpairguides.editor.events.IdentityEventBatchTest" time="0.0"/>
+  <testcase name="repeated requests for one value share one callback" classname="com.sijunyang.bracketpairguides.editor.events.IdentityEventBatchTest" time="0.0"/>
+  <testcase name="request during flush is deferred to the next batch" classname="com.sijunyang.bracketpairguides.editor.events.IdentityEventBatchTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

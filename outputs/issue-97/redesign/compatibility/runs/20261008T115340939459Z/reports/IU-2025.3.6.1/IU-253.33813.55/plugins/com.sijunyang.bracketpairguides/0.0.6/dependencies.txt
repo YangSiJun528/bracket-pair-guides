@@ -1,0 +1,101 @@
+com.sijunyang.bracketpairguides:0.0.6
+\--- com.intellij:253.33813.55
+     +--- (optional) Git4Idea:253.33813.55
+     |    +--- com.intellij:253.33813.55 (*) [declaring module intellij.platform.vcs.dvcs]
+     |    +--- (optional) com.jetbrains.performancePlugin:253.33813.55
+     |    |    \--- com.intellij:253.33813.55 (*) [declaring module com.intellij.modules.lang]
+     |    \--- (optional) org.jetbrains.plugins.terminal:253.33813.55
+     |         +--- (failed) intellij.platform.frontend.split (optional): Dependency 'dependency on module 'intellij.platform.frontend.split' declared in content module 'intellij.sh.frontend.split' of 'com.jetbrains.sh'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-253.33813.55, Local Plugin Repository
+     |         +--- com.intellij:253.33813.55 (*) [declaring module com.intellij.modules.lang]
+     |         \--- (optional) com.jetbrains.sh:253.33813.55 [declaring module intellij.sh.core]
+     |              +--- (failed) com.intellij.modules.python (optional): Dependency 'dependency on plugin 'com.intellij.modules.python' declared in content module 'intellij.sh.python' of 'com.jetbrains.sh'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-253.33813.55, Local Plugin Repository
+     |              +--- (failed) intellij.platform.frontend.split (optional): Dependency 'dependency on module 'intellij.platform.frontend.split' declared in content module 'intellij.sh.frontend.split' of 'com.jetbrains.sh'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-253.33813.55, Local Plugin Repository
+     |              +--- (failed) intellij.rd.client (optional): Dependency 'dependency on module 'intellij.rd.client' declared in content module 'intellij.sh.frontend.split' of 'com.jetbrains.sh'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-253.33813.55, Local Plugin Repository
+     |              +--- com.intellij:253.33813.55 (*) [declaring module com.intellij.modules.lang]
+     |              +--- (optional) com.intellij.copyright:253.33813.55
+     |              |    \--- com.intellij:253.33813.55 (*) [declaring module com.intellij.modules.lang]
+     |              +--- (optional) org.intellij.plugins.markdown:253.33813.55
+     |              |    +--- com.intellij:253.33813.55 (*) [declaring module com.intellij.modules.lang]
+     |              |    +--- (optional) com.intellij.platform.images:253.33813.55
+     |              |    |    +--- com.intellij:253.33813.55 (*) [declaring module intellij.xml.psi.impl]
+     |              |    |    \--- (optional) com.intellij.copyright:253.33813.55 (*)
+     |              |    +--- (optional) org.toml.lang:253.33813.55
+     |              |    |    +--- (failed) intellij.platform.frontend.split (optional): Dependency 'dependency on module 'intellij.platform.frontend.split' declared in content module 'intellij.sh.frontend.split' of 'com.jetbrains.sh'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-253.33813.55, Local Plugin Repository
+     |              |    |    +--- com.intellij:253.33813.55 (*) [declaring module com.intellij.modules.lang]
+     |              |    |    +--- (optional) tanvd.grazi:253.33813.55
+     |              |    |    |    +--- com.intellij:253.33813.55 (*) [declaring module intellij.libraries.lucene.common]
+     |              |    |    |    +--- (optional) com.intellij.java:253.33813.55
+     |              |    |    |    |    +--- (failed) com.intellij.modules.idea.community (optional): Dependency 'ProxyModulePluginDependency(id=com.intellij.modules.idea.community, isOptional=true)' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-253.33813.55, Local Plugin Repository
+     |              |    |    |    |    +--- (optional) com.intellij.copyright:253.33813.55 (*)
+     |              |    |    |    |    +--- (optional) com.intellij:253.33813.55 (*)
+     |              |    |    |    |    +--- (optional) com.intellij.modules.ultimate:253.33813.55
+     |              |    |    |    |    |    \--- com.intellij:253.33813.55 (*)
+     |              |    |    |    |    +--- (optional) com.intellij.platform.images:253.33813.55 (*)
+     |              |    |    |    |    +--- (optional) org.jetbrains.plugins.terminal:253.33813.55 (*)
+     |              |    |    |    |    +--- (optional) training:253.33813.55
+     |              |    |    |    |    |    +--- com.intellij:253.33813.55 (*) [declaring module intellij.platform.tips]
+     |              |    |    |    |    |    +--- (optional) Git4Idea:253.33813.55 (*)
+     |              |    |    |    |    |    +--- (optional) org.jetbrains.kotlin:253.33813.55
+     |              |    |    |    |    |    |    +--- com.intellij.java:253.33813.55 (*)
+     |              |    |    |    |    |    |    \--- com.intellij:253.33813.55 (*) [declaring module intellij.platform.ml.impl]
+     |              |    |    |    |    |    +--- (optional) com.intellij.java:253.33813.55 (*) [declaring module intellij.java.featuresTrainer]
+     |              |    |    |    |    |    \--- (optional) intellij.kotlin.featuresTrainer:253.33813.55 [product module]
+     |              |    |    |    |    |         +--- training:253.33813.55 (*)
+     |              |    |    |    |    |         \--- com.intellij.java:253.33813.55 (*) [declaring module intellij.java.featuresTrainer]
+     |              |    |    |    |    \--- (optional) com.jetbrains.performancePlugin:253.33813.55 (*) [declaring module intellij.performanceTesting.vcs]
+     |              |    |    |    +--- (optional) org.intellij.plugins.markdown:253.33813.55 (*)
+     |              |    |    |    +--- (optional) intellij.json.backend:253.33813.55 [product module]
+     |              |    |    |    |    +--- com.intellij.modules.json:253.33813.55 [declaring module intellij.json]
+     |              |    |    |    |    |    +--- (failed) intellij.platform.frontend.split (optional): Dependency 'dependency on module 'intellij.platform.frontend.split' declared in content module 'intellij.sh.frontend.split' of 'com.jetbrains.sh'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-253.33813.55, Local Plugin Repository
+     |              |    |    |    |    |    +--- com.intellij:253.33813.55 (*) [declaring module com.intellij.modules.lang]
+     |              |    |    |    |    |    \--- (optional) intellij.json.backend:253.33813.55 (*) [product module]
+     |              |    |    |    |    \--- com.intellij:253.33813.55 (*) [declaring module intellij.platform.backend]
+     |              |    |    |    +--- (optional) intellij.properties.backend:253.33813.55 [product module]
+     |              |    |    |    |    +--- com.intellij:253.33813.55 (*) [declaring module intellij.platform.backend]
+     |              |    |    |    |    \--- com.intellij.properties:253.33813.55 [declaring module intellij.properties]
+     |              |    |    |    |         +--- (optional) com.intellij.copyright:253.33813.55 (*)
+     |              |    |    |    |         \--- (optional) com.intellij:253.33813.55 (*) [declaring module intellij.platform.backend]
+     |              |    |    |    +--- (optional) com.intellij.properties:253.33813.55 (*) [declaring module intellij.properties.backend.psi]
+     |              |    |    |    \--- (optional) intellij.yaml.backend:253.33813.55 [product module]
+     |              |    |    |         +--- intellij.json.backend:253.33813.55 (*) [product module]
+     |              |    |    |         +--- com.intellij:253.33813.55 (*) [declaring module intellij.platform.backend]
+     |              |    |    |         \--- org.jetbrains.plugins.yaml:253.33813.55 [declaring module intellij.yaml]
+     |              |    |    |              +--- (failed) intellij.platform.frontend.split (optional): Dependency 'dependency on module 'intellij.platform.frontend.split' declared in content module 'intellij.sh.frontend.split' of 'com.jetbrains.sh'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-253.33813.55, Local Plugin Repository
+     |              |    |    |              +--- com.intellij.modules.json:253.33813.55 (*) [declaring module intellij.json]
+     |              |    |    |              +--- (optional) org.jetbrains.plugins.go-template:253.28294.218
+     |              |    |    |              |    \--- com.intellij:253.33813.55 (*) [declaring module com.intellij.modules.lang]
+     |              |    |    |              +--- (optional) intellij.json.backend:253.33813.55 (*) [product module]
+     |              |    |    |              +--- (optional) com.intellij:253.33813.55 (*) [declaring module intellij.platform.backend]
+     |              |    |    |              \--- (optional) intellij.yaml.backend:253.33813.55 (*) [product module]
+     |              |    |    \--- (optional) intellij.json.backend:253.33813.55 (*) [product module]
+     |              |    +--- (optional) intellij.json.backend:253.33813.55 (*) [product module]
+     |              |    \--- (optional) intellij.yaml.backend:253.33813.55 (*) [product module]
+     |              \--- (optional) org.jetbrains.plugins.terminal:253.33813.55 (*)
+     +--- (optional) XPathView:253.33813.55
+     |    \--- com.intellij:253.33813.55 (*)
+     \--- (optional) com.jetbrains.codeWithMe:253.33813.55
+          +--- com.intellij:253.33813.55 (*) [declaring module intellij.rd.platform]
+          +--- (optional) Docker:253.33813.55
+          |    +--- (failed) intellij.platform.frontend.split (optional): Dependency 'dependency on module 'intellij.platform.frontend.split' declared in content module 'intellij.sh.frontend.split' of 'com.jetbrains.sh'' is not resolved. It was searched in the following locations: Local Plugin Repository, Bundled plugins of IU-253.33813.55, Local Plugin Repository
+          |    +--- com.intellij:253.33813.55 (*) [declaring module intellij.libraries.ktor.client]
+          |    +--- (optional) com.intellij.java:253.33813.55 (*)
+          |    +--- (optional) com.intellij.modules.ultimate:253.33813.55 (*)
+          |    +--- (optional) intellij.clouds.docker.shared:253.33813.55 [product module]
+          |    |    +--- Docker:253.33813.55 (*) [declaring module intellij.clouds.docker.agent]
+          |    |    \--- com.intellij:253.33813.55 (*) [declaring module intellij.libraries.ktor.client]
+          |    \--- (optional) intellij.yaml.backend:253.33813.55 (*) [product module]
+          +--- (optional) Git4Idea:253.33813.55 (*)
+          +--- (optional) com.intellij.java:253.33813.55 (*)
+          +--- (optional) com.jetbrains.performancePlugin:253.33813.55 (*)
+          +--- (optional) org.intellij.plugins.markdown:253.33813.55 (*)
+          +--- (optional) org.jetbrains.plugins.terminal:253.33813.55 (*)
+          +--- (optional) intellij.clouds.docker.remoteRun:253.33813.55 [product module]
+          |    +--- Docker:253.33813.55 (*) [declaring module intellij.clouds.docker]
+          |    \--- intellij.clouds.docker.shared:253.33813.55 (*) [product module]
+          +--- (optional) intellij.sh.terminal:253.33813.55 [product module]
+          |    +--- org.jetbrains.plugins.terminal:253.33813.55 (*)
+          |    +--- com.intellij:253.33813.55 (*) [declaring module intellij.platform.backend]
+          |    \--- com.jetbrains.sh:253.33813.55 (*) [declaring module intellij.sh.core]
+          +--- (optional) intellij.station.core:253.33813.55 [product module]
+          \--- (optional) intellij.terminal.backend:253.33813.55 [product module]
+               \--- com.intellij:253.33813.55 (*) [declaring module intellij.platform.backend]

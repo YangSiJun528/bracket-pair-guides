@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sijunyang.bracketpairguides.editor.highlighting.NativeBoundedInspectionTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-07T10:04:45.548Z" hostname="sijun-yangui-MacBookPro.local" time="0.839">
+  <properties/>
+  <testcase name="testProductionChunksHaveSeparatePreparationAndAcceptExactPair" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBoundedInspectionTest" time="0.182"/>
+  <testcase name="testStructuralAndForwardScopeTraversalUseIndependentChunks" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBoundedInspectionTest" time="0.128"/>
+  <testcase name="testLaterStructuralWriteDiscardsScopeProof" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBoundedInspectionTest" time="0.162"/>
+  <testcase name="testWriteQueuedDuringLaterTraversalInvalidatesEntireProof" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBoundedInspectionTest" time="0.142"/>
+  <testcase name="testCancellationQueuedDuringLaterTraversalStopsProof" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBoundedInspectionTest" time="0.105"/>
+  <testcase name="testProductionLazyPreparationUsesSeparateReadBody" classname="com.sijunyang.bracketpairguides.editor.highlighting.NativeBoundedInspectionTest" time="0.119"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

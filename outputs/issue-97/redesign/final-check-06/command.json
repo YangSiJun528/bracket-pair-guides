@@ -1,0 +1,20 @@
+{
+  "command": [
+    "./gradlew",
+    "--no-daemon",
+    "--no-parallel",
+    "--max-workers=2",
+    "--no-configuration-cache",
+    "check",
+    ":plugin:buildPlugin",
+    ":plugin:buildVisualTestPlugin",
+    ":plugin:verifyPluginProjectConfiguration",
+    ":plugin:verifyPluginStructure",
+    "--console=plain"
+  ],
+  "sourceRevision": "8ea07aa86cf939d9a5e945bec180079ecc28eb60",
+  "startedUtc": "2026-10-08T12:26:58.830989+00:00",
+  "status": "passed",
+  "exitCode": 0,
+  "seconds": 583.4668570409995
+}

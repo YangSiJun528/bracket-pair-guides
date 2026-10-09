@@ -1,0 +1,89 @@
+Qodana source: /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/qodana/local/source.wbgGnq
+Qodana results: /Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/redesign/qodana/local/results.hzxMTD
+time="2026-10-08T12:38:07Z" level=error msg="fatal: not a git repository (or any parent up to mount point /data)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
+time="2026-10-08T12:38:07Z" level=error msg="rev-parse --show-toplevel exited with code 128\n  stderr: fatal: not a git repository (or any parent up to mount point /data)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
+time="2026-10-08T12:38:08Z" level=error msg="rev-parse --show-toplevel exited with code 128\n  stderr: fatal: not a git repository (or any parent up to mount point /data)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
+Global configuration was not loaded, using local configuration
+
+✓  Loaded Qodana Configuration
+By using this linter, you agree to
+- JetBrains Privacy Policy (https://jb.gg/jetbrains-privacy-policy)
+- Qodana Community Linters Agreement (https://jb.gg/qodana-community-linters)
+Qodana license plan: Community
+                                        
+          _              _       
+         /\ \           /\ \        Qodana for JVM 2026.2.3
+        /  \ \         /  \ \       Documentation
+       / /\ \ \       / /\ \ \      https://jb.gg/qodana-docs
+      / / /\ \ \     / / /\ \ \     Contact us at
+     / / /  \ \_\   / / /  \ \_\    qodana-support@jetbrains.com
+    / / / _ / / /  / / /   / / /    Or via our issue tracker
+   / / / /\ \/ /  / / /   / / /     https://jb.gg/qodana-issue
+  / / /__\ \ \/  / / /___/ / /      Or share your feedback at our forum
+ / / /____\ \ \ / / /____\/ /       https://jb.gg/qodana-forum
+ \/________\_\/ \/_________/     
+                                                   
+                                        
+Starting up Qodana for JVM 2026.2.3 (build QDJVM-262.11550)…done.
+Preparing for the Project opening stage ...
+[IDE]: Task 'Resolving SDKs…' started
+[IDE]: Validating existing SDKs
+Setting project JDK 21 (4)
+[IDE]: Task 'Resolving SDKs…' ended in 596 ms
+[IDE]: Task 'Resolving SDKs…' started
+[IDE]: Validating existing SDKs
+[IDE]: Task 'Resolving SDKs…' ended in 2 s 340 ms
+Keep running Project opening ... so far 30s
+[IDE]: Task 'Resolving SDKs…' started
+[IDE]: Validating existing SDKs
+[IDE]: Task 'Resolving SDKs…' ended in 168 ms
+The Project opening stage completed in 51s
+Preparing for the Project configuration stage ...
+The Project configuration stage completed in 5s
+Inspecting with the 'qodana.recommended' profile
+Roots file:///data/project/build-logic/build/pluginUnderTestMetadata of the library '/data/project/build-logic/build/pluginUnderTestMetadata' from module 'build-logic.test' were not resolved
+Preparing for the Project analysis stage ...
+Code analysis started ...
+Analyzing code 1%
+Analyzing code 3%
+Analyzing code 6%
+Keep running Project analysis ... so far 30s
+Analyzing code 7%
+Analyzing code 8%
+Analyzing code 9%
+Keep running Project analysis ... so far 1m
+Analyzing code 11%
+Analyzing code 17%
+Keep running Project analysis ... so far 1m 31s
+Analyzing code 18%
+Analyzing code 19%
+Keep running Project analysis ... so far 2m 1s
+Analyzing code 22%
+Analyzing code 23%
+Analyzing code 24%
+Analyzing code 27%
+Analyzing code 31%
+Keep running Project analysis ... so far 2m 31s
+Analyzing code 38%
+Analyzing code 41%
+Analyzing code 44%
+Analyzing code 50%
+Analyzing code 54%
+Keep running Project analysis ... so far 3m 1s
+Analyzing code 58%
+Analyzing code 60%
+Analyzing code 69%
+Keep running Project analysis ... so far 3m 31s
+Analyzing code 73%
+Analyzing code 80%
+Analyzing code 97%
+Analyzing code 98%
+Keep running Project analysis ... so far 4m 1s
+Analyzing code 100%
+The Project analysis stage completed in 4m 4s
+
+Qodana - Detailed summary
+Analysis results: 0 problem detected
+
+[2026-10-08 12:44:03,337]   INFO -    org.jetbrains.analysis.Main:33 - Generating final reports...
+[2026-10-08 12:44:04,548]   INFO -    org.jetbrains.analysis.Main:51 - Done
