@@ -13,8 +13,15 @@ private document holder shares a calculator between split editors and assigns
 monotone reuse revisions independently of SDK stamp values. Its last session
 releases the document listener.
 
-Hidden and no-facet demands cancel work and release accepted values. The document
-calculator cache holds only weak index references; inactivity needs no second
+Hidden demands cancel work and revoke publication immediately. A visibility-only
+hide moves the accepted result into one per-session JDK SoftReference, permitting
+synchronous EDT restoration on a valid unchanged return. Memory pressure can
+clear it; a miss schedules normal full analysis. UI markup/view remain released.
+Content/language invalidation, no-facet configuration and close clear this dormant
+cache. Source identity, coverage, layout, file-size eligibility and a separate
+file-type/plugin environment generation guard reuse; unrelated document writes
+still invalidate in-flight reads but do not alone discard completed dormant results.
+The document calculator retains only weak index references; there is no second
 cache registry or extra lease policy. Closing drops the editor, view, calculator,
 and coroutine-context attachment; in-flight lexical captures unwind before their
 references can be collected.

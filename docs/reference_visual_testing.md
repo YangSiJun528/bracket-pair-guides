@@ -35,6 +35,19 @@ absent inside the write command immediately after the document edit returns.
 The UI-owned IDE contract checks the corresponding synchronous content-demand
 boundary. A later screenshot alone cannot prove hiding timing.
 
+A real FileEditorManager tab cycle first warms `Contract.java` and `TabContract.java`
+through normal editor events. Each warmed tab return checks the selected editor's
+identity, unchanged document stamp, actual Swing showing state, and the full valid
+plugin token range/depth-key list inside the same EDT callback immediately after
+selection returns. There is no analysis wait, event pump, or explicit plugin request
+before that assertion. Hidden tabs must have no plugin markup. Focus is deferred,
+so active-guide restoration is checked separately after the synchronous token
+contract. Closing the other tab and restoring focus must reproduce the existing
+`all-components` pixels exactly. This adds an interaction contract, not a new PNG
+baseline. `tab-switch-observed.txt` retains both synchronous observations and
+failure diagnostics; it does not prove that a painted frame never flickers under
+all event interleavings.
+
 The registered Settings dialog is opened through the public SDK. Driver clicks
 the real integration checkbox and Apply control. The draft toggle must leave
 persisted options and native settings unchanged until Apply. Apply must restore

@@ -26,6 +26,13 @@ completed daemon state before and after screenshots at the same stamp, followed
 by two identical images. The 30-second capture budget remains unchanged; do not
 replace these observations with sleeps or forced daemon/caret events.
 
+Also inspect `tab-switch-observed.txt`. The real warmed-tab A/B/A contract must
+restore valid token markup in the selection EDT turn; waiting for later analysis
+cannot satisfy it. Focus and active-guide settlement happen afterwards, followed
+by exact comparison with the existing `all-components` image. No new baseline is
+needed. When verifying this fix, preserve a failure from the pre-fix runtime or a
+controlled reverse mutation; a passing settled screenshot alone is insufficient.
+
 ## Prepare new baseline candidates
 
 Run only for an intentional suite or rendering change, outside CI:

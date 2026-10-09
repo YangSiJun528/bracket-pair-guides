@@ -51,6 +51,8 @@ class EditorVisualContractTest {
         val project = required("visual.test.project.dir")
         Files.createDirectories(project.resolve("src"))
         Files.copy(Path.of("src/visualTest/testData/Contract.java"), project.resolve("src/Contract.java"), StandardCopyOption.REPLACE_EXISTING)
+        Files.writeString(project.resolve("src/TabContract.java"),
+            Files.readString(Path.of("src/visualTest/testData/Contract.java")).replace("class Contract", "class TabContract"))
         val context = Starter.newContext(
             "editor-contract",
             TestCase(
@@ -325,6 +327,33 @@ class EditorVisualContractTest {
                     ),
                     "Caret A/B/A changed settled guide geometry",
                 )
+                // Real tab selection must restore token colors before the selection EDT turn returns.
+                // Focus settlement and final pixel readiness are deliberately observed only afterwards.
+                val tabObservations = mutableListOf<String>()
+                try {
+                    tabObservations += bridge.prepareOtherTab()
+                    waitFor(1.minutes, 100.milliseconds, "Second tab did not warm normal token markup") {
+                        bridge.otherTabReady()
+                    }
+                    tabObservations += bridge.returnToOriginalTab()
+                    tabObservations += bridge.switchToOtherTab()
+                    tabObservations += bridge.returnToOriginalTab()
+                    tabObservations += bridge.closeOtherTab()
+                } finally {
+                    Files.writeString(artifacts.resolve("tab-switch-observed.txt"),
+                        tabObservations.joinToString("\n\n") + "\nlast/current:\n" + bridge.tabSwitchDiagnostics())
+                }
+                bridge.focusEditor(true)
+                waitFor(1.minutes, 100.milliseconds, "Tab return did not restore focused active presentation") {
+                    val state = bridge.state().split(':')
+                    state[7] == "true" && state[8] == "true" && state[1].toInt() > 0 &&
+                        state[6].toInt() > 0 && state[9].toInt() == 2 && bridge.nativeBraceCount() == 0
+                }
+                capture("all-components-after-tab-cycle")
+                assertTrue(equalPixels(checkNotNull(captures["all-components"]),
+                    checkNotNull(captures.remove("all-components-after-tab-cycle"))),
+                    "Real tab A/B/A changed settled all-components pixels")
+
                 val changedStamp = bridge.insertIndent()
                 waitFor(1.minutes, 100.milliseconds, "Edited guide was not repaired") {
                     val state = bridge.state().split(':')
@@ -387,6 +416,12 @@ internal interface EditorContractRemote {
     fun focusEditor(focused: Boolean): String
     fun focusDiagnostics(): String
     fun showEditor(visible: Boolean): String
+    fun prepareOtherTab(): String
+    fun otherTabReady(): Boolean
+    fun returnToOriginalTab(): String
+    fun switchToOtherTab(): String
+    fun tabSwitchDiagnostics(): String
+    fun closeOtherTab(): String
     fun disable(): String
     fun insertIndent(): Long
     fun state(): String

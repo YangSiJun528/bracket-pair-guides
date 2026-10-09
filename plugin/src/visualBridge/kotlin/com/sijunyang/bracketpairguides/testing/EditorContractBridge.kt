@@ -46,6 +46,13 @@ object EditorContractBridge {
     private var focusRequestSequence = 0L
     private var focusRequestStatus = "none"
     private var requestFocusInWindowResult: Boolean? = null
+    private var tabOriginal: Editor? = null
+    private var tabOther: Editor? = null
+    private var tabOriginalStamp = 0L
+    private var tabOtherStamp = 0L
+    private var tabOriginalTokens = emptyList<String>()
+    private var tabOtherTokens = emptyList<String>()
+    private var lastTabObservation = "not-started"
 
     @JvmStatic
     @Suppress("UnstableApiUsage")
@@ -208,6 +215,134 @@ object EditorContractBridge {
     fun showEditor(visible: Boolean): String = edt {
         editor().component.isVisible = visible
         stateOnEdt(editor())
+    }
+
+    /** Selects a real second file; normal editor events alone warm its analysis. */
+    @JvmStatic
+    fun prepareOtherTab(): String = edt {
+        val original = editor()
+        check(original.contentComponent.isShowing)
+        val project = checkNotNull(original.project)
+        val manager = FileEditorManager.getInstance(project)
+        check(manager.selectedTextEditor === original)
+        tabOriginal = original
+        tabOriginalStamp = original.document.modificationStamp
+        tabOriginalTokens = tokenRanges(original)
+        check(tabOriginalTokens.isNotEmpty()) { "Original tab must be warm before switching" }
+        val file = checkNotNull(FileDocumentManager.getInstance().getFile(original.document))
+        val otherFile = checkNotNull(file.parent.findChild("TabContract.java"))
+        manager.openFile(otherFile, true)
+        val other = checkNotNull(manager.selectedTextEditor)
+        tabOther = other
+        check(FileDocumentManager.getInstance().getFile(other.document) == otherFile)
+        (other as EditorEx).setCaretEnabled(false)
+        other.setCaretVisible(false)
+        other.settings.isCaretRowShown = false
+        other.settings.isLineNumbersShown = false
+        other.caretModel.moveToLogicalPosition(LogicalPosition(3, 15))
+        lastTabObservation = tabObservation("first-other-selection")
+        check(other !== original && other.contentComponent.isShowing)
+        checkHiddenTab(original)
+        lastTabObservation
+    }
+
+    @JvmStatic
+    fun otherTabReady(): Boolean = readEdt {
+        val other = tabOther ?: return@readEdt false
+        !other.isDisposed && other.contentComponent.isShowing &&
+            other.project?.let { FileEditorManager.getInstance(it).selectedTextEditor === other } == true &&
+            tokenRanges(other).isNotEmpty()
+    }
+
+    /** The first return also records the warmed second tab's public markup contract. */
+    @JvmStatic
+    fun returnToOriginalTab(): String = edt {
+        val original = checkNotNull(tabOriginal)
+        val other = checkNotNull(tabOther)
+        val manager = FileEditorManager.getInstance(checkNotNull(original.project))
+        check(manager.selectedTextEditor === other && other.contentComponent.isShowing)
+        if (tabOtherTokens.isEmpty()) {
+            tabOtherStamp = other.document.modificationStamp
+            tabOtherTokens = tokenRanges(other)
+            check(tabOtherTokens.isNotEmpty()) { "Second tab must be warm before returning" }
+        }
+        checkHiddenTab(original)
+        manager.openFile(checkNotNull(FileDocumentManager.getInstance().getFile(original.document)), true)
+        // No event pump, analysis wait, or explicit plugin request may precede these observations.
+        lastTabObservation = tabObservation("original-return-inside-selection-turn")
+        check(manager.selectedTextEditor === original && original.contentComponent.isShowing)
+        check(original.document.modificationStamp == tabOriginalStamp)
+        check(tokenRanges(original) == tabOriginalTokens) {
+            "Original tab lost its valid token markup at synchronous return: $lastTabObservation"
+        }
+        checkHiddenTab(other)
+        lastTabObservation
+    }
+
+    @JvmStatic
+    fun switchToOtherTab(): String = edt {
+        val original = checkNotNull(tabOriginal)
+        val other = checkNotNull(tabOther)
+        val manager = FileEditorManager.getInstance(checkNotNull(original.project))
+        check(manager.selectedTextEditor === original && original.contentComponent.isShowing)
+        manager.openFile(checkNotNull(FileDocumentManager.getInstance().getFile(other.document)), true)
+        lastTabObservation = tabObservation("other-return-inside-selection-turn")
+        check(manager.selectedTextEditor === other && other.contentComponent.isShowing)
+        check(other.document.modificationStamp == tabOtherStamp)
+        check(tokenRanges(other) == tabOtherTokens) {
+            "Second tab lost its valid token markup at synchronous return: $lastTabObservation"
+        }
+        checkHiddenTab(original)
+        lastTabObservation
+    }
+
+    @JvmStatic
+    fun tabSwitchDiagnostics(): String = readEdt {
+        "$lastTabObservation\ncurrent:\n${tabObservation("read-only")}"
+    }
+
+    @JvmStatic
+    fun closeOtherTab(): String = edt {
+        val original = checkNotNull(tabOriginal)
+        val other = checkNotNull(tabOther)
+        val manager = FileEditorManager.getInstance(checkNotNull(original.project))
+        check(manager.selectedTextEditor === original)
+        manager.closeFile(checkNotNull(FileDocumentManager.getInstance().getFile(other.document)))
+        lastTabObservation = tabObservation("other-closed")
+        check(manager.selectedTextEditor === original && original.contentComponent.isShowing)
+        check(tokenRanges(original) == tabOriginalTokens)
+        tabOther = null
+        lastTabObservation
+    }
+
+    private fun tokenRanges(editor: Editor): List<String> = editor.markupModel.allHighlighters
+        .filter { it.isValid && it.textAttributesKey?.externalName?.startsWith("BRACKET_PAIR_GUIDES_BRACKET_DEPTH_") == true }
+        .map { "${it.startOffset}..${it.endOffset}:${it.textAttributesKey?.externalName}" }
+        .sorted()
+
+    private fun checkHiddenTab(editor: Editor) {
+        check(!editor.contentComponent.isShowing) { "Unselected tab remained showing" }
+        check(editor.markupModel.allHighlighters.none {
+            it.isValid && (it.customRenderer?.javaClass?.name?.startsWith("com.sijunyang.bracketpairguides.") == true ||
+                it.textAttributesKey?.externalName?.startsWith("BRACKET_PAIR_GUIDES_BRACKET_DEPTH_") == true ||
+                it.layer == HighlighterLayer.ELEMENT_UNDER_CARET &&
+                it.endOffset - it.startOffset == 1 &&
+                (it.getTextAttributes(editor.colorsScheme)?.effectType == EffectType.BOXED ||
+                    it.getTextAttributes(editor.colorsScheme)?.backgroundColor != null))
+        }) { "Hidden tab retained plugin markup: $lastTabObservation" }
+    }
+
+    private fun tabObservation(phase: String): String {
+        fun describe(editor: Editor?): String {
+            if (editor == null) return "absent"
+            if (editor.isDisposed) return "identity=${System.identityHashCode(editor)};disposed=true"
+            val selected = editor.project?.let { FileEditorManager.getInstance(it).selectedTextEditor === editor }
+            return "identity=${System.identityHashCode(editor)};disposed=${editor.isDisposed};selected=$selected;" +
+                "showing=${editor.contentComponent.isShowing};focused=${editor.contentComponent.isFocusOwner};" +
+                "stamp=${editor.document.modificationStamp};tokens=${tokenRanges(editor)};state=${stateOnEdt(editor)}"
+        }
+        return "phase=$phase;onEdt=${ApplicationManager.getApplication().isDispatchThread}\n" +
+            "original=${describe(tabOriginal)}\nother=${describe(tabOther)}"
     }
 
     @JvmStatic
