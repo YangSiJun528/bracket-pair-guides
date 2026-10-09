@@ -184,3 +184,93 @@ model the daemon read-action lifecycle or event-dispatch-thread contention.
 5. Assign new cases to a job in `benchmarks/build.gradle.kts` and keep its
    measured duration below the four-minute CI limit. The coverage check fails
    if any case is omitted or appears in more than one job.
+
+## Measure the IDE execution paths
+
+The plugin test suite also contains opt-in IDE fixture measurements. These
+exercise platform capture and editor execution, which JMH does not model.
+Their gates are false by default: an ordinary CI test pass is not measurement
+evidence, and no machine timing threshold is added to the ordinary suite.
+Opt-in runs retain correctness checks and write raw JSONL with explicit scopes.
+
+Pass measurement properties to the **test JVM**. Gradle `-D` options alone do
+not automatically reach its forked test process. From the repository root,
+create this temporary local init script; it forwards only the measurement
+property namespace and changes no repository build file or CI threshold:
+
+```shell
+measurement_init=$(mktemp)
+cat > "$measurement_init" <<'GROOVY'
+gradle.projectsEvaluated {
+    def properties = System.properties.findAll { key, value ->
+        key == 'issue93.measure' || key.toString().startsWith('issue93.measure.')
+    }
+    gradle.rootProject.project(':plugin').tasks.withType(
+        org.gradle.api.tasks.testing.Test
+    ).configureEach {
+        systemProperties(properties)
+    }
+}
+GROOVY
+measurement_output=$(mktemp -d "${TMPDIR:-/tmp}/issue93-measurement.XXXXXX")
+```
+
+For a warmed analysis comparison, run the two implementations serially in three
+fresh test JVMs each, retaining separate output files:
+
+```shell
+for repetition in 1 2 3; do
+  for implementation in legacy incremental; do
+    ./gradlew --no-configuration-cache --init-script "$measurement_init" \
+      :plugin:test --rerun --tests '*.AnalysisBaselineMeasurementTest' \
+      -Dissue93.measure=true \
+      -Dissue93.measure.implementation="$implementation" \
+      -Dissue93.measure.warmups=100 -Dissue93.measure.repeats=30 \
+      -Dissue93.measure.cancelTrials=30 \
+      -Dissue93.measure.output="$measurement_output/analysis-$implementation-$repetition.jsonl"
+  done
+done
+```
+
+Keep the IDE/JDK, corpus hashes, heap, power mode, and other workloads matched.
+`--rerun` forces fresh test execution. Output is appended, so use fresh paths.
+For actual read-body/write contention, select
+`*.AnalysisWriteWaitMeasurementTest` instead, set
+`issue93.measure.writeWait.repeats=30`, and provide a distinct
+`issue93.measure.writeWait.output`. Run each workload separately on an idle
+machine; do not overlap Gradle, Driver, Qodana, or other measurements.
+
+| Fixture class | Gate to enable | Output-path property |
+|---|---|---|
+| `AnalysisBaselineMeasurementTest` | `issue93.measure=true` | `issue93.measure.output` |
+| `AnalysisWriteWaitMeasurementTest` | `issue93.measure=true` | `issue93.measure.writeWait.output` |
+| `EditorExecutionMeasurementTest` | `issue93.measure.execution=true` | `issue93.measure.execution.output` |
+| `GuideRepairMeasurementTest` | `issue93.measure.guideRepair=true` | `issue93.measure.guideRepair.output` |
+| `NativeConflictMeasurementTest` | `issue93.measure.native=true` | `issue93.measure.native.output` |
+| `AnalysisPayloadMeasurementTest` | `issue93.measure.payload=true` | `issue93.measure.payload.output` |
+| `CaptureReleaseMeasurementTest` | `issue93.measure.captureRelease=true` | `issue93.measure.captureRelease.output` |
+
+Select one class with `--tests`, enable its gate, and set a fresh output path
+through the same init script. Other harness-specific settings and exclusions
+are recorded in each JSONL environment row; inspect that row and confirm raw
+samples exist before interpreting a successful test run.
+
+The current `legacy` control shares current production classifier, pairing,
+calculation, and index dependencies. It is not the frozen M0 production baseline
+from an earlier revision. Preserve M0 source/revision and raw results separately;
+do not relabel a current-control comparison as a before/after M0 comparison.
+Use per-JVM medians and the nearest-rank p95: sort `n` samples and select the
+`ceil(0.95*n)`th value, so 30 samples use the 29th sorted value (index 28).
+Keep GC-affected samples visible and avoid pooling JVMs to hide run variation.
+
+Analysis wall time is not read-lock hold time. The read/write harness records
+actual read-body enter/exit separately from EDT write request-to-acquisition;
+body intervals exclude read-lock acquisition/release. Editor execution records
+observed acceptance latency, including event-pump cadence and secondary debounce.
+Direct coroutine allocation sums execution segments across thread hops, including
+trace bookkeeping but excluding waiting, EDT, and independent platform work.
+Repair records its UI, worker, and acceptance phases separately. Retained-index
+primitive payload, consumed capture weak-reference release, and whole-JVM
+sampled heap estimates answer different memory questions; none is a complete
+per-analysis heap bound. A JFR pause overlap supports interference in that
+recorded run; no overlap does not prove scheduling was the cause.

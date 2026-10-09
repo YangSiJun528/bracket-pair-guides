@@ -4,8 +4,8 @@ import com.intellij.openapi.editor.Document
 import com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndex
 import com.sijunyang.bracketpairguides.analysis.guide.VisualColumn
 
-/** IntelliJ document view used to create one exact guide-position index. */
-internal class DocumentGuidePositions(
+/** Test-only synchronous guide reference for baseline and pipeline parity. */
+internal class SynchronousGuidePositionReference(
     private val document: Document,
     tabSize: Int,
     private val checkCanceled: () -> Unit,

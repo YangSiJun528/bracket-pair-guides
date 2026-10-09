@@ -11,6 +11,7 @@ internal class ActiveGuidePresentation(
     onDisplayedMultilineVerticalGuide: (Editor, BracketGuide) -> Unit = { _, _ -> },
 ) {
     private val trackedPair = TrackedBracketPair(editor)
+    private var pendingAnchorLine: Int? = null
     private val markup = ActivePairMarkup(editor, onDisplayedMultilineVerticalGuide)
 
     val currentPair: BracketPair?
@@ -18,6 +19,12 @@ internal class ActiveGuidePresentation(
 
     val adjustedPair: BracketPair?
         get() = trackedPair.adjusted
+
+    val needsGuideRepair: Boolean
+        get() = currentPair?.let { it.openLine != it.closeLine } == true && currentGuide() == null
+
+    val guideAnchorLine: Int?
+        get() = trackedPair.anchorLine ?: pendingAnchorLine
 
     val isVisible: Boolean
         get() = markup.isVisible
@@ -29,7 +36,7 @@ internal class ActiveGuidePresentation(
         preferences: BracketGuidePreferences,
     ) {
         val previousGuide = currentGuide()
-        val currentAnchorLine = trackedPair.anchorLine
+        val currentAnchorLine = guideAnchorLine
         clear(preserveGuide = true)
         if (pair == null || !preferences.enabled ||
             (!preferences.showsGuide && !preferences.showsActivePair) ||
@@ -49,6 +56,7 @@ internal class ActiveGuidePresentation(
                 preferences = preferences,
             )
         trackedPair.track(pair, guide)
+        pendingAnchorLine = if (guide == null) currentAnchorLine else null
         markup.showGuide(guide, preferences)
         markup.showPair(pair, preferences)
     }
@@ -88,12 +96,7 @@ internal class ActiveGuidePresentation(
         trackedPair.refresh(pair, guide)
     }
 
-    /**
-     * HARD SYNCHRONOUS CONTRACT: an applied edit must never leave this markup
-     * combining an adjusted pair with the previous guide geometry. Recompute a
-     * bounded exact guide now, or remove the guide now. Do not defer either
-     * outcome to background analysis and do not invoke a BraceMatcher here.
-     */
+    /** An affected guide is hidden before the document callback returns. */
     fun refreshAfterDocumentChange(change: DocumentChange, caretOffset: Int, preferences: BracketGuidePreferences) {
         val previousPair = trackedPair.current
         if (previousPair == null || change.altersToken(previousPair)) {
@@ -131,15 +134,28 @@ internal class ActiveGuidePresentation(
                     )
                 }
             }
-        // A null exact result deliberately clears stale guide pixels while the
-        // already-adjusted pair tokens may remain visible.
+        // Missing geometry hides guide pixels immediately; adjusted pair tokens remain visible.
         markup.showGuide(guide, preferences)
         markup.showPair(pair, preferences)
         trackedPair.refresh(pair, guide)
     }
 
+    fun hideGuide() {
+        pendingAnchorLine = guideAnchorLine
+        markup.clearGuide()
+        currentPair?.let { trackedPair.refresh(it, null) }
+    }
+
+    fun publishRepair(guide: BracketGuide, preferences: BracketGuidePreferences): Boolean {
+        if (currentPair != guide.pair || adjustedPair != guide.pair || !needsGuideRepair) return false
+        trackedPair.refresh(guide.pair, guide)
+        markup.showGuide(guide, preferences)
+        return true
+    }
+
     fun clear(preserveGuide: Boolean) {
         trackedPair.clear()
+        pendingAnchorLine = null
         markup.clear(preserveGuide)
     }
 

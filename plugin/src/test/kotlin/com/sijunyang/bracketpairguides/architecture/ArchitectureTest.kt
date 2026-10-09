@@ -99,6 +99,37 @@ internal class ArchitectureTest {
 
         @ArchTest
         @JvmField
+        val capturedValuesAndSnapshotCalculationDoNotRetainHostDependencies: ArchRule =
+            noClasses()
+                .that(
+                    describe<JavaClass>("are immutable capture values or snapshot calculation") { type ->
+                        val simpleName = type.name.substringAfterLast('.').substringBefore('$')
+                        type.packageName.startsWith("$ROOT.analysis") && simpleName in setOf(
+                            "TokenKind", "BracketGroupId", "CapturedBracketToken", "CapturedBracketTokens",
+                            "DocumentBracketRecognition", "BracketRecognitionRefusal", "SnapshotCalculation",
+                            "PreparedSnapshot", "CalculatedAnalysis", "BracketIndexes", "IndexLayout",
+                            "TokenStorage", "AnalysisLimit",
+                        )
+                    },
+                )
+                .should()
+                .dependOnClassesThat(
+                    describe<JavaClass>("are host dependencies or stamped publication values") { type ->
+                        type.packageName.startsWith("com.intellij") ||
+                            type.packageName.startsWith("$ROOT.analysis.intellij") ||
+                            type.packageName.startsWith("$ROOT.editor") ||
+                            type.name in setOf(
+                                "$ROOT.analysis.AnalysisInput",
+                                "$ROOT.analysis.AnalysisStamp",
+                                "$ROOT.analysis.snapshot.BracketSnapshot",
+                                "$ROOT.analysis.snapshot.AnalysisOutcome",
+                            )
+                    },
+                )
+                .because("capture facts and calculation must stay usable without editor or publication identity")
+
+        @ArchTest
+        @JvmField
         val editorEventsDoNotDependOnAnalysisTypes: ArchRule =
             noClasses()
                 .that()

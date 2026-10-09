@@ -1,155 +1,101 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
 import com.intellij.codeInsight.CodeInsightSettings
-import com.intellij.codeInsight.highlighting.BraceMatchingUtil
 import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorKind
 import com.intellij.openapi.editor.IndentGuideDescriptor
-import com.intellij.openapi.editor.highlighter.EditorHighlighter
-import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.util.Computable
-import com.intellij.psi.PsiDocumentManager
-import com.intellij.psi.PsiFile
 import com.intellij.ui.NewUI
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.editor.events.NativeVisualEnvironment
+import com.sijunyang.bracketpairguides.editor.policy.NativeGuideConflictFacts
+import com.sijunyang.bracketpairguides.editor.policy.NativeGuideConflictPolicy
+import com.sijunyang.bracketpairguides.editor.policy.NativeGuideUiPath
+import com.sijunyang.bracketpairguides.editor.policy.NativeIndentGuideGeometry
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 
-/** Supported native rendering paths for a standard monolithic editor. */
-internal enum class NativeGuideUiPath {
-    NEW_UI,
-    CLASSIC_UI,
-    UNCLASSIFIED,
-}
-
-/** Public indent-model facts needed to match a native carrier to plugin geometry. */
-internal data class NativeIndentGuideGeometry(val indentLevel: Int, val startLine: Int, val endLine: Int) {
-    fun matches(guide: BracketGuide): Boolean = indentLevel == guide.guideColumn &&
-        startLine == guide.pair.openLine &&
-        endLine == guide.pair.closeLine
-}
-
-/** Pure conflict inputs kept separate from IntelliJ renderer implementation details. */
-internal data class NativeGuideConflictFacts(
-    val pluginEnabledForEditor: Boolean,
-    val activeGuideEnabled: Boolean,
-    val verticalGuideEnabled: Boolean,
-    val displayedMultilineVerticalGuide: BracketGuide?,
-    val matchedBraceHighlightingEnabled: Boolean,
-    val currentScopeHighlightingEnabled: Boolean,
-    val directMatchedBraceResolvesPair: Boolean,
-    val currentScopeResolvesPair: Boolean,
-    val uiPath: NativeGuideUiPath,
-    val effectiveIndentGuidesShown: Boolean,
-    val lineMarkerAreaShown: Boolean,
-    val matchingIndentGuide: NativeIndentGuideGeometry?,
-    val supportedEditorPath: Boolean,
-)
-
-/** Classifies only native *highlight* conflicts, never ordinary dim indent guides. */
+/** Captures editor/UI facts and resolves native marker sources through platform read access. */
 internal object NativeGuideConflictDetector {
-    fun isConflict(facts: NativeGuideConflictFacts): Boolean {
-        val guide = facts.displayedMultilineVerticalGuide ?: return false
-        if (!facts.supportedEditorPath ||
-            !facts.pluginEnabledForEditor ||
-            !facts.activeGuideEnabled ||
-            !facts.verticalGuideEnabled ||
-            guide.pair.openLine >= guide.pair.closeLine ||
-            !facts.matchedBraceHighlightingEnabled
-        ) {
-            return false
-        }
+    /** Captures only small editor/UI facts on EDT; no PSI or token traversal is performed here. */
+    fun captureConflict(
+        editor: Editor,
+        guide: BracketGuide,
+        preferences: BracketGuidePreferences,
+    ): NativeConflictProbe? {
+        ApplicationManager.getApplication().assertIsDispatchThread()
+        val ui = captureUi(editor, guide, preferences) ?: return null
+        val resolveSources = captureMarkerSources(editor, guide.pair, ui.facts.currentScopeHighlightingEnabled)
+        return object : NativeConflictProbe {
+            override suspend fun inspect(checkCanceled: () -> Unit): Boolean {
+                val sources = resolveSources(checkCanceled)
+                checkCanceled()
+                return NativeGuideConflictPolicy.isConflict(
+                    ui.facts.copy(
+                        directMatchedBraceResolvesPair = sources.direct,
+                        currentScopeResolvesPair = sources.currentScope,
+                    ),
+                )
+            }
 
-        if (
-            !hasVisibleNativeCarrier(
-                uiPath = facts.uiPath,
-                effectiveIndentGuidesShown = facts.effectiveIndentGuidesShown,
-                lineMarkerAreaShown = facts.lineMarkerAreaShown,
-                matchingIndentGuide = facts.matchingIndentGuide,
-                guide = guide,
-            )
-        ) {
-            return false
+            override fun isCurrent(): Boolean = captureUi(editor, guide, preferences) == ui
         }
-
-        val directMatchedBraceCapability = facts.directMatchedBraceResolvesPair
-        val currentScopeCapability =
-            facts.currentScopeHighlightingEnabled &&
-                facts.currentScopeResolvesPair
-        return directMatchedBraceCapability || currentScopeCapability
     }
 
-    fun isConflict(editor: Editor, guide: BracketGuide, preferences: BracketGuidePreferences): Boolean {
-        val pair = guide.pair
-        if (
-            !preferences.enabled ||
-            !preferences.showActiveGuide ||
-            !preferences.showVerticalGuide ||
-            pair.openLine >= pair.closeLine
+    private fun captureUi(editor: Editor, guide: BracketGuide, preferences: BracketGuidePreferences): CapturedUi? {
+        if (!preferences.enabled || !preferences.showActiveGuide || !preferences.showVerticalGuide ||
+            guide.pair.openLine >= guide.pair.closeLine || !isSupportedEditor(editor)
         ) {
-            return false
+            return null
         }
-
+        val project = checkNotNull(editor.project)
         val nativeSettings = CodeInsightSettings.getInstance()
-        if (!nativeSettings.HIGHLIGHT_BRACES) return false
-        if (!isSupportedEditor(editor)) return false
+        if (!nativeSettings.HIGHLIGHT_BRACES) return null
         val uiPath = currentUiPath()
-        if (uiPath == NativeGuideUiPath.UNCLASSIFIED) return false
-        // Brace attribution can enter a read action and scan highlighter
-        // tokens. Do none of that when this UI path cannot paint a native
-        // vertical carrier for the exact plugin guide geometry.
-        val carrier = visibleNativeCarrier(editor, guide, uiPath) ?: return false
-        val markerSources =
-            resolveMarkerSources(
-                editor = editor,
-                pair = pair,
-                resolveCurrentScope = nativeSettings.HIGHLIGHT_SCOPE,
-            )
-        return isConflict(
-            NativeGuideConflictFacts(
-                // A currently installed plugin guide already proves that the
-                // effective matcher/language capability was enabled.
+        val carrier = visibleNativeCarrier(editor, guide, uiPath) ?: return null
+        if (editor.selectionModel.hasSelection() ||
+            editor.softWrapModel.isInsideOrBeforeSoftWrap(editor.caretModel.visualPosition) ||
+            TemplateManager.getInstance(project).getActiveTemplate(editor) != null
+        ) {
+            return null
+        }
+        val offset = editor.caretModel.primaryCaret.offset
+        return CapturedUi(
+            facts = NativeGuideConflictFacts(
                 pluginEnabledForEditor = true,
                 activeGuideEnabled = true,
                 verticalGuideEnabled = true,
                 displayedMultilineVerticalGuide = guide,
                 matchedBraceHighlightingEnabled = nativeSettings.HIGHLIGHT_BRACES,
                 currentScopeHighlightingEnabled = nativeSettings.HIGHLIGHT_SCOPE,
-                directMatchedBraceResolvesPair = markerSources.direct,
-                currentScopeResolvesPair = markerSources.currentScope,
+                directMatchedBraceResolvesPair = false,
+                currentScopeResolvesPair = false,
                 uiPath = uiPath,
                 effectiveIndentGuidesShown = carrier.effectiveIndentGuidesShown,
                 lineMarkerAreaShown = carrier.lineMarkerAreaShown,
                 matchingIndentGuide = carrier.matchingIndentGuide,
                 supportedEditorPath = true,
             ),
+            caretOffset = offset,
+            blockCursor = editor.settings.isBlockCursor,
+            caretCollapsed =
+            offset in 0 until editor.document.textLength && editor.foldingModel.isOffsetCollapsed(offset),
         )
     }
+
+    private data class CapturedUi(
+        val facts: NativeGuideConflictFacts,
+        val caretOffset: Int,
+        val blockCursor: Boolean,
+        val caretCollapsed: Boolean,
+    )
 
     /** Public-editor-state preflight used before any brace-source resolution. */
     internal fun hasVisibleCarrier(editor: Editor, guide: BracketGuide, uiPath: NativeGuideUiPath): Boolean =
         visibleNativeCarrier(editor, guide, uiPath) != null
-
-    internal fun hasVisibleNativeCarrier(
-        uiPath: NativeGuideUiPath,
-        effectiveIndentGuidesShown: Boolean,
-        lineMarkerAreaShown: Boolean,
-        matchingIndentGuide: NativeIndentGuideGeometry?,
-        guide: BracketGuide,
-    ): Boolean = when (uiPath) {
-        NativeGuideUiPath.NEW_UI ->
-            effectiveIndentGuidesShown &&
-                matchingIndentGuide?.matches(guide) == true
-
-        NativeGuideUiPath.CLASSIC_UI -> lineMarkerAreaShown
-
-        NativeGuideUiPath.UNCLASSIFIED -> false
-    }
 
     private fun visibleNativeCarrier(editor: Editor, guide: BracketGuide, uiPath: NativeGuideUiPath): NativeCarrier? {
         if (uiPath == NativeGuideUiPath.UNCLASSIFIED) return null
@@ -162,7 +108,7 @@ internal object NativeGuideConflictDetector {
                 null
             }
         if (
-            !hasVisibleNativeCarrier(
+            !NativeGuideConflictPolicy.hasVisibleNativeCarrier(
                 uiPath = uiPath,
                 effectiveIndentGuidesShown = effectiveIndentGuidesShown,
                 lineMarkerAreaShown = lineMarkerAreaShown,
@@ -215,134 +161,36 @@ internal object NativeGuideConflictDetector {
     )
 
     /**
-     * Resolves the actual marker source through the same public brace-matching
+     * Captures EDT inputs and returns background resolution through the same public brace-matching
      * utilities used by IntelliJ. Merely enclosing the caret is insufficient:
      * another nested structural pair may own the current-scope marker.
      */
-    internal fun resolveMarkerSources(
+    internal fun captureMarkerSources(
         editor: Editor,
         pair: BracketPair,
         resolveCurrentScope: Boolean,
-    ): NativeMarkerSources {
-        val project = editor.project ?: return NativeMarkerSources.NONE
+    ): suspend (() -> Unit) -> NativeMarkerSources {
+        ApplicationManager.getApplication().assertIsDispatchThread()
+        val project = editor.project ?: return { NativeMarkerSources.NONE }
         val document = editor.document
-        if (!pair.hasWellFormedTokenRange(document.textLength)) return NativeMarkerSources.NONE
+        if (!pair.hasWellFormedTokenRange(document.textLength)) return { NativeMarkerSources.NONE }
         if (
             editor.selectionModel.hasSelection() ||
             editor.softWrapModel.isInsideOrBeforeSoftWrap(editor.caretModel.visualPosition) ||
             TemplateManager.getInstance(project).getActiveTemplate(editor) != null
         ) {
-            return NativeMarkerSources.NONE
+            return { NativeMarkerSources.NONE }
         }
 
-        return ApplicationManager.getApplication().runReadAction(
-            Computable {
-                val documentManager = PsiDocumentManager.getInstance(project)
-                if (!documentManager.isCommitted(document)) return@Computable NativeMarkerSources.NONE
-                val psiFile = documentManager.getPsiFile(document)
-                    ?.takeIf(PsiFile::isValid)
-                    ?: return@Computable NativeMarkerSources.NONE
-                val highlighter = editor.highlighter
-                val directContext =
-                    BraceMatchingUtil.computeHighlightingAndNavigationContext(editor, psiFile)
-                if (directContext != null) {
-                    return@Computable NativeMarkerSources(
-                        direct = directContext.resolves(pair, highlighter),
-                        // IntelliJ does not add a current-scope line when the
-                        // selected structural brace already owns highlighting.
-                        currentScope = false,
-                    )
-                }
-
-                if (
-                    !resolveCurrentScope ||
-                    caretHasAdjacentHorizontalWhitespace(document.charsSequence, editor)
-                ) {
-                    return@Computable NativeMarkerSources.NONE
-                }
-                NativeMarkerSources(
-                    direct = false,
-                    currentScope = currentScopeResolvesPair(editor, psiFile, highlighter, pair),
-                )
-            },
-        )
-    }
-
-    /**
-     * IntelliJ has a package-private retry for braces separated from the caret
-     * by spaces or tabs. Public API cannot ask for its alternate offset, so
-     * scope attribution fails closed when that retry could pre-empt the scope
-     * path.
-     */
-    private fun caretHasAdjacentHorizontalWhitespace(chars: CharSequence, editor: Editor): Boolean {
+        val stamp = document.modificationStamp
+        val highlighter = editor.highlighter
         val offset = editor.caretModel.primaryCaret.offset
-        return offset < 0 ||
-            offset > chars.length ||
-            (offset > 0 && chars[offset - 1].isHorizontalWhitespace()) ||
-            (offset < chars.length && chars[offset].isHorizontalWhitespace())
-    }
-
-    private fun Char.isHorizontalWhitespace(): Boolean = this == ' ' || this == '\t'
-
-    private fun currentScopeResolvesPair(
-        editor: Editor,
-        psiFile: PsiFile,
-        highlighter: EditorHighlighter,
-        pair: BracketPair,
-    ): Boolean {
-        val offset = editor.caretModel.primaryCaret.offset
-        val document = editor.document
-        if (offset < 0 || offset >= document.textLength || editor.foldingModel.isOffsetCollapsed(offset)) {
-            return false
-        }
-
-        val chars = document.charsSequence
-        val iterator = highlighter.createIterator(offset)
-        if (iterator.atEnd()) return false
-        val fileType = BraceMatchingUtil.getFileType(psiFile, offset)
-        val onStructuralBrace =
-            BraceMatchingUtil.isStructuralBraceToken(fileType, iterator, chars) &&
-                (
-                    BraceMatchingUtil.isRBraceToken(iterator, chars, fileType) ||
-                        BraceMatchingUtil.isLBraceToken(iterator, chars, fileType)
-                    )
-        if (onStructuralBrace || !BraceMatchingUtil.findStructuralLeftBrace(fileType, iterator, chars)) {
-            return false
-        }
-
-        val leftStart = iterator.start
-        val leftEnd = iterator.end
-        return BraceMatchingUtil.matchBrace(chars, fileType, iterator, true) &&
-            !iterator.atEnd() &&
-            leftStart == pair.openOffset &&
-            leftEnd.toLong() == pair.openOffset.toLong() + pair.openTokenLength &&
-            iterator.start == pair.closeOffset &&
-            iterator.end.toLong() == pair.closeOffset.toLong() + pair.closeTokenLength
-    }
-
-    private fun BraceMatchingUtil.BraceHighlightingAndNavigationContext.resolves(
-        pair: BracketPair,
-        highlighter: EditorHighlighter,
-    ): Boolean {
-        val expectedNavigationOffsets =
-            when (currentBraceOffset()) {
-                pair.openOffset -> pair.closeOffset to pair.closeTokenLength
-                pair.closeOffset -> pair.openOffset to pair.openTokenLength
-                else -> return false
-            }
-        val (matchingStart, matchingLength) = expectedNavigationOffsets
-        val matchingEnd = matchingStart.toLong() + matchingLength
-        val navigationOffset = navigationOffset().toLong()
-        return (navigationOffset == matchingStart.toLong() || navigationOffset == matchingEnd) &&
-            highlighter.hasExactTokenRange(pair.openOffset, pair.openTokenLength) &&
-            highlighter.hasExactTokenRange(pair.closeOffset, pair.closeTokenLength)
-    }
-
-    private fun EditorHighlighter.hasExactTokenRange(start: Int, length: Int): Boolean {
-        val end = start.toLong() + length
-        if (start < 0 || length <= 0 || end > Int.MAX_VALUE) return false
-        val iterator: HighlighterIterator = createIterator(start)
-        return !iterator.atEnd() && iterator.start == start && iterator.end.toLong() == end
+        val blockCursor = editor.settings.isBlockCursor
+        val collapsed = offset in 0 until document.textLength && editor.foldingModel.isOffsetCollapsed(offset)
+        val epoch = com.intellij.openapi.components.service<com.sijunyang.bracketpairguides.analysis.intellij.AnalysisReadEpoch>()
+        val inspection = NativeMarkerInspection(editor, pair, resolveCurrentScope, offset, blockCursor, collapsed,
+            highlighter, stamp, epoch, epoch.current)
+        return { checkCanceled -> inspection.resolve(checkCanceled) }
     }
 
     internal data class NativeMarkerSources(val direct: Boolean, val currentScope: Boolean) {

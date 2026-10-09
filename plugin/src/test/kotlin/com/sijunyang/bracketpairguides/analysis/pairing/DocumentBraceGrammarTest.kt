@@ -27,6 +27,95 @@ import org.assertj.core.api.Assertions.assertThat
 import javax.swing.Icon
 
 class DocumentBraceGrammarTest : BasePlatformTestCase() {
+    fun testReusableClassificationPreservesXmlCallbackOrderAndResetsContext() {
+        val nonBrace = IElementType("CLASSIFICATION_NON_BRACE", STRICT_TAG_LANGUAGE)
+        configure("<x><{") { character ->
+            when (character) {
+                '<' -> STRICT_TAG_LEFT
+                '>' -> STRICT_TAG_RIGHT
+                '{' -> STRUCTURAL_LEFT
+                else -> nonBrace
+            }
+        }
+        val calls = ArrayList<String>()
+        val matcher = object :
+            BraceGrammarFixture(
+                arrayOf(BracePair(STRICT_TAG_LEFT, STRICT_TAG_RIGHT, false)),
+            ),
+            XmlAwareBraceMatcher {
+            override fun isLBraceToken(
+                iterator: HighlighterIterator,
+                fileText: CharSequence,
+                fileType: FileType,
+            ): Boolean {
+                calls.add("left:${iterator.start}")
+                return super.isLBraceToken(iterator, fileText, fileType)
+            }
+            override fun isRBraceToken(
+                iterator: HighlighterIterator,
+                fileText: CharSequence,
+                fileType: FileType,
+            ): Boolean {
+                calls.add("right:${iterator.start}")
+                return super.isRBraceToken(iterator, fileText, fileType)
+            }
+            override fun getBraceTokenGroupId(tokenType: IElementType): Int {
+                val group = if (tokenType === STRICT_TAG_LEFT) 7 else 8
+                calls.add("group:$group")
+                return group
+            }
+            override fun isStrictTagMatching(fileType: FileType, braceGroupId: Int): Boolean {
+                calls.add("strict:$braceGroupId")
+                return braceGroupId == 7
+            }
+            override fun areTagsCaseSensitive(fileType: FileType, braceGroupId: Int): Boolean {
+                calls.add("case:$braceGroupId")
+                return false
+            }
+            override fun getTagName(text: CharSequence, iterator: HighlighterIterator): String? {
+                calls.add("tag:${iterator.start}")
+                return if (iterator.start == 0) "A" else null
+            }
+        }
+        val ordinaryMatcher = BraceGrammarFixture(arrayOf(BracePair(STRUCTURAL_LEFT, STRUCTURAL_RIGHT, true)))
+        withMatchers(STRICT_TAG_LANGUAGE to matcher, STRUCTURAL_LANGUAGE to ordinaryMatcher) {
+            ReadAction.compute<Unit, RuntimeException> {
+                val grammar = DocumentBraceGrammar(
+                    myFixture.file.fileType,
+                    myFixture.editor.document.charsSequence,
+                    BraceLanguageCatalog(),
+                    { true },
+                )
+                val token = DocumentBraceGrammar.Classification()
+                val iterator = myFixture.editor.highlighter.createIterator(0)
+                assertThat(grammar.classifyInto(iterator, token)).isTrue()
+                assertThat(token.strictContext).isTrue()
+                assertThat(token.context).isEqualTo("a")
+                iterator.advance()
+                assertThat(grammar.classifyInto(iterator, token)).isFalse()
+                iterator.advance()
+                assertThat(grammar.classifyInto(iterator, token)).isTrue()
+                assertThat(token.strictContext).isFalse()
+                assertThat(token.context).isNull()
+                iterator.advance()
+                assertThat(grammar.classifyInto(iterator, token)).isTrue()
+                assertThat(token.strictContext).isTrue()
+                assertThat(token.context).isNull()
+                iterator.advance()
+                assertThat(grammar.classifyInto(iterator, token)).isTrue()
+                assertThat(token.strictContext).isFalse()
+                assertThat(token.context).isNull()
+                Unit
+            }
+        }
+        assertThat(calls).containsExactly(
+            "left:0", "group:7", "group:7", "strict:7", "case:7", "tag:0",
+            "left:1", "right:1",
+            "left:2", "right:2", "group:8", "group:8", "strict:8",
+            "left:3", "group:7", "group:7", "strict:7", "case:7", "tag:3",
+        )
+    }
+
     fun testDualInterfaceMatcherHonorsContextualCallbacks() {
         val source = "a < b > T<x>"
         configure(source) { character ->
@@ -524,7 +613,7 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
         isLanguageEnabled: (String) -> Boolean = { true },
         fileType: FileType = myFixture.file.fileType,
     ): List<BracketPair> = ReadAction.compute<List<BracketPair>, RuntimeException> {
-        DocumentBrackets(
+        TokenGrammarTestAdapter(
             editor = myFixture.editor,
             fileType = fileType,
             languages = BraceLanguageCatalog(),
@@ -709,6 +798,16 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
         override fun getBufferEnd(): Int = endOffset
     }
 
+    private class LegacyFileType(language: Language) : LanguageFileType(language) {
+        override fun getName(): String = "BRACKET_PAIRING_LEGACY_TEST"
+
+        override fun getDescription(): String = "Bracket pairing legacy matcher test"
+
+        override fun getDefaultExtension(): String = "legacy-braces"
+
+        override fun getIcon(): Icon? = null
+    }
+
     private companion object {
         const val DEFAULT_GROUP = 7
         const val SHARED_GROUP = 41
@@ -744,16 +843,7 @@ class DocumentBraceGrammarTest : BasePlatformTestCase() {
         val STRUCTURAL_LEFT = IElementType("PARITY_STRUCTURAL_LEFT", STRUCTURAL_LANGUAGE)
         val STRUCTURAL_RIGHT = IElementType("PARITY_STRUCTURAL_RIGHT", STRUCTURAL_LANGUAGE)
 
-        val LEGACY_FILE_TYPE =
-            object : LanguageFileType(STRUCTURAL_LANGUAGE) {
-                override fun getName(): String = "BRACKET_PAIRING_LEGACY_TEST"
-
-                override fun getDescription(): String = "Bracket pairing legacy matcher test"
-
-                override fun getDefaultExtension(): String = "legacy-braces"
-
-                override fun getIcon(): Icon? = null
-            }
+        val LEGACY_FILE_TYPE = LegacyFileType(STRUCTURAL_LANGUAGE)
 
         val SHARED_LANGUAGE = object : Language("BRACKET_PAIRING_PARITY_SHARED") {}
         val SHARED_A = IElementType("PARITY_SHARED_A", SHARED_LANGUAGE)

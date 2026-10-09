@@ -9,12 +9,12 @@ import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
-import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.BracketPair
 import com.sijunyang.bracketpairguides.analysis.bracketSnapshot
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.editor.events.EditorGuideEvents
+import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingFixture
 import com.sijunyang.bracketpairguides.editor.highlighting.BracketGuideHighlightingPass
 import com.sijunyang.bracketpairguides.editor.policy.EditorActivity
 import com.sijunyang.bracketpairguides.editor.policy.EditorCapabilities
@@ -25,7 +25,7 @@ import com.sijunyang.bracketpairguides.presentation.observedBracketMarkup
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import org.assertj.core.api.Assertions.assertThat
 
-class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
+internal class EditorGuideSessionLifecycleTest : BracketGuideHighlightingFixture() {
     override fun setUp() {
         super.setUp()
         BracketGuideSettings.getInstance().loadState(BracketGuidePreferences())
@@ -47,7 +47,7 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
             )
         editor.caretModel.moveToOffset(source.indexOf("content"))
         val pass =
-            BracketGuideHighlightingPass(
+            createPass(
                 activity = { EditorActivity.ACTIVE },
                 capabilities = { EditorCapabilities.MAIN },
                 project = project,
@@ -61,10 +61,8 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
                     TextRange(0, current.document.textLength)
                 },
             )
-        ReadAction.compute<Unit, RuntimeException> {
-            pass.doCollectInformation(EmptyProgressIndicator())
-        }
-        pass.doApplyInformationToEditor()
+        collectPass(pass)
+        publishPass(pass)
         val session = checkNotNull(EditorGuideSessions.get(editor))
         assertThat(editor.observedBracketMarkup().guideMarks).hasSize(1)
         assertThat(editor.observedBracketMarkup().tokenMarks).hasSize(2)
@@ -171,7 +169,7 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         }
     }
 
-    fun testSplitDocumentRecalculatesEachViewsGuideGeometryImmediately() {
+    fun testSplitDocumentHidesStaleGuidesAndRepairsEachViewsOwnGeometry() {
         val source = "{\n \tvalue\n \t}"
         val document = EditorFactory.getInstance().createDocument(source)
         val firstEditor = EditorFactory.getInstance().createEditor(document, project)
@@ -201,6 +199,7 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
                         editor = editor,
                         visibleRange = { TextRange(0, document.textLength) },
                         preferences = options,
+                        requestRepair = guideRepairsFor(editor),
                     )
                 val input =
                     AnalysisInput(
@@ -228,12 +227,13 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
                 )
             }
 
+            assertThat(firstEditor.observedBracketMarkup().guideMarks).isEmpty()
+            assertThat(secondEditor.observedBracketMarkup().guideMarks).isEmpty()
+            assertThat(firstGuide.isValid).isFalse()
+            assertThat(secondGuide.isValid).isFalse()
+            awaitAnalysis()
             assertThat(firstEditor.guideColumn()).isEqualTo(3)
             assertThat(secondEditor.guideColumn()).isEqualTo(5)
-            assertThat(firstEditor.observedBracketMarkup().guideMarks)
-                .containsExactly(firstGuide)
-            assertThat(secondEditor.observedBracketMarkup().guideMarks)
-                .containsExactly(secondGuide)
         } finally {
             EditorGuideSessions.dispose(firstEditor)
             EditorGuideSessions.dispose(secondEditor)
@@ -251,7 +251,7 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
         editor.caretModel.moveToOffset(source.indexOf("value"))
         val pair = BracketPair(0, 1, source.lastIndex, 1, 0, 0, 0)
         val pass =
-            BracketGuideHighlightingPass(
+            createPass(
                 activity = { EditorActivity.ACTIVE },
                 capabilities = { EditorCapabilities.MAIN },
                 project = project,
@@ -265,10 +265,8 @@ class EditorGuideSessionLifecycleTest : BasePlatformTestCase() {
                     TextRange(0, current.document.textLength)
                 },
             )
-        ReadAction.compute<Unit, RuntimeException> {
-            pass.doCollectInformation(EmptyProgressIndicator())
-        }
-        pass.doApplyInformationToEditor()
+        collectPass(pass)
+        publishPass(pass)
         val session = checkNotNull(EditorGuideSessions.get(editor))
         assertThat(editor.observedBracketMarkup().allMarks).isNotEmpty()
 

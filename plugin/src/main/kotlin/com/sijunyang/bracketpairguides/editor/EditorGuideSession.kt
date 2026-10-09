@@ -4,6 +4,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
+import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.AnalysisStamp
 import com.sijunyang.bracketpairguides.analysis.BraceMatcherAvailability
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
@@ -16,7 +17,10 @@ import com.sijunyang.bracketpairguides.editor.policy.EditorPresentationPolicy
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.presentation.ActiveGuidePresentation
 import com.sijunyang.bracketpairguides.presentation.DocumentChange
+import com.sijunyang.bracketpairguides.presentation.GuideRepairRequest
+import com.sijunyang.bracketpairguides.presentation.GuideRepairScheduler
 import com.sijunyang.bracketpairguides.presentation.VisibleTokenDecorations
+import kotlinx.coroutines.Job
 
 /** EDT-owned state and presentation for one editor. */
 internal class EditorGuideSession(
@@ -28,11 +32,17 @@ internal class EditorGuideSession(
     @Volatile private var activity: EditorActivity,
     private var matcherAvailabilityChanged: (Editor) -> Unit = {},
     private var nativeGuideConflictCandidate: (Editor, BracketGuide) -> Unit = { _, _ -> },
+    private var requestRepair: GuideRepairScheduler? = null,
 ) {
     private var plan = EditorPresentationPolicy.resolve(capabilities, options, activity)
     private var displayOptions = plan.presentation.applyTo(options)
     private var analysisRefreshRequested: () -> Unit = {}
     private var disposed = false
+
+    @Volatile private var guideRepairJob: Job? = null
+    private var repairGeneration = 0L
+    private var repairRequiresExact = false
+    private var guideTabSize = editor.settings.getTabSize(editor.project).coerceAtLeast(1)
     private var analysisHighlighter = editor.highlighter
     private val analysisState = EditorAnalysisState(editor)
 
@@ -107,6 +117,9 @@ internal class EditorGuideSession(
         ) {
             return
         }
+        invalidateGuideRepair()
+        guideTabSize = editor.settings.getTabSize(editor.project).coerceAtLeast(1)
+        repairRequiresExact = false
         publishMatcherAvailability(nextAnalysis.matcherAvailability)
         if (!requiredCoverage.pairs) {
             clearPresentation()
@@ -192,6 +205,9 @@ internal class EditorGuideSession(
         }
         if (analysisState.hasCompleted(attemptedStamp)) return
 
+        invalidateGuideRepair()
+        guideTabSize = editor.settings.getTabSize(editor.project).coerceAtLeast(1)
+        repairRequiresExact = false
         publishMatcherAvailability(nextAnalysis.matcherAvailability)
 
         val pair = activePair(nextAnalysis)
@@ -236,6 +252,8 @@ internal class EditorGuideSession(
         } else if (analysisState.hasCompleted(stamp)) {
             return
         }
+        invalidateGuideRepair()
+        repairRequiresExact = false
         analysisState.publishUnavailable(stamp, limit)
         clearPresentation()
         repaintVisibleContent()
@@ -244,6 +262,8 @@ internal class EditorGuideSession(
     fun caretMoved() {
         assertEdt()
         if (disposed || editor.isDisposed) return
+        invalidateGuideRepair()
+        synchronizeGuideTabSize()
         if (!showsActivePresentation()) return
         val currentAnalysis = analysisState.snapshot
         if (currentAnalysis == null || !hasCurrentActivePair(currentAnalysis)) {
@@ -252,24 +272,32 @@ internal class EditorGuideSession(
         }
 
         val pair = activePair(currentAnalysis)
-        if (pair == activePresentation.currentPair) return
+        if (pair == activePresentation.currentPair) {
+            if (!analysisState.hasRefused(currentStamp(), AnalysisLimit.GUIDE_CAPACITY)) {
+                requestGuideRepair(exact = true)
+            }
+            return
+        }
         activePresentation.replace(
             pair = pair,
             indexedGuide = pair?.let(currentAnalysis::guideFor),
             allowGuideFallback = allowsProvisionalGuide(currentAnalysis),
             preferences = displayOptions,
         )
+        if (allowsProvisionalGuide(currentAnalysis)) requestGuideRepair(exact = false)
         repaintVisibleContent()
     }
 
     /**
-     * Synchronously repairs or removes the currently visible pair geometry.
-     * This method must finish before the originating DocumentListener callback;
-     * never make the active-pair refresh dependent on a later analysis pass.
+     * Updates tracked pair geometry and hides affected guides before the document
+     * callback returns. Missing indentation is repaired immediately in the background.
      */
     fun documentChanged(change: DocumentChange) {
         assertEdt()
         if (disposed || editor.isDisposed) return
+        invalidateGuideRepair()
+        repairRequiresExact = true
+        synchronizeGuideTabSize()
         discardStaleAnalysis()
         tokenDecorations.documentChanged()
         updateProvisional(change)
@@ -296,6 +324,8 @@ internal class EditorGuideSession(
     fun updateOptions(nextOptions: BracketGuidePreferences, refreshColors: Boolean) {
         assertEdt()
         if (disposed || editor.isDisposed) return
+        invalidateGuideRepair()
+        synchronizeGuideTabSize()
         val previousOptions = displayOptions
         val previousAnalysis = plan.analysis
         val languagesChanged =
@@ -353,6 +383,9 @@ internal class EditorGuideSession(
                 allowsProvisionalGuide(currentPairAnalysis),
             preferences = displayOptions,
         )
+        if (currentPairAnalysis == null || allowsProvisionalGuide(currentPairAnalysis)) {
+            requestGuideRepair(exact = false)
+        }
         if (pair == null &&
             currentAnalysis == null &&
             plan.analysis.activePair
@@ -406,7 +439,9 @@ internal class EditorGuideSession(
         assertEdt()
         if (disposed) return
         disposed = true
+        invalidateGuideRepair()
         analysisRefreshRequested = {}
+        requestRepair = null
         clear()
     }
 
@@ -415,6 +450,8 @@ internal class EditorGuideSession(
 
     /** Avoids touching editor markup when the application is already shutting down. */
     fun forgetAcceptedAnalysis() {
+        guideRepairJob?.cancel()
+        guideRepairJob = null
         analysisState.forgetAcceptance()
     }
 
@@ -433,6 +470,7 @@ internal class EditorGuideSession(
 
     private fun clearPresentation() {
         assertEdt()
+        invalidateGuideRepair()
         activePresentation.clear(preserveGuide = false)
         tokenDecorations.dispose()
     }
@@ -454,7 +492,56 @@ internal class EditorGuideSession(
                 preferences = displayOptions,
             )
         }
+        requestGuideRepair(exact = true)
         repaintVisibleContent()
+    }
+
+    private fun synchronizeGuideTabSize() {
+        val current = editor.settings.getTabSize(editor.project).coerceAtLeast(1)
+        if (current == guideTabSize) return
+        guideTabSize = current
+        activePresentation.hideGuide()
+    }
+
+    private fun invalidateGuideRepair() {
+        repairGeneration++
+        guideRepairJob?.cancel()
+        guideRepairJob = null
+    }
+
+    private fun requestGuideRepair(exact: Boolean) {
+        if (!EditorEffectGuard.allowsEffects() || disposed || editor.isDisposed || !activity.visible ||
+            !displayOptions.enabled ||
+            !displayOptions.showsGuide ||
+            !activePresentation.needsGuideRepair
+        ) {
+            return
+        }
+        val scheduler = requestRepair ?: return
+        val pair = activePresentation.currentPair ?: return
+        val generation = repairGeneration
+        val fileType = EditorSurfaceClassifier.fileType(editor)
+        val input = AnalysisInput(editor, fileType, GuideRepairRequest.COVERAGE, options.disabledLanguageIds)
+        val request = GuideRepairRequest(
+            pair = pair,
+            stamp = input.stamp,
+            fileType = fileType,
+            disabledLanguageIds = input.disabledLanguageIds,
+            exact = exact || repairRequiresExact,
+            currentAnchorLine = activePresentation.guideAnchorLine,
+        )
+        guideRepairJob = scheduler(request, {
+            !disposed && repairGeneration == generation && displayOptions.enabled && displayOptions.showsGuide &&
+                activePresentation.currentPair == pair && activePresentation.adjustedPair == pair &&
+                request.stamp.matchesCurrent(
+                    editor,
+                    EditorSurfaceClassifier.fileType(editor),
+                    GuideRepairRequest.COVERAGE,
+                    options.disabledLanguageIds,
+                )
+        }, { guide ->
+            if (activePresentation.publishRepair(guide, displayOptions)) repaintVisibleContent()
+        })
     }
 
     private fun discardPresentationFromReplacedHighlighter(): Boolean {
@@ -515,6 +602,12 @@ internal class EditorGuideSession(
 
     val isVisible: Boolean
         get() = activity.visible
+
+    /** Host installation refreshes scheduling without canceling an otherwise current repair. */
+    fun updateGuideRepairRequester(request: GuideRepairScheduler) {
+        assertEdt()
+        requestRepair = request
+    }
 
     fun setAnalysisRefreshRequester(request: () -> Unit) {
         assertEdt()

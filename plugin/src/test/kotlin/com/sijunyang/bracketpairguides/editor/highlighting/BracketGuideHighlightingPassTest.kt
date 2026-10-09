@@ -1,15 +1,12 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.components.service
-import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.BracketPair
-import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
 import com.sijunyang.bracketpairguides.analysis.requireSnapshot
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.preferences.analysisCoverage
@@ -27,26 +24,19 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
         )
         val editor = myFixture.editor
         editor.caretModel.moveToOffset(source.indexOf("()") + 1)
-        val expectedPairCount =
-            inReadAction {
-                val analysis =
-                    service<BracketAnalysis>()
-                        .analyze(
-                            AnalysisInput(
-                                editor = editor,
-                                fileType = myFixture.file.fileType,
-                                coverage = BracketGuideSettings.getInstance().options.analysisCoverage(),
-                                disabledLanguageIds = emptySet(),
-                            ),
-                            EmptyProgressIndicator(),
-                        ).requireSnapshot()
-                analysis
-                    .visibleTokens(
-                        range = TextRange(0, editor.document.textLength),
-                        focusOffset = editor.caretModel.primaryCaret.offset,
-                        limit = 10_000,
-                    ).size / 2
-            }
+        val expectedAnalysis = analyzeInBackground(
+            AnalysisInput(
+                editor = editor,
+                fileType = myFixture.file.fileType,
+                coverage = BracketGuideSettings.getInstance().options.analysisCoverage(),
+                disabledLanguageIds = emptySet(),
+            ),
+        ).requireSnapshot()
+        val expectedPairCount = expectedAnalysis.visibleTokens(
+            range = TextRange(0, editor.document.textLength),
+            focusOffset = editor.caretModel.primaryCaret.offset,
+            limit = 10_000,
+        ).size / 2
 
         applyPass()
         val first = ownedHighlighters()
@@ -103,24 +93,14 @@ internal class BracketGuideHighlightingPassTest : BracketGuideHighlightingFixtur
         val source = pairSource + "// outside\n".repeat(5_000)
         myFixture.configureByText("BoundedGuidePositionIndex.java", source)
         val editor = myFixture.editor
-        val analysis =
-            inReadAction {
-                service<BracketAnalysis>()
-                    .analyze(
-                        AnalysisInput(
-                            editor = editor,
-                            fileType = myFixture.file.fileType,
-                            coverage =
-                            AnalysisCoverage(
-                                tokens = true,
-                                activePair = true,
-                                guidePosition = true,
-                            ),
-                            disabledLanguageIds = emptySet(),
-                        ),
-                        EmptyProgressIndicator(),
-                    ).requireSnapshot()
-            }
+        val analysis = analyzeInBackground(
+            AnalysisInput(
+                editor = editor,
+                fileType = myFixture.file.fileType,
+                coverage = AnalysisCoverage(tokens = true, activePair = true, guidePosition = true),
+                disabledLanguageIds = emptySet(),
+            ),
+        ).requireSnapshot()
         val pair =
             checkNotNull(
                 analysis.activePairAt(source.indexOf("value")),

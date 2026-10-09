@@ -25,44 +25,26 @@ import org.assertj.core.api.Assertions.assertThat
 import java.util.concurrent.atomic.AtomicBoolean
 
 internal class SecondaryEditorAnalysisTest : BracketGuideHighlightingFixture() {
-    fun testPassConstructionAndCollectionUseBackgroundReadActionsAndApplyOnEdt() {
+    fun testSecondaryCalculationRunsWithoutReadAccessAndAppliesOnEdt() {
         myFixture.configureByText("Preview.java", "class Preview { int value; }")
         val application = ApplicationManager.getApplication()
-        val constructedOnEdt = AtomicBoolean(true)
-        val constructedUnderReadAccess = AtomicBoolean(false)
-        val collectedOnEdt = AtomicBoolean(true)
-        val collectedUnderReadAccess = AtomicBoolean(false)
+        val calculatedOnEdt = AtomicBoolean(true)
+        val calculatedUnderReadAccess = AtomicBoolean(true)
         val presentationApplied = AtomicBoolean(false)
-        withScheduler(createPass = { passProject, editor ->
-            constructedOnEdt.set(application.isDispatchThread)
-            constructedUnderReadAccess.set(application.isReadAccessAllowed)
-            BracketGuideHighlightingPass(
-                project = passProject,
-                editor = editor,
-                fileType = EditorSurfaceClassifier.fileType(editor),
-                sourceFile = EditorSurfaceClassifier.sourceFile(editor),
-                analyze = { input, progress ->
-                    collectedOnEdt.set(application.isDispatchThread)
-                    collectedUnderReadAccess.set(application.isReadAccessAllowed)
-                    service<BracketAnalysis>().analyze(input, progress)
-                },
-                activity = {
-                    application.assertIsDispatchThread()
-                    EditorActivity(true, false)
-                },
-                visibleRange = {
-                    application.assertIsDispatchThread()
-                    presentationApplied.set(true)
-                    TextRange(0, it.document.textLength)
-                },
-                stickySourceRanges = { emptyList() },
-            )
-        }) { _, editor ->
+        withScheduler(
+            analyze = { input ->
+                calculatedOnEdt.set(application.isDispatchThread)
+                calculatedUnderReadAccess.set(application.isReadAccessAllowed)
+                service<BracketAnalysis>().analyzeInBackground(input)
+            },
+            onPresentation = {
+                application.assertIsDispatchThread()
+                presentationApplied.set(true)
+            },
+        ) { _, editor ->
             awaitTokens(editor, 2)
-            assertThat(constructedOnEdt.get()).isFalse()
-            assertThat(constructedUnderReadAccess.get()).isTrue()
-            assertThat(collectedOnEdt.get()).isFalse()
-            assertThat(collectedUnderReadAccess.get()).isTrue()
+            assertThat(calculatedOnEdt.get()).isFalse()
+            assertThat(calculatedUnderReadAccess.get()).isFalse()
             assertThat(presentationApplied.get()).isTrue()
         }
     }
@@ -86,9 +68,12 @@ internal class SecondaryEditorAnalysisTest : BracketGuideHighlightingFixture() {
             (editor as EditorEx).setHighlighter(
                 EditorHighlighterFactory.getInstance().createEditorHighlighter(project, myFixture.file.fileType),
             )
+            val execution = createExecution(activity = { EditorActivity(true, false) })
             scheduler = SecondaryEditorAnalysis(
                 { EditorActivity(true, false) },
                 { TextRange(0, it.document.textLength) },
+                execution::request,
+                execution::cancel,
             )
             awaitTokens(editor, 2)
         } finally {
@@ -169,15 +154,19 @@ internal class SecondaryEditorAnalysisTest : BracketGuideHighlightingFixture() {
         activity: (Editor) -> EditorActivity = { EditorActivity(true, false) },
         document: Document = myFixture.editor.document,
         editorProject: Project? = project,
-        createPass: ((Project, Editor) -> BracketGuideHighlightingPass)? = null,
+        analyze: suspend (com.sijunyang.bracketpairguides.analysis.AnalysisInput) ->
+        com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome? = {
+            service<BracketAnalysis>().analyzeInBackground(it)
+        },
+        onPresentation: () -> Unit = {},
         action: (EditorFactory, Editor) -> Unit,
     ) {
-        val visibleRange: (Editor) -> TextRange = { TextRange(0, it.document.textLength) }
-        val scheduler = if (createPass == null) {
-            SecondaryEditorAnalysis(activity, visibleRange)
-        } else {
-            SecondaryEditorAnalysis(activity, visibleRange, createPass)
+        val visibleRange: (Editor) -> TextRange = {
+            onPresentation()
+            TextRange(0, it.document.textLength)
         }
+        val execution = createExecution(analyze = analyze, activity = activity, visibleRange = visibleRange)
+        val scheduler = SecondaryEditorAnalysis(activity, visibleRange, execution::request, execution::cancel)
         val factory = EditorFactory.getInstance()
         val editor = factory.createViewer(document, editorProject, EditorKind.PREVIEW)
         try {

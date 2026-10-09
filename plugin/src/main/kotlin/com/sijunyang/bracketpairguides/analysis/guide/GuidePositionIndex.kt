@@ -109,13 +109,58 @@ internal class GuidePositionIndex private constructor(
     private fun firstBlockAtOrAfter(relativeLine: Int): Int = relativeLine / LINES_PER_BLOCK +
         if (relativeLine % LINES_PER_BLOCK == 0) 0 else 1
 
+    /** Owns the final arrays until sealing transfers their immutable view to the index. */
+    internal class Builder internal constructor(
+        private val baseLine: Int,
+        private val lineCount: Int,
+        private val storage: GuideIndexShape,
+        private val checkCanceled: () -> Unit,
+    ) {
+        private val indentationByLine = IntArray(storage.indentationEntryCount)
+        private val blockMinimumTree = LongArray(storage.blockTreeEntryCount) { NO_INDENT_ENTRY }
+        private var appendedLines = 0
+        private var sealed = false
+
+        fun append(indentation: Int) {
+            check(!sealed) { "A sealed guide index cannot accept indentation" }
+            check(appendedLines < lineCount) { "All requested guide lines already have indentation" }
+            val line = appendedLines
+            if (line and CANCELLATION_LINE_MASK == 0) checkCanceled()
+            indentationByLine[line] = indentation
+            val blockLeaf = storage.blockLeafCount + line / LINES_PER_BLOCK
+            blockMinimumTree[blockLeaf] = minOf(
+                blockMinimumTree[blockLeaf],
+                entry(indentation, baseLine + line),
+            )
+            appendedLines++
+        }
+
+        fun seal(): GuidePositionIndex {
+            check(!sealed) { "A guide index can only be sealed once" }
+            check(appendedLines == lineCount) { "Every requested guide line needs indentation before sealing" }
+            // A canceled seal cannot leave a mutable alias to a partially finalized tree.
+            sealed = true
+            checkCanceled()
+            for (node in storage.blockLeafCount - 1 downTo 1) {
+                if (node and CANCELLATION_TREE_MASK == 0) checkCanceled()
+                blockMinimumTree[node] = minOf(
+                    blockMinimumTree[node * 2],
+                    blockMinimumTree[node * 2 + 1],
+                )
+            }
+            checkCanceled()
+            return GuidePositionIndex(
+                baseLine = baseLine,
+                lineCount = lineCount,
+                indentationByLine = indentationByLine,
+                blockTreeBase = storage.blockLeafCount,
+                blockMinimumTree = blockMinimumTree,
+            )
+        }
+    }
+
     companion object {
-        internal fun from(
-            baseLine: Int,
-            lineCount: Int,
-            checkCanceled: () -> Unit,
-            indentationAt: (Int) -> Int,
-        ): GuidePositionIndex? {
+        internal fun builder(baseLine: Int, lineCount: Int, checkCanceled: () -> Unit): Builder? {
             checkCanceled()
             if (baseLine < 0 ||
                 lineCount <= 0 ||
@@ -124,59 +169,21 @@ internal class GuidePositionIndex private constructor(
                 return null
             }
             val storage = GuideIndexShape.forLineCount(lineCount) ?: return null
-            return build(
-                baseLine = baseLine,
-                lineCount = lineCount,
-                checkCanceled = checkCanceled,
-                storage = storage,
-                indentationAt = indentationAt,
-            )
+            return Builder(baseLine, lineCount, storage, checkCanceled)
         }
 
-        private inline fun build(
+        internal fun from(
             baseLine: Int,
             lineCount: Int,
             checkCanceled: () -> Unit,
-            storage: GuideIndexShape,
             indentationAt: (Int) -> Int,
-        ): GuidePositionIndex {
-            val indentationByLine = IntArray(storage.indentationEntryCount)
-            val blockMinimumTree =
-                LongArray(storage.blockTreeEntryCount) {
-                    NO_INDENT_ENTRY
-                }
-
+        ): GuidePositionIndex? {
+            val builder = builder(baseLine, lineCount, checkCanceled) ?: return null
             for (line in 0 until lineCount) {
                 if (line and CANCELLATION_LINE_MASK == 0) checkCanceled()
-                val indentation = indentationAt(line)
-                indentationByLine[line] = indentation
-                val blockLeaf = storage.blockLeafCount + line / LINES_PER_BLOCK
-                blockMinimumTree[blockLeaf] =
-                    minOf(
-                        blockMinimumTree[blockLeaf],
-                        entry(
-                            indentation,
-                            baseLine + line,
-                        ),
-                    )
+                builder.append(indentationAt(line))
             }
-            for (node in storage.blockLeafCount - 1 downTo 1) {
-                if (node and CANCELLATION_TREE_MASK == 0) checkCanceled()
-                blockMinimumTree[node] =
-                    minOf(
-                        blockMinimumTree[node * 2],
-                        blockMinimumTree[node * 2 + 1],
-                    )
-            }
-            checkCanceled()
-
-            return GuidePositionIndex(
-                baseLine = baseLine,
-                lineCount = lineCount,
-                indentationByLine = indentationByLine,
-                blockTreeBase = storage.blockLeafCount,
-                blockMinimumTree = blockMinimumTree,
-            )
+            return builder.seal()
         }
 
         private fun entry(column: Int, line: Int): Long =

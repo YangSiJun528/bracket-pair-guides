@@ -9,6 +9,7 @@ import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.editor.policy.EditorActivity
 import com.sijunyang.bracketpairguides.editor.policy.EditorCapabilities
 import com.sijunyang.bracketpairguides.preferences.BracketGuidePreferences
+import com.sijunyang.bracketpairguides.presentation.GuideRepairScheduler
 
 /** Editor-owned session registry and lifecycle boundary. */
 internal object EditorGuideSessions {
@@ -23,10 +24,12 @@ internal object EditorGuideSessions {
         activity: EditorActivity = EditorActivity.INACTIVE,
         matcherAvailabilityChanged: (Editor) -> Unit = {},
         nativeGuideConflictCandidate: (Editor, BracketGuide) -> Unit = { _, _ -> },
+        requestRepair: GuideRepairScheduler? = null,
     ): EditorGuideSession {
         assertEdt()
         val existing = editor.getUserData(KEY)
         if (existing != null) {
+            requestRepair?.let(existing::updateGuideRepairRequester)
             existing.updateSurface(capabilities, activity)
             existing.updateMatcherAvailabilityListener(matcherAvailabilityChanged)
             existing.updateNativeGuideConflictListener(nativeGuideConflictCandidate)
@@ -41,6 +44,7 @@ internal object EditorGuideSessions {
             activity,
             matcherAvailabilityChanged,
             nativeGuideConflictCandidate,
+            requestRepair,
         ).also {
             editor.putUserData(KEY, it)
         }

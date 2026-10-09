@@ -2,6 +2,7 @@ package com.sijunyang.bracketpairguides.analysis.pairing.core;
 
 import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -9,11 +10,27 @@ import java.util.function.Function;
 /**
  * Platform-neutral, single-pass bracket pairing state machine.
  *
- * <p>A session owns all mutable state and must stay on one thread. Inputs and completed-pair output
- * are supplied explicitly; no document, clock, executor, or global service is read by this package.
+ * <p>A session owns all mutable state and requires exclusive sequential access. A suspended owner
+ * may resume on another thread with a happens-before handoff. Inputs and completed-pair output are
+ * supplied explicitly; no document, clock, executor, or global service is read by this package.
  */
 public final class PairingMachine<T, G> {
     private final Function<? super G, ? extends PairingRules<T>> rulesForGroup;
+
+    /** Creates a machine whose sessions request compatibility answers explicitly. */
+    public PairingMachine() {
+        this.rulesForGroup = null;
+    }
+
+    /** Result of beginning a token or supplying one requested compatibility answer. */
+    public enum Step {
+        NEEDS_RULE,
+        ACCEPTED,
+        PENDING_CAPACITY
+    }
+
+    /** Immutable compatibility query; no platform dependency or callback is retained. */
+    public record RuleRequest<T, G>(G group, T openToken, T closeToken) {}
 
     /**
      * Creates a stateless machine configuration.
@@ -44,6 +61,29 @@ public final class PairingMachine<T, G> {
         private final Map<G, PairingRules<T>> rulesByGroup = new HashMap<>();
         private int pendingOpenCount;
 
+        // One token's continuation. Synchronous callers reuse these fields and allocate no
+        // operation or RuleRequest per token/comparison. No other token can enter mid-close.
+        private G currentGroup;
+        private T currentToken;
+        private String currentContext;
+        private boolean currentStrictContext;
+        private BracketRole currentRole;
+        private StructuralRole currentStructuralRole;
+        private int currentOffset;
+        private int currentTokenLength;
+        private int currentLine;
+        private GroupState<T> currentState;
+        private OpenToken<T> comparedOpen;
+        private T requestedOpenToken;
+        private Counts<T> candidateCounts;
+        private Iterator<Map.Entry<T, Integer>> candidateIterator;
+        private int visitedTypes;
+        private int discarded;
+        private Comparison comparison;
+        private boolean awaitingRule;
+        private RuleRequest<T, G> lastRuleRequest;
+        private boolean comparingSynchronously;
+
         private Session(PairSink sink, CancellationProbe cancellation, int maximumPendingOpens) {
             this.sink = sink;
             this.cancellation = cancellation;
@@ -51,9 +91,8 @@ public final class PairingMachine<T, G> {
         }
 
         /**
-         * Accepts one token already classified by the host-language adapter.
-         *
-         * @return false before an opener would cross the pending-open capacity
+         * Accepts one classified token synchronously through the same resumable implementation.
+         * Each group's configured rules are still resolved once, on its first accepted opener.
          */
         public boolean accept(
                 G group,
@@ -65,17 +104,82 @@ public final class PairingMachine<T, G> {
                 int offset,
                 int tokenLength,
                 int line) {
+            if (rulesForGroup == null) {
+                throw new IllegalStateException("Synchronous acceptance requires configured rules");
+            }
+            Step step =
+                    begin(
+                            group,
+                            token,
+                            context,
+                            strictContext,
+                            role,
+                            structuralRole,
+                            offset,
+                            tokenLength,
+                            line,
+                            true);
+            while (step == Step.NEEDS_RULE) {
+                boolean answer = currentState.rules.isPair(requestedOpenToken, currentToken);
+                // Keep the original synchronous cancellation checkpoints. Public resume also
+                // checks at the asynchronous seam before applying an externally supplied answer.
+                step = applyAnswer(answer);
+            }
+            return step == Step.ACCEPTED;
+        }
+
+        /**
+         * Begins one classified token. NEEDS_RULE requires ruleRequest()/resume() until complete.
+         * Starting another token while an answer is pending is rejected before any mutation.
+         * Cancellation or a callback failure aborts the analysis; discard this session in that
+         * case.
+         */
+        public Step begin(
+                G group,
+                T token,
+                String context,
+                boolean strictContext,
+                BracketRole role,
+                StructuralRole structuralRole,
+                int offset,
+                int tokenLength,
+                int line) {
+            return begin(
+                    group,
+                    token,
+                    context,
+                    strictContext,
+                    role,
+                    structuralRole,
+                    offset,
+                    tokenLength,
+                    line,
+                    false);
+        }
+
+        private Step begin(
+                G group,
+                T token,
+                String context,
+                boolean strictContext,
+                BracketRole role,
+                StructuralRole structuralRole,
+                int offset,
+                int tokenLength,
+                int line,
+                boolean synchronousRules) {
+            if (awaitingRule || comparingSynchronously) {
+                throw new IllegalStateException("A compatibility answer is pending");
+            }
             Objects.requireNonNull(group, "group");
             Objects.requireNonNull(token, "token");
             Objects.requireNonNull(role, "role");
             Objects.requireNonNull(structuralRole, "structuralRole");
             if (tokenLength <= 0) {
-                return true;
+                return Step.ACCEPTED;
             }
-
-            return switch (role) {
-                case OPEN ->
-                        open(
+            if (role == BracketRole.OPEN) {
+                return open(
                                 group,
                                 token,
                                 context,
@@ -83,33 +187,243 @@ public final class PairingMachine<T, G> {
                                 structuralRole.opens(),
                                 offset,
                                 tokenLength,
-                                line);
-                case CLOSE -> {
-                    OpenToken<T> match =
-                            close(group, token, context, strictContext, structuralRole.closes());
-                    if (match != null) {
-                        emit(match, offset, tokenLength, line);
-                    }
-                    yield true;
+                                line)
+                        ? Step.ACCEPTED
+                        : Step.PENDING_CAPACITY;
+            }
+
+            GroupState<T> state = states.get(group);
+            OpenToken<T> top =
+                    state == null || state.stack.isEmpty() ? null : state.stack.getLast();
+            if (top == null && role == BracketRole.CLOSE) {
+                if (state != null) {
+                    releaseOversizedEmptyState(group, state);
                 }
-                case TOGGLE -> {
-                    OpenToken<T> match =
-                            close(group, token, context, strictContext, structuralRole.closes());
-                    if (match != null) {
-                        emit(match, offset, tokenLength, line);
-                        yield true;
+                return Step.ACCEPTED;
+            }
+            boolean topAnswer = false;
+            if (synchronousRules && top != null) {
+                // The common matched-top close needs no retained continuation. A failed answer
+                // enters the same TOP transition below, without invoking the callback again.
+                comparingSynchronously = true;
+                try {
+                    topAnswer = state.rules.isPair(top.token, token);
+                } finally {
+                    comparingSynchronously = false;
+                }
+                boolean topMatches = matchesContext(top, topAnswer, strictContext, context);
+                if (top.structural == structuralRole.closes() && topMatches) {
+                    return finishMatch(
+                            group, state, removeLast(state), offset, tokenLength, line, false);
+                }
+            }
+
+            currentGroup = group;
+            currentToken = token;
+            currentContext = context;
+            currentStrictContext = strictContext;
+            currentRole = role;
+            currentStructuralRole = structuralRole;
+            currentOffset = offset;
+            currentTokenLength = tokenLength;
+            currentLine = line;
+            currentState = state;
+            if (top == null) {
+                return finishClose(null);
+            }
+            comparedOpen = top;
+            comparison = Comparison.TOP;
+            return synchronousRules ? applyAnswer(topAnswer) : requestRule(top.token);
+        }
+
+        /**
+         * Returns the outstanding query as an immutable value, only when NEEDS_RULE was returned.
+         */
+        public RuleRequest<T, G> ruleRequest() {
+            requirePendingRule();
+            // One immutable repeated query is common in nesting and XML. Retain only the last
+            // identities, never token occurrences or contexts, regardless of document length.
+            if (lastRuleRequest == null
+                    || lastRuleRequest.group() != currentGroup
+                    || lastRuleRequest.openToken() != requestedOpenToken
+                    || lastRuleRequest.closeToken() != currentToken) {
+                lastRuleRequest = new RuleRequest<>(currentGroup, requestedOpenToken, currentToken);
+            }
+            return lastRuleRequest;
+        }
+
+        /**
+         * Applies exactly one answer and continues after that comparison, without replaying scans.
+         */
+        public Step resume(boolean isPair) {
+            requirePendingRule();
+            cancellation.check();
+            return applyAnswer(isPair);
+        }
+
+        private void requirePendingRule() {
+            if (!awaitingRule) {
+                throw new IllegalStateException("No compatibility answer is pending");
+            }
+        }
+
+        private Step requestRule(T openToken) {
+            requestedOpenToken = openToken;
+            awaitingRule = true;
+            return Step.NEEDS_RULE;
+        }
+
+        private Step applyAnswer(boolean isPair) {
+            awaitingRule = false;
+            boolean structural = currentStructuralRole.closes();
+            return switch (comparison) {
+                case TOP -> {
+                    boolean topMatches =
+                            matchesContext(
+                                    comparedOpen, isPair, currentStrictContext, currentContext);
+                    if (comparedOpen.structural == structural && topMatches) {
+                        yield finishClose(removeLast(currentState));
                     }
-                    yield open(
-                            group,
-                            token,
-                            context,
-                            strictContext,
-                            structuralRole.opens(),
-                            offset,
-                            tokenLength,
-                            line);
+                    candidateCounts =
+                            structural
+                                    ? currentState.structuralCounts
+                                    : currentState.regularScopes.getLast();
+                    comparedOpen = null;
+                    if (candidateCounts.tokenCounts == null) {
+                        yield finishClose(null);
+                    }
+                    candidateIterator = candidateCounts.tokenCounts.entrySet().iterator();
+                    visitedTypes = 0;
+                    comparison = Comparison.CANDIDATE;
+                    yield nextCandidate();
+                }
+                case CANDIDATE -> {
+                    if (isPair
+                            && (!currentStrictContext
+                                    || contextCount(
+                                                    candidateCounts,
+                                                    requestedOpenToken,
+                                                    currentContext)
+                                            > 0)) {
+                        candidateIterator = null;
+                        candidateCounts = null;
+                        comparison = Comparison.RECOVERY;
+                        discarded = 0;
+                        yield nextRecovery();
+                    }
+                    yield nextCandidate();
+                }
+                case RECOVERY -> {
+                    if (matchesContext(comparedOpen, isPair, currentStrictContext, currentContext)
+                            && comparedOpen.structural == structural) {
+                        yield finishClose(comparedOpen);
+                    }
+                    comparedOpen = null;
+                    yield nextRecovery();
                 }
             };
+        }
+
+        private Step nextCandidate() {
+            while (candidateIterator.hasNext()) {
+                Map.Entry<T, Integer> entry = candidateIterator.next();
+                if ((visitedTypes++ & CANCELLATION_MASK) == 0) {
+                    cancellation.check();
+                }
+                if (entry.getValue() != 0) {
+                    return requestRule(entry.getKey());
+                }
+            }
+            return finishClose(null);
+        }
+
+        private Step nextRecovery() {
+            if (currentState.stack.isEmpty()
+                    || (!currentStructuralRole.closes()
+                            && currentState.stack.getLast().structural)) {
+                return finishClose(null);
+            }
+            if ((discarded++ & CANCELLATION_MASK) == 0) {
+                cancellation.check();
+            }
+            // Preserve the original removal-before-compare ordering. The continuation owns this
+            // removed opener until its answer arrives, so suspension never repeats the removal.
+            comparedOpen = removeLast(currentState);
+            return requestRule(comparedOpen.token);
+        }
+
+        private boolean matchesContext(
+                OpenToken<T> open, boolean isPair, boolean strictContext, String context) {
+            return isPair
+                    && (!strictContext
+                            || (open.strictContext && Objects.equals(open.context, context)));
+        }
+
+        private Step finishMatch(
+                G group,
+                GroupState<T> state,
+                OpenToken<T> match,
+                int offset,
+                int length,
+                int line,
+                boolean hasContinuation) {
+            releaseOversizedEmptyState(group, state);
+            if (hasContinuation) {
+                clearContinuation();
+            }
+            emit(match, offset, length, line);
+            return Step.ACCEPTED;
+        }
+
+        private Step finishClose(OpenToken<T> match) {
+            if (match != null) {
+                return finishMatch(
+                        currentGroup,
+                        currentState,
+                        match,
+                        currentOffset,
+                        currentTokenLength,
+                        currentLine,
+                        true);
+            }
+            if (currentState != null) {
+                releaseOversizedEmptyState(currentGroup, currentState);
+            }
+            Step result = Step.ACCEPTED;
+            int offset = currentOffset;
+            int length = currentTokenLength;
+            int line = currentLine;
+            if (currentRole == BracketRole.TOGGLE) {
+                result =
+                        open(
+                                        currentGroup,
+                                        currentToken,
+                                        currentContext,
+                                        currentStrictContext,
+                                        currentStructuralRole.opens(),
+                                        offset,
+                                        length,
+                                        line)
+                                ? Step.ACCEPTED
+                                : Step.PENDING_CAPACITY;
+            }
+            clearContinuation();
+            return result;
+        }
+
+        private void clearContinuation() {
+            currentGroup = null;
+            currentToken = null;
+            currentContext = null;
+            currentRole = null;
+            currentStructuralRole = null;
+            currentState = null;
+            comparedOpen = null;
+            requestedOpenToken = null;
+            candidateCounts = null;
+            candidateIterator = null;
+            comparison = null;
+            awaitingRule = false;
         }
 
         private boolean open(
@@ -125,7 +439,11 @@ public final class PairingMachine<T, G> {
                 return false;
             }
             GroupState<T> state =
-                    states.computeIfAbsent(group, ignored -> new GroupState<>(rulesFor(group)));
+                    states.computeIfAbsent(
+                            group,
+                            ignored ->
+                                    new GroupState<>(
+                                            rulesForGroup == null ? null : rulesFor(group)));
             OpenToken<T> open =
                     new OpenToken<>(
                             token,
@@ -148,34 +466,6 @@ public final class PairingMachine<T, G> {
             return true;
         }
 
-        private OpenToken<T> close(
-                G group, T token, String context, boolean strictContext, boolean structural) {
-            GroupState<T> state = states.get(group);
-            if (state == null || state.stack.isEmpty()) {
-                return null;
-            }
-            PairingRules<T> rules = state.rules;
-
-            OpenToken<T> top = state.stack.getLast();
-            boolean topMatches = matches(top, token, context, strictContext, rules);
-            OpenToken<T> match;
-
-            if (top.structural == structural && topMatches) {
-                match = removeLast(state);
-            } else {
-                Counts<T> candidates =
-                        structural ? state.structuralCounts : state.regularScopes.getLast();
-                if (!hasCandidate(candidates, token, context, strictContext, rules)) {
-                    match = null;
-                } else {
-                    match = recover(state, token, context, strictContext, structural, rules);
-                }
-            }
-
-            releaseOversizedEmptyState(group, state);
-            return match;
-        }
-
         /**
          * Keeps the allocation benefit for ordinary sequential pairs without retaining a
          * pathological stack's backing arrays for the rest of the document scan. Counts and
@@ -193,34 +483,12 @@ public final class PairingMachine<T, G> {
                 return cached;
             }
             PairingRules<T> resolved =
-                    Objects.requireNonNull(rulesForGroup.apply(group), "rulesForGroup result");
+                    Objects.requireNonNull(
+                            Objects.requireNonNull(rulesForGroup, "Configured rules are required")
+                                    .apply(group),
+                            "rulesForGroup result");
             rulesByGroup.put(group, resolved);
             return resolved;
-        }
-
-        private boolean hasCandidate(
-                Counts<T> counts,
-                T closeToken,
-                String closeContext,
-                boolean strictContext,
-                PairingRules<T> rules) {
-            if (counts.tokenCounts == null) {
-                return false;
-            }
-            int visitedTypes = 0;
-            for (Map.Entry<T, Integer> entry : counts.tokenCounts.entrySet()) {
-                if ((visitedTypes++ & CANCELLATION_MASK) == 0) {
-                    cancellation.check();
-                }
-                T openToken = entry.getKey();
-                if (entry.getValue() == 0 || !rules.isPair(openToken, closeToken)) {
-                    continue;
-                }
-                if (!strictContext || contextCount(counts, openToken, closeContext) > 0) {
-                    return true;
-                }
-            }
-            return false;
         }
 
         private int contextCount(Counts<T> counts, T token, String context) {
@@ -228,41 +496,6 @@ public final class PairingMachine<T, G> {
                 return 0;
             }
             return counts.contextCounts.getOrDefault(new ContextKey<>(token, context), 0);
-        }
-
-        private OpenToken<T> recover(
-                GroupState<T> state,
-                T closeToken,
-                String closeContext,
-                boolean strictContext,
-                boolean structural,
-                PairingRules<T> rules) {
-            int discarded = 0;
-            while (!state.stack.isEmpty()) {
-                if (!structural && state.stack.getLast().structural) {
-                    return null;
-                }
-                if ((discarded++ & CANCELLATION_MASK) == 0) {
-                    cancellation.check();
-                }
-                OpenToken<T> open = removeLast(state);
-                if (matches(open, closeToken, closeContext, strictContext, rules)
-                        && open.structural == structural) {
-                    return open;
-                }
-            }
-            return null;
-        }
-
-        private boolean matches(
-                OpenToken<T> open,
-                T closeToken,
-                String closeContext,
-                boolean strictContext,
-                PairingRules<T> rules) {
-            return rules.isPair(open.token, closeToken)
-                    && (!strictContext
-                            || (open.strictContext && Objects.equals(open.context, closeContext)));
         }
 
         private OpenToken<T> removeLast(GroupState<T> state) {
@@ -325,6 +558,12 @@ public final class PairingMachine<T, G> {
                     open.line,
                     closeLine);
         }
+    }
+
+    private enum Comparison {
+        TOP,
+        CANDIDATE,
+        RECOVERY
     }
 
     private static final class GroupState<T> {

@@ -6,12 +6,7 @@ import com.sijunyang.bracketpairguides.analysis.BracketPair
 import org.assertj.core.api.Assertions.assertThat
 import kotlin.system.measureTimeMillis
 
-/**
- * Regression contract: every document addition, replacement, or removal must
- * synchronously refresh the geometry of the pair that is already being shown.
- * Assertions after a write command intentionally run before another pass;
- * never weaken them by waiting for or applying background analysis.
- */
+/** Edits hide affected guides synchronously; independent repair restores bounded geometry. */
 internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
     fun testDocumentEditAdjustsTheActiveGuideBeforeFullRecognitionCompletes() {
         val source = "x { active content } y"
@@ -45,7 +40,7 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
         assertThat(activeGuideState()?.guide?.pair?.closeOffset).isEqualTo(pair.closeOffset + "fast ".length)
     }
 
-    fun testInsertionRecalculatesTrackedGuideImmediatelyWithoutBackgroundAnalysis() {
+    fun testInsertionHidesThenRepairsTheTrackedGuideWithoutFullRecognition() {
         val source =
             """
             class Sample {
@@ -82,6 +77,11 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
             editor.document.insertString(closeLineStart, "  ")
         }
 
+        assertThat(activeGuide()).isNull()
+        assertThat(guideHighlighters()).isEmpty()
+        assertThat(persistentGuide.isValid).isFalse()
+        awaitGuideRepair()
+
         val adjustedGuide =
             checkNotNull(
                 activeGuideState()?.guide,
@@ -89,11 +89,11 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
         assertThat(adjustedGuide.guideColumn).isEqualTo(4)
         assertThat(adjustedGuide.pair.closeOffset).isEqualTo(editor.document.text.indexOf('}', closeLineStart))
         assertThat(collections).isEqualTo(1)
-        assertThat(activeGuide()).isSameAs(persistentGuide)
-        assertThat(guideHighlighters()).containsExactly(persistentGuide)
+        assertThat(activeGuide()).isNotSameAs(persistentGuide)
+        assertThat(guideHighlighters()).containsExactly(checkNotNull(activeGuide()))
     }
 
-    fun testReplacementPublishesNewMultilineGeometryImmediatelyWithoutBackgroundAnalysis() {
+    fun testReplacementHidesThenRepairsMultilineGeometryWithoutFullRecognition() {
         val source = "class Sample { void run() { call(); } }"
         myFixture.configureByText("ImmediateMultiline.java", source)
         val editor = myFixture.editor
@@ -116,6 +116,11 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
             )
         }
 
+        assertThat(activeGuide()).isNull()
+        assertThat(guideHighlighters()).isEmpty()
+        assertThat(persistentGuide.isValid).isFalse()
+        awaitGuideRepair()
+
         val adjustedGuide =
             checkNotNull(
                 activeGuideState()?.guide,
@@ -124,11 +129,11 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
         assertThat(adjustedGuide.pair.openLine).isEqualTo(0)
         assertThat(adjustedGuide.pair.closeLine).isEqualTo(2)
         assertThat(collections).isEqualTo(1)
-        assertThat(activeGuide()).isSameAs(persistentGuide)
-        assertThat(guideHighlighters()).containsExactly(persistentGuide)
+        assertThat(activeGuide()).isNotSameAs(persistentGuide)
+        assertThat(guideHighlighters()).containsExactly(checkNotNull(activeGuide()))
     }
 
-    fun testSameLengthWhitespaceReplacementRecalculatesTrackedGuideImmediately() {
+    fun testSameLengthWhitespaceReplacementHidesThenRepairsTheTrackedGuide() {
         val source = "class Sample {\n  void run() {\n \tcall();\n \t}\n}"
         myFixture.configureByText("ImmediateWhitespaceReplacement.java", source)
         val editor = myFixture.editor
@@ -153,16 +158,21 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
             )
         }
 
+        assertThat(activeGuide()).isNull()
+        assertThat(guideHighlighters()).isEmpty()
+        assertThat(persistentGuide.isValid).isFalse()
+        awaitGuideRepair()
+
         val adjustedGuide = checkNotNull(activeGuideState()?.guide)
         assertThat(adjustedGuide.guideColumn).isEqualTo(5)
         assertThat(adjustedGuide.pair.openOffset).isEqualTo(openingBrace)
         assertThat(adjustedGuide.pair.closeOffset).isEqualTo(closingBrace)
         assertThat(collections).isEqualTo(1)
-        assertThat(activeGuide()).isSameAs(persistentGuide)
-        assertThat(guideHighlighters()).containsExactly(persistentGuide)
+        assertThat(activeGuide()).isNotSameAs(persistentGuide)
+        assertThat(guideHighlighters()).containsExactly(checkNotNull(activeGuide()))
     }
 
-    fun testRemovalRecalculatesTrackedGuideImmediatelyWithoutBackgroundAnalysis() {
+    fun testRemovalHidesThenRepairsTheTrackedGuideWithoutFullRecognition() {
         val source =
             """
             class Sample {
@@ -190,12 +200,17 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
             editor.document.deleteString(closeLineStart, closeLineStart + 2)
         }
 
+        assertThat(activeGuide()).isNull()
+        assertThat(guideHighlighters()).isEmpty()
+        assertThat(persistentGuide.isValid).isFalse()
+        awaitGuideRepair()
+
         val adjustedGuide = checkNotNull(activeGuideState()?.guide)
         assertThat(adjustedGuide.guideColumn).isEqualTo(2)
         assertThat(adjustedGuide.pair.closeOffset).isEqualTo(closingBrace - 2)
         assertThat(collections).isEqualTo(1)
-        assertThat(activeGuide()).isSameAs(persistentGuide)
-        assertThat(guideHighlighters()).containsExactly(persistentGuide)
+        assertThat(activeGuide()).isNotSameAs(persistentGuide)
+        assertThat(guideHighlighters()).containsExactly(checkNotNull(activeGuide()))
     }
 
     fun testRemovingTrackedEndpointClearsGuideImmediatelyWithoutBackgroundAnalysis() {
@@ -291,6 +306,9 @@ internal class ProvisionalGuideTest : BracketGuideHighlightingFixture() {
         assertThat(activeGuide()).isNull()
         assertThat(guideHighlighters()).isEmpty()
         assertThat(staleGuide.isValid).isFalse()
+        awaitGuideRepair()
+        assertThat(activeGuide()).isNull()
+        assertThat(collections).isEqualTo(1)
     }
 
     fun testBracketEditWaitsForBackgroundAnalysisBeforePublishingANewInnermostPair() {

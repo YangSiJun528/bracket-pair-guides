@@ -1,9 +1,11 @@
 package com.sijunyang.bracketpairguides.presentation
 
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.editor.Editor
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.analysis.guide.GuideRepairCalculation
 import org.assertj.core.api.Assertions.assertThat
 import kotlin.random.Random
 
@@ -42,7 +44,7 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
             )
 
         val guide =
-            GuidePositionFallback.guideFor(
+            calculateGuide(
                 editor = editor,
                 pair = newPair,
                 previous = BracketGuide(oldPair, guideColumn = 8, anchorLine = 2),
@@ -59,7 +61,7 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
         myFixture.configureByText("LongIndent.txt", source)
 
         val guide =
-            GuidePositionFallback.guideFor(
+            calculateGuide(
                 editor = myFixture.editor,
                 pair = pairFor(source, closeLine = 3),
                 previous = null,
@@ -79,7 +81,7 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
         myFixture.configureByText("ManyLines.txt", source)
 
         val guide =
-            GuidePositionFallback.guideFor(
+            calculateGuide(
                 editor = myFixture.editor,
                 pair = pairFor(source, closeLine = 301),
                 previous = null,
@@ -99,7 +101,7 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
             )
 
         val guide =
-            GuidePositionFallback.guideFor(
+            calculateGuide(
                 editor = myFixture.editor,
                 pair = malformed,
                 previous = null,
@@ -116,7 +118,7 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
         myFixture.editor.settings.setTabSize(Int.MAX_VALUE)
 
         val guide =
-            GuidePositionFallback.guideFor(
+            calculateGuide(
                 editor = myFixture.editor,
                 pair = pairFor(source, closeLine = 1),
                 previous = null,
@@ -166,7 +168,7 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
                     )
                 val exact = exactGuide(lines, pair, tabSize)
                 val fallback =
-                    GuidePositionFallback.guideFor(
+                    calculateGuide(
                         editor = editor,
                         pair = pair,
                         previous = null,
@@ -181,6 +183,82 @@ class GuidePositionFallbackUnitTest : BasePlatformTestCase() {
                     .isEqualTo(exact.anchorLine)
             }
         }
+    }
+
+    fun testMissingMultilineGeometryIsHiddenWithoutReadingIndentation() {
+        val source = "{\n" + " ".repeat(40_000) + "value\n    }"
+        myFixture.configureByText("GeometryOnly.txt", source)
+        val pair = pairFor(source, 2)
+        assertThat(GuidePositionFallback.guideFor(myFixture.editor, pair, null, null)).isNull()
+        assertThat(
+            GuidePositionFallback.guideAfterChange(
+                myFixture.editor,
+                pair,
+                pair,
+                BracketGuide(pair, 4, 2),
+                2,
+                DocumentChange(2, 1, 1),
+            ),
+        ).isNull()
+    }
+
+    fun testEditOutsideTheOldPairSafelyReusesTrackedGuideGeometry() {
+        val source = "x\n{\n    value\n  }"
+        myFixture.configureByText("OutsideEdit.txt", source)
+        val oldPair = pairFor(source, 3).copy(openLine = 1)
+        val previous = BracketGuide(oldPair, 2, 3)
+        WriteCommandAction.runWriteCommandAction(project) { myFixture.editor.document.insertString(0, "prefix\n") }
+        val adjusted = oldPair.copy(
+            openOffset = oldPair.openOffset + 7,
+            closeOffset = oldPair.closeOffset + 7,
+            openLine = 2,
+            closeLine = 4,
+        )
+        assertThat(
+            GuidePositionFallback.guideAfterChange(
+                myFixture.editor,
+                adjusted,
+                oldPair,
+                previous,
+                4,
+                DocumentChange(0, 0, 7),
+            ),
+        ).isEqualTo(BracketGuide(adjusted, 2, 4))
+    }
+
+    private fun calculateGuide(
+        editor: Editor,
+        pair: BracketPair,
+        previous: BracketGuide?,
+        currentAnchorLine: Int?,
+    ): BracketGuide {
+        GuidePositionFallback.guideFor(editor, pair, previous, currentAnchorLine)?.let { return it }
+        val lines = editor.document.text.lines()
+        val first = (pair.openLine + 1).coerceIn(0, lines.lastIndex)
+        val last = pair.closeLine.coerceIn(first, lines.lastIndex)
+        val calculation = GuideRepairCalculation(
+            pair,
+            first..last,
+            editor.settings.getTabSize(editor.project),
+            false,
+            currentAnchorLine,
+            {},
+        )
+        while (true) {
+            val line = calculation.nextLine() ?: break
+            val text = lines[line]
+            if (text.isEmpty()) {
+                calculation.append("", true)
+            } else {
+                var after = 0
+                do {
+                    val next = minOf(after + 4_096, text.length)
+                    val complete = calculation.append(text.substring(after, next), next == text.length)
+                    after = next
+                } while (!complete)
+            }
+        }
+        return checkNotNull(calculation.result())
     }
 
     private fun pairFor(source: String, closeLine: Int): BracketPair = BracketPair(

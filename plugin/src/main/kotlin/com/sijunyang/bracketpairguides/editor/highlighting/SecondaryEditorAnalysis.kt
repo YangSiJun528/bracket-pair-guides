@@ -2,8 +2,6 @@ package com.sijunyang.bracketpairguides.editor.highlighting
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.ModalityState
-import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
@@ -11,23 +9,14 @@ import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.EditorKind
 import com.intellij.openapi.editor.event.EditorFactoryEvent
 import com.intellij.openapi.editor.event.EditorFactoryListener
-import com.intellij.openapi.progress.EmptyProgressIndicator
-import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.TextRange
-import com.intellij.util.Alarm
-import com.intellij.util.concurrency.AppExecutorUtil
-import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
 import com.sijunyang.bracketpairguides.editor.EditorActivitySource
 import com.sijunyang.bracketpairguides.editor.EditorEffectGuard
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
 import com.sijunyang.bracketpairguides.editor.EditorSurfaceClassifier
 import com.sijunyang.bracketpairguides.editor.events.EditorGuideEvents
-import com.sijunyang.bracketpairguides.editor.events.IdentityEventBatch
 import com.sijunyang.bracketpairguides.editor.policy.EditorActivity
 import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
-import org.jetbrains.concurrency.CancellablePromise
 import java.util.IdentityHashMap
 
 /** Supplies the normal analysis/apply pipeline to editors without daemon passes. */
@@ -35,17 +24,9 @@ import java.util.IdentityHashMap
 internal class SecondaryEditorAnalysis internal constructor(
     private val activity: (Editor) -> EditorActivity,
     private val visibleRange: (Editor) -> TextRange,
-    private val createPass: (Project, Editor) -> BracketGuideHighlightingPass = { project, editor ->
-        BracketGuideHighlightingPass(
-            project = project,
-            editor = editor,
-            fileType = EditorSurfaceClassifier.fileType(editor),
-            sourceFile = EditorSurfaceClassifier.sourceFile(editor),
-            analyze = service<BracketAnalysis>()::analyze,
-            activity = activity,
-            visibleRange = visibleRange,
-            stickySourceRanges = { emptyList() },
-        )
+    private val requestAnalysis: (Editor) -> Unit = EditorAnalysisExecution.Companion::request,
+    private val cancelAnalysis: (Editor) -> Unit = { editor ->
+        service<EditorAnalysisExecution>().cancel(editor)
     },
 ) : Disposable,
     EditorFactoryListener {
@@ -53,13 +34,6 @@ internal class SecondaryEditorAnalysis internal constructor(
     constructor() : this(EditorActivitySource::capture, Editor::calculateVisibleRange)
 
     private val managedEditors = java.util.Collections.newSetFromMap(IdentityHashMap<Editor, Boolean>())
-    private val alarm = Alarm(Alarm.ThreadToUse.SWING_THREAD, this)
-    private val running = IdentityHashMap<Editor, CancellablePromise<*>>()
-    private val pending = IdentityEventBatch(
-        schedule = { action -> alarm.addRequest(action, REFRESH_DELAY_MILLIS, ModalityState.any()) },
-        consume = ::analyze,
-    )
-
     init {
         ApplicationManager.getApplication().assertIsDispatchThread()
         val factory = EditorFactory.getInstance()
@@ -72,9 +46,7 @@ internal class SecondaryEditorAnalysis internal constructor(
     }
 
     override fun editorReleased(event: EditorFactoryEvent) {
-        managedEditors.remove(event.editor)
-        pending.remove(event.editor)
-        running.remove(event.editor)?.cancel()
+        if (managedEditors.remove(event.editor)) cancelAnalysis(event.editor)
     }
 
     private fun attach(editor: Editor) {
@@ -97,35 +69,12 @@ internal class SecondaryEditorAnalysis internal constructor(
     }
 
     private fun request(editor: Editor) {
-        if (!EditorEffectGuard.allowsEffects() || editor.isDisposed) return
-        pending.request(editor)
-    }
-
-    private fun analyze(editor: Editor) {
         if (!EditorEffectGuard.allowsEffects() || editor.isDisposed ||
             EditorGuideSessions.get(editor)?.isVisible != true
         ) {
             return
         }
-        val project = editor.project ?: ProjectManager.getInstance().defaultProject
-        if (project.isDisposed) return
-        running.remove(editor)?.cancel()
-        running[editor] = ReadAction.nonBlocking<BracketGuideHighlightingPass> {
-            // Recent platform versions require the pass constructor itself to run off EDT.
-            val pass = createPass(project, editor)
-            pass.doCollectInformation(
-                ProgressManager.getInstance().progressIndicator ?: EmptyProgressIndicator(),
-            )
-            pass
-        }.expireWith(this)
-            .expireWhen { editor.isDisposed || project.isDisposed }
-            .coalesceBy(this, editor)
-            .finishOnUiThread(ModalityState.stateForComponent(editor.contentComponent)) { result ->
-                running.remove(editor)
-                if (EditorEffectGuard.allowsEffects() && !editor.isDisposed) {
-                    result.doApplyInformationToEditor()
-                }
-            }.submit(AppExecutorUtil.getAppExecutorService())
+        requestAnalysis(editor)
     }
 
     override fun dispose() {
@@ -133,15 +82,11 @@ internal class SecondaryEditorAnalysis internal constructor(
         if (!application.isDisposed || application.isDispatchThread) {
             managedEditors.forEach { EditorGuideSessions.get(it)?.setAnalysisRefreshRequester {} }
         }
+        managedEditors.forEach(cancelAnalysis)
         managedEditors.clear()
-        pending.clear()
-        running.values.forEach { it.cancel() }
-        running.clear()
     }
 
     companion object {
-        private const val REFRESH_DELAY_MILLIS = 75
-
         fun ensureInitialized() {
             if (EditorEffectGuard.allowsEffects()) service<SecondaryEditorAnalysis>()
         }

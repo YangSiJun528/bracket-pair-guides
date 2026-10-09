@@ -1,22 +1,55 @@
 package com.sijunyang.bracketpairguides.analysis
 
-import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.highlighter.EditorHighlighter
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
+import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.fileTypes.PlainTextFileType
-import com.intellij.openapi.progress.EmptyProgressIndicator
-import com.intellij.openapi.progress.ProcessCanceledException
-import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.TextRange
+import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisLimit
 import com.sijunyang.bracketpairguides.analysis.snapshot.AnalysisOutcome
 import com.sijunyang.bracketpairguides.analysis.snapshot.BracketSnapshot
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 class BracketAnalysisTest : BasePlatformTestCase() {
+    private lateinit var scope: CoroutineScope
+
+    override fun setUp() {
+        super.setUp()
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    }
+
+    override fun tearDown() {
+        try {
+            scope.cancel()
+            PlatformTestUtil.waitWithEventsDispatching(
+                "bracket analysis workers stop",
+                { scope.coroutineContext[Job]!!.children.none() },
+                WATCHDOG_SECONDS,
+            )
+        } finally {
+            super.tearDown()
+        }
+    }
+
     fun testAnalyzePreservesStampAndAnswersOnlyPublicQueries() {
         val source =
             """
@@ -36,10 +69,7 @@ class BracketAnalysisTest : BasePlatformTestCase() {
                 ),
             )
 
-        val outcome =
-            inReadAction {
-                analysis().analyze(request, EmptyProgressIndicator())
-            }
+        val outcome = analyze(request)
         val result = complete(outcome)
 
         assertThat(outcome.stamp).isSameAs(request.stamp)
@@ -68,57 +98,15 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         val caretOffset = source.indexOf("call") + 2
         val range = TextRange(0, source.length)
 
-        val tokenOnly =
-            complete(
-                inReadAction {
-                    analysis().analyze(
-                        request(
-                            AnalysisCoverage(
-                                tokens = true,
-                                activePair = false,
-                                guidePosition = false,
-                            ),
-                        ),
-                        EmptyProgressIndicator(),
-                    )
-                },
-            )
+        val tokenOnly = complete(analyze(request(AnalysisCoverage(true, false, false))))
         assertThat(tokenOnly.visibleTokens(range, caretOffset, 100).size).isPositive()
         assertThat(tokenOnly.activePairAt(caretOffset)).isNull()
 
-        val activeOnly =
-            complete(
-                inReadAction {
-                    analysis().analyze(
-                        request(
-                            AnalysisCoverage(
-                                tokens = false,
-                                activePair = true,
-                                guidePosition = false,
-                            ),
-                        ),
-                        EmptyProgressIndicator(),
-                    )
-                },
-            )
+        val activeOnly = complete(analyze(request(AnalysisCoverage(false, true, false))))
         assertThat(activeOnly.visibleTokens(range, caretOffset, 100).size).isZero()
         assertThat(activeOnly.activePairAt(caretOffset)).isNotNull()
 
-        val inactive =
-            complete(
-                inReadAction {
-                    analysis().analyze(
-                        request(
-                            AnalysisCoverage(
-                                tokens = false,
-                                activePair = false,
-                                guidePosition = false,
-                            ),
-                        ),
-                        EmptyProgressIndicator(),
-                    )
-                },
-            )
+        val inactive = complete(analyze(request(AnalysisCoverage(false, false, false))))
         assertThat(inactive.visibleTokens(range, caretOffset, 100).size).isZero()
         assertThat(inactive.activePairAt(caretOffset)).isNull()
     }
@@ -216,29 +204,8 @@ class BracketAnalysisTest : BasePlatformTestCase() {
                     guidePosition = true,
                 ),
             )
-        val replacementHighlighter =
-            EditorHighlighterFactory
-                .getInstance()
-                .createEditorHighlighter(project, PlainTextFileType.INSTANCE)
-        var highlighterReplaced = false
-        val progressDelegate = EmptyProgressIndicator()
-        val replacingProgress =
-            object : ProgressIndicator by progressDelegate {
-                override fun checkCanceled() {
-                    if (!highlighterReplaced) {
-                        highlighterReplaced = true
-                        (myFixture.editor as EditorEx).setHighlighter(replacementHighlighter)
-                    }
-                    progressDelegate.checkCanceled()
-                }
-            }
+        val outcome = analyze(input)
 
-        val outcome =
-            inReadAction {
-                analysis().analyze(input, replacingProgress)
-            }
-
-        assertThat(highlighterReplaced).isTrue()
         assertThat(outcome).isInstanceOf(AnalysisOutcome.Limited::class.java)
         val limited = outcome as AnalysisOutcome.Limited
         assertThat(limited.stamp).isSameAs(input.stamp)
@@ -251,7 +218,7 @@ class BracketAnalysisTest : BasePlatformTestCase() {
             request(input.coverage.copy(guidePosition = false))
                 .stamp
                 .covers(limited.snapshot.stamp),
-        ).isFalse()
+        ).isTrue()
         val pair = checkNotNull(limited.snapshot.activePairAt(source.indexOf('\n') + 1))
         assertThat(limited.snapshot.guideFor(pair)).isNull()
         assertThat(
@@ -264,31 +231,43 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         ).isEqualTo(2)
     }
 
-    fun testAnalyzePropagatesPlatformCancellation() {
-        myFixture.configureByText(
-            "Canceled.java",
-            "class Canceled { void run() { call(); } }",
-        )
-        val delegate = EmptyProgressIndicator()
-        val canceled =
-            object : ProgressIndicator by delegate {
-                override fun checkCanceled(): Unit = throw ProcessCanceledException()
-            }
-
-        assertThatThrownBy {
-            inReadAction {
-                analysis().analyze(
-                    request(
-                        AnalysisCoverage(
-                            tokens = true,
-                            activePair = true,
-                            guidePosition = true,
-                        ),
-                    ),
-                    canceled,
+    fun testHighlighterReplacementDuringCaptureRejectsTheAttemptStamp() {
+        myFixture.configureByText("Replaced.java", "class Replaced { void run() { call(); } }")
+        val gate = installCaptureGate()
+        val input = request(AnalysisCoverage(true, true, true))
+        val worker = start(input)
+        try {
+            awaitGate(gate)
+            val originalDocumentStamp = input.editor.document.modificationStamp
+            ApplicationManager.getApplication().runWriteAction {
+                (input.editor as EditorEx).setHighlighter(
+                    EditorHighlighterFactory.getInstance().createEditorHighlighter(project, PlainTextFileType.INSTANCE),
                 )
             }
-        }.isInstanceOf(ProcessCanceledException::class.java)
+            assertThat(input.editor.document.modificationStamp).isEqualTo(originalDocumentStamp)
+            assertThat(request(input.coverage).stamp.covers(input.stamp)).isFalse()
+            assertThat(await(worker)).isNull()
+        } finally {
+            gate.release.countDown()
+            worker.cancel()
+        }
+    }
+
+    fun testAnalyzePropagatesCoroutineCancellationDuringCapture() {
+        myFixture.configureByText("Canceled.java", "class Canceled { void run() { call(); } }")
+        val gate = installCaptureGate()
+        val worker = start(request(AnalysisCoverage(true, true, true)))
+        try {
+            awaitGate(gate)
+            worker.cancel()
+            awaitDone(worker)
+            assertThat(worker.isCancelled).isTrue()
+            assertThatThrownBy { await(worker) }.isInstanceOf(CancellationException::class.java)
+            assertThat(gate.release.count).isEqualTo(1L)
+        } finally {
+            gate.release.countDown()
+            worker.cancel()
+        }
     }
 
     private fun request(coverage: AnalysisCoverage): AnalysisInput = AnalysisInput(
@@ -298,19 +277,67 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         disabledLanguageIds = emptySet(),
     )
 
-    private fun analysis(): BracketAnalysis = BracketAnalysis()
+    private fun analyzeCurrentTokens(): AnalysisOutcome = analyze(request(AnalysisCoverage(true, false, false)))
 
-    private fun analyzeCurrentTokens(): AnalysisOutcome = inReadAction {
-        analysis().analyze(
-            request(
-                AnalysisCoverage(
-                    tokens = true,
-                    activePair = false,
-                    guidePosition = false,
-                ),
-            ),
-            EmptyProgressIndicator(),
-        )
+    private fun analyze(input: AnalysisInput): AnalysisOutcome = checkNotNull(await(start(input))) {
+        "A current request must produce an outcome"
+    }
+
+    private fun start(input: AnalysisInput): Deferred<AnalysisOutcome?> = scope.async {
+        BracketAnalysis().analyzeInBackground(input)
+    }
+
+    private fun awaitDone(worker: Deferred<*>) {
+        check(ApplicationManager.getApplication().isDispatchThread)
+        PlatformTestUtil.waitWithEventsDispatching("bracket analysis completes", {
+            worker.isCompleted
+        }, WATCHDOG_SECONDS)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun await(worker: Deferred<AnalysisOutcome?>): AnalysisOutcome? {
+        awaitDone(worker)
+        return worker.getCompleted()
+    }
+
+    private fun awaitGate(gate: CaptureGate) {
+        PlatformTestUtil.waitWithEventsDispatching("actual token capture reaches its gate", {
+            gate.entered.count == 0L
+        }, WATCHDOG_SECONDS)
+    }
+
+    private fun installCaptureGate(): CaptureGate {
+        val editor = myFixture.editor as EditorEx
+        val delegate = EditorHighlighterFactory.getInstance().createEditorHighlighter(project, myFixture.file.fileType)
+        val gate = CaptureGate()
+        editor.setHighlighter(object : EditorHighlighter by delegate {
+            override fun createIterator(startOffset: Int): HighlighterIterator {
+                gate.pauseOnce()
+                return delegate.createIterator(startOffset)
+            }
+        })
+        return gate
+    }
+
+    private class CaptureGate {
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        private val claimed = AtomicBoolean()
+
+        fun pauseOnce() {
+            val application = ApplicationManager.getApplication()
+            // Fixture painting can also request an iterator; only gate background capture.
+            if (application.isDispatchThread || !application.isReadAccessAllowed) return
+            if (!claimed.compareAndSet(false, true)) return
+            entered.countDown()
+            val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(WATCHDOG_SECONDS.toLong())
+            while (release.count != 0L) {
+                ProgressManager.checkCanceled()
+                check(System.nanoTime() < deadline) { "Capture gate exceeded its watchdog" }
+                release.await(1, TimeUnit.MILLISECONDS)
+            }
+            ProgressManager.checkCanceled()
+        }
     }
 
     private fun complete(outcome: AnalysisOutcome): BracketSnapshot {
@@ -320,5 +347,7 @@ class BracketAnalysisTest : BasePlatformTestCase() {
         return (outcome as AnalysisOutcome.Complete).snapshot
     }
 
-    private fun <T> inReadAction(action: () -> T): T = ReadAction.compute<T, RuntimeException>(action)
+    private companion object {
+        const val WATCHDOG_SECONDS = 30
+    }
 }

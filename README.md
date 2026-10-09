@@ -69,10 +69,12 @@ network requests. All analysis and settings remain inside the IDE.
 - [Configuration guide](docs/guide_configuration.md)
 - [IDE, language support, and limitations](docs/reference_language_support.md)
 - [How editor presentation policy works](docs/explanation_editor_presentation_policy.md)
+- [Analysis execution and extension seams](docs/explanation_analysis_execution.md)
 - [Changelog](CHANGELOG.md)
 - [Contributing](CONTRIBUTING.md)
 
-Distributed under the [MIT License](LICENSE).
+Distributed under the [MIT License](LICENSE). The adapted IntelliJ native brace
+scanner retains its [Apache 2.0 license and attribution](licenses/intellij-native-brace-context-Apache-2.0.txt).
 
 Bracket Pair Guides is an independent project and is not affiliated with
 Microsoft. Visual Studio Code and VS Code are trademarks of Microsoft

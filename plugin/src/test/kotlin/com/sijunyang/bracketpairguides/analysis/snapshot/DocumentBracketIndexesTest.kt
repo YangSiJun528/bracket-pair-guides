@@ -4,14 +4,14 @@ import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.AnalysisInput
+import com.sijunyang.bracketpairguides.analysis.BackgroundAnalysisTestScope
 import com.sijunyang.bracketpairguides.analysis.active.ActiveBracketPairIndex
 import com.sijunyang.bracketpairguides.analysis.guide.GuidePositionIndex
+import com.sijunyang.bracketpairguides.analysis.guide.GuidePositionTestAdapter
 import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
-import com.sijunyang.bracketpairguides.analysis.intellij.DocumentGuidePositions
 import com.sijunyang.bracketpairguides.analysis.pairing.core.CancellationProbe
 import com.sijunyang.bracketpairguides.analysis.pairing.core.PairTable
 import com.sijunyang.bracketpairguides.analysis.token.BracketTokenIndex
@@ -24,6 +24,21 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 class DocumentBracketIndexesTest : BasePlatformTestCase() {
+    private lateinit var background: BackgroundAnalysisTestScope
+
+    override fun setUp() {
+        super.setUp()
+        background = BackgroundAnalysisTestScope()
+    }
+
+    override fun tearDown() {
+        try {
+            background.close()
+        } finally {
+            super.tearDown()
+        }
+    }
+
     fun testSplitEditorsKeepSnapshotAndPairMemoizationSeparate() {
         val source =
             """
@@ -53,15 +68,11 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
 
             val first =
                 complete(
-                    inReadAction {
-                        analysis.analyze(input(firstEditor, coverage), EmptyProgressIndicator())
-                    },
+                    background.analyze(input(firstEditor, coverage), analysis),
                 )
             val second =
                 complete(
-                    inReadAction {
-                        analysis.analyze(input(secondEditor, coverage), EmptyProgressIndicator())
-                    },
+                    background.analyze(input(secondEditor, coverage), analysis),
                 )
 
             assertThat(second).isNotSameAs(first)
@@ -222,6 +233,26 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
                 otherRevisionIndexes,
             ),
         ).isSameAs(otherRevisionIndexes)
+    }
+
+    fun testLateCalculationUsesItsCapturedRevisionForCanonicalization() {
+        myFixture.configureByText("Late.java", "class Late { }")
+        val coverage = AnalysisCoverage(tokens = true, activePair = true, guidePosition = false)
+        val oldInput = input(myFixture.editor, coverage)
+        val layout = IndexLayout.forCoverage(coverage)
+        val pairs = pairTable(openLine = 0, closeLine = 0)
+        val cache = DocumentBracketIndexes()
+
+        WriteCommandAction.runWriteCommandAction(project) {
+            myFixture.editor.document.insertString(myFixture.editor.document.textLength, " ")
+        }
+        val lateCandidate = indexes(pairs)
+        cache.canonical(oldInput, layout, pairs, lateCandidate)
+        val currentCandidate = indexes(pairs)
+
+        assertThat(
+            cache.canonical(input(myFixture.editor, coverage), layout, pairs, currentCandidate),
+        ).isSameAs(currentCandidate)
     }
 
     fun testTabSizeIsCanonicalBoundaryOnlyForGuideIndexes() {
@@ -412,7 +443,7 @@ class DocumentBracketIndexesTest : BasePlatformTestCase() {
     )
 
     private fun guidePositions(tabSize: Int): GuidePositionIndex = checkNotNull(
-        DocumentGuidePositions(
+        GuidePositionTestAdapter(
             document = myFixture.editor.document,
             tabSize = tabSize,
             checkCanceled = NO_CANCELLATION,

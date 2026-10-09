@@ -1,14 +1,47 @@
 package com.sijunyang.bracketpairguides.editor.highlighting
 
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.IndentGuideDescriptor
+import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.ui.NewUI
 import com.intellij.ui.NewUiValue
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.analysis.BracketPair
+import com.sijunyang.bracketpairguides.editor.policy.NativeGuideUiPath
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import org.assertj.core.api.Assertions.assertThat
 
 class NativeGuideMarkerSourceTest : BasePlatformTestCase() {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun markerSources(
+        editor: Editor,
+        pair: BracketPair,
+        resolveCurrentScope: Boolean,
+    ): NativeGuideConflictDetector.NativeMarkerSources {
+        val captured = NativeGuideConflictDetector.captureMarkerSources(editor, pair, resolveCurrentScope)
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        try {
+            val worker = scope.async {
+                val context = currentCoroutineContext()
+                captured { context.ensureActive() }
+            }
+            PlatformTestUtil.waitWithEventsDispatching("Native marker source did not finish", {
+                worker.isCompleted
+            }, 10)
+            return worker.getCompleted()
+        } finally {
+            scope.cancel()
+        }
+    }
+
     fun testUiPathTracksThePlatformNewUiMode() {
         val original = NewUI.isEnabled()
         try {
@@ -143,7 +176,7 @@ class NativeGuideMarkerSourceTest : BasePlatformTestCase() {
         myFixture.editor.caretModel.moveToOffset(pair.openOffset + pair.openTokenLength)
 
         val sources =
-            NativeGuideConflictDetector.resolveMarkerSources(
+            markerSources(
                 editor = myFixture.editor,
                 pair = pair,
                 resolveCurrentScope = false,
@@ -158,13 +191,13 @@ class NativeGuideMarkerSourceTest : BasePlatformTestCase() {
         myFixture.editor.caretModel.moveToOffset(myFixture.editor.document.text.indexOf("value") + 2)
 
         val disabled =
-            NativeGuideConflictDetector.resolveMarkerSources(
+            markerSources(
                 editor = myFixture.editor,
                 pair = pair,
                 resolveCurrentScope = false,
             )
         val enabled =
-            NativeGuideConflictDetector.resolveMarkerSources(
+            markerSources(
                 editor = myFixture.editor,
                 pair = pair,
                 resolveCurrentScope = true,

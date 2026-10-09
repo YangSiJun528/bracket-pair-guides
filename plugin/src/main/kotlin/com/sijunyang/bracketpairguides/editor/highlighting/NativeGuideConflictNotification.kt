@@ -8,15 +8,21 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.application.EDT
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.components.SerializablePersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.event.CaretEvent
+import com.intellij.openapi.editor.event.CaretListener
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.Property
+import com.sijunyang.bracketpairguides.analysis.intellij.AnalysisReadEpoch
 import com.sijunyang.bracketpairguides.analysis.BracketGuide
 import com.sijunyang.bracketpairguides.editor.EditorEffectGuard
 import com.sijunyang.bracketpairguides.editor.EditorGuideSessions
@@ -26,6 +32,17 @@ import com.sijunyang.bracketpairguides.settings.BracketGuideSettings
 import com.sijunyang.bracketpairguides.settings.NativeGuideConflictSettingsListener
 import com.sijunyang.bracketpairguides.settings.ui.BracketGuideSettingsPage
 import java.util.IdentityHashMap
+import java.util.WeakHashMap
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** Publishes one native-guide advisory per application session and conflict episode. */
 @State(
@@ -34,24 +51,37 @@ import java.util.IdentityHashMap
 )
 internal class NativeGuideConflictNotification internal constructor(
     private val preferences: () -> BracketGuidePreferences,
-    private val isConflict: (Editor, BracketGuide, BracketGuidePreferences) -> Boolean,
+    private val captureConflict: (Editor, BracketGuide, BracketGuidePreferences) -> NativeConflictProbe?,
     private val createNotification: (Project, () -> Unit) -> Notification,
     private val schedule: (() -> Unit) -> Unit,
     private val nativeHighlightingEnabled: () -> Boolean = { true },
     private val showNotification: (Notification, Project) -> Unit = { _, _ -> },
     subscribeToEditorSettings: (EditorOptionsListener, Disposable) -> Unit = { _, _ -> },
+    scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+    subscribeToCarets: (CaretListener, Disposable) -> Unit = { _, _ -> },
 ) : SerializablePersistentStateComponent<NativeGuideConflictNotification.NotificationState>(
     NotificationState(),
 ),
     NativeGuideConflictSettingsListener,
     EditorOptionsListener,
     Disposable {
+    private val ownedJob = SupervisorJob(scope.coroutineContext[Job])
+    private val workerScope = CoroutineScope(scope.coroutineContext + ownedJob + Dispatchers.Default)
+
     @Suppress("unused")
-    constructor() : this(
+    constructor(scope: CoroutineScope) : this(
         preferences = { BracketGuideSettings.getInstance().options },
-        isConflict = { editor, guide, preferences ->
-            EditorGuideSessions.get(editor)?.drawsGuides == true &&
-                NativeGuideConflictDetector.isConflict(editor, guide, preferences)
+        captureConflict = { editor, guide, preferences ->
+            if (EditorGuideSessions.get(editor)?.drawsGuides != true) {
+                null
+            } else {
+                NativeGuideConflictDetector.captureConflict(editor, guide, preferences)?.let { probe ->
+                    object : NativeConflictProbe {
+                        override suspend fun inspect(checkCanceled: () -> Unit): Boolean = probe.inspect(checkCanceled)
+                        override fun isCurrent(): Boolean = EditorGuideSessions.get(editor)?.drawsGuides == true && probe.isCurrent()
+                    }
+                }
+            }
         },
         createNotification = { project, suppressCurrentConflict ->
             NativeGuideConflictBalloon.create(project, suppressCurrentConflict)
@@ -59,6 +89,10 @@ internal class NativeGuideConflictNotification internal constructor(
         schedule = { task -> ApplicationManager.getApplication().invokeLater { task() } },
         nativeHighlightingEnabled = { CodeInsightSettings.getInstance().HIGHLIGHT_BRACES },
         showNotification = { notification, project -> notification.notify(project) },
+        scope = scope,
+        subscribeToCarets = { listener, parentDisposable ->
+            EditorFactory.getInstance().eventMulticaster.addCaretListener(listener, parentDisposable)
+        },
         subscribeToEditorSettings = { listener, parentDisposable ->
             ApplicationManager.getApplication().messageBus.connect(parentDisposable).apply {
                 subscribe(EditorOptionsListener.OPTIONS_PANEL_TOPIC, listener)
@@ -68,6 +102,24 @@ internal class NativeGuideConflictNotification internal constructor(
 
     init {
         subscribeToEditorSettings(this, this)
+        subscribeToCarets(
+            object : CaretListener {
+                override fun caretPositionChanged(event: CaretEvent) {
+                    ApplicationManager.getApplication().assertIsDispatchThread()
+                    if (disposed || event.editor.isDisposed) return
+                    if (event.caret?.let { it !== event.editor.caretModel.primaryCaret } == true) return
+                    caretMoved(event.editor)
+                }
+
+                override fun caretAdded(event: CaretEvent) = caretPositionChanged(event)
+
+                override fun caretRemoved(event: CaretEvent) {
+                    ApplicationManager.getApplication().assertIsDispatchThread()
+                    if (!disposed && !event.editor.isDisposed) caretMoved(event.editor)
+                }
+            },
+            this,
+        )
     }
 
     override fun loadState(state: NotificationState) {
@@ -81,6 +133,7 @@ internal class NativeGuideConflictNotification internal constructor(
     }
 
     override fun settingsChanged(previous: BracketGuidePreferences, current: BracketGuidePreferences) {
+        synchronized(pendingLock) { settingsGeneration++; revokeInspectionsLocked() }
         val nativeEnabled = readNativeHighlightingEnabled() ?: return
         val conflictCapable = current.hasPluginConflictSurface() && nativeEnabled
         if (knownConflictCapability == conflictCapable) return
@@ -112,9 +165,11 @@ internal class NativeGuideConflictNotification internal constructor(
     override fun dispose() {
         val notificationToExpire =
             synchronized(pendingLock) {
-                pendingCandidates.clear()
+                disposed = true
+                revokeInspectionsLocked()
                 activeNotification.also { activeNotification = null }
             }
+        ownedJob.cancel()
         notificationToExpire?.expire()
     }
 
@@ -126,33 +181,49 @@ internal class NativeGuideConflictNotification internal constructor(
         if (isAdvisoryBlocked() || readNativeHighlightingEnabled() != true) return
         if (editor.isDisposed) return
         val project = editor.project?.takeUnless(Project::isDisposed) ?: return
-        val shouldSchedule =
-            synchronized(pendingLock) {
-                if (isAdvisoryBlockedLocked()) {
-                    false
+        var previousJob: Job? = null
+        val shouldSchedule = synchronized(pendingLock) {
+            if (isAdvisoryBlockedLocked()) {
+                false
+            } else {
+                val stamp = editor.document.modificationStamp
+                val caret = editor.caretModel.primaryCaret.offset
+                val highlighter = editor.highlighter
+                val caretGeneration = caretGenerations.getOrPut(editor) { 0L }
+                val existing = latestCandidates[editor]
+                if (existing != null && existing.guide == guide && existing.documentStamp == stamp &&
+                    existing.caretOffset == caret && existing.highlighter === highlighter &&
+                    existing.caretGeneration == caretGeneration && existing.episodeGeneration == episodeGeneration && existing.settingsGeneration == settingsGeneration &&
+                    existing.readEpoch == readEpoch.current) {
+                    if (pendingCandidates[editor] === existing && !dispatchScheduled) {
+                        dispatchScheduled = true
+                        true
+                    } else false
                 } else {
-                    val candidate =
-                        Candidate(
-                            editor = editor,
-                            guide = guide,
-                            project = project,
-                            documentStamp = editor.document.modificationStamp,
-                            caretOffset = editor.caretModel.primaryCaret.offset,
-                            episodeGeneration = episodeGeneration,
-                        )
-                    // Repaints can report the same renderer many times in one
-                    // event-loop turn. Preserve one latest proof per editor so
-                    // an unrelated editor cannot overwrite a real conflict.
+                    val candidate = Candidate(editor, guide, project, stamp, caret, highlighter, caretGeneration, episodeGeneration, settingsGeneration, readEpoch.current)
+                    latestCandidates[editor] = candidate
                     pendingCandidates[editor] = candidate
-                    if (dispatchScheduled) {
-                        false
-                    } else {
+                    previousJob = inFlightJobs[editor]
+                    if (dispatchScheduled) false else {
                         dispatchScheduled = true
                         true
                     }
                 }
             }
+        }
+        previousJob?.cancel()
         if (shouldSchedule) dispatch()
+    }
+
+    /** Revokes the native service's own proof on primary-caret movement, including away and back. */
+    internal fun caretMoved(editor: Editor) {
+        val job = synchronized(pendingLock) {
+            caretGenerations[editor]?.let { caretGenerations[editor] = it + 1L }
+            pendingCandidates.remove(editor)
+            latestCandidates.remove(editor)
+            inFlightJobs[editor]
+        }
+        job?.cancel()
     }
 
     private fun readNativeHighlightingEnabled(): Boolean? = try {
@@ -188,52 +259,97 @@ internal class NativeGuideConflictNotification internal constructor(
     }
 
     private fun drain() {
-        val candidates =
-            synchronized(pendingLock) {
-                if (isAdvisoryBlockedLocked()) {
-                    pendingCandidates.clear()
-                    emptyList()
-                } else {
-                    pendingCandidates.values.toList().also { pendingCandidates.clear() }
-                }
+        ApplicationManager.getApplication().assertIsDispatchThread()
+        val candidates = synchronized(pendingLock) {
+            dispatchScheduled = false
+            if (isAdvisoryBlockedLocked()) {
+                pendingCandidates.clear()
+                emptyList()
+            } else {
+                pendingCandidates.values.toList().also { pendingCandidates.clear() }
             }
-
-        try {
-            for (candidate in candidates) {
-                if (inspect(candidate)) break
-            }
-        } finally {
-            val shouldSchedule =
-                synchronized(pendingLock) {
-                    if (isAdvisoryBlockedLocked()) {
-                        pendingCandidates.clear()
-                        dispatchScheduled = false
-                        false
-                    } else if (pendingCandidates.isNotEmpty()) {
-                        true
-                    } else {
-                        dispatchScheduled = false
-                        false
-                    }
-                }
-            if (shouldSchedule) dispatch()
         }
+        for (candidate in candidates) startInspection(candidate)
     }
 
-    /** Returns true only after the current session's advisory was published. */
-    private fun inspect(candidate: Candidate): Boolean {
-        if (!candidate.isCurrent() || !isCurrentEpisode(candidate.episodeGeneration)) return false
-        val current = readPreferences() ?: return false
-        val conflict =
+    private fun startInspection(candidate: Candidate) {
+        if (!candidate.isCurrent() || !isLatest(candidate)) {
+            releaseCandidate(candidate)
+            return
+        }
+        val current = readPreferences()
+        if (current == null) {
+            releaseCandidate(candidate)
+            return
+        }
+        val probe = try {
+            captureConflict(candidate.editor, candidate.guide, current)
+        } catch (error: ProcessCanceledException) {
+            releaseCandidate(candidate)
+            throw error
+        } catch (error: RuntimeException) {
+            releaseCandidate(candidate)
+            LOG.warn("Could not capture the native guide conflict", error)
+            return
+        }
+        if (probe == null) {
+            releaseCandidate(candidate)
+            return
+        }
+        val job = workerScope.launch(Dispatchers.Default, start = CoroutineStart.LAZY) {
+            val context = currentCoroutineContext()
             try {
-                isConflict(candidate.editor, candidate.guide, current)
+                val conflict = probe.inspect {
+                    context.ensureActive()
+                    ProgressManager.checkCanceled()
+                    if (candidate.editor.isDisposed || candidate.project.isDisposed || !isLatest(candidate)) throw StaleInspection()
+                }
+                withContext(Dispatchers.EDT) {
+                    acceptInspection(candidate, current, probe, conflict)
+                }
+            } catch (_: StaleInspection) {
+                // A newer paint or caret/episode change revoked this proof.
+            } catch (error: CancellationException) {
+                throw error
             } catch (error: ProcessCanceledException) {
                 throw error
             } catch (error: RuntimeException) {
                 LOG.warn("Could not inspect the native guide conflict", error)
-                return false
             }
-        if (!conflict || !candidate.isCurrent()) return false
+        }
+        synchronized(pendingLock) { inFlightJobs[candidate.editor] = job }
+        job.invokeOnCompletion {
+            synchronized(pendingLock) {
+                if (inFlightJobs[candidate.editor] === job) inFlightJobs.remove(candidate.editor)
+            }
+            releaseCandidate(candidate)
+        }
+        job.start()
+    }
+
+    private fun isLatest(candidate: Candidate): Boolean = synchronized(pendingLock) {
+        !isAdvisoryBlockedLocked() && candidate.episodeGeneration == episodeGeneration &&
+            latestCandidates[candidate.editor] === candidate &&
+            caretGenerations[candidate.editor] == candidate.caretGeneration &&
+            candidate.settingsGeneration == settingsGeneration && candidate.readEpoch == readEpoch.current
+    }
+
+    private fun releaseCandidate(candidate: Candidate) {
+        synchronized(pendingLock) {
+            if (latestCandidates[candidate.editor] === candidate) latestCandidates.remove(candidate.editor)
+        }
+    }
+
+    /** Only EDT may accept a completed proof and perform the original notification transaction. */
+    private fun acceptInspection(
+        candidate: Candidate,
+        inspectedPreferences: BracketGuidePreferences,
+        probe: NativeConflictProbe,
+        conflict: Boolean,
+    ): Boolean {
+        ApplicationManager.getApplication().assertIsDispatchThread()
+        if (!conflict || !candidate.isCurrent() || !isLatest(candidate) ||
+            readNativeHighlightingEnabled() != true || readPreferences() != inspectedPreferences || !probe.isCurrent()) return false
 
         val generation = candidate.episodeGeneration
         val mayPublish =
@@ -271,6 +387,8 @@ internal class NativeGuideConflictNotification internal constructor(
                 if (publishingGeneration == generation) publishingGeneration = null
                 if (
                     generation != episodeGeneration ||
+                    disposed || candidate.settingsGeneration != settingsGeneration ||
+                    candidate.readEpoch != readEpoch.current || latestCandidates[candidate.editor] !== candidate ||
                     mutedForDriverSession ||
                     state.suppressedForCurrentConflict
                 ) {
@@ -294,6 +412,11 @@ internal class NativeGuideConflictNotification internal constructor(
             rollBackFailedDisplay(notification, generation)
             LOG.warn("Could not publish the native guide conflict notification", error)
             return false
+        }
+        synchronized(pendingLock) {
+            pendingCandidates.clear()
+            latestCandidates.clear()
+            inFlightJobs.filterKeys { it !== candidate.editor }.values.forEach { it.cancel() }
         }
         return true
     }
@@ -321,7 +444,7 @@ internal class NativeGuideConflictNotification internal constructor(
                         NotificationState(suppressedForCurrentConflict = true)
                     }
                 }
-                pendingCandidates.clear()
+                revokeInspectionsLocked()
                 activeNotification.also { activeNotification = null }
             }
         notificationToExpire?.expire()
@@ -333,14 +456,10 @@ internal class NativeGuideConflictNotification internal constructor(
         }
     }
 
-    private fun isCurrentEpisode(generation: Long): Boolean = synchronized(pendingLock) {
-        generation == episodeGeneration && !isAdvisoryBlockedLocked()
-    }
-
     private fun isAdvisoryBlocked(): Boolean =
-        mutedForDriverSession || shownThisSession || state.suppressedForCurrentConflict
+        disposed || mutedForDriverSession || shownThisSession || state.suppressedForCurrentConflict
 
-    private fun isAdvisoryBlockedLocked(): Boolean = mutedForDriverSession ||
+    private fun isAdvisoryBlockedLocked(): Boolean = disposed || mutedForDriverSession ||
         shownThisSession ||
         state.suppressedForCurrentConflict ||
         publishingGeneration == episodeGeneration
@@ -348,7 +467,7 @@ internal class NativeGuideConflictNotification internal constructor(
     private fun resetConflictEpisodeLocked(): Notification? {
         episodeGeneration++
         shownThisSession = false
-        pendingCandidates.clear()
+        revokeInspectionsLocked()
         if (state.suppressedForCurrentConflict) {
             updateState { NotificationState() }
         }
@@ -360,11 +479,20 @@ internal class NativeGuideConflictNotification internal constructor(
         val notificationToExpire =
             synchronized(pendingLock) {
                 mutedForDriverSession = true
-                pendingCandidates.clear()
+                revokeInspectionsLocked()
                 activeNotification.also { activeNotification = null }
             }
         notificationToExpire?.expire()
     }
+
+    private fun revokeInspectionsLocked() {
+        pendingCandidates.clear()
+        latestCandidates.clear()
+        inFlightJobs.values.forEach { it.cancel() }
+        inFlightJobs.clear()
+    }
+
+    private class StaleInspection : RuntimeException(null, null, false, false)
 
     private data class Candidate(
         val editor: Editor,
@@ -372,17 +500,28 @@ internal class NativeGuideConflictNotification internal constructor(
         val project: Project,
         val documentStamp: Long,
         val caretOffset: Int,
+        val highlighter: Any,
+        val caretGeneration: Long,
         val episodeGeneration: Long,
+        val settingsGeneration: Long,
+        val readEpoch: Long,
     ) {
         fun isCurrent(): Boolean = !editor.isDisposed &&
             !project.isDisposed &&
             editor.project === project &&
             editor.document.modificationStamp == documentStamp &&
+            editor.highlighter === highlighter &&
             editor.caretModel.primaryCaret.offset == caretOffset
     }
 
+    private val readEpoch = ApplicationManager.getApplication().getService(AnalysisReadEpoch::class.java)
+    private var settingsGeneration = 0L
     private val pendingLock = Any()
     private val pendingCandidates = IdentityHashMap<Editor, Candidate>()
+    private val latestCandidates = IdentityHashMap<Editor, Candidate>()
+    private val inFlightJobs = IdentityHashMap<Editor, Job>()
+    private val caretGenerations = WeakHashMap<Editor, Long>()
+    @Volatile private var disposed = false
     private var dispatchScheduled = false
 
     @Volatile private var shownThisSession = false

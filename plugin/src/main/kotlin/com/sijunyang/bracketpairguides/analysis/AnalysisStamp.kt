@@ -5,7 +5,7 @@ import com.intellij.openapi.fileTypes.FileType
 
 /** Immutable editor and configuration identity behind one bracket analysis. */
 internal class AnalysisStamp private constructor(
-    private val documentStamp: Long,
+    internal val documentStamp: Long,
     private val fileType: FileType,
     val coverage: AnalysisCoverage,
     private val disabledLanguageIds: Set<String>,
@@ -52,19 +52,22 @@ internal class AnalysisStamp private constructor(
         disabledLanguageIds == required.disabledLanguageIds &&
         coverage.includes(required.coverage)
 
+    /** Source consistency between read chunks; calculation continues using captured configuration. */
+    internal fun matchesCapturedSource(editor: Editor, requiredFileType: FileType): Boolean =
+        documentStamp == editor.document.modificationStamp && highlighter === editor.highlighter &&
+            fileType === requiredFileType
+
     /** Checks live editor state without allocating another stamp. */
     fun matchesCurrent(
         editor: Editor,
         requiredFileType: FileType,
         requiredCoverage: AnalysisCoverage,
         requiredDisabledLanguageIds: Set<String>,
-    ): Boolean = documentStamp == editor.document.modificationStamp &&
+    ): Boolean = matchesCapturedSource(editor, requiredFileType) &&
         (
             !requiredCoverage.guidePosition ||
                 tabSize == editor.settings.getTabSize(editor.project).coerceAtLeast(1)
             ) &&
-        highlighter === editor.highlighter &&
-        fileType === requiredFileType &&
         disabledLanguageIds == requiredDisabledLanguageIds &&
         coverage.includes(requiredCoverage)
 }

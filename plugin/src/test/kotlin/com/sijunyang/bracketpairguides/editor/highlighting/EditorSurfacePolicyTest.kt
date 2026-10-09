@@ -7,7 +7,6 @@ import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.EditorKind
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
-import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.sijunyang.bracketpairguides.analysis.AnalysisCoverage
 import com.sijunyang.bracketpairguides.analysis.intellij.BracketAnalysis
@@ -89,10 +88,10 @@ internal class EditorSurfacePolicyTest : BracketGuideHighlightingFixture() {
         withEditor(EditorKind.MAIN_EDITOR) { editor ->
             var activity = EditorActivity.ACTIVE
             val pass = pass(editor, { activity })
-            inReadAction { pass.doCollectInformation(EmptyProgressIndicator()) }
+            collectPass(pass)
             activity = EditorActivity(true, false)
             EditorGuideSessions.get(editor)!!.updateSurface(EditorSurfaceClassifier.capabilities(editor), activity)
-            pass.doApplyInformationToEditor()
+            publishPass(pass)
             assertThat(editor.observedBracketMarkup().guideMarks).isEmpty()
             assertThat(editor.observedBracketMarkup().activePairMarks).isEmpty()
             assertThat(editor.observedBracketMarkup().tokenMarks).hasSize(2)
@@ -138,7 +137,7 @@ internal class EditorSurfacePolicyTest : BracketGuideHighlightingFixture() {
         editor: Editor,
         activity: (Editor) -> EditorActivity = { EditorActivity.ACTIVE },
         onAnalysis: (AnalysisCoverage) -> Unit = {},
-    ) = BracketGuideHighlightingPass(
+    ) = createPass(
         project = project,
         editor = editor,
         fileType = myFixture.file.fileType,
@@ -146,9 +145,9 @@ internal class EditorSurfacePolicyTest : BracketGuideHighlightingFixture() {
         activity = activity,
         visibleRange = { TextRange(0, it.document.textLength) },
         stickySourceRanges = { emptyList() },
-        analyze = { input, progress ->
+        backgroundAnalyze = { input ->
             onAnalysis(input.coverage)
-            service<BracketAnalysis>().analyze(input, progress)
+            service<BracketAnalysis>().analyzeInBackground(input)
         },
     )
 

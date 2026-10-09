@@ -3,7 +3,6 @@ package com.sijunyang.bracketpairguides.analysis.pairing
 import com.intellij.codeInsight.highlighting.BraceMatcher
 import com.intellij.codeInsight.highlighting.XmlAwareBraceMatcher
 import com.intellij.lang.Language
-import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.PlainTextLanguage
@@ -12,21 +11,17 @@ import com.intellij.psi.CustomHighlighterTokenType
 import com.intellij.psi.tree.IElementType
 import com.sijunyang.bracketpairguides.analysis.BraceMatcherAvailability
 import com.sijunyang.bracketpairguides.analysis.pairing.core.BracketRole
-import com.sijunyang.bracketpairguides.analysis.pairing.core.CancellationProbe
-import com.sijunyang.bracketpairguides.analysis.pairing.core.PairSink
-import com.sijunyang.bracketpairguides.analysis.pairing.core.PairingMachine
 import com.sijunyang.bracketpairguides.analysis.pairing.core.StructuralRole
 import java.util.Locale
 
 /**
- * Token-stream pairing semantics for one full document analysis.
+ * Platform token classification for one analysis revision.
  *
- * Effective matcher definitions and the language-family gate are evaluated for every
- * token. Each [Session] owns independent stack state, while definitions are cached by
- * token language so one full scan resolves each platform matcher only once.
+ * Matcher definitions and their enabled language families are cached by token language.
+ * Role, XML context, and structural callbacks are evaluated for each occurrence into a
+ * caller-owned reusable [Classification]. Capture and pairing state belong to the caller.
  */
 internal class DocumentBraceGrammar(
-    private val document: Document,
     private val fileType: FileType,
     private val text: CharSequence,
     private val languages: BraceLanguageCatalog,
@@ -44,71 +39,34 @@ internal class DocumentBraceGrammar(
         else -> BraceMatcherAvailability.UNDETERMINED
     }
 
-    fun newSession(checkCanceled: () -> Unit, pairSink: PairSink, maximumPendingOpens: Int): Session =
-        Session(checkCanceled, pairSink, maximumPendingOpens)
-
-    inner class Session(checkCanceled: () -> Unit, pairSink: PairSink, maximumPendingOpens: Int) {
-        private val pairing =
-            PairingMachine<IElementType, BraceGroup> { group ->
-                group.definition
-            }.newSession(
-                pairSink,
-                CancellationProbe(checkCanceled),
-                maximumPendingOpens,
-            )
-
-        /** Returns false before an opener would cross the pending-open capacity. */
-        fun accept(iterator: HighlighterIterator): Boolean {
-            val token = classify(iterator) ?: return true
-            val offset = iterator.start
-            val tokenLength = iterator.end - iterator.start
-            val line = document.getLineNumber(offset)
-            return pairing.accept(
-                token.group,
-                token.type,
-                token.context.value,
-                token.context.strict,
-                token.role,
-                token.structuralRole,
-                offset,
-                tokenLength,
-                line,
-            )
-        }
-    }
-
-    private fun classify(iterator: HighlighterIterator): ClassifiedToken? {
-        val tokenType = iterator.tokenType ?: return null
+    /** Fields are valid only after true; the reusable carrier stays in the platform adapter. */
+    fun classifyInto(iterator: HighlighterIterator, token: Classification): Boolean {
+        val tokenType = iterator.tokenType ?: return false
         val language = matcherLanguage(tokenType)
-        val definition = definitions.cached(language, iterator) ?: return null
+        val definition = definitions.cached(language, iterator) ?: return false
         val matcher = definition.matcher
         val isLeft = matcher.isLBraceToken(iterator, text, fileType)
         val isSymmetric = isLeft && definition.isPureSymmetric(tokenType)
         val isRight =
             (!isLeft || isSymmetric) &&
                 matcher.isRBraceToken(iterator, text, fileType)
-        if (!isLeft && !isRight) return null
+        if (!isLeft && !isRight) return false
         val role = bracketRole(isLeft, isRight, isSymmetric)
 
-        return ClassifiedToken(
-            type = tokenType,
-            group =
-            BraceGroup(
-                language = language,
-                tokenGroup = matcher.getBraceTokenGroupId(tokenType),
-                definition = definition,
-            ),
-            context = matcher.contextAt(iterator),
-            role = role,
-            structuralRole =
-            definition.structuralRole(
-                iterator = iterator,
-                text = text,
-                fileType = fileType,
-                isLeft = isLeft,
-                isRight = isRight,
-            ),
+        token.type = tokenType
+        token.language = language
+        token.definition = definition
+        token.tokenGroup = matcher.getBraceTokenGroupId(tokenType)
+        matcher.contextAt(iterator, token)
+        token.role = role
+        token.structuralRole = definition.structuralRole(
+            iterator = iterator,
+            text = text,
+            fileType = fileType,
+            isLeft = isLeft,
+            isRight = isRight,
         )
+        return true
     }
 
     /** Custom syntax-table bracket tokens use the platform's TEXT matcher. */
@@ -148,40 +106,34 @@ internal class DocumentBraceGrammar(
         return definition.also { this[language] = it }
     }
 
-    private fun BraceMatcher.contextAt(iterator: HighlighterIterator): TokenContext {
-        val xmlMatcher = this as? XmlAwareBraceMatcher ?: return TokenContext.NONE
-        val tokenType = iterator.tokenType ?: return TokenContext.NONE
+    private fun BraceMatcher.contextAt(iterator: HighlighterIterator, token: Classification) {
+        // Every accepted token replaces both fields, including non-XML and non-strict tokens.
+        token.strictContext = false
+        token.context = null
+        val xmlMatcher = this as? XmlAwareBraceMatcher ?: return
+        val tokenType = iterator.tokenType ?: return
         val group = getBraceTokenGroupId(tokenType)
-        if (!xmlMatcher.isStrictTagMatching(fileType, group)) return TokenContext.NONE
+        if (!xmlMatcher.isStrictTagMatching(fileType, group)) return
 
         val caseSensitive = xmlMatcher.areTagsCaseSensitive(fileType, group)
         val tagName =
             xmlMatcher.getTagName(text, iterator)?.let { name ->
                 if (caseSensitive) name else name.lowercase(Locale.ROOT)
             }
-        return TokenContext(strict = true, value = tagName)
+        token.strictContext = true
+        token.context = tagName
     }
 
-    private data class ClassifiedToken(
-        val type: IElementType,
-        val group: BraceGroup,
-        val context: TokenContext,
-        val role: BracketRole,
-        val structuralRole: StructuralRole,
-    )
-
-    /** Equality intentionally preserves the original language + numeric group key. */
-    private class BraceGroup(val language: Language, val tokenGroup: Int, val definition: BraceLanguageDefinition) {
-        override fun equals(other: Any?): Boolean =
-            other is BraceGroup && language == other.language && tokenGroup == other.tokenGroup
-
-        override fun hashCode(): Int = 31 * language.hashCode() + tokenGroup
-    }
-
-    private data class TokenContext(val strict: Boolean, val value: String?) {
-        companion object {
-            val NONE = TokenContext(strict = false, value = null)
-        }
+    /** One logical owner's scratch output; never publish this object or read it after false. */
+    internal class Classification {
+        lateinit var type: IElementType
+        lateinit var language: Language
+        lateinit var definition: BraceLanguageDefinition
+        var tokenGroup: Int = 0
+        var context: String? = null
+        var strictContext: Boolean = false
+        lateinit var role: BracketRole
+        lateinit var structuralRole: StructuralRole
     }
 }
 
