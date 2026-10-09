@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.0
+
+- Redesigned the internal architecture into five modules, separating editor UI,
+  IntelliJ execution, and a platform-independent calculation core.
+- Reworked cancellable background analysis and result validation while preserving
+  existing guide rendering, settings, and editor behavior.
+- Known limitation: local comparisons still show higher full-analysis latency in
+  some workloads and higher latency and allocations in unchanged-caret callbacks.
+
 ## 0.0.6
 
 - Fixed editor-update failures while IntelliJ computes context-action previews.
