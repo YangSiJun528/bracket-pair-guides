@@ -9,9 +9,9 @@ import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.fileTypes.FileTypeEvent
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.util.Disposer
+import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.ref.GCWatcher
-import com.intellij.util.ui.UIUtil
 import com.sijunyang.bracketpairguides.model.AnalysisCoverage
 import com.sijunyang.bracketpairguides.model.result.AnalysisResult
 import com.sijunyang.bracketpairguides.runtime.bootstrap.RuntimeGuideWorkFactory
@@ -97,7 +97,7 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
     }
     private fun descendants(parent: Job): Set<Job> = parent.children.flatMap { listOf(it) + descendants(it) }.toSet()
     private fun settle() {
-        UIUtil.dispatchAllInvocationEvents()
+        PlatformTestUtil.dispatchAllEventsInIdeEventQueue()
         await { descendants(parentJob).all { it in permanentJobs } }
     }
     override fun tearDown() {
@@ -111,7 +111,7 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
     private fun await(condition: () -> Boolean) {
         val deadline = System.nanoTime() + 15_000_000_000L
         while (!condition() && System.nanoTime() < deadline) {
-            UIUtil.dispatchAllInvocationEvents()
+            PlatformTestUtil.dispatchAllEventsInIdeEventQueue()
             LockSupport.parkNanos(1_000_000)
         }
         assertTrue("production worker did not settle", condition())
