@@ -149,6 +149,15 @@ class AnalysisCaptureIdeContractTest : BasePlatformTestCase() {
         drain()
         assertEquals(0, published)
     }
+    fun testHideDuringRealMatcherReadRejectsLatePublication() {
+        open()
+        work.reconcile(initial)
+        await { entered.count == 0L }
+        work.reconcile(initial.copy(visible = false))
+        release.countDown()
+        drain()
+        assertEquals(0, published)
+    }
     fun testSourceEditAfterInFlightReadRejectsOldResultAndPublishesNewCoordinates() {
         open()
         work.reconcile(initial)

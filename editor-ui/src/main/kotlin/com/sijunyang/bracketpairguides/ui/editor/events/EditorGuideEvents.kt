@@ -137,14 +137,9 @@ class EditorGuideEvents :
         // must not schedule EDT work. Check the preview context on this thread.
         if (!EditorEffectGuard.allowsEffects()) return
 
-        val change =
-            DocumentChange(
-                offset = event.offset,
-                oldLength = event.oldLength,
-                newLength = event.newLength,
-            )
         val editors = EditorFactory.getInstance().getEditors(event.document).toList()
         if (editors.none { EditorGuides.get(it) != null }) return
+        val change = DocumentChange.from(event)
         // Valid document writes for the supported platform run on EDT. onEdt
         // therefore executes ordinary typing synchronously. Its off-EDT branch
         // must stay asynchronous: invokeAndWait can deadlock a host write path.

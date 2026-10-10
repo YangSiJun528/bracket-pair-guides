@@ -1,0 +1,67 @@
+{
+  "driverPassed": true,
+  "baselineImages": [
+    {
+      "scenario": "native-highlight-suppressed",
+      "pngByteIdentical": true,
+      "sha256": "7740876545161bdd4630e5b0e376aff889009406a11694600184a84380a7476c"
+    },
+    {
+      "scenario": "all-components",
+      "pngByteIdentical": true,
+      "sha256": "c0b1a94289d81c50b2a037c0d4ec27ab590ac95627b80d2bf2905d93e38ec17e"
+    },
+    {
+      "scenario": "custom-palette",
+      "pngByteIdentical": true,
+      "sha256": "43985437f52792edb4a58191a665cf968b33909eff54dcf5511ffeb7cbde6633"
+    },
+    {
+      "scenario": "edited-geometry",
+      "pngByteIdentical": true,
+      "sha256": "ed7b7b0ae4f2e0b043f6afca47a74e5951ff74f50e8d12ad737184672e31c4b1"
+    },
+    {
+      "scenario": "pair-border-only",
+      "pngByteIdentical": true,
+      "sha256": "82c70d21107d82fc572ff4354354c407351541f8e26e3f549e5cb0b14805926a"
+    },
+    {
+      "scenario": "pair-background-only",
+      "pngByteIdentical": true,
+      "sha256": "5ce70457b056c2b1c7187d69973f4c833ddfc9ccab33b13563c0475f5a1cad42"
+    },
+    {
+      "scenario": "default-palette",
+      "pngByteIdentical": true,
+      "sha256": "9306a3b39f1649dcd669ccf6cd867fc5cb344eb6abb8558a36e009ca96f039c5"
+    },
+    {
+      "scenario": "bracket-colorization-off",
+      "pngByteIdentical": true,
+      "sha256": "b5aaa1ff54354de4e3d3148398499e9844aae60f60d99a5497fad087376a218b"
+    },
+    {
+      "scenario": "plugin-disabled",
+      "pngByteIdentical": true,
+      "sha256": "ba301ad47c90f0dc618bf54828e6508fd8a5e959d9b162ff436789941fa9de0a"
+    },
+    {
+      "scenario": "vertical-only",
+      "pngByteIdentical": true,
+      "sha256": "d77d91ffbc0e9d8cc01961e0811ef42c4b8f3de951d0a20df189a60825513660"
+    },
+    {
+      "scenario": "native-visuals-unmanaged",
+      "pngByteIdentical": true,
+      "sha256": "d65f06888f934e156b19f17fdcf480a5f711eb62132cedfe7c1721f1df403306"
+    },
+    {
+      "scenario": "horizontal-only",
+      "pngByteIdentical": true,
+      "sha256": "ed2242a7e4ae102f3b3a819d32f8962dc9a8829c9fdd2e58bee6fbb872a2e353"
+    }
+  ],
+  "indentationActions": "Real Tab then Shift+Tab; guide identity 377027397 survived both; 12->16->12; full endpoint/token correspondence preserved synchronously.",
+  "unproven": "Not a guarantee for every painted frame, every file, or geometry-changing edits."
+}

@@ -1,0 +1,21 @@
+{
+  "expectedFailure": true,
+  "productionRevision": "c9be822bfc0d74e7785406d3b664fa72ade0714a",
+  "driverTest": {
+    "name": "com.sijunyang.bracketpairguides.visual.EditorVisualContractTest",
+    "tests": "1",
+    "skipped": "0",
+    "failures": "1",
+    "errors": "0",
+    "timestamp": "2026-10-09T07:38:42.370Z",
+    "hostname": "bc6e738d244a",
+    "time": "141.957"
+  },
+  "failure": "Body indentation action cleared unchanged guide geometry",
+  "bodyIndentBefore": 12,
+  "bodyIndentAfter": 16,
+  "eventStartLogicalColumn": 12,
+  "existingGuideColumn": 8,
+  "guideRemovedSynchronously": true,
+  "scope": "real EditorTab action and production event route; new same-turn guide contract failed on old production"
+}

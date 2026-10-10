@@ -12,6 +12,9 @@ import java.util.concurrent.atomic.AtomicLong
 /** Conservative consistency ticket for capture chunks separated by released read locks. */
 internal class AnalysisReadEpoch : Disposable {
     private val value = AtomicLong()
+    private val environment = AtomicLong()
+    val environmentRevision: Long
+        get() = environment.get()
     val current: Long
         get() = value.get()
 
@@ -30,13 +33,17 @@ internal class AnalysisReadEpoch : Disposable {
             FileTypeManager.TOPIC,
             object : FileTypeListener {
                 override fun beforeFileTypesChanged(event: FileTypeEvent) {
+                    environment.incrementAndGet()
                     value.incrementAndGet()
                 }
             },
         )
         connection.subscribe(
             DynamicPluginListener.TOPIC,
-            AnalysisPluginLifecycleListener { value.incrementAndGet() },
+            AnalysisPluginLifecycleListener {
+                environment.incrementAndGet()
+                value.incrementAndGet()
+            },
         )
     }
 

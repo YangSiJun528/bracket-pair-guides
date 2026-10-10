@@ -1,0 +1,122 @@
+[
+  {
+    "pair": 1,
+    "position": 1,
+    "side": "A",
+    "sourceRevision": "c9be822bfc0d74e7785406d3b664fa72ade0714a",
+    "exitCode": 0,
+    "evidence": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/indentation-flicker/performance/pair-01-1-A",
+    "finishedUtc": "2026-10-09T08:11:52.955681+00:00",
+    "measuredRoundTrips": 30
+  },
+  {
+    "pair": 1,
+    "position": 2,
+    "side": "B",
+    "sourceRevision": "60305549e301681222ef2783c953ae2d616d5cd6",
+    "exitCode": 0,
+    "evidence": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/indentation-flicker/performance/pair-01-2-B",
+    "finishedUtc": "2026-10-09T08:12:07.154730+00:00",
+    "measuredRoundTrips": 30
+  },
+  {
+    "pair": 2,
+    "position": 1,
+    "side": "B",
+    "sourceRevision": "60305549e301681222ef2783c953ae2d616d5cd6",
+    "exitCode": 0,
+    "evidence": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/indentation-flicker/performance/pair-02-1-B",
+    "finishedUtc": "2026-10-09T08:12:20.325547+00:00",
+    "measuredRoundTrips": 30
+  },
+  {
+    "pair": 2,
+    "position": 2,
+    "side": "A",
+    "sourceRevision": "c9be822bfc0d74e7785406d3b664fa72ade0714a",
+    "exitCode": 0,
+    "evidence": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/indentation-flicker/performance/pair-02-2-A",
+    "finishedUtc": "2026-10-09T08:12:32.859386+00:00",
+    "measuredRoundTrips": 30
+  },
+  {
+    "pair": 3,
+    "position": 1,
+    "side": "A",
+    "sourceRevision": "c9be822bfc0d74e7785406d3b664fa72ade0714a",
+    "exitCode": 0,
+    "evidence": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/indentation-flicker/performance/pair-03-1-A",
+    "finishedUtc": "2026-10-09T08:12:45.468497+00:00",
+    "measuredRoundTrips": 30
+  },
+  {
+    "pair": 3,
+    "position": 2,
+    "side": "B",
+    "sourceRevision": "60305549e301681222ef2783c953ae2d616d5cd6",
+    "exitCode": 0,
+    "evidence": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/indentation-flicker/performance/pair-03-2-B",
+    "finishedUtc": "2026-10-09T08:12:57.929046+00:00",
+    "measuredRoundTrips": 30
+  },
+  {
+    "pair": 4,
+    "position": 1,
+    "side": "B",
+    "sourceRevision": "60305549e301681222ef2783c953ae2d616d5cd6",
+    "exitCode": 0,
+    "evidence": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/indentation-flicker/performance/pair-04-1-B",
+    "finishedUtc": "2026-10-09T08:13:10.196115+00:00",
+    "measuredRoundTrips": 30
+  },
+  {
+    "pair": 4,
+    "position": 2,
+    "side": "A",
+    "sourceRevision": "c9be822bfc0d74e7785406d3b664fa72ade0714a",
+    "exitCode": 0,
+    "evidence": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/indentation-flicker/performance/pair-04-2-A",
+    "finishedUtc": "2026-10-09T08:13:22.385097+00:00",
+    "measuredRoundTrips": 30
+  },
+  {
+    "pair": 5,
+    "position": 1,
+    "side": "A",
+    "sourceRevision": "c9be822bfc0d74e7785406d3b664fa72ade0714a",
+    "exitCode": 0,
+    "evidence": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/indentation-flicker/performance/pair-05-1-A",
+    "finishedUtc": "2026-10-09T08:13:35.466250+00:00",
+    "measuredRoundTrips": 30
+  },
+  {
+    "pair": 5,
+    "position": 2,
+    "side": "B",
+    "sourceRevision": "60305549e301681222ef2783c953ae2d616d5cd6",
+    "exitCode": 0,
+    "evidence": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/indentation-flicker/performance/pair-05-2-B",
+    "finishedUtc": "2026-10-09T08:13:47.657775+00:00",
+    "measuredRoundTrips": 30
+  },
+  {
+    "pair": 6,
+    "position": 1,
+    "side": "B",
+    "sourceRevision": "60305549e301681222ef2783c953ae2d616d5cd6",
+    "exitCode": 0,
+    "evidence": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/indentation-flicker/performance/pair-06-1-B",
+    "finishedUtc": "2026-10-09T08:14:00.102536+00:00",
+    "measuredRoundTrips": 30
+  },
+  {
+    "pair": 6,
+    "position": 2,
+    "side": "A",
+    "sourceRevision": "c9be822bfc0d74e7785406d3b664fa72ade0714a",
+    "exitCode": 0,
+    "evidence": "/Users/sijun-yang/.codex/worktrees/issue-97-deep-redesign/bracket-pair-guides/outputs/issue-97/indentation-flicker/performance/pair-06-2-A",
+    "finishedUtc": "2026-10-09T08:14:12.583908+00:00",
+    "measuredRoundTrips": 30
+  }
+]

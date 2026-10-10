@@ -1,6 +1,11 @@
 package com.sijunyang.bracketpairguides.ui.editor
 
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.application.options.CodeStyle
+import com.intellij.openapi.editor.event.DocumentEvent
+import com.intellij.openapi.editor.event.CaretEvent
+import com.intellij.openapi.editor.event.CaretListener
+import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.editor.ex.DocumentEx
@@ -13,6 +18,8 @@ import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import java.awt.Color
+import java.awt.image.BufferedImage
+import java.awt.image.DataBufferInt
 import com.intellij.openapi.editor.ex.RangeHighlighterEx
 import com.intellij.openapi.editor.impl.event.MarkupModelListener
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -30,6 +37,8 @@ import com.sijunyang.bracketpairguides.ui.policy.EditorActivity
 import com.sijunyang.bracketpairguides.ui.policy.EditorCapabilities
 import com.sijunyang.bracketpairguides.ui.preferences.BracketGuidePreferences
 import com.sijunyang.bracketpairguides.ui.presentation.BracketGuideDrawing
+import com.sijunyang.bracketpairguides.ui.presentation.BracketColorPalette
+import com.sijunyang.bracketpairguides.ui.presentation.GuideAppearance
 import com.sijunyang.bracketpairguides.ui.presentation.DocumentChange
 import com.sijunyang.bracketpairguides.ui.work.AnalysisUpdate
 import com.sijunyang.bracketpairguides.ui.work.DisplayedGuide
@@ -46,20 +55,38 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
     private lateinit var guide: EditorGuide
     private val demands = mutableListOf<GuideDemand>()
     private var closes = 0
+    private var removeOwnedEventRouting: (() -> Unit)? = null
+    private var restoreIndentOptions: (() -> Unit)? = null
+    private var onContentDemand: (() -> Unit)? = null
+    private var onDocumentEvent: ((DocumentEvent) -> Unit)? = null
+    private fun closeOwnedGuide() {
+        removeOwnedEventRouting?.invoke()
+        removeOwnedEventRouting = null
+        if (::guide.isInitialized) guide.close()
+        restoreIndentOptions?.invoke()
+        restoreIndentOptions = null
+        onContentDemand = null
+        onDocumentEvent = null
+    }
     override fun tearDown() {
         try {
-            if (::guide.isInitialized) guide.close()
+            closeOwnedGuide()
         } finally {
             super.tearDown()
         }
     }
-    private fun open(preferences: BracketGuidePreferences = BracketGuidePreferences(colorBracketTokens = false)) {
-        myFixture.configureByText("Contract.java", "class C {\n    void f() {}\n}")
+    private fun open(
+        preferences: BracketGuidePreferences = BracketGuidePreferences(colorBracketTokens = false),
+        text: String = "class C {\n    void f() {}\n}",
+        useEventAdapter: Boolean = false,
+    ) {
+        myFixture.configureByText("Contract.java", text)
         myFixture.editor.caretModel.moveToOffset(10)
         val factory = object : GuideWorkFactory {
             override fun attach(editor: Editor, view: GuideView): GuideWork = object : GuideWork {
                 override fun reconcile(demand: GuideDemand) {
                     demands += demand
+                    if (demand.change == GuideChange.CONTENT) onContentDemand?.invoke()
                 }
                 override fun refresh() = Unit
                 override fun observeNativeGuide(candidate: DisplayedGuide) = Unit
@@ -77,7 +104,332 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
             factory,
         )
         guide.start()
+        if (useEventAdapter) {
+            // Route real SDK events to this fixture's UI port; the global registry has another owner.
+            val ownedGuide = guide
+            val editor = myFixture.editor
+            val document = editor.document
+            val documentListener = object : DocumentListener {
+                override fun documentChanged(event: DocumentEvent) {
+                    onDocumentEvent?.invoke(event)
+                    ownedGuide.documentChanged(DocumentChange.from(event))
+                }
+            }
+            val caretListener = object : CaretListener {
+                override fun caretPositionChanged(event: CaretEvent) {
+                    ownedGuide.caretMoved()
+                }
+            }
+            document.addDocumentListener(documentListener)
+            editor.caretModel.addCaretListener(caretListener)
+            removeOwnedEventRouting = {
+                document.removeDocumentListener(documentListener)
+                editor.caretModel.removeCaretListener(caretListener)
+            }
+        }
     }
+
+    private fun openIndentation(tabs: Boolean = false): Pair<BracketGuidePreferences, RangeHighlighter> {
+        if (::guide.isInitialized) closeOwnedGuide()
+        val body = if (tabs) "\t\t\t" else "            "
+        val closing = if (tabs) "\t\t" else "        "
+        val preferences = BracketGuidePreferences(colorBracketTokens = false, showActivePairBorder = true)
+        open(preferences, "class C {\n    void f() {\n${body}work();\n${closing}}\n}", useEventAdapter = true)
+        val editor = myFixture.editor
+        editor.component.setSize(800, 600)
+        editor.component.doLayout()
+        editor.contentComponent.setSize(800, 600)
+        val oldEditorTabSize = editor.settings.getTabSize(project)
+        val oldEditorUseTabs = editor.settings.isUseTabCharacter(project)
+        editor.settings.setTabSize(4)
+        editor.settings.setUseTabCharacter(tabs)
+        val indent = CodeStyle.getIndentOptions(myFixture.file)
+        val oldSize = indent.INDENT_SIZE
+        val oldTabSize = indent.TAB_SIZE
+        val oldUseTabs = indent.USE_TAB_CHARACTER
+        restoreIndentOptions = {
+            indent.INDENT_SIZE = oldSize; indent.TAB_SIZE = oldTabSize; indent.USE_TAB_CHARACTER = oldUseTabs
+            editor.settings.setTabSize(oldEditorTabSize)
+            editor.settings.setUseTabCharacter(oldEditorUseTabs)
+        }
+        indent.INDENT_SIZE = 4; indent.TAB_SIZE = 4; indent.USE_TAB_CHARACTER = tabs
+        val text = editor.document.text
+        val opening = text.indexOf('{', text.indexOf("f()"))
+        val closingOffset = text.indexOf('}', opening)
+        val pair = BracketPair(opening, 1, closingOffset, 1, 1, 1, 3)
+        editor.caretModel.moveToOffset(text.indexOf("work"))
+        assertEquals(ViewApplication.APPLIED, guide.applyAnalysis(AnalysisUpdate(demands.last().revision,
+            available(pair, BracketGuide(pair, 8, 3)))))
+        return preferences to editor.markupModel.allHighlighters.single { it.customRenderer is BracketGuideDrawing }
+    }
+
+    private fun currentIndentationGuide(): BracketGuide {
+        val text = myFixture.editor.document.text
+        val opening = text.indexOf('{', text.indexOf("f()"))
+        val closing = text.indexOf('}', opening)
+        return BracketGuide(BracketPair(opening, 1, closing, 1, 1, 1, 3), 8, 3)
+    }
+
+    private fun assertIndentationHidden() {
+        assertFalse(myFixture.editor.markupModel.allHighlighters.any { it.customRenderer is BracketGuideDrawing })
+        assertNotNull(demands.last().repair)
+        assertTrue(demands.last().repair!!.exact)
+    }
+
+    fun testActualTabAndShiftTabKeepGuideInEveryDocumentCallback() {
+        val (preferences, original) = openIndentation()
+        val renderer = original.customRenderer
+        val events = mutableListOf<Pair<Int, Int>>()
+        myFixture.editor.document.addDocumentListener(object : DocumentListener {
+            override fun documentChanged(event: DocumentEvent) {
+                val change = DocumentChange.from(event)
+                assertTrue(change.horizontalWhitespaceOnly)
+                events += myFixture.editor.offsetToLogicalPosition(event.offset).column to (event.newLength - event.oldLength)
+            }
+        }, testRootDisposable)
+        var callbacks = 0
+        onContentDemand = {
+            callbacks++
+            assertSame(renderer, original.customRenderer)
+            assertTrue(original.isValid)
+            assertCurrentPairPaint(original, currentIndentationGuide(), preferences)
+            assertNull(demands.last().repair)
+        }
+        repeat(3) {
+            myFixture.performEditorAction("EditorTab")
+            assertTrue(myFixture.editor.document.text.contains("                work"))
+            myFixture.performEditorAction("EditorUnindentSelection")
+            assertTrue(myFixture.editor.document.text.contains("            work"))
+        }
+        assertEquals(6, callbacks)
+        assertEquals(List(3) { listOf(12 to 4, 12 to -4) }.flatten(), events)
+        assertSame(original, myFixture.editor.markupModel.allHighlighters.single { it.customRenderer is BracketGuideDrawing })
+    }
+
+    fun testActualTabIndentationAndInlineWhitespaceKeepMinimumAnchor() {
+        val (preferences, original) = openIndentation(tabs = true)
+        val renderer = original.customRenderer
+        val events = mutableListOf<String>()
+        onDocumentEvent = { event ->
+            val column = myFixture.editor.offsetToLogicalPosition(event.offset).column
+            events += "offset=${event.offset}, column=$column, old=${event.oldFragment.toString().replace("\t", "<tab>")}, new=${event.newFragment.toString().replace("\t", "<tab>")}"
+        }
+        var callbacks = 0
+        onContentDemand = {
+            callbacks++
+            assertTrue("Document events: $events", original.isValid)
+            assertSame(renderer, original.customRenderer)
+            assertCurrentPairPaint(original, currentIndentationGuide(), preferences)
+            assertNull(demands.last().repair)
+        }
+        val editor = myFixture.editor
+        assertTrue(editor.settings.isUseTabCharacter(project))
+        assertTrue(editor.document.text.contains("\t\t\twork"))
+        assertEquals(12, editor.offsetToLogicalPosition(editor.document.text.indexOf("work")).column)
+        assertEquals(8, editor.offsetToLogicalPosition(currentIndentationGuide().pair.closeOffset).column)
+        repeat(2) {
+            myFixture.performEditorAction("EditorTab")
+            val indented = editor.document.text
+            assertTrue("Tab result: ${indented.replace("\t", "<tab>")}; events=$events",
+                indented.contains("\t\t\t\twork"))
+            assertEquals("Tab result: ${indented.replace("\t", "<tab>")}", 16,
+                editor.offsetToLogicalPosition(indented.indexOf("work")).column)
+            myFixture.performEditorAction("EditorUnindentSelection")
+            val restored = editor.document.text
+            assertEquals("Unindent result: ${restored.replace("\t", "<tab>")}", 12,
+                editor.offsetToLogicalPosition(restored.indexOf("work")).column)
+            assertTrue("Unindent result: ${restored.replace("\t", "<tab>")}; events=$events",
+                restored.contains("\t\t\twork"))
+            assertTrue(restored.contains("\n\t\t}\n"))
+        }
+        WriteCommandAction.runWriteCommandAction(project) {
+            val document = myFixture.editor.document
+            document.insertString(document.text.indexOf("work") + 2, " ")
+        }
+        assertEquals(5, callbacks)
+    }
+
+    fun testClosingMinimumIndentationAndNewBodyMinimumStillHideImmediately() {
+        openIndentation()
+        myFixture.editor.caretModel.moveToOffset(currentIndentationGuide().pair.closeOffset)
+        myFixture.performEditorAction("EditorTab")
+        assertIndentationHidden()
+        openIndentation()
+        WriteCommandAction.runWriteCommandAction(project) {
+            val document = myFixture.editor.document
+            document.replaceString(document.getLineStartOffset(2), document.text.indexOf("work"), "    ")
+        }
+        assertIndentationHidden()
+    }
+
+    fun testSelectionOutdentAcrossBodyAndMinimumLineStillHides() {
+        openIndentation()
+        val editor = myFixture.editor
+        editor.selectionModel.setSelection(editor.document.getLineStartOffset(2), editor.document.getLineEndOffset(3))
+        myFixture.performEditorAction("EditorUnindentSelection")
+        assertTrue(editor.document.text.contains("        work"))
+        assertTrue(editor.document.text.contains("\n    }"))
+        assertIndentationHidden()
+    }
+
+    fun testNewlineLargeFragmentAndLongMappingPrefixStillHide() {
+        for (replacement in listOf(" \n", " ".repeat(257))) {
+            openIndentation()
+            WriteCommandAction.runWriteCommandAction(project) {
+                val document = myFixture.editor.document
+                document.insertString(document.text.indexOf("work"), replacement)
+            }
+            assertIndentationHidden()
+        }
+        openIndentation()
+        WriteCommandAction.runWriteCommandAction(project) {
+            val document = myFixture.editor.document
+            document.insertString(document.text.indexOf("work"), " ".repeat(4097))
+        }
+        // Install an accepted result for the long prefix, then verify small events are still bounded.
+        val pair = currentIndentationGuide().pair
+        assertEquals(ViewApplication.APPLIED, guide.applyAnalysis(AnalysisUpdate(demands.last().revision,
+            available(pair, BracketGuide(pair, 8, 3)))))
+        WriteCommandAction.runWriteCommandAction(project) {
+            val document = myFixture.editor.document
+            document.insertString(document.text.indexOf("work"), " ")
+        }
+        assertIndentationHidden()
+    }
+
+    fun testWhitespaceProofCannotPreserveChangedLayoutOrBracketToken() {
+        openIndentation()
+        myFixture.editor.settings.setTabSize(8)
+        WriteCommandAction.runWriteCommandAction(project) {
+            val document = myFixture.editor.document
+            document.insertString(document.text.indexOf("work"), " ")
+        }
+        assertIndentationHidden()
+        openIndentation()
+        WriteCommandAction.runWriteCommandAction(project) {
+            val document = myFixture.editor.document
+            val opening = currentIndentationGuide().pair.openOffset
+            document.deleteString(opening, opening + 1)
+        }
+        assertFalse(myFixture.editor.markupModel.allHighlighters.any { it.customRenderer is BracketGuideDrawing })
+        assertNull(demands.last().repair)
+    }
+
+    private fun warmPairSwitch(preferences: BracketGuidePreferences): List<BracketGuide> {
+        val text = "class C {\n    void f() {\n        value();\n    }\n    void g() {\n        value();\n    }\n}"
+        open(preferences, text)
+        val editor = myFixture.editor
+        editor.component.setSize(800, 600)
+        editor.component.doLayout()
+        editor.contentComponent.setSize(800, 600)
+        val geometry = listOf("f()", "g()").map { method ->
+            val start = text.indexOf('{', text.indexOf(method))
+            val end = text.indexOf('}', start)
+            val pair = BracketPair(start, 1, end, 1, 1,
+                editor.document.getLineNumber(start), editor.document.getLineNumber(end))
+            BracketGuide(pair, 4, pair.closeLine)
+        }
+        val offsets = geometry.flatMap { listOf(it.pair.openOffset, it.pair.closeOffset) }.sorted()
+        val lookup = object : BracketView {
+            override fun activePairAt(offset: Int): BracketPair? = geometry.firstOrNull {
+                offset > it.pair.openOffset && offset < it.pair.closeOffset + it.pair.closeTokenLength
+            }?.pair
+            override fun guideFor(pair: BracketPair): BracketGuide = geometry.single { it.pair == pair }
+            override fun visibleTokens(range: OffsetRange, focus: Int, maximum: Int): TokenWindow = object : TokenWindow {
+                override val size = offsets.size
+                override val isCapped = false
+                override val stableFocusStartOffset = 0
+                override val stableFocusEndOffset = text.length
+                override fun offsetAt(index: Int) = offsets[index]
+                override fun lengthAt(index: Int) = 1
+                override fun depthAt(index: Int) = 1
+            }
+        }
+        editor.caretModel.moveToOffset(geometry.first().pair.openOffset + 1)
+        assertEquals(ViewApplication.APPLIED, guide.applyAnalysis(AnalysisUpdate(demands.last().revision,
+            AnalysisResult.Available(lookup, demands.last().coverage, BraceMatcherAvailability.AVAILABLE))))
+        return geometry
+    }
+
+    private fun paintGuide(highlighter: RangeHighlighter, renderer: BracketGuideDrawing): IntArray {
+        val image = BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB)
+        val graphics = image.createGraphics()
+        try {
+            graphics.clipRect(0, 0, image.width, image.height)
+            renderer.paint(myFixture.editor, highlighter, graphics)
+        } finally { graphics.dispose() }
+        return (image.raster.dataBuffer as DataBufferInt).data.copyOf()
+    }
+
+    private fun assertCurrentPairPaint(highlighter: RangeHighlighter, expected: BracketGuide,
+        preferences: BracketGuidePreferences): IntArray {
+        val drawing = highlighter.customRenderer as BracketGuideDrawing
+        assertEquals(expected, drawing.guide)
+        val actual = paintGuide(highlighter, drawing)
+        val expectedDrawing = BracketGuideDrawing(expected,
+            GuideAppearance(preferences.showVerticalGuide, preferences.showHorizontalGuides,
+                preferences.guideLineWidth, preferences.guideOpacityPercent),
+            BracketColorPalette.guideLineColor(preferences, expected.pair.depth))
+        assertTrue("Actual SDK-coordinate rendering must paint guide pixels", actual.any { it != 0 })
+        assertTrue("Current renderer must paint the new geometry, not the old pair",
+            actual.contentEquals(paintGuide(highlighter, expectedDrawing)))
+        val endpoints = myFixture.editor.markupModel.allHighlighters
+            .filter { it.layer == HighlighterLayer.ELEMENT_UNDER_CARET }
+            .sortedBy { it.startOffset }
+        assertEquals(listOf(expected.pair.openOffset, expected.pair.closeOffset), endpoints.map { it.startOffset })
+        assertEquals(listOf(expected.pair.openOffset + 1, expected.pair.closeOffset + 1), endpoints.map { it.endOffset })
+        assertTrue(endpoints.all { it.isValid })
+        return actual
+    }
+
+    fun testWarmPairSwitchImmediatelyReusesGuideRendererAndPaintsCurrentGeometry() {
+        val preferences = BracketGuidePreferences(colorBracketTokens = true, showActivePairBorder = true)
+        val geometry = warmPairSwitch(preferences)
+        val editor = myFixture.editor
+        val original = editor.markupModel.allHighlighters.single { it.customRenderer is BracketGuideDrawing }
+        val renderer = original.customRenderer
+        val tokens = editor.markupModel.allHighlighters.filter {
+            it !== original && it.layer != HighlighterLayer.ELEMENT_UNDER_CARET
+        }
+        assertTrue("Enabled token presentation must have real SDK resources", tokens.isNotEmpty())
+        val firstPixels = assertCurrentPairPaint(original, geometry.first(), preferences)
+        for (expected in listOf(geometry.last(), geometry.first())) {
+            editor.caretModel.moveToOffset(expected.pair.openOffset + 1)
+            // This fixture has no EditorGuideEvents adapter; invoke the actual UI entry once.
+            guide.caretMoved()
+            val current = editor.markupModel.allHighlighters.single { it.customRenderer is BracketGuideDrawing }
+            assertSame(original, current)
+            assertSame(renderer, current.customRenderer)
+            assertTrue(original.isValid)
+            val pixels = assertCurrentPairPaint(current, expected, preferences)
+            if (expected == geometry.last()) assertFalse(firstPixels.contentEquals(pixels))
+            assertTrue(tokens.all { token -> token.isValid && editor.markupModel.allHighlighters.any { it === token } })
+            assertNull(demands.last().repair)
+        }
+    }
+
+    fun testFreshNestedPairTransitionKeepsGuideRendererAndFreshEndpointAuthority() {
+        val preferences = BracketGuidePreferences(colorBracketTokens = true, showActivePairBorder = true)
+        val geometry = warmPairSwitch(preferences)
+        val editor = myFixture.editor
+        val original = editor.markupModel.allHighlighters.single { it.customRenderer is BracketGuideDrawing }
+        val renderer = original.customRenderer
+        var reentered = false
+        afterFirstAdded {
+            reentered = true
+            editor.caretModel.moveToOffset(geometry.first().pair.openOffset + 1)
+            guide.caretMoved()
+        }
+        editor.caretModel.moveToOffset(geometry.last().pair.openOffset + 1)
+        guide.caretMoved()
+        assertTrue(reentered)
+        val current = editor.markupModel.allHighlighters.single { it.customRenderer is BracketGuideDrawing }
+        assertSame(original, current)
+        assertSame(renderer, current.customRenderer)
+        assertCurrentPairPaint(current, geometry.first(), preferences)
+        assertNull(demands.last().repair)
+    }
+
     fun testAffectedEditHidesGuideBeforeSingleCompleteContentDemand() {
         open()
         val document = myFixture.editor.document

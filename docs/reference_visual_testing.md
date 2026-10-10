@@ -22,8 +22,17 @@ independently reviewed image and exact pixel comparison.
 The same session observes actual Swing focus loss/restoration and component
 visibility loss/restoration. Focus loss removes active guide markup while
 retaining token colors; hidden editors remove all plugin markup and visible
-editors resume it. An A/B/A caret cycle must settle to the exact original
-`all-components` pixels. Before capturing that settled state, the suite also
+editors resume it. A warmed caret cycle moves between inner and outer multiline
+pairs and the original empty same-line pair, returning to the inner pair after
+each transition (A/B/A/C/A). Each actual caret move must return with the same
+valid guide highlighter, the new pair's exact endpoint ranges and unchanged token
+ranges in the same EDT callback. It issues no explicit analysis request, event
+pump or analysis wait. Editor identity, stamp, showing and focus remain unchanged;
+`caret-cycle-synchronous.txt` retains each observation and native brace counts.
+This checks immediate SDK presentation state, not every intermediate painted frame
+or the absence of native highlights throughout the transition. An empty same-line
+pair need not paint a nonempty guide segment. The cycle must settle to the exact
+original `all-components` pixels. Before capturing that settled state, the suite also
 requires managed native settings and no actual matched/unmatched brace
 highlighters, identified by the keys used by IntelliJ's brace handler. Editor,
 settings, focus and SDK markup diagnostics are retained around the cycle; two
@@ -34,6 +43,31 @@ The Driver edit transport also asserts that the affected guide highlighter is
 absent inside the write command immediately after the document edit returns.
 The UI-owned IDE contract checks the corresponding synchronous content-demand
 boundary. A later screenshot alone cannot prove hiding timing.
+
+A real FileEditorManager tab cycle first warms `Contract.java` and `TabContract.java`
+through normal editor events. Each warmed tab return checks the selected editor's
+identity, unchanged document stamp, actual Swing showing state, and the full valid
+plugin token range/depth-key list inside the same EDT callback immediately after
+selection returns. There is no analysis wait, event pump, or explicit plugin request
+before that assertion. Hidden tabs must have no plugin markup. Focus is deferred,
+so active-guide restoration is checked separately after the synchronous token
+contract. Closing the other tab and restoring focus must reproduce the existing
+`all-components` pixels exactly. This adds an interaction contract, not a new PNG
+baseline. `tab-switch-observed.txt` retains both synchronous observations and
+failure diagnostics; it does not prove that a painted frame never flickers under
+all event interleavings.
+
+A body indentation round-trip invokes the actual `EditorTab` and
+`EditorUnindentSelection` handlers with no selection, starting at the body prefix
+(column 12) inside the warmed pair (guide column 8). Each action must keep the
+same valid guide mark before its write command returns, preserve endpoint/token
+correspondence, and change the actual indentation; the second action restores the
+original document exactly. `indentation-cycle-synchronous.txt` records the actual
+DocumentEvent fragments and start columns. After ordinary native/daemon readiness,
+the original `all-components` image must match exactly. The existing closing-line
+edit must still hide affected geometry synchronously and match `edited-geometry`
+after repair. These add interaction coverage without another baseline image and
+do not promise retention when the guide position itself must change.
 
 The registered Settings dialog is opened through the public SDK. Driver clicks
 the real integration checkbox and Apply control. The draft toggle must leave

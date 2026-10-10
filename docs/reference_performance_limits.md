@@ -88,10 +88,12 @@ inside a third-party matcher.
 | Caret movement with a current `BracketView` | `O(log P)` active-pair lookup; moving to another pair replaces at most one guide and two active-symbol ranges |
 | Caret movement without a current `BracketView` | Range-marker adjustment and interval containment only; no token iteration or matcher callback on the EDT |
 | Ordinary viewport or displayed Sticky Lines change | Query bounded token ranges from the current `BracketView`, deduplicate overlaps, and reuse matching highlighters; no recognition or matcher callback |
-| Document insertion, replacement, or deletion | Adjust tracked endpoints, remove bounded Sticky-only token decorations, hide affected guide geometry, and request immediate background repair; no text scan, token-index iteration, or matcher callback on the EDT |
+| Document insertion, replacement, or deletion | Adjust tracked endpoints, remove bounded Sticky-only token decorations, retain proven unchanged geometry or hide affected geometry and request immediate background repair; inspect at most 256 event-fragment characters and admit SDK logical-coordinate lookup within a 4,096-character physical line prefix; no document-prefix scan, token-index iteration, or matcher callback in plugin UI code |
 | Enable a guide while exact guide coverage is pending | Geometry-only reuse or immediate bounded provisional repair for the already tracked pair; indentation scanning runs in the background |
 | Theme or palette change | Refresh explicit palette attributes and theme-dependent background blending; no pair recognition |
-| Global disable | Skip recognition and clear plugin-owned markup |
+| Hide editor | Clear owned markup and cancel work/publication; retain at most one session-local soft-reference suspended result |
+| Return to unchanged editor | Validate suspended source/coverage/environment and file-size eligibility, then reapply on EDT; a cache miss or invalid entry schedules background analysis |
+| Global disable | Skip recognition, discard suspended result and clear plugin-owned markup |
 
 The active interval uses this strict boundary:
 
@@ -121,11 +123,22 @@ positions before the opener and after the closer.
   remains the blank-line sentinel.
 
 After an edit, stale proportional pair and index structures are released.
-Affected guide geometry is removed before the EDT update returns. A separate
-immediate repair job computes indentation for the surviving tracked pair;
-replacement full analysis may later discover a different pair. When every
-pair-dependent feature is disabled or the editor is hidden, `EditorAnalysisSession` revokes work and
-releases its accepted result; `EditorGuide` releases its displayed `BracketView`.
+Affected guide geometry is removed before the EDT update returns. A bounded
+space/tab-only change strictly after the guide column may retain the same minimum
+and anchor; the event-fragment and coordinate-prefix bounds are optimization
+admission limits, not increased analysis budgets. Exceeding them keeps the
+existing hide-and-repair behavior. SDK coordinate lookup cost is not guaranteed
+constant. A separate immediate repair job computes missing indentation for the surviving tracked pair;
+replacement full analysis may later discover a different pair. When every pair-dependent feature is disabled or the editor is hidden,
+`EditorAnalysisSession` revokes work and releases its active accepted result;
+`EditorGuide` releases its displayed `BracketView`. A hidden session may retain
+one suspended `Accepted` through a JDK `SoftReference`; no-facet, content,
+disabled-language and close transitions discard it. There is no TTL or strong
+hidden-result cache. The one-entry-per-session bound is a count bound, not an
+aggregate byte or total-heap bound. Clearing soft references is JVM-controlled;
+results can survive ordinary GC and can be reclaimed under memory pressure.
+Neither guaranteed retention nor prompt reclamation after hiding is promised.
+A cleared entry requires background recomputation on return.
 
 Equivalent split-editor results may share core-internal immutable `BracketIndexes`
 within the same document reuse revision, after exact content and index-layout

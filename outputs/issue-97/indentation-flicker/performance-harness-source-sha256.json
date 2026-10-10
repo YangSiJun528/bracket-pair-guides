@@ -1,0 +1,13 @@
+{
+  "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkEditRestorationWorkload.kt": "161eb43590c102ac0213669c93462eaf92d87a33d861e39a3d494ab02efb046f",
+  "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkIndentationWorkload.kt": "61c30dfe72ecdfee5f361beab564208e6063250fa722cb17d485b96cadee26ea",
+  "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/ComparisonFixture.kt": "2223bec2ad197983e5e12212ec655a65833296e8ad9c5a5291e89b2465505cb7",
+  "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkComparisonMeasurementTest.kt": "d875944eddd9a6e55c5542b584fdab48d721090406d42f6b5cb1b7ae1bfe3dc5",
+  "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkNativeRepairWorkloads.kt": "c5218daf65e028a6f961b0b4ae7520f0abb5b1c6b3d7974c29c9149001b3d433",
+  "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/CandidateComparisonHost.kt": "0370bde8254ea66faa94b73b402d56394576632af89392729953b642cfee4a0b",
+  "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkDescriptorEvidence.kt": "08bee7ca1673db3e1900ceba088ad302f2a3ce40d1fd7ccdc6d4e965398fbd3d",
+  "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkAllocationSegments.kt": "8571e9f40533e81c0a4b0b6ff8f8f2b32bbcba5942f9db380be08140d21a8a0d",
+  "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/ResourceEvidence.kt": "032c994daed031523df87dbc2ca9e2579bc75e95badc09165c95e5655f072892",
+  "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkNativeControls.kt": "459fe0cfb3767368614bf32cc99256dc3af0923f1b655a678dfba2b249082a5d",
+  "plugin/src/sdkPerformance/kotlin/com/sijunyang/bracketpairguides/comparison/SdkEvidencePump.kt": "88cc226336d16542bd8814a39fe2bcaf2f1f0379ca2672fc2dfcdaedde9a2b6f"
+}

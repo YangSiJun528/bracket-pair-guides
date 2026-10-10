@@ -26,6 +26,27 @@ completed daemon state before and after screenshots at the same stamp, followed
 by two identical images. The 30-second capture budget remains unchanged; do not
 replace these observations with sleeps or forced daemon/caret events.
 
+Also inspect `caret-cycle-synchronous.txt`. The warmed A/B/A/C/A sequence must
+show the new pair endpoints immediately after each real caret move while retaining
+the guide highlighter and token window. A later stable screenshot cannot satisfy
+this contract. Preserve a controlled delayed-presentation mutation failure when
+establishing the assertion; do not interpret same-EDT markup callbacks as proof of
+an actual painted blank frame.
+
+Also inspect `tab-switch-observed.txt`. The real warmed-tab A/B/A contract must
+restore valid token markup in the selection EDT turn; waiting for later analysis
+cannot satisfy it. Focus and active-guide settlement happen afterwards, followed
+by exact comparison with the existing `all-components` image. No new baseline is
+needed. When verifying this fix, preserve a failure from the pre-fix runtime or a
+controlled reverse mutation; a passing settled screenshot alone is insufficient.
+
+Inspect `indentation-cycle-synchronous.txt` for the actual Tab/Shift+Tab body
+round-trip. The guide must survive both commands before asynchronous publication
+can run, the event coordinates must correspond to real indentation edits, and
+restored text/pixels must match the original fixture. Preserve the failure with
+the pre-fix production code; do not replace the actions with direct text insertion
+or relax the existing closing-line immediate-hide assertion.
+
 ## Prepare new baseline candidates
 
 Run only for an intentional suite or rendering change, outside CI:

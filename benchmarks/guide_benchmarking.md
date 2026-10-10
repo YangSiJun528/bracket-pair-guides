@@ -53,6 +53,27 @@ pairs × 2 revisions), separately from 46 old JMH cases/7 jobs. Those are histor
 anchors, not equivalent new measurements. Existing writer/repair/allocation and
 XML-retention signals remain unresolved until specifically measured and fixed.
 
+## Measure unchanged guide retention during indentation
+
+The opt-in SDK `indentation` workload uses the existing comparison fixture and
+actual Tab/Unindent editor actions in a warmed main editor. Run both revisions
+with the same `CandidateComparisonHost` and harness; it records whether geometry
+survives each action without requiring either behavior as a baseline assertion.
+Both revisions must produce the declared 12→16→12 body indentation, restore the
+original text and guide geometry, and close their actual owned work and markup.
+
+Record per-action EDT duration/allocation separately from inherited coroutine
+allocation and read observations. Action timing includes document callbacks but
+excludes subsequent commit/inspection; the scopes must not be added into a total.
+The fixture is headless and explicitly active, so Driver remains the rendering
+and focus check. Existing `edit-restoration` corpora and hide/refusal assertions
+remain unchanged. The local indentation comparison predeclares six balanced AB/BA
+fresh-JVM pairs, five warmup round-trips and thirty measured round-trips per JVM,
+with per-JVM medians as primary latency/allocation metrics and nearest-rank p95
+also reported. Flag a paired primary median ratio above 1.20; keep every raw run
+and any failures. See `outputs/issue-97/indentation-flicker/performance-plan.json`
+for the recorded comparison plan.
+
 ## Track history with Bencher
 
 [The Bencher guide](guide_bencher.md) describes optional standard latency import.

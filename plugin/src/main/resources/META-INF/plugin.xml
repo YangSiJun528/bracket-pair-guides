@@ -22,6 +22,12 @@
     ]]></description>
 
     <change-notes><![CDATA[
+        <p><b>0.1.0</b></p>
+        <ul>
+            <li>Redesign the internal architecture into five modules, separating editor UI, IntelliJ execution, and a platform-independent calculation core.</li>
+            <li>Rework cancellable background analysis and result validation while preserving existing guide rendering, settings, and editor behavior.</li>
+            <li>Known limitation: local comparisons still show higher full-analysis latency in some workloads and higher latency and allocations in unchanged-caret callbacks.</li>
+        </ul>
         <p><b>0.0.6</b></p>
         <ul>
             <li>Prevent editor-update failures while IntelliJ computes context-action previews.</li>

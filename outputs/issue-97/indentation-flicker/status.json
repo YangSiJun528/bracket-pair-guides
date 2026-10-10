@@ -1,0 +1,96 @@
+{
+  "status": "completed-with-documented-limits",
+  "baseline": "c9be822bfc0d74e7785406d3b664fa72ade0714a",
+  "baselineTree": "/private/tmp/bpg-indent-baseline-qz897y1i/bracket-pair-guides",
+  "remoteActions": false,
+  "issue": "Only guide line flickers during Tab/Shift+Tab indentation inside pair",
+  "decision": "Retain unchanged geometry only for bounded horizontal-whitespace deltas with edit start logical column strictly beyond current guide column; preserve all unsafe hide cases.",
+  "limits": {
+    "maximumCombinedEventFragmentCharacters": 256,
+    "maximumPhysicalPrefixForSdkCoordinateMapping": 4096
+  },
+  "owners": {
+    "core_design": "UI impact proof, event scalar capture and SDK tests",
+    "build_validation": "Driver real Tab/Unindent interaction contract",
+    "runtime_design": "additive SDK performance workload",
+    "main": "design, serial verification, docs/integration/local commits"
+  },
+  "performancePlan": {
+    "pairs": 6,
+    "order": [
+      "AB",
+      "BA",
+      "AB",
+      "BA",
+      "AB",
+      "BA"
+    ],
+    "warmup": 5,
+    "repeat": 30,
+    "sameHarness": true,
+    "primary": [
+      "per-JVM median action EDT duration",
+      "per-JVM median action EDT allocated bytes",
+      "synchronous guide retention per action"
+    ],
+    "secondary": [
+      "p95 nearest-rank action EDT duration",
+      "async allocation/read observations"
+    ],
+    "flagCriterion": "Flag median paired candidate/baseline primary ratio above1.20; preserve all raw runs and report limits. No reruns to discard a regression.",
+    "concurrency": "no other builds,IDE,Driver or performance workload during measurement"
+  },
+  "updatedUtc": "2026-10-09T08:18:38.637133+00:00",
+  "reproduction": "Actual Driver EditorTab12->16 atlogicalC12 removesguideG8 synchronously on c9be822.",
+  "sdkAttempt01": "58 tests, 6 new fixture setup failures due to preinstalled global registry; existing 52 passed. Scoped test listener fix applied; production unchanged by fixture repair.",
+  "sdkAttempt04": {
+    "minimumSdkTests": {
+      "tests": 58,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "currentSdkTests": {
+      "tests": 58,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "driver": "12 unchanged PNG baselines and synchronous real Tab/Shift+Tab guide retention passed",
+  "candidateRevision": "60305549e301681222ef2783c953ae2d616d5cd6",
+  "independentReview": "No actionable defect found by build_validation; lexical/SDK cost/paint-interleaving limits retained.",
+  "fullCheck": "passed including 52 build-logic tests",
+  "sdkFreeTests": 51,
+  "performanceFreshJvmRuns": 12,
+  "performancePrimaryRegressionFlags": 0,
+  "editRestorationSmoke": {
+    "corpora": [
+      "257-line-refusal",
+      "32769-character-refusal",
+      "exact-256-line-budget",
+      "exact-32768-character-budget",
+      "ordinary-small-body",
+      "same-line-special-case"
+    ],
+    "measuredSamples": 12,
+    "warmupSessions": 6,
+    "cleanupRecords": 18,
+    "completed": true,
+    "scope": "Candidate-only unchanged workload correctness smoke; no comparative performance conclusion or restoration-lane attribution."
+  },
+  "delivery": {
+    "sourceRevision": "60305549e301681222ef2783c953ae2d616d5cd6",
+    "file": "/Users/sijun-yang/Documents/GitHub/bracket-pair-guides/build/distributions/0.1.0-indentation-fix/bracket-pair-guides-0.1.0.zip",
+    "sha256": "ed735c744f9f94ba69b243c00dd6e01bdd5b8b8e77079a0a328994572a949776",
+    "bytes": 728193,
+    "version": "0.1.0",
+    "publication": "local QA archive only"
+  },
+  "remainingLimits": [
+    "Geometry-changing/unproven edits still hide pending repair",
+    "One indentation performance corpus; no fresh JMH measurement",
+    "Pinned Linux Driver; exact user macOS GUI not manually rechecked",
+    "Full Plugin Verifier product matrix and Qodana not rerun for this fix"
+  ]
+}
