@@ -30,8 +30,8 @@ internal object GuidePositionFallback {
         val line = document.getLineNumber(change.offset)
         // Admit only a bounded physical prefix before requesting the SDK tab-expanded mapping.
         // This is a conservative optimization boundary, not a document indentation scan.
-        if (change.offset - document.getLineStartOffset(line) > MAX_MAPPING_PREFIX_CHARACTERS) return false
-        return editor.offsetToLogicalPosition(change.offset).column > guideColumn
+        return change.offset - document.getLineStartOffset(line) <= MAX_MAPPING_PREFIX_CHARACTERS &&
+            editor.offsetToLogicalPosition(change.offset).column > guideColumn
     }
 
     private const val MAX_MAPPING_PREFIX_CHARACTERS = 4096

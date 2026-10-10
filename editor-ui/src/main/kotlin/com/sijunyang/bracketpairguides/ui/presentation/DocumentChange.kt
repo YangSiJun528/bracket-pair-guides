@@ -52,7 +52,7 @@ internal data class DocumentChange(
         }
 
         private fun horizontalWhitespace(fragment: CharSequence): Boolean {
-            for (index in 0 until fragment.length) {
+            for (index in fragment.indices) {
                 if (fragment[index] != ' ' && fragment[index] != '\t') return false
             }
             return true
