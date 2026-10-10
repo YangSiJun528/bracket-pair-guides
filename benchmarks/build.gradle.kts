@@ -15,7 +15,7 @@ kotlin {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
     implementation(project(":analysis-core"))
     implementation(project(":analysis-model"))
 }
