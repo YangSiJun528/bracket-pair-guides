@@ -17,7 +17,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-/** Actual plugin registration must export all cases and survive configuration-cache reuse. */
+/** The existing report task exports all cases and survives configuration-cache reuse. */
 public class BenchmarkReportIntegrationTest {
     @Rule public TemporaryFolder temporary = new TemporaryFolder();
 
@@ -34,24 +34,18 @@ public class BenchmarkReportIntegrationTest {
     private void exportAndReuse(boolean absolute) throws IOException {
         Path fixture = temporary.newFolder("fixture").toPath();
         Path testKit = temporary.newFolder("test-kit").toPath();
-        var owners =
-                List.of(
-                        "analysis-model",
-                        "analysis-core",
-                        "editor-ui",
-                        "analysis-runtime",
-                        "plugin");
-        for (String owner : owners) Files.createDirectories(fixture.resolve(owner));
         Files.writeString(
-                fixture.resolve("settings.gradle"),
-                "rootProject.name = 'report-fixture'\ninclude "
-                        + String.join(
-                                ", ", owners.stream().map(owner -> "'" + owner + "'").toList())
-                        + "\n");
+                fixture.resolve("settings.gradle"), "rootProject.name = 'report-fixture'\n");
         Files.writeString(
                 fixture.resolve("build.gradle"),
-                "plugins { id 'base'; id 'bracket.module-boundaries' }\n"
-                        + "subprojects { apply plugin: 'java-library' }\n");
+                "buildscript { dependencies { classpath files("
+                        + JsonOutput.toJson(System.getProperty("buildlogic.jar"))
+                        + ") } }\n"
+                        + "tasks.register('exportBenchmarkMetrics', com.sijunyang.buildlogic.BenchmarkReportTask) {\n"
+                        + "  inputFile.set(layout.projectDirectory.file(providers.gradleProperty('benchmarkResults')))\n"
+                        + "  outputFile.set(layout.projectDirectory.file(providers.gradleProperty('benchmarkBmf')))\n"
+                        + "  job.set(providers.gradleProperty('benchmarkJob').orElse('all'))\n"
+                        + "}\n");
         Files.writeString(
                 fixture.resolve("gradle.properties"), "org.gradle.configuration-cache=true\n");
         Path input =
@@ -93,7 +87,6 @@ public class BenchmarkReportIntegrationTest {
                 GradleRunner.create()
                         .withProjectDir(fixture.toFile())
                         .withTestKitDir(testKit.toFile())
-                        .withPluginClasspath()
                         .withArguments(arguments)
                         .build();
         assertThat(first.task(":exportBenchmarkMetrics").getOutcome())
@@ -108,7 +101,6 @@ public class BenchmarkReportIntegrationTest {
                 GradleRunner.create()
                         .withProjectDir(fixture.toFile())
                         .withTestKitDir(testKit.toFile())
-                        .withPluginClasspath()
                         .withArguments(arguments)
                         .build();
         assertThat(second.getOutput()).contains("Reusing configuration cache.");

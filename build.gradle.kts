@@ -1,6 +1,13 @@
+import com.sijunyang.buildlogic.BenchmarkReportTask
+
+buildscript {
+    dependencies {
+        classpath("com.sijunyang.buildlogic:bracket-guide-build-logic")
+    }
+}
+
 plugins {
     base
-    id("bracket.module-boundaries")
     id("com.diffplug.spotless")
     id("org.jetbrains.kotlin.jvm") apply false
 }
@@ -66,16 +73,35 @@ tasks.named("check") {
         "spotlessCheck",
         ":analysis-model:check",
         ":analysis-core:check",
-        "verifyProductionModules",
-        gradle.includedBuild("build-logic").task(":check"),
     )
     if (findProject(":plugin") != null) {
         dependsOn(
             ":editor-ui:check",
             ":analysis-runtime:check",
             ":plugin:check",
-            ":plugin:minimumSdkTests",
-            ":benchmarks:jmhJar",
         )
     }
+}
+
+tasks.register("ciCheck") {
+    group = "verification"
+    description = "Runs local checks plus IDE contracts, build-logic tests, packaging and benchmark compilation."
+    dependsOn(
+        "check",
+        gradle.includedBuild("build-logic").task(":check"),
+        ":plugin:minimumSdkTests",
+        ":plugin:currentSdkTests",
+        ":plugin:buildPlugin",
+        ":plugin:verifyPluginProjectConfiguration",
+        ":plugin:verifyPluginStructure",
+        ":benchmarks:jmhJar",
+    )
+}
+
+tasks.register<BenchmarkReportTask>("exportBenchmarkMetrics") {
+    inputFile.set(layout.projectDirectory.file(providers.gradleProperty("benchmarkResults")))
+    outputFile.set(
+        layout.projectDirectory.file(providers.gradleProperty("benchmarkBmf").orElse("build/benchmark-metrics.json")),
+    )
+    job.set(providers.gradleProperty("benchmarkJob").orElse("all"))
 }

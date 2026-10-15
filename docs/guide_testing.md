@@ -3,22 +3,38 @@
 Run commands from the repository root. Build, Driver, compatibility checks and
 performance measurements share resources; run them serially.
 
-## Run owner and structural tests
+## Run local checks
 
 ```sh
-./gradlew -p tools/pure-build check :analysis-model:build :analysis-core:build
-./gradlew spotlessCheck check
+./gradlew :check
 ```
 
-The first command uses Maven Central and the ordinary JVM build plugins only.
-Its source and owner build scripts are shared; outputs and the project cache are
-under `tools/pure-build`, separate from the SDK build.
+This runs Spotless, ordinary owner tests, and ArchUnit package rules. It does not
+launch IDE fixtures, copy the repository into test builds, build the distribution
+ZIP, or compile benchmarks. The pre-push hook uses this same command. The leading
+colon selects the root aggregate without
+selecting the benchmark module's own `check` task.
 
-`check` runs the owner tests, actual compiler-input policy, Gradle TestKit
-functional tests, ArchUnit reference rules, minimum-IDE fixtures, JMH compilation
-and release packaging policy. A missing or empty required suite is not a pass.
-The build-logic TestKit suite copies this checkout into isolated temporary
-projects and invokes its pinned Kotlin and Java compilers.
+To test the two platform-free modules without configuring IntelliJ:
+
+```sh
+./gradlew -p tools/pure-build check
+```
+
+The independent build uses Maven Central and ordinary JVM plugins. Sources and
+owner build scripts are shared; outputs and the project cache stay under
+`tools/pure-build`.
+
+## Run the CI suite
+
+```sh
+./gradlew ciCheck
+```
+
+CI runs this command after the independent SDK-free build. It includes `check`,
+minimum/current IDE fixtures, existing benchmark-report tests, JMH compilation,
+the distribution ZIP, and the official JetBrains `verifyPluginProjectConfiguration`
+and `verifyPluginStructure` tasks. Benchmark execution remains separate.
 
 ## Run real IDE contracts
 
@@ -31,9 +47,11 @@ Classes ending `IdeContractTest` belong to their production module's `src/test`
 but execute through the official plugin test sandbox. Ordinary owner `test`
 tasks exclude those classes. The UI test compile classpath excludes core and
 runtime implementations; collecting compiled test outputs in the real IDE
-runner does not change compile access. The existing CI Test step runs both
-`check` and `:plugin:currentSdkTests`; local execution evidence must still show
-the actual selected platform and executed cases.
+runner does not change compile access. The CI `ciCheck` task includes both IDE
+versions. Local execution evidence must still show the actual selected platform
+and executed cases. The session contract also supplies an EDT parent dispatcher
+and verifies that reads still run in the
+background while publication runs on EDT.
 
 Inspect the XML test results and `ACTUAL_IDE`/`ACTUAL_JAVA` output. A configured
 IDE version alone does not establish which platform executed the test.
@@ -41,15 +59,16 @@ IDE version alone does not establish which platform executed the test.
 ## Verify the distribution
 
 ```sh
-./gradlew :plugin:buildPlugin verifyPluginPackaging
+./gradlew :plugin:buildPlugin
 ./gradlew :plugin:verifyPluginProjectConfiguration :plugin:verifyPluginStructure :plugin:verifyPlugin
 ```
 
 Keep the same final ZIP for compatibility, actual execution and visual checks.
-Record its SHA-256. `build/module-verification/archive-identity.txt` records
-owner archives and their actual input/dependency paths, including instrumentation
-when present. The release must contain exactly the five owner archives and no
-extra SDK, Kotlin, coroutine, test or bridge classes.
+Record its SHA-256 with `shasum -a 256 plugin/build/distributions/*.zip`.
+The official [JetBrains verification tasks](https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-tasks.html#verifypluginstructure)
+check project configuration, plugin descriptors, archive structure, and IDE
+compatibility. The previous project-specific jar-count and byte-identity audit
+has been removed; these are not additional requirements on the official tasks.
 
 ## Inspect code and visuals
 

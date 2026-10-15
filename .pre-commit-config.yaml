@@ -21,8 +21,8 @@ repos:
           )$
 
       - id: gradle-check
-        name: Gradle check
-        entry: ./gradlew check
+        name: Local checks (unit tests and package rules)
+        entry: ./gradlew :check
         language: system
         stages: [pre-push]
         pass_filenames: false
