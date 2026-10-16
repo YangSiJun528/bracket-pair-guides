@@ -31,10 +31,13 @@ owner build scripts are shared; outputs and the project cache stay under
 ./gradlew ciCheck
 ```
 
-CI runs this command after the independent SDK-free build. It includes `check`,
+The CI **Build** job runs this command after compiling the SDK-free modules with
+`./gradlew -p tools/pure-build :analysis-model:assemble :analysis-core:assemble`.
+Their unit tests run once, in `ciCheck`. It includes `check`,
 minimum/current IDE fixtures, existing benchmark-report tests, JMH compilation,
 the distribution ZIP, and the official JetBrains `verifyPluginProjectConfiguration`
-and `verifyPluginStructure` tasks. Benchmark execution remains separate.
+and `verifyPluginStructure` tasks. The required **Test** status follows the same
+job's success without rebuilding. Benchmark execution remains separate.
 
 ## Run real IDE contracts
 

@@ -270,7 +270,7 @@ them with the corresponding IntelliJ inspection when possible.
 ## Before requesting review
 
 1. Run `./gradlew :check`.
-2. Run `./gradlew ciCheck` for the full test and packaging suite, or confirm the CI **Test** job passes.
+2. Run `./gradlew ciCheck` for the full test and packaging suite, or confirm the CI **Build** job passes. The required **Test** status follows that job.
 3. Run the relevant Plugin Verifier tasks for platform or descriptor changes.
 4. Confirm the CI **Inspect Code** job passes.
 

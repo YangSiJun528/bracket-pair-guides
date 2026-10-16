@@ -73,14 +73,10 @@ tasks.named("check") {
         "spotlessCheck",
         ":analysis-model:check",
         ":analysis-core:check",
+        ":editor-ui:check",
+        ":analysis-runtime:check",
+        ":plugin:check",
     )
-    if (findProject(":plugin") != null) {
-        dependsOn(
-            ":editor-ui:check",
-            ":analysis-runtime:check",
-            ":plugin:check",
-        )
-    }
 }
 
 tasks.register("ciCheck") {
