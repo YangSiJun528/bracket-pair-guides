@@ -2,6 +2,7 @@ package com.sijunyang.bracketpairguides.runtime.session
 
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.ex.EditorEx
@@ -32,6 +33,7 @@ import kotlinx.coroutines.SupervisorJob
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.LockSupport
+import kotlin.coroutines.CoroutineContext
 
 /** Tests the production dispatcher and bounded SDK reads through complete desired-state requests. */
 class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
@@ -76,10 +78,10 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
         GuideChange.CONFIGURATION,
         NativeInterest(0, false),
     )
-    private fun open() {
+    private fun open(context: CoroutineContext = Dispatchers.Default) {
         myFixture.configureByText("RuntimeContract.java", "class C {\n  void f() { }\n}")
         parentJob = SupervisorJob()
-        factory = RuntimeGuideWorkFactory(CoroutineScope(parentJob + Dispatchers.Default + observer))
+        factory = RuntimeGuideWorkFactory(CoroutineScope(parentJob + context + observer))
         work = factory.attach(
             myFixture.editor,
             object : GuideView {
@@ -118,7 +120,8 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
         assertNull(violation.get())
     }
     fun testReadsAreBackgroundAndPublicationIsEdtAndDuplicateDemandIsInert() {
-        open()
+        // The session must select a background dispatcher even when its caller supplies EDT.
+        open(Dispatchers.EDT)
         work.reconcile(initial)
         await { publications == 1 }
         val count = entered.get()

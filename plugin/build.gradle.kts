@@ -62,9 +62,6 @@ val visualTestJavaLauncher = javaToolchains.launcherFor {
 val cleanVisualTestArtifacts = tasks.register<Delete>("cleanVisualTestArtifacts") {
     delete(visualTestArtifactsDirectory, visualTestProjectDirectory)
 }
-val cleanRecordedVisualTestArtifacts = tasks.register<Delete>("cleanRecordedVisualTestArtifacts") {
-    delete(visualTestArtifactsDirectory, visualTestProjectDirectory)
-}
 
 base {
     archivesName.set(rootProject.name)
@@ -163,65 +160,45 @@ dependencies {
     )
 }
 
-intellijPlatformTesting.testIdeUi.register("visualTest") {
-    type = IntelliJPlatformType.IntellijIdeaCommunity
-    version = "2024.2.6"
+listOf("visualTest", "captureVisualTestCandidates").forEach { taskName ->
+    val captureCandidates = taskName == "captureVisualTestCandidates"
+    intellijPlatformTesting.testIdeUi.register(taskName) {
+        type = IntelliJPlatformType.IntellijIdeaCommunity
+        version = "2024.2.6"
 
-    task {
-        description = "Runs deterministic Starter and Driver visual regression tests."
-        group = "verification"
-        testClassesDirs = visualTestSourceSet.output.classesDirs
-        classpath = visualTestSourceSet.runtimeClasspath
-        useJUnitPlatform()
-        filter { excludeTestsMatching("*.ManualQaLauncher") }
-        javaLauncher.set(visualTestJavaLauncher)
-        maxParallelForks = 1
-        systemProperty(
-            "visual.test.artifacts.dir",
-            visualTestArtifactsDirectory.get().asFile.absolutePath,
-        )
-        systemProperty(
-            "visual.test.baselines.dir",
-            visualTestBaselinesDirectory.asFile.absolutePath,
-        )
-        systemProperty(
-            "visual.test.project.dir",
-            visualTestProjectDirectory.get().asFile.absolutePath,
-        )
-        outputs.dir(visualTestArtifactsDirectory)
-        outputs.upToDateWhen { false }
-        dependsOn(cleanVisualTestArtifacts)
-    }
-}
-
-intellijPlatformTesting.testIdeUi.register("captureVisualTestCandidates") {
-    type = IntelliJPlatformType.IntellijIdeaCommunity
-    version = "2024.2.6"
-
-    task {
-        description = "Captures candidate images for review without accepting or overwriting baselines."
-        group = "verification"
-        testClassesDirs = visualTestSourceSet.output.classesDirs
-        classpath = visualTestSourceSet.runtimeClasspath
-        useJUnitPlatform()
-        filter { excludeTestsMatching("*.ManualQaLauncher") }
-        javaLauncher.set(visualTestJavaLauncher)
-        maxParallelForks = 1
-        systemProperty("visual.test.capture-candidates", true)
-        systemProperty(
-            "visual.test.artifacts.dir",
-            visualTestArtifactsDirectory.get().asFile.absolutePath,
-        )
-        systemProperty(
-            "visual.test.baselines.dir",
-            visualTestBaselinesDirectory.asFile.absolutePath,
-        )
-        systemProperty(
-            "visual.test.project.dir",
-            visualTestProjectDirectory.get().asFile.absolutePath,
-        )
-        outputs.upToDateWhen { false }
-        dependsOn(cleanRecordedVisualTestArtifacts)
+        task {
+            description = if (captureCandidates) {
+                "Captures candidate images for review without accepting or overwriting baselines."
+            } else {
+                "Runs deterministic Starter and Driver visual regression tests."
+            }
+            group = "verification"
+            testClassesDirs = visualTestSourceSet.output.classesDirs
+            classpath = visualTestSourceSet.runtimeClasspath
+            useJUnitPlatform()
+            filter { excludeTestsMatching("*.ManualQaLauncher") }
+            javaLauncher.set(visualTestJavaLauncher)
+            maxParallelForks = 1
+            systemProperty(
+                "visual.test.artifacts.dir",
+                visualTestArtifactsDirectory.get().asFile.absolutePath,
+            )
+            systemProperty(
+                "visual.test.baselines.dir",
+                visualTestBaselinesDirectory.asFile.absolutePath,
+            )
+            systemProperty(
+                "visual.test.project.dir",
+                visualTestProjectDirectory.get().asFile.absolutePath,
+            )
+            if (captureCandidates) {
+                systemProperty("visual.test.capture-candidates", true)
+            } else {
+                outputs.dir(visualTestArtifactsDirectory)
+            }
+            outputs.upToDateWhen { false }
+            dependsOn(cleanVisualTestArtifacts)
+        }
     }
 }
 

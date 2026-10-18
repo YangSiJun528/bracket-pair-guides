@@ -41,8 +41,11 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Build Plugin
-        run: ./gradlew :plugin:buildPlugin
+      - name: Compile SDK-free Analysis Modules
+        run: ./gradlew -p tools/pure-build :analysis-model:assemble :analysis-core:assemble
+
+      - name: Build and Test
+        run: ./gradlew ciCheck
 
       - name: Upload Plugin Distribution
         uses: actions/upload-artifact@v7
@@ -50,45 +53,20 @@ jobs:
           name: plugin-distribution
           path: ./plugin/build/distributions/*.zip
 
-  test:
-    name: Test
-    needs: [ build ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Maximize Build Space
-        uses: jlumbroso/free-disk-space@v2.0.0
-        with:
-          tool-cache: false
-          large-packages: false
-
-      - name: Fetch Sources
-        uses: actions/checkout@v7
-
-      - name: Setup Java
-        uses: actions/setup-java@v6.0.1
-        with:
-          distribution: zulu
-          java-version: 21
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
-        with:
-          cache-read-only: true
-
-      - name: Build SDK-free Analysis Modules
-        run: ./gradlew -p tools/pure-build check :analysis-model:build :analysis-core:build
-
-      - name: Run Tests
-        run: ./gradlew check :plugin:currentSdkTests
-
       - name: Collect Failed Test Reports
         if: ${{ failure() }}
         uses: actions/upload-artifact@v7
         with:
           name: tests-result
-          path: |
-            ${{ github.workspace }}/*/build/reports/tests
-            ${{ github.workspace }}/tools/pure-build/build/*/reports/tests
+          path: ${{ github.workspace }}/*/build/reports/tests
+
+  # Keep the required Test status; all tests already ran in Build.
+  test:
+    name: Test
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    steps:
+      - run: test '${{ needs.build.result }}' = success
 
   inspectCode:
     name: Inspect Code
@@ -148,11 +126,7 @@ jobs:
           cache-read-only: true
 
       - name: Run Plugin Verification
-        run: >-
-          ./gradlew
-          :plugin:verifyPluginProjectConfiguration
-          :plugin:verifyPluginStructure
-          :plugin:verifyPlugin
+        run: ./gradlew :plugin:verifyPlugin
 
       - name: Collect Plugin Verifier Report
         if: ${{ always() }}

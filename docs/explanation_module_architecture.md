@@ -101,8 +101,32 @@ classDiagram
 
 ## What the dependency graph proves
 
-The production module audit inspects actual Kotlin/Java compiler inputs, dependency visibility, source roots, and destinations. Negative compile probes require forbidden Kotlin and Java references to fail; positive controls ensure the symbols exist. Repository policy also rejects paths or shared outputs that would reopen access, and checks runtime bytecode references against the UI-owned contract package.
+Gradle's normal `api`/`implementation` declarations and compiler classpaths
+control module visibility. ArchUnit is the single definition of allowed package
+references; there is no custom Gradle verification plugin. An unused dependency
+addition is not itself an ArchUnit violation, but using it to cross a forbidden
+package edge fails the package test.
 
-Those checks establish structural restrictions when executed successfully. They do not prove algorithm correctness, timely cancellation, freedom from listener reentrancy, or correct IDE packaging. Pure contracts, real SDK execution, lifecycle and visual checks, packaging/compatibility checks, and performance measurements supply separate evidence. Their execution status belongs in the validation records, not in this architecture explanation.
+ArchUnit checks the compiled package references: the five owners follow the
+module direction above, runtime uses only `ui.work`, external callers enter
+runtime through `runtime.bootstrap`, and only `runtime.session` enters
+`core.api` from outside core. Core internals remain confined to core. Model/core
+stay free of IntelliJ references; UI policies stay free of platform dependencies,
+and UI does not schedule coroutines. The executable rules are in
+`ResponsibilityBoundaryTest`.
+
+These rules prevent ordinary accidental calls across responsibilities. They are
+not a security sandbox for code that deliberately bypasses the build or uses
+reflection, and package dependencies cannot establish the executing thread.
+Runtime sessions select `Dispatchers.Default`; `EditorSource.beginAttempt`
+rejects EDT/read-access entry. Real IDE contracts verify background reads and EDT
+publication, including when the caller supplies an EDT dispatcher.
+
+Local `:check` runs owner tests and structural rules. `ciCheck` adds IDE execution,
+benchmark-report tests, official JetBrains project/structure verification, the
+distribution ZIP, and benchmark compilation. Visual,
+compatibility, and performance jobs remain separate evidence. Neither structural
+rules nor thread checks prove algorithm correctness or listener reentrancy;
+behavior tests cover those contracts.
 
 See [Analysis execution](explanation_analysis_execution.md), [Editor presentation policy](explanation_editor_presentation_policy.md), and the project [glossary](../GLOSSARY.md).

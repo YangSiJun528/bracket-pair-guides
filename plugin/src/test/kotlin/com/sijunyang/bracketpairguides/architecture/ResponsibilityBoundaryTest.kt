@@ -5,14 +5,55 @@ import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.importer.ClassFileImporter
 import com.tngtech.archunit.core.importer.ImportOption
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
+import com.tngtech.archunit.library.Architectures.layeredArchitecture
 import org.junit.Test
 
-/** Actual references only. Physical compiler visibility is independently checked by TestKit. */
+/** Package call paths; execution threads are checked by the real IDE contracts. */
 class ResponsibilityBoundaryTest {
-    private val production =
-        ClassFileImporter()
-            .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
-            .importPackages("com.sijunyang.bracketpairguides")
+    @Test
+    fun productionPackagesFollowModuleDirection() {
+        layeredArchitecture()
+            .consideringOnlyDependenciesInLayers()
+            .layer("Model").definedBy("com.sijunyang.bracketpairguides.model..")
+            .layer("Core").definedBy("com.sijunyang.bracketpairguides.core..")
+            .layer("UI").definedBy("com.sijunyang.bracketpairguides.ui..")
+            .layer("Runtime").definedBy("com.sijunyang.bracketpairguides.runtime..")
+            .layer("Plugin").definedBy("com.sijunyang.bracketpairguides.plugin..")
+            .whereLayer("Model").mayNotAccessAnyLayer()
+            .whereLayer("Core").mayOnlyAccessLayers("Model")
+            .whereLayer("UI").mayOnlyAccessLayers("Model")
+            .whereLayer("Runtime").mayOnlyAccessLayers("Model", "Core", "UI")
+            .whereLayer("Plugin").mayOnlyAccessLayers("Model", "UI", "Runtime")
+            .check(production)
+    }
+
+    @Test
+    fun runtimeIsEnteredOnlyThroughBootstrap() {
+        noClasses()
+            .that().resideOutsideOfPackage("..runtime..")
+            .should().dependOnClassesThat(
+                matching("runtime implementation outside bootstrap") {
+                    it.name.startsWith("com.sijunyang.bracketpairguides.runtime.") &&
+                        !it.name.startsWith("com.sijunyang.bracketpairguides.runtime.bootstrap.")
+                },
+            ).check(production)
+    }
+
+    @Test
+    fun onlyRuntimeSessionsEnterCalculation() {
+        noClasses()
+            .that().resideOutsideOfPackages("..core..", "..runtime.session..")
+            .should().dependOnClassesThat().resideInAPackage("..core.api..")
+            .check(production)
+    }
+
+    @Test
+    fun modelAndCoreHaveNoPlatformDependency() {
+        noClasses()
+            .that().resideInAnyPackage("..model..", "..core..")
+            .should().dependOnClassesThat().resideInAPackage("com.intellij..")
+            .check(production)
+    }
 
     @Test
     fun runtimeUsesOnlyUiOwnedWorkContracts() {
@@ -46,18 +87,22 @@ class ResponsibilityBoundaryTest {
     }
 
     @Test
-    fun uiDoesNotOwnJobs() {
+    fun uiDoesNotScheduleCoroutines() {
         noClasses()
             .that().resideInAPackage("..ui..")
-            .should().dependOnClassesThat(
-                matching("coroutine Job") {
-                    it.name == "kotlinx.coroutines.Job" || it.name == "kotlinx.coroutines.CompletableJob"
-                },
-            ).check(production)
+            .should().dependOnClassesThat().resideInAPackage("kotlinx.coroutines..")
+            .check(production)
     }
 
     private fun matching(description: String, predicate: (JavaClass) -> Boolean): DescribedPredicate<JavaClass> =
         object : DescribedPredicate<JavaClass>(description) {
             override fun test(input: JavaClass): Boolean = predicate(input)
         }
+
+    companion object {
+        private val production =
+            ClassFileImporter()
+                .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
+                .importPackages("com.sijunyang.bracketpairguides")
+    }
 }

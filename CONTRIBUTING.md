@@ -30,7 +30,7 @@ available to Git's environment, including when committing or pushing from an IDE
 | Stage | Command | When it runs |
 |---|---|---|
 | Pre-commit | `./gradlew spotlessCheck` | Staged files include a configured Spotless target |
-| Pre-push | `./gradlew check` | Pushed changes include files outside the configured documentation and media exclusions |
+| Pre-push | `./gradlew :check` (unit tests and package rules) | Pushed changes include files outside the configured documentation and media exclusions |
 
 Each hook runs its Gradle command once for the whole project; the file filters
 only decide whether to start it. Documentation-only changes in the excluded
@@ -51,8 +51,9 @@ With partially staged files, prek temporarily hides unstaged changes during
 pre-commit and restores them afterward. Pre-push checks the current working
 tree; the required CI jobs remain the verification of the pushed revision.
 
-Qodana, Plugin Verifier, and visual tests run separately from these hooks.
-Use the existing CI jobs and the verification procedures below for those checks.
+The local `check` task does not start IDE fixtures, build the distribution, or
+compile benchmarks. CI runs these through `ciCheck`. Qodana, Plugin Verifier,
+visual tests, and performance measurements remain separate CI jobs.
 
 ## Choose a source area
 
@@ -64,13 +65,13 @@ for the module dependencies and result contracts.
 
 | Change | Source area | Primary verification |
 |---|---|---|
-| Platform-free values and read-only result contracts | `analysis-model/src/main` | `./gradlew -PpureBuild=true :analysis-model:check` |
-| Pairing, indexes, and guide calculation | `analysis-core/src/main` | `./gradlew -PpureBuild=true :analysis-core:check` |
-| Editor lifetime, presentation, settings, and work requests | `editor-ui/src/main` | `./gradlew :plugin:check verifyProductionModules` |
-| IntelliJ capture, execution, cancellation, and publication | `analysis-runtime/src/main` | `./gradlew :plugin:check verifyProductionModules` |
-| Registration and release packaging | `plugin/src/main/resources` | `./gradlew verifyPluginPackaging :plugin:verifyPluginStructure` |
+| Platform-free values and read-only result contracts | `analysis-model/src/main` | `./gradlew -p tools/pure-build :analysis-model:check` |
+| Pairing, indexes, and guide calculation | `analysis-core/src/main` | `./gradlew -p tools/pure-build :analysis-core:check` |
+| Editor lifetime, presentation, settings, and work requests | `editor-ui/src/main` | `./gradlew :check :plugin:minimumSdkTests` |
+| IntelliJ capture, execution, cancellation, and publication | `analysis-runtime/src/main` | `./gradlew :check :plugin:minimumSdkTests` |
+| Registration and release packaging | `plugin/src/main/resources` | `./gradlew :plugin:buildPlugin :plugin:verifyPluginStructure` |
 | Pairing or sorting measurement | `benchmarks/src/jmh` | `./gradlew :benchmarks:jmhJar` |
-| Build coordination or CI | Repository root | `./gradlew check` |
+| Build coordination or CI | Repository root | `./gradlew ciCheck` |
 
 Keep one implementation of bracket semantics in production source. Editor and
 settings code should consume analysis outcomes and queries instead of
@@ -78,48 +79,41 @@ reimplementing recognition or index behavior.
 
 ## Change a module or package boundary
 
-Run `./gradlew verifyProductionModules` for a module change. The audit checks
-actual Java and Kotlin compiler inputs, source and output ownership, and negative
-compilation probes. It rejects core/runtime visibility in UI, core visibility in
-plugin, production friend paths, and alternate compiler visibility options.
-`./gradlew -PpureBuild=true :analysis-model:build :analysis-core:build verifyProductionModules`
-checks the two pure modules without configuring IntelliJ host modules.
+Run the local checks after changing module dependencies or package calls:
 
-Within those physical owners, production code is grouped into four broad zones:
-IntelliJ host adapters, the editor workbench, configuration state, and analysis
-policy. Dependencies point
-inward in that order and may skip an intermediate zone. Packages inside a zone
-may cooperate, but the complete production package graph must remain acyclic.
+```shell
+./gradlew :check
+```
 
-To move a responsibility or add a production package:
+Gradle's existing `api` and `implementation` declarations control compiler
+visibility. ArchUnit checks actual package references. There is no custom
+module-audit plugin or second dependency allow-list. To compile and test the two
+platform-free modules without configuring IntelliJ, use
+`./gradlew -p tools/pure-build check`.
 
-1. Identify the use case and the actor or policy that can require the change.
-2. Prefer an existing package with that responsibility. Do not add an interface,
-   package, or Gradle module only to make the diagram deeper.
-3. Direct imports toward values and lower-level policy. IntelliJ entry points may
-   compose analysis objects; neutral policy packages must not locate services or
-   import outward editor packages.
-4. Update the executable rule in
-   [`ArchitectureTest.kt`](plugin/src/test/kotlin/com/sijunyang/bracketpairguides/architecture/ArchitectureTest.kt)
-   only when a responsibility moves between the four zones. An internal package
-   dependency that remains inward and cycle-free does not need a new allow-list
-   entry.
-5. Run the architecture tests and then the affected behavior tests.
+The package rules in
+[`ResponsibilityBoundaryTest.kt`](plugin/src/test/kotlin/com/sijunyang/bracketpairguides/architecture/ResponsibilityBoundaryTest.kt)
+check compiled production references. UI can request work through `ui.work` and
+read model results. Runtime enters UI only through those work contracts; plugin
+enters runtime only through `runtime.bootstrap`. Only `runtime.session` calls
+calculation entry points from outside core, and `core.internal` stays private to
+core. UI cannot use
+coroutines to schedule its own calculation. See
+[Module architecture](docs/explanation_module_architecture.md) for the dependency graph.
+
+To move a responsibility, update the relevant package rule and run the affected
+behavior tests. Do not add rules for every private helper or method. Run only the
+architecture suite during iteration with:
 
 ```shell
 ./gradlew :plugin:test \
-  --tests 'com.sijunyang.bracketpairguides.architecture.ArchitectureTest'
-./gradlew check
+  --tests 'com.sijunyang.bracketpairguides.architecture.ResponsibilityBoundaryTest'
 ```
 
-ArchUnit imports compiled Kotlin and Java production classes. Its four-zone rule
-checks the inward direction, its slice rule rejects cycles, and its neutral-policy
-rule rejects IntelliJ dependencies in the packages named by that rule. A separate
-dependency rule keeps editor event adapters unaware of analysis types. A
-method-call rule also checks return descriptors, which ArchUnit's class dependency
-set does not model for every Kotlin call shape. The test is the authoritative
-package boundary definition; the physical module audit separately enforces
-compiler visibility. Documentation deliberately does not copy package-level edges.
+Package rules constrain static references; they cannot determine which thread
+executes a method. Preserve the background dispatcher in runtime sessions, the
+EDT/read-access guard in `EditorSource.beginAttempt`, and the IDE thread tests.
+Run `./gradlew :plugin:minimumSdkTests` after changing scheduling or SDK access.
 
 ## Run tests
 
@@ -129,37 +123,48 @@ Java and Kotlin test plugins. Keep JUnit annotations, runners, rules, and
 `BasePlatformTestCase`; do not use `org.junit.Assert` or inherited JUnit
 assertion helpers.
 
-Run formatting, module and packaging audits, the production suite, and benchmark
-harness compilation:
+Run formatting, ordinary owner tests, and package rules:
 
 ```shell
-./gradlew check
+./gradlew :check
 ```
 
-Run the pure and IntelliJ fixture suites:
+Run the full CI verification locally when needed:
 
 ```shell
-./gradlew :analysis-model:test :analysis-core:test :plugin:test
+./gradlew ciCheck
+```
+
+This includes `check`, both IDE fixture versions, benchmark-report tests,
+JetBrains project/structure verification, the distribution ZIP, and benchmark
+harness compilation. It does not run
+Qodana, Plugin Verifier, visual tests, or performance measurements.
+
+Run the IDE fixtures separately:
+
+```shell
+./gradlew :plugin:minimumSdkTests :plugin:currentSdkTests
 ```
 
 Run one test class or method:
 
 ```shell
-./gradlew :plugin:test \
-  --tests '<fully-qualified-test>'
+./gradlew :plugin:minimumSdkTests \
+  --tests '<fully-qualified-IdeContractTest>'
 
-./gradlew :plugin:test \
-  --tests '<fully-qualified-test>.<method-name>'
+./gradlew :plugin:minimumSdkTests \
+  --tests '<fully-qualified-IdeContractTest>.<method-name>'
 ```
 
 Use `:analysis-model:test` or `:analysis-core:test` for a test owned by a pure
-module. IntelliJ integration fixtures remain in `plugin`. Their direct core
-dependency and Kotlin friend paths apply only to test compilation.
+module. IntelliJ integration fixtures live in their production owner's `src/test`
+and run through the plugin's official IDE sandbox. Ordinary `test` tasks exclude
+classes ending in `IdeContractTest`.
 
 Test observable behavior through product inputs and outcomes. Reuse production
 snapshot and policy objects from the same module when their internal visibility
 is sufficient. Keep pure scenario setup in its owning module's test sources and
-IntelliJ integration setup and call recording under `plugin/src/test`.
+IntelliJ integration setup and call recording in the relevant owner's `src/test`.
 Do not add a production getter, convenience overload, fake hierarchy, or
 `@TestOnly` declaration solely to expose implementation state.
 
@@ -264,8 +269,8 @@ them with the corresponding IntelliJ inspection when possible.
 
 ## Before requesting review
 
-1. Run `./gradlew check`.
-2. Run `./gradlew :plugin:buildPlugin` when production code or resources changed.
+1. Run `./gradlew :check`.
+2. Run `./gradlew ciCheck` for the full test and packaging suite, or confirm the CI **Build** job passes. The required **Test** status follows that job.
 3. Run the relevant Plugin Verifier tasks for platform or descriptor changes.
 4. Confirm the CI **Inspect Code** job passes.
 
