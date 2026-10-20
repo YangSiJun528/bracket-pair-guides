@@ -64,7 +64,9 @@ class CandidateRuntimeHost : ComparisonHost {
         }
         return withContext(kotlinx.coroutines.Dispatchers.EDT) {
             val epoch = epoch()
-            val calculation = calculations.getOrPut(editor.document) { DocumentCalculation(editor.document) }
+            val calculation = calculations.getOrPut(editor.document) {
+                DocumentCalculation(editor.document).also { it.acquire() }
+            }
             val demand = GuideDemand(
                 1,
                 coverage(mode),
@@ -76,7 +78,7 @@ class CandidateRuntimeHost : ComparisonHost {
                 NativeInterest(1, false),
             )
             Input(
-                EditorSource(editor, SourceIdentity.capture(editor, demand), epoch, control, calculation),
+                EditorSource(editor, SourceIdentity.capture(editor, demand, calculation), epoch, control, calculation),
                 calculation,
                 epoch,
                 control,
@@ -146,6 +148,7 @@ class CandidateRuntimeHost : ComparisonHost {
     override fun close() {
         epoch?.let(Disposer::dispose)
         epoch = null
+        calculations.values.forEach { it.release() }
         calculations.clear()
     }
     private fun coverage(mode: String) = when (mode) {

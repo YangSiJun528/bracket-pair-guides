@@ -246,16 +246,16 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
         calculation.acquire()
         try {
             val stamp = document.modificationStamp
-            val before = calculation.revisionFor(stamp)
+            val before = calculation.contentRevision
             WriteCommandAction.runWriteCommandAction(project) {
                 document.replaceString(10, 11, "\t")
                 (document as com.intellij.openapi.editor.ex.DocumentEx).setModificationStamp(stamp)
             }
-            assertTrue(calculation.revisionFor(stamp) > before)
-            val after = calculation.revisionFor(stamp)
+            assertTrue(calculation.contentRevision > before)
+            val after = calculation.contentRevision
             calculation.release()
             calculation.acquire()
-            assertTrue(calculation.revisionFor(stamp) > after)
+            assertTrue(calculation.contentRevision > after)
         } finally {
             calculation.release()
         }

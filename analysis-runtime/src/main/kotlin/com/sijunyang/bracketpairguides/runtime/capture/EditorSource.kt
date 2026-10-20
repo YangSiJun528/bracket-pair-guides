@@ -22,25 +22,27 @@ import kotlinx.coroutines.currentCoroutineContext
 
 /** Host identity never escapes into model results or UI. */
 internal class SourceIdentity private constructor(
-    val stamp: Long,
+    val contentRevision: Long,
     val fileType: FileType,
     val highlighter: com.intellij.openapi.editor.highlighter.EditorHighlighter,
     val tabSize: Int,
     val disabledLanguageIds: Set<String>,
 ) {
-    fun matches(editor: Editor, layout: Boolean): Boolean = !editor.isDisposed && editor.project?.isDisposed != true &&
-        stamp == editor.document.modificationStamp && highlighter === editor.highlighter &&
-        fileType === fileType(editor) &&
-        (!layout || tabSize == editor.settings.getTabSize(editor.project).coerceAtLeast(1))
+    fun matches(editor: Editor, calculation: DocumentCalculation, layout: Boolean): Boolean =
+        !editor.isDisposed && editor.project?.isDisposed != true &&
+            contentRevision == calculation.contentRevision && highlighter === editor.highlighter &&
+            fileType === fileType(editor) &&
+            (!layout || tabSize == editor.settings.getTabSize(editor.project).coerceAtLeast(1))
 
     companion object {
-        fun capture(editor: Editor, demand: GuideDemand): SourceIdentity = SourceIdentity(
-            editor.document.modificationStamp,
-            fileType(editor),
-            editor.highlighter,
-            editor.settings.getTabSize(editor.project).coerceAtLeast(1),
-            demand.disabledLanguageIds,
-        )
+        fun capture(editor: Editor, demand: GuideDemand, calculation: DocumentCalculation): SourceIdentity =
+            SourceIdentity(
+                calculation.contentRevision,
+                fileType(editor),
+                editor.highlighter,
+                editor.settings.getTabSize(editor.project).coerceAtLeast(1),
+                demand.disabledLanguageIds,
+            )
         fun fileType(editor: Editor): FileType = (
             FileDocumentManager.getInstance().getFile(editor.document)
                 ?: (editor as? EditorEx)?.virtualFile
@@ -76,7 +78,7 @@ internal class EditorSource(
                 editor.document.textLength,
                 editor.document.lineCount,
                 identity.tabSize,
-                calculation.revisionFor(identity.stamp),
+                identity.contentRevision,
             )
         }
     }
@@ -148,7 +150,7 @@ internal class EditorSource(
 
     private fun validate(layout: Boolean) {
         control.checkCanceled()
-        if (!identity.matches(editor, layout)) throw SourceChanged()
+        if (!identity.matches(editor, calculation, layout)) throw SourceChanged()
         if (epoch.current != attemptEpoch) throw RetryCapture()
     }
 }
