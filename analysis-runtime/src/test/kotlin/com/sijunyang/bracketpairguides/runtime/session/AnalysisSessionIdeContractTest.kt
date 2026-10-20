@@ -239,7 +239,7 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
         assertEquals(1, publishedA)
         assertEquals(2, publishedB)
     }
-    fun testDocumentGenerationSurvivesStampResetAndDormantReacquire() {
+    fun testDocumentGenerationSurvivesStampResetAndListenerReacquisition() {
         open()
         val document = myFixture.editor.document
         val calculation = DocumentCalculation(document)
@@ -269,7 +269,7 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
         onApply = null
         return checkNotNull(watcher)
     }
-    fun testHiddenSoftCacheCanBeReclaimedAndReturnFallsBackToAnalysis() {
+    fun testHidingReleasesAcceptedPayloadAndReturnCapturesAgain() {
         open()
         val watcher = captureAcceptedPayload()
         val count = entered.get()
@@ -295,17 +295,21 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
         assertEquals(count, entered.get())
         return count
     }
-    fun testUnchangedReturnPublishesImmediatelyWithoutNewCaptureAfterUnrelatedWrite() {
+    fun testUnchangedReturnCapturesAgainAndThenSkipsDuplicateWork() {
         val count = hideAccepted()
-        val unrelated = EditorFactory.getInstance().createDocument("other")
-        WriteCommandAction.runWriteCommandAction(project) { unrelated.insertString(0, "new") }
         var revision = -1L
         onApply = { revision = it.demandRevision }
         work.reconcile(initial.copy(revision = 7))
-        assertEquals(2, publications)
-        assertEquals(7L, revision)
+        assertEquals(1, publications)
+        await { publications == 2 }
         settle()
-        assertEquals(count, entered.get())
+        assertEquals(7L, revision)
+        assertTrue(entered.get() > count)
+        val afterReturn = entered.get()
+        work.refresh()
+        settle()
+        assertEquals(afterReturn, entered.get())
+        assertEquals(2, publications)
     }
     fun testHiddenContentWithResetStampCannotResumeOldCoordinates() {
         val count = hideAccepted()
@@ -326,7 +330,7 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
         val lookup = (checkNotNull(latest).result as AnalysisResult.Available).view
         assertEquals(15, checkNotNull(lookup.activePairAt(17)).openOffset)
     }
-    fun testExpandedCoverageCannotUseInsufficientDormantResult() {
+    fun testReturnUsesCurrentRequestedCoverage() {
         open()
         val tokens = initial.copy(coverage = AnalysisCoverage(true, false, false))
         work.reconcile(tokens)
@@ -387,41 +391,48 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
         settle()
         assertTrue(entered.get() > count)
     }
-    fun testResumeEnvironmentChangedDuringApplyCannotAcceptOldResult() {
+    fun testReturnEnvironmentChangedDuringApplyCannotAcceptOldResult() {
         val count = hideAccepted()
         onApply = {
             onApply = null
             invalidateFileTypeEnvironment()
         }
         work.reconcile(initial.copy(revision = 1))
-        assertEquals(2, publications)
+        assertEquals(1, publications)
         await { publications == 3 }
         settle()
         assertTrue(entered.get() > count)
     }
-    fun testResumeObsoleteResultIsNotAcceptedAndFallbackCaptures() {
+    fun testRejectedReturnResultRemainsRetryable() {
         val count = hideAccepted()
         viewResponse = ViewApplication.OBSOLETE
         work.reconcile(initial.copy(revision = 1))
-        assertEquals(2, publications)
-        viewResponse = ViewApplication.APPLIED
-        await { publications == 3 }
+        await { publications == 2 }
         settle()
         assertTrue(entered.get() > count)
+        val rejectedCount = entered.get()
+        viewResponse = ViewApplication.APPLIED
+        work.refresh()
+        await { publications == 3 }
+        settle()
+        assertTrue(entered.get() > rejectedCount)
     }
-    fun testResumeFailureDoesNotAcceptAndFallsBackToFreshAnalysis() {
-        val count = hideAccepted()
+    fun testFailedReturnPublicationRemainsRetryable() {
+        hideAccepted()
         onApply = {
             onApply = null
-            throw IllegalStateException("intentional resume failure")
+            throw IllegalStateException("intentional publication failure")
         }
         work.reconcile(initial.copy(revision = 1))
-        assertEquals(2, publications)
+        await { publications == 2 }
+        settle()
+        val failedCount = entered.get()
+        work.refresh()
         await { publications == 3 }
         settle()
-        assertTrue(entered.get() > count)
+        assertTrue(entered.get() > failedCount)
     }
-    fun testResumeReentrantEditRejectsOldAcceptanceAndPublishesNewCoordinates() {
+    fun testReturnReentrantEditRejectsOldAcceptanceAndPublishesNewCoordinates() {
         val count = hideAccepted()
         var latest: AnalysisUpdate? = null
         onApply = { update ->
@@ -434,7 +445,7 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
             }
         }
         work.reconcile(initial.copy(revision = 1))
-        assertEquals(2, publications)
+        assertEquals(1, publications)
         await { publications == 3 }
         settle()
         assertTrue(entered.get() > count)
@@ -445,7 +456,7 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
         settle()
         assertEquals(settledCount, entered.get())
     }
-    fun testResumeReentrantHideThenVisibleCannotAcceptOldPublication() {
+    fun testReturnReentrantHideThenVisibleCannotAcceptOldPublication() {
         val count = hideAccepted()
         onApply = {
             onApply = null
@@ -453,7 +464,7 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
             work.reconcile(initial.copy(revision = 3))
         }
         work.reconcile(initial.copy(revision = 1))
-        assertEquals(2, publications)
+        assertEquals(1, publications)
         await { publications == 3 }
         settle()
         assertTrue(entered.get() > count)
@@ -462,36 +473,33 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
         settle()
         assertEquals(settledCount, entered.get())
     }
-    fun testClosedDormantCacheReleasesPayload() {
-        open()
-        val watcher = captureAcceptedPayload()
-        work.reconcile(initial.copy(visible = false))
-        work.close()
-        settle()
-        watcher.ensureCollected()
-    }
-    fun testResumeReentrantHideAndCloseCannotAcceptObsoleteResult() {
-        val count = hideAccepted()
+    fun testReturnReentrantHideAndCloseCannotAcceptObsoleteResult() {
+        hideAccepted()
         onApply = {
             onApply = null
             work.reconcile(initial.copy(revision = 2, visible = false))
         }
         work.reconcile(initial.copy(revision = 1))
-        assertEquals(2, publications)
+        await { publications == 2 }
         settle()
-        assertEquals(count, entered.get())
+        assertEquals(2, publications)
+        val hiddenCount = entered.get()
+        work.refresh()
+        settle()
+        assertEquals(hiddenCount, entered.get())
         work.reconcile(initial.copy(revision = 3))
         await { publications == 3 }
         settle()
         work.reconcile(initial.copy(revision = 4, visible = false))
         onApply = { work.close() }
-        val beforeClose = entered.get()
         work.reconcile(initial.copy(revision = 5))
-        assertEquals(4, publications)
+        await { publications == 4 }
         settle()
+        val beforeRefresh = entered.get()
         work.refresh()
         settle()
-        assertEquals(beforeClose, entered.get())
+        assertEquals(beforeRefresh, entered.get())
+        assertEquals(4, publications)
     }
     fun testNoFacetDemandReleasesAcceptedPayloadAndWakeUpDoesNotRecapture() {
         open()

@@ -29,7 +29,7 @@ internal class DocumentCalculation(document: Document) : DocumentListener {
                 throw failure
             }
             listenerLifetime = lifetime
-            revision++ // Dormant intervals have no listener; never reuse their cached geometry blindly.
+            revision++ // With no owners, content changes are unobserved; invalidate on reacquisition.
         }
         owners++
     }

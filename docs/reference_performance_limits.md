@@ -32,7 +32,6 @@ changes.
 | Whitespace continuation capture | 4,096 characters per read action | Continue until indentation is resolved or repair admission refuses it | `DocumentTextCapture` callers |
 | Cached demanded matcher rules | 2,048 answers per recognition attempt | Evict the oldest cached answer; recompute if demanded again | `CalculationAttempt` / IntelliJ input adapter |
 | Strongly cached platform token kinds | 1,024 kinds per capture adapter | Evict the oldest cache entry; live pure identities remain resolvable | `BracketTokenCapture` |
-| Secondary-editor full-analysis debounce | 75 ms | Combine compatible pending requests; cancel semantic supersession immediately | `EditorAnalysisSession` |
 | Token highlighters per editor presentation | 2,048 | Reserve displayed Sticky Lines tokens, then publish a focused ordinary-viewport slice from the remaining shared budget | `VisibleTokenDecorations` |
 | Reported viewport normalization | 16,384 characters | Center a bounded reported range on the caret or viewport midpoint | `VisibleTokenDecorations` |
 | Token-window padding | 256 to 4,096 characters | Clamp padding to the range | `VisibleTokenDecorations` |
@@ -131,22 +130,11 @@ existing hide-and-repair behavior. SDK coordinate lookup cost is not guaranteed
 constant. A separate immediate repair job computes missing indentation for the surviving tracked pair;
 replacement full analysis may later discover a different pair. When every pair-dependent feature is disabled or the editor is hidden,
 `EditorAnalysisSession` revokes work and releases its active accepted result;
-`EditorGuide` releases its displayed `BracketView`. A hidden session may retain
-one suspended `Accepted` through a JDK `SoftReference`; no-facet, content,
-disabled-language and close transitions discard it. There is no TTL or strong
-hidden-result cache. The one-entry-per-session bound is a count bound, not an
-aggregate byte or total-heap bound. Clearing soft references is JVM-controlled;
-results can survive ordinary GC and can be reclaimed under memory pressure.
-Neither guaranteed retention nor prompt reclamation after hiding is promised.
-A cleared entry requires background recomputation on return.
+`EditorGuide` releases its displayed `BracketView`. Hidden sessions retain no
+accepted analysis result. Returning to a visible editor requires fresh background
+analysis; closing also releases the editor/view/scope attachment.
 
-Equivalent split-editor results may share core-internal immutable `BracketIndexes`
-within the same document reuse revision, after exact content and index-layout
-comparison; guide reuse also requires the same tab size. Each runtime session
-still owns its source identity and accepted-result authority, each `BracketView`
-owns its query memo, and each UI view owns its range markers, presentation
-decorations, and markup. `CalculationCache` retains indexes only weakly.
-Recognition and transient index construction are not single-flight.
+Each split editor retains its own immutable indexes and accepted-result authority. Every `BracketView` owns its query memo, and each UI view owns its range markers, presentation decorations, and markup. The stateless calculator retains no index payload between attempts. Repeated requests in a visible editor can reuse its accepted result when content and analysis conditions still match.
 
 ## Cancellation and matcher behavior
 

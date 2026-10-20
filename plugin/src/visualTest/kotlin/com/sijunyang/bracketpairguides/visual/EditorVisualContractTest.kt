@@ -329,17 +329,26 @@ class EditorVisualContractTest {
                     ),
                     "Caret A/B/A changed settled guide geometry",
                 )
-                // Real tab selection must restore token colors before the selection EDT turn returns.
-                // Focus settlement and final pixel readiness are deliberately observed only afterwards.
+                // Hidden tabs release their result; observe exact token restoration after fresh analysis.
+                // Selection identity and hidden markup cleanup are still checked in the selection EDT turn.
                 val tabObservations = mutableListOf<String>()
+                fun awaitSelectedTab() {
+                    waitFor(30.seconds, 100.milliseconds, "Selected tab did not restore its exact token markup") {
+                        bridge.selectedTabReady()
+                    }
+                    tabObservations += "after-analysis:\n" + bridge.tabSwitchDiagnostics()
+                }
                 try {
                     tabObservations += bridge.prepareOtherTab()
                     waitFor(1.minutes, 100.milliseconds, "Second tab did not warm normal token markup") {
                         bridge.otherTabReady()
                     }
                     tabObservations += bridge.returnToOriginalTab()
+                    awaitSelectedTab()
                     tabObservations += bridge.switchToOtherTab()
+                    awaitSelectedTab()
                     tabObservations += bridge.returnToOriginalTab()
+                    awaitSelectedTab()
                     tabObservations += bridge.closeOtherTab()
                 } finally {
                     Files.writeString(artifacts.resolve("tab-switch-observed.txt"),
@@ -438,6 +447,7 @@ internal interface EditorContractRemote {
     fun otherTabReady(): Boolean
     fun returnToOriginalTab(): String
     fun switchToOtherTab(): String
+    fun selectedTabReady(): Boolean
     fun tabSwitchDiagnostics(): String
     fun closeOtherTab(): String
     fun disable(): String

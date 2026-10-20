@@ -8,7 +8,6 @@ import com.intellij.openapi.application.readAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.EditorKind
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.ProcessCanceledException
@@ -41,15 +40,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import java.lang.ref.SoftReference
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.time.Duration.Companion.milliseconds
 
 /** One editor owns one accepted value and three independently revocable work lanes. */
 internal class EditorAnalysisSession(
@@ -70,7 +66,6 @@ internal class EditorAnalysisSession(
     private val native = NativeEvidenceGate()
     @Volatile private var demand: GuideDemand? = null
     @Volatile private var accepted: Accepted? = null
-    @Volatile private var dormant: SoftReference<Accepted>? = null
     @Volatile private var fullJob: Job? = null
     @Volatile private var repairJob: Job? = null
     @Volatile private var nativeJob: Job? = null
@@ -107,63 +102,28 @@ internal class EditorAnalysisSession(
             this.demand = demand
         }
         if (!demand.visible || !demand.coverage.pairs) {
-            revokeWork(retainDormant = !demand.visible && demand.coverage.pairs && !sourceChanged)
+            revokeWork()
             return
         }
         if (sourceChanged) revokeWork()
         if (previous?.guideRevision != demand.guideRevision || previous.nativeInterest != demand.nativeInterest) {
             native.invalidate(); nativeJob?.cancel()
         }
-        if (previous?.visible == false) {
-            if (resumeDormant(demand) || expired() || this.demand != demand) return
-        }
         reconcileRepair(demand)
         scheduleFull()
     }
 
-    private fun revokeWork(retainDormant: Boolean = false) {
+    private fun revokeWork() {
         sourceEpoch.incrementAndGet()
         fullTicket.incrementAndGet(); repairTicket.incrementAndGet(); native.invalidate()
         fullJob?.cancel(); repairJob?.cancel(); nativeJob?.cancel()
         fullJob = null; repairJob = null; nativeJob = null
         synchronized(lifecycle) {
             if (!closed.get()) {
-                if (retainDormant) accepted?.let { dormant = SoftReference(it) } else dormant = null
                 accepted = null
             }
         }
         fullSource = null; fullCoverage = null; fullEnvironmentRevision = null; repairTarget = null
-    }
-
-    private fun resumeDormant(requested: GuideDemand): Boolean {
-        val cached = dormant?.get() ?: run { dormant = null; return false }
-        dormant = null
-        val attached = attachment ?: return false
-        val epoch = sourceEpoch.get()
-        val ticket = fullTicket.get()
-        val source = SourceIdentity.capture(attached.editor, requested, attached.calculation)
-        if (sourceIsTooLarge() || cached.environmentRevision != reads.environmentRevision ||
-            !cached.covers(source, requested.coverage, attached.editor, attached.calculation)) return false
-        if (expired() || !root.isActive || attachment !== attached || demand !== requested ||
-            sourceEpoch.get() != epoch || fullTicket.get() != ticket ||
-            cached.environmentRevision != reads.environmentRevision) return false
-        val applied = try {
-            attached.view.applyAnalysis(AnalysisUpdate(requested.revision, cached.result))
-        } catch (failure: Exception) {
-            LOG.warn("Could not restore bracket guides", failure)
-            return false
-        }
-        val sourceCurrent = valid(cached.source, requested, epoch) && !sourceIsTooLarge() &&
-            cached.environmentRevision == reads.environmentRevision
-        val latest = demand
-        synchronized(lifecycle) {
-            if (applied == ViewApplication.APPLIED && sourceCurrent && !closed.get() && root.isActive &&
-                attachment === attached && fullTicket.get() == ticket && demand === latest) {
-                accepted = cached
-                return true
-            }
-        }
-        return false
     }
 
     override fun refresh() {
@@ -199,7 +159,6 @@ internal class EditorAnalysisSession(
         fullJob = scope.launch {
             var retry = false
             try {
-                if (editor.editorKind != EditorKind.MAIN_EDITOR) delay(75.milliseconds)
                 val control = control(fullTicket, ticket, epoch)
                 val refused = readAction { sourceIsTooLarge() }
                 val result = if (refused) AnalysisResult.Unavailable(requested.coverage, AnalysisLimit.IDE_CODE_INSIGHT_FILE_SIZE)
@@ -395,7 +354,7 @@ internal class EditorAnalysisSession(
             sourceEpoch.incrementAndGet(); fullTicket.incrementAndGet(); repairTicket.incrementAndGet(); native.invalidate()
             released = attachment
             attachment = null
-            fullSource = null; fullCoverage = null; fullEnvironmentRevision = null; accepted = null; dormant = null; demand = null; repairTarget = null
+            fullSource = null; fullCoverage = null; fullEnvironmentRevision = null; accepted = null; demand = null; repairTarget = null
         }
         root.cancel()
         released?.calculation?.release()

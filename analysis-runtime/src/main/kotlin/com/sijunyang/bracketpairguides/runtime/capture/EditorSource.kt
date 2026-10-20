@@ -78,7 +78,6 @@ internal class EditorSource(
                 editor.document.textLength,
                 editor.document.lineCount,
                 identity.tabSize,
-                identity.contentRevision,
             )
         }
     }
