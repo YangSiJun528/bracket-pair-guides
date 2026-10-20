@@ -55,7 +55,9 @@ class CalculationWorkload(pairCount: Int, distribution: String) {
         var checkpoints = 0
         val cancelled = object : CalculationControl {
             override fun checkCanceled() {
-                if (++checkpoints == 8) throw CancellationException()
+                // Cache admission used to consume one check before recognition. Seven preserves
+                // the baseline's cancellation point and processed input after removing that cache.
+                if (++checkpoints == 7) throw CancellationException()
             }
             override suspend fun yieldWork() = checkCanceled()
         }
