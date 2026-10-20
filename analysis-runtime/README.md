@@ -8,10 +8,12 @@ revocation and replacement from UI callers.
 
 `runtime.capture.EditorSource` implements the public core input contracts using
 bounded SDK read actions. Core calculation starts off EDT and outside read access.
-Core retries unrelated writes; a changed editor source aborts the old work. A
-private document holder shares a calculator between split editors and assigns
-monotone reuse revisions independently of SDK stamp values. Its last session
-releases the document listener.
+Core retries unrelated writes; a changed editor source aborts the old work and
+the session schedules against the current source. A private document holder
+shares a calculator and monotone content revision between split editors.
+Capture, cache reuse, and publication use that revision, so a save-state stamp
+reset alone does not discard valid results. Its last session releases the
+document listener; reacquisition invalidates any unobserved content interval.
 
 Hidden demands cancel work and revoke publication immediately. A visibility-only
 hide moves the accepted result into one per-session JDK SoftReference, permitting
@@ -31,6 +33,9 @@ reenter or fail during rendering. Acceptance is committed only after a successfu
 view result and another validity check, under the same narrow lifecycle lock used
 by close. SDK rendering never runs while that lock is held. Secondary editors
 retain a 75 ms delay; repair starts immediately.
+Invalidated work reschedules only while it still owns its lane ticket, so late
+completion cannot cancel newer work. Failed requests become retryable; repair
+deduplication also validates its source and environment.
 
 `runtime.nativeproof` collects and validates bounded native marker evidence. Its
 per-editor evidence gate rejects stale source, caret, episode, and A→B→A

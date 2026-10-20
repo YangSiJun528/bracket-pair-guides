@@ -12,8 +12,9 @@ import java.lang.ref.WeakReference
 internal class DocumentCalculation(document: Document) : DocumentListener {
     val calculator = BracketCalculator()
     private val documentReference = WeakReference(document)
-    private var observedStamp = document.modificationStamp
     private var revision = 0L
+    val contentRevision: Long
+        @Synchronized get() = revision
     private var owners = 0
     private var listenerLifetime: Disposable? = null
 
@@ -29,7 +30,6 @@ internal class DocumentCalculation(document: Document) : DocumentListener {
             }
             listenerLifetime = lifetime
             revision++ // Dormant intervals have no listener; never reuse their cached geometry blindly.
-            revisionFor(current.modificationStamp)
         }
         owners++
     }
@@ -43,17 +43,8 @@ internal class DocumentCalculation(document: Document) : DocumentListener {
         }
     }
 
-    @Synchronized override fun documentChanged(event: DocumentEvent) {
-        observedStamp = event.document.modificationStamp
+    @Synchronized override fun beforeDocumentChange(event: DocumentEvent) {
+        // All documentChanged listeners must see the new revision, regardless of listener order.
         revision++
-    }
-
-    /** Called only after validating the captured source inside real read access. */
-    @Synchronized fun revisionFor(stamp: Long): Long {
-        if (observedStamp != stamp) {
-            observedStamp = stamp
-            revision++
-        }
-        return revision
     }
 }
