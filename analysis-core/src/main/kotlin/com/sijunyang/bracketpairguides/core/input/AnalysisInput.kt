@@ -32,9 +32,9 @@ interface CalculationControl {
     suspend fun yieldWork()
 }
 
-data class DocumentFacts(val length: Int, val lineCount: Int, val tabSize: Int, val reuseRevision: Long) {
+data class DocumentFacts(val length: Int, val lineCount: Int, val tabSize: Int) {
     init {
-        require(length >= 0 && lineCount > 0 && tabSize > 0 && reuseRevision >= 0)
+        require(length >= 0 && lineCount > 0 && tabSize > 0)
     }
 }
 

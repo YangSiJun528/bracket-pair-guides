@@ -72,7 +72,7 @@ class GuideScanOwnershipContractTest {
         assertThat(first.attempts).isEqualTo(2)
         assertThat(result.view.guideFor(pair)?.guideColumn).isEqualTo(2)
         assertThat(result.view.guideFor(pair)?.anchorLine).isEqualTo(4)
-        val later = RecordedInput("{\n      z\n      }", revision = 2)
+        val later = RecordedInput("{\n      z\n      }")
         val next = calculator.analyze(
             later,
             AnalysisCoverage(true, true, true),
@@ -100,7 +100,7 @@ class GuideScanOwnershipContractTest {
         assertThat(input.attempts).isEqualTo(2)
         assertThat(repaired?.guideColumn).isEqualTo(2)
         assertThat(repaired?.anchorLine).isEqualTo(4)
-        val later = RecordedInput("{\n      z\n      }", revision = 2)
+        val later = RecordedInput("{\n      z\n      }")
         val nextPair = BracketPair(0, 1, later.text.lastIndex, 1, 0, 0, 2)
         val next = calculator.repair(later, RepairRequest(nextPair, true), coroutineControl())
         assertThat(next?.guideColumn).isEqualTo(6)

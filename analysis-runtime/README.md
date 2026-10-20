@@ -11,28 +11,17 @@ bounded SDK read actions. Core calculation starts off EDT and outside read acces
 Core retries unrelated writes; a changed editor source aborts the old work and
 the session schedules against the current source. A private document holder
 shares a calculator and monotone content revision between split editors.
-Capture, cache reuse, and publication use that revision, so a save-state stamp
+Capture, accepted-result reuse, and publication use that revision, so a save-state stamp
 reset alone does not discard valid results. Its last session releases the
 document listener; reacquisition invalidates any unobserved content interval.
 
-Hidden demands cancel work and revoke publication immediately. A visibility-only
-hide moves the accepted result into one per-session JDK SoftReference, permitting
-synchronous EDT restoration on a valid unchanged return. Memory pressure can
-clear it; a miss schedules normal full analysis. UI markup/view remain released.
-Content/language invalidation, no-facet configuration and close clear this dormant
-cache. Source identity, coverage, layout, file-size eligibility and a separate
-file-type/plugin environment generation guard reuse; unrelated document writes
-still invalidate in-flight reads but do not alone discard completed dormant results.
-The document calculator retains only weak index references; there is no second
-cache registry or extra lease policy. Closing drops the editor, view, calculator,
-and coroutine-context attachment; in-flight lexical captures unwind before their
-references can be collected.
+Hidden demands cancel work, revoke publication, and release the accepted result immediately. UI markup and its view are also released. Returning to a visible editor schedules fresh background analysis. While visible, source identity, coverage, layout, file-size eligibility and a separate file-type/plugin environment generation guard accepted-result reuse; unrelated document writes invalidate in-flight reads but do not alone discard completed results. Each analysis owns its index storage, including in split editors. Closing drops the editor, view, calculator, and coroutine-context attachment; in-flight lexical captures unwind before their references can be collected.
 
 EDT publication checks source, demand, lifetime, and the lane ticket. The view may
 reenter or fail during rendering. Acceptance is committed only after a successful
 view result and another validity check, under the same narrow lifecycle lock used
-by close. SDK rendering never runs while that lock is held. Secondary editors
-retain a 75 ms delay; repair starts immediately.
+by close. SDK rendering never runs while that lock is held. Full analysis starts without
+a debounce delay for every editor kind; repair starts independently and immediately.
 Invalidated work reschedules only while it still owns its lane ticket, so late
 completion cannot cancel newer work. Failed requests become retryable; repair
 deduplication also validates its source and environment.

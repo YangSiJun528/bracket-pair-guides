@@ -125,7 +125,7 @@ class CalculationWorkload(pairCount: Int, distribution: String) {
         private val open = TokenKind()
         private val close = TokenKind()
         private val group = TokenGroup(0, 0)
-        override suspend fun beginAttempt() = DocumentFacts(text.length, starts.size, 4, 0)
+        override suspend fun beginAttempt() = DocumentFacts(text.length, starts.size, 4)
         override suspend fun validateCurrent() = Unit
         override suspend fun areCompatible(open: TokenKind, close: TokenKind, group: TokenGroup): Boolean =
             open === this.open && close === this.close
