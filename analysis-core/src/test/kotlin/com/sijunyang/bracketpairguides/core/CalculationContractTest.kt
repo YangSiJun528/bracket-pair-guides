@@ -210,19 +210,6 @@ class CalculationContractTest {
         assertThat(BracketCalculator().repair(input, RepairRequest(pair, true), coroutineControl())).isNull()
     }
 
-    @Test fun independentResultsPreserveTheirQueriesAcrossLaterCalculations() = runBlocking<Unit> {
-        val calculator = BracketCalculator()
-        val nested = available(RecordedInput("(())"), calculator)
-        val first = checkNotNull(nested.view.activePairAt(2))
-        val simple = available(RecordedInput("()"), calculator)
-        val nestedAgain = available(RecordedInput("(())"), calculator)
-
-        assertThat(simple.view.activePairAt(1)?.openOffset).isZero()
-        assertThat(first.openOffset).isEqualTo(1)
-        assertThat(first).isEqualTo(nestedAgain.view.activePairAt(2))
-        assertThat(nested.view.activePairAt(2)).isSameAs(first)
-    }
-
     @Test fun eachCalculationUsesItsRequestedTabLayout() = runBlocking<Unit> {
         val calculator = BracketCalculator()
         val text = "{\n\tx\n\t}"

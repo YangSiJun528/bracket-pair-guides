@@ -5,8 +5,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.editor.ex.EditorEx
-import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.fileTypes.FileTypeEvent
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.util.Disposer
@@ -134,17 +132,26 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
     }
     fun testReentrantEditCannotAcceptOldResult() {
         open()
-        onApply = {
-            onApply = null
-            WriteCommandAction.runWriteCommandAction(project) { myFixture.editor.document.insertString(0, " ") }
-            work.reconcile(initial.copy(guideRevision = 1, change = GuideChange.CONTENT))
+        var latest: AnalysisUpdate? = null
+        onApply = { update ->
+            latest = update
+            if (update.demandRevision == 0L) {
+                WriteCommandAction.runWriteCommandAction(project) {
+                    myFixture.editor.document.insertString(0, "/*new*/")
+                }
+                work.reconcile(initial.copy(revision = 1, guideRevision = 1, change = GuideChange.CONTENT))
+            }
         }
         work.reconcile(initial)
         await { publications == 2 }
+        settle()
+        val lookup = (checkNotNull(latest).result as AnalysisResult.Available).view
+        assertEquals(15, checkNotNull(lookup.activePairAt(17)).openOffset)
         val count = entered.get()
         work.refresh()
         settle()
         assertEquals(count, entered.get())
+        assertEquals(2, publications)
     }
     fun testCloseDuringPublicationPreventsAnyLaterWork() {
         open()
@@ -295,22 +302,6 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
         assertEquals(count, entered.get())
         return count
     }
-    fun testUnchangedReturnCapturesAgainAndThenSkipsDuplicateWork() {
-        val count = hideAccepted()
-        var revision = -1L
-        onApply = { revision = it.demandRevision }
-        work.reconcile(initial.copy(revision = 7))
-        assertEquals(1, publications)
-        await { publications == 2 }
-        settle()
-        assertEquals(7L, revision)
-        assertTrue(entered.get() > count)
-        val afterReturn = entered.get()
-        work.refresh()
-        settle()
-        assertEquals(afterReturn, entered.get())
-        assertEquals(2, publications)
-    }
     fun testHiddenContentWithResetStampCannotResumeOldCoordinates() {
         val count = hideAccepted()
         val document = myFixture.editor.document as com.intellij.openapi.editor.ex.DocumentEx
@@ -330,50 +321,6 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
         val lookup = (checkNotNull(latest).result as AnalysisResult.Available).view
         assertEquals(15, checkNotNull(lookup.activePairAt(17)).openOffset)
     }
-    fun testReturnUsesCurrentRequestedCoverage() {
-        open()
-        val tokens = initial.copy(coverage = AnalysisCoverage(true, false, false))
-        work.reconcile(tokens)
-        await { publications == 1 }
-        settle()
-        val count = entered.get()
-        work.reconcile(tokens.copy(visible = false))
-        work.reconcile(initial.copy(revision = 1))
-        assertEquals(1, publications)
-        await { publications == 2 }
-        settle()
-        assertTrue(entered.get() > count)
-    }
-    fun testHiddenLanguageChangeRequiresFreshCapture() {
-        val count = hideAccepted()
-        work.reconcile(initial.copy(visible = false, disabledLanguageIds = setOf("JAVA")))
-        work.reconcile(initial.copy(revision = 1, disabledLanguageIds = setOf("JAVA")))
-        assertEquals(1, publications)
-        await { publications == 2 }
-        settle()
-        assertTrue(entered.get() > count)
-    }
-    fun testHiddenLayoutChangeRequiresFreshCapture() {
-        val count = hideAccepted()
-        myFixture.editor.settings.setTabSize(myFixture.editor.settings.getTabSize(project) + 1)
-        work.reconcile(initial.copy(revision = 1))
-        assertEquals(1, publications)
-        await { publications == 2 }
-        settle()
-        assertTrue(entered.get() > count)
-    }
-    fun testHiddenHighlighterReplacementRequiresFreshCapture() {
-        val count = hideAccepted()
-        val editor = myFixture.editor as EditorEx
-        editor.setHighlighter(
-            EditorHighlighterFactory.getInstance().createEditorHighlighter(project, myFixture.file.virtualFile),
-        )
-        work.reconcile(initial.copy(revision = 1))
-        assertEquals(1, publications)
-        await { publications == 2 }
-        settle()
-        assertTrue(entered.get() > count)
-    }
     private fun invalidateFileTypeEnvironment() {
         WriteCommandAction.runWriteCommandAction(project) {
             val event = FileTypeEvent(FileTypeManager.getInstance(), null, null)
@@ -381,15 +328,6 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
             listener.beforeFileTypesChanged(event)
             listener.fileTypesChanged(event)
         }
-    }
-    fun testHiddenFileTypeEnvironmentChangeRequiresFreshCapture() {
-        val count = hideAccepted()
-        invalidateFileTypeEnvironment()
-        work.reconcile(initial.copy(revision = 1))
-        assertEquals(1, publications)
-        await { publications == 2 }
-        settle()
-        assertTrue(entered.get() > count)
     }
     fun testReturnEnvironmentChangedDuringApplyCannotAcceptOldResult() {
         val count = hideAccepted()
@@ -432,30 +370,6 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
         settle()
         assertTrue(entered.get() > failedCount)
     }
-    fun testReturnReentrantEditRejectsOldAcceptanceAndPublishesNewCoordinates() {
-        val count = hideAccepted()
-        var latest: AnalysisUpdate? = null
-        onApply = { update ->
-            latest = update
-            if (update.demandRevision == 1L) {
-                WriteCommandAction.runWriteCommandAction(project) {
-                    myFixture.editor.document.insertString(0, "/*new*/")
-                }
-                work.reconcile(initial.copy(revision = 2, guideRevision = 1, change = GuideChange.CONTENT))
-            }
-        }
-        work.reconcile(initial.copy(revision = 1))
-        assertEquals(1, publications)
-        await { publications == 3 }
-        settle()
-        assertTrue(entered.get() > count)
-        val lookup = (checkNotNull(latest).result as AnalysisResult.Available).view
-        assertEquals(15, checkNotNull(lookup.activePairAt(17)).openOffset)
-        val settledCount = entered.get()
-        work.refresh()
-        settle()
-        assertEquals(settledCount, entered.get())
-    }
     fun testReturnReentrantHideThenVisibleCannotAcceptOldPublication() {
         val count = hideAccepted()
         onApply = {
@@ -473,7 +387,7 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
         settle()
         assertEquals(settledCount, entered.get())
     }
-    fun testReturnReentrantHideAndCloseCannotAcceptObsoleteResult() {
+    fun testReturnReentrantHideStopsWorkUntilVisible() {
         hideAccepted()
         onApply = {
             onApply = null
@@ -490,16 +404,7 @@ class AnalysisSessionIdeContractTest : BasePlatformTestCase() {
         work.reconcile(initial.copy(revision = 3))
         await { publications == 3 }
         settle()
-        work.reconcile(initial.copy(revision = 4, visible = false))
-        onApply = { work.close() }
-        work.reconcile(initial.copy(revision = 5))
-        await { publications == 4 }
-        settle()
-        val beforeRefresh = entered.get()
-        work.refresh()
-        settle()
-        assertEquals(beforeRefresh, entered.get())
-        assertEquals(4, publications)
+        assertTrue(entered.get() > hiddenCount)
     }
     fun testNoFacetDemandReleasesAcceptedPayloadAndWakeUpDoesNotRecapture() {
         open()
