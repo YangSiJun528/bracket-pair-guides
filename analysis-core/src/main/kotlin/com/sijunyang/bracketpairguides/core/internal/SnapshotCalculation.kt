@@ -92,8 +92,6 @@ internal object SnapshotCalculation {
             checkCanceled()
             CalculatedAnalysis.Available(
                 coverage = coverage,
-                layout = layout,
-                canonicalPairs = pairs,
                 indexes = BracketIndexes(
                     pairs = pairs.takeIf { layout.activePair } ?: PairTable.empty(),
                     tokens = tokens,
@@ -126,8 +124,6 @@ internal class PreparedSnapshot internal constructor(
 internal sealed interface CalculatedAnalysis {
     class Available(
         val coverage: AnalysisCoverage,
-        val layout: IndexLayout,
-        val canonicalPairs: PairTable,
         val indexes: BracketIndexes,
         val matcherAvailability: BraceMatcherAvailability,
         val limit: AnalysisLimit?,

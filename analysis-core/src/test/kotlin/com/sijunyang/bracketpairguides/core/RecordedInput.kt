@@ -16,12 +16,8 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.yield
 
 /** In-memory adapter for the same bounded input contract as the IntelliJ adapter. */
-internal class RecordedInput(
-    val text: String,
-    var revision: Long = 1,
-    private val chunk: Int = 512,
-    private val tabSize: Int = 4,
-) : BracketInput {
+internal class RecordedInput(val text: String, private val chunk: Int = 512, private val tabSize: Int = 4) :
+    BracketInput {
     private val starts = listOf(0) + text.indices.filter { text[it] == '\n' }.map { it + 1 }
     private val ends = starts.map { first -> text.indexOf('\n', first).let { if (it < 0) text.length else it } }
     private val kinds = HashMap<Char, TokenKind>()
@@ -40,7 +36,7 @@ internal class RecordedInput(
         attempts++
         kinds.clear()
         symbols.clear()
-        return DocumentFacts(text.length, starts.size, tabSize, revision)
+        return DocumentFacts(text.length, starts.size, tabSize)
     }
     override suspend fun tokensAt(offset: Int): TokenBatch {
         tokenCaptures++

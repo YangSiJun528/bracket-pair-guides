@@ -7,7 +7,7 @@ The five production modules separate ownership through compiler dependencies. Pr
 | Module and package root | Owns | Direct production project dependencies |
 |---|---|---|
 | `analysis-model`, `model` | Platform-free values, coverage, refusals, `BracketView`, and `TokenWindow` | None |
-| `analysis-core`, `core` | Complete calculation attempts, unrelated-write retry, pairing, indexes, guides, repair, and weak canonical storage | `analysis-model` (`api`) |
+| `analysis-core`, `core` | Complete calculation attempts, unrelated-write retry, pairing, indexes, guides, and repair | `analysis-model` (`api`) |
 | `editor-ui`, `ui` | Presentation policy, geometry, markup, settings, SDK event adapters, and the work/view contracts its callers need | `analysis-model` (`api`) |
 | `analysis-runtime`, `runtime` | SDK input, work lifetime, source validity, accepted results, native proof, and final EDT approval | `analysis-model`, `editor-ui` (`api`); `analysis-core` (`implementation`) |
 | `plugin`, `plugin` | Composition, descriptor registration, highlighting-pass adapters, and packaging | `analysis-model`, `editor-ui`, `analysis-runtime` (`implementation`) |
@@ -77,12 +77,11 @@ classDiagram
     EditorSource ..|> BracketInput
     BracketCalculator --> BracketInput
     BracketCalculator --> CalculationAttempt : internal
-    BracketCalculator --> CalculationCache : internal
     IndexedBracketView ..|> BracketView
     EditorGuide --> BracketView
 ```
 
-`BracketCalculator.analyze` and `repair` are the core's deep facade. Their interface includes bounded input, cancellation, refusal, source validation, and reuse rules, not just method signatures. The public final class hides the implementation without a redundant calculator/default-calculator pair. Pairing sessions, index builders, sorting, and guide scanning remain internal decisions. Kotlin algorithm declarations are `internal`; Java helpers are package-private. These visibility choices complement the physical dependency graph rather than replacing it.
+`BracketCalculator.analyze` and `repair` are the core's deep facade. Their interface includes bounded input, cancellation, refusal, and source validation, not just method signatures. The public final class hides the implementation without a redundant calculator/default-calculator pair. Pairing sessions, index builders, sorting, and guide scanning remain internal decisions. Kotlin algorithm declarations are `internal`; Java helpers are package-private. These visibility choices complement the physical dependency graph rather than replacing it.
 
 `EditorGuide` similarly hides tracked markers, token windows, active geometry, and reentrant rendering behind the UI-owned view contract. `EditorAnalysisSession` hides accepted-result state and the ordering of work revocation/replacement behind one desired-state reconciliation operation. Callers do not sequence cancel, capture, compute, and publish.
 
@@ -91,7 +90,7 @@ classDiagram
 | Change | Start in | Keep out of callers |
 |---|---|---|
 | Pair recognition, recovery, depth, or index lookup | `core.internal`, exercised through `core.api.BracketCalculator` | Pairing sessions and concrete indexes |
-| Guide indentation, repair admission, or canonical reuse | `core.internal` | Prefix scan loops and cache entry protocols |
+| Guide indentation or repair admission | `core.internal` | Prefix scan loops and repair budgets |
 | Language classification or matcher interaction | `runtime.capture` and `runtime.capture.matcher` | SDK tokens, iterators, and grammar objects in model/core |
 | Read-action scheduling, source checks, task cancellation, accepted-result authority | `runtime.capture`, `runtime.session` | Jobs and host stamps in UI |
 | Surface support, focus, visibility, settings, or notification episodes | `ui.policy`, `ui.editor`, `ui.settings` | Presentation decisions in core/runtime |

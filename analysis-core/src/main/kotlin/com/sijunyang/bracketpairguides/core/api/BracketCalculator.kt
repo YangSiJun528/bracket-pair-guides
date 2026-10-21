@@ -6,20 +6,17 @@ import com.sijunyang.bracketpairguides.core.input.LineInput
 import com.sijunyang.bracketpairguides.core.input.RepairRequest
 import com.sijunyang.bracketpairguides.core.input.RetryCapture
 import com.sijunyang.bracketpairguides.core.internal.CalculationAttempt
-import com.sijunyang.bracketpairguides.core.internal.CalculationCache
 import com.sijunyang.bracketpairguides.model.AnalysisCoverage
 import com.sijunyang.bracketpairguides.model.BracketGuide
 import com.sijunyang.bracketpairguides.model.result.AnalysisResult
 
-/** A document's calculation use cases. Attempts are independent; only weak immutable storage is shared. */
+/** Stateless calculation use cases; each attempt owns its input and result storage. */
 class BracketCalculator {
-    private val cache = CalculationCache()
-
     suspend fun analyze(input: BracketInput, coverage: AnalysisCoverage, control: CalculationControl): AnalysisResult {
         while (true) {
             control.checkCanceled()
             try {
-                return CalculationAttempt(control).analyze(input, coverage, cache)
+                return CalculationAttempt(control).analyze(input, coverage)
             } catch (_: RetryCapture) {
                 // No mutable pairing, builder, or demanded-rule state survives an invalidated capture epoch.
                 control.checkCanceled()

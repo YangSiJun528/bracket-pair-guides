@@ -85,14 +85,19 @@ class ScalarPrefixCaptureIdeContractTest : BasePlatformTestCase() {
             if (!future.isDone) future.cancel(true)
         }
     }
-    private fun source(epoch: AnalysisReadEpoch, calculation: DocumentCalculation): EditorSource =
-        EditorSource(myFixture.editor, SourceIdentity.capture(myFixture.editor, demand), epoch, control, calculation)
+    private fun source(epoch: AnalysisReadEpoch, calculation: DocumentCalculation): EditorSource = EditorSource(
+        myFixture.editor,
+        SourceIdentity.capture(myFixture.editor, demand, calculation),
+        epoch,
+        control,
+        calculation,
+    )
 
     fun testScalarAndContinuationUseActualBoundedBackgroundReads() {
         val indent = " ".repeat(5000)
         myFixture.configureByText("Scalar.java", "{\n${indent}value\n}")
         val epoch = AnalysisReadEpoch()
-        val calculation = DocumentCalculation(myFixture.editor.document)
+        val calculation = DocumentCalculation(myFixture.editor.document).also { it.acquire() }
         try {
             val input = source(epoch, calculation)
             worker {
@@ -124,13 +129,14 @@ class ScalarPrefixCaptureIdeContractTest : BasePlatformTestCase() {
             assertEquals(5, exits.size)
             assertTrue(exits.all { it.first && it.second == null })
         } finally {
+            calculation.release()
             Disposer.dispose(epoch)
         }
     }
     fun testScalarRejectsCancellationChangedSourceAndUnrelatedWriteEpoch() {
         myFixture.configureByText("Scalar.java", "{\n    value\n}")
         val epoch = AnalysisReadEpoch()
-        val calculation = DocumentCalculation(myFixture.editor.document)
+        val calculation = DocumentCalculation(myFixture.editor.document).also { it.acquire() }
         try {
             val input = source(epoch, calculation)
             worker { input.beginAttempt() }
@@ -152,13 +158,14 @@ class ScalarPrefixCaptureIdeContractTest : BasePlatformTestCase() {
             assertTrue(failed[2].second is SourceChanged)
         } finally {
             canceled.set(false)
+            calculation.release()
             Disposer.dispose(epoch)
         }
     }
     fun testRepairThenFullAnalysisSurvivesAttemptRestartAfterUnrelatedWrite() {
         myFixture.configureByText("Scalar.java", "class C {\n    void f() { }\n}")
         val epoch = AnalysisReadEpoch()
-        val calculation = DocumentCalculation(myFixture.editor.document)
+        val calculation = DocumentCalculation(myFixture.editor.document).also { it.acquire() }
         try {
             val input = source(epoch, calculation)
             val calculator = BracketCalculator()
@@ -181,6 +188,7 @@ class ScalarPrefixCaptureIdeContractTest : BasePlatformTestCase() {
                 assertEquals(0, guide.guideColumn)
             }
         } finally {
+            calculation.release()
             Disposer.dispose(epoch)
         }
     }
