@@ -54,7 +54,7 @@ class InputBoundaryContractTest {
         assertThat(calculate(input(0) { batch(0, true) })).isInstanceOf(AnalysisResult.Available::class.java)
     }
 
-    @Test fun fullGuideCaptureRejectsBeyondDocumentPrefixesWithoutPoisoningCanonicalReuse() = runBlocking<Unit> {
+    @Test fun fullGuideCaptureRejectsBeyondDocumentPrefixesWithoutAffectingLaterAnalysis() = runBlocking<Unit> {
         val calculator = BracketCalculator()
         val source = RecordedInput("{\n  x\n}")
         val coverage = AnalysisCoverage(true, true, true)

@@ -45,17 +45,17 @@ The UI-owned IDE contract checks the corresponding synchronous content-demand
 boundary. A later screenshot alone cannot prove hiding timing.
 
 A real FileEditorManager tab cycle first warms `Contract.java` and `TabContract.java`
-through normal editor events. Each warmed tab return checks the selected editor's
-identity, unchanged document stamp, actual Swing showing state, and the full valid
-plugin token range/depth-key list inside the same EDT callback immediately after
-selection returns. There is no analysis wait, event pump, or explicit plugin request
-before that assertion. Hidden tabs must have no plugin markup. Focus is deferred,
-so active-guide restoration is checked separately after the synchronous token
-contract. Closing the other tab and restoring focus must reproduce the existing
-`all-components` pixels exactly. This adds an interaction contract, not a new PNG
-baseline. `tab-switch-observed.txt` retains both synchronous observations and
-failure diagnostics; it does not prove that a painted frame never flickers under
-all event interleavings.
+through normal editor events. Each tab return checks selected-editor identity,
+unchanged document stamp, actual Swing showing state and hidden-tab markup cleanup
+inside the selection EDT callback. Hidden tabs release their accepted result;
+restoration requires fresh background analysis. A read-only Driver wait then
+requires the full original token range/depth-key list within 30 seconds, without
+an explicit plugin request or fixed sleep. Focus and active-guide restoration
+are checked afterwards. Closing the other tab and restoring focus must reproduce
+the existing `all-components` pixels exactly. This adds an interaction contract,
+not a new PNG baseline. `tab-switch-observed.txt` retains selection-time and
+post-analysis observations plus failure diagnostics. It does not assert immediate
+restoration or that a painted frame never flickers during background analysis.
 
 A body indentation round-trip invokes the actual `EditorTab` and
 `EditorUnindentSelection` handlers with no selection, starting at the body prefix

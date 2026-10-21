@@ -115,7 +115,7 @@ class TokenSemanticsContractTest {
     private inner class Events(private val events: List<Event>, private vararg val extra: Pair<TokenKind, TokenKind>) :
         BracketInput {
         var answers = 0
-        override suspend fun beginAttempt() = DocumentFacts(events.size, 1, 4, 1)
+        override suspend fun beginAttempt() = DocumentFacts(events.size, 1, 4)
         override suspend fun tokensAt(offset: Int): TokenBatch = TokenBatch.capture { sink ->
             val after = minOf(events.size, offset + 7)
             for (position in offset until after) {

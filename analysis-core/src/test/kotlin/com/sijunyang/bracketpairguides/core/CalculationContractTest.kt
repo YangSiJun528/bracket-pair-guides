@@ -16,7 +16,6 @@ import com.sijunyang.bracketpairguides.model.BraceMatcherAvailability
 import com.sijunyang.bracketpairguides.model.BracketPair
 import com.sijunyang.bracketpairguides.model.OffsetRange
 import com.sijunyang.bracketpairguides.model.result.AnalysisResult
-import com.sijunyang.bracketpairguides.model.result.BracketView
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
@@ -211,26 +210,7 @@ class CalculationContractTest {
         assertThat(BracketCalculator().repair(input, RepairRequest(pair, true), coroutineControl())).isNull()
     }
 
-    @Test fun sharedStorageDoesNotSharePairMemosAndOldCompletionCannotRollbackCache() = runBlocking<Unit> {
-        val calculator = BracketCalculator()
-        val newest = available(RecordedInput("(())", revision = 2), calculator)
-        val older = available(RecordedInput("()", revision = 1), calculator)
-        val sameNewest = available(RecordedInput("(())", revision = 2), calculator)
-
-        // Storage identity is the resource contract under test, never a production query getter.
-        fun storage(view: BracketView): Any = view.javaClass.getDeclaredField("indexes").let { field ->
-            field.isAccessible =
-                true
-            field.get(view)
-        }
-        assertThat(storage(newest.view)).isSameAs(storage(sameNewest.view))
-        assertThat(storage(older.view)).isNotSameAs(storage(newest.view))
-        val first = newest.view.activePairAt(2)
-        assertThat(first).isEqualTo(sameNewest.view.activePairAt(2)).isNotSameAs(sameNewest.view.activePairAt(2))
-        assertThat(newest.view.activePairAt(2)).isSameAs(first)
-    }
-
-    @Test fun guideReuseSeparatesTabLayoutsWithinOneTextRevision() = runBlocking<Unit> {
+    @Test fun eachCalculationUsesItsRequestedTabLayout() = runBlocking<Unit> {
         val calculator = BracketCalculator()
         val text = "{\n\tx\n\t}"
         val four = available(RecordedInput(text, tabSize = 4), calculator)
@@ -257,7 +237,7 @@ class CalculationContractTest {
         val calculator = BracketCalculator()
         val closed = calculator.analyze(RecordedInput("()".repeat(100000)), tokens, coroutineControl())
         assertThat(closed).isInstanceOf(AnalysisResult.Available::class.java)
-        val pending = calculator.analyze(RecordedInput("(".repeat(50000), revision = 2), tokens, coroutineControl())
+        val pending = calculator.analyze(RecordedInput("(".repeat(50000)), tokens, coroutineControl())
         assertThat(pending).isInstanceOf(AnalysisResult.Available::class.java)
         assertThat((pending as AnalysisResult.Available).view.visibleTokens(OffsetRange(0, 50000), 0, 10).size).isZero()
     }
@@ -270,26 +250,24 @@ class CalculationContractTest {
         assertThat(input.prefixRequests).isEmpty()
     }
 
-    @Test fun aLateConcurrentAttemptCannotReplaceTheNewerCanonicalStorage() = runBlocking<Unit> {
+    @Test fun interleavedCalculationsKeepTheirOwnResults() = runBlocking<Unit> {
         val calculator = BracketCalculator()
         val reached = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
-        val oldInput = RecordedInput("()", revision = 1)
-        oldInput.onValidate = {
+        val slowInput = RecordedInput("()")
+        slowInput.onValidate = {
             reached.complete(Unit)
             release.await()
         }
-        val older = async { available(oldInput, calculator) }
+        val slow = async { available(slowInput, calculator) }
         reached.await()
-        val newest = available(RecordedInput("(())", revision = 2), calculator)
+        val nested = available(RecordedInput("(())"), calculator)
         release.complete(Unit)
-        older.await()
-        val newestAgain = available(RecordedInput("(())", revision = 2), calculator)
-        fun storage(view: BracketView): Any = view.javaClass.getDeclaredField("indexes").let {
-            it.isAccessible = true
-            it.get(view)
-        }
-        assertThat(storage(newest.view)).isSameAs(storage(newestAgain.view))
+        val simple = slow.await()
+        assertThat(simple.view.activePairAt(1)?.closeOffset).isEqualTo(1)
+        assertThat(nested.view.activePairAt(2)?.closeOffset).isEqualTo(2)
+        assertThat(available(RecordedInput("(())"), calculator).view.activePairAt(2))
+            .isEqualTo(nested.view.activePairAt(2))
     }
 
     @Test fun retryRemainsCancellableInsteadOfSpinningOnAnUnavailableReadLock() = runBlocking<Unit> {

@@ -18,10 +18,9 @@ import java.util.LinkedHashMap
 internal class CalculationAttempt(private val control: CalculationControl) {
     private val checkCanceled: () -> Unit = control::checkCanceled
 
-    suspend fun analyze(input: BracketInput, coverage: AnalysisCoverage, cache: CalculationCache): AnalysisResult {
+    suspend fun analyze(input: BracketInput, coverage: AnalysisCoverage): AnalysisResult {
         val facts = input.beginAttempt()
         control.checkCanceled()
-        cache.admit(facts.reuseRevision, checkCanceled)
         val recognition = if (coverage.pairs) {
             recognize(input, facts)
         } else {
@@ -36,10 +35,8 @@ internal class CalculationAttempt(private val control: CalculationControl) {
             is CalculatedAnalysis.Unavailable -> AnalysisResult.Unavailable(coverage, calculated.limit)
 
             is CalculatedAnalysis.Available -> {
-                val indexes = cache.canonical(facts, calculated, checkCanceled)
-                control.checkCanceled()
                 AnalysisResult.Available(
-                    IndexedBracketView(indexes),
+                    IndexedBracketView(calculated.indexes),
                     calculated.coverage,
                     calculated.matcherAvailability,
                     calculated.limit,
