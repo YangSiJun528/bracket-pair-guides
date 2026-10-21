@@ -176,8 +176,10 @@ broken invariant or couple a test to implementation fields.
 Document-edit presentation tests must assert immediately after the write action,
 before another daemon or highlighting pass runs. Cover insertion, replacement,
 deletion, and equal-length space/tab replacement. A surviving tracked pair must
-already have current endpoints. If current guide geometry is unavailable, retain
-the previous column provisionally while repair remains pending. Invalid endpoints
+already have current endpoint emphasis. If current guide geometry is unavailable,
+replay the last complete visible guide drawing while repair remains pending.
+Verify unchanged pixels across edits and partial repaints, atomic replacement
+after repair, and invalidation when the viewport or editor layout changes. Invalid endpoints
 or lost presentation ownership must clear immediately; provisional pixels must
 not certify current geometry or native-highlight evidence.
 

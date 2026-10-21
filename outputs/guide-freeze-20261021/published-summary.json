@@ -1,0 +1,114 @@
+{
+  "baselineRevision": "107e0b917191bba68bdcba7032f04038c4f5dc1a",
+  "scope": "Freeze the last complete visible vector drawing during background repair, then replace it when current geometry is accepted.",
+  "screenGap": {
+    "definition": "first sampled closing-brace text/border at its new column to first sampled vertical guide at the corresponding new column",
+    "environment": "IC 2024.2.6; Linux amd64 emulation on arm64; Xvfb96 1920x1080; JetBrains Mono14; isolated screen crop 400x240",
+    "capture": "120 Hz requested; original variable frame timestamps retained (encoder/muxer time base 1 microsecond); statistics use original frame PTS, not CFR frame counts",
+    "samplesPerRevision": 24,
+    "actionsPerRevision": {
+      "Tab": 12,
+      "Shift+Tab": 12
+    },
+    "revisions": {
+      "before": {
+        "all": {
+          "n": 24,
+          "medianMs": 41.5815000000066,
+          "p95NearestRankMs": 158.30700000000775,
+          "minMs": 8.279999999984966,
+          "maxMs": 233.13199999998346
+        },
+        "editsWithMixedEndpointFrames": 24,
+        "editsWithSampledBlankFrames": 0
+      },
+      "after": {
+        "all": {
+          "n": 24,
+          "medianMs": 41.74650000000213,
+          "p95NearestRankMs": 109.15699999998196,
+          "minMs": 0.0,
+          "maxMs": 308.3289999999863
+        },
+        "editsWithMixedEndpointFrames": 0,
+        "editsWithSampledBlankFrames": 0
+      }
+    }
+  },
+  "validation": {
+    "unitAndSdkSuites": {
+      "analysis-model:test": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "analysis-core:test": {
+        "tests": 44,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "analysis-runtime:test": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "editor-ui:test": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "plugin:test": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "plugin:minimumSdkTests": {
+        "tests": 57,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "plugin:currentSdkTests": {
+        "tests": 57,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "totalTests": 177,
+    "driver": {
+      "status": "passed",
+      "reviewedBaselineImages": 12,
+      "environment": "IC 2024.2.6 / Linux amd64 / Xvfb96"
+    },
+    "buildPlugin": "passed",
+    "verifyPluginStructure": "passed",
+    "negativeControls": "Bypassing frozen rendering and comparing integer graphics origins each caused their regression test to fail."
+  },
+  "limitations": [
+    "One sequential session per revision with 24 settled Tab/Shift+Tab actions; descriptive results, not evidence of a latency improvement.",
+    "The screen gap begins at sampled text movement, not physical key input. Capture requests 120 Hz and retains variable original timestamps.",
+    "Linux amd64 emulation results do not guarantee native macOS or continuous rapid-typing latency.",
+    "The full drawing stays at its old position while repair is pending. Layout changes discard it; an absent prior drawing cannot be replayed.",
+    "Original videos, frame data, diagnostic logs and installation archives remain local. This file publishes aggregate results and source hashes only."
+  ],
+  "captureRevision": "36923d906907296f8e8e39e6ff61db2f6c84d370",
+  "captureSourceSha256": {
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/ui/presentation/ActiveGuidePresentation.kt": "cb148fef087db39d46f32676cb1be35fe30a3956b49dcf80d7f364c745d61ea2",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/ui/editor/EditorGuide.kt": "3f671f5f1b62dbaacbb53e14c3b792105da619737e580f6fb469e7e5cd7b0398",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/ui/presentation/ActivePairMarkup.kt": "97348d7931c4f237b829cb2d0e9676f669b3a7f3b0356958cf044a66720616c3",
+    "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/ui/presentation/BracketGuideDrawing.kt": "6e435eb0a7ac28a8ba677fdb0578c4e8b736429af4a55cb6a72cba452b12137a"
+  },
+  "postCaptureCompatibilityFix": {
+    "change": "Removed the experimental custom-fold-property callback; stable fold-state/removal and inlay listeners remain. Rendering and measured Tab/Shift+Tab paths are unchanged.",
+    "sourceSha256": {
+      "editor-ui/src/main/kotlin/com/sijunyang/bracketpairguides/ui/editor/EditorGuide.kt": "afa1dfd85bdcbbaaed5aa5d0d2cfe0c90a010ff0682c1cdcaaaa6a9ba8452db7"
+    },
+    "validation": "Repeated :check, minimumSdkTests, currentSdkTests, buildPlugin and verifyPluginStructure successfully."
+  }
+}

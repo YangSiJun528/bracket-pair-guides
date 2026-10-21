@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       seed_main_baseline:
-        description: Measure the current default branch before the integration is merged
+        description: Seed current main under this ref's measurement contract (noncomparative)
         type: boolean
         default: false
 
@@ -109,11 +109,14 @@ jobs:
           fi
           mkdir -p benchmarks/build/benchmark-jobs benchmarks/build/job-reference
           cp "${jars[0]}" benchmarks/build/benchmark-jobs/jmh.jar
+          # Use this workflow ref's reviewed settings for both main seeding and PRs.
+          cp "$GITHUB_WORKSPACE/benchmarks/runner/jvm.args" benchmarks/build/benchmark-jobs/jvm.args
+          jvm_args=$(paste -sd ' ' benchmarks/build/benchmark-jobs/jvm.args)
           printf '%s\n' "$jobs" > benchmarks/build/job-reference/jobs.json
           while IFS= read -r job; do
             directory="benchmarks/build/benchmark-jobs/$job"
             mkdir -p "$directory"
-            printf '%s\n' '-jar' '../jmh.jar' ".*\.$job" '-bm' 'avgt' '-wi' '2' '-w' '1s' '-i' '3' '-r' '1s' '-f' '2' '-t' '1' '-jvmArgs' '"-Xms2g -Xmx2g"' '-prof' 'gc' '-rf' 'json' '-rff' 'jmh.json' > "$directory/run.args"
+            printf '%s\n' '-jar' '../jmh.jar' ".*\.$job" '-bm' 'avgt' '-wi' '6' '-w' '1s' '-i' '3' '-r' '1s' '-f' '2' '-t' '1' '-jvmArgs' "\"$jvm_args\"" '-prof' 'gc' '-rf' 'json' '-rff' 'jmh.json' > "$directory/run.args"
           done < <(printf '%s' "$jobs" | jq -r '.[]')
       - uses: actions/upload-artifact@v7
         with:

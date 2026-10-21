@@ -48,7 +48,8 @@ internal class ActivePairMarkup(
         return true
     }
 
-    fun showGuide(guide: BracketGuide?, preferences: BracketGuidePreferences, frame: Frame) {
+    fun showGuide(guide: BracketGuide?, preferences: BracketGuidePreferences, frame: Frame,
+        retainDrawing: Boolean = false) {
         frame.check()
         if (guide == null || !canShow(guide, preferences)) { clearGuide(frame); return }
         val appearance = GuideAppearance(preferences.showVerticalGuide, preferences.showHorizontalGuides,
@@ -83,9 +84,13 @@ internal class ActivePairMarkup(
         val highlighter = owned.highlighter
         val renderer = highlighter.customRenderer as? BracketGuideDrawing
         if (renderer == null) highlighter.customRenderer = BracketGuideDrawing(guide, appearance, color,
-            onDisplayedMultilineVerticalGuide)
-        else renderer.update(guide, appearance, color)
+            onDisplayedMultilineVerticalGuide).also { it.update(guide, appearance, color, retainDrawing) }
+        else renderer.update(guide, appearance, color, retainDrawing)
         frame.check()
+    }
+
+    fun invalidateDrawing() {
+        (guideMark?.highlighter?.customRenderer as? BracketGuideDrawing)?.invalidateDrawing()
     }
 
     fun showPair(pair: BracketPair, preferences: BracketGuidePreferences, frame: Frame) {

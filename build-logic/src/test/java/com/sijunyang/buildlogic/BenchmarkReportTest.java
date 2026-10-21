@@ -24,13 +24,19 @@ public class BenchmarkReportTest {
                 row.put("jdkVersion", "17.0.20");
                 row.put("forks", 2);
                 row.put("threads", 1);
-                row.put("warmupIterations", 2);
+                row.put("warmupIterations", 6);
                 row.put("measurementIterations", 3);
                 row.put("warmupTime", "1 s");
                 row.put("measurementTime", "1 s");
                 row.put("warmupBatchSize", 1);
                 row.put("measurementBatchSize", 1);
-                row.put("jvmArgs", List.of("-Xms2g", "-Xmx2g"));
+                row.put(
+                        "jvmArgs",
+                        List.of(
+                                "-Xms2g",
+                                "-Xmx2g",
+                                "-XX:CompileCommand=dontinline,com.sijunyang.bracketpairguides.benchmarks.CalculationWorkload$RecordedInput::initialPrefix",
+                                "-Xbatch"));
                 row.put(
                         "primaryMetric",
                         Map.of(
@@ -149,7 +155,36 @@ public class BenchmarkReportTest {
         var heapRows = report();
         heapRows.get(0).put("jvmArgs", List.of("-Xms1g", "-Xmx1g"));
         assertThatThrownBy(() -> BenchmarkReportTask.convert(heapRows, "analyzeCold"))
-                .hasMessageContaining("heap changed");
+                .hasMessageContaining("JVM arguments changed");
+    }
+
+    @Test
+    public void oldOrOverriddenInputBoundaryCannotEnterNewHistory() {
+        var rows = report();
+        rows.get(0).put("jvmArgs", List.of("-Xms2g", "-Xmx2g"));
+        assertThatThrownBy(() -> BenchmarkReportTask.convert(rows, "analyzeCold"))
+                .hasMessageContaining("JVM arguments changed");
+        var overridden = report();
+        var arguments = new ArrayList<Object>((List<?>) overridden.get(0).get("jvmArgs"));
+        arguments.add(
+                "-XX:CompileCommand=inline,com.sijunyang.bracketpairguides.benchmarks.CalculationWorkload$RecordedInput::initialPrefix");
+        overridden.get(0).put("jvmArgs", arguments);
+        assertThatThrownBy(() -> BenchmarkReportTask.convert(overridden, "analyzeCold"))
+                .hasMessageContaining("JVM arguments changed");
+    }
+
+    @Test
+    public void insufficientWarmupOrBackgroundCompilationCannotEnterNewHistory() {
+        var rows = report();
+        rows.get(0).put("warmupIterations", 2);
+        assertThatThrownBy(() -> BenchmarkReportTask.convert(rows, "analyzeCold"))
+                .hasMessageContaining("run geometry");
+        var oldPolicy = report();
+        var arguments = new ArrayList<Object>((List<?>) oldPolicy.get(0).get("jvmArgs"));
+        arguments.remove("-Xbatch");
+        oldPolicy.get(0).put("jvmArgs", arguments);
+        assertThatThrownBy(() -> BenchmarkReportTask.convert(oldPolicy, "analyzeCold"))
+                .hasMessageContaining("JVM arguments changed");
     }
 
     @Test

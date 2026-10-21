@@ -32,3 +32,11 @@ indentation scans, input-specific state, or new caches. The trade-off is that an
 old column may remain visible while calculation is pending, including a refused
 bounded repair. The [current presentation policy](../explanation_editor_presentation_policy.md)
 defines the replacement behavior.
+
+Later on 2026-10-21, direct IDE testing found the mixed intermediate shape
+uncomfortable: the old column remained while horizontal endpoints followed the
+edited brackets. The user selected freezing the last complete visible drawing
+until current geometry is ready. Presentation now retains one visible vector
+outline, replays it during repair, and discards it on viewport or layout changes.
+Tracking and repair authority remain independent of those provisional pixels.
+This changes the intermediate shape, not the background calculation latency.

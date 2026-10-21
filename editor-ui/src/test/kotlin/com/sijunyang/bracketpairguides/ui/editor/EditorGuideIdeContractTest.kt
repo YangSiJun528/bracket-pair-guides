@@ -17,6 +17,7 @@ import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.RangeHighlighter
+import java.awt.Rectangle
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.awt.image.DataBufferInt
@@ -140,6 +141,12 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
         editor.component.setSize(800, 600)
         editor.component.doLayout()
         editor.contentComponent.setSize(800, 600)
+        (editor as EditorEx).scrollPane.apply {
+            setSize(800, 600)
+            doLayout()
+            viewport.extentSize = java.awt.Dimension(800, 600)
+            viewport.viewSize = java.awt.Dimension(800, 600)
+        }
         val oldEditorTabSize = editor.settings.getTabSize(project)
         val oldEditorUseTabs = editor.settings.isUseTabCharacter(project)
         editor.settings.setTabSize(4)
@@ -215,13 +222,13 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
         try {
             val (preferences, original) = openIndentation()
             val renderer = original.customRenderer as BracketGuideDrawing
-            assertCurrentPairPaint(original, renderer.guide, preferences)
+            val originalPixels = assertCurrentPairPaint(original, renderer.guide, preferences)
             val observations = displayedGuides.size
             assertTrue(observations > 0)
             myFixture.editor.caretModel.moveToOffset(currentIndentationGuide().pair.closeOffset)
             myFixture.performEditorAction("EditorTab")
             assertPendingGuide()
-            assertCurrentPairPaint(original, renderer.guide, preferences)
+            assertTrue(originalPixels.contentEquals(paintGuide(original, renderer)))
             assertEquals(observations, displayedGuides.size)
             val fresh = BracketGuide(demands.last().repair!!.pair, 12, 2)
             assertEquals(ViewApplication.APPLIED, guide.applyRepair(RepairUpdate(demands.last().guideRevision, fresh)))
@@ -229,6 +236,110 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
             assertTrue(displayedGuides.size > observations)
         } finally {
             insight.HIGHLIGHT_BRACES = before
+        }
+    }
+
+    fun testPendingPaintKeepsWholeDrawingAcrossTabSpacesPasteAndRepeatedEdits() {
+        for (kind in listOf("tab", "spaces", "paste")) {
+            val (preferences, mark) = openIndentation(tabs = kind == "tab")
+            val renderer = mark.customRenderer as BracketGuideDrawing
+            val original = assertCurrentPairPaint(mark, renderer.guide, preferences)
+            // A small dirty rectangle must not replace the snapshot with a partial guide.
+            paintGuide(mark, renderer, Rectangle(400, 0, 100, 600))
+            val editor = myFixture.editor
+            editor.caretModel.moveToOffset(currentIndentationGuide().pair.closeOffset)
+            if (kind == "tab") myFixture.performEditorAction("EditorTab") else {
+                WriteCommandAction.runWriteCommandAction(project) {
+                    val offset = currentIndentationGuide().pair.closeOffset
+                    editor.document.insertString(offset, if (kind == "paste") "    \n            " else "    ")
+                }
+            }
+            assertPendingGuide()
+            assertTrue("$kind must replay the complete old drawing", original.contentEquals(paintGuide(mark, renderer)))
+            val oldRevision = demands.last().guideRevision
+            val oldPair = demands.last().repair!!.pair
+            WriteCommandAction.runWriteCommandAction(project) {
+                editor.document.insertString(editor.document.text.indexOf("work") + 2, " ")
+            }
+            assertPendingGuide()
+            assertTrue("Further edits must not move frozen endpoints", original.contentEquals(paintGuide(mark, renderer)))
+            assertEquals(ViewApplication.OBSOLETE,
+                guide.applyRepair(RepairUpdate(oldRevision, BracketGuide(oldPair, 12, 2))))
+            assertTrue(original.contentEquals(paintGuide(mark, renderer)))
+            val repaired = BracketGuide(demands.last().repair!!.pair, 12, 2)
+            assertEquals(ViewApplication.APPLIED,
+                guide.applyRepair(RepairUpdate(demands.last().guideRevision, repaired)))
+            val current = assertCurrentPairPaint(mark, repaired, preferences)
+            assertFalse("An accepted repair must replace the frozen drawing", original.contentEquals(current))
+        }
+    }
+
+    fun testPendingDrawingSurvivesDifferentGraphicsOrigins() {
+        val (preferences, mark) = openIndentation()
+        val renderer = mark.customRenderer as BracketGuideDrawing
+        val original = assertCurrentPairPaint(mark, renderer.guide, preferences)
+        // Screen and offscreen/partial paints can use different integer graphics origins.
+        paintGuide(mark, renderer, translation = java.awt.Point(40, 60))
+        myFixture.editor.caretModel.moveToOffset(currentIndentationGuide().pair.closeOffset)
+        myFixture.performEditorAction("EditorTab")
+        assertPendingGuide()
+        assertTrue("A graphics origin is not an editor layout change", original.contentEquals(paintGuide(mark, renderer)))
+    }
+
+    fun testPendingWithoutPreviousPaintDoesNotInventMixedGeometry() {
+        val (_, mark) = openIndentation()
+        myFixture.editor.caretModel.moveToOffset(currentIndentationGuide().pair.closeOffset)
+        myFixture.performEditorAction("EditorTab")
+        assertPendingGuide()
+        assertTrue(paintGuide(mark, mark.customRenderer as BracketGuideDrawing).all { it == 0 })
+    }
+
+    fun testPendingDrawingIsDiscardedOnLayoutChangesAndRepairRestoresIt() {
+        for (change in listOf("font", "wrap", "width", "scroll", "fold", "inlay")) {
+            val (preferences, mark) = openIndentation()
+            val renderer = mark.customRenderer as BracketGuideDrawing
+            val original = assertCurrentPairPaint(mark, renderer.guide, preferences)
+            val editor = myFixture.editor as EditorEx
+            val fontSize = editor.colorsScheme.editorFontSize
+            val wraps = editor.settings.isUseSoftWraps
+            var fold: com.intellij.openapi.editor.FoldRegion? = null
+            var inlay: com.intellij.openapi.editor.Inlay<*>? = null
+            try {
+                editor.caretModel.moveToOffset(currentIndentationGuide().pair.closeOffset)
+                myFixture.performEditorAction("EditorTab")
+                assertPendingGuide()
+                assertTrue(original.contentEquals(paintGuide(mark, renderer)))
+                when (change) {
+                    "font" -> editor.setFontSize(fontSize + 2)
+                    "wrap" -> editor.settings.isUseSoftWraps = !wraps
+                    "width" -> editor.scrollPane.viewport.extentSize = java.awt.Dimension(700, 600)
+                    "scroll" -> editor.scrollPane.viewport.viewPosition = java.awt.Point(0, 20)
+                    "fold" -> editor.foldingModel.runBatchFoldingOperation {
+                        val start = editor.document.text.indexOf("work")
+                        fold = editor.foldingModel.addFoldRegion(start, start + 6, "...")
+                        assertNotNull(fold)
+                        fold!!.isExpanded = false
+                    }
+                    "inlay" -> {
+                        inlay = editor.inlayModel.addInlineElement(editor.document.text.indexOf("work"),
+                            object : com.intellij.openapi.editor.EditorCustomElementRenderer {
+                                override fun calcWidthInPixels(inlay: com.intellij.openapi.editor.Inlay<*>) = 10
+                            })
+                        assertNotNull(inlay)
+                    }
+                }
+                assertTrue("$change must discard a drawing from the old layout", paintGuide(mark, renderer).all { it == 0 })
+                val repaired = BracketGuide(demands.last().repair!!.pair, 12, 2)
+                assertEquals(ViewApplication.APPLIED,
+                    guide.applyRepair(RepairUpdate(demands.last().guideRevision, repaired)))
+                assertCurrentPairPaint(mark, repaired, preferences)
+            } finally {
+                inlay?.dispose()
+                fold?.let { editor.foldingModel.runBatchFoldingOperation { editor.foldingModel.removeFoldRegion(it) } }
+                editor.setFontSize(fontSize)
+                editor.settings.isUseSoftWraps = wraps
+                editor.contentComponent.setSize(800, 600)
+            }
         }
     }
 
@@ -428,11 +539,14 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
         return geometry
     }
 
-    private fun paintGuide(highlighter: RangeHighlighter, renderer: BracketGuideDrawing): IntArray {
+    private fun paintGuide(highlighter: RangeHighlighter, renderer: BracketGuideDrawing,
+        clip: Rectangle = Rectangle(0, 0, 800, 600),
+        translation: java.awt.Point = java.awt.Point()): IntArray {
         val image = BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB)
         val graphics = image.createGraphics()
         try {
-            graphics.clipRect(0, 0, image.width, image.height)
+            graphics.translate(translation.x, translation.y)
+            graphics.clip = clip
             renderer.paint(myFixture.editor, highlighter, graphics)
         } finally { graphics.dispose() }
         return (image.raster.dataBuffer as DataBufferInt).data.copyOf()

@@ -28,7 +28,7 @@ jmh {
     jmhVersion = "1.37"
     if (benchmarkJob.isPresent) includes = listOf(".*\\.${benchmarkJob.get()}")
     benchmarkMode = listOf("avgt")
-    warmupIterations = 2
+    warmupIterations = 6
     warmup = "1s"
     iterations = 3
     timeOnIteration = "1s"
@@ -39,7 +39,8 @@ jmh {
     resultFormat = "JSON"
     resultsFile = layout.buildDirectory.file("reports/jmh/results.json").get().asFile
     humanOutputFile = layout.buildDirectory.file("reports/jmh/human.txt").get().asFile
-    jvmArgs = listOf("-Xms2g", "-Xmx2g")
+    jvmArgs = providers.fileContents(layout.projectDirectory.file("runner/jvm.args"))
+        .asText.get().lineSequence().filter(String::isNotBlank).toList()
     if (providers.gradleProperty("benchmarkSmoke").map(String::toBoolean).getOrElse(false)) {
         warmupIterations = 0
         iterations = 1

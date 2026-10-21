@@ -72,7 +72,7 @@ internal class ActiveGuidePresentation(
         trackedPair.track(pair, guide)
         if (indexedGuide != null || pair.openLine == pair.closeLine) repairPending = false
         pendingAnchorLine = if (guide == null) currentAnchorLine else null
-        markup.showGuide(guide, preferences, frame)
+        markup.showGuide(guide, preferences, frame, retainDrawing = repairPending)
         frame.check()
         markup.showPair(pair, preferences, frame)
         frame.check()
@@ -110,7 +110,7 @@ internal class ActiveGuidePresentation(
                     )
                 }
             }
-        markup.showGuide(guide, preferences, frame)
+        markup.showGuide(guide, preferences, frame, retainDrawing = repairPending)
         frame.check()
         trackedPair.refresh(pair, guide)
     }
@@ -169,12 +169,14 @@ internal class ActiveGuidePresentation(
                     pair.closeLine,
                 ),
             )
-        markup.showGuide(displayed, preferences, frame)
+        markup.showGuide(displayed, preferences, frame, retainDrawing = repairPending)
         frame.check()
         markup.showPair(pair, preferences, frame)
         frame.check()
         trackedPair.refresh(pair, displayed)
     }
+
+    fun invalidateDrawing() = markup.invalidateDrawing()
 
     fun hideGuide(frame: Frame) {
         frame.check()
@@ -188,7 +190,7 @@ internal class ActiveGuidePresentation(
         if (currentPair != guide.pair || adjustedPair != guide.pair || !needsGuideRepair) return false
         repairPending = false
         trackedPair.refresh(guide.pair, guide)
-        markup.showGuide(guide, preferences, frame)
+        markup.showGuide(guide, preferences, frame, retainDrawing = repairPending)
         frame.check()
         return true
     }

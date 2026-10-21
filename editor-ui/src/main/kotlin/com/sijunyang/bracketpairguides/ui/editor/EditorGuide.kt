@@ -2,6 +2,12 @@ package com.sijunyang.bracketpairguides.ui.editor
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.FoldRegion
+import com.intellij.openapi.editor.Inlay
+import com.intellij.openapi.editor.InlayModel
+import com.intellij.openapi.editor.ex.FoldingListener
+import com.intellij.openapi.editor.ex.FoldingModelEx
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.TextRange
 import com.sijunyang.bracketpairguides.model.BracketGuide
 import com.sijunyang.bracketpairguides.model.AnalysisLimit
@@ -52,6 +58,18 @@ internal class EditorGuide(
     private var plan = EditorPresentationPolicy.resolve(capabilities, options, activity)
     private var display = plan.presentation.applyTo(options)
     private val active = ActiveGuidePresentation(editor) { _, guide -> observeDisplayedGuide(guide) }
+    private val drawingLifetime = Disposer.newDisposable("Bracket Pair Guides drawing")
+    init {
+        (editor.foldingModel as? FoldingModelEx)?.addListener(object : FoldingListener {
+            override fun onFoldRegionStateChange(region: FoldRegion) = active.invalidateDrawing()
+            override fun beforeFoldRegionRemoved(region: FoldRegion) = active.invalidateDrawing()
+        }, drawingLifetime)
+        editor.inlayModel.addListener(object : InlayModel.Listener {
+            override fun onAdded(inlay: Inlay<*>) = active.invalidateDrawing()
+            override fun onUpdated(inlay: Inlay<*>) = active.invalidateDrawing()
+            override fun onRemoved(inlay: Inlay<*>) = active.invalidateDrawing()
+        }, drawingLifetime)
+    }
     private val tokens = VisibleTokenDecorations(editor)
     private val work = factory.attach(editor, this)
     private var checkpoint = demand(GuideChange.CONFIGURATION)
@@ -289,6 +307,7 @@ internal class EditorGuide(
     override fun close() {
         if (!frames.close()) return
         work.close()
+        Disposer.dispose(drawingLifetime)
         view = null
         if (!ApplicationManager.getApplication().isDisposed || ApplicationManager.getApplication().isDispatchThread) {
             assertEdt(); clearMarkup()

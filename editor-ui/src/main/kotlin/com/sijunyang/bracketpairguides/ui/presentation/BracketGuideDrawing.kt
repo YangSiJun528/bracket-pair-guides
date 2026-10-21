@@ -4,6 +4,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.editor.VisualPosition
+import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.editor.markup.CustomHighlighterRenderer
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.ui.paint.PaintUtil
@@ -11,17 +12,23 @@ import com.sijunyang.bracketpairguides.model.BracketGuide
 import com.sijunyang.bracketpairguides.ui.preferences.BracketGuidePreferences
 import java.awt.BasicStroke
 import java.awt.Color
+import java.awt.Font
 import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.Rectangle
 import java.awt.RenderingHints
+import java.awt.Shape
+import java.awt.geom.AffineTransform
 import java.awt.geom.Path2D
+import kotlin.math.floor
 
 /**
  * Paints one complete bracket-pair guide for one range highlighter.
  *
  * Geometry is resolved at paint time so editor zoom, soft wraps, folding, and
- * font changes use current visual positions. Graphics state is isolated from
+ * font changes use current visual positions. While repair is pending, replay the
+ * last complete visible drawing without mixing it with moved endpoints.
+ * Graphics state is isolated from
  * the rest of the editor paint pipeline.
  */
 internal class BracketGuideDrawing(
@@ -33,9 +40,20 @@ internal class BracketGuideDrawing(
     var guide: BracketGuide = guide
         private set
 
+    private var retainDrawing = false
+    private var lastDrawing: PaintedGuide? = null
+
+    fun invalidateDrawing() {
+        lastDrawing = null
+    }
+
     /** Updates the EDT-owned renderer without firing a markup renderer-change event. */
-    fun update(guide: BracketGuide, appearance: GuideAppearance, color: Color) {
+    fun update(guide: BracketGuide, appearance: GuideAppearance, color: Color, retainDrawing: Boolean = false) {
         ApplicationManager.getApplication().assertIsDispatchThread()
+        if ((!retainDrawing && this.guide != guide) || this.appearance != appearance || this.color != color) {
+            lastDrawing = null
+        }
+        this.retainDrawing = retainDrawing
         this.guide = guide
         this.appearance = appearance
         this.color = color
@@ -60,6 +78,22 @@ internal class BracketGuideDrawing(
         if (!highlighter.isValid || editor.isDisposed) return
         if (!options.showVertical && !options.showHorizontal) return
 
+        if (retainDrawing) {
+            val saved = lastDrawing ?: return
+            if (saved.layout != PaintLayout.capture(editor, graphics as Graphics2D)) {
+                lastDrawing = null
+                return
+            }
+            val g = graphics.create() as Graphics2D
+            try {
+                g.color = saved.color
+                paintOutline(g, saved.outline)
+            } finally {
+                g.dispose()
+            }
+            return
+        }
+        lastDrawing = null
         val document = editor.document
         val openOffset = guide.pair.openOffset
         val closeOffset = guide.pair.closeOffset
@@ -106,6 +140,15 @@ internal class BracketGuideDrawing(
         }
 
         val g = graphics.create() as Graphics2D
+        // Generate the visible drawing independently of a partial repaint's dirty clip.
+        // This keeps one bounded snapshot, including segments outside that dirty rectangle.
+        val layout = PaintLayout.capture(editor, g)
+        val drawingBounds = layout.visibleArea.takeUnless { it.isEmpty } ?: g.clipBounds
+        fun remember(shape: GuideStrokeShape) {
+            val outline = shape.outline() ?: return
+            paintOutline(g, outline)
+            if (!layout.visibleArea.isEmpty) lastDrawing = PaintedGuide(outline, color, layout)
+        }
         try {
             g.color = color
             val guideShape =
@@ -127,10 +170,10 @@ internal class BracketGuideDrawing(
                         openEndOffset = openEndOffset,
                         closeOffset = closeOffset,
                         closeX = closePoint.x,
-                        clip = g.clipBounds,
+                        clip = drawingBounds,
                     )
                 }
-                guideShape.paint()
+                remember(guideShape)
                 return
             }
 
@@ -159,20 +202,58 @@ internal class BracketGuideDrawing(
                     endY = verticalEndY,
                     openOffset = openOffset,
                     closeOffset = closeOffset,
-                    clip = g.clipBounds,
+                    clip = drawingBounds,
                 )
             }
             if (options.showHorizontal) {
                 guideShape.addHorizontal(guideX, openPoint.x, openBottomY)
                 guideShape.addHorizontal(guideX, closePoint.x, closeBottomY)
             }
-            guideShape.paint()
+            remember(guideShape)
             if (guideShape.hasVerticalSegment) {
                 onDisplayedMultilineVerticalGuide(editor, guide)
             }
         } finally {
             g.dispose()
         }
+    }
+
+    private data class PaintedGuide(val outline: Shape, val color: Color, val layout: PaintLayout)
+
+    /** Changes independent of document edits make a frozen content-coordinate drawing obsolete. */
+    private data class PaintLayout(
+        val visibleArea: Rectangle,
+        val font: Font,
+        val lineHeight: Int,
+        val softWraps: Boolean,
+        val tabSize: Int,
+        val pixelGrid: AffineTransform,
+    ) {
+        companion object {
+            fun capture(editor: Editor, graphics: Graphics2D) = PaintLayout(
+                editor.scrollingModel.visibleArea,
+                editor.colorsScheme.getFont(EditorFontType.PLAIN),
+                editor.lineHeight,
+                editor.settings.isUseSoftWraps,
+                editor.settings.getTabSize(editor.project),
+                // Repaint buffers can shift the graphics origin by whole pixels without
+                // moving editor content. Only scale/shear and subpixel alignment matter.
+                graphics.transform.apply {
+                    setTransform(
+                        scaleX,
+                        shearY,
+                        shearX,
+                        scaleY,
+                        translateX - floor(translateX),
+                        translateY - floor(translateY),
+                    )
+                },
+            )
+        }
+    }
+
+    private fun paintOutline(graphics: Graphics2D, outline: Shape) {
+        PaintUtil.paintWithAA(graphics, RenderingHints.VALUE_ANTIALIAS_DEFAULT) { graphics.fill(outline) }
     }
 
     /**
@@ -346,20 +427,14 @@ internal class BracketGuideDrawing(
             isEmpty = false
         }
 
-        fun paint() {
-            if (isEmpty) return
-            val outline =
-                BasicStroke(
-                    thickness.toFloat(),
-                    BasicStroke.CAP_SQUARE,
-                    BasicStroke.JOIN_MITER,
-                ).createStrokedShape(centerLines)
-            PaintUtil.paintWithAA(
-                graphics,
-                RenderingHints.VALUE_ANTIALIAS_DEFAULT,
-            ) {
-                graphics.fill(outline)
-            }
+        fun outline(): Shape? = if (isEmpty) {
+            null
+        } else {
+            BasicStroke(
+                thickness.toFloat(),
+                BasicStroke.CAP_SQUARE,
+                BasicStroke.JOIN_MITER,
+            ).createStrokedShape(centerLines)
         }
 
         /** Keeps a centered stroke fully inside the editor content at x = 0. */

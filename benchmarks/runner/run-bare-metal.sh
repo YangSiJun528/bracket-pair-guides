@@ -11,7 +11,7 @@ for job in analyzeCold analyzeReuse visibleQuery repair cancelledAttempt; do
   mkdir -p "results/$job"
   args=(run --project "$BENCHER_PROJECT" --image "$BENCHER_IMAGE" --spec intel-v1 --job-timeout 300
     --env "BENCHMARK_JOB=$job" --branch "$BENCHER_BRANCH" --hash "$BENCHER_HASH"
-    --testbed bencher-intel-v1-jdk17 --adapter json --file /bench/bencher-results.json --format json --quiet)
+    --testbed bencher-intel-v1-jdk17-input-v3 --adapter json --file /bench/bencher-results.json --format json --quiet)
   if [[ "$first" == true ]]; then
     if [[ -n "${BENCHER_BASE_BRANCH:-}" ]]; then
       args+=(--start-point "$BENCHER_BASE_BRANCH" --start-point-hash "$BENCHER_BASE_SHA" --start-point-clone-thresholds --start-point-reset)

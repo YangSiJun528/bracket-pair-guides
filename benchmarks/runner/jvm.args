@@ -1,0 +1,4 @@
+-Xms2g
+-Xmx2g
+-XX:CompileCommand=dontinline,com.sijunyang.bracketpairguides.benchmarks.CalculationWorkload$RecordedInput::initialPrefix
+-Xbatch
