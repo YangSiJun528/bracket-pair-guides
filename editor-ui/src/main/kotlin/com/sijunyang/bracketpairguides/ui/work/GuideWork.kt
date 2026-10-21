@@ -15,8 +15,7 @@ interface GuideWorkFactory {
 interface GuideWork : AutoCloseable {
     /**
      * EDT: installs complete desired state and revokes obsolete work before replacement.
-     * A visibility return may synchronously reapply a runtime-validated suspended result.
-     * Hiding revokes publication and clears presentation; suspended reuse is best effort.
+     * Hiding revokes publication and releases the accepted result; returning requests fresh analysis.
      */
     fun reconcile(demand: GuideDemand)
 
@@ -32,7 +31,7 @@ interface GuideWork : AutoCloseable {
 
 interface GuideView {
     /**
-     * EDT, non-suspending; also used for validated visibility-return reuse.
+     * EDT, non-suspending.
      * May return obsolete after a synchronous SDK listener reenters.
      */
     fun applyAnalysis(update: AnalysisUpdate): ViewApplication

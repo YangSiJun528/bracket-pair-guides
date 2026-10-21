@@ -8,7 +8,6 @@ import com.intellij.openapi.application.readAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.EditorKind
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.ProcessCanceledException
@@ -41,15 +40,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import java.lang.ref.SoftReference
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.time.Duration.Companion.milliseconds
 
 /** One editor owns one accepted value and three independently revocable work lanes. */
 internal class EditorAnalysisSession(
@@ -70,11 +66,10 @@ internal class EditorAnalysisSession(
     private val native = NativeEvidenceGate()
     @Volatile private var demand: GuideDemand? = null
     @Volatile private var accepted: Accepted? = null
-    @Volatile private var dormant: SoftReference<Accepted>? = null
     @Volatile private var fullJob: Job? = null
     @Volatile private var repairJob: Job? = null
     @Volatile private var nativeJob: Job? = null
-    private var repairTarget: Pair<Long, RepairIntent?>? = null
+    private var repairTarget: RepairTarget? = null
     private var fullSource: SourceIdentity? = null
     private var fullCoverage: AnalysisCoverage? = null
     private var fullEnvironmentRevision: Long? = null
@@ -93,7 +88,11 @@ internal class EditorAnalysisSession(
         ApplicationManager.getApplication().assertIsDispatchThread()
         if (expired()) return
         val previous = this.demand
-        if (previous == demand) return
+        if (previous == demand) {
+            reconcileRepair(demand)
+            scheduleFull()
+            return
+        }
         val sourceChanged = previous == null ||
             demand.change == GuideChange.CONTENT &&
                 (demand.guideRevision != previous.guideRevision || demand.revision != previous.revision) ||
@@ -103,63 +102,28 @@ internal class EditorAnalysisSession(
             this.demand = demand
         }
         if (!demand.visible || !demand.coverage.pairs) {
-            revokeWork(retainDormant = !demand.visible && demand.coverage.pairs && !sourceChanged)
+            revokeWork()
             return
         }
         if (sourceChanged) revokeWork()
         if (previous?.guideRevision != demand.guideRevision || previous.nativeInterest != demand.nativeInterest) {
             native.invalidate(); nativeJob?.cancel()
         }
-        if (previous?.visible == false) {
-            if (resumeDormant(demand) || expired() || this.demand != demand) return
-        }
         reconcileRepair(demand)
-        if (sourceChanged || previous?.visible != true || previous.coverage != demand.coverage) scheduleFull()
+        scheduleFull()
     }
 
-    private fun revokeWork(retainDormant: Boolean = false) {
+    private fun revokeWork() {
         sourceEpoch.incrementAndGet()
         fullTicket.incrementAndGet(); repairTicket.incrementAndGet(); native.invalidate()
         fullJob?.cancel(); repairJob?.cancel(); nativeJob?.cancel()
         fullJob = null; repairJob = null; nativeJob = null
         synchronized(lifecycle) {
             if (!closed.get()) {
-                if (retainDormant) accepted?.let { dormant = SoftReference(it) } else dormant = null
                 accepted = null
             }
         }
         fullSource = null; fullCoverage = null; fullEnvironmentRevision = null; repairTarget = null
-    }
-
-    private fun resumeDormant(requested: GuideDemand): Boolean {
-        val cached = dormant?.get() ?: run { dormant = null; return false }
-        dormant = null
-        val attached = attachment ?: return false
-        val epoch = sourceEpoch.get()
-        val ticket = fullTicket.get()
-        val source = SourceIdentity.capture(attached.editor, requested)
-        if (sourceIsTooLarge() || cached.environmentRevision != reads.environmentRevision ||
-            !cached.covers(source, requested.coverage, attached.editor)) return false
-        if (expired() || !root.isActive || attachment !== attached || demand !== requested ||
-            sourceEpoch.get() != epoch || fullTicket.get() != ticket ||
-            cached.environmentRevision != reads.environmentRevision) return false
-        val applied = try {
-            attached.view.applyAnalysis(AnalysisUpdate(requested.revision, cached.result))
-        } catch (failure: Exception) {
-            LOG.warn("Could not restore bracket guides", failure)
-            return false
-        }
-        val sourceCurrent = valid(cached.source, requested, epoch) && !sourceIsTooLarge() &&
-            cached.environmentRevision == reads.environmentRevision
-        val latest = demand
-        synchronized(lifecycle) {
-            if (applied == ViewApplication.APPLIED && sourceCurrent && !closed.get() && root.isActive &&
-                attachment === attached && fullTicket.get() == ticket && demand === latest) {
-                accepted = cached
-                return true
-            }
-        }
-        return false
     }
 
     override fun refresh() {
@@ -175,12 +139,12 @@ internal class EditorAnalysisSession(
         val scope = attached.scope
         val calculation = attached.calculation
         if (expired() || !requested.visible || !requested.coverage.pairs) return
-        val source = SourceIdentity.capture(editor, requested)
+        val source = SourceIdentity.capture(editor, requested, attached.calculation)
         val environmentRevision = reads.environmentRevision
         if (!sourceIsTooLarge() && accepted?.let {
-                it.environmentRevision == environmentRevision && it.covers(source, requested.coverage, editor)
+                it.environmentRevision == environmentRevision && it.covers(source, requested.coverage, editor, calculation)
             } == true) return
-        if (fullJob?.isActive == true && fullEnvironmentRevision == environmentRevision && fullSource?.matches(editor, requested.coverage.guidePosition) == true &&
+        if (fullJob?.isActive == true && fullEnvironmentRevision == environmentRevision && fullSource?.matches(editor, calculation, requested.coverage.guidePosition) == true &&
             fullCoverage?.includes(requested.coverage) == true) return
         fullJob?.cancel()
         synchronized(lifecycle) {
@@ -193,8 +157,8 @@ internal class EditorAnalysisSession(
         val epoch = sourceEpoch.get()
         val modality = ModalityState.stateForComponent(editor.contentComponent).asContextElement()
         fullJob = scope.launch {
+            var retry = false
             try {
-                if (editor.editorKind != EditorKind.MAIN_EDITOR) delay(75.milliseconds)
                 val control = control(fullTicket, ticket, epoch)
                 val refused = readAction { sourceIsTooLarge() }
                 val result = if (refused) AnalysisResult.Unavailable(requested.coverage, AnalysisLimit.IDE_CODE_INSIGHT_FILE_SIZE)
@@ -203,12 +167,16 @@ internal class EditorAnalysisSession(
                     control.checkCanceled()
                     val current = demand ?: return@withContext
                     if (!valid(source, requested, epoch) || reads.environmentRevision != environmentRevision || sourceIsTooLarge() &&
-                        !(result is AnalysisResult.Unavailable && result.limit == AnalysisLimit.IDE_CODE_INSIGHT_FILE_SIZE)) return@withContext
+                        !(result is AnalysisResult.Unavailable && result.limit == AnalysisLimit.IDE_CODE_INSIGHT_FILE_SIZE)) {
+                        retry = true
+                        return@withContext
+                    }
                     repairTicket.incrementAndGet(); repairJob?.cancel(); repairTarget = null
                     val applied = view.applyAnalysis(AnalysisUpdate(current.revision, result))
                     // Source/SDK checks happen outside the lifecycle lock, after all rendering effects.
                     val sourceCurrent = valid(source, requested, epoch) && reads.environmentRevision == environmentRevision &&
                         (!sourceIsTooLarge() || result is AnalysisResult.Unavailable && result.limit == AnalysisLimit.IDE_CODE_INSIGHT_FILE_SIZE)
+                    retry = !sourceCurrent
                     val latest = demand
                     synchronized(lifecycle) {
                         // EDT cannot interleave another supported document write in this commit turn.
@@ -217,43 +185,86 @@ internal class EditorAnalysisSession(
                             accepted = Accepted(source, requested.coverage, result, environmentRevision)
                     }
                 }
-            } catch (_: SourceChanged) { /* newer editor state owns the next request */ }
-            catch (_: ProcessCanceledException) { }
-            catch (cancelled: CancellationException) { throw cancelled }
+            } catch (_: SourceChanged) { retry = true }
+            catch (_: ProcessCanceledException) { retry = true }
+            catch (cancelled: CancellationException) { retry = true; throw cancelled }
             catch (failure: Exception) { LOG.warn("Could not calculate or display bracket guides", failure) }
+            finally {
+                ApplicationManager.getApplication().invokeLater({
+                    // A late completion may neither clear nor cancel a newer lane owner.
+                    if (!expired() && fullTicket.get() == ticket && sourceEpoch.get() == epoch) {
+                        fullJob = null
+                        fullSource = null; fullCoverage = null; fullEnvironmentRevision = null
+                        if (retry) scheduleFull()
+                    }
+                }, ModalityState.any())
+            }
         }
     }
 
     private fun reconcileRepair(requested: GuideDemand) {
-        val target = requested.guideRevision to requested.repair
-        if (repairTarget == target) return
-        repairTarget = target
-        val ticket = repairTicket.incrementAndGet()
-        repairJob?.cancel()
-        val intent = requested.repair ?: return
         val attached = attachment ?: return
         val editor = attached.editor
         val view = attached.view
         val scope = attached.scope
         val calculation = attached.calculation
-        if (!requested.visible) return
-        val source = SourceIdentity.capture(editor, requested)
+        if (expired() || !requested.visible || !requested.coverage.pairs) return
+        val source = SourceIdentity.capture(editor, requested, attached.calculation)
+        val environmentRevision = reads.environmentRevision
+        if (repairTarget?.let {
+                it.guideRevision == requested.guideRevision && it.intent == requested.repair &&
+                    it.environmentRevision == environmentRevision && it.source.matches(editor, calculation, true)
+            } == true) return
+        val ticket = repairTicket.incrementAndGet()
+        repairJob?.cancel()
+        repairJob = null
+        repairTarget = null
+        val intent = requested.repair ?: return
+        if (accepted?.let {
+                it.requested.guidePosition && it.environmentRevision == environmentRevision &&
+                    it.covers(source, requested.coverage, editor, calculation)
+            } == true) return
+        synchronized(lifecycle) {
+            if (closed.get() || attachment !== attached) return
+            repairTarget = RepairTarget(requested.guideRevision, intent, source, environmentRevision)
+        }
         val epoch = sourceEpoch.get()
         val modality = ModalityState.current().asContextElement()
         repairJob = scope.launch {
+            var retry = false
+            var completed = false
             try {
                 val control = control(repairTicket, ticket, epoch)
                 val guide = calculation.calculator.repair(EditorSource(editor, source, reads, control, calculation),
-                    RepairRequest(intent.pair, intent.exact, intent.previousAnchor), control) ?: return@launch
+                    RepairRequest(intent.pair, intent.exact, intent.previousAnchor), control)
                 withContext(Dispatchers.EDT + modality) {
                     control.checkCanceled()
-                    if (valid(source, requested, epoch) && demand?.guideRevision == requested.guideRevision)
-                        view.applyRepair(RepairUpdate(requested.guideRevision, guide))
+                    if (!valid(source, requested, epoch) || reads.environmentRevision != environmentRevision ||
+                        demand?.guideRevision != requested.guideRevision) {
+                        retry = true
+                        return@withContext
+                    }
+                    completed = guide == null ||
+                        view.applyRepair(RepairUpdate(requested.guideRevision, guide)) == ViewApplication.APPLIED
+                    retry = !valid(source, requested, epoch) || reads.environmentRevision != environmentRevision
                 }
-            } catch (_: SourceChanged) { }
-            catch (_: ProcessCanceledException) { }
-            catch (cancelled: CancellationException) { throw cancelled }
+            } catch (_: SourceChanged) { retry = true }
+            catch (_: ProcessCanceledException) { retry = true }
+            catch (cancelled: CancellationException) { retry = true; throw cancelled }
             catch (failure: Exception) { LOG.warn("Could not repair a bracket guide", failure) }
+            finally {
+                ApplicationManager.getApplication().invokeLater({
+                    if (!expired() && repairTicket.get() == ticket && sourceEpoch.get() == epoch) {
+                        repairJob = null
+                        if (!completed || retry) repairTarget = null
+                        if (retry) {
+                            // A repair intent contains coordinates. Only reuse them for unchanged content.
+                            if (source.contentRevision == calculation.contentRevision) demand?.let(::reconcileRepair)
+                            scheduleFull()
+                        }
+                    }
+                }, ModalityState.any())
+            }
         }
     }
 
@@ -270,7 +281,7 @@ internal class EditorAnalysisSession(
         nativeJob?.cancel()
         ApplicationManager.getApplication().invokeLater({
             if (expired() || !native.isCurrent(proof)) return@invokeLater
-            val source = SourceIdentity.capture(editor, requested)
+            val source = SourceIdentity.capture(editor, requested, attached.calculation)
             val probe = NativeGuideConflictDetector.captureConflict(editor, candidate.guide, reads) ?: return@invokeLater
             nativeJob = scope.launch {
                 try {
@@ -316,8 +327,9 @@ internal class EditorAnalysisSession(
 
     private fun valid(source: SourceIdentity, requested: GuideDemand, epoch: Long): Boolean {
         val current = demand ?: return false
-        val editor = attachment?.editor ?: return false
-        return current.visible && current.coverage.pairs && !expired() && sourceEpoch.get() == epoch && source.matches(editor, requested.coverage.guidePosition) &&
+        val attached = attachment ?: return false
+        val editor = attached.editor
+        return current.visible && current.coverage.pairs && !expired() && sourceEpoch.get() == epoch && source.matches(editor, attached.calculation, requested.coverage.guidePosition) &&
             requested.coverage.includes(current.coverage) && current.disabledLanguageIds == requested.disabledLanguageIds
     }
 
@@ -342,7 +354,7 @@ internal class EditorAnalysisSession(
             sourceEpoch.incrementAndGet(); fullTicket.incrementAndGet(); repairTicket.incrementAndGet(); native.invalidate()
             released = attachment
             attachment = null
-            fullSource = null; fullCoverage = null; fullEnvironmentRevision = null; accepted = null; dormant = null; demand = null; repairTarget = null
+            fullSource = null; fullCoverage = null; fullEnvironmentRevision = null; accepted = null; demand = null; repairTarget = null
         }
         root.cancel()
         released?.calculation?.release()
@@ -351,10 +363,13 @@ internal class EditorAnalysisSession(
 
     private class Attachment(val editor: Editor, val view: GuideView, val calculation: DocumentCalculation, val scope: CoroutineScope)
 
+    private class RepairTarget(val guideRevision: Long, val intent: RepairIntent, val source: SourceIdentity,
+        val environmentRevision: Long)
+
     private class Accepted(val source: SourceIdentity, val requested: AnalysisCoverage, val result: AnalysisResult,
         val environmentRevision: Long) {
-        fun covers(next: SourceIdentity, coverage: AnalysisCoverage, editor: Editor): Boolean =
-            source.matches(editor, coverage.guidePosition) && source.disabledLanguageIds == next.disabledLanguageIds &&
+        fun covers(next: SourceIdentity, coverage: AnalysisCoverage, editor: Editor, calculation: DocumentCalculation): Boolean =
+            source.matches(editor, calculation, coverage.guidePosition) && source.disabledLanguageIds == next.disabledLanguageIds &&
                 requested.includes(coverage) && !(result is AnalysisResult.Unavailable && result.limit == AnalysisLimit.IDE_CODE_INSIGHT_FILE_SIZE)
     }
 

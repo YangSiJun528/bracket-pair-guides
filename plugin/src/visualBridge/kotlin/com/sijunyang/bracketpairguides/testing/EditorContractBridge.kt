@@ -334,13 +334,10 @@ object EditorContractBridge {
         }
         checkHiddenTab(original)
         manager.openFile(checkNotNull(FileDocumentManager.getInstance().getFile(original.document)), true)
-        // No event pump, analysis wait, or explicit plugin request may precede these observations.
+        // Selection and hidden-tab cleanup are synchronous; token restoration is observed after analysis.
         lastTabObservation = tabObservation("original-return-inside-selection-turn")
         check(manager.selectedTextEditor === original && original.contentComponent.isShowing)
         check(original.document.modificationStamp == tabOriginalStamp)
-        check(tokenRanges(original) == tabOriginalTokens) {
-            "Original tab lost its valid token markup at synchronous return: $lastTabObservation"
-        }
         checkHiddenTab(other)
         lastTabObservation
     }
@@ -355,11 +352,23 @@ object EditorContractBridge {
         lastTabObservation = tabObservation("other-return-inside-selection-turn")
         check(manager.selectedTextEditor === other && other.contentComponent.isShowing)
         check(other.document.modificationStamp == tabOtherStamp)
-        check(tokenRanges(other) == tabOtherTokens) {
-            "Second tab lost its valid token markup at synchronous return: $lastTabObservation"
-        }
         checkHiddenTab(original)
         lastTabObservation
+    }
+
+    /** Observe fresh analysis through exact public token ranges and depth keys, without requesting work. */
+    @JvmStatic
+    fun selectedTabReady(): Boolean = readEdt {
+        val original = tabOriginal ?: return@readEdt false
+        val other = tabOther ?: return@readEdt false
+        val selected = FileEditorManager.getInstance(checkNotNull(original.project)).selectedTextEditor
+        val expected = when (selected) {
+            original -> tabOriginalTokens
+            other -> tabOtherTokens
+            else -> return@readEdt false
+        }
+        !selected.isDisposed && selected.contentComponent.isShowing && expected.isNotEmpty() &&
+            tokenRanges(selected) == expected
     }
 
     @JvmStatic

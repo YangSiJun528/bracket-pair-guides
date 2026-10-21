@@ -33,12 +33,15 @@ this contract. Preserve a controlled delayed-presentation mutation failure when
 establishing the assertion; do not interpret same-EDT markup callbacks as proof of
 an actual painted blank frame.
 
-Also inspect `tab-switch-observed.txt`. The real warmed-tab A/B/A contract must
-restore valid token markup in the selection EDT turn; waiting for later analysis
-cannot satisfy it. Focus and active-guide settlement happen afterwards, followed
-by exact comparison with the existing `all-components` image. No new baseline is
-needed. When verifying this fix, preserve a failure from the pre-fix runtime or a
-controlled reverse mutation; a passing settled screenshot alone is insufficient.
+Also inspect `tab-switch-observed.txt`. The real warmed-tab A/B/A contract checks
+editor identity, unchanged content and hidden-tab cleanup in the selection EDT
+turn. Hidden tabs release their analysis result, so each return then waits up to
+30 seconds for the exact original token ranges and depth keys through a read-only
+observation. It issues no explicit analysis request or fixed sleep. Focus and
+active-guide settlement follow, then exact comparison with the existing
+`all-components` image. Selection-time and post-analysis diagnostics are retained;
+this contract permits the background-analysis interval before token restoration.
+No new baseline is needed.
 
 Inspect `indentation-cycle-synchronous.txt` for the actual Tab/Shift+Tab body
 round-trip. The guide must survive both commands before asynchronous publication
