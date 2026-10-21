@@ -22,3 +22,13 @@ and SDK logical-coordinate lookup replace no background indentation calculation.
 The [presentation policy](../explanation_editor_presentation_policy.md) specifies
 the proof and conservative admission bounds. Content validity and cancellation
 still advance for every edit, even while this tracked geometry remains visible.
+
+On 2026-10-21, the user authorized replacing affected-guide hiding with
+provisional retention to reduce short visible gaps. A still-tracked pair keeps
+its adjusted renderer until current repair or analysis replaces its position;
+invalid endpoints and lost presentation ownership still clear immediately.
+Presentation distinguishes visible geometry from repair interest without adding
+indentation scans, input-specific state, or new caches. The trade-off is that an
+old column may remain visible while calculation is pending, including a refused
+bounded repair. The [current presentation policy](../explanation_editor_presentation_policy.md)
+defines the replacement behavior.

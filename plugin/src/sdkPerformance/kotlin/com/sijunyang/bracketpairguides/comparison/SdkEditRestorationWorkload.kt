@@ -24,10 +24,10 @@ suspend fun ComparisonFixture.runEditRestorationWorkload() {
             "sha256Utf8" to editRestorationFingerprint(corpus.text), "characters" to corpus.text.length,
             "editOffset" to corpus.editOffset, "oldLength" to 1, "newLength" to 1, "tabSize" to 4,
             "boundedRepairRefusal" to corpus.refuses, "expectedGuideColumn" to corpus.column,
-            "scope" to "real accepted live session; actual command/document multicaster; synchronous hide and first observed correct SDK guide",
+            "scope" to "real accepted live session; actual command/document multicaster; immediate presentation and first observed correct SDK guide",
             "limitations" to "headless ACTIVE; no paint or daemon orchestration; restoration origin not observable; all factory-owned competing work retained",
             "ownershipDifference" to "baseline MAIN_EDITOR daemon full-refresh is outside this owned factory fixture; candidate full-refresh and repair are factory-owned",
-            "latencyDefinition" to "SDK beforeRemoved callback to first correct-guide poll; upper bound including polling/dispatch delay, never exclusive repair duration")
+            "latencyDefinition" to "edit return and optional SDK removal to first correct-guide poll; polling/dispatch upper bounds, never exclusive repair duration")
         repeat(warmups + repeats) { index ->
             val tabbed = index % 2 == 0
             val startingTabbed = !tabbed
@@ -96,22 +96,18 @@ suspend fun ComparisonFixture.runEditRestorationWorkload() {
                         PsiDocumentManager.getInstance(editor.project!!).commitDocument(editor.document)
                         mutationCompleted = System.nanoTime()
                         mutationAllocatedBytes = allocationDelta(before, allocatedOnCurrentThread())
-                        // Inspect before relinquishing write access: async publication cannot mask a missing hide.
+                        // Inspect before relinquishing write access: async publication cannot mask the immediate presentation state.
                         immediate = active.visibleGuide()
                         previousMarkValidAfterListeners = target.get()?.isValid == true
                     }
                     commandReturned = System.nanoTime()
                 }
-                val expectedHide = corpus.candidateLines != 0
-                val immediateHideCorrect = if (expectedHide) immediate == null && !previousMarkValidAfterListeners &&
-                    removalStarted.get() in editStarted..mutationCompleted else immediate == expected && removalStarted.get() == 0L
-                if (!immediateHideCorrect) {
-                    emit("kind" to "edit-restoration-immediate-failure", "corpus" to corpus.name,
-                        "iteration" to index - warmups, "expectedHide" to expectedHide,
-                        "immediateGuide" to immediate, "expectedGuide" to expected,
-                        "previousMarkValid" to previousMarkValidAfterListeners,
-                        "removalStartedNanos" to removalStarted.get())
-                    error("Actual document callback hide/reuse contract failed: ${corpus.name}")
+                val multiline = corpus.candidateLines != 0
+                val retained = immediate != null && previousMarkValidAfterListeners && removalStarted.get() == 0L
+                val hidden = immediate == null && !previousMarkValidAfterListeners &&
+                    removalStarted.get() in editStarted..mutationCompleted
+                check(if (multiline) retained || hidden else immediate == expected && removalStarted.get() == 0L) {
+                    "Inconsistent immediate guide presentation: ${corpus.name}, immediate=$immediate"
                 }
                 var restored = immediate
                 var observed = if (restored == expected) commandReturned else 0L
@@ -138,7 +134,7 @@ suspend fun ComparisonFixture.runEditRestorationWorkload() {
                 val settled = withContext(Dispatchers.EDT) { active.visibleGuide() }
                 if (observed == 0L && settled == expected) observed = System.nanoTime()
                 val outcome = when {
-                    !expectedHide -> "synchronous-same-line-geometry"
+                    !multiline -> "synchronous-same-line-geometry"
                     observed > 0L -> "correct-guide-observed-origin-unknown"
                     corpus.refuses && settled == null -> "no-owned-restoration-after-refusal"
                     else -> "correct-guide-not-observed"
@@ -146,16 +142,17 @@ suspend fun ComparisonFixture.runEditRestorationWorkload() {
                 val allocationAfter = trace.snapshot()
                 if (index >= warmups) emit("kind" to "edit-restoration", "corpus" to corpus.name,
                     "iteration" to index - warmups, "tabbed" to tabbed,
-                    "startingTextSha256Utf8" to editRestorationFingerprint(startingText), "expectedHide" to expectedHide,
-                    "immediateGuide" to immediate, "previousMarkValidAfterListeners" to previousMarkValidAfterListeners,
+                    "startingTextSha256Utf8" to editRestorationFingerprint(startingText), "multiline" to multiline,
+                    "immediateGuide" to immediate, "previousMarkValidAfterListeners" to previousMarkValidAfterListeners, "guideRetained" to retained,
                     "expectedGuide" to expected, "settledGuide" to settled, "outcome" to outcome,
                     "commandRequestedNanos" to commandRequested, "commandReturnedNanos" to commandReturned,
                     "editStartedNanos" to editStarted, "mutationCompletedNanos" to mutationCompleted,
                     "guideRemovalCallbackNanos" to removalStarted.get(), "correctGuideObservedNanos" to observed,
+                    "editReturnToObservedCorrectNs" to if (observed > 0) observed - commandReturned else null,
                     "mutationAndCommitNs" to mutationCompleted - editStarted,
                     "mutationAndCommitEdtAllocatedBytes" to mutationAllocatedBytes,
                     "commandScope" to "actual WriteCommandAction; mutation metric includes document callbacks/commit, excludes command wrapper and post-mutation geometry inspection",
-                    "hideToObservedCorrectGuideNs" to if (expectedHide && observed > 0) observed - removalStarted.get() else null,
+                    "hideToObservedCorrectGuideNs" to if (removalStarted.get() > 0 && observed > 0) observed - removalStarted.get() else null,
                     "polls" to polls, "maximumObservedPollGapNs" to maximumPollGap,
                     "pollMetric" to "beforeRemoved is hide-start observation; correct SDK geometry observed after full EDT turns; elapsed is an upper bound",
                     "asyncAllocationBefore" to allocationBefore, "asyncAllocationAfter" to allocationAfter,

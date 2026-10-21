@@ -54,6 +54,7 @@ import com.sijunyang.bracketpairguides.ui.work.ViewApplication
 class EditorGuideIdeContractTest : BasePlatformTestCase() {
     private lateinit var guide: EditorGuide
     private val demands = mutableListOf<GuideDemand>()
+    private val displayedGuides = mutableListOf<DisplayedGuide>()
     private var closes = 0
     private var removeOwnedEventRouting: (() -> Unit)? = null
     private var restoreIndentOptions: (() -> Unit)? = null
@@ -89,7 +90,7 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
                     if (demand.change == GuideChange.CONTENT) onContentDemand?.invoke()
                 }
                 override fun refresh() = Unit
-                override fun observeNativeGuide(candidate: DisplayedGuide) = Unit
+                override fun observeNativeGuide(candidate: DisplayedGuide) { displayedGuides += candidate }
                 override fun close() {
                     closes++
                 }
@@ -176,6 +177,82 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
         assertTrue(demands.last().repair!!.exact)
     }
 
+    private fun assertPendingGuide() {
+        assertEquals(1, myFixture.editor.markupModel.allHighlighters.count { it.customRenderer is BracketGuideDrawing })
+        assertNotNull(demands.last().repair)
+        assertTrue(demands.last().repair!!.exact)
+    }
+
+    fun testPendingGuideKeepsRendererUntilCurrentRepairAndRejectsOlderRepair() {
+        val (_, original) = openIndentation()
+        val renderer = original.customRenderer
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(currentIndentationGuide().pair.closeOffset)
+        myFixture.performEditorAction("EditorTab")
+        assertPendingGuide()
+        val oldRevision = demands.last().guideRevision
+        val oldPair = demands.last().repair!!.pair
+        // A later safe whitespace edit must not certify previously provisional geometry.
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.insertString(editor.document.text.indexOf("work") + 2, " ")
+        }
+        assertPendingGuide()
+        assertSame(original, editor.markupModel.allHighlighters.single { it.customRenderer is BracketGuideDrawing })
+        assertSame(renderer, original.customRenderer)
+        assertEquals(ViewApplication.OBSOLETE, guide.applyRepair(RepairUpdate(oldRevision, BracketGuide(oldPair, 12, 2))))
+        val fresh = BracketGuide(demands.last().repair!!.pair, 12, 2)
+        assertEquals(ViewApplication.APPLIED, guide.applyRepair(RepairUpdate(demands.last().guideRevision, fresh)))
+        assertSame(original, editor.markupModel.allHighlighters.single { it.customRenderer is BracketGuideDrawing })
+        assertEquals(fresh, (original.customRenderer as BracketGuideDrawing).guide)
+        guide.caretMoved()
+        assertNull(demands.last().repair)
+    }
+
+    fun testProvisionalPaintDoesNotSupplyNativeConflictEvidence() {
+        val insight = com.intellij.codeInsight.CodeInsightSettings.getInstance()
+        val before = insight.HIGHLIGHT_BRACES
+        insight.HIGHLIGHT_BRACES = true
+        try {
+            val (preferences, original) = openIndentation()
+            val renderer = original.customRenderer as BracketGuideDrawing
+            assertCurrentPairPaint(original, renderer.guide, preferences)
+            val observations = displayedGuides.size
+            assertTrue(observations > 0)
+            myFixture.editor.caretModel.moveToOffset(currentIndentationGuide().pair.closeOffset)
+            myFixture.performEditorAction("EditorTab")
+            assertPendingGuide()
+            assertCurrentPairPaint(original, renderer.guide, preferences)
+            assertEquals(observations, displayedGuides.size)
+            val fresh = BracketGuide(demands.last().repair!!.pair, 12, 2)
+            assertEquals(ViewApplication.APPLIED, guide.applyRepair(RepairUpdate(demands.last().guideRevision, fresh)))
+            assertCurrentPairPaint(original, fresh, preferences)
+            assertTrue(displayedGuides.size > observations)
+        } finally {
+            insight.HIGHLIGHT_BRACES = before
+        }
+    }
+
+    fun testRemovingTrackedBracketOrLeavingPairClearsPendingGuide() {
+        openIndentation()
+        val editor = myFixture.editor
+        editor.caretModel.moveToOffset(currentIndentationGuide().pair.closeOffset)
+        myFixture.performEditorAction("EditorTab")
+        assertPendingGuide()
+        WriteCommandAction.runWriteCommandAction(project) {
+            val close = demands.last().repair!!.pair.closeOffset
+            editor.document.deleteString(close, close + 1)
+        }
+        assertFalse(editor.markupModel.allHighlighters.any { it.customRenderer is BracketGuideDrawing })
+        assertNull(demands.last().repair)
+        openIndentation()
+        editor.caretModel.moveToOffset(currentIndentationGuide().pair.closeOffset)
+        myFixture.performEditorAction("EditorTab")
+        assertPendingGuide()
+        editor.caretModel.moveToOffset(0)
+        assertFalse(editor.markupModel.allHighlighters.any { it.customRenderer is BracketGuideDrawing })
+        assertNull(demands.last().repair)
+    }
+
     fun testActualTabAndShiftTabKeepGuideInEveryDocumentCallback() {
         val (preferences, original) = openIndentation()
         val renderer = original.customRenderer
@@ -249,37 +326,37 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
         assertEquals(5, callbacks)
     }
 
-    fun testClosingMinimumIndentationAndNewBodyMinimumStillHideImmediately() {
+    fun testClosingMinimumIndentationAndNewBodyMinimumRetainPendingGuide() {
         openIndentation()
         myFixture.editor.caretModel.moveToOffset(currentIndentationGuide().pair.closeOffset)
         myFixture.performEditorAction("EditorTab")
-        assertIndentationHidden()
+        assertPendingGuide()
         openIndentation()
         WriteCommandAction.runWriteCommandAction(project) {
             val document = myFixture.editor.document
             document.replaceString(document.getLineStartOffset(2), document.text.indexOf("work"), "    ")
         }
-        assertIndentationHidden()
+        assertPendingGuide()
     }
 
-    fun testSelectionOutdentAcrossBodyAndMinimumLineStillHides() {
+    fun testSelectionOutdentAcrossBodyAndMinimumLineRetainsPendingGuide() {
         openIndentation()
         val editor = myFixture.editor
         editor.selectionModel.setSelection(editor.document.getLineStartOffset(2), editor.document.getLineEndOffset(3))
         myFixture.performEditorAction("EditorUnindentSelection")
         assertTrue(editor.document.text.contains("        work"))
         assertTrue(editor.document.text.contains("\n    }"))
-        assertIndentationHidden()
+        assertPendingGuide()
     }
 
-    fun testNewlineLargeFragmentAndLongMappingPrefixStillHide() {
+    fun testNewlineLargeFragmentAndLongMappingPrefixRetainPendingGuide() {
         for (replacement in listOf(" \n", " ".repeat(257))) {
             openIndentation()
             WriteCommandAction.runWriteCommandAction(project) {
                 val document = myFixture.editor.document
                 document.insertString(document.text.indexOf("work"), replacement)
             }
-            assertIndentationHidden()
+            assertPendingGuide()
         }
         openIndentation()
         WriteCommandAction.runWriteCommandAction(project) {
@@ -294,7 +371,7 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
             val document = myFixture.editor.document
             document.insertString(document.text.indexOf("work"), " ")
         }
-        assertIndentationHidden()
+        assertPendingGuide()
     }
 
     fun testWhitespaceProofCannotPreserveChangedLayoutOrBracketToken() {
@@ -430,7 +507,7 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
         assertNull(demands.last().repair)
     }
 
-    fun testAffectedEditHidesGuideBeforeSingleCompleteContentDemand() {
+    fun testAffectedEditRetainsGuideBeforeSingleCompleteContentDemand() {
         open()
         val document = myFixture.editor.document
         val pair = BracketPair(8, 1, document.textLength - 1, 1, 0, 0, 2)
@@ -449,7 +526,7 @@ class EditorGuideIdeContractTest : BasePlatformTestCase() {
         val before = demands.size
         WriteCommandAction.runWriteCommandAction(project) { document.insertString(10, " ") }
         guide.documentChanged(DocumentChange(10, 0, 1))
-        assertFalse(myFixture.editor.markupModel.allHighlighters.any { it.customRenderer is BracketGuideDrawing })
+        assertTrue(myFixture.editor.markupModel.allHighlighters.any { it.customRenderer is BracketGuideDrawing })
         assertEquals(before + 1, demands.size)
         assertEquals(GuideChange.CONTENT, demands.last().change)
         assertNotNull(demands.last().repair)

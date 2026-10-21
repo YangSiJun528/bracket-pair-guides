@@ -1,0 +1,2086 @@
+{
+  "baselineRevision": "9871336256d2bcfc5565139079d1846a8e9aa7ce",
+  "scope": "Retain provisional tracked guide geometry while existing background repair or full analysis calculates a current column.",
+  "screenGap": {
+    "definition": "first sampled closing-brace text/border at its new column to first sampled vertical guide at the corresponding new column",
+    "samplesPerRevision": 24,
+    "actionsPerRevision": {
+      "Tab": 12,
+      "Shift+Tab": 12
+    },
+    "environment": "IC 2024.2.6; Linux amd64 emulation on arm64; Xvfb96; 120 Hz requested capture, original frame timestamps",
+    "revisions": {
+      "before": {
+        "all": {
+          "n": 24,
+          "medianMs": 25.013500000000022,
+          "p95NearestRankMs": 74.82600000000161,
+          "minMs": 6.509999999991578,
+          "maxMs": 142.53599999997846
+        },
+        "byAction": {
+          "Tab": {
+            "n": 12,
+            "medianMs": 25.09650000000363,
+            "p95NearestRankMs": 142.53599999997846,
+            "minMs": 7.9650000000128784,
+            "maxMs": 142.53599999997846
+          },
+          "Shift+Tab": {
+            "n": 12,
+            "medianMs": 24.96800000000121,
+            "p95NearestRankMs": 58.356000000003405,
+            "minMs": 6.509999999991578,
+            "maxMs": 58.356000000003405
+          }
+        },
+        "captureIntervals": {
+          "n": 3373,
+          "medianMs": 8.33400000001916,
+          "p95NearestRankMs": 9.527999999988879,
+          "minMs": 0.19899999998074236,
+          "maxMs": 46.879999999987376
+        },
+        "sampledBlankFrames": 98,
+        "editsWithSampledBlankFrames": 24,
+        "sampledOldColumnFrames": 0,
+        "sameSampleEdits": 0
+      },
+      "after": {
+        "all": {
+          "n": 24,
+          "medianMs": 33.32799999998315,
+          "p95NearestRankMs": 76.0270000000105,
+          "minMs": 16.62600000000225,
+          "maxMs": 91.51399999998944
+        },
+        "byAction": {
+          "Tab": {
+            "n": 12,
+            "medianMs": 33.29750000000331,
+            "p95NearestRankMs": 91.51399999998944,
+            "minMs": 16.62600000000225,
+            "maxMs": 91.51399999998944
+          },
+          "Shift+Tab": {
+            "n": 12,
+            "medianMs": 33.32799999998315,
+            "p95NearestRankMs": 41.8420000000026,
+            "minMs": 24.597999999997455,
+            "maxMs": 41.8420000000026
+          }
+        },
+        "captureIntervals": {
+          "n": 3170,
+          "medianMs": 8.331999999995787,
+          "p95NearestRankMs": 9.513999999995804,
+          "minMs": 3.5100000000056752,
+          "maxMs": 13.034000000004653
+        },
+        "sampledBlankFrames": 0,
+        "editsWithSampledBlankFrames": 0,
+        "sampledOldColumnFrames": 100,
+        "sameSampleEdits": 0
+      }
+    }
+  },
+  "sdkEditCost": {
+    "replicatePairs": 6,
+    "samplesPerRevision": 2160,
+    "cases": {
+      "all": {
+        "editEdtNs": {
+          "baselineJvmMedians": [
+            1477292.0,
+            1519792.0,
+            1606208.5,
+            1626896.0,
+            1685624.5,
+            1746146.0
+          ],
+          "candidateJvmMedians": [
+            1644291.5,
+            1595166.5,
+            1503417.0,
+            1721542.0,
+            1609438.0,
+            1769729.0
+          ],
+          "pairedRatios": [
+            1.1130443405907566,
+            1.0495952735637508,
+            0.9360036383819411,
+            1.058175814557292,
+            0.9548022112872707,
+            1.013505743505984
+          ],
+          "medianPairedRatio": 1.0315505085348673,
+          "baselineMedianOfJvmMedians": 1616552.25,
+          "candidateMedianOfJvmMedians": 1626864.75,
+          "baselineJvmP95s": [
+            37398584,
+            33038959,
+            34882459,
+            34539458,
+            34528000,
+            35149625
+          ],
+          "candidateJvmP95s": [
+            35896875,
+            33909375,
+            33834250,
+            34192583,
+            32864333,
+            34637541
+          ]
+        },
+        "editEdtAllocatedBytes": {
+          "baselineJvmMedians": [
+            137720.0,
+            138624.0,
+            138384.0,
+            137840.0,
+            138724.0,
+            137788.0
+          ],
+          "candidateJvmMedians": [
+            133636.0,
+            132744.0,
+            133560.0,
+            133260.0,
+            133000.0,
+            133512.0
+          ],
+          "pairedRatios": [
+            0.9703456288120825,
+            0.9575831024930748,
+            0.9651404786680541,
+            0.9667730702263494,
+            0.9587382140076699,
+            0.9689668185908787
+          ],
+          "medianPairedRatio": 0.9659567744472017,
+          "baselineMedianOfJvmMedians": 138112.0,
+          "candidateMedianOfJvmMedians": 133386.0,
+          "baselineJvmP95s": [
+            166632,
+            166368,
+            165408,
+            165872,
+            165720,
+            165464
+          ],
+          "candidateJvmP95s": [
+            161176,
+            161008,
+            163176,
+            162128,
+            160856,
+            162664
+          ]
+        },
+        "returnToObservedCorrectNs": {
+          "baselineJvmMedians": [
+            1574271.0,
+            1580666.5,
+            1605792.0,
+            1616271.0,
+            1650229.0,
+            1662999.5
+          ],
+          "candidateJvmMedians": [
+            1624042.0,
+            1596729.0,
+            1579187.5,
+            1656396.0,
+            1595063.0,
+            1689520.5
+          ],
+          "pairedRatios": [
+            1.0316152682733786,
+            1.0101618526109082,
+            0.9834321630696877,
+            1.024825663518061,
+            0.9665707001876709,
+            1.0159476897016506
+          ],
+          "medianPairedRatio": 1.0130547711562794,
+          "baselineMedianOfJvmMedians": 1611031.5,
+          "candidateMedianOfJvmMedians": 1610385.5,
+          "baselineJvmP95s": [
+            2325042,
+            2392250,
+            2128000,
+            2368125,
+            3339708,
+            2376291
+          ],
+          "candidateJvmP95s": [
+            2464625,
+            2192542,
+            2332459,
+            2725542,
+            2357667,
+            2414333
+          ]
+        },
+        "asyncAllocatedBytes": {
+          "baselineJvmMedians": [
+            77548.0,
+            77696.0,
+            77560.0,
+            77544.0,
+            77540.0,
+            77516.0
+          ],
+          "candidateJvmMedians": [
+            66432.0,
+            66464.0,
+            66716.0,
+            66472.0,
+            66432.0,
+            66396.0
+          ],
+          "pairedRatios": [
+            0.8566565224119255,
+            0.8554365733113674,
+            0.8601856627127386,
+            0.8572165480243474,
+            0.8567449058550426,
+            0.8565457453944992
+          ],
+          "medianPairedRatio": 0.856700714133484,
+          "baselineMedianOfJvmMedians": 77546.0,
+          "candidateMedianOfJvmMedians": 66448.0,
+          "baselineJvmP95s": [
+            84096,
+            84256,
+            83832,
+            84368,
+            88168,
+            86560
+          ],
+          "candidateJvmP95s": [
+            76688,
+            76496,
+            76672,
+            76672,
+            77320,
+            76784
+          ]
+        },
+        "baselinePresence": {
+          "samples": 2160,
+          "guidePresent": 0,
+          "markRetained": 0
+        },
+        "candidatePresence": {
+          "samples": 2160,
+          "guidePresent": 2160,
+          "markRetained": 2160
+        },
+        "primaryRegressionFlag": false
+      },
+      "body-replacement": {
+        "editEdtNs": {
+          "baselineJvmMedians": [
+            1068416.5,
+            1017896.0,
+            1046145.5,
+            1430354.0,
+            1121645.5,
+            1354520.5
+          ],
+          "candidateJvmMedians": [
+            1381375.5,
+            919791.5,
+            1054354.5,
+            1287458.5,
+            1050021.0,
+            1309604.0
+          ],
+          "pairedRatios": [
+            1.292918538790818,
+            0.9036203109158499,
+            1.0078469008374074,
+            0.9000978079552334,
+            0.9361433715019585,
+            0.9668395568764002
+          ],
+          "medianPairedRatio": 0.9514914641891794,
+          "baselineMedianOfJvmMedians": 1095031.0,
+          "candidateMedianOfJvmMedians": 1170906.5,
+          "baselineJvmP95s": [
+            39596750,
+            34703458,
+            36996125,
+            37564209,
+            36557417,
+            38023833
+          ],
+          "candidateJvmP95s": [
+            40206792,
+            36009666,
+            36214417,
+            35092541,
+            34702917,
+            35607375
+          ]
+        },
+        "editEdtAllocatedBytes": {
+          "baselineJvmMedians": [
+            131912.0,
+            131816.0,
+            130776.0,
+            131124.0,
+            130648.0,
+            131168.0
+          ],
+          "candidateJvmMedians": [
+            126812.0,
+            126072.0,
+            127848.0,
+            127112.0,
+            126532.0,
+            127648.0
+          ],
+          "pairedRatios": [
+            0.9613378616047061,
+            0.9564241063300358,
+            0.977610570746926,
+            0.9694030078399073,
+            0.968495499357051,
+            0.9731641863869236
+          ],
+          "medianPairedRatio": 0.9689492535984792,
+          "baselineMedianOfJvmMedians": 131146.0,
+          "candidateMedianOfJvmMedians": 126962.0,
+          "baselineJvmP95s": [
+            165256,
+            165256,
+            164016,
+            164400,
+            164072,
+            164592
+          ],
+          "candidateJvmP95s": [
+            160768,
+            160888,
+            162272,
+            161048,
+            160448,
+            162264
+          ]
+        },
+        "returnToObservedCorrectNs": {
+          "baselineJvmMedians": [
+            1527145.5,
+            1490521.5,
+            1510250.0,
+            1585771.5,
+            1527583.5,
+            1560771.0
+          ],
+          "candidateJvmMedians": [
+            1630750.0,
+            1494166.0,
+            1511646.0,
+            1563979.5,
+            1522833.5,
+            1567729.5
+          ],
+          "pairedRatios": [
+            1.0678419312370695,
+            1.0024451173632853,
+            1.0009243502731335,
+            0.9862577931309776,
+            0.9968905136773211,
+            1.0044583734577335
+          ],
+          "medianPairedRatio": 1.0016847338182093,
+          "baselineMedianOfJvmMedians": 1527364.5,
+          "candidateMedianOfJvmMedians": 1543406.5,
+          "baselineJvmP95s": [
+            1677416,
+            1874333,
+            1788458,
+            1892500,
+            1858166,
+            1872958
+          ],
+          "candidateJvmP95s": [
+            2381833,
+            1777250,
+            1738708,
+            1975875,
+            1934125,
+            1790000
+          ]
+        },
+        "asyncAllocatedBytes": {
+          "baselineJvmMedians": [
+            77412.0,
+            77572.0,
+            77384.0,
+            77412.0,
+            77324.0,
+            77348.0
+          ],
+          "candidateJvmMedians": [
+            69944.0,
+            70080.0,
+            69980.0,
+            69960.0,
+            69704.0,
+            69896.0
+          ],
+          "pairedRatios": [
+            0.9035291686043507,
+            0.9034187593461558,
+            0.9043213067300734,
+            0.9037358549062161,
+            0.9014536237132068,
+            0.9036562031338884
+          ],
+          "medianPairedRatio": 0.9035926858691196,
+          "baselineMedianOfJvmMedians": 77398.0,
+          "candidateMedianOfJvmMedians": 69952.0,
+          "baselineJvmP95s": [
+            83144,
+            78048,
+            83160,
+            78024,
+            77880,
+            81040
+          ],
+          "candidateJvmP95s": [
+            75696,
+            70648,
+            70472,
+            70536,
+            71344,
+            70240
+          ]
+        },
+        "baselinePresence": {
+          "samples": 360,
+          "guidePresent": 0,
+          "markRetained": 0
+        },
+        "candidatePresence": {
+          "samples": 360,
+          "guidePresent": 360,
+          "markRetained": 360
+        },
+        "primaryRegressionFlag": false
+      },
+      "closing-spaces": {
+        "editEdtNs": {
+          "baselineJvmMedians": [
+            2153396.0,
+            2352541.5,
+            2173146.0,
+            2199625.0,
+            2893000.0,
+            2069208.0
+          ],
+          "candidateJvmMedians": [
+            2069854.5,
+            2177583.0,
+            2539833.5,
+            2580479.0,
+            2142124.5,
+            2614937.5
+          ],
+          "pairedRatios": [
+            0.9612047667962604,
+            0.9256300048266949,
+            1.1687357867349917,
+            1.1731449678922543,
+            0.7404509160041479,
+            1.2637383481989244
+          ],
+          "medianPairedRatio": 1.0649702767656262,
+          "baselineMedianOfJvmMedians": 2186385.5,
+          "candidateMedianOfJvmMedians": 2358708.25,
+          "baselineJvmP95s": [
+            32473000,
+            30056000,
+            30748458,
+            30402916,
+            30476167,
+            29531750
+          ],
+          "candidateJvmP95s": [
+            31394542,
+            31239708,
+            30079541,
+            32400625,
+            28719875,
+            30538917
+          ]
+        },
+        "editEdtAllocatedBytes": {
+          "baselineJvmMedians": [
+            128104.0,
+            127940.0,
+            128088.0,
+            128052.0,
+            128540.0,
+            127824.0
+          ],
+          "candidateJvmMedians": [
+            122856.0,
+            123584.0,
+            123160.0,
+            123160.0,
+            123504.0,
+            123144.0
+          ],
+          "pairedRatios": [
+            0.9590332854555673,
+            0.9659527903704862,
+            0.9615264505652364,
+            0.9617967700621622,
+            0.9608215341527929,
+            0.9633871573413444
+          ],
+          "medianPairedRatio": 0.9616616103136993,
+          "baselineMedianOfJvmMedians": 128070.0,
+          "candidateMedianOfJvmMedians": 123160.0,
+          "baselineJvmP95s": [
+            161680,
+            161872,
+            161872,
+            161656,
+            162648,
+            161864
+          ],
+          "candidateJvmP95s": [
+            156720,
+            157744,
+            157520,
+            156936,
+            157168,
+            157256
+          ]
+        },
+        "returnToObservedCorrectNs": {
+          "baselineJvmMedians": [
+            2071895.5,
+            2103541.5,
+            1893458.0,
+            1842125.0,
+            2555625.0,
+            1786208.0
+          ],
+          "candidateJvmMedians": [
+            1752958.5,
+            1831166.5,
+            2104604.5,
+            2095791.5,
+            1761479.5,
+            2135291.0
+          ],
+          "pairedRatios": [
+            0.8460651128399092,
+            0.8705159845907485,
+            1.1115136961052212,
+            1.1377031960371853,
+            0.689255857177794,
+            1.1954324468370985
+          ],
+          "medianPairedRatio": 0.9910148403479848,
+          "baselineMedianOfJvmMedians": 1982676.75,
+          "candidateMedianOfJvmMedians": 1963479.0,
+          "baselineJvmP95s": [
+            3473875,
+            3026459,
+            2445500,
+            2871042,
+            7056625,
+            2376291
+          ],
+          "candidateJvmP95s": [
+            3073000,
+            2957541,
+            3300417,
+            3340291,
+            2978416,
+            3009458
+          ]
+        },
+        "asyncAllocatedBytes": {
+          "baselineJvmMedians": [
+            77576.0,
+            77784.0,
+            77760.0,
+            77740.0,
+            77776.0,
+            77788.0
+          ],
+          "candidateJvmMedians": [
+            62676.0,
+            62408.0,
+            63444.0,
+            65864.0,
+            62240.0,
+            62400.0
+          ],
+          "pairedRatios": [
+            0.8079302877178509,
+            0.8023243854777332,
+            0.8158950617283951,
+            0.8472343709801904,
+            0.8002468627854351,
+            0.8021802848768448
+          ],
+          "medianPairedRatio": 0.805127336597792,
+          "baselineMedianOfJvmMedians": 77768.0,
+          "candidateMedianOfJvmMedians": 62542.0,
+          "baselineJvmP95s": [
+            87736,
+            83472,
+            78936,
+            83016,
+            88696,
+            86992
+          ],
+          "candidateJvmP95s": [
+            87640,
+            87472,
+            87776,
+            85440,
+            86080,
+            87792
+          ]
+        },
+        "baselinePresence": {
+          "samples": 360,
+          "guidePresent": 0,
+          "markRetained": 0
+        },
+        "candidatePresence": {
+          "samples": 360,
+          "guidePresent": 360,
+          "markRetained": 360
+        },
+        "primaryRegressionFlag": false
+      },
+      "closing-tab-2": {
+        "editEdtNs": {
+          "baselineJvmMedians": [
+            1669500.0,
+            1687458.5,
+            1799437.5,
+            1892833.5,
+            2218417.0,
+            1972250.0
+          ],
+          "candidateJvmMedians": [
+            1681542.0,
+            1672791.5,
+            1618708.5,
+            1903542.0,
+            1716146.0,
+            2050437.5
+          ],
+          "pairedRatios": [
+            1.007212938005391,
+            0.9913082306913029,
+            0.8995636136292592,
+            1.0056573914187381,
+            0.7735903574485771,
+            1.0396438078336925
+          ],
+          "medianPairedRatio": 0.9984828110550206,
+          "baselineMedianOfJvmMedians": 1846135.5,
+          "candidateMedianOfJvmMedians": 1698844.0,
+          "baselineJvmP95s": [
+            35051666,
+            32138750,
+            33598500,
+            33300083,
+            33824375,
+            34222208
+          ],
+          "candidateJvmP95s": [
+            34555667,
+            33020208,
+            32088875,
+            35201458,
+            31523667,
+            32873792
+          ]
+        },
+        "editEdtAllocatedBytes": {
+          "baselineJvmMedians": [
+            138104.0,
+            138816.0,
+            138632.0,
+            138624.0,
+            139128.0,
+            138992.0
+          ],
+          "candidateJvmMedians": [
+            133680.0,
+            132896.0,
+            133700.0,
+            133704.0,
+            133384.0,
+            133716.0
+          ],
+          "pairedRatios": [
+            0.9679661704222905,
+            0.9573536191793454,
+            0.9644237982572567,
+            0.9645083102493075,
+            0.9587142774998563,
+            0.962040980775872
+          ],
+          "medianPairedRatio": 0.9632323895165643,
+          "baselineMedianOfJvmMedians": 138724.0,
+          "candidateMedianOfJvmMedians": 133690.0,
+          "baselineJvmP95s": [
+            165480,
+            165224,
+            165632,
+            165872,
+            165872,
+            165464
+          ],
+          "candidateJvmP95s": [
+            160536,
+            160960,
+            160544,
+            160536,
+            160720,
+            160720
+          ]
+        },
+        "returnToObservedCorrectNs": {
+          "baselineJvmMedians": [
+            1580833.5,
+            1607916.5,
+            1621999.5,
+            1654583.0,
+            2004875.0,
+            1733917.0
+          ],
+          "candidateJvmMedians": [
+            1593396.0,
+            1587229.0,
+            1580000.0,
+            1678458.0,
+            1576750.0,
+            1739041.5
+          ],
+          "pairedRatios": [
+            1.0079467572011853,
+            0.9871339711981313,
+            0.9741063422029415,
+            1.0144296176136223,
+            0.7864580086040277,
+            1.002955447117711
+          ],
+          "medianPairedRatio": 0.9950447091579211,
+          "baselineMedianOfJvmMedians": 1638291.25,
+          "candidateMedianOfJvmMedians": 1590312.5,
+          "baselineJvmP95s": [
+            2052833,
+            2212667,
+            2128000,
+            2516542,
+            3198750,
+            2318125
+          ],
+          "candidateJvmP95s": [
+            1862250,
+            1905000,
+            1902750,
+            2185667,
+            2066625,
+            2131541
+          ]
+        },
+        "asyncAllocatedBytes": {
+          "baselineJvmMedians": [
+            77564.0,
+            77720.0,
+            77628.0,
+            77692.0,
+            77684.0,
+            77436.0
+          ],
+          "candidateJvmMedians": [
+            64764.0,
+            65736.0,
+            64012.0,
+            65732.0,
+            62336.0,
+            64148.0
+          ],
+          "pairedRatios": [
+            0.8349749883966788,
+            0.8458054554812147,
+            0.8245993713608492,
+            0.8460587962724605,
+            0.8024303588898615,
+            0.8284002272844672
+          ],
+          "medianPairedRatio": 0.831687607840573,
+          "baselineMedianOfJvmMedians": 77656.0,
+          "candidateMedianOfJvmMedians": 64456.0,
+          "baselineJvmP95s": [
+            78376,
+            86768,
+            78152,
+            84368,
+            92400,
+            78856
+          ],
+          "candidateJvmP95s": [
+            67016,
+            67136,
+            66736,
+            72280,
+            75776,
+            75656
+          ]
+        },
+        "baselinePresence": {
+          "samples": 360,
+          "guidePresent": 0,
+          "markRetained": 0
+        },
+        "candidatePresence": {
+          "samples": 360,
+          "guidePresent": 360,
+          "markRetained": 360
+        },
+        "primaryRegressionFlag": false
+      },
+      "closing-tab-4": {
+        "editEdtNs": {
+          "baselineJvmMedians": [
+            1380791.5,
+            1500374.5,
+            1646624.5,
+            1471708.0,
+            1723708.5,
+            1367021.0
+          ],
+          "candidateJvmMedians": [
+            1525708.5,
+            1663125.0,
+            1393167.0,
+            1633396.0,
+            1476479.0,
+            1725729.0
+          ],
+          "pairedRatios": [
+            1.1049521234741089,
+            1.108473251178289,
+            0.8460744996810141,
+            1.1098641850149622,
+            0.8565711661803606,
+            1.2624012359722345
+          ],
+          "medianPairedRatio": 1.106712687326199,
+          "baselineMedianOfJvmMedians": 1486041.25,
+          "candidateMedianOfJvmMedians": 1579552.25,
+          "baselineJvmP95s": [
+            36919917,
+            33300958,
+            35967792,
+            35381667,
+            35773208,
+            35245375
+          ],
+          "candidateJvmP95s": [
+            36135625,
+            37052334,
+            34579041,
+            33599333,
+            33571166,
+            35407708
+          ]
+        },
+        "editEdtAllocatedBytes": {
+          "baselineJvmMedians": [
+            138156.0,
+            138976.0,
+            139096.0,
+            138744.0,
+            139552.0,
+            138616.0
+          ],
+          "candidateJvmMedians": [
+            134696.0,
+            133492.0,
+            134244.0,
+            134144.0,
+            133528.0,
+            134280.0
+          ],
+          "pairedRatios": [
+            0.9749558470135209,
+            0.9605399493437716,
+            0.965117616610111,
+            0.9668454131349824,
+            0.9568332951157992,
+            0.968719339758758
+          ],
+          "medianPairedRatio": 0.9659815148725467,
+          "baselineMedianOfJvmMedians": 138860.0,
+          "candidateMedianOfJvmMedians": 134194.0,
+          "baselineJvmP95s": [
+            172736,
+            173648,
+            173648,
+            172472,
+            173536,
+            173416
+          ],
+          "candidateJvmP95s": [
+            169056,
+            167880,
+            168592,
+            168384,
+            167936,
+            168704
+          ]
+        },
+        "returnToObservedCorrectNs": {
+          "baselineJvmMedians": [
+            1545333.0,
+            1553666.5,
+            1587354.5,
+            1558625.0,
+            1658791.5,
+            1549666.5
+          ],
+          "candidateJvmMedians": [
+            1555979.5,
+            1567645.5,
+            1538770.5,
+            1586041.5,
+            1530896.0,
+            1629958.0
+          ],
+          "pairedRatios": [
+            1.0068894535999684,
+            1.0089974264103654,
+            0.9693931002810021,
+            1.0175901836554655,
+            0.9228983871692132,
+            1.0518121157036047
+          ],
+          "medianPairedRatio": 1.007943440005167,
+          "baselineMedianOfJvmMedians": 1556145.75,
+          "candidateMedianOfJvmMedians": 1561812.5,
+          "baselineJvmP95s": [
+            1827708,
+            1986375,
+            1960792,
+            2268375,
+            2897458,
+            1950542
+          ],
+          "candidateJvmP95s": [
+            1804500,
+            1878208,
+            1747625,
+            1988125,
+            1733416,
+            1989750
+          ]
+        },
+        "asyncAllocatedBytes": {
+          "baselineJvmMedians": [
+            77376.0,
+            77684.0,
+            77544.0,
+            77528.0,
+            77632.0,
+            77704.0
+          ],
+          "candidateJvmMedians": [
+            66096.0,
+            66080.0,
+            65832.0,
+            61884.0,
+            62248.0,
+            62332.0
+          ],
+          "pairedRatios": [
+            0.8542183622828784,
+            0.8506256114515216,
+            0.8489631692974311,
+            0.7982148385099577,
+            0.8018342951360263,
+            0.8021723463399567
+          ],
+          "medianPairedRatio": 0.825567757818694,
+          "baselineMedianOfJvmMedians": 77588.0,
+          "candidateMedianOfJvmMedians": 64082.0,
+          "baselineJvmP95s": [
+            77848,
+            78040,
+            81448,
+            78608,
+            88424,
+            87368
+          ],
+          "candidateJvmP95s": [
+            66440,
+            66768,
+            67568,
+            75984,
+            66440,
+            75680
+          ]
+        },
+        "baselinePresence": {
+          "samples": 360,
+          "guidePresent": 0,
+          "markRetained": 0
+        },
+        "candidatePresence": {
+          "samples": 360,
+          "guidePresent": 360,
+          "markRetained": 360
+        },
+        "primaryRegressionFlag": false
+      },
+      "closing-tab-8": {
+        "editEdtNs": {
+          "baselineJvmMedians": [
+            1263333.0,
+            1276000.5,
+            1355895.5,
+            1503771.5,
+            1280416.5,
+            1709083.5
+          ],
+          "candidateJvmMedians": [
+            1328937.5,
+            1336750.0,
+            1246229.0,
+            1532416.5,
+            1445666.5,
+            1603020.5
+          ],
+          "pairedRatios": [
+            1.0519296970790757,
+            1.047609307363124,
+            0.9191187668961214,
+            1.0190487717050096,
+            1.129059567726595,
+            0.9379415926723299
+          ],
+          "medianPairedRatio": 1.0333290395340669,
+          "baselineMedianOfJvmMedians": 1318156.0,
+          "candidateMedianOfJvmMedians": 1391208.25,
+          "baselineJvmP95s": [
+            37649917,
+            33927334,
+            34298583,
+            34627875,
+            33691459,
+            35060459
+          ],
+          "candidateJvmP95s": [
+            37544958,
+            35817583,
+            32500542,
+            32710750,
+            33874208,
+            36799833
+          ]
+        },
+        "editEdtAllocatedBytes": {
+          "baselineJvmMedians": [
+            137416.0,
+            138324.0,
+            137344.0,
+            136712.0,
+            137904.0,
+            136936.0
+          ],
+          "candidateJvmMedians": [
+            133436.0,
+            132736.0,
+            133140.0,
+            133024.0,
+            132216.0,
+            133048.0
+          ],
+          "pairedRatios": [
+            0.971036851603889,
+            0.9596020936352332,
+            0.9693907269338303,
+            0.9730235824214407,
+            0.9587539157674905,
+            0.9716071741543495
+          ],
+          "medianPairedRatio": 0.9702137892688596,
+          "baselineMedianOfJvmMedians": 137380.0,
+          "candidateMedianOfJvmMedians": 133036.0,
+          "baselineJvmP95s": [
+            169224,
+            170648,
+            168424,
+            167872,
+            169576,
+            168664
+          ],
+          "candidateJvmP95s": [
+            165760,
+            165064,
+            165360,
+            164832,
+            164272,
+            165360
+          ]
+        },
+        "returnToObservedCorrectNs": {
+          "baselineJvmMedians": [
+            1525250.0,
+            1517500.0,
+            1532062.5,
+            1561395.5,
+            1539563.0,
+            1651938.0
+          ],
+          "candidateJvmMedians": [
+            1549229.0,
+            1555166.5,
+            1498833.0,
+            1622854.0,
+            1562416.5,
+            1633250.0
+          ],
+          "pairedRatios": [
+            1.015721357154565,
+            1.0248214168039538,
+            0.9783106106963652,
+            1.0393612636900773,
+            1.0148441473327172,
+            0.9886872267603264
+          ],
+          "medianPairedRatio": 1.0152827522436412,
+          "baselineMedianOfJvmMedians": 1535812.75,
+          "candidateMedianOfJvmMedians": 1558791.5,
+          "baselineJvmP95s": [
+            1763166,
+            1856834,
+            1818166,
+            2026041,
+            1776625,
+            4327209
+          ],
+          "candidateJvmP95s": [
+            1770250,
+            2062875,
+            1719750,
+            2865792,
+            2370208,
+            2326375
+          ]
+        },
+        "asyncAllocatedBytes": {
+          "baselineJvmMedians": [
+            77544.0,
+            77660.0,
+            77404.0,
+            77372.0,
+            77400.0,
+            77396.0
+          ],
+          "candidateJvmMedians": [
+            69868.0,
+            69900.0,
+            69896.0,
+            69852.0,
+            69932.0,
+            69992.0
+          ],
+          "pairedRatios": [
+            0.9010110388940472,
+            0.9000772598506309,
+            0.9030024288150483,
+            0.9028072170811147,
+            0.9035142118863049,
+            0.9043361414026565
+          ],
+          "medianPairedRatio": 0.9029048229480815,
+          "baselineMedianOfJvmMedians": 77402.0,
+          "candidateMedianOfJvmMedians": 69898.0,
+          "baselineJvmP95s": [
+            79088,
+            78224,
+            78096,
+            77936,
+            77800,
+            83248
+          ],
+          "candidateJvmP95s": [
+            70512,
+            75688,
+            76208,
+            75704,
+            76000,
+            86808
+          ]
+        },
+        "baselinePresence": {
+          "samples": 360,
+          "guidePresent": 0,
+          "markRetained": 0
+        },
+        "candidatePresence": {
+          "samples": 360,
+          "guidePresent": 360,
+          "markRetained": 360
+        },
+        "primaryRegressionFlag": false
+      },
+      "multiline-paste": {
+        "editEdtNs": {
+          "baselineJvmMedians": [
+            1477437.5,
+            1516021.0,
+            1546583.5,
+            1579166.5,
+            1563771.0,
+            1902270.5
+          ],
+          "candidateJvmMedians": [
+            1822437.5,
+            1548563.0,
+            1529145.5,
+            1516000.0,
+            1652729.0,
+            1730416.5
+          ],
+          "pairedRatios": [
+            1.2335124159228394,
+            1.021465401864486,
+            0.9887248247508137,
+            0.9600001013192719,
+            1.056886845964019,
+            0.9096584844268993
+          ],
+          "medianPairedRatio": 1.0050951133076498,
+          "baselineMedianOfJvmMedians": 1555177.25,
+          "candidateMedianOfJvmMedians": 1600646.0,
+          "baselineJvmP95s": [
+            38285334,
+            36191958,
+            35553334,
+            36474250,
+            35106292,
+            40192917
+          ],
+          "candidateJvmP95s": [
+            36170083,
+            35594291,
+            34437584,
+            34192583,
+            34232709,
+            36054375
+          ]
+        },
+        "editEdtAllocatedBytes": {
+          "baselineJvmMedians": [
+            157656.0,
+            159136.0,
+            155888.0,
+            157000.0,
+            156364.0,
+            156776.0
+          ],
+          "candidateJvmMedians": [
+            153428.0,
+            152272.0,
+            153856.0,
+            153344.0,
+            152316.0,
+            153296.0
+          ],
+          "pairedRatios": [
+            0.9731821180291267,
+            0.9568670822441182,
+            0.9869650005131889,
+            0.9767133757961783,
+            0.9741116881123533,
+            0.9778027249068735
+          ],
+          "medianPairedRatio": 0.9754125319542658,
+          "baselineMedianOfJvmMedians": 156888.0,
+          "candidateMedianOfJvmMedians": 153320.0,
+          "baselineJvmP95s": [
+            180032,
+            180856,
+            177848,
+            178064,
+            177872,
+            178352
+          ],
+          "candidateJvmP95s": [
+            175736,
+            174264,
+            176096,
+            175568,
+            174496,
+            175584
+          ]
+        },
+        "returnToObservedCorrectNs": {
+          "baselineJvmMedians": [
+            1616958.5,
+            1617104.0,
+            1625541.5,
+            1628333.5,
+            1622166.5,
+            1739270.5
+          ],
+          "candidateJvmMedians": [
+            1790104.0,
+            1709145.5,
+            1658041.5,
+            1674271.0,
+            1747750.0,
+            1777854.5
+          ],
+          "pairedRatios": [
+            1.1070809795056582,
+            1.0569174895368512,
+            1.0199933376047305,
+            1.0282113584225836,
+            1.0774171455272932,
+            1.0221840133550244
+          ],
+          "medianPairedRatio": 1.0425644239797174,
+          "baselineMedianOfJvmMedians": 1623854.0,
+          "candidateMedianOfJvmMedians": 1728447.75,
+          "baselineJvmP95s": [
+            1855458,
+            1948500,
+            1913500,
+            2221583,
+            1835958,
+            2383000
+          ],
+          "candidateJvmP95s": [
+            3213250,
+            2092167,
+            2078875,
+            2004375,
+            2735792,
+            2064708
+          ]
+        },
+        "asyncAllocatedBytes": {
+          "baselineJvmMedians": [
+            83368.0,
+            81720.0,
+            81096.0,
+            83488.0,
+            77752.0,
+            83020.0
+          ],
+          "candidateJvmMedians": [
+            71752.0,
+            71864.0,
+            75828.0,
+            75756.0,
+            76084.0,
+            71636.0
+          ],
+          "pairedRatios": [
+            0.8606659629594089,
+            0.8793930494371023,
+            0.9350399526487126,
+            0.907387888079724,
+            0.9785471756353534,
+            0.8628764153216093
+          ],
+          "medianPairedRatio": 0.8933904687584131,
+          "baselineMedianOfJvmMedians": 82370.0,
+          "candidateMedianOfJvmMedians": 73810.0,
+          "baselineJvmP95s": [
+            84136,
+            84560,
+            84032,
+            86944,
+            84056,
+            84080
+          ],
+          "candidateJvmP95s": [
+            84760,
+            76752,
+            76744,
+            76728,
+            82192,
+            76752
+          ]
+        },
+        "baselinePresence": {
+          "samples": 360,
+          "guidePresent": 0,
+          "markRetained": 0
+        },
+        "candidatePresence": {
+          "samples": 360,
+          "guidePresent": 360,
+          "markRetained": 360
+        },
+        "primaryRegressionFlag": false
+      }
+    }
+  },
+  "sdkScaleEditCost": {
+    "replicatePairs": 6,
+    "samplesPerRevision": 720,
+    "cases": {
+      "all": {
+        "editEdtNs": {
+          "baselineJvmMedians": [
+            1869708.5,
+            1767062.5,
+            1731833.5,
+            2024979.5,
+            1832271.0,
+            2045416.5
+          ],
+          "candidateJvmMedians": [
+            1828229.5,
+            1741000.0,
+            1670895.5,
+            1673021.0,
+            1986854.5,
+            1986208.5
+          ],
+          "pairedRatios": [
+            0.9778152583678151,
+            0.9852509461323524,
+            0.9648130146460384,
+            0.8261915737912409,
+            1.0843671596614257,
+            0.9710533282585723
+          ],
+          "medianPairedRatio": 0.9744342933131938,
+          "baselineMedianOfJvmMedians": 1850989.75,
+          "candidateMedianOfJvmMedians": 1784614.75,
+          "baselineJvmP95s": [
+            31566542,
+            32687584,
+            32877000,
+            32681250,
+            32356125,
+            30483458
+          ],
+          "candidateJvmP95s": [
+            32609458,
+            31058917,
+            28027666,
+            33063209,
+            34108375,
+            32398459
+          ]
+        },
+        "editEdtAllocatedBytes": {
+          "baselineJvmMedians": [
+            132208.0,
+            131944.0,
+            132280.0,
+            132044.0,
+            131952.0,
+            131952.0
+          ],
+          "candidateJvmMedians": [
+            127228.0,
+            127048.0,
+            127376.0,
+            127040.0,
+            127040.0,
+            127056.0
+          ],
+          "pairedRatios": [
+            0.9623320827786518,
+            0.962893348693385,
+            0.9629271242818265,
+            0.9621035412438278,
+            0.962774342185037,
+            0.962895598399418
+          ],
+          "medianPairedRatio": 0.962833845439211,
+          "baselineMedianOfJvmMedians": 131998.0,
+          "candidateMedianOfJvmMedians": 127052.0,
+          "baselineJvmP95s": [
+            145440,
+            144800,
+            151832,
+            149592,
+            144224,
+            148456
+          ],
+          "candidateJvmP95s": [
+            141408,
+            145120,
+            143256,
+            143512,
+            141232,
+            140456
+          ]
+        },
+        "returnToObservedCorrectNs": {
+          "baselineJvmMedians": [
+            4349250.0,
+            3993354.0,
+            5374083.5,
+            5771667.0,
+            4103125.0,
+            5335312.5
+          ],
+          "candidateJvmMedians": [
+            5486541.5,
+            4035229.5,
+            4375291.5,
+            4429854.5,
+            4306875.0,
+            5615646.0
+          ],
+          "pairedRatios": [
+            1.26149140656435,
+            1.0104862979841005,
+            0.814146542382529,
+            0.767517339444566,
+            1.0496572734196497,
+            1.0525430328589
+          ],
+          "medianPairedRatio": 1.030071785701875,
+          "baselineMedianOfJvmMedians": 4842281.25,
+          "candidateMedianOfJvmMedians": 4402573.0,
+          "baselineJvmP95s": [
+            8863000,
+            7786042,
+            9062416,
+            10338750,
+            7379708,
+            10525250
+          ],
+          "candidateJvmP95s": [
+            9184709,
+            8513333,
+            8194917,
+            8131417,
+            7477083,
+            18161916
+          ]
+        },
+        "asyncAllocatedBytes": {
+          "baselineJvmMedians": [
+            1363816.0,
+            1357376.0,
+            1379992.0,
+            1349084.0,
+            1354792.0,
+            1359340.0
+          ],
+          "candidateJvmMedians": [
+            1350104.0,
+            1361284.0,
+            1352072.0,
+            1350112.0,
+            1352132.0,
+            1217432.0
+          ],
+          "pairedRatios": [
+            0.9899458577989992,
+            1.0028790843509832,
+            0.9797679986550647,
+            1.0007619985115828,
+            0.998036598976079,
+            0.8956052201803817
+          ],
+          "medianPairedRatio": 0.9939912283875392,
+          "baselineMedianOfJvmMedians": 1358358.0,
+          "candidateMedianOfJvmMedians": 1351092.0,
+          "baselineJvmP95s": [
+            2499288,
+            2517576,
+            2506568,
+            2547976,
+            2500552,
+            2552048
+          ],
+          "candidateJvmP95s": [
+            2547696,
+            2538456,
+            2510584,
+            2497600,
+            2490472,
+            2495312
+          ]
+        },
+        "baselinePresence": {
+          "samples": 720,
+          "guidePresent": 0,
+          "markRetained": 0
+        },
+        "candidatePresence": {
+          "samples": 720,
+          "guidePresent": 720,
+          "markRetained": 720
+        },
+        "primaryRegressionFlag": false
+      },
+      "closing-spaces-4096-lines": {
+        "editEdtNs": {
+          "baselineJvmMedians": [
+            1971020.5,
+            1736854.0,
+            1696396.5,
+            2320792.0,
+            1765333.5,
+            2217416.5
+          ],
+          "candidateJvmMedians": [
+            1797417.0,
+            1737729.0,
+            1606542.0,
+            1655417.0,
+            1937562.5,
+            1951146.0
+          ],
+          "pairedRatios": [
+            0.9119220221200135,
+            1.0005037844286278,
+            0.9470321354706874,
+            0.7132983050613756,
+            1.0975617355021021,
+            0.8799185899446496
+          ],
+          "medianPairedRatio": 0.9294770787953505,
+          "baselineMedianOfJvmMedians": 1868177.0,
+          "candidateMedianOfJvmMedians": 1767573.0,
+          "baselineJvmP95s": [
+            33349916,
+            35664584,
+            37103542,
+            37306500,
+            36234250,
+            34102667
+          ],
+          "candidateJvmP95s": [
+            33629083,
+            32062291,
+            5339750,
+            34299791,
+            34837750,
+            9162000
+          ]
+        },
+        "editEdtAllocatedBytes": {
+          "baselineJvmMedians": [
+            140596.0,
+            140336.0,
+            141104.0,
+            140780.0,
+            140724.0,
+            140840.0
+          ],
+          "candidateJvmMedians": [
+            135360.0,
+            135936.0,
+            136196.0,
+            135816.0,
+            135816.0,
+            135828.0
+          ],
+          "pairedRatios": [
+            0.9627585422060372,
+            0.9686466765477141,
+            0.9652171448009979,
+            0.9647393095610172,
+            0.9651232199198431,
+            0.9644135188866799
+          ],
+          "medianPairedRatio": 0.9649312647404301,
+          "baselineMedianOfJvmMedians": 140752.0,
+          "candidateMedianOfJvmMedians": 135822.0,
+          "baselineJvmP95s": [
+            147976,
+            174216,
+            174600,
+            174200,
+            175392,
+            148496
+          ],
+          "candidateJvmP95s": [
+            169056,
+            162320,
+            161968,
+            169312,
+            169648,
+            165272
+          ]
+        },
+        "returnToObservedCorrectNs": {
+          "baselineJvmMedians": [
+            7002687.5,
+            7125521.0,
+            6954042.0,
+            8863458.0,
+            5774604.5,
+            8377562.5
+          ],
+          "candidateJvmMedians": [
+            7888562.5,
+            6980625.5,
+            6777250.0,
+            6824999.5,
+            5882395.5,
+            6823458.5
+          ],
+          "pairedRatios": [
+            1.1265050025436663,
+            0.9796652764057533,
+            0.974577087685119,
+            0.770015438669648,
+            1.0186663865897656,
+            0.8144921031624652
+          ],
+          "medianPairedRatio": 0.9771211820454362,
+          "baselineMedianOfJvmMedians": 7064104.25,
+          "candidateMedianOfJvmMedians": 6824229.0,
+          "baselineJvmP95s": [
+            10809209,
+            8526959,
+            10330458,
+            10883708,
+            8111000,
+            11513708
+          ],
+          "candidateJvmP95s": [
+            9613292,
+            8850708,
+            8283417,
+            8337333,
+            7900375,
+            14091333
+          ]
+        },
+        "asyncAllocatedBytes": {
+          "baselineJvmMedians": [
+            2468100.0,
+            2468572.0,
+            2470272.0,
+            2468004.0,
+            2468844.0,
+            2467948.0
+          ],
+          "candidateJvmMedians": [
+            2456416.0,
+            2454884.0,
+            2456180.0,
+            2456804.0,
+            2458360.0,
+            2455808.0
+          ],
+          "pairedRatios": [
+            0.9952659940845184,
+            0.9944550938761357,
+            0.994295365044821,
+            0.9954619198348139,
+            0.9957534781460473,
+            0.9950809336339339
+          ],
+          "medianPairedRatio": 0.9951734638592262,
+          "baselineMedianOfJvmMedians": 2468336.0,
+          "candidateMedianOfJvmMedians": 2456298.0,
+          "baselineJvmP95s": [
+            2529448,
+            2541688,
+            2511456,
+            2622712,
+            2512792,
+            2589736
+          ],
+          "candidateJvmP95s": [
+            2580088,
+            2568528,
+            2524408,
+            2504152,
+            2535048,
+            2573848
+          ]
+        },
+        "baselinePresence": {
+          "samples": 360,
+          "guidePresent": 0,
+          "markRetained": 0
+        },
+        "candidatePresence": {
+          "samples": 360,
+          "guidePresent": 360,
+          "markRetained": 360
+        },
+        "primaryRegressionFlag": false
+      },
+      "closing-spaces-64-lines": {
+        "editEdtNs": {
+          "baselineJvmMedians": [
+            1785000.0,
+            1830770.5,
+            1800437.5,
+            1778500.0,
+            2048166.5,
+            1981646.0
+          ],
+          "candidateJvmMedians": [
+            1903250.0,
+            1762833.0,
+            1731625.5,
+            1698208.5,
+            2012146.0,
+            2040042.0
+          ],
+          "pairedRatios": [
+            1.0662464985994398,
+            0.9628913072392198,
+            0.9617804005970771,
+            0.9548543716615125,
+            0.982413295012881,
+            1.0294684317986158
+          ],
+          "medianPairedRatio": 0.9726523011260504,
+          "baselineMedianOfJvmMedians": 1815604.0,
+          "candidateMedianOfJvmMedians": 1833041.5,
+          "baselineJvmP95s": [
+            30890333,
+            29917417,
+            29251625,
+            31264916,
+            30768167,
+            28980625
+          ],
+          "candidateJvmP95s": [
+            31417125,
+            29653958,
+            28027666,
+            32649834,
+            29067375,
+            32398459
+          ]
+        },
+        "editEdtAllocatedBytes": {
+          "baselineJvmMedians": [
+            109656.0,
+            109640.0,
+            109888.0,
+            109656.0,
+            109656.0,
+            109648.0
+          ],
+          "candidateJvmMedians": [
+            104640.0,
+            104680.0,
+            105008.0,
+            104680.0,
+            104648.0,
+            104696.0
+          ],
+          "pairedRatios": [
+            0.9542569490041585,
+            0.9547610361182051,
+            0.9555911473500291,
+            0.9546217261253375,
+            0.9543299044283943,
+            0.9548372975339268
+          ],
+          "medianPairedRatio": 0.9546913811217712,
+          "baselineMedianOfJvmMedians": 109656.0,
+          "candidateMedianOfJvmMedians": 104680.0,
+          "baselineJvmP95s": [
+            143560,
+            143552,
+            143552,
+            143568,
+            143560,
+            143552
+          ],
+          "candidateJvmP95s": [
+            138472,
+            138792,
+            138968,
+            138592,
+            138560,
+            138608
+          ]
+        },
+        "returnToObservedCorrectNs": {
+          "baselineJvmMedians": [
+            2451541.5,
+            2438104.5,
+            2390728.5,
+            2415375.0,
+            2565479.0,
+            2475729.0
+          ],
+          "candidateJvmMedians": [
+            2314146.0,
+            2077896.0,
+            2119833.0,
+            2190125.0,
+            2503583.5,
+            2373500.0
+          ],
+          "pairedRatios": [
+            0.9439554663871691,
+            0.8522587936653249,
+            0.8866891409877784,
+            0.9067432593282616,
+            0.9758737062357555,
+            0.9587075160488082
+          ],
+          "medianPairedRatio": 0.9253493628577154,
+          "baselineMedianOfJvmMedians": 2444823.0,
+          "candidateMedianOfJvmMedians": 2252135.5,
+          "baselineJvmP95s": [
+            3370709,
+            3107125,
+            3523167,
+            3340792,
+            3516333,
+            3281833
+          ],
+          "candidateJvmP95s": [
+            3033959,
+            2491542,
+            3059000,
+            3042500,
+            3140167,
+            18736250
+          ]
+        },
+        "asyncAllocatedBytes": {
+          "baselineJvmMedians": [
+            228152.0,
+            228408.0,
+            228416.0,
+            228368.0,
+            228316.0,
+            228428.0
+          ],
+          "candidateJvmMedians": [
+            212364.0,
+            216896.0,
+            216868.0,
+            216876.0,
+            213380.0,
+            206496.0
+          ],
+          "pairedRatios": [
+            0.9308005189522774,
+            0.94959896325873,
+            0.9494431213224993,
+            0.9496777131647166,
+            0.934581895267962,
+            0.9039872520006303
+          ],
+          "medianPairedRatio": 0.9420125082952306,
+          "baselineMedianOfJvmMedians": 228388.0,
+          "candidateMedianOfJvmMedians": 215124.0,
+          "baselineJvmP95s": [
+            236360,
+            231056,
+            240176,
+            231704,
+            232592,
+            228976
+          ],
+          "candidateJvmP95s": [
+            233952,
+            229040,
+            240504,
+            219696,
+            222288,
+            244216
+          ]
+        },
+        "baselinePresence": {
+          "samples": 360,
+          "guidePresent": 0,
+          "markRetained": 0
+        },
+        "candidatePresence": {
+          "samples": 360,
+          "guidePresent": 360,
+          "markRetained": 360
+        },
+        "primaryRegressionFlag": false
+      }
+    }
+  },
+  "validation": {
+    "plugin:minimumSdkTests": {
+      "tests": 53,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "plugin:currentSdkTests": {
+      "tests": 53,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "plugin:test": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "analysis-model:test": {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "analysis-core:test": {
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "analysis-runtime:test": {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "editor-ui:test": {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "visualValidation": {
+    "reviewedImages": 12,
+    "beforeExitCode": 0,
+    "afterExitCode": 0,
+    "allEqualToReviewedBaselineAndEachOther": true
+  },
+  "limitations": [
+    "Screen measurements are descriptive, one session per revision; no native macOS or rapid typing latency guarantee.",
+    "All 24 screen actions are included; both maxima occurred on the first Tab. Sampling intervals have a median of about 8.3 ms.",
+    "SDK action timings measure document writes, not physical key input or screen latency. Return-to-correct observations include polling and worker quiescence.",
+    "The paired-ratio median differs from the ratio of aggregate JVM medians; EDT and inherited coroutine allocations are separate scopes.",
+    "Original captures, diagnostic logs and full raw evidence remain local; this file contains aggregate experiment data only."
+  ]
+}
