@@ -1,0 +1,35 @@
+{
+  "baselineRevision": "9871336256d2bcfc5565139079d1846a8e9aa7ce",
+  "candidate": "working tree manifest frozen before measurement",
+  "scope": "Existing analysis/repair; retain tracked provisional guide until current repair or analysis replaces it; no input-specific cache or scan",
+  "primaryMetrics": [
+    "per fresh JVM median edit EDT ns",
+    "per fresh JVM median edit EDT allocated bytes"
+  ],
+  "secondaryMetrics": [
+    "nearest-rank p95 edit EDT ns",
+    "immediate guide present and original mark retained",
+    "edit-return to first observed correct guide (polling upper bound)",
+    "separate inherited coroutine allocation"
+  ],
+  "replicates": 6,
+  "order": [
+    "AB",
+    "BA",
+    "AB",
+    "BA",
+    "AB",
+    "BA"
+  ],
+  "warmupRoundTripsPerCase": 5,
+  "measuredRoundTripsPerCase": 30,
+  "acceptance": "Flag paired median EDT latency/allocation ratio > 1.20; do not exclude outliers or add runs after results",
+  "cases": [
+    "closing spaces",
+    "closing tab with IDE tab size 2/4/8",
+    "multiline body paste",
+    "body replacement"
+  ],
+  "visual": "Pinned Linux amd64 Driver exact settled images; video/captures diagnostic, not CPU benchmark",
+  "limitations": "Headless SDK explicitly ACTIVE; observed restoration includes dispatcher/polling overhead; actual painted gaps assessed separately"
+}

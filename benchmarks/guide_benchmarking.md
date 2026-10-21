@@ -66,13 +66,34 @@ Record per-action EDT duration/allocation separately from inherited coroutine
 allocation and read observations. Action timing includes document callbacks but
 excludes subsequent commit/inspection; the scopes must not be added into a total.
 The fixture is headless and explicitly active, so Driver remains the rendering
-and focus check. Existing `edit-restoration` corpora and hide/refusal assertions
-remain unchanged. The local indentation comparison predeclares six balanced AB/BA
+and focus check. Existing `edit-restoration` corpora retain exact settled geometry and refusal
+checks; immediate presence/removal is observed for either presentation policy. The local indentation comparison predeclares six balanced AB/BA
 fresh-JVM pairs, five warmup round-trips and thirty measured round-trips per JVM,
 with per-JVM medians as primary latency/allocation metrics and nearest-rank p95
 also reported. Flag a paired primary median ratio above 1.20; keep every raw run
 and any failures. See `outputs/issue-97/indentation-flicker/performance-plan.json`
 for the recorded comparison plan.
+
+## Compare provisional guide retention
+
+The opt-in `guide-retention` SDK workload replays closing whitespace, tabs at
+IDE tab sizes 2/4/8, multiline paste, and body replacement through real document
+writes and production listeners. It records immediate renderer presence and
+identity without requiring either baseline behavior. Both sides must settle to
+the same declared exact guide and source after every forward/restore edit.
+
+The 2026-10-21 comparison uses main `9871336` and a candidate production-source
+manifest, an identical harness, six balanced AB/BA fresh-JVM pairs, five warmup
+round-trips and thirty measured round-trips per case. EDT write-command time and
+allocation are primary; a paired median ratio above 1.20 is flagged. The recorded
+return-to-correct interval includes polling and owned-worker quiescence and is
+an upper bound on correction, not actual painted stale duration. Inherited
+coroutine allocation remains a separate, non-additive scope. See
+`outputs/guide-retention-20261021/performance-plan.json` and
+`published-summary.json` for the plan and aggregate results. Full captures and
+diagnostic logs remain local. A
+separate six-pair `guide-retention-scale` comparison covers closing edits with
+64 and 4,096 additional body lines, including bounded-repair refusal.
 
 ## Track history with Bencher
 

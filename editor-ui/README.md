@@ -6,8 +6,9 @@ repair, or full analysis. `refresh()` is an independent daemon wake-up.
 
 `ui.editor.EditorGuide` owns presentation revisions, tracked pair markers, visible
 token windows, geometry, and markup. It does not own accepted calculation results,
-source stamps, coroutine scopes, or jobs. A document edit updates or hides affected
-guide pixels synchronously before submitting one content demand. A result is
+source stamps, coroutine scopes, or jobs. A document edit updates tracked endpoints and retains provisional guide pixels
+while requesting current geometry. Invalid pairs are removed synchronously before
+submitting one content demand. A result is
 applied on EDT. Every synchronous rendering entry acquires a `RenderFrames.Frame`,
 including reentrant results with the same demand revision. SDK markup resources
 carry their owning frame; a fresh frame adopts reused resources. An obsolete

@@ -127,8 +127,8 @@ class EditorGuideEvents :
     /**
      * HARD EDT CONTRACT: every visible tracked pair must be refreshed or removed
      * before a normal platform document callback returns. Never batch, debounce,
-     * or enqueue the EDT path. Background analysis may discover a new pair later,
-     * but it must never be needed to repair geometry that this edit made stale.
+     * or enqueue the EDT path. Valid tracked pairs can retain provisional geometry
+     * while independent background work updates its column; invalid pairs clear now.
      * A defensive off-EDT handoff remains asynchronous because blocking a host
      * write path with invokeAndWait can deadlock the IDE.
      */

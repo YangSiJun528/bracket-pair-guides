@@ -560,11 +560,15 @@ object EditorContractBridge {
     @JvmStatic
     fun insertIndent(): Long = edt {
         val editor = editor()
+        val original = editor.markupModel.allHighlighters.single {
+            it.customRenderer?.javaClass?.name?.startsWith("com.sijunyang.bracketpairguides.") == true
+        }
+        val renderer = original.customRenderer
         WriteCommandAction.runWriteCommandAction(editor.project) {
             editor.document.insertString(editor.document.getLineStartOffset(4), "  ")
-            check(editor.markupModel.allHighlighters.none {
-                it.customRenderer?.javaClass?.name?.startsWith("com.sijunyang.bracketpairguides.") == true
-            }) { "Affected old guide remained inside the edit callback" }
+            check(original.isValid && original.customRenderer === renderer) {
+                "Tracked guide was removed while its edited position was pending"
+            }
         }
         editor.document.modificationStamp
     }

@@ -13,6 +13,7 @@ internal class ActiveGuidePresentation(
 ) {
     private val trackedPair = TrackedBracketPair(editor)
     private var pendingAnchorLine: Int? = null
+    private var repairPending = false
     private val markup = ActivePairMarkup(editor, onDisplayedMultilineVerticalGuide)
 
     val currentPair: BracketPair?
@@ -22,16 +23,17 @@ internal class ActiveGuidePresentation(
         get() = trackedPair.adjusted
 
     val needsGuideRepair: Boolean
-        get() = currentPair?.let { it.openLine != it.closeLine } == true && currentGuide() == null
+        get() = currentPair?.let { it.openLine != it.closeLine } == true && (repairPending || currentGuide() == null)
 
     val guideAnchorLine: Int?
         get() = trackedPair.anchorLine ?: pendingAnchorLine
 
-    fun isDisplayed(guide: BracketGuide): Boolean = currentGuide() == guide
+    fun isDisplayed(guide: BracketGuide): Boolean = !repairPending && currentGuide() == guide
 
     /** A live accepted view can keep already established geometry; pending/provisional work cannot. */
     fun adoptUnchanged(pair: BracketPair?, preferences: BracketGuidePreferences, frame: Frame): Boolean {
         frame.check()
+        if (repairPending) return false
         if (pair == null || !pair.hasWellFormedTokenRange(editor.document.textLength)) return false
         val guide = currentGuide() ?: return false
         if (guide.pair != pair || !trackedPair.matches(pair, guide)) return false
@@ -68,6 +70,7 @@ internal class ActiveGuidePresentation(
                 preferences = preferences,
             )
         trackedPair.track(pair, guide)
+        if (indexedGuide != null || pair.openLine == pair.closeLine) repairPending = false
         pendingAnchorLine = if (guide == null) currentAnchorLine else null
         markup.showGuide(guide, preferences, frame)
         frame.check()
@@ -112,7 +115,7 @@ internal class ActiveGuidePresentation(
         trackedPair.refresh(pair, guide)
     }
 
-    /** An affected guide is hidden before the document callback returns. */
+    /** Retain tracked geometry while an affected position is repaired independently. */
     fun refreshAfterDocumentChange(
         change: DocumentChange,
         caretOffset: Int,
@@ -156,12 +159,21 @@ internal class ActiveGuidePresentation(
                     )
                 }
             }
-        // Missing geometry hides guide pixels immediately; adjusted pair tokens remain visible.
-        markup.showGuide(guide, preferences, frame)
+        repairPending = pair.openLine != pair.closeLine && (repairPending || guide == null)
+        val displayed = guide ?: previousGuide
+            ?.takeIf { preferences.enabled && preferences.showsGuide && pair.openLine < pair.closeLine }
+            ?.copy(
+                pair = pair,
+                anchorLine = (trackedPair.anchorLine ?: previousGuide.anchorLine).coerceIn(
+                    pair.openLine + 1,
+                    pair.closeLine,
+                ),
+            )
+        markup.showGuide(displayed, preferences, frame)
         frame.check()
         markup.showPair(pair, preferences, frame)
         frame.check()
-        trackedPair.refresh(pair, guide)
+        trackedPair.refresh(pair, displayed)
     }
 
     fun hideGuide(frame: Frame) {
@@ -174,6 +186,7 @@ internal class ActiveGuidePresentation(
     fun publishRepair(guide: BracketGuide, preferences: BracketGuidePreferences, frame: Frame): Boolean {
         frame.check()
         if (currentPair != guide.pair || adjustedPair != guide.pair || !needsGuideRepair) return false
+        repairPending = false
         trackedPair.refresh(guide.pair, guide)
         markup.showGuide(guide, preferences, frame)
         frame.check()
@@ -184,6 +197,7 @@ internal class ActiveGuidePresentation(
         frame?.check()
         trackedPair.clear()
         pendingAnchorLine = null
+        repairPending = false
         markup.clear(preserveGuide, frame)
     }
 

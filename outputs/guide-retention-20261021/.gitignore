@@ -1,0 +1,6 @@
+# Only aggregate experiment data and measurement plans are published.
+*
+!.gitignore
+!published-summary.json
+!performance-plan.json
+!scale-performance-plan.json

@@ -24,7 +24,7 @@ changes.
 | Pending openers | 50,000 | `Unavailable(PENDING_OPEN_CAPACITY)` before the next stack node is allocated | `BracketRecognitionLimits.MAXIMUM_PENDING_OPENS` |
 | Retained exact guide payload | 4 MiB | `Available(limit = GUIDE_CAPACITY)` with exact token and active-pair facets but no guide | `GuideIndexShape` |
 | Exact guide span under that payload | 1,032,192 lines | Same guide-only limitation | `GuideIndexShape` |
-| Background post-edit guide repair | 256 lines and 32,768 consumed prefix characters, including the first non-whitespace character of each nonblank line | Leave the synchronously hidden guide hidden on exact repair refusal | `BracketCalculator.repair` |
+| Background post-edit guide repair | 256 lines and 32,768 consumed prefix characters, including the first non-whitespace character of each nonblank line | Keep existing provisional geometry on exact repair refusal; no geometry is synthesized | `BracketCalculator.repair` |
 | Token capture chunk | 512 visited lexer tokens | Resume at the next exact token boundary in another read action | `BracketTokenCapture` |
 | Captured-token storage seed | Initially 32 entries; then adapt to the previous successful chunk's captured-token density, within the 512-token visit bound | Grow admitted storage when the seed is insufficient; this is not a recognition limit | `BracketTokenCapture` |
 | Native traversal body | 8,192 owned state-machine operations and a cooperative 2 ms deadline, checked every 32 operations | Yield and restore the exact token cursor in another validated read action; callbacks and preparation can exceed the deadline | `NativeMarkerInspection` / `NativeBraceMatching.WorkBudget` |
@@ -87,7 +87,7 @@ inside a third-party matcher.
 | Caret movement with a current `BracketView` | `O(log P)` active-pair lookup; moving to another pair replaces at most one guide and two active-symbol ranges |
 | Caret movement without a current `BracketView` | Range-marker adjustment and interval containment only; no token iteration or matcher callback on the EDT |
 | Ordinary viewport or displayed Sticky Lines change | Query bounded token ranges from the current `BracketView`, deduplicate overlaps, and reuse matching highlighters; no recognition or matcher callback |
-| Document insertion, replacement, or deletion | Adjust tracked endpoints, remove bounded Sticky-only token decorations, retain proven unchanged geometry or hide affected geometry and request immediate background repair; inspect at most 256 event-fragment characters and admit SDK logical-coordinate lookup within a 4,096-character physical line prefix; no document-prefix scan, token-index iteration, or matcher callback in plugin UI code |
+| Document insertion, replacement, or deletion | Adjust tracked endpoints, remove bounded Sticky-only token decorations, retain current or provisional tracked geometry and request immediate background repair when needed; inspect at most 256 event-fragment characters and admit SDK logical-coordinate lookup within a 4,096-character physical line prefix; no document-prefix scan, token-index iteration, or matcher callback in plugin UI code |
 | Enable a guide while exact guide coverage is pending | Geometry-only reuse or immediate bounded provisional repair for the already tracked pair; indentation scanning runs in the background |
 | Theme or palette change | Refresh explicit palette attributes and theme-dependent background blending; no pair recognition |
 | Hide editor | Clear owned markup and cancel work/publication; retain at most one session-local soft-reference suspended result |
@@ -122,12 +122,13 @@ positions before the opener and after the closer.
   remains the blank-line sentinel.
 
 After an edit, stale proportional pair and index structures are released.
-Affected guide geometry is removed before the EDT update returns. A bounded
-space/tab-only change strictly after the guide column may retain the same minimum
-and anchor; the event-fragment and coordinate-prefix bounds are optimization
-admission limits, not increased analysis budgets. Exceeding them keeps the
-existing hide-and-repair behavior. SDK coordinate lookup cost is not guaranteed
-constant. A separate immediate repair job computes missing indentation for the surviving tracked pair;
+Surviving tracked pairs retain provisional geometry until current repair or
+analysis supplies the edited position. A bounded space/tab-only change strictly
+after the guide column may prove the existing minimum and anchor unchanged;
+otherwise the visible renderer remains provisional and repair interest stays
+active. The event-fragment and coordinate-prefix bounds remain optimization
+admission limits, not increased analysis budgets. SDK coordinate lookup cost is
+not guaranteed constant. A separate immediate repair job computes current indentation for the surviving tracked pair;
 replacement full analysis may later discover a different pair. When every pair-dependent feature is disabled or the editor is hidden,
 `EditorAnalysisSession` revokes work and releases its active accepted result;
 `EditorGuide` releases its displayed `BracketView`. Hidden sessions retain no

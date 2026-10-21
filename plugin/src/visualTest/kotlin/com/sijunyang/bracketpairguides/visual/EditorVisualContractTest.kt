@@ -380,6 +380,7 @@ class EditorVisualContractTest {
                     checkNotNull(captures.remove("all-components-after-indentation-cycle"))),
                     "Actual Tab/Shift+Tab round-trip changed original all-components pixels")
 
+                Files.writeString(artifacts.resolve("edit-start.txt"), java.time.Instant.now().toString())
                 val changedStamp = bridge.insertIndent()
                 waitFor(1.minutes, 100.milliseconds, "Edited guide was not repaired") {
                     val state = bridge.state().split(':')

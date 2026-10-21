@@ -39,10 +39,11 @@ settings, focus and SDK markup diagnostics are retained around the cycle; two
 unchanged frames alone do not establish native readiness.
 This does not prove a particular stale background task
 entered or completed. Runtime authority unit tests cover stale proof rejection.
-The Driver edit transport also asserts that the affected guide highlighter is
-absent inside the write command immediately after the document edit returns.
-The UI-owned IDE contract checks the corresponding synchronous content-demand
-boundary. A later screenshot alone cannot prove hiding timing.
+The Driver edit transport also asserts that the same tracked highlighter and
+renderer remain valid inside the write command immediately after the closing
+indentation edit returns. UI-owned IDE contracts separately check that repair
+interest survives provisional retention, and reject stale repair publication.
+A later settled screenshot alone cannot prove intermediate painted continuity.
 
 A real FileEditorManager tab cycle first warms `Contract.java` and `TabContract.java`
 through normal editor events. Each tab return checks selected-editor identity,
@@ -65,7 +66,7 @@ correspondence, and change the actual indentation; the second action restores th
 original document exactly. `indentation-cycle-synchronous.txt` records the actual
 DocumentEvent fragments and start columns. After ordinary native/daemon readiness,
 the original `all-components` image must match exactly. The existing closing-line
-edit must still hide affected geometry synchronously and match `edited-geometry`
+edit must retain provisional geometry synchronously and match `edited-geometry`
 after repair. These add interaction coverage without another baseline image and
 do not promise retention when the guide position itself must change.
 

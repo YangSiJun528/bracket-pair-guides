@@ -48,7 +48,7 @@ round-trip. The guide must survive both commands before asynchronous publication
 can run, the event coordinates must correspond to real indentation edits, and
 restored text/pixels must match the original fixture. Preserve the failure with
 the pre-fix production code; do not replace the actions with direct text insertion
-or relax the existing closing-line immediate-hide assertion.
+or remove the closing-line provisional-retention and eventual-position assertions.
 
 ## Prepare new baseline candidates
 
@@ -61,7 +61,7 @@ xvfb-run -a --auth-file "$HOME/.Xauthority" -s '-screen 0 1920x1080x24 -dpi 96 -
 This command produces candidates in the artifacts directory and does not
 establish comparison success. Review all twelve images for the expected geometry,
 current repair and native restoration. In particular, verify that the closing
-indentation edit moves the active guide from column 8 to 10; a text-only movement
+indentation edit retains its renderer before repair moves the active guide from column 8 to 10; a text-only movement
 is not sufficient. Default/custom palette images must contain identical component
 choices, width and opacity while showing the intended independent colors.
 The same run must also pass the real Settings checkbox/Apply/focus transaction
