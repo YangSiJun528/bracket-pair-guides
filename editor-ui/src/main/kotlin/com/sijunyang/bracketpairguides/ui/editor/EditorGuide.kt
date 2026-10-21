@@ -2,7 +2,6 @@ package com.sijunyang.bracketpairguides.ui.editor
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.CustomFoldRegion
 import com.intellij.openapi.editor.FoldRegion
 import com.intellij.openapi.editor.Inlay
 import com.intellij.openapi.editor.InlayModel
@@ -64,7 +63,6 @@ internal class EditorGuide(
         (editor.foldingModel as? FoldingModelEx)?.addListener(object : FoldingListener {
             override fun onFoldRegionStateChange(region: FoldRegion) = active.invalidateDrawing()
             override fun beforeFoldRegionRemoved(region: FoldRegion) = active.invalidateDrawing()
-            override fun onCustomFoldRegionPropertiesChange(region: CustomFoldRegion, flags: Int) = active.invalidateDrawing()
         }, drawingLifetime)
         editor.inlayModel.addListener(object : InlayModel.Listener {
             override fun onAdded(inlay: Inlay<*>) = active.invalidateDrawing()
