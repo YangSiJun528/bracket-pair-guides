@@ -28,7 +28,7 @@ jmh {
     jmhVersion = "1.37"
     if (benchmarkJob.isPresent) includes = listOf(".*\\.${benchmarkJob.get()}")
     benchmarkMode = listOf("avgt")
-    warmupIterations = 2
+    warmupIterations = 6
     warmup = "1s"
     iterations = 3
     timeOnIteration = "1s"

@@ -18,14 +18,15 @@ keeps one calculator. Query setup and result construction stay outside query
 measurement. `runBlocking` bridge overhead is included in suspend use cases and
 must be equal in baseline/candidate adapters.
 
-Full defaults are two forks, two 1-second warmup iterations, three 1-second
+Full defaults are two forks, six 1-second warmup iterations, three 1-second
 measurement iterations, one thread, 2GiB fixed heap and the GC profiler. Preserve
 ns/op and `gc.alloc.rate.norm` B/op secondary metrics. `-PbenchmarkSmoke=true`
 checks executable setup only and cannot establish performance acceptance.
 
 Use the JVM arguments in `runner/jvm.args` for direct JAR runs too. They keep the
-recorded prefix capture boundary out of line; [the input-boundary explanation](explanation_input_boundary.md)
-describes the JIT allocation split and why old/new measurements cannot share a baseline.
+recorded prefix capture boundary out of line and wait for JIT compilation.
+[The measurement explanation](explanation_input_boundary.md) describes both JIT
+effects and why old/new measurements cannot share a baseline.
 
 CI compiles before its per-job `timeout ... 240s java -jar ...` measurement.
 The limit is unchanged. JMH JSON is the authoritative raw result; standard

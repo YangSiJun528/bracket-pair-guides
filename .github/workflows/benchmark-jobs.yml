@@ -116,7 +116,7 @@ jobs:
           while IFS= read -r job; do
             directory="benchmarks/build/benchmark-jobs/$job"
             mkdir -p "$directory"
-            printf '%s\n' '-jar' '../jmh.jar' ".*\.$job" '-bm' 'avgt' '-wi' '2' '-w' '1s' '-i' '3' '-r' '1s' '-f' '2' '-t' '1' '-jvmArgs' "\"$jvm_args\"" '-prof' 'gc' '-rf' 'json' '-rff' 'jmh.json' > "$directory/run.args"
+            printf '%s\n' '-jar' '../jmh.jar' ".*\.$job" '-bm' 'avgt' '-wi' '6' '-w' '1s' '-i' '3' '-r' '1s' '-f' '2' '-t' '1' '-jvmArgs' "\"$jvm_args\"" '-prof' 'gc' '-rf' 'json' '-rff' 'jmh.json' > "$directory/run.args"
           done < <(printf '%s' "$jobs" | jq -r '.[]')
       - uses: actions/upload-artifact@v7
         with:

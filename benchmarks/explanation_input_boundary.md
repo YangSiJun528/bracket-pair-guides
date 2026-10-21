@@ -1,4 +1,4 @@
-# Why the recorded prefix boundary stays out of line
+# Why calculation measurements control JIT compilation
 
 The calculation benchmark uses a synchronous recorded input to stand in for IDE
 capture. `RecordedInput.initialPrefix` can be inlined into the repair loop, where
@@ -33,12 +33,43 @@ objects; the observed allocation levels include both 5,160/5,200 and 6,776/6,816
 The original CI runs have no compilation log, so the diagnostic establishes a
 reproduced mechanism rather than identifying their exact compiled methods.
 
-The final shared settings also completed all eight repair cases at the original
+The input-v2 settings also completed all eight repair cases at the original
 CI geometry. A separate six-fork check without compilation logging measured
 6,816.03, 6,816.03, 6,776.03, 6,776.03, 6,816.03 and 6,776.03 B/op
 (fork means, rounded). The maximum/minimum difference was 0.59%, rather than
-the historical approximately 31% split. This is local stability evidence; the
-remote main/PR comparison is still required.
+the historical approximately 31% split. The native comparison below checks this
+measurement policy independently.
+
+## Compilation scheduling and warmup
+
+The input-v2 native comparison fixed the original allocation alert:
+`repair(sparse,64)` measured 6,776.0193 versus 6,776.0195 B/op and 3,262 versus
+3,278 ns/op. All eighty metric baselines matched the independently measured
+main values. However, `analyzeReuse(sparse,4096)` latency was 509.07 versus
+649.84 microseconds, exceeding the unchanged threshold. On the same runner,
+one candidate JVM measured about 750 microseconds and the other about 500.
+Allocation was nearly unchanged. Earlier runs of the identical JAR also had
+different speeds between JVMs.
+
+A six-JVM local diagnostic retained the split after twelve measurement seconds;
+more warmup alone did not remove it. Keeping every recorded-input method out of
+line reduced but did not remove the spread, so that broader control was not
+adopted. Keeping the narrow prefix boundary and adding `-Xbatch` removed the
+persistent split in the local diagnostic. This option waits for JIT compilation
+instead of compiling concurrently with measured work. Logs showed C2 compilation
+of `CalculationAttempt.analyze` finishing around 5.9–6.5 seconds after JVM start,
+beyond the original two warmups. Compilation still contaminated the early
+measurement iterations, so input-v3 uses six one-second warmups.
+
+With that final policy and no diagnostic logging, six new JVMs measured
+556,355, 552,327, 557,948, 579,097, 576,694 and 562,506 ns/op (fork means, rounded),
+a 4.85% maximum/minimum spread. Allocation was about 529,619 B/op in all six.
+These are emulated diagnostic observations, not proof of the original native
+JIT decisions or native performance acceptance. The new policy requires another
+independent native main/PR comparison. Input-v2 failures remain recorded.
+The complete eight-case repair job also finished in 2 minutes 50 seconds under
+the original 240-second limit, with matching allocation levels in both forks
+for every case.
 
 ## Measurement contract
 
@@ -46,12 +77,14 @@ remote main/PR comparison is still required.
 using HotSpot's `CompileCommand=dontinline`. This applies to every workload and
 size calling that method, without changing its work, returned objects, result
 consumption, or production code. Other compiler optimizations remain enabled.
-The same arguments are used by Gradle, the local CI fallback and the remote
-guest. Both converters reject old or overridden JVM arguments.
+The same arguments, including `-Xbatch`, are used by Gradle, the local CI fallback
+and the remote guest. Both converters reject old or overridden JVM arguments
+and insufficient warmup. This measures warmed calculation work; it does not
+measure application startup or background-compiler contention in an IDE.
 
 This intentionally changes the measurement model; the larger allocation is not
 a production regression or a performance improvement. The new testbed
-`bencher-intel-v1-jdk17-input-v2` separates its history from the old testbed.
+`bencher-intel-v1-jdk17-input-v3` separates its history from both earlier testbeds.
 Main must be independently measured under these settings before a PR can have a
 valid comparison. Old history and failures remain available. Thresholds stay at
 20%, latest sample size stays at one, and the 240-second per-job limit is unchanged.

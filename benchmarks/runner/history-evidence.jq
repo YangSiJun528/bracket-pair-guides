@@ -13,7 +13,7 @@ def comparison:
   else {threshold: .threshold, boundary: .boundary} | comparable end;
 . as $report
 | if .uuid != $reportUuid or .job != $jobUuid or .project.uuid != $projectUuid
-     or .branch.name != $branch or .testbed.slug != "bencher-intel-v1-jdk17-input-v2"
+     or .branch.name != $branch or .testbed.slug != "bencher-intel-v1-jdk17-input-v3"
   then error("Report/job/project/branch/testbed identity mismatch") else . end
 | if (.results | type) != "array" or (.results | length) != 1 or (.results[0] | length) != 8
      or (.alerts | type) != "array" then error("Missing expanded one-iteration report") else . end

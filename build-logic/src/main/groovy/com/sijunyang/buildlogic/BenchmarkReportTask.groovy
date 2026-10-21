@@ -46,11 +46,11 @@ abstract class BenchmarkReportTask extends DefaultTask {
             def method = row.benchmark.tokenize('.').last()
             check(row.benchmark == 'com.sijunyang.bracketpairguides.benchmarks.CalculationContractBenchmark.' + method, 'foreign benchmark owner')
             check(row.jmhVersion == '1.37' && row.jdkVersion instanceof String && row.jdkVersion ==~ /17(?:\..*)?/, 'JMH/JVM contract changed')
-            check(row.forks == 2 && row.threads == 1 && row.warmupIterations == 2 && row.measurementIterations == 3 &&
+            check(row.forks == 2 && row.threads == 1 && row.warmupIterations == 6 && row.measurementIterations == 3 &&
                 row.warmupTime == '1 s' && row.measurementTime == '1 s' && row.warmupBatchSize == 1 && row.measurementBatchSize == 1,
                 'JMH run geometry changed')
             check(row.jvmArgs == ['-Xms2g', '-Xmx2g',
-                '-XX:CompileCommand=dontinline,com.sijunyang.bracketpairguides.benchmarks.CalculationWorkload$RecordedInput::initialPrefix'],
+                '-XX:CompileCommand=dontinline,com.sijunyang.bracketpairguides.benchmarks.CalculationWorkload$RecordedInput::initialPrefix', '-Xbatch'],
                 'JMH JVM arguments changed')
             check(sampleGeometry(row.primaryMetric?.rawData) && sampleGeometry(row.secondaryMetrics?.get('gc.alloc.rate.norm')?.rawData), 'JMH sample geometry changed')
             check(row.params instanceof Map && row.params.keySet() == (['distribution', 'pairCount'] as Set), 'parameter contract changed')

@@ -13,7 +13,7 @@ Export complete production measurements without changing their values:
 
 The Gradle adapter requires forty unique method/distribution/size combinations
 (or eight for a selected job), the exact CalculationContractBenchmark owner,
-JMH1.37/JVM17, two forks, one thread, two one-second warmups, three one-second
+JMH1.37/JVM17, two forks, one thread, six one-second warmups, three one-second
 measurements, the exact JVM arguments in `runner/jvm.args`, and two by three raw samples. Smoke
 runs cannot satisfy this report contract. Average-time `ns/op` and normalized
 GC allocation `B/op` map to `latency` and custom `allocation_bop`; parameter
@@ -22,7 +22,7 @@ not assumed to import allocation or preserve these identities automatically.
 
 The installed CI configuration preserves the existing distinction: configured trusted
 same-repository PRs and regular pushes use Intel-v1 Bencher bare metal with the
-`bencher-intel-v1-jdk17-input-v2` measurement contract and require a history comparison; forks and
+`bencher-intel-v1-jdk17-input-v3` measurement contract and require a history comparison; forks and
 unconfigured repositories establish execution and forty-case coverage only.
 Both measures retain percentage upper boundary 0.20 and latest sample size 1.
 The 240-second measurement budget excludes compilation and conversion.
@@ -44,8 +44,8 @@ Only after all five seed jobs finish, run the PR comparison against that main
 hash. No baseline is manufactured from a candidate result; an ordinary PR run
 with missing history must fail. Keep the original testbed and results.
 
-The input-v2 migration preserves the workload JAR and changes only the recorded
-prefix inlining boundary. See [the diagnosis and contract](explanation_input_boundary.md).
+The input-v3 migration preserves the workload JAR, keeps the recorded prefix
+boundary out of line, and uses foreground JIT compilation with six warmups. See [the diagnosis and contract](explanation_input_boundary.md).
 
 References: [BMF custom measures](https://bencher.dev/docs/how-to/track-custom-benchmarks/),
 [reports](https://bencher.dev/docs/api/projects/reports/),
