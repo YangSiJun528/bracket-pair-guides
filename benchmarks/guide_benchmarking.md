@@ -23,6 +23,10 @@ measurement iterations, one thread, 2GiB fixed heap and the GC profiler. Preserv
 ns/op and `gc.alloc.rate.norm` B/op secondary metrics. `-PbenchmarkSmoke=true`
 checks executable setup only and cannot establish performance acceptance.
 
+Use the JVM arguments in `runner/jvm.args` for direct JAR runs too. They keep the
+recorded prefix capture boundary out of line; [the input-boundary explanation](explanation_input_boundary.md)
+describes the JIT allocation split and why old/new measurements cannot share a baseline.
+
 CI compiles before its per-job `timeout ... 240s java -jar ...` measurement.
 The limit is unchanged. JMH JSON is the authoritative raw result; standard
 Bencher JMH import is not assumed to import allocations automatically.

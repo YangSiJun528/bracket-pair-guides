@@ -6,8 +6,7 @@ if type != "array" or length != 8 then error("Expected eight cases") else . end
     or .jmhVersion != "1.37" or (.jdkVersion | type) != "string" or (.jdkVersion | test("^17(\\.|$)" ) | not)
     or .forks != 2 or .threads != 1 or .warmupIterations != 2 or .measurementIterations != 3
     or .warmupTime != "1 s" or .measurementTime != "1 s" or .warmupBatchSize != 1 or .measurementBatchSize != 1
-    or (.jvmArgs | type) != "array" or ([.jvmArgs[] | select(startswith("-Xms"))] != ["-Xms2g"])
-    or ([.jvmArgs[] | select(startswith("-Xmx"))] != ["-Xmx2g"])
+    or .jvmArgs != ["-Xms2g", "-Xmx2g", "-XX:CompileCommand=dontinline,com.sijunyang.bracketpairguides.benchmarks.CalculationWorkload$RecordedInput::initialPrefix"]
     or (.primaryMetric.rawData | sample_geometry | not)
     or (.secondaryMetrics["gc.alloc.rate.norm"].rawData | sample_geometry | not)
     then error("Changed metric contract") else . end)

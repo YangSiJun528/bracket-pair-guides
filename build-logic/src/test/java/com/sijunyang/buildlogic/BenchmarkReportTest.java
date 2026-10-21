@@ -30,7 +30,12 @@ public class BenchmarkReportTest {
                 row.put("measurementTime", "1 s");
                 row.put("warmupBatchSize", 1);
                 row.put("measurementBatchSize", 1);
-                row.put("jvmArgs", List.of("-Xms2g", "-Xmx2g"));
+                row.put(
+                        "jvmArgs",
+                        List.of(
+                                "-Xms2g",
+                                "-Xmx2g",
+                                "-XX:CompileCommand=dontinline,com.sijunyang.bracketpairguides.benchmarks.CalculationWorkload$RecordedInput::initialPrefix"));
                 row.put(
                         "primaryMetric",
                         Map.of(
@@ -149,7 +154,22 @@ public class BenchmarkReportTest {
         var heapRows = report();
         heapRows.get(0).put("jvmArgs", List.of("-Xms1g", "-Xmx1g"));
         assertThatThrownBy(() -> BenchmarkReportTask.convert(heapRows, "analyzeCold"))
-                .hasMessageContaining("heap changed");
+                .hasMessageContaining("JVM arguments changed");
+    }
+
+    @Test
+    public void oldOrOverriddenInputBoundaryCannotEnterNewHistory() {
+        var rows = report();
+        rows.get(0).put("jvmArgs", List.of("-Xms2g", "-Xmx2g"));
+        assertThatThrownBy(() -> BenchmarkReportTask.convert(rows, "analyzeCold"))
+                .hasMessageContaining("JVM arguments changed");
+        var overridden = report();
+        var arguments = new ArrayList<>((List<String>) overridden.get(0).get("jvmArgs"));
+        arguments.add(
+                "-XX:CompileCommand=inline,com.sijunyang.bracketpairguides.benchmarks.CalculationWorkload$RecordedInput::initialPrefix");
+        overridden.get(0).put("jvmArgs", arguments);
+        assertThatThrownBy(() -> BenchmarkReportTask.convert(overridden, "analyzeCold"))
+                .hasMessageContaining("JVM arguments changed");
     }
 
     @Test

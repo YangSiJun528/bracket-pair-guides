@@ -49,8 +49,9 @@ abstract class BenchmarkReportTask extends DefaultTask {
             check(row.forks == 2 && row.threads == 1 && row.warmupIterations == 2 && row.measurementIterations == 3 &&
                 row.warmupTime == '1 s' && row.measurementTime == '1 s' && row.warmupBatchSize == 1 && row.measurementBatchSize == 1,
                 'JMH run geometry changed')
-            check(row.jvmArgs instanceof List && row.jvmArgs.count { it.toString().startsWith('-Xms') } == 1 &&
-                row.jvmArgs.count { it.toString().startsWith('-Xmx') } == 1 && row.jvmArgs.containsAll(['-Xms2g', '-Xmx2g']), 'JMH heap changed')
+            check(row.jvmArgs == ['-Xms2g', '-Xmx2g',
+                '-XX:CompileCommand=dontinline,com.sijunyang.bracketpairguides.benchmarks.CalculationWorkload$RecordedInput::initialPrefix'],
+                'JMH JVM arguments changed')
             check(sampleGeometry(row.primaryMetric?.rawData) && sampleGeometry(row.secondaryMetrics?.get('gc.alloc.rate.norm')?.rawData), 'JMH sample geometry changed')
             check(row.params instanceof Map && row.params.keySet() == (['distribution', 'pairCount'] as Set), 'parameter contract changed')
             def key = "${method}|${row.params.distribution}|${row.params.pairCount}".toString()

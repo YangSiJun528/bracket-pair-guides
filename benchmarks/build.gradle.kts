@@ -39,7 +39,8 @@ jmh {
     resultFormat = "JSON"
     resultsFile = layout.buildDirectory.file("reports/jmh/results.json").get().asFile
     humanOutputFile = layout.buildDirectory.file("reports/jmh/human.txt").get().asFile
-    jvmArgs = listOf("-Xms2g", "-Xmx2g")
+    jvmArgs = providers.fileContents(layout.projectDirectory.file("runner/jvm.args"))
+        .asText.get().lineSequence().filter(String::isNotBlank).toList()
     if (providers.gradleProperty("benchmarkSmoke").map(String::toBoolean).getOrElse(false)) {
         warmupIterations = 0
         iterations = 1

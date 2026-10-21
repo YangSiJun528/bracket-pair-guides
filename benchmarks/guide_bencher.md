@@ -1,9 +1,8 @@
 # Report parameterized JMH metrics with Bencher
 
-Keep raw JMH JSON and same-condition comparisons locally. The user approved local installation of the restored CI
-workflow in `.github/workflows/benchmark-jobs.yml`. The reviewed proposal remains
-in `outputs/issue-97/redesign/benchmark-workflow.proposal.yaml.txt`. This guide does not authorize a
-project lookup, registry push, remote measurement or result upload.
+Keep raw JMH JSON and same-condition comparisons locally. The workflow in
+`.github/workflows/benchmark-jobs.yml` runs the configured CI comparisons. This
+guide does not itself authorize a registry push, remote measurement or result upload.
 
 Export complete production measurements without changing their values:
 
@@ -15,15 +14,15 @@ Export complete production measurements without changing their values:
 The Gradle adapter requires forty unique method/distribution/size combinations
 (or eight for a selected job), the exact CalculationContractBenchmark owner,
 JMH1.37/JVM17, two forks, one thread, two one-second warmups, three one-second
-measurements, 2GiB initial/maximum heap, and two by three raw samples. Smoke
+measurements, the exact JVM arguments in `runner/jvm.args`, and two by three raw samples. Smoke
 runs cannot satisfy this report contract. Average-time `ns/op` and normalized
 GC allocation `B/op` map to `latency` and custom `allocation_bop`; parameter
 identities and values survive conversion. The standard `java_jmh` adapter is
 not assumed to import allocation or preserve these identities automatically.
 
 The installed CI configuration preserves the existing distinction: configured trusted
-same-repository PRs and regular pushes use the original Intel-v1 Bencher
-bare-metal environment and require a history comparison; forks and
+same-repository PRs and regular pushes use Intel-v1 Bencher bare metal with the
+`bencher-intel-v1-jdk17-input-v2` measurement contract and require a history comparison; forks and
 unconfigured repositories establish execution and forty-case coverage only.
 Both measures retain percentage upper boundary 0.20 and latest sample size 1.
 The 240-second measurement budget excludes compilation and conversion.
@@ -37,11 +36,16 @@ baseline and the strict threshold boundary. Empty alerts with absent history
 fail; all partition jobs finish before reporting genuine regression alerts.
 
 Explicit default-branch seeding is a separate, noncomparative action and is
-recorded as `comparative:false`. The old default branch lacks the new forty-case
-adapter; selecting it currently fails before publishing or submitting. A reviewed
-baseline adapter and explicitly authorized seed run are required before the
-first regular comparison can pass. No baseline/history is manufactured from a
-candidate result. Live Bencher report execution remains unverified locally.
+recorded as `comparative:false`. After reviewing and authorizing a measurement
+contract migration, run `Benchmark Jobs` on the reviewed ref with
+`seed_main_baseline=true`. This builds the actual current default-branch source,
+records its commit hash, and uses the selected workflow ref's JVM settings.
+Only after all five seed jobs finish, run the PR comparison against that main
+hash. No baseline is manufactured from a candidate result; an ordinary PR run
+with missing history must fail. Keep the original testbed and results.
+
+The input-v2 migration preserves the workload JAR and changes only the recorded
+prefix inlining boundary. See [the diagnosis and contract](explanation_input_boundary.md).
 
 References: [BMF custom measures](https://bencher.dev/docs/how-to/track-custom-benchmarks/),
 [reports](https://bencher.dev/docs/api/projects/reports/),
