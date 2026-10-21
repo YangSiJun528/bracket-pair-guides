@@ -108,6 +108,9 @@ positions before the opener and after the closer.
 - `PairTable` stores seven primitive integer columns rather than one object per
   completed pair.
 - The active-pair index stores at most `2P` event boundaries.
+- Guide drawing retains at most one vector outline per editor, bounded to the
+  visible area; partial repaint clips do not shrink it. Layout invalidation or
+  removing the owned renderer releases it. No bitmap or indentation cache is added.
 - Token presentation retains only the bounded ordinary viewport window and the
   bounded source lines currently displayed by Sticky Lines. Both share the
   2,048-highlighter cap.
