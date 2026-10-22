@@ -1,6 +1,5 @@
 package com.sijunyang.bracketpairguides.ui.editor.events
 
-import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.editor.ex.MarkupModelEx
@@ -23,8 +22,6 @@ object StickyLineSourceRanges {
         val document = editor.document
         val lineCount = document.lineCount
         if (lineCount == 0) return emptyList()
-        val usesLegacyCandidateCollection =
-            ApplicationInfo.getInstance().build.baselineVersion <= LEGACY_BASELINE_VERSION
         val startLine = editor.xyToLogicalPosition(Point(0, visibleArea.y)).line
         if (startLine !in 0 until lineCount) return emptyList()
         val maximumPanelHeight =
@@ -36,9 +33,6 @@ object StickyLineSourceRanges {
                 .coerceAtMost(Int.MAX_VALUE.toLong())
                 .toInt()
         val reportedEndLine = editor.xyToLogicalPosition(Point(0, queryEndY)).line
-        if (usesLegacyCandidateCollection && reportedEndLine !in 0 until lineCount) {
-            return emptyList()
-        }
         val endLine = reportedEndLine.coerceIn(startLine, lineCount - 1)
         val queryRange =
             TextRange(
@@ -47,12 +41,6 @@ object StickyLineSourceRanges {
             )
         val markup = documentMarkupModel(editor) ?: return emptyList()
         val scopes = ArrayList<TextRange>()
-        val candidateLimit =
-            if (usesLegacyCandidateCollection) {
-                maxOf(1, (lineLimit * LEGACY_CANDIDATE_LIMIT_FACTOR).toInt())
-            } else {
-                Int.MAX_VALUE
-            }
         markup.processRangeHighlightersOverlappingWith(
             queryRange.startOffset,
             queryRange.endOffset,
@@ -60,7 +48,7 @@ object StickyLineSourceRanges {
             if (highlighter.isValid && isStickyLineMarker(highlighter)) {
                 scopes += TextRange(highlighter.startOffset, highlighter.endOffset)
             }
-            scopes.size < candidateLimit
+            true
         }
         if (scopes.isEmpty()) return emptyList()
         scopes.sortWith(
@@ -177,6 +165,4 @@ object StickyLineSourceRanges {
     private const val MINIMUM_STICKY_SCROLL_Y = 3
     private const val MINIMUM_SCOPE_VISUAL_LINES = 5
     private const val STICKY_BORDER_HEIGHT = 1
-    private const val LEGACY_BASELINE_VERSION = 241
-    private const val LEGACY_CANDIDATE_LIMIT_FACTOR = 1.7
 }

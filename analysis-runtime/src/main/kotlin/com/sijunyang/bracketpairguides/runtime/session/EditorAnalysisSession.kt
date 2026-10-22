@@ -2,6 +2,7 @@ package com.sijunyang.bracketpairguides.runtime.session
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.EDT
+import com.intellij.openapi.application.UI
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.application.asContextElement
 import com.intellij.openapi.application.readAction
@@ -235,18 +236,21 @@ internal class EditorAnalysisSession(
             var completed = false
             try {
                 val control = control(repairTicket, ticket, epoch)
-                val guide = calculation.calculator.repair(EditorSource(editor, source, reads, control, calculation),
+                val input = EditorSource(editor, source, reads, control, calculation)
+                val guide = calculation.calculator.repair(input,
                     RepairRequest(intent.pair, intent.exact, intent.previousAnchor), control)
-                withContext(Dispatchers.EDT + modality) {
+                    ?: run { completed = true; return@launch }
+                // Pure editor markup needs EDT affinity, not the platform write-intent lock.
+                // Final capture validates file/type identity; the write epoch guards the handoff.
+                withContext(Dispatchers.UI + modality) {
                     control.checkCanceled()
-                    if (!valid(source, requested, epoch) || reads.environmentRevision != environmentRevision ||
+                    if (!input.isCurrentForUiPublication() || reads.environmentRevision != environmentRevision ||
                         demand?.guideRevision != requested.guideRevision) {
                         retry = true
                         return@withContext
                     }
-                    completed = guide == null ||
-                        view.applyRepair(RepairUpdate(requested.guideRevision, guide)) == ViewApplication.APPLIED
-                    retry = !valid(source, requested, epoch) || reads.environmentRevision != environmentRevision
+                    completed = view.applyRepair(RepairUpdate(requested.guideRevision, guide)) == ViewApplication.APPLIED
+                    retry = !input.isCurrentForUiPublication() || reads.environmentRevision != environmentRevision
                 }
             } catch (_: SourceChanged) { retry = true }
             catch (_: ProcessCanceledException) { retry = true }

@@ -57,8 +57,17 @@ val visualTestArtifactsDirectory = layout.buildDirectory.dir("visual-test-artifa
 val visualTestBaselinesDirectory = layout.projectDirectory.dir("src/visualTest/resources/baselines")
 val visualTestProjectDirectory = layout.buildDirectory.dir("visual-test-project")
 val visualTestJavaLauncher = javaToolchains.launcherFor {
-    languageVersion = JavaLanguageVersion.of(21)
+    languageVersion = JavaLanguageVersion.of(25)
 }
+// The 262 Driver runs on JDK 25; release plugin bytecode remains Java 21.
+tasks.named<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>("compileVisualTestKotlin") {
+    compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25)
+}
+tasks.named<JavaCompile>("compileVisualTestJava") {
+    javaCompiler.set(javaToolchains.compilerFor { languageVersion = JavaLanguageVersion.of(25) })
+    options.release.set(25)
+}
+
 val cleanVisualTestArtifacts = tasks.register<Delete>("cleanVisualTestArtifacts") {
     delete(visualTestArtifactsDirectory, visualTestProjectDirectory)
 }
@@ -68,11 +77,11 @@ base {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
     compilerOptions {
-        // IntelliJ Platform 2024.1 bundles Kotlin stdlib 1.9.22.
-        languageVersion = KotlinVersion.KOTLIN_1_9
-        apiVersion = KotlinVersion.KOTLIN_1_9
+        // IntelliJ Platform 2025.3 bundles Kotlin stdlib 2.2.20.
+        languageVersion = KotlinVersion.KOTLIN_2_2
+        apiVersion = KotlinVersion.KOTLIN_2_2
     }
 }
 
@@ -83,21 +92,14 @@ intellijPlatform {
     pluginConfiguration {
         // Keep the declared minimum stable when the test fixture is upgraded.
         ideaVersion {
-            sinceBuild = "241"
+            sinceBuild = "253"
         }
     }
     pluginVerification {
         // Resolve JetBrains' recommended cross-version verification matrix.
         ides {
             recommended()
-            // The recommended set follows the 2024.1 fixture and currently
-            // stops at 2025.2. Also cover the open-ended descriptor's current
-            // IntelliJ Platform releases without downloading every product.
-            create(IntelliJPlatformType.IntellijIdea, "2025.3")
-            create(IntelliJPlatformType.IntellijIdea, "2026.1")
-            create(IntelliJPlatformType.IntellijIdea, "2026.2")
-            // Include the EAP build that reported the deprecated/experimental usages.
-            create(IntelliJPlatformType.IntellijIdea, "263.4732.28")
+            create(IntelliJPlatformType.IntellijIdea, "2026.2.3")
         }
         failureLevel.set(
             listOf(
@@ -122,7 +124,7 @@ tasks.processResources {
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(17)
+    if (name != "compileVisualTestJava") options.release.set(21)
 }
 
 dependencies {
@@ -134,7 +136,7 @@ dependencies {
     testImplementation("com.tngtech.archunit:archunit-junit4:1.5.1")
 
     intellijPlatform {
-        intellijIdeaCommunity("2024.1.7")
+        intellijIdea("2025.3")
 
         // Required only by language-aware lexer integration tests.
         testBundledPlugin("com.intellij.java")
@@ -143,11 +145,12 @@ dependencies {
         testFramework(TestFrameworkType.Platform)
         testFramework(
             TestFrameworkType.Starter,
-            version = "242.26775.15",
+            version = "262.10968.63",
             configurationName = "visualTestImplementation",
         )
     }
 
+    add(visualTestSourceSet.runtimeOnlyConfigurationName, "org.jetbrains.teamcity:serviceMessages:2024.07")
     add(visualTestImplementation.name, "org.junit.jupiter:junit-jupiter:6.1.3")
     add(visualTestImplementation.name, "org.kodein.di:kodein-di-jvm:7.33.0")
     add(
@@ -163,8 +166,8 @@ dependencies {
 listOf("visualTest", "captureVisualTestCandidates").forEach { taskName ->
     val captureCandidates = taskName == "captureVisualTestCandidates"
     intellijPlatformTesting.testIdeUi.register(taskName) {
-        type = IntelliJPlatformType.IntellijIdeaCommunity
-        version = "2024.2.6"
+        type = IntelliJPlatformType.IntellijIdea
+        version = "2026.2.3"
 
         task {
             description = if (captureCandidates) {
@@ -175,7 +178,7 @@ listOf("visualTest", "captureVisualTestCandidates").forEach { taskName ->
             group = "verification"
             testClassesDirs = visualTestSourceSet.output.classesDirs
             classpath = visualTestSourceSet.runtimeClasspath
-            useJUnitPlatform()
+            useJUnitPlatform { includeEngines("junit-jupiter") }
             filter { excludeTestsMatching("*.ManualQaLauncher") }
             javaLauncher.set(visualTestJavaLauncher)
             maxParallelForks = 1
@@ -203,16 +206,9 @@ listOf("visualTest", "captureVisualTestCandidates").forEach { taskName ->
 }
 
 val sdkOwners = listOf(project(":editor-ui"), project(":analysis-runtime"), project)
-listOf("minimumSdkTests" to "2024.1.7", "currentSdkTests" to "263.6259.32").forEach { (name, selectedVersion) ->
+listOf("minimumSdkTests" to "2025.3", "currentSdkTests" to "263.6259.32").forEach { (name, selectedVersion) ->
     intellijPlatformTesting.testIde.register(name) {
-        type =
-            if (name ==
-                "minimumSdkTests"
-            ) {
-                IntelliJPlatformType.IntellijIdeaCommunity
-            } else {
-                IntelliJPlatformType.IntellijIdea
-            }
+        type = IntelliJPlatformType.IntellijIdea
         version = selectedVersion
         testFramework(TestFrameworkType.Platform)
         task {
@@ -228,7 +224,7 @@ listOf("minimumSdkTests" to "2024.1.7", "currentSdkTests" to "263.6259.32").forE
             classpath += files(sdkOwners.map { it.extensions.getByType<SourceSetContainer>().getByName("test").output })
             filter { includeTestsMatching("*IdeContractTest") }
             maxParallelForks = 1
-            systemProperty("contract.ide.baseline", if (name == "minimumSdkTests") "241" else "263")
+            systemProperty("contract.ide.baseline", if (name == "minimumSdkTests") "253" else "263")
             systemProperty("contract.ide.version", selectedVersion)
             outputs.upToDateWhen { false }
         }
@@ -259,8 +255,8 @@ intellijPlatformTesting.testIde.register("sdkPerformance") {
             }
         }
     }
-    type = IntelliJPlatformType.IntellijIdeaCommunity
-    version = "2024.1.7"
+    type = IntelliJPlatformType.IntellijIdea
+    version = "2025.3"
     testFramework(TestFrameworkType.Platform)
     task {
         description = "Runs explicitly selected real SDK comparison measurements; serial main orchestration only."
@@ -287,8 +283,8 @@ intellijPlatformTesting.testIde.register("sdkPerformance") {
         providers.systemPropertiesPrefixedBy("issue97.perf.").get().forEach { (name, value) ->
             systemProperty(name, value)
         }
-        systemProperty("contract.ide.baseline", "241")
-        systemProperty("contract.ide.version", "2024.1.7")
+        systemProperty("contract.ide.baseline", "253")
+        systemProperty("contract.ide.version", "2025.3")
         systemProperty("issue97.perf.descriptorMode", "manual-registry-events-no-auto-startup-pass")
         systemProperty("issue97.perf.descriptorEvidence", sdkMeasurementEvidence.get().asFile.absolutePath)
         systemProperty(

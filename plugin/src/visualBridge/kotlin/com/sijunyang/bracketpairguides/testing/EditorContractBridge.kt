@@ -586,7 +586,11 @@ object EditorContractBridge {
     fun markupDiagnostics(): String = readEdt {
         val editor = editor()
         val all = editor.markupModel.allHighlighters
-        "highlighters=${all.size},reported=${minOf(all.size, 256)}\n" +
+        val indent = editor.indentsModel.getDescriptor(2, 4)
+        "nativeIndentShown=${editor.settings.isIndentGuidesShown};" +
+            "nativeIndent=${indent?.let { "${it.indentLevel}:${it.startLine}:${it.endLine}" }};" +
+            "caret=${editor.caretModel.logicalPosition}\n" +
+            "highlighters=${all.size},reported=${minOf(all.size, 256)}\n" +
             all.take(256).joinToString("\n") { highlighter ->
                 val attributes = highlighter.getTextAttributes(editor.colorsScheme)
                 "valid=${highlighter.isValid},range=${highlighter.startOffset}..${highlighter.endOffset}," +

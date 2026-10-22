@@ -1,33 +1,24 @@
 # Reviewed visual contracts
 
-These twelve images replace the removed legacy suite under the approved redesign.
-They were captured and individually reviewed on IC 2024.2.6, Linux x86-64,
-Xvfb DPI 96, Darcula/New UI, JetBrains Mono 14, scale 1, en_US/UTC.
-The expected geometry and state are defined in `docs/reference_visual_testing.md`.
+These twelve images were captured from unchanged production `f59e452` on
+IntelliJ IDEA 2026.2.3 (262.10968.63), Linux x86-64, Xvfb DPI 96,
+Darcula/New UI, JetBrains Mono 14 and scale 1. The fixture has an explicit Java
+source root; no project JDK is required. IDE Starter prepares an existing profile
+so first-session trial activation cannot replace the editor or change plugins.
 
-Review evidence: `outputs/issue-97/redesign/driver/capture-04/baseline-review.json`,
-with the exact capture source manifest and image hashes. The capture also passed
-Settings Apply, genuine focus and visibility transitions, notification display,
-caret A/B/A pixel equality, and synchronous edit hiding followed by repair.
-An independent exact comparison and rendering-removal mutation are required
-before the redesign is considered verified. No tolerance or automatic acceptance
-is permitted.
+Every image was visually reviewed against `docs/reference_visual_testing.md`.
+The source capture also passed real Settings Apply, focus/visibility transitions,
+public native-conflict notification, caret and tab round-trips, and synchronous
+indentation retention followed by repaired column-10 geometry.
 
-Three images (`native-visuals-unmanaged`, `native-highlight-suppressed`,
-`edited-geometry`) were subsequently corrected to settled SDK state. The initial
-native images retained identifier-usage fills from the previous caret location;
-the edited image lacked a recalculated native indent-guide segment. Standard
-project index readiness and daemon completion before/after stable captures now
-prevent accepting those intermediate states. The exact pixel oracle and
-30-second capture budget are unchanged.
-
-Correction review: `outputs/issue-97/redesign/driver/settled-oracle-review/review.json`.
-The three previous images remain in that directory's `previous-oracle/`.
-The replacements come from unchanged baseline production `072533f`, using the
-same twelve-scenario Driver suite; all twelve images matched the redesigned
-production in every ARGB pixel and PNG byte. Cross-production evidence:
-`outputs/issue-97/redesign/driver/baseline-counterfactual-01/cross-production-comparison.json`.
-That diagnostic capture is not an old-golden comparison pass. Nine original
-images were unchanged; the two native corrections each changed 2,218 pixels and
-the edit correction changed 20. Fresh exact comparison and the paint-removal
-mutation remain required after the deliberate correction.
+Source and review evidence:
+`outputs/platform-253-evaluation-20261022/reference-main/` and
+`outputs/platform-253-evaluation-20261022/baseline-review.json`.
+All twelve freshly captured PNGs are also byte-identical to the former 2024.2.6
+oracles; only their environment directory changed. The former paths remain in Git history. This environment migration
+uses unchanged production as its source; it does not approve candidate behaviour
+by recording over a failing comparison. The candidate passed exact comparison for all twelve images and the interaction
+contracts. Replacing only `paintOutline` with a no-op reached the pixel assertion
+and failed nine guide-bearing scenarios as expected. Evidence is recorded in
+`visual-comparison.json`, `validation.json`, and `mutation-no-outline/` under the
+same evaluation output directory.

@@ -7,7 +7,7 @@ macOS captures are not compatible with these baselines.
 ## Compare against reviewed baselines
 
 ```sh
-export VISUAL_TEST_ENVIRONMENT=ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1
+export VISUAL_TEST_ENVIRONMENT=idea-2026.2.3/linux-x64-xvfb96-darcula-scale1
 export LANG=C.UTF-8 LC_ALL=C.UTF-8 TZ=UTC
 xvfb-run -a --auth-file "$HOME/.Xauthority" -s '-screen 0 1920x1080x24 -dpi 96 -nolisten tcp' ./gradlew :plugin:visualTest
 ```
@@ -21,7 +21,10 @@ Inspect `plugin/build/reports/tests/visualTest` and the actual images in
 IDE startup is a failure, not a skipped visual assertion. Inspect
 `setup-daemon-observed.txt` and each `*-daemon-observed.txt` as well. Initial
 setup waits for standard Driver background indicators and stable smart mode,
-then file analysis. Each capture separately requires committed, non-indexing,
+then selected-editor highlighting. The fixture explicitly declares a Java source
+root so native indentation and semantic highlighting are exercised. Starter
+prepares an existing profile to prevent first-session trial activation from
+changing the plugin set or opening another editor tab. Each capture separately requires committed, non-indexing,
 completed daemon state before and after screenshots at the same stamp, followed
 by two identical images. The 30-second capture budget remains unchanged; do not
 replace these observations with sleeps or forced daemon/caret events.
@@ -69,7 +72,7 @@ and public native-conflict notification/balloon observations; captured images al
 do not replace those contracts. Investigate unexpected pixel changes;
 do not weaken equality or automatically copy candidates to make a failure pass.
 After review, copy the accepted images to
-`plugin/src/visualTest/resources/baselines/ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1/`
+`plugin/src/visualTest/resources/baselines/idea-2026.2.3/linux-x64-xvfb96-darcula-scale1/`
 using scenario names without the `-actual` suffix. Record the source revision,
 environment and review decision, then run comparison again.
 

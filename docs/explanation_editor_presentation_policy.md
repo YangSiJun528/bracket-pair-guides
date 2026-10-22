@@ -55,3 +55,13 @@ Recognition still depends on installed language lexers and brace matchers. Surfa
 Policy contracts cover supported features, activity, and independent guide directions. Headless SDK contracts use explicit activity inputs and actual editor markup to cover editor kinds, independent publication and close lifetimes for two editors sharing a document, reentrant or failing markup, provisional retention, invalid-pair removal, stale-result rejection, and lifetime release. Driver contracts separately exercise genuine Swing focus and visibility transitions, Settings Apply, and rendered colors and geometry in actual editor surfaces. Pure calculation tests establish neither Swing rendering nor IDE compatibility; visual checks alone establish neither source validity nor cancellation.
 
 Current validation records identify completed and unexecuted checks. [Analysis execution](explanation_analysis_execution.md) explains worker/source authority, and [Module architecture](explanation_module_architecture.md) explains why UI cannot import calculation implementations.
+
+## Repair publication on current platforms
+
+From the 2025.3 minimum, bounded repair publishes editor markup through
+`Dispatchers.UI`. The final background read validates file/type identity, and
+the publication checks that no write has begun since that validation, plus
+current editor content, highlighter, tab size and request ownership. An invalid
+result is retried rather than painted. Full analysis and native-advisory paths
+still use `Dispatchers.EDT` because their callbacks access the platform model.
+No scheduler, input batching or repaint-area optimization is added.

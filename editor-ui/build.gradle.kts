@@ -5,19 +5,19 @@ plugins {
     `java-library`
     id("org.jetbrains.kotlin.jvm")
     // SDK compile setup only. Ordinary owner jars must stay in lib/ for the
-    // classic descriptor and the minimum 241 plugin classloader.
+    // classic descriptor and the minimum supported plugin classloader.
     id("org.jetbrains.intellij.platform.base")
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
     compilerOptions {
-        languageVersion = KotlinVersion.KOTLIN_1_9
-        apiVersion = KotlinVersion.KOTLIN_1_9
+        languageVersion = KotlinVersion.KOTLIN_2_2
+        apiVersion = KotlinVersion.KOTLIN_2_2
     }
 }
 
-tasks.withType<JavaCompile>().configureEach { options.release.set(17) }
+tasks.withType<JavaCompile>().configureEach { options.release.set(21) }
 
 dependencies {
     // Available to compilers; IntelliJ supplies this at runtime in the distribution.
@@ -27,7 +27,7 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.27.7")
     api(project(":analysis-model"))
     intellijPlatform {
-        intellijIdeaCommunity("2024.1.7")
+        intellijIdea("2025.3")
         testFramework(TestFrameworkType.Platform)
         testBundledPlugin("com.intellij.java")
         testBundledPlugin("org.jetbrains.kotlin")

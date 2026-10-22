@@ -10,8 +10,9 @@ boundaries.
 - Allow the Foojay resolver to provision the configured compiler toolchain when
   it is not installed locally.
 
-Production bytecode targets Java 17. Kotlin source uses language and API version
-1.9 because the minimum supported IntelliJ Platform bundles Kotlin 1.9.
+Platform-facing modules target Java 21 and Kotlin language/API 2.2, matching
+the minimum supported IntelliJ Platform 2025.3. Pure analysis and benchmark
+modules retain their independent Java 17 target.
 Changing the Gradle runtime, JVM toolchain, Kotlin version, or minimum IDE build
 is one compatibility change and must be reviewed together.
 

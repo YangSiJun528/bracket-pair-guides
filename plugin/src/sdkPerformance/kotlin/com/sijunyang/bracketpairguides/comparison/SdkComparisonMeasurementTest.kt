@@ -89,8 +89,8 @@ class SdkComparisonMeasurementTest : BasePlatformTestCase() {
             withContext(Dispatchers.EDT) { host.assertNoUnownedAttachments() }
             val descriptor = verifyMeasurementDescriptor(host)
             val idea = ApplicationInfo.getInstance()
-            check(idea.build.baselineVersion == 241 && idea.fullVersion == "2024.1.7") {
-                "Expected the frozen 2024.1.7 SDK fixture, got ${idea.build.asString()} / ${idea.fullVersion}"
+            check(idea.build.baselineVersion == 253 && idea.fullVersion == "2025.3") {
+                "Expected the 2025.3 SDK fixture, got ${idea.build.asString()} / ${idea.fullVersion}"
             }
             System.getProperty("issue97.perf.expectedIdeBuild")?.let {
                 check(idea.build.asString() == it) { "Selected SDK build differs from expected $it" }

@@ -99,10 +99,10 @@ opens the real dialog, edits the fixture, and observes SDK markup/notifications.
 
 | Property | Pin |
 |---|---|
-| IDE | IC 2024.2.6 / build 242.26775.15 |
-| Starter/Driver | 242.26775.15 |
-| Test JVM | Java 21 |
-| Production target | Java 17, Kotlin language/API 1.9 |
+| IDE | IDEA 2026.2.3 / build 262.10968.63 |
+| Starter/Driver | 262.10968.63 |
+| Test JVM | Java 25 (Driver 262 requirement) |
+| Platform-facing target | Java 21, Kotlin language/API 2.2 |
 | Host | Linux x86-64, Xvfb, DPI 96 |
 | Theme/UI | Darcula, New UI |
 | Font | JetBrains Mono 14, line spacing 1.0 |
@@ -112,7 +112,8 @@ opens the real dialog, edits the fixture, and observes SDK markup/notifications.
 | Crop | editor `(0,1,220,239)` |
 | Locale/time zone | en_US / UTC |
 | Chrome | sticky lines, Code Vision and intention bulb disabled |
-| Fixture | `plugin/src/visualTest/testData/Contract.java` |
+| Fixture | `plugin/src/visualTest/testData/Contract.java`, explicit Java module/source root |
+| Startup | Prepared profile; automatic Java SDK setup disabled |
 
 Exact equality of dimensions and every ARGB pixel is the only image oracle.
 There are no tolerances, percentage deltas or previous-run acceptance. Initial

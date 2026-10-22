@@ -1,12 +1,13 @@
 package com.sijunyang.bracketpairguides.runtime.session
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.UI
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.util.Disposer
+import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.concurrency.AppExecutorUtil
-import com.intellij.util.ui.UIUtil
 import com.sijunyang.bracketpairguides.core.api.BracketCalculator
 import com.sijunyang.bracketpairguides.core.input.CalculationControl
 import com.sijunyang.bracketpairguides.core.input.RepairRequest
@@ -25,6 +26,7 @@ import com.sijunyang.bracketpairguides.ui.work.NativeInterest
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -76,7 +78,7 @@ class ScalarPrefixCaptureIdeContractTest : BasePlatformTestCase() {
         val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(15)
         try {
             while (!future.isDone && System.nanoTime() < deadline) {
-                UIUtil.dispatchAllInvocationEvents()
+                PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
                 LockSupport.parkNanos(1_000_000)
             }
             check(future.isDone) { "scalar worker did not settle" }
@@ -92,6 +94,44 @@ class ScalarPrefixCaptureIdeContractTest : BasePlatformTestCase() {
         control,
         calculation,
     )
+
+    fun testUiPublicationRequiresFinalValidationAndRejectsInterveningWritesAndLayoutChanges() = verifyUiPublication()
+
+    private fun verifyUiPublication() {
+        myFixture.configureByText("Scalar.java", "{\n    value\n}")
+        val epoch = AnalysisReadEpoch()
+        val calculation = DocumentCalculation(myFixture.editor.document).also { it.acquire() }
+        val previousTabSize = myFixture.editor.settings.getTabSize(project)
+        try {
+            val input = source(epoch, calculation)
+            assertFalse(input.isCurrentForUiPublication())
+            worker {
+                input.beginAttempt()
+                input.validateCurrent()
+                withContext(Dispatchers.UI) {
+                    val application = ApplicationManager.getApplication()
+                    assertTrue(application.isDispatchThread)
+                    assertFalse(application.isReadAccessAllowed)
+                    assertTrue(input.isCurrentForUiPublication())
+                }
+            }
+            myFixture.editor.settings.setTabSize(previousTabSize + 1)
+            assertFalse(input.isCurrentForUiPublication())
+            myFixture.editor.settings.setTabSize(previousTabSize)
+            ApplicationManager.getApplication().runWriteAction { }
+            assertFalse(input.isCurrentForUiPublication())
+            worker {
+                input.beginAttempt()
+                assertFalse(input.isCurrentForUiPublication())
+                input.validateCurrent()
+                withContext(Dispatchers.UI) { assertTrue(input.isCurrentForUiPublication()) }
+            }
+        } finally {
+            myFixture.editor.settings.setTabSize(previousTabSize)
+            calculation.release()
+            Disposer.dispose(epoch)
+        }
+    }
 
     fun testScalarAndContinuationUseActualBoundedBackgroundReads() {
         val indent = " ".repeat(5000)

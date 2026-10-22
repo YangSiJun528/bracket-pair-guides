@@ -20,7 +20,7 @@ jobs:
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
       TZ: UTC
-      VISUAL_TEST_ENVIRONMENT: ideaIC-2024.2.6/linux-x64-xvfb96-darcula-scale1
+      VISUAL_TEST_ENVIRONMENT: idea-2026.2.3/linux-x64-xvfb96-darcula-scale1
     steps:
       - uses: actions/checkout@v7
         with:
@@ -28,7 +28,7 @@ jobs:
       - uses: actions/setup-java@v6.1.0
         with:
           distribution: zulu
-          java-version: 21
+          java-version: 25
       - uses: gradle/actions/setup-gradle@v6
       - name: Run exact comparison; never record baselines
         # Pinned Starter filters XAUTHORITY from the IDE child environment.

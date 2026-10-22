@@ -66,11 +66,19 @@ internal class EditorSource(
     private var attemptEpoch = 0L
     private var tokens: BracketTokenCapture? = null
     private var observer: AnalysisCaptureObserver? = null
+    private var publicationEpoch: Long? = null
+
+    /** The final read validated model identity; a later write requires another repair. */
+    fun isCurrentForUiPublication(): Boolean =
+        publicationEpoch == epoch.current && !editor.isDisposed && editor.project?.isDisposed != true &&
+            identity.contentRevision == calculation.contentRevision && identity.highlighter === editor.highlighter &&
+            identity.tabSize == editor.settings.getTabSize(editor.project).coerceAtLeast(1)
 
     override suspend fun beginAttempt(): DocumentFacts {
         val application = ApplicationManager.getApplication()
         check(!application.isDispatchThread && !application.isReadAccessAllowed)
         observer = currentCoroutineContext()[AnalysisCaptureObserver]
+        publicationEpoch = null
         attemptEpoch = epoch.current
         return capture(AnalysisCaptureObserver.INITIAL_STATE, layout = true) {
             tokens = null
@@ -121,7 +129,9 @@ internal class EditorSource(
             PrefixChunk(text.copy(document, afterOffset, after), after, end)
         }
 
-    override suspend fun validateCurrent() = capture(AnalysisCaptureObserver.FINAL_VALIDATION, layout = true) { }
+    override suspend fun validateCurrent() = capture(AnalysisCaptureObserver.FINAL_VALIDATION, layout = true) {
+        publicationEpoch = attemptEpoch
+    }
 
     private suspend fun <T> capture(phase: Int, layout: Boolean = false, action: () -> T): T {
         val observation = observer

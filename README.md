@@ -55,7 +55,7 @@ for the available modes, restoration behavior, and overlap notification.
 Bracket Pair Guides uses the bracket rules registered by installed JetBrains
 language plugins, so each language is recognized according to its own syntax.
 
-Requires IntelliJ Platform 2024.1 or newer. Support varies by IDE and language;
+Requires IntelliJ Platform 2025.3 or newer. Support varies by IDE and language;
 see the [complete compatibility matrix](docs/reference_language_support.md) for
 verified products and known limitations.
 
