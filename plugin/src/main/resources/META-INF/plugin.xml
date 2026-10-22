@@ -24,10 +24,15 @@
     <change-notes><![CDATA[
         <p><b>0.1.0</b></p>
         <ul>
-            <li>Redesign the internal architecture into five modules, separating editor UI, IntelliJ execution, and a platform-independent calculation core.</li>
-            <li>Rework cancellable background analysis and result validation while preserving existing guide rendering, settings, and editor behavior.</li>
-            <li>Known limitation: local comparisons still show higher full-analysis latency in some workloads and higher latency and allocations in unchanged-caret callbacks.</li>
+            <li>Improved responsiveness when editing large blocks by moving bracket analysis and guide recalculation into cancellable background tasks.</li>
+            <li>Reduced guide flicker during editing by keeping the previous drawing visible until the updated guide is ready.</li>
+            <li>Fixed delayed guide restoration after reverting edits to the original file contents.</li>
+            <li>Fixed guide restoration when returning to an editor tab.</li>
+            <li>Reworked the internal analysis and rendering architecture, with stronger validation to prevent outdated results from being applied.</li>
+            <li>Updated build and test tooling: Gradle 9.8.1, Spotless 8.10.4, kotlinx.coroutines 1.11.0 for tests and benchmarks, and actions/setup-java 6.1.0.</li>
         </ul>
+        <p>Note: Guide positions update asynchronously and may briefly lag behind text movement, particularly in small blocks.</p>
+        <p>Requires IntelliJ Platform 2024.1 or newer.</p>
         <p><b>0.0.6</b></p>
         <ul>
             <li>Prevent editor-update failures while IntelliJ computes context-action previews.</li>
