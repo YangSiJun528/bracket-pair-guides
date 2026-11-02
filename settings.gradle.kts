@@ -9,7 +9,7 @@ pluginManagement {
     plugins {
         id("com.diffplug.spotless") version "8.10.4"
         id("org.jetbrains.kotlin.jvm") version "2.3.21"
-        id("me.champeau.jmh") version "0.7.3"
+        id("me.champeau.jmh") version "0.7.4"
     }
 }
 
