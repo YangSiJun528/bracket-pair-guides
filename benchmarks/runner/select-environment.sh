@@ -9,8 +9,13 @@ if [[ -z "$key" ]]; then
   exit 0
 fi
 [[ "$key" == bencher_run_* ]] || { echo 'Use a project-scoped Bencher API key.' >&2; exit 1; }
+repository=${GITHUB_REPOSITORY:-}
+project=${project:-${repository##*/}}
+[[ "$project" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] || { echo 'Set BENCHER_PROJECT to a valid project slug.' >&2; exit 1; }
 response=$(curl --fail --silent --show-error --max-time 15 --max-filesize 1000000 \
-  --header "Authorization: Bearer $key" --header 'Accept: application/json' https://api.bencher.dev/v0/projects)
-resolved=$(jq -er 'if type == "array" and length == 1 and .[0].visibility == "public" and (.[0].slug | test("^[a-z0-9]+(-[a-z0-9]+)*$")) then .[0].slug else error("Expected one authorized public project") end' <<< "$response")
-[[ -z "$project" || "$project" == "$resolved" ]] || { echo 'Project variable differs from key scope.' >&2; exit 1; }
-printf 'bencher=true\nproject=%s\n' "$resolved" >> "$GITHUB_OUTPUT"
+  --header "Authorization: Bearer $key" --header 'Accept: application/json' "https://api.bencher.dev/v0/projects/$project")
+jq -e --arg project "$project" '.slug == $project and .visibility == "public"' <<< "$response" >/dev/null || {
+  echo 'Expected the requested public Bencher project.' >&2
+  exit 1
+}
+printf 'bencher=true\nproject=%s\n' "$project" >> "$GITHUB_OUTPUT"
